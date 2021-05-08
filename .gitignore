@@ -132,3 +132,7 @@ dmypy.json
 .txt
 .ipynb
 .npy
+
+
+#workspace
+.code_workspace
