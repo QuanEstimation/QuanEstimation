@@ -1,3 +1,5 @@
 {
-    "python.pythonPath": "/home/quanestimation/miniconda3/envs/test/bin/python"
+    "python.pythonPath": "/home/quanestimation/miniconda3/envs/test/bin/python",
+    "DockerRun.DisableDockerrc": true,
+    "DockerRun.DisableAutoGenerateConfig": true
 }
