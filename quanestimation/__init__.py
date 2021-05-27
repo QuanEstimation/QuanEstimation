@@ -20,6 +20,10 @@ from quanestimation.Control import (DDPG, DE, GRAPE, GRAPE_without_adam, PSO,
 from quanestimation.Dynamics import (Lindblad, dynamics, env, learning_env,)
 from quanestimation.QuanResources import (QuanResources,)
 
+import julia
+from julia import Main
+Main.include('./quanestimation/Common/Liouville.jl')
+
 __all__ = ['Adam', 'AsymptoticBound', 'Bayes', 'CFIM', 'Common', 'Control',
            'CramerRao', 'DDPG', 'DE', 'Dynamics', 'GRAPE',
            'GRAPE_without_adam', 'Holevo', 'LLD', 'Lindblad', 'PSO', 'QFIM',

@@ -1,4 +1,3 @@
-module Liouville
 function liouville_commu(A::Array{T}) where {T <: Complex}
     dim = size(A)[1]
     result = zeros(T, dim^2, dim^2)
@@ -38,5 +37,4 @@ function liouville_dissip(A::Array{T}) where {T <: Complex}
     end
     result[findall(abs.(result) .< 1e-10)] .= 0.
     result
-end
 end

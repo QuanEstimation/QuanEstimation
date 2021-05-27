@@ -12,7 +12,7 @@ import julia
 #julia.install()
 from julia import Main
 
-Main.include('./quanestimation/Common/Liouville.jl')
+# Main.include('./quanestimation/Common/Liouville.jl')
 
 class Lindblad:
     """
@@ -125,14 +125,14 @@ class Lindblad:
         else:
             self.freeHamiltonian_derivative_Liou = []
             for para_i in range(0,len(self.Hamiltonian_derivative)):
-                dH0_temp = Main.Liouville.liouville_commu(self.Hamiltonian_derivative[para_i])
+                dH0_temp = Main.liouville_commu(self.Hamiltonian_derivative[para_i])
                 self.freeHamiltonian_derivative_Liou.append(dH0_temp)
          #------------------------------------------------------------------------------------------       
         #Generation of the Liouville representation of control Hamiltonians: self.ctrlH_Liou.
         #------------------------------------------------------------------------------------------
         self.ctrlH_Liou = []
         for hi in range(0,self.ctrlnum):
-            Htemp = Main.Liouville.liouville_commu(self.control_Hamiltonian[hi])
+            Htemp = Main.liouville_commu(self.control_Hamiltonian[hi])
             self.ctrlH_Liou.append(Htemp)
 
     def general_information(self):
@@ -183,7 +183,7 @@ class Lindblad:
 
     def Hamiltonian_Liouville(self,tj):
         if self.control_option == False:
-            freeHamiltonian_Liouville = -1.j*Main.Liouville.liouville_commu(self.freeHamiltonian)
+            freeHamiltonian_Liouville = -1.j*Main.liouville_commu(self.freeHamiltonian)
             Ld = freeHamiltonian_Liouville+self.Dicoherence_Liouville(tj)
             result = scylin.expm(self.dt*Ld)
 
@@ -196,7 +196,7 @@ class Lindblad:
                     Hc_temp = None
                     Hc_temp = self.control_coefficients[hn]
                     Htot = Htot+self.control_Hamiltonian[hn]*Hc_temp[tj]
-                freepart = Main.Liouville.liouville_commu(Htot)
+                freepart = Main.liouville_commu(Htot)
                 Ld = -1.j*freepart+self.Dicoherence_Liouville(tj)
                 result = scylin.expm(self.dt*Ld)
         return result
@@ -248,7 +248,7 @@ class Lindblad:
         para_len = len(dH)
         dL = [[] for i in range(0,para_len)]
         for para_i in range(0,para_len):
-            dL_temp = -1.j*Main.Liouville.liouville_commu(dH[para_i])
+            dL_temp = -1.j*Main.liouville_commu(dH[para_i])
             dL[para_i] = dL_temp
         dt = self.dt
         D = [[[] for i in range(0,tnum+1)] for i in range(0,tnum+1)]
@@ -297,11 +297,11 @@ class Lindblad:
             newnum = int(self.ctrlnum+len(Dissipation_order))
             Hk_Liou = [[] for i in range(0,newnum)] 
             for hi in range(0,self.ctrlnum):
-                Hk_Liou[hi] = Main.Liouville.liouville_commu(self.control_Hamiltonian[hi])
+                Hk_Liou[hi] = Main.liouville_commu(self.control_Hamiltonian[hi])
             for hi in range(0,len(Dissipation_order)):
                 hj = int(self.ctrlnum+hi)
                 hnum = Dissipation_order[hi]
-                Hk_Liou[hj] = 1.j*Main.Liouville.liouville_dissip(self.Liouville_operator[hnum])
+                Hk_Liou[hj] = 1.j*Main.liouville_dissip(self.Liouville_operator[hnum])
                 ga = self.gamma[hnum]
                 ctrl_coeff = self.control_coeff_total
                 ctrl_coeff.append(ga)
