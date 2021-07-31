@@ -8,7 +8,7 @@ from qutip import *
 from scipy.linalg import sqrtm
 from numpy.linalg import eigvals
 
-def squeezing_parameter(self，rho, N, option='Xi_S'):
+def squeezing_parameter(self,rho, N, option='Xi_S'):
     """
     Description: Calculate spin squeezing parameter for a density matrix.
 
@@ -75,7 +75,7 @@ def squeezing_parameter(self，rho, N, option='Xi_S'):
         
     return Xi
  
-def Concurrence(self，rho):
+def Concurrence(self,rho):
     """
     Description: Calculate the concurrence entanglement measure for a two-qubit state.
     ---------
@@ -98,7 +98,7 @@ def Concurrence(self，rho):
 
     return concurrence(rho)
 
-def Entropy_VN(self，rho):    
+def Entropy_VN(self,rho):    
     """
     Description: Calculate the degree of quantum entanglement between two subsystems.
     ---------

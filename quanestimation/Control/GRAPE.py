@@ -5,18 +5,16 @@ Created on Sat Oct 10 09:53:55 2020
 @author: JL MZ
 """
 import numpy as np
-from AsymptoticBound.CramerRao import CramerRao
-from Dynamics.dynamics import Lindblad
-from Common.common import mat_vec_convert, Adam
+from quanestimation.AsymptoticBound.CramerRao import QFIM, CFIM
+from quanestimation.Dynamics.dynamics import Lindblad
+from quanestimation.Common.common import mat_vec_convert, Adam
 
-
-class GRAPE(Lindblad, CramerRao):
+class GRAPE(Lindblad):
     def __init__(self, tspan, rho_initial, H0, Hc=[], dH=[], ctrl_initial=[], Liouville_operator=[], \
              gamma=[], control_option=True, precision=1e-8):
         
         Lindblad.__init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
                     gamma, control_option)
-        CramerRao.__init__(self)
         """
         ----------
         Inputs

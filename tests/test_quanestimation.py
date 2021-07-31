@@ -4,9 +4,8 @@
 
 
 import unittest
-# from click.testing import CliRunner
 
-from quanestimation import quanestimation
+# from click.testing import CliRunner
 
 
 class TestQuanestimation(unittest.TestCase):

@@ -8,20 +8,13 @@ import numpy as np
 import warnings
 import math
 from scipy import linalg as scylin
-from time import time
-
-from julia.api import Julia
-jl = Julia(compiled_modules=False)
 import julia
 #julia.install()
 from julia import Main
-# import juliacall
-# from juliacall import Main
 
-Main.include("./Dynamics/dynamics.jl")
+# Main.include('./quanestimation/Common/Liouville.jl')
 
-
-class Lindblad_AD:
+class Lindblad:
     """
     General dynamics of density matrices in the form of time local Lindblad master equation.
     {\partial_t \rho} = -i[H, \rho] + \sum_n {\gamma_n} {Ln.rho.Ln^{\dagger}
@@ -158,6 +151,77 @@ class Lindblad_AD:
         print('==================================')
 
 
+    def Dicoherence_Liouville(self,tj):
+
+        ga = [0. for i in range(0,self.Liouvillenumber)]
+        for gi in range(0,self.Liouvillenumber):
+            gtest = self.gamma[gi]
+            if type(gtest) == float:
+                ga[gi] = gtest
+            elif type(gtest) != float:
+                ga[gi] = gtest[tj]
+
+        result = [[0. for i in range(0,self.dim*self.dim)] for k in range(0,self.dim*self.dim)]
+        for bi in range(0,self.dim):
+            for bj in range(0,self.dim):
+                ni = self.dim*bi+bj
+                for bk in range(0,self.dim):
+                    for bl in range(0,self.dim):
+                        nj = self.dim*bk+bl
+                        L_temp = 0.
+                        for Ln in range(0,self.Liouvillenumber):
+                            Lc = self.Liouville_operator[Ln]
+                            L_temp = L_temp+ga[Ln]*Lc[bi][bk]*np.conj(Lc[bj][bl])
+                            for bp in range(0,self.dim):
+                                L_temp = L_temp-0.5*ga[Ln]*float(bk==bi)*Lc[bp][bj]*np.conj(Lc[bp][bl])\
+                                       -0.5*ga[Ln]*float(bl==bj)*Lc[bp][bk]*np.conj(Lc[bp][bi])
+                        result[ni][nj] = L_temp
+
+        result = np.array(result)
+        result[np.abs(result) < 1e-10] = 0.
+        return result
+
+    def Hamiltonian_Liouville(self,tj):
+        if self.control_option == False:
+            freeHamiltonian_Liouville = -1.j*Main.liouville_commu(self.freeHamiltonian)
+            Ld = freeHamiltonian_Liouville+self.Dicoherence_Liouville(tj)
+            result = scylin.expm(self.dt*Ld)
+
+        elif self.control_option == True:
+            if type(tj) != int:
+                raise TypeError('input variable has to be the number of time point')
+            else:
+                Htot = self.freeHamiltonian
+                for hn in range(0,self.ctrlnum):
+                    Hc_temp = None
+                    Hc_temp = self.control_coefficients[hn]
+                    Htot = Htot+self.control_Hamiltonian[hn]*Hc_temp[tj]
+                freepart = Main.liouville_commu(Htot)
+                Ld = -1.j*freepart+self.Dicoherence_Liouville(tj)
+                result = scylin.expm(self.dt*Ld)
+        return result
+
+    def Propagator(self,tstart,tend):
+        if type(tstart) != int and type(tend) != int:
+            raise TypeError('inputs are the number of time interval')
+        else:
+            if tstart > tend:
+                result = np.eye(self.dim*self.dim)
+            elif tstart == tend:
+                result = self.Hamiltonian_Liouville(tstart)
+            else:
+                result = self.Hamiltonian_Liouville(tstart)
+                for pi in range(tstart+1,tend-tstart):
+                    Ltemp = self.Hamiltonian_Liouville(pi)
+                    result = np.dot(Ltemp,result)
+            return result
+
+    def evolved_state(self,tj):
+        rho_temp = np.reshape(self.rho_initial,(self.dim*self.dim,1))
+        propa = self.Propagator(0,tj)
+        rho_tvec = np.dot(propa,rho_temp)
+        return rho_tvec
+
     def data_generation(self):
         """
         Description: This function will save all the propators during the evolution,
@@ -182,17 +246,42 @@ class Lindblad_AD:
         dim = self.dim
         dH = self.Hamiltonian_derivative 
         para_len = len(dH)
+        dL = [[] for i in range(0,para_len)]
+        for para_i in range(0,para_len):
+            dL_temp = -1.j*Main.liouville_commu(dH[para_i])
+            dL[para_i] = dL_temp
         dt = self.dt
-        
+        D = [[[] for i in range(0,tnum+1)] for i in range(0,tnum+1)]
         rhovec = [[] for i in range(0,tnum)]
         drhovec = [[[] for k in range(0,para_len)] for i in range(0,tnum)]
+        rhomat = [[] for i in range(0,tnum)]
+        drhomat = [[[] for k in range(0,para_len)] for i in range(0,tnum)]
 
+        rhovec[0] = self.evolved_state(0)
+        for para_i in range(0,para_len):
+            drhovec_temp = dt*np.dot(dL[para_i],rhovec[0])
+            drhovec[0][para_i] = drhovec_temp
+            drhomat[0][para_i] = np.reshape(drhovec_temp,(dim,dim))
+        D[0][0] = self.Hamiltonian_Liouville(0)
+        D[1][0] = np.eye(dim*dim)
 
+        for di in range(1,tnum):
+            D[di+1][di] = np.eye(dim*dim)
+            D[di][di] = self.Hamiltonian_Liouville(di)
+            D[0][di] = np.dot(D[di][di],D[0][di-1])
+            rhovec[di] = np.array(np.dot(D[di][di],rhovec[di-1]))
+            rhomat[di] = np.reshape(rhovec[di],(dim,dim))
 
-        rhovec, drhovec = Main.evolution(self.freeHamiltonian, dH, self.rho_initial, self.Liouville_operator, self.gamma,self.control_Hamiltonian, self.control_coefficients, self.tspan)
-
+            for para_i in range(0,para_len):
+                drho_temp = dt*np.dot(dL[para_i],rhovec[di])
+                for dj in range(1,di):
+                    D[di-dj][di] = np.dot(D[di-dj+1][di],D[di-dj][di-dj])
+                    drho_temp = drho_temp+dt*np.dot(D[di-dj+1][di],np.dot(dL[para_i],rhovec[di-dj]))
+                drhovec[di][para_i] = np.array(drho_temp)
+                drhomat[di][para_i] = np.reshape(np.array(drho_temp),(dim,dim))
         self.rho = rhovec
         self.rho_derivative = drhovec
+        self.propagator_save = D
 
     def environment_assisted_state(self,statement,Dissipation_order):
         '''

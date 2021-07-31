@@ -1,17 +1,20 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Oct 10 09:53:55 2020
 
+@author: JL MZ
+"""
 import numpy as np
-from AsymptoticBound.CramerRao import CramerRao
-from Dynamics.dynamics_AD import Lindblad_AD
-from Common.common import mat_vec_convert, Adam
+from quanestimation.AsymptoticBound.CramerRao import QFIM, CFIM
+from quanestimation.Dynamics.dynamics import Lindblad
+from quanestimation.Common.common import mat_vec_convert
 
-
-class GRAPE_AD(Lindblad_AD, CramerRao):
+class GRAPE_without_adam(Lindblad):
     def __init__(self, tspan, rho_initial, H0, Hc=[], dH=[], ctrl_initial=[], Liouville_operator=[], \
-             gamma=[], control_option=True, precision=1e-8):
+             gamma=[], control_option=True, epsilon=0.01, precision=1e-8):
         
-        Lindblad_AD.__init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
+        Lindblad.__init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
                     gamma, control_option)
-        CramerRao.__init__(self)
         """
         ----------
         Inputs
@@ -63,7 +66,7 @@ class GRAPE_AD(Lindblad_AD, CramerRao):
            --type: float number
         
         """         
-        #self.epsilon = epsilon #for test
+        self.epsilon = epsilon 
         self.precision = precision
 
         self.rho = None
@@ -140,8 +143,7 @@ class GRAPE_AD(Lindblad_AD, CramerRao):
                 # update the control coefficients:
                 #---------------------------------
                 Hc_kiti = Hc_coeff[ki]
-                Hc_kiti[ti], self.m_t, self.v_t = Adam(delta, ti, Hc_kiti[ti], self.m_t, self.v_t, \
-                                          alpha=0.01, beta1=0.90, beta2=0.99, epsilon=self.precision)
+                Hc_kiti[ti] = Hc_kiti[ti] + self.epsilon*delta
                 Hc_coeff[ki] = Hc_kiti
                 
         if self.environmentstate == False:
@@ -305,8 +307,7 @@ class GRAPE_AD(Lindblad_AD, CramerRao):
                  #update the control coefficients:
                  #------------------------------------------------------------
                 Hc_kiti = Hc_coeff[ki]
-                Hc_kiti[ti], self.m_t, self.v_t = Adam(delta, ti, Hc_kiti[ti], self.m_t, self.v_t, \
-                                          alpha=0.01, beta1=0.90, beta2=0.99, epsilon=self.precision)
+                Hc_kiti[ti] = Hc_kiti[ti] + self.epsilon*delta
                 Hc_coeff[ki] = Hc_kiti
                 
         if   self.environmentstate == False:

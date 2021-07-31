@@ -6,15 +6,15 @@ import julia
 from julia import Main
 from qutip import *
 
-from AsymptoticBound.CramerRao import CramerRao
-from Common.common import dRHO
+from quanestimation.AsymptoticBound.CramerRao import QFIM
+from quanestimation.Common.common import dRHO
 
-Main.include('./'+'Common'+'/'+'Liouville.jl')
+# Main.include('./quanestimation/Common/Liouville.jl')
 
-class env(CramerRao):
+class env():
     def __init__(self, rho0, tspan, ctrl_length, H0, Hc=[], dH=[], Liouville_operator=[], gamma=[]):
 
-        CramerRao.__init__(self)
+        
         """
         ----------
         Inputs
@@ -60,7 +60,7 @@ class env(CramerRao):
         self.para_num = len(dH)
         self.ctrl_num = len(Hc)
         self.Liou_num = len(Liouville_operator)
-        self.H0_Liou = Main.Liouville.liouville_commu(H0)
+        self.H0_Liou = Main.liouville_commu(H0)
         self.dim = len(H0)
         
         self.tspan = tspan
@@ -73,7 +73,7 @@ class env(CramerRao):
         else:
             self.dH_Liou = []
             for para_i in range(0,self.para_num):
-                dH_temp = Main.Liouville.liouville_commu(dH[para_i])
+                dH_temp = Main.liouville_commu(dH[para_i])
                 self.dH_Liou.append(dH_temp)
         
         if len(gamma) != self.Liou_num:
@@ -81,7 +81,7 @@ class env(CramerRao):
         else:
             self.Liou_part = []
             for ki in range(0,self.Liou_num):
-                L_temp = Main.Liouville.liouville_dissip(Liouville_operator[ki])
+                L_temp = Main.liouville_dissip(Liouville_operator[ki])
                 self.Liou_part.append(gamma[ki]*L_temp)
                 
         for ci in range(ctrl_length):
@@ -91,7 +91,7 @@ class env(CramerRao):
         
         self.Hc_Liou = []
         for hi in range(0,self.ctrl_num):
-            Hc_temp = Main.Liouville.liouville_commu(Hc[hi])
+            Hc_temp = Main.liouville_commu(Hc[hi])
             self.Hc_Liou.append(Hc_temp)
 
         
@@ -118,7 +118,7 @@ class env(CramerRao):
         A = (-1j*np.dot(self.dH_Liou,rho)).reshape(-1,1)
         dstate = dRHO(dstate, Liouv_tot, A, self.dt)
         rho = rho.reshape(self.dim, self.dim)
-        f = self.QFIM(rho, [dstate.reshape(self.dim, self.dim)])
+        f = QFIM(rho, [dstate.reshape(self.dim, self.dim)])
         return f
 
     
@@ -140,6 +140,6 @@ class env(CramerRao):
             state = self.input_state(rho)
         
         f0 = F0(state, dstate)  
-        F_q = self.QFIM(rho, [dstate.reshape(self.dim, self.dim)])
+        F_q = QFIM(rho, [dstate.reshape(self.dim, self.dim)])
         reward = F_q
         return state, dstate, reward

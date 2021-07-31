@@ -5,11 +5,11 @@ Created on Sat Oct 10 09:22:01 2020
 @author: JL MZ
 """
 import numpy as np
-from CramerRao import CramerRao
+from quanestimation.AsymptoticBound.CramerRao import QFIM
 
 class Holevo:
     def __init__(self, precision=1e-10):
-        CramerRao.__init__(self)
+        pass
         
     def Holevo_bound_trace(self, rho, drho, cost_function):
         """
@@ -49,7 +49,7 @@ class Holevo:
         para_dim = len(drho)
         CostG = cost_function
 
-        QFIM_temp, SLD_temp = self.QFIM(rho, drho, rho_type='density_matrix', dtype='SLD', rep='original', exportLD=True)
+        QFIM_temp, SLD_temp = QFIM(rho, drho, rho_type='density_matrix', dtype='SLD', rep='original', exportLD=True)
         QFIMinv = np.linalg.inv(QFIM_temp)
 
         V = np.array([[0.+0.j for i in range(0,para_dim)] for k in range(0,para_dim)])

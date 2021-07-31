@@ -54,6 +54,6 @@ def Adam(gt, t, para, m_t, v_t, alpha=0.01, beta1=0.90, beta2=0.99, epsilon=1e-8
     v_t = beta2*v_t + (1-beta2)*(gt*gt)
     m_cap = m_t/(1-(beta1**t))
     v_cap = v_t/(1-(beta2**t))
-    para = para +(alpha*m_cap)/(np.sqrt(v_cap)+epsilon)
+    para = para+(alpha*m_cap)/(np.sqrt(v_cap)+epsilon)
     return para, m_t, v_t
     
