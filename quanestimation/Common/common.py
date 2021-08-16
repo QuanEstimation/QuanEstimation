@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Oct 10 09:19:07 2020
 
-@author: JL MZ
-"""
 import numpy as np
 from scipy.sparse import csc_matrix
 from sympy import Matrix,GramSchmidt
@@ -47,13 +43,3 @@ def suN_generator(n):
         W.append(np.sqrt(2)*np.diag(W_tp))
 
     return U+V+W
-
-def Adam(gt, t, para, m_t, v_t, alpha=0.01, beta1=0.90, beta2=0.99, epsilon=1e-8):
-    t = t+1
-    m_t = beta1*m_t + (1-beta1)*gt
-    v_t = beta2*v_t + (1-beta2)*(gt*gt)
-    m_cap = m_t/(1-(beta1**t))
-    v_cap = v_t/(1-(beta2**t))
-    para = para+(alpha*m_cap)/(np.sqrt(v_cap)+epsilon)
-    return para, m_t, v_t
-    

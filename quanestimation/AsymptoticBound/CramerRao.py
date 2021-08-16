@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Oct 10 09:22:01 2020
 
-@author: JL MZ
-"""
 import numpy as np
 import numpy.linalg as LA
 from quanestimation.Common import suN_generator
@@ -14,7 +9,7 @@ from quanestimation.Common import suN_generator
 calculation of classical Fisher information matrix and quantum
 Fisher information matrix.
 """
-
+       
 def CFIM(rho, drho, M, precision=1e-8):
     """
     Description: Calculation classical Fisher information matrix (CFIM)
@@ -135,7 +130,8 @@ def SLD(rho, drho, rep='original', precision=1e-8):
             for fi in range (0, dim):
                 for fj in range (0, dim):
                     if np.abs(val[fi]+val[fj])> precision:
-                        SLD_eig[fi][fj] = 2*np.dot(vec[:,fi].conj().transpose(),                                                                 np.dot(drho[para_i],vec[:,fj]))/(val[fi]+val[fj])
+                        SLD_eig[fi][fj] = 2*np.dot(vec[:,fi].conj().transpose(),                                                                 
+                        np.dot(drho[para_i],vec[:,fj]))/(val[fi]+val[fj])
             SLD_eig[SLD_eig == np.inf] = 0.
 
             if rep=='original':
@@ -265,7 +261,7 @@ def LLD(rho, drho, rep='original', precision=1e-8):
 
     return LLD
 
-def QFIM(rho, drho, dtype='SLD', rep='original', rho_type = 'density_matrix', exportLD=False):
+def QFIM(rho, drho, dtype='SLD', rep='original', rho_type = 'DM', exportLD=False):
     """
     Description: Calculation of quantum Fisher information matrix (QFIM)
                 for a density matrix.
@@ -296,7 +292,7 @@ def QFIM(rho, drho, dtype='SLD', rep='original', rho_type = 'density_matrix', ex
         
     rho_type:
         --description: setting the type of rho.
-        --type: string {'density_matrix', 'Bloch_vector'}
+        --type: string {'DM', 'Bloch_vector'}
 
        
     exportLD:

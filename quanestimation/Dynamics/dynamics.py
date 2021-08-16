@@ -1,18 +1,13 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Oct 10 09:19:07 2020
 
-@author: JL MZ
-"""
 import numpy as np
 import warnings
 import math
 from scipy import linalg as scylin
-import julia
-#julia.install()
-from julia import Main
 
-# Main.include('./quanestimation/Common/Liouville.jl')
+# from julia import Main
+# Main.include('./'+'Julia'+'/'+'src'+'/'+'QuanEstimation.jl')
+
+# Main.include('./'+'Common'+'/'+'Liouville.jl')
 
 class Lindblad:
     """
