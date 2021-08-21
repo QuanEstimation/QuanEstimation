@@ -139,5 +139,5 @@ dmypy.json
 #workspace
 .code_workspace
 
-#__pycache__
+#__pycaches__
 *.pyc
