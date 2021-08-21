@@ -133,6 +133,8 @@ dmypy.json
 .ipynb
 .npy
 
+#vscode
+.vscode/
 
 #workspace
 .code_workspace
