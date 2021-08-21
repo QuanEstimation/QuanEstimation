@@ -3,8 +3,9 @@ import numpy as np
 import warnings
 import math
 from scipy import linalg as scylin
-
-# from julia import Main
+from qutip import *
+from julia import Main
+from quanestimation.Common.common import dRHO
 # Main.include('./'+'Julia'+'/'+'src'+'/'+'QuanEstimation.jl')
 
 # Main.include('./'+'Common'+'/'+'Liouville.jl')
@@ -16,7 +17,7 @@ class Lindblad:
                  -0.5(rho.Ln^{\dagger}.Ln+Ln^{\dagger}.Ln.rho)}.
     """
 
-    def __init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator=[], gamma=[], control_option=True):
+    def __init__(self, tspan, rho_initial, H0, dH, Liouville_operator=[], gamma=[], Hc=[], ctrl_initial=[], control_option=True):
         """
         ----------
         Inputs
@@ -85,49 +86,32 @@ class Lindblad:
         self.environment_assisted_order = None
         self.environmentstate = False
         
-        if self.control_option == True:
-            ctrl_length = len(self.control_coefficients)
-            if self.ctrlnum < ctrl_length:
-                raise TypeError('there are too many coefficients sequences: exit the program')
-            else:
-                if self.ctrlnum > ctrl_length:
-                    warnings.warn('not enough coefficients sequences: there are %d control Hamiltonians \
-                              but %d coefficients sequences. We set the other control coefficients \
-                              to 0.'%(self.ctrlnum,ctrl_length), DeprecationWarning)
-                    num = int(self.ctrlnum-ctrl_length)
-                    for ci in range(num):
-                        ctrl_ci = np.zeros(self.tnum)
-                        self.control_coefficients.append(ctrl_ci)
-                        
-                for i in range(len(ctrl_initial)):
-                    number = int(self.tnum/len(ctrl_initial[i]))
-                    if self.tnum%len(ctrl_initial[i]) != 0:
-                        warnings.warn('the coefficients sequences and time number are not multiple: \
-                                   we will set the non-divisible part to 0') 
-                        ctrl_initial[i] = ctrl_initial[i].repeat(number)
-                        ctrl_initial[i] = np.concatenate((ctrl_initial[i], np.zeros(int(self.tnum\
-                                               -len(ctrl_initial[i])))))
-                    else:
-                        ctrl_initial[i] = ctrl_initial[i].repeat(number)   
+        ctrl_length = len(self.control_coefficients)
+        ctrlnum = len(self.control_Hamiltonian)
+        if ctrlnum < ctrl_length:
+            raise TypeError('There are %d control Hamiltonians but %d coefficients sequences: \
+                            too many coefficients sequences'%(ctrlnum,ctrl_length))
+        elif ctrlnum > ctrl_length:
+            warnings.warn('Not enough coefficients sequences: there are %d control Hamiltonians \
+                           but %d coefficients sequences. The rest of the control sequences are\
+                           set to be 0.'%(ctrlnum,ctrl_length), DeprecationWarning)
         else: pass
 
         
         if len(self.gamma) != self.Liouvillenumber:
-            raise TypeError('Please make sure to input the same number of decay rates and Liouville operator')
+            raise TypeError('The length of decay rates and Liouville operators should be the same')
         
         if type(self.Hamiltonian_derivative) != list:
-            raise TypeError('Please make sure dH is list!')
+            raise TypeError('The derivative of Hamiltonian should be a list!')
         else:
             self.freeHamiltonian_derivative_Liou = []
             for para_i in range(0,len(self.Hamiltonian_derivative)):
-                dH0_temp = Main.liouville_commu(self.Hamiltonian_derivative[para_i])
+                dH0_temp = Main.QuanEstimation.liouville_commu_py(self.Hamiltonian_derivative[para_i])
                 self.freeHamiltonian_derivative_Liou.append(dH0_temp)
-         #------------------------------------------------------------------------------------------       
-        #Generation of the Liouville representation of control Hamiltonians: self.ctrlH_Liou.
-        #------------------------------------------------------------------------------------------
+
         self.ctrlH_Liou = []
         for hi in range(0,self.ctrlnum):
-            Htemp = Main.liouville_commu(self.control_Hamiltonian[hi])
+            Htemp = Main.QuanEstimation.liouville_commu_py(self.control_Hamiltonian[hi])
             self.ctrlH_Liou.append(Htemp)
 
     def general_information(self):
@@ -178,7 +162,7 @@ class Lindblad:
 
     def Hamiltonian_Liouville(self,tj):
         if self.control_option == False:
-            freeHamiltonian_Liouville = -1.j*Main.liouville_commu(self.freeHamiltonian)
+            freeHamiltonian_Liouville = -1.j*Main.QuanEstimation.liouville_commu_py(self.freeHamiltonian)
             Ld = freeHamiltonian_Liouville+self.Dicoherence_Liouville(tj)
             result = scylin.expm(self.dt*Ld)
 
@@ -191,7 +175,7 @@ class Lindblad:
                     Hc_temp = None
                     Hc_temp = self.control_coefficients[hn]
                     Htot = Htot+self.control_Hamiltonian[hn]*Hc_temp[tj]
-                freepart = Main.liouville_commu(Htot)
+                freepart = Main.QuanEstimation.liouville_commu_py(Htot)
                 Ld = -1.j*freepart+self.Dicoherence_Liouville(tj)
                 result = scylin.expm(self.dt*Ld)
         return result
@@ -243,7 +227,7 @@ class Lindblad:
         para_len = len(dH)
         dL = [[] for i in range(0,para_len)]
         for para_i in range(0,para_len):
-            dL_temp = -1.j*Main.liouville_commu(dH[para_i])
+            dL_temp = -1.j*Main.QuanEstimation.liouville_commu_py(dH[para_i])
             dL[para_i] = dL_temp
         dt = self.dt
         D = [[[] for i in range(0,tnum+1)] for i in range(0,tnum+1)]
@@ -292,11 +276,11 @@ class Lindblad:
             newnum = int(self.ctrlnum+len(Dissipation_order))
             Hk_Liou = [[] for i in range(0,newnum)] 
             for hi in range(0,self.ctrlnum):
-                Hk_Liou[hi] = Main.liouville_commu(self.control_Hamiltonian[hi])
+                Hk_Liou[hi] = Main.QuanEstimation.liouville_commu_py(self.control_Hamiltonian[hi])
             for hi in range(0,len(Dissipation_order)):
                 hj = int(self.ctrlnum+hi)
                 hnum = Dissipation_order[hi]
-                Hk_Liou[hj] = 1.j*Main.liouville_dissip(self.Liouville_operator[hnum])
+                Hk_Liou[hj] = 1.j*Main.QuanEstimation.liouville_dissip_py(self.Liouville_operator[hnum])
                 ga = self.gamma[hnum]
                 ctrl_coeff = self.control_coeff_total
                 ctrl_coeff.append(ga)
@@ -305,3 +289,71 @@ class Lindblad:
             self.ctrlH_Liou = Hk_Liou
             self.environment_assisted_order = Dissipation_order
             self.environmentstate = statement
+
+    def expm(self):
+        tnum = self.tnum
+        dim = self.dim
+        dt = self.dt
+        para_num = len(self.Hamiltonian_derivative)
+        dH_L = self.freeHamiltonian_derivative_Liou
+
+        rhovec = [[] for i in range(tnum)]
+        rhovec[0] = self.rho_initial.reshape(dim*dim,1)
+        # rhovec[0] = np.dot(self.Hamiltonian_Liouville(0), self.rho_initial.reshape(dim*dim,1))
+        drhovec = [[[] for pj in range(para_num)] for j in range(tnum)]
+        for para_i in range(para_num):
+            drhovec[0][para_i] = np.zeros(dim*dim, dtype=np.complex128).reshape(dim*dim,1)
+            # drhovec[0][para_i] = -1.j*dt*np.dot(dH_L[para_i], rhovec[0])
+            
+        for ti in range(1, tnum):
+            Liouville_tot = self.Hamiltonian_Liouville(ti)
+            rhovec[ti] = np.dot(Liouville_tot, rhovec[ti-1])
+            for para_k in range(para_num):
+                drhovec[ti][para_k] = -1.j*dt*np.dot(dH_L[para_k], rhovec[ti])+np.dot(Liouville_tot, drhovec[ti-1][para_k])
+
+        rho = [(rhovec[i]).reshape(dim, dim) for i in range(tnum)]
+
+        drho = [[] for i in range(tnum)]
+        for i in range(tnum):
+            drho[i] = [(drhovec[i][para_l]).reshape(dim, dim) for para_l in range(para_num)]
+
+        return rho, drho
+
+    def ODE(self):
+        # no control
+        tnum = self.tnum
+        dim = self.dim
+        dt = self.dt
+        dH_L = self.freeHamiltonian_derivative_Liou
+        H0_L = Main.QuanEstimation.liouville_commu_py(self.freeHamiltonian)
+
+        state_pre = self.rho_initial.reshape(dim**2, 1)
+        dstate = [np.array([[0.+0.*1.j] for i in range(0,dim**2)]) for i in range(len(dH_L))]
+
+        Liouv_tot = -1.0j*H0_L
+        c_ops = []
+        for gi in range(len(self.gamma)):
+            Liouv_tot = Liouv_tot + self.gamma[gi]*Main.QuanEstimation.liouville_dissip_py(self.Liouville_operator[gi])
+            c_ops.append(np.sqrt(self.gamma[gi])*self.Liouville_operator[gi])
+
+        if len(self.gamma) == 1:
+            rho_res = mesolve(Qobj(self.freeHamiltonian), Qobj(self.rho_initial), self.tspan, Qobj(c_ops[0]), [])
+        else:
+            rho_res = mesolve(Qobj(self.freeHamiltonian), Qobj(self.rho_initial), self.tspan, Qobj(c_ops), [])
+
+        rho, drho = [],[]
+        for ti in range(tnum):
+            rho_tp = rho_res.states[ti].full()
+            state = rho_tp.reshape(dim**2, 1)
+            # state = np.dot(scylin.expm(dt*Liouv_tot), state_pre)
+            # rho = state.reshape(dim, dim)
+            drho_tp = []
+            for pi in range(len(dH_L)):
+                A = -1j*np.dot(dH_L[pi], state_pre)
+                dstate[pi] = dRHO(dstate[pi], Liouv_tot, A, dt)
+                drho_tp.append(dstate[pi].reshape(dim, dim))
+            state_pre = state
+            rho.append(rho_tp)
+            drho.append(drho_tp)
+        return rho, drho
+

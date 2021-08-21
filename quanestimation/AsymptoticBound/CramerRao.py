@@ -370,5 +370,8 @@ def QFIM(rho, drho, dtype='SLD', rep='original', rho_type = 'DM', exportLD=False
         else:
             return QFIM_res[0][0], LD_tp[0]
     else:
-        return QFIM_res
+        if exportLD==False:
+            return QFIM_res
+        else:
+            return QFIM_res, LD_tp
             

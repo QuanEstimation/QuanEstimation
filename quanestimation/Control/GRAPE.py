@@ -1,5 +1,6 @@
 import numpy as np
 import warnings
+import math
 # import julia
 from julia import Main
 # from julia import QuanEstimation
@@ -78,7 +79,7 @@ class GRAPE:
         self.max_epsides = max_epsides
         
         if W == []:
-            self.W = np.eye(np.shape(H0)[0])
+            self.W = np.eye(len(dH))
         else:
             self.W = W
 
@@ -98,8 +99,12 @@ class GRAPE:
             warnings.warn('Not enough coefficients sequences: there are %d control Hamiltonians \
                            but %d coefficients sequences. The rest of the control sequences are\
                            set to be 0.'%(ctrlnum,ctrl_length), DeprecationWarning)
-        else: pass
         
+            number = math.ceil(self.tnum/ctrl_length)
+            if self.tnum % ctrl_length != 0:
+                self.tnum = number*ctrl_length
+                self.tspan = np.linspace(self.tspan[0], self.tspan[-1], self.tnum)
+
     def QFIM(self, auto=True, save_file=False):
         """
         Description: use GRAPE algorithm to update the ****.
