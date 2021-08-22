@@ -82,13 +82,13 @@ function propagate(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Mat
     ρt = [Vector{ComplexF64}(undef, dim^2)  for i in 1:length(times)]
     ∂ρt_∂x = [[Vector{ComplexF64}(undef, dim^2) for i in 1:length(times)] for para in 1:para_num]
     Δt = times[2] - times[1]
-    ρt[1] = evolute(H[1], Liouville_operator, γ, Δt, 1) * (ρ_initial |> vec)
+    ρt[1] = ρ_initial |> vec
     for para in  1:para_num
-        ∂ρt_∂x[para][1] = -im * Δt * liouville_commu(∂H_∂x[para]) * ρt[1]
+        ∂ρt_∂x[para][1] = ρt[1] |> zero
     end
     for t in 2:length(times)
-        expL = evolute(H[t], Liouville_operator, γ, Δt, t)
-        ρt[t] =  expL * ρt[t - 1]
+        expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
+        ρt[t] =  expL * ρt[t-1]
         for para in para_num
             ∂ρt_∂x[para][t] = -im * Δt * liouville_commu(∂H_∂x[para]) * ρt[t] + expL * ∂ρt_∂x[para][t - 1]
         end

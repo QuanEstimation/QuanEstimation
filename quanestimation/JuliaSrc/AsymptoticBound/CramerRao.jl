@@ -104,10 +104,10 @@ end
 function QFI(H::Vector{Matrix{T}}, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ,  times) where {T <: Complex,R <: Real}
     dim = size(H[1])[1]
     Δt = times[2] - times[1]
-    ρt = evolute(H[1], Liouville_operator, γ, Δt, 1) * (ρ_initial |> vec)
-    ∂ρt_∂x = -im * Δt * liouville_commu(∂H_∂x) * ρt
+    ρt = ρ_initial |> vec
+    ∂ρt_∂x = ρt |> zero
     for t in 2:length(times)
-        expL = evolute(H[t], Liouville_operator, γ, Δt, t)
+        expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
         ρt=  expL * ρt
         ∂ρt_∂x= -im * Δt * liouville_commu(∂H_∂x) * ρt + expL * ∂ρt_∂x
     end
