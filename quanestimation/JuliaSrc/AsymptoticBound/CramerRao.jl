@@ -25,10 +25,11 @@ function CFI(M::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_init
     ∂H_L = liouville_commu(∂H_∂x)
 
     Δt = times[2] - times[1]
-    ρt = evolute(H[1], Liouville_operator, γ, Δt, 1) * (ρ_initial |> vec)
-    ∂ρt_∂x = -im * Δt * ∂H_L * ρt
-    for t in 2:length(times)
-        expL = evolute(H[t], Liouville_operator, γ, Δt, t)
+    ρt = ρ_initial |> vec
+    ∂ρt_∂x = ρt |> zero
+
+    for t in 2:(length(times)+1)
+        expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
         ρt =  expL * ρt
         ∂ρt_∂x = -im * Δt * ∂H_L * ρt + expL * ∂ρt_∂x
     end
@@ -44,11 +45,11 @@ function _CFI(M::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_ini
     ∂H_L = liouville_commu(∂H_∂x)
 
     Δt = times[2] - times[1]
-    ρt = evolute(H[1], Liouville_operator, γ, Δt, 1) * (ρ_initial |> vec)
-    ∂ρt_∂x = -im * Δt * ∂H_L * ρt
+    ρt = ρ_initial |> vec
+    ∂ρt_∂x = ρt |> zero
 
-    for t in 2:(length(times)-1)
-        expL = evolute(H[t], Liouville_operator, γ, Δt, t)
+    for t in 2:length(times)
+        expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
         ρt =  expL * ρt
         ∂ρt_∂x = -im * Δt * ∂H_L * ρt + expL * ∂ρt_∂x
     end
@@ -69,10 +70,11 @@ function CFIM(M::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_ini
     ∂H_L = liouville_commu(∂H_∂x)
 
     Δt = times[2] - times[1]
-    ρt = evolute(H[1], Liouville_operator, γ, Δt, 1) * ρ_initial[:]
-    ∂ρt_∂x = [-im * Δt * ∂H_L[i]* ρt for i in 1:para_num]
-    for t in 2:length(times)
-        expL = evolute(H[t], Liouville_operator, γ, Δt, t)
+    ρt = ρ_initial |> vec
+    ∂ρt_∂x = [ρt |> zero for i in 1:para_num]
+
+    for t in 2:(length(times)+1)
+        expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
         ρt =  expL * ρt
         ∂ρt_∂x = [-im * Δt * ∂H_L[i] * ρt for i in 1:para_num] + [expL] .* ∂ρt_∂x
     end
@@ -88,10 +90,11 @@ function _CFIM(M::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_in
     ∂H_L = liouville_commu(∂H_∂x)
 
     Δt = times[2] - times[1]
-    ρt = evolute(H[1], Liouville_operator, γ, Δt, 1) * ρ_initial[:]
-    ∂ρt_∂x = [-im * Δt * ∂H_L[i]* ρt for i in 1:para_num]
-    for t in 2:(length(times)-1)
-        expL = evolute(H[t], Liouville_operator, γ, Δt, t)
+    ρt = ρ_initial |> vec
+    ∂ρt_∂x = [ρt |> zero for i in 1:para_num]
+
+    for t in 2:length(times)
+        expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
         ρt =  expL * ρt
         ∂ρt_∂x = [-im * Δt * ∂H_L[i] * ρt for i in 1:para_num] + [expL] .* ∂ρt_∂x
     end
@@ -161,10 +164,11 @@ function QFI(H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouvi
     ∂H_L = liouville_commu(∂H_∂x)
 
     Δt = times[2] - times[1]
-    ρt = evolute(H[1], Liouville_operator, γ, Δt, 1) * (ρ_initial |> vec)
-    ∂ρt_∂x = -im * Δt * ∂H_L * ρt
-    for t in 2:length(times)
-        expL = evolute(H[t], Liouville_operator, γ, Δt, t)
+    ρt = ρ_initial |> vec
+    ∂ρt_∂x = ρt |> zero
+
+    for t in 2:(length(times)+1)
+        expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
         ρt =  expL * ρt
         ∂ρt_∂x = -im * Δt * ∂H_L * ρt + expL * ∂ρt_∂x
     end
@@ -181,10 +185,11 @@ function _QFI(H0::Matrix{T},∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouvi
     ∂H_L = liouville_commu(∂H_∂x)
 
     Δt = times[2] - times[1]
-    ρt = evolute(H[1], Liouville_operator, γ, Δt, 1) * (ρ_initial |> vec)
-    ∂ρt_∂x = -im * Δt * ∂H_L * ρt
-    for t in 2:(length(times)-1)
-        expL = evolute(H[t], Liouville_operator, γ, Δt, t)
+    ρt = ρ_initial |> vec
+    ∂ρt_∂x = ρt |> zero
+
+    for t in 2:length(times)
+        expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
         ρt =  expL * ρt
         ∂ρt_∂x = -im * Δt * ∂H_L * ρt + expL * ∂ρt_∂x
     end
@@ -212,11 +217,11 @@ function QFIM(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T
     ∂H_L = liouville_commu(∂H_∂x)
 
     Δt = times[2] - times[1]
+    ρt = ρ_initial |> vec
+    ∂ρt_∂x = [ρt |> zero for i in 1:para_num]
 
-    ρt = evolute(H[1], Liouville_operator, γ, Δt, 1) * ρ_initial[:]
-    ∂ρt_∂x = [-im * Δt * ∂H_L[i] * ρt for i in 1:para_num]
-    for t in 2:length(times)
-        expL = evolute(H[t], Liouville_operator, γ, Δt, t)
+    for t in 2:(length(times)+1)
+        expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
         ρt =  expL * ρt
         ∂ρt_∂x = [-im * Δt * ∂H_L[i] * ρt for i in 1:para_num] + [expL] .* ∂ρt_∂x
     end
@@ -234,10 +239,11 @@ function _QFIM(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{
 
     Δt = times[2] - times[1]
 
-    ρt = evolute(H[1], Liouville_operator, γ, Δt, 1) * ρ_initial[:]
-    ∂ρt_∂x = [-im * Δt * ∂H_L[i] * ρt for i in 1:para_num]
-    for t in 2:(length(times)-1)
-        expL = evolute(H[t], Liouville_operator, γ, Δt, t)
+    ρt = ρ_initial |> vec
+    ∂ρt_∂x = [ρt |> zero for i in 1:para_num]
+
+    for t in 2:length(times)
+        expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
         ρt =  expL * ρt
         ∂ρt_∂x = [-im * Δt * ∂H_L[i] * ρt for i in 1:para_num] + [expL] .* ∂ρt_∂x
     end
@@ -257,22 +263,6 @@ function QFIM_ana(ρ::Array{T}, dρ::Vector{Matrix{T}}, rep="original") where {T
     end
     QFIM_res |> real
 end
-
-# function CFI(M, system)
-#     CFI(M,Htot(system.freeHamiltonian, system.control_Hamiltonian, system.control_coefficients), system.Hamiltonian_derivative[1], system.ρ_initial, system.Liouville_operator, system.γ, system.times)
-# end
-
-# function CFIM(M, system)
-#     CFIM(M,Htot(system.freeHamiltonian, system.control_Hamiltonian, system.control_coefficients), system.Hamiltonian_derivative, system.ρ_initial, system.Liouville_operator, system.γ, system.times)
-# end
-
-# function QFI(system)
-#     QFI(Htot(system.freeHamiltonian, system.control_Hamiltonian, system.control_coefficients), system.Hamiltonian_derivative[1], system.ρ_initial, system.Liouville_operator, system.γ, system.times)
-# end
-
-# function QFIM(system)
-#     QFIM(Htot(system.freeHamiltonian, system.control_Hamiltonian, system.control_coefficients), system.Hamiltonian_derivative, system.ρ_initial, system.Liouville_operator, system.γ, system.times)
-# end
 
 function CFI(M, system)
     _CFI(M,system.freeHamiltonian, system.Hamiltonian_derivative[1], system.ρ_initial, system.Liouville_operator, system.γ, system.control_Hamiltonian, system.control_coefficients, system.times)
