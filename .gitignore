@@ -141,3 +141,7 @@ dmypy.json
 
 #__pycaches__
 *.pyc
+
+#testfiles
+/testfiles/*
+/testfiles
