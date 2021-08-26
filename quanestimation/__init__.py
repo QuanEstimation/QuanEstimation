@@ -17,7 +17,7 @@ from quanestimation.Resources import (Resources, )
 # import julia
 from julia import Main
 
-Main.include('quanestimation/Julia/src/QuanEstimation.jl')
+Main.include('quanestimation/JuliaSrc/QuanEstimation.jl')
 
 __all__ = ['AsymptoticBound', 'Common', 'Control', 'Dynamics', 'Resources',
             'CramerRao', 'Holevo', 'common', 'DDPG', 'DiffEvo',  'GRAPE', 'PSO', 'dynamics', 'learning_env', 'Resources',
