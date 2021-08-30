@@ -74,32 +74,30 @@ function evolute(H, Liouville_operator, γ, dt, tj)
     exp(Ld)
 end
 
-function propagate(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}},
-                   γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
-    dim = size(H0)[1]
-    para_num = length(∂H_∂x)
+function propagate(H0::Matrix{T}, ∂H_L::Vector{Matrix{T}},  ρ_initial::Vector{T}, ∂ρt_∂x, Liouville_operator::Vector{Matrix{T}},
+                    γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}    
+    para_num = length(∂H_L)
+    ctrl_num = length(control_Hamiltonian)
+    ctrl_interval = (length(times)/length(control_coefficients[1])) |> Int
+    control_coefficients = [repeat(control_coefficients[i], 1, ctrl_interval) |>transpose |>vec for i in 1:ctrl_num]
     H = Htot(H0, control_Hamiltonian, control_coefficients)
-    ρt = [Vector{ComplexF64}(undef, dim^2)  for i in 1:length(times)]
-    ∂ρt_∂x = [[Vector{ComplexF64}(undef, dim^2) for i in 1:length(times)] for para in 1:para_num]
+
     Δt = times[2] - times[1]
-    ρt[1] = ρ_initial |> vec
-    for para in  1:para_num
-        ∂ρt_∂x[para][1] = ρt[1] |> zero
-    end
+    ρt = ρ_initial 
+    ∂ρt_∂x = ∂ρt_∂x
+
     for t in 2:length(times)
         expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
-        ρt[t] =  expL * ρt[t-1]
-        for para in para_num
-            ∂ρt_∂x[para][t] = -im * Δt * liouville_commu(∂H_∂x[para]) * ρt[t] + expL * ∂ρt_∂x[para][t - 1]
-        end
+        ρt =  expL * ρt
+        ∂ρt_∂x = [-im * Δt * ∂H_L[i] * ρt for i in 1:para_num] + [expL] .* ∂ρt_∂x
     end
-    ρt .|> vec2mat, ∂ρt_∂x .|> vec2mat
+    ρt , ∂ρt_∂x
 end
 
 function propagate!(grape::Gradient)
     grape.ρ, grape.∂ρ_∂x = propagate(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial,
                                                 grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
-                                                grape.control_coefficients, grape.times )
+                                                grape.control_coefficients, grape.times ).|>vec2mat
 end
 
 # function expm(H::Vector{Matrix{T}}, ∂H_∂x::Vector{Vector{T}},  ρ_in::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ,  times) where {T <: Complex,R <: Real}
