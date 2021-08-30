@@ -48,5 +48,5 @@ GRAPE = quanestimation.GRAPE(tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, Lvec, gamm
 
 t1 = time()
 # GRAPE.QFIM(auto=False)
-GRAPE.QFIM(auto=True)
+GRAPE.QFIM()
 print(time()-t1)
