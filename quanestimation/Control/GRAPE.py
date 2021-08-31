@@ -7,7 +7,7 @@ from julia import Main
 
 class GRAPE:
     def __init__(self, tspan, rho_initial, H0, Hc=[], dH=[], ctrl_initial=[], Liouville_operator=[], \
-             gamma=[], W=[], max_epsides=200, epsilon=1e-4, lr=0.01, precision=1e-8):
+             gamma=[], W=[], max_episodes=200, epsilon=1e-4, lr=0.01, precision=1e-8):
         
         """
         ----------
@@ -76,7 +76,7 @@ class GRAPE:
         self.lr = lr
         self.epsilon = epsilon
         self.precision = precision
-        self.max_epsides = max_epsides
+        self.max_episodes = max_episodes
         
         if W == []:
             self.W = np.eye(len(dH))
@@ -141,9 +141,9 @@ class GRAPE:
         grape = Main.QuanEstimation.Gradient(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
                     self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.W, self.lr, self.precision)
         if auto == True:
-            Main.QuanEstimation.GRAPE_QFIM_auto(grape, self.epsilon, self.max_epsides, save_file)
+            Main.QuanEstimation.GRAPE_QFIM_auto(grape, self.epsilon, self.max_episodes, save_file)
         else:
-            Main.QuanEstimation.GRAPE_QFIM_analy(grape, self.epsilon, self.max_epsides, save_file)
+            Main.QuanEstimation.GRAPE_QFIM_analy(grape, self.epsilon, self.max_episodes, save_file)
         
     def CFIM(self, Measurement, auto=True, save_file=False):
         """
@@ -186,6 +186,6 @@ class GRAPE:
         grape = Main.QuanEstimation.Gradient(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
                     self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.W, self.lr)
         if auto == True:
-            Main.QuanEstimation.GRAPE_QFIM_auto(Measurement, grape, self.epsilon, self.max_epsides, save_file)
+            Main.QuanEstimation.GRAPE_QFIM_auto(Measurement, grape, self.epsilon, self.max_episodes, save_file)
         else:
-            Main.QuanEstimation.GRAPE_QFIM_analy(Measurement, grape, self.epsilon, self.max_epsides, save_file)
+            Main.QuanEstimation.GRAPE_QFIM_analy(Measurement, grape, self.epsilon, self.max_episodes, save_file)
