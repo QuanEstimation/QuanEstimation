@@ -1,13 +1,11 @@
 import numpy as np
-from quanestimation.AsymptoticBound.CramerRao import QFIM
-from quanestimation.Dynamics.dynamics import Lindblad
-from quanestimation.Common.common import mat_vec_convert
+from julia import Main
+import quanestimation.Control.Control as Control
 
-class PSO(Lindblad):
-    def __init__(self, particle_num, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, gamma, control_option=True, c0=1.0, c1=2.0, c2=2.0, seed=100):
+class PSO(Control.ControlSystem):
+    def __init__(self, particle_num, tspan, rho_initial, H0, Hc=[], dH=[], ctrl_initial=[], Liouville_operator=[], \
+                 gamma=[], episode=400, control_option=True, c0=1.0, c1=2.0, c2=2.0, v0=0.1, seed=100):
         
-        Lindblad.__init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
-                        gamma, control_option)
         """
         --------
         inputs
@@ -21,7 +19,10 @@ class PSO(Lindblad):
            --type: float
         
         """
+        Control.ControlSystem.__init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
+                                       gamma, control_option)
         self.particle_num = particle_num
+        self.episode = episode
         self.ctrlnum = len(Hc)
         self.ctrl_dim = len(ctrl_initial[0])
         self.ctrl_dim_total = self.ctrlnum*self.ctrl_dim
@@ -34,12 +35,20 @@ class PSO(Lindblad):
         self.c0 = c0
         self.c1 = c1
         self.c2 = c2
+        self.v0 = v0
         self.seed = seed
         self.tnum = len(tspan)
         self.rho = None
         self.rho_derivative = None
         self.F = None
-        
+    
+    def QFIM(self, save_file=False):
+        pso = Main.QuanEstimation.PSO(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
+                        self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients)
+        Main.QuanEstimation.PSO_QFIM(pso,  particle_num=self.particle_num, c0=self.c0, c1=self.c1, c2=self.c2, \
+                                     v0=self.v0, sd=self.seed, episode=self.episode)
+         
+    
     def swarm_origin(self):
         np.random.seed(self.seed)
         for pi in range(self.particle_num):
