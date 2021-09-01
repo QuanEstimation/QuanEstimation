@@ -29,9 +29,12 @@ function vec2mat(x::Matrix)
     throw(ErrorException("vec2mating a matrix of size $(size(x))"))
 end
 
+# Base.copy(x::T) where T = T([deepcopy(getfield(x, k)) for k ∈ fieldnames(T)])
+
 function Base.repeat(system, N)
-    [system for i in 1:N]
+    [deepcopy(system) for i in 1:N]
 end
+
 function Base.repeat(system, M, N)
     reshape(repeat(system, M * N), M, N)
 end
