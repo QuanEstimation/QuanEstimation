@@ -1,23 +1,42 @@
-function RunPSO(grape::Gradient{T};  particle_num= 10, c0=0.5, c1=0.5, c2=0.5,v0=0.1, sd=1234, episode=400) where {T<: Complex}
+mutable struct PSO{T <: Complex,M <: Real} <: ControlSystem
+    freeHamiltonian::Matrix{T}
+    Hamiltonian_derivative::Vector{Matrix{T}}
+    ρ_initial::Matrix{T}
+    times::Vector{M}
+    Liouville_operator::Vector{Matrix{T}}
+    γ::Vector{M}
+    control_Hamiltonian::Vector{Matrix{T}}
+    control_coefficients::Vector{Vector{M}}
+    ρ::Vector{Matrix{T}}
+    ∂ρ_∂x::Vector{Vector{Matrix{T}}}
+    PSO(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, ρ_initial::Matrix{T},
+             times::Vector{M}, Liouville_operator::Vector{Matrix{T}},γ::Vector{M}, control_Hamiltonian::Vector{Matrix{T}},
+             control_coefficients::Vector{Vector{M}}, ρ=Vector{Matrix{T}}(undef, 1), 
+             ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 
+                Hamiltonian_derivative, ρ_initial, times, Liouville_operator, γ, control_Hamiltonian, control_coefficients, ρ, ∂ρ_∂x) 
+end
+
+
+
+function PSO_QFIM(pso::PSO{T};  particle_num= 10, c0=1.0, c1=2.0, c2=2.0,v0=0.1, sd=1234, episode=400) where {T<: Complex}
     println("PSO strategies")
     println("searching optimal controls with particle swarm optimization ")
-    tnum = length(grape.times)
-    ctrl_num = length(grape.control_Hamiltonian)
-    particles = repeat(grape, particle_num)
-    velocity = v0.*rand(ctrl_num, tnum, particle_num)|>SharedArray
-    pbest = zeros(ctrl_num, tnum, particle_num)
+    tnum = length(pso.times)
+    ctrl_num = length(pso.control_Hamiltonian)
+    particles = repeat(pso, particle_num)
+    velocity = v0.*rand(ctrl_num, tnum, particle_num) |>SharedArray
+    pbest = zeros(ctrl_num, tnum, particle_num) |>SharedArray
     gbest = zeros(ctrl_num, tnum) |> SharedArray
     velocity_best = zeros(ctrl_num,tnum)
     p_fit = zeros(particle_num)
-    qfi_ini = QFI(grape)
+    qfi_ini = QFI(pso)
     println("initial QFI is $(qfi_ini)")
     fit_pre = 0.0        
     fit = 0.0
     for ei in 1:episode
-        @inbounds @threads for pi in 1:particle_num
-            propagate!(particles[pi])
+        @inbounds for pi in 1:particle_num
+            # propagate!(particles[pi])
             f_now = QFI(particles[pi])
-            
             if f_now > p_fit[pi]
                 p_fit[pi] = f_now
                 for di in 1:ctrl_num
@@ -27,11 +46,11 @@ function RunPSO(grape::Gradient{T};  particle_num= 10, c0=0.5, c1=0.5, c2=0.5,v0
                 end
             end
         end
-        @inbounds @threads for pj in 1:particle_num
+        @inbounds for pj in 1:particle_num
             if p_fit[pj] > fit
                 fit = p_fit[pj]
                 for dj in 1:ctrl_num
-                    @inbounds @threads for nj in 1:tnum
+                     @inbounds @threads for nj in 1:tnum
                         gbest[dj, nj] =  particles[pj].control_coefficients[dj][nj]
                         velocity_best[dj, nj] = velocity[dj, nj, pj]
                     end
@@ -39,9 +58,9 @@ function RunPSO(grape::Gradient{T};  particle_num= 10, c0=0.5, c1=0.5, c2=0.5,v0
             end
         end
         Random.seed!(sd)
-        @inbounds @threads for pk in 1:particle_num
+        @inbounds for pk in 1:particle_num
             for dk in 1:ctrl_num
-                @inbounds @threads for ck in 1:tnum
+                @inbounds  @threads for ck in 1:tnum
                     velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                           + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])  
                     particles[pk].control_coefficients[dk][ck] = particles[pk].control_coefficients[dk][ck] + velocity[dk, ck, pk] 
@@ -50,7 +69,7 @@ function RunPSO(grape::Gradient{T};  particle_num= 10, c0=0.5, c1=0.5, c2=0.5,v0
         end
         # println(particles[1].control_coefficients[1][1])
         if ei == episode#abs(fit-fit_pre) < 1e-5
-            grape.control_coefficients = gbest
+            pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
             println("Final QFI is ", fit)
             return nothing
         end        
@@ -58,17 +77,17 @@ function RunPSO(grape::Gradient{T};  particle_num= 10, c0=0.5, c1=0.5, c2=0.5,v0
         print("current QFI is $fit ($ei epochs)    \r")
     end
 end
-function RunPSOAdam(grape::Gradient{T};  particle_num= 10, c0=0.5, c1=0.5, c2=0.5,v0=0.01, sd=1234, episode=400) where {T<: Complex}
+function PSO_QFIM_Adam(pso::PSO{T};  particle_num= 10, c0=1.0, c1=2.0, c2=2.0, v0=0.1, sd=1234, episode=400) where {T<: Complex}
     println("PSO strategies")
     println("searching optimal controls with particle swarm optimization ")
-    tnum = length(grape.times)
-    ctrl_num = length(grape.control_Hamiltonian)
-    particles, velocity = repeat(grape, particle_num), [[v0*ones(tnum) for i in 1:ctrl_num] for j in 1:particle_num]
+    tnum = length(pso.times)
+    ctrl_num = length(pso.control_Hamiltonian)
+    particles, velocity = repeat(pso, particle_num), [[v0*ones(tnum) for i in 1:ctrl_num] for j in 1:particle_num]
     pbest = [[zeros(tnum) for i in 1:ctrl_num] for j in 1:particle_num]
     gbest = [zeros(tnum) for i in 1:ctrl_num]
     velocity_best = [zeros(Float64, tnum) for i in 1:ctrl_num]
     p_fit = zeros(particle_num)
-    qfi_ini = QFI(grape)
+    qfi_ini = QFI(pso)
     println("initial QFI is $(qfi_ini)")
     fit_pre = 0.0        
     fit = 0.0
@@ -108,7 +127,7 @@ function RunPSOAdam(grape::Gradient{T};  particle_num= 10, c0=0.5, c1=0.5, c2=0.
             Adam!(particles[pk], velocity[pk])
         end
         if abs(fit-fit_pre) < 1e-5
-            grape.control_coefficients = gbest
+            pso.control_coefficients = gbest
             println("Final QFI is ", fit)
             return nothing
         end        
