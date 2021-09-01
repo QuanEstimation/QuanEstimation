@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from time import time
 import quanestimation
 
-T = 2.0
+T = 10.0
 tnum = int(250*T)
 tspan = np.linspace(0, T, tnum)
 dt = tspan[1]-tspan[0]
@@ -44,9 +44,9 @@ M2 = np.dot(psi_m, psi_m.conj().transpose())
 M  = [M1, M2]
 
 Lvec = [sm]
-GRAPE = quanestimation.GRAPE(tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, Lvec, gamma, epsilon=1e-4, max_episodes=1000)
+PSO = quanestimation.PSO(10, tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, Lvec, gamma, 2)
 
 t1 = time()
 # GRAPE.QFIM(auto=False)
-GRAPE.QFIM()
+PSO.QFIM()
 print(time()-t1)
