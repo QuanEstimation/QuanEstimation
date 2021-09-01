@@ -465,6 +465,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_epsides, save_file)
                 gradient_QFI_ADAM!(grape)
             
                 if  abs(f_now - f_ini) < epsilon  || epsides > max_epsides
+                    print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final QFI is ", f_now)
                     save("controls_T$Tend.jld", "controls", grape.control_coefficients, "time_span", grape.times, "f", f_list)
@@ -495,6 +496,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_epsides, save_file)
                 f_now = QFI(grape)
                 gradient_QFI_ADAM!(grape)
                 if  abs(f_now - f_ini) < epsilon  || epsides > max_epsides
+                    print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final QFI is ", f_now)
                     save("controls_T$Tend.jld", "controls", grape.control_coefficients, "time_span", grape.times, "f", f_list)
@@ -526,6 +528,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_epsides, save_file)
                 f_now = 1/(grape |> QFIM |> inv |> tr)
                 gradient_QFIM_ADAM!(grape)
                 if  abd(f_now - f_ini) < epsilon || epsides > max_epsides
+                    print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of the target function is ", f_now)
                     save("controls_T$Tend.jld", "controls", grape.control_coefficients, "time_span", grape.times, "f", f_list)
@@ -556,6 +559,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_epsides, save_file)
                 f_now = 1/(grape |> QFIM |> inv |> tr)
                 gradient_QFIM_ADAM!(grape)
                 if  abs(f_now - f_ini) < epsilon || epsides > max_epsides
+                    print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of the target function is ", f_now)
                     save("controls_T$Tend.jld", "controls", grape.control_coefficients, "time_span", grape.times, "f", f_list)
@@ -597,6 +601,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_epsides, save_file)
                                                              grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
                                                              grape.control_coefficients, grape.times, grape.W)
                 if  abs(f_now - f_ini) < epsilon || epsides > max_epsides    
+                    print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final QFI is ", f_now)
                     save("controls_T$Tend.jld", "controls", grape.control_coefficients, "time_span", grape.times, "f", f_list)
@@ -629,6 +634,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_epsides, save_file)
                                                              grape.control_coefficients, grape.times, grape.W)
             
                 if  abs(f_now - f_ini) < epsilon || epsides > max_epsides
+                    print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final QFI is ", f_now)
 
@@ -662,6 +668,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_epsides, save_file)
                                                              grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
                                                              grape.control_coefficients, grape.times, grape.W)
                 if  abs(f_now - f_ini) < epsilon  || epsides > max_epsides
+                    print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value is ", f_now)
 
@@ -693,6 +700,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_epsides, save_file)
                                                              grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
                                                              grape.control_coefficients, grape.times, grape.W)
                 if  abs(f_now - f_ini) < epsilon  || epsides > max_epsides
+                    print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value is ", f_now)
 
@@ -732,6 +740,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_epsides, save_file)
                 f_now = CFI(Measurement, grape)
                 gradient_CFI_ADAM!(grape, Measurement)
                 if  abs(f_now - f_ini) < epsilon || epsides > max_epsides
+                    print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final CFI is ", f_now)
                     save("controls_T$Tend.jld", "controls", grape.control_coefficients, "time_span", grape.times, "cfi", f_list)
@@ -761,6 +770,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_epsides, save_file)
                 f_now = CFI(Measurement, grape)
                 gradient_CFI_ADAM!(grape, Measurement)
                 if  abs(f_now - f_ini) < epsilon || epsides > max_epsides
+                    print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final CFI is ", f_now)
                     save("controls_T$Tend.jld", "controls", grape.control_coefficients, "time_span", grape.times, "cfi", f_list)
@@ -793,6 +803,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_epsides, save_file)
                 f_now = 1/(grape |> CFIM |> inv |> tr)
                 gradient_CFIM_ADAM!(grape, Measurement)
                 if  abs(f_now - f_ini) < epsilon || epsides > max_epsides
+                    print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of the target function is ", f_now)
 
@@ -821,6 +832,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_epsides, save_file)
                 f_now = 1/(grape |> CFIM |> inv |> tr)
                 gradient_CFIM_ADAM!(grape, Measurement)
                 if  abs(f_now - f_ini) < epsilon || epsides > max_epsides
+                    print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of the target function is ", f_now)
 
@@ -861,6 +873,7 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_epsides, save_file)
                                                              grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
                                                              grape.control_coefficients, grape.times, grape.precision, grape.W)
                 if  abs(f_now - f_ini) < epsilon || epsides > max_epsides    
+                    print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final CFI is ", f_now)
 
@@ -893,6 +906,7 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_epsides, save_file)
                                                              grape.control_coefficients, grape.times, grape.W)
             
                 if  abs(f_now - f_ini) < epsilon || epsides > max_epsides
+                    print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final CFI is ", f_now)
                     
@@ -925,6 +939,7 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_epsides, save_file)
                                                             grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
                                                             grape.control_coefficients, grape.times, grape.precision, grape.W)
                 if  abs(f_now - f_ini) < epsilon  || epsides > max_epsides
+                    print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of the target function is ", f_now)
                     save("controls_T$Tend.jld", "controls", grape.control_coefficients, "time_span", grape.times, "f", f_list)
@@ -953,6 +968,7 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_epsides, save_file)
                                                                     grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
                                                                     grape.control_coefficients, grape.times, grape.precision, grape.W)
                 if  abs(f_now - f_ini) < epsilon  || epsides > max_epsides
+                    print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of the target function is ", f_now)
                     save("controls_T$Tend.jld", "controls", grape.control_coefficients, "time_span", grape.times, "f", f_list)
