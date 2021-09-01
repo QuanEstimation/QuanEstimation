@@ -47,12 +47,12 @@ class ControlSystem:
         """   
         
         self.tspan = tspan
-        self.rho_initial = rho_initial
-        self.freeHamiltonian = H0
-        self.control_Hamiltonian = Hc
-        self.Hamiltonian_derivative = dH
+        self.rho_initial = rho_initial.view(dtype=np.complex128)
+        self.freeHamiltonian = H0.view(dtype=np.complex128)
+        self.control_Hamiltonian = [x.view(dtype=np.complex128) for x in Hc]
+        self.Hamiltonian_derivative = [x.view(dtype=np.complex128) for x in dH]
         self.control_coefficients = ctrl_initial
-        self.Liouville_operator = Liouville_operator
+        self.Liouville_operator = [x.view(dtype=np.complex128) for x in Liouville_operator]
         self.gamma = gamma
         self.control_option = control_option
 
