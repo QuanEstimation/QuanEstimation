@@ -28,7 +28,7 @@ function CFI(M::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_init
     ρt = ρ_initial |> vec
     ∂ρt_∂x = ρt |> zero
 
-    for t in 2:(length(times)+1)
+    for t in 2:length(times)
         expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
         ρt =  expL * ρt
         ∂ρt_∂x = -im * Δt * ∂H_L * ρt + expL * ∂ρt_∂x
@@ -54,7 +54,7 @@ function CFIM(M::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_ini
     ρt = ρ_initial |> vec
     ∂ρt_∂x = [ρt |> zero for i in 1:para_num]
 
-    for t in 2:(length(times)+1)
+    for t in 2:length(times)
         expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
         ρt =  expL * ρt
         ∂ρt_∂x = [-im * Δt * ∂H_L[i] * ρt for i in 1:para_num] + [expL] .* ∂ρt_∂x
@@ -194,7 +194,7 @@ function QFIM(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T
     ρt = ρ_initial |> vec
     ∂ρt_∂x = [ρt |> zero for i in 1:para_num]
 
-    for t in 2:(length(times)+1)
+    for t in 2:length(times)
         expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
         ρt =  expL * ρt
         ∂ρt_∂x = [-im * Δt * ∂H_L[i] * ρt for i in 1:para_num] + [expL] .* ∂ρt_∂x
