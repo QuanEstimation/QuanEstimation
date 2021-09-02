@@ -128,18 +128,17 @@ end
 
 
 function gradient_QFIM_analy(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}},
-    γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times, W, mt=0.0, vt=0.0) where {T <: Complex,R <: Real}
+    γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times, W, mt_in=0.0, vt_in=0.0) where {T <: Complex,R <: Real}
     dim = size(H0)[1]
     tnum = length(times)
-    ctrl_length = length(control_coefficients[1])
-    ctrl_interval = (tnum/ctrl_length) |> Int
 
     para_num = length(∂H_∂x)
     ctrl_num = length(control_Hamiltonian)
     Δt = times[2] - times[1]
+    H = Htot(H0, control_Hamiltonian, control_coefficients)
 
-    ρt = [Vector{ComplexF64}(undef, dim^2)  for i in 1:ctrl_length]
-    ∂ρt_∂x = [[Vector{ComplexF64}(undef, dim^2) for para in 1:para_num] for i in 1:ctrl_length]
+    ρt = [Vector{ComplexF64}(undef, dim^2)  for i in 1:tnum]
+    ∂ρt_∂x = [[Vector{ComplexF64}(undef, dim^2) for para in 1:para_num] for i in 1:tnum]
     δρt_δV = [[] for ctrl in 1:ctrl_num]
     ∂xδρt_δV = [[[] for ctrl in 1:ctrl_num] for i in 1:para_num]
     ∂H_L = [Matrix{ComplexF64}(undef, dim^2,dim^2)  for i in 1:para_num]
@@ -159,19 +158,14 @@ function gradient_QFIM_analy(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_in
         end
     end
 
-    ρ_pre = ρt[1]
-    ∂ρt_∂x_pre = ∂ρt_∂x[1]
-    for ti in 2:ctrl_length
-        uk = [[control_coefficients[i][ti]] for i in 1:ctrl_num]
-        H = [H0] .+  ([uk[i] .* [control_Hamiltonian[i]] for i in 1:length(control_coefficients)] |> sum )
-        expL = evolute(H[1], Liouville_operator, γ, Δt, ti)
-
-        tspan = range(times[1]+(ti-1)*Δt*ctrl_interval, times[1]+ti*Δt*ctrl_interval, length=ctrl_interval+1)
-        ρt[ti], ∂ρt_∂x[ti] = propagate(H0, ∂H_L, ρ_pre, ∂ρt_∂x_pre, Liouville_operator, γ, control_Hamiltonian, uk, tspan)
-
-        ρ_pre = ρt[ti]
-        ∂ρt_∂x_pre = ∂ρt_∂x[ti]
-
+    for ti in 2:tnum
+        
+        expL = evolute(H[ti-1], Liouville_operator, γ, Δt, ti)
+        ρt[ti] =  expL * ρt[ti-1]
+        for pk in 1:para_num
+            ∂ρt_∂x[ti][pk] = -im * Δt * ∂H_L[pk] * ρt[ti] + expL * ∂ρt_∂x[ti-1][pk]
+        end
+        
         for ck in 1:ctrl_num
             for tk in 1:(ti-1)
                 δρt_δV_first = popfirst!(δρt_δV[ck])
@@ -201,15 +195,16 @@ function gradient_QFIM_analy(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_in
     
     if para_num == 1
         anti_commu = 2*Lx[1]*Lx[1]
-        for tm in 1:ctrl_length
-            for cm in 1:ctrl_num
+        for cm in 1:ctrl_num
+            mt = mt_in
+            vt = vt_in
+            for tm in 1:tnum
                 ∂ρt_T_δV = δρt_δV[cm][tm] |> vec2mat
                 ∂xδρt_T_δV = ∂xδρt_δV[1][cm][tm] |> vec2mat
                 term1 = tr(∂xδρt_T_δV*Lx[1])
                 term2 = tr(∂ρt_T_δV*anti_commu)
                 δF = ((2*term1-0.5*term2) |> real)
                 control_coefficients[cm][tm], mt, vt = Adam(δF, tm, control_coefficients[cm][tm], mt, vt)
-                # control_coefficients[cm][tm] = control_coefficients[cm][tm]+0.01*δF
             end
         end
 
@@ -218,8 +213,10 @@ function gradient_QFIM_analy(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_in
         coeff2 = F_T[1,2]*F_T[2,1]-F_T[1,1]*F_T[2,2]
         coeff = (W[1,2]*W[2,1]-W[1,1]*W[2,2])/coeff1^2
         cost_function = tr(pinv(W*F_T))
-        for tm in 1:ctrl_length
-            for cm in 1:ctrl_num
+        for cm in 1:ctrl_num
+            mt = mt_in
+            vt = vt_in
+            for tm in 1:tnum
                 δF_all = [[0.0 for i in 1:para_num] for j in 1:para_num]
                 ∂ρt_T_δV = δρt_δV[cm][tm] |> vec2mat
                 for pm in 1:para_num
@@ -244,9 +241,10 @@ function gradient_QFIM_analy(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_in
     else
         cost_function = [1/F_T[para][para] for para in 1:para_num] |>sum
         coeff = [W[para][para]/F_T[para][para] for para in 1:para_num] |>sum
-        δF = 0.0
-        for tm in 1:ctrl_length
-            for cm in 1:ctrl_num
+        for cm in 1:ctrl_num
+            mt = mt_in
+            vt = vt_in
+            for tm in 1:tnum
                 for pm in 1:para_num
                     ∂ρt_T_δV = δρt_δV[cm][tm] |> vec2mat
                     ∂xδρt_T_δV = ∂xδρt_δV[pm][cm][tm] |> vec2mat
@@ -264,18 +262,18 @@ function gradient_QFIM_analy(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_in
 end
 
 function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}},
-    γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times, precision, W, mt=0.0, vt=0.0) where {T <: Complex,R <: Real}
+    γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times, precision, W, mt_in=0.0, vt_in=0.0) where {T <: Complex,R <: Real}
 
     dim = size(H0)[1]
     tnum = length(times)
-    ctrl_length = length(control_coefficients[1])
-    ctrl_interval = (tnum/ctrl_length) |> Int
+
     para_num = length(∂H_∂x)
     ctrl_num = length(control_Hamiltonian)
     Δt = times[2] - times[1]
+    H = Htot(H0, control_Hamiltonian, control_coefficients)
 
-    ρt = [Vector{ComplexF64}(undef, dim^2)  for i in 1:ctrl_length]
-    ∂ρt_∂x = [[Vector{ComplexF64}(undef, dim^2) for para in 1:para_num] for i in 1:ctrl_length]
+    ρt = [Vector{ComplexF64}(undef, dim^2)  for i in 1:tnum]
+    ∂ρt_∂x = [[Vector{ComplexF64}(undef, dim^2) for para in 1:para_num] for i in 1:tnum]
     δρt_δV = [[] for ctrl in 1:ctrl_num]
     ∂xδρt_δV = [[[] for ctrl in 1:ctrl_num] for i in 1:para_num]
     ∂H_L = [Matrix{ComplexF64}(undef, dim^2,dim^2)  for i in 1:para_num]
@@ -295,19 +293,14 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, H0::Matrix{T}, ∂H
         end
     end
 
-    ρ_pre = ρt[1]
-    ∂ρt_∂x_pre = ∂ρt_∂x[1]
-    for ti in 2:ctrl_length
-        uk = [[control_coefficients[i][ti]] for i in 1:ctrl_num]
-        H = [H0] .+  ([uk[i] .* [control_Hamiltonian[i]] for i in 1:length(control_coefficients)] |> sum )
-        expL = evolute(H[1], Liouville_operator, γ, Δt, ti)
-
-        tspan = range(times[1]+(ti-1)*Δt*ctrl_interval, times[1]+ti*Δt*ctrl_interval, length=ctrl_interval+1)
-        ρt[ti], ∂ρt_∂x[ti] = propagate(H0, ∂H_L, ρ_pre, ∂ρt_∂x_pre, Liouville_operator, γ, control_Hamiltonian, uk, tspan)
-
-        ρ_pre = ρt[ti]
-        ∂ρt_∂x_pre = ∂ρt_∂x[ti]
-
+    for ti in 2:tnum
+        
+        expL = evolute(H[ti-1], Liouville_operator, γ, Δt, ti)
+        ρt[ti] =  expL * ρt[ti-1]
+        for pk in 1:para_num
+            ∂ρt_∂x[ti][pk] = -im * Δt * ∂H_L[pk] * ρt[ti] + expL * ∂ρt_∂x[ti-1][pk]
+        end
+        
         for ck in 1:ctrl_num
             for tk in 1:(ti-1)
                 δρt_δV_first = popfirst!(δρt_δV[ck])
@@ -346,8 +339,10 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, H0::Matrix{T}, ∂H
             end
         end
 
-        for tm in 1:ctrl_length
-            for cm in 1:ctrl_num
+        for cm in 1:ctrl_num
+            mt = mt_in
+            vt = vt_in
+            for tm in 1:tnum
                 ∂ρt_T_δV = δρt_δV[cm][tm] |> vec2mat
                 ∂xδρt_T_δV = ∂xδρt_δV[1][cm][tm] |> vec2mat
                 term1 = tr(∂xδρt_T_δV*L1_tidle)
@@ -390,8 +385,10 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, H0::Matrix{T}, ∂H
         coeff2 = F_T[1,2]*F_T[2,1]-F_T[1,1]*F_T[2,2]
         coeff = (W[1,2]*W[2,1]-W[1,1]*W[2,2])/coeff1^2
         cost_function = tr(pinv(W*F_T))
-        for tm in 1:ctrl_length
-            for cm in 1:ctrl_num
+        for cm in 1:ctrl_num
+            mt = mt_in
+            vt = vt_in
+            for tm in 1:tnum
                 δF_all = [[0.0 for i in 1:para_num] for j in 1:para_num]
                 ∂ρt_T_δV = δρt_δV[cm][tm] |> vec2mat
                 for pm in 1:para_num
@@ -430,8 +427,10 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, H0::Matrix{T}, ∂H
         cost_function = [1/F_T[para][para] for para in 1:para_num] |>sum
         coeff = [W[para][para]/F_T[para][para] for para in 1:para_num] |>sum
         δF = 0.0
-        for tm in 1:ctrl_length
-            for cm in 1:ctrl_num
+        for cm in 1:ctrl_num
+            mt = mt_in
+            vt = vt_in
+            for tm in 1:tnum
                 for pm in 1:para_num
                     ∂ρt_T_δV = δρt_δV[cm][tm] |> vec2mat
                     ∂xδρt_T_δV = ∂xδρt_δV[pm][cm][tm] |> vec2mat
@@ -446,7 +445,6 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, H0::Matrix{T}, ∂H
     end
     control_coefficients, cost_function
 end
-
 
 function GRAPE_QFIM_auto(grape, epsilon, max_epsides, save_file)
     println("AutoGrape:")
