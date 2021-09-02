@@ -113,8 +113,13 @@ class GRAPE(Control.ControlSystem):
         if auto == True:
             Main.QuanEstimation.GRAPE_QFIM_auto(grape, self.epsilon, self.max_episodes, save_file)
         else:
-            Main.QuanEstimation.GRAPE_QFIM_analy(grape, self.epsilon, self.max_episodes, save_file)
-
+            if len(self.tspan) != len(self.control_coefficients[0]):
+                warnings.warn('The length of each control coefficient is not equal to the length of tspan, and \
+                               run auto-GRAPE automatically.', DeprecationWarning)
+                Main.QuanEstimation.GRAPE_QFIM_auto(grape, self.epsilon, self.max_episodes, save_file)
+            else:
+                Main.QuanEstimation.GRAPE_QFIM_analy(grape, self.epsilon, self.max_episodes, save_file)
+    
     def CFIM(self, Measurement, auto=True, save_file=False):
         """
         Description: ****.
@@ -158,4 +163,9 @@ class GRAPE(Control.ControlSystem):
         if auto == True:
             Main.QuanEstimation.GRAPE_CFIM_auto(Measurement, grape, self.epsilon, self.max_episodes, save_file)
         else:
-            Main.QuanEstimation.GRAPE_CFIM_analy(Measurement, grape, self.epsilon, self.max_episodes, save_file)
+            if len(self.tspan) != len(self.control_coefficients[0]):
+                warnings.warn('The length of each control coefficient is not equal to the length of tspan, and \
+                               run auto-GRAPE automatically.', DeprecationWarning)
+                Main.QuanEstimation.GRAPE_QFIM_auto(grape, self.epsilon, self.max_episodes, save_file)
+            else:
+                Main.QuanEstimation.GRAPE_CFIM_analy(Measurement, grape, self.epsilon, self.max_episodes, save_file)
