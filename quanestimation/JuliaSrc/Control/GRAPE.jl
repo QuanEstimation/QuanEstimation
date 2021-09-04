@@ -9,17 +9,20 @@ mutable struct Gradient{T <: Complex,M <: Real} <: ControlSystem
     control_Hamiltonian::Vector{Matrix{T}}
     control_coefficients::Vector{Vector{M}}
     W::Matrix{M}
+    mt::M
+    vt::M
     ϵ::M
+    beta1::M
+    beta2::M
     precision::M
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
     Gradient(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, ρ_initial::Matrix{T},
-                 times::Vector{M},
-                 Liouville_operator::Vector{Matrix{T}},γ::Vector{M}, control_Hamiltonian::Vector{Matrix{T}},
-                 control_coefficients::Vector{Vector{M}}, W::Matrix{M}, ϵ, precision, ρ=Vector{Matrix{T}}(undef, 1), 
-                 ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1),∂ρ_∂V=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = 
+                 times::Vector{M}, Liouville_operator::Vector{Matrix{T}},γ::Vector{M}, control_Hamiltonian::Vector{Matrix{T}},
+                 control_coefficients::Vector{Vector{M}}, W::Matrix{M}, mt::M, vt::M, ϵ::M, beta1::M, beta2::M, precision::M, 
+                 ρ=Vector{Matrix{T}}(undef, 1), ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1),∂ρ_∂V=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = 
                  new{T,M}(freeHamiltonian, Hamiltonian_derivative, ρ_initial, times, Liouville_operator, γ, control_Hamiltonian,
-                          control_coefficients, W, ϵ, precision, ρ, ∂ρ_∂x) 
+                          control_coefficients, W, mt, vt, ϵ, beta1, beta2, precision, ρ, ∂ρ_∂x) 
 end
 
 function gradient_CFI!(grape::Gradient{T}, Measurement) where {T <: Complex}
@@ -128,7 +131,7 @@ end
 
 
 function gradient_QFIM_analy(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}},
-    γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times, W, mt_in=0.0, vt_in=0.0) where {T <: Complex,R <: Real}
+    γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times, W, mt_in, vt_in, ϵ, beta1, beta2, precision) where {T <: Complex,R <: Real}
     dim = size(H0)[1]
     tnum = length(times)
 
@@ -151,7 +154,7 @@ function gradient_QFIM_analy(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_in
     end
 
     for pi in 1:para_num
-        ∂ρt_∂x[pi][1] = ρt[1] |> zero
+        ∂ρt_∂x[1][pi] = ρt[1] |> zero
         ∂H_L[pi] = liouville_commu(∂H_∂x[pi])
         for ci in 1:ctrl_num
             append!(∂xδρt_δV[pi][ci], [-im*Δt*Hc_L[ci]*∂ρt_∂x[1][pi]])
@@ -204,7 +207,7 @@ function gradient_QFIM_analy(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_in
                 term1 = tr(∂xδρt_T_δV*Lx[1])
                 term2 = tr(∂ρt_T_δV*anti_commu)
                 δF = ((2*term1-0.5*term2) |> real)
-                control_coefficients[cm][tm], mt, vt = Adam(δF, tm, control_coefficients[cm][tm], mt, vt)
+                control_coefficients[cm][tm], mt, vt = Adam(δF, tm, control_coefficients[cm][tm], mt, vt, ϵ, beta1, beta2, precision)
             end
         end
 
@@ -234,7 +237,7 @@ function gradient_QFIM_analy(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_in
                 item1 = F_T[2,1]*δF_all[1][2]+F_T[1,2]*δF_all[2][1]-F_T[2,2]*δF_all[1][1]-F_T[1,1]*δF_all[2][2]
                 item2 = W[1,1]*δF_all[1][1]+W[1,2]*δF_all[2][1]+W[2,1]*δF_all[1][2]+W[2,2]*δF_all[2][2]
                 δF = (item1*coeff1-item2*coeff2)*coeff
-                control_coefficients[cm][tm], mt, vt = Adam(δF, tm, control_coefficients[cm][tm], mt, vt)
+                control_coefficients[cm][tm], mt, vt = Adam(δF, tm, control_coefficients[cm][tm], mt, vt, ϵ, beta1, beta2, precision)
             end
         end
 
@@ -254,7 +257,7 @@ function gradient_QFIM_analy(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_in
                     δF = δF + W[pm][pm]*F_T[pm][pm]*F_T[pm][pm]*((2*term1-term2) |> real)
                 end
                 δF = δF*coeff*coeff
-                control_coefficients[cm][tm], mt, vt = Adam(δF, tm, control_coefficients[cm][tm], mt, vt)
+                control_coefficients[cm][tm], mt, vt = Adam(δF, tm, control_coefficients[cm][tm], mt, vt, ϵ, beta1, beta2, precision)
             end
         end
     end
@@ -262,7 +265,7 @@ function gradient_QFIM_analy(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_in
 end
 
 function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}},
-    γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times, precision, W, mt_in=0.0, vt_in=0.0) where {T <: Complex,R <: Real}
+    γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times, W, mt_in, vt_in, ϵ, beta1, beta2, precision) where {T <: Complex,R <: Real}
 
     dim = size(H0)[1]
     tnum = length(times)
@@ -286,7 +289,7 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, H0::Matrix{T}, ∂H
     end
 
     for pi in 1:para_num
-        ∂ρt_∂x[pi][1] = ρt[1] |> zero
+        ∂ρt_∂x[1][pi] = ρt[1] |> zero
         ∂H_L[pi] = liouville_commu(∂H_∂x[pi])
         for ci in 1:ctrl_num
             append!(∂xδρt_δV[pi][ci], [-im*Δt*Hc_L[ci]*∂ρt_∂x[1][pi]])
@@ -348,7 +351,7 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, H0::Matrix{T}, ∂H
                 term1 = tr(∂xδρt_T_δV*L1_tidle)
                 term2 = tr(∂ρt_T_δV*L2_tidle)
                 δF = ((2*term1-term2) |> real)
-                control_coefficients[cm][tm], mt, vt = Adam(δF, tm, control_coefficients[cm][tm], mt, vt)
+                control_coefficients[cm][tm], mt, vt = Adam(δF, tm, control_coefficients[cm][tm], mt, vt, ϵ, beta1, beta2, precision)
             end
         end
 
@@ -404,7 +407,7 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, H0::Matrix{T}, ∂H
                 item1 = F_T[2,1]*δF_all[1][2]+F_T[1,2]*δF_all[2][1]-F_T[2,2]*δF_all[1][1]-F_T[1,1]*δF_all[2][2]
                 item2 = W[1,1]*δF_all[1][1]+W[1,2]*δF_all[2][1]+W[2,1]*δF_all[1][2]+W[2,2]*δF_all[2][2]
                 δF = (item1*coeff1-item2*coeff2)*coeff
-                control_coefficients[cm][tm], mt, vt = Adam(δF, tm, control_coefficients[cm][tm], mt, vt)
+                control_coefficients[cm][tm], mt, vt = Adam(δF, tm, control_coefficients[cm][tm], mt, vt, ϵ, beta1, beta2, precision)
             end
         end
 
@@ -439,17 +442,17 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, H0::Matrix{T}, ∂H
                     δF = δF + W[pm][pm]*F_T[pm][pm]*F_T[pm][pm]*((2*term1-term2) |> real)
                 end
                 δF = δF*coeff*coeff
-                control_coefficients[cm][tm], mt, vt = Adam(δF, tm, control_coefficients[cm][tm], mt, vt)
+                control_coefficients[cm][tm], mt, vt = Adam(δF, tm, control_coefficients[cm][tm], mt, vt, ϵ, beta1, beta2, precision)
             end
         end
     end
     control_coefficients, cost_function
 end
 
-function GRAPE_QFIM_auto(grape, epsilon, max_epsides, save_file)
+function GRAPE_QFIM_auto(grape, epsilon, max_episodes, save_file)
     println("AutoGrape:")
     println("quantum parameter estimation")
-    epsides = 1
+    episodes = 1
     Tend = (grape.times)[end] |> Int
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -462,7 +465,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_epsides, save_file)
                 f_now = QFI(grape)
                 gradient_QFI_ADAM!(grape)
             
-                if  abs(f_now - f_ini) < epsilon  || epsides > max_epsides
+                if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final QFI is ", f_now)
@@ -478,7 +481,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_epsides, save_file)
                     break
                 else
                     f_ini = f_now
-                    epsides += 1
+                    episodes += 1
 
                     open("f_auto_T$Tend.csv","a") do f
                         writedlm(f, f_now)
@@ -493,7 +496,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_epsides, save_file)
             else
                 f_now = QFI(grape)
                 gradient_QFI_ADAM!(grape)
-                if  abs(f_now - f_ini) < epsilon  || epsides > max_epsides
+                if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final QFI is ", f_now)
@@ -509,7 +512,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_epsides, save_file)
                     break
                 else
                     f_ini = f_now
-                    epsides += 1
+                    episodes += 1
                     append!(f_list,f_now)
                     print("current QFI is ", f_now, " ($(f_list|>length) epochs)    \r")
                 end
@@ -525,7 +528,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_epsides, save_file)
             if save_file == true
                 f_now = 1/(grape |> QFIM |> inv |> tr)
                 gradient_QFIM_ADAM!(grape)
-                if  abd(f_now - f_ini) < epsilon || epsides > max_epsides
+                if  abd(f_now - f_ini) < epsilon || episodes > max_episodes
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of the target function is ", f_now)
@@ -542,7 +545,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_epsides, save_file)
                     break
                 else
                     f_ini = f_now
-                    epsides += 1
+                    episodes += 1
 
                     open("f_auto_T$Tend.csv","a") do f
                         writedlm(f, f_now)
@@ -556,7 +559,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_epsides, save_file)
             else
                 f_now = 1/(grape |> QFIM |> inv |> tr)
                 gradient_QFIM_ADAM!(grape)
-                if  abs(f_now - f_ini) < epsilon || epsides > max_epsides
+                if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of the target function is ", f_now)
@@ -572,7 +575,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_epsides, save_file)
                     break
                 else
                     f_ini = f_now
-                    epsides += 1
+                    episodes += 1
                     append!(f_list,f_now)
                     print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
                 end
@@ -581,24 +584,26 @@ function GRAPE_QFIM_auto(grape, epsilon, max_epsides, save_file)
     end
 end
 
-function GRAPE_QFIM_analy(grape, epsilon, max_epsides, save_file)
+function GRAPE_QFIM_analy(grape, epsilon, max_episodes, save_file)
     println("Analy-GRAPE:")
     println("quantum parameter estimation")
-    epsides = 1
+    episodes = 1
     Tend = (grape.times)[end] |> Int
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         grape.control_coefficients, f_ini = gradient_QFIM_analy(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial,
                                                              grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
-                                                             grape.control_coefficients, grape.times, grape.W)
+                                                             grape.control_coefficients, grape.times, grape.W, grape.mt, grape.vt, 
+                                                             grape.ϵ, grape.beta1, grape.beta2, grape.precision)
         f_list = [f_ini]
         println("initial QFI is $(f_ini)")
         while true
             if save_file == true
                 grape.control_coefficients, f_now = gradient_QFIM_analy(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial,
                                                              grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
-                                                             grape.control_coefficients, grape.times, grape.W)
-                if  abs(f_now - f_ini) < epsilon || epsides > max_epsides    
+                                                             grape.control_coefficients, grape.times, grape.W, grape.mt, grape.vt, 
+                                                             grape.ϵ, grape.beta1, grape.beta2, grape.precision)
+                if  abs(f_now - f_ini) < epsilon || episodes > max_episodes  
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final QFI is ", f_now)
@@ -614,7 +619,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_epsides, save_file)
                     break 
                 else
                     f_ini = f_now
-                    epsides += 1
+                    episodes += 1
 
                     open("f_analy_T$Tend.csv","a") do f
                         writedlm(f, f_now)
@@ -629,9 +634,10 @@ function GRAPE_QFIM_analy(grape, epsilon, max_epsides, save_file)
             else
                 grape.control_coefficients, f_now = gradient_QFIM_analy(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial,
                                                              grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
-                                                             grape.control_coefficients, grape.times, grape.W)
+                                                             grape.control_coefficients, grape.times, grape.W, grape.mt, grape.vt, 
+                                                             grape.ϵ, grape.beta1, grape.beta2, grape.precision)
             
-                if  abs(f_now - f_ini) < epsilon || epsides > max_epsides
+                if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final QFI is ", f_now)
@@ -646,7 +652,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_epsides, save_file)
                     break
                 else
                     f_ini = f_now
-                    epsides += 1
+                    episodes += 1
                     append!(f_list,f_now)
                     print("current QFI is ", f_now, " ($(f_list|>length) epochs)    \r")
                 end
@@ -657,15 +663,17 @@ function GRAPE_QFIM_analy(grape, epsilon, max_epsides, save_file)
         println("multiparameter scenario")
         grape.control_coefficients, f_ini = gradient_QFIM_analy(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial,
                                                             grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
-                                                            grape.control_coefficients, grape.times, grape.W)
+                                                            grape.control_coefficients, grape.times, grape.W, grape.mt, grape.vt, 
+                                                             grape.ϵ, grape.beta1, grape.beta2, grape.precision)
         f_list = [f_ini]
         println("initial value of the target function is $(f_ini)")
         while true
             if save_file == true
                 grape.control_coefficients, f_now = gradient_QFIM_analy(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial,
                                                              grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
-                                                             grape.control_coefficients, grape.times, grape.W)
-                if  abs(f_now - f_ini) < epsilon  || epsides > max_epsides
+                                                             grape.control_coefficients, grape.times, grape.W, grape.mt, grape.vt, 
+                                                             grape.ϵ, grape.beta1, grape.beta2, grape.precision)
+                if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value is ", f_now)
@@ -681,7 +689,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_epsides, save_file)
                     break
                 else
                     f_ini = f_now
-                    epsides += 1
+                    episodes += 1
 
                     open("f_analy_T$Tend.csv","a") do f
                         writedlm(f, f_now)
@@ -696,8 +704,9 @@ function GRAPE_QFIM_analy(grape, epsilon, max_epsides, save_file)
             else
                 grape.control_coefficients, f_now = gradient_QFIM_analy(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial,
                                                              grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
-                                                             grape.control_coefficients, grape.times, grape.W)
-                if  abs(f_now - f_ini) < epsilon  || epsides > max_epsides
+                                                             grape.control_coefficients, grape.times, grape.W, grape.mt, grape.vt, 
+                                                             grape.ϵ, grape.beta1, grape.beta2, grape.precision)
+                if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value is ", f_now)
@@ -713,7 +722,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_epsides, save_file)
                     break
                 else
                     f_ini = f_now
-                    epsides += 1
+                    episodes += 1
                     append!(f_list,f_now)
                     print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
                 end
@@ -722,10 +731,10 @@ function GRAPE_QFIM_analy(grape, epsilon, max_epsides, save_file)
     end
 end
 
-function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_epsides, save_file)
+function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, save_file)
     println("AutoGrape:")
     println("classical parameter estimation")
-    epsides = 1
+    episodes = 1
     Tend = (grape.times)[end] |> Int
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -737,7 +746,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_epsides, save_file)
             if save_file == true
                 f_now = CFI(Measurement, grape)
                 gradient_CFI_ADAM!(grape, Measurement)
-                if  abs(f_now - f_ini) < epsilon || epsides > max_epsides
+                if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final CFI is ", f_now)
@@ -753,7 +762,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_epsides, save_file)
                     break
                 else
                     f_ini = f_now
-                    epsides += 1
+                    episodes += 1
 
                     open("f_auto_T$Tend.csv","a") do f
                         writedlm(f, f_now)
@@ -767,7 +776,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_epsides, save_file)
             else
                 f_now = CFI(Measurement, grape)
                 gradient_CFI_ADAM!(grape, Measurement)
-                if  abs(f_now - f_ini) < epsilon || epsides > max_epsides
+                if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final CFI is ", f_now)
@@ -783,7 +792,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_epsides, save_file)
                     break
                 else
                     f_ini = f_now
-                    epsides += 1
+                    episodes += 1
                     append!(f_list,f_now)
                     print("current CFI is ", f_now, " ($(f_list|>length) epochs)    \r")
                 end
@@ -800,7 +809,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_epsides, save_file)
             if save_file == true
                 f_now = 1/(grape |> CFIM |> inv |> tr)
                 gradient_CFIM_ADAM!(grape, Measurement)
-                if  abs(f_now - f_ini) < epsilon || epsides > max_epsides
+                if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of the target function is ", f_now)
@@ -815,7 +824,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_epsides, save_file)
                     break
                 else
                     f_ini = f_now
-                    epsides += 1
+                    episodes += 1
                     open("f_auto_T$Tend.csv","a") do f
                         writedlm(f, f_now)
                     end
@@ -829,7 +838,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_epsides, save_file)
             else
                 f_now = 1/(grape |> CFIM |> inv |> tr)
                 gradient_CFIM_ADAM!(grape, Measurement)
-                if  abs(f_now - f_ini) < epsilon || epsides > max_epsides
+                if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of the target function is ", f_now)
@@ -844,7 +853,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_epsides, save_file)
                     break
                 else
                     f_ini = f_now
-                    epsides += 1
+                    episodes += 1
                     append!(f_list,f_now)
                     print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
                 end
@@ -853,24 +862,26 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_epsides, save_file)
     end
 end
 
-function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_epsides, save_file)
+function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, save_file)
     println("Analy-GRAPE:")
     println("classical parameter estimation")
-    epsides = 1
+    episodes = 1
     Tend = (grape.times)[end] |> Int
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         grape.control_coefficients, f_ini = gradient_CFIM_analy(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial,
                                                              grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
-                                                             grape.control_coefficients, grape.times, grape.precision, grape.W)
+                                                             grape.control_coefficients, grape.times, grape.W, grape.mt, grape.vt, 
+                                                             grape.ϵ, grape.beta1, grape.beta2, grape.precision)
         f_list = [f_ini]
         println("initial CFI is $(f_ini)")
         while true
             if save_file == true
                 grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial,
                                                              grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
-                                                             grape.control_coefficients, grape.times, grape.precision, grape.W)
-                if  abs(f_now - f_ini) < epsilon || epsides > max_epsides    
+                                                             grape.control_coefficients, grape.times, grape.W, grape.mt, grape.vt, 
+                                                             grape.ϵ, grape.beta1, grape.beta2, grape.precision)
+                if  abs(f_now - f_ini) < epsilon || episodes > max_episodes   
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final CFI is ", f_now)
@@ -886,7 +897,7 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_epsides, save_file)
                     break 
                 else
                     f_ini = f_now
-                    epsides += 1
+                    episodes += 1
 
                     open("f_analy_T$Tend.csv","a") do f
                         writedlm(f, f_now)
@@ -899,11 +910,12 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_epsides, save_file)
                 end                        
 
             else
-                grape.control_coefficients, f_now = gradient_QFIM_analy(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial,
+                grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial,
                                                              grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
-                                                             grape.control_coefficients, grape.times, grape.W)
+                                                             grape.control_coefficients, grape.times, grape.W, grape.mt, grape.vt, 
+                                                             grape.ϵ, grape.beta1, grape.beta2, grape.precision)
             
-                if  abs(f_now - f_ini) < epsilon || epsides > max_epsides
+                if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final CFI is ", f_now)
@@ -918,7 +930,7 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_epsides, save_file)
                     break
                 else
                     f_ini = f_now
-                    epsides += 1
+                    episodes += 1
                     append!(f_list,f_now)
                     print("current CFI is ", f_now, " ($(f_list|>length) epochs)    \r")
                 end
@@ -926,17 +938,19 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_epsides, save_file)
         end
     else
         println("multiparameter scenario")
-        grape.control_coefficients, f_ini = gradient_QFIM_analy(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial,
+        grape.control_coefficients, f_ini = gradient_CFIM_analy(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial,
                                                             grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
-                                                            grape.control_coefficients, grape.times, grape.W)
+                                                            grape.control_coefficients, grape.times, grape.W, grape.mt, grape.vt, 
+                                                             grape.ϵ, grape.beta1, grape.beta2, grape.precision)
         f_list = [f_ini]
         println("initial value of the target function is $(f_ini)")
         while true
             if save_file == true
                 grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial,
                                                             grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
-                                                            grape.control_coefficients, grape.times, grape.precision, grape.W)
-                if  abs(f_now - f_ini) < epsilon  || epsides > max_epsides
+                                                            grape.control_coefficients, grape.times, grape.W, grape.mt, grape.vt, 
+                                                             grape.ϵ, grape.beta1, grape.beta2, grape.precision)
+                if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of the target function is ", f_now)
@@ -950,7 +964,7 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_epsides, save_file)
                     break
                 else
                     f_ini = f_now
-                    epsides += 1
+                    episodes += 1
                     open("f_analy_T$Tend.csv","a") do f
                         writedlm(f, f_now)
                     end
@@ -964,8 +978,9 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_epsides, save_file)
             else
                 grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial,
                                                                     grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, 
-                                                                    grape.control_coefficients, grape.times, grape.precision, grape.W)
-                if  abs(f_now - f_ini) < epsilon  || epsides > max_epsides
+                                                                    grape.control_coefficients, grape.times, grape.W, grape.mt, grape.vt, 
+                                                                    grape.ϵ, grape.beta1, grape.beta2, grape.precision)
+                if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of the target function is ", f_now)
@@ -979,7 +994,7 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_epsides, save_file)
                     break
                 else
                     f_ini = f_now
-                    epsides += 1
+                    episodes += 1
                     append!(f_list,f_now)
                     print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
                 end
