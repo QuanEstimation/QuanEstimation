@@ -73,7 +73,7 @@ class ControlSystem:
                            but %d coefficients sequences. The rest of the control sequences are\
                            set to be 0.'%(ctrlnum,ctrl_length), DeprecationWarning)
         
-         number = math.ceil(len(self.tspan)/len(self.control_coefficients[0]))
-         if len(self.tspan) % len(self.control_coefficients[0]) != 0:
+        number = math.ceil(len(self.tspan)/len(self.control_coefficients[0]))
+        if len(self.tspan) % len(self.control_coefficients[0]) != 0:
             self.tnum = number*len(self.control_coefficients[0])
             self.tspan = np.linspace(self.tspan[0], self.tspan[-1], self.tnum)

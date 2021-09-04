@@ -5,7 +5,7 @@ function CFI(ρ, dρ, M)
     F = 0.
     for i in 1:m_num
         mp = M[i]
-        p += tr(ρ * mp)
+        p = tr(ρ * mp)
         dp = tr(dρ * mp)
         cadd = 0.
         if p != 0
@@ -48,7 +48,7 @@ function CFIM(M::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_ini
     ctrl_interval = (length(times)/length(control_coefficients[1])) |> Int
     control_coefficients = [repeat(control_coefficients[i], 1, ctrl_interval) |>transpose |>vec for i in 1:ctrl_num]
     H = Htot(H0, control_Hamiltonian, control_coefficients)
-    ∂H_L = liouville_commu(∂H_∂x)
+    ∂H_L = [liouville_commu(∂H_∂x[i]) for i in 1:para_num]
 
     Δt = times[2] - times[1]
     ρt = ρ_initial |> vec
@@ -142,7 +142,6 @@ function QFI(H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouvi
         ρt =  expL * ρt
         ∂ρt_∂x = -im * Δt * ∂H_L * ρt + expL * ∂ρt_∂x
     end
-
     ρt = exp( vec(H[end])' * zero(ρt) ) * ρt
     QFI(ρt|> vec2mat, ∂ρt_∂x|> vec2mat)
 end
@@ -188,7 +187,7 @@ function QFIM(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T
     ctrl_interval = (length(times)/length(control_coefficients[1])) |> Int
     control_coefficients = [repeat(control_coefficients[i], 1, ctrl_interval) |>transpose |>vec for i in 1:ctrl_num]
     H = Htot(H0, control_Hamiltonian, control_coefficients)
-    ∂H_L = liouville_commu(∂H_∂x)
+    ∂H_L = [liouville_commu(∂H_∂x[i]) for i in 1:para_num]
 
     Δt = times[2] - times[1]
     ρt = ρ_initial |> vec
