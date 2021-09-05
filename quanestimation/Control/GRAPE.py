@@ -8,7 +8,8 @@ import quanestimation.Control.Control as Control
 
 class GRAPE(Control.ControlSystem):
     def __init__(self, tspan, rho_initial, H0, Hc=[], dH=[], ctrl_initial=[], Liouville_operator=[], \
-                 gamma=[], control_option=True, W=[], max_episodes=200, epsilon=1e-4, lr=0.01, precision=1e-8):
+                 gamma=[], control_option=True, W=[], epsilon=1e-4,  max_episodes=200, Adam=True, lr=0.01, \
+                 beta1=0.90, beta2=0.99, mt=0.0, vt=0.0, precision=1e-8):
 
         """
         ----------
@@ -49,27 +50,35 @@ class GRAPE(Control.ControlSystem):
             --type: list (of float number)
 
         W:
-            --description: Weight matrix.
+            --description: weight matrix.
             --type: matrix
 
+        Adam:
+            --description: whether to use Adam to update the controls.
+            --type: bool (True or False)
+
         lr:
-            --description: learning.
+            --description: learning rate.
+            --type: float number
+
+        beta1, beta2, mt, vt:
+            --description: Adam parameters.
             --type: float number
 
         precision:
             --description: calculation precision.
             --type: float number
 
-        epsilon:
-            --description: stop condition.
-            --type: float number
-
         """
         Control.ControlSystem.__init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, gamma, control_option)
         self.lr = lr
-        self.epsilon = epsilon
         self.precision = precision
         self.max_episodes = max_episodes
+        self.epsilon = epsilon
+        self.beta1 = beta1
+        self.beta2 = beta2
+        self.mt = mt
+        self.vt = vt
         if W == []:
             self.W = np.eye(len(dH))
         else:
@@ -77,7 +86,7 @@ class GRAPE(Control.ControlSystem):
 
     def QFIM(self, auto=True, save_file=False):
         """
-        Description: use GRAPE algorithm to update the ****.
+        Description: use auto-GRAPE (GRAPE) algorithm to calculate the gradient of QFIM (QFI) and update the controls.
 
         ---------
         Inputs
@@ -109,15 +118,21 @@ class GRAPE(Control.ControlSystem):
 
         """
         grape = Main.QuanEstimation.Gradient(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
-                        self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.W, self.lr, self.precision)
+                        self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.W, \
+                        self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision)
         if auto == True:
             Main.QuanEstimation.GRAPE_QFIM_auto(grape, self.epsilon, self.max_episodes, save_file)
         else:
-            Main.QuanEstimation.GRAPE_QFIM_analy(grape, self.epsilon, self.max_episodes, save_file)
-
+            if len(self.tspan) != len(self.control_coefficients[0]):
+                warnings.warn('GRAPE does not support the case when the length of each control is not equal to the length of time, \
+                               and is replaced by auto-GRAPE.', DeprecationWarning)
+                Main.QuanEstimation.GRAPE_QFIM_auto(grape, self.epsilon, self.max_episodes, save_file)
+            else:
+                Main.QuanEstimation.GRAPE_QFIM_analy(grape, self.epsilon, self.max_episodes, save_file)
+    
     def CFIM(self, Measurement, auto=True, save_file=False):
         """
-        Description: ****.
+        Description: use auto-GRAPE (GRAPE) algorithm to calculate the gradient of CFIM (CFI) and update the controls.
 
         ---------
         Inputs
@@ -154,8 +169,14 @@ class GRAPE(Control.ControlSystem):
         """
 
         grape = Main.QuanEstimation.Gradient(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
-                        self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.W, self.lr)
+                        self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.W, \
+                        self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision)
         if auto == True:
             Main.QuanEstimation.GRAPE_CFIM_auto(Measurement, grape, self.epsilon, self.max_episodes, save_file)
         else:
-            Main.QuanEstimation.GRAPE_CFIM_analy(Measurement, grape, self.epsilon, self.max_episodes, save_file)
+            if len(self.tspan) != len(self.control_coefficients[0]):
+                warnings.warn('GRAPE does not support the case when the length of each control is not equal to the length of time, \
+                               and is replaced by auto-GRAPE.', DeprecationWarning)
+                Main.QuanEstimation.GRAPE_QFIM_auto(grape, self.epsilon, self.max_episodes, save_file)
+            else:
+                Main.QuanEstimation.GRAPE_CFIM_analy(Measurement, grape, self.epsilon, self.max_episodes, save_file)
