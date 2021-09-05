@@ -55,6 +55,7 @@ class ControlSystem:
         self.Liouville_operator = [x.view(dtype=np.complex128) for x in Liouville_operator]
         self.gamma = gamma
         self.control_option = control_option
+        self.tnum = len(tspan)
 
         if len(self.gamma) != len(self.Liouville_operator):
             raise TypeError('The length of decay rates and Liouville operators should be the same') 

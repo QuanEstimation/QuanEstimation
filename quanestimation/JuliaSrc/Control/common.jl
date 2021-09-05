@@ -8,9 +8,11 @@ function Adam(gt, t, para, m_t, v_t, alpha=0.01, beta1=0.90, beta2=0.99, epsilon
     return para, m_t, v_t
 end
 
-function Adam!(system, δ, mt=0.0, vt=0.0)
+function Adam!(system, δ, mt_in=0.0, vt_in=0.0)
     ctrl_length = length(system.control_coefficients[1])
     for ctrl in 1:length(δ)
+        mt = mt_in
+        vt = vt_in
         for ti in 1:ctrl_length
             system.control_coefficients[ctrl][ti], mt, vt = Adam(δ[ctrl][ti], ti, system.control_coefficients[ctrl][ti], mt, vt)
         end

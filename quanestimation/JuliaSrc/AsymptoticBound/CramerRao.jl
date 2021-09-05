@@ -5,7 +5,7 @@ function CFI(ρ, dρ, M)
     F = 0.
     for i in 1:m_num
         mp = M[i]
-        p += tr(ρ * mp)
+        p = tr(ρ * mp)
         dp = tr(dρ * mp)
         cadd = 0.
         if p != 0
