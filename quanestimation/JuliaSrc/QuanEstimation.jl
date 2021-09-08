@@ -9,6 +9,7 @@ using SharedArrays
 using Base.Threads
 using SparseArrays
 using DelimitedFiles
+using StatsBase
 
 include("AsymptoticBound/CramerRao.jl")
 include("Common/common.jl")
