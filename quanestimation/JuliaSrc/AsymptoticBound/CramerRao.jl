@@ -39,10 +39,10 @@ end
 
 function CFIM(ρ, dρ, M)
     m_num = length(M)
-    cfim = [tr.(kron(dρ', dρ).*M[i]) / tr(ρ*M[i])  for i in 1:m_num] |> sum
+    cfim = [kron(tr.(dρ'.*M[i]), tr.(dρ.*M[i])) / tr(ρ*M[i])  for i in 1:m_num] |> sum
 end
 
-function CFIM(M::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ,  control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
+function CFIM(M::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ,  control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
     para_num = length(∂H_∂x)
     ctrl_num = length(control_Hamiltonian)
     ctrl_interval = (length(times)/length(control_coefficients[1])) |> Int
