@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 from time import time
 import quanestimation
 
-for T in [25, 30, 35, 40]:#range(1, 21):
+for T in range(1, 21):
     tnum = int(250*T)
     tspan = np.linspace(0, T, tnum)
     dt = tspan[1]-tspan[0]
-    cnum = int(tnum)
+    cnum = 6
 
     omega0 = 1.0
     gamma = [0.1]
@@ -30,6 +30,7 @@ for T in [25, 30, 35, 40]:#range(1, 21):
     vy = 0.0*np.ones(cnum)
     vz = 0.0*np.ones(cnum)
     Hc_coeff = [vx,vy,vz]
+    # Hc_coeff = [np.loadtxt('ctrl_pso_T'+str(float(T))+'.csv')[i] for i in [0, 1, 2]]
 
     #free Hamiltonian
     H0 = 0.5*omega0*sz
@@ -37,16 +38,14 @@ for T in [25, 30, 35, 40]:#range(1, 21):
 
     #control Hamiltonians
     Hc_ctrl = [sx,sy,sz]
-
+    
     #measurement
     M1 = np.dot(psi_p, psi_p.conj().transpose())
     M2 = np.dot(psi_m, psi_m.conj().transpose())
     M  = [M1, M2]
 
     Lvec = [sm]
-    PSO = quanestimation.PSO(10, tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, Lvec, gamma, 1000, v0=0.1, seed=100)
-
-    t1 = time()
-    # GRAPE.QFIM(auto=False)
+    PSO = quanestimation.PSO(10, tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, Lvec, gamma, [5000, 100], v0=0.01, seed=100)
+    t1 = time()    # GRAPE.QFIM(auto=False)
     PSO.QFIM()
     print(time()-t1)
