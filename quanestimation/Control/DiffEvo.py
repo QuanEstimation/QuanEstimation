@@ -1,7 +1,7 @@
 import numpy as np
 from julia import Main
 import quanestimation.Control.Control as Control
-class PSO(Control.ControlSystem):
+class DiffEvo(Control.ControlSystem):
     def __init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
                 gamma, control_option=True, populations=10, c=0.5, c0=0.1, c1=0.6, seed=1234, \
                 max_episodes=200):
