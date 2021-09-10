@@ -44,8 +44,8 @@ class PSO(Control.ControlSystem):
     def QFIM(self, save_file=False):
         pso = Main.QuanEstimation.PSO(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
                         self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients)
-        Main.QuanEstimation.PSO_QFIM(pso,  particle_num=self.particle_num, c0=self.c0, c1=self.c1, c2=self.c2, \
-                                     v0=self.v0, sd=self.seed, episode=self.episode)
+        Main.QuanEstimation.PSO_QFIM(pso, self.episode, particle_num=self.particle_num, c0=self.c0, c1=self.c1, c2=self.c2, \
+                                     v0=self.v0, sd=self.seed)
          
     
     def swarm_origin(self):
