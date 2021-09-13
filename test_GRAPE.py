@@ -47,6 +47,7 @@ Lvec = [sm]
 GRAPE = quanestimation.GRAPE(tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, Lvec, gamma, epsilon=1e-4, max_episodes=1000)
 
 t1 = time()
+
 # GRAPE.QFIM(auto=False)
 GRAPE.QFIM()
 print(time()-t1)

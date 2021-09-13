@@ -9,12 +9,14 @@ using SharedArrays
 using Base.Threads
 using SparseArrays
 using DelimitedFiles
+using StatsBase
 
 include("AsymptoticBound/CramerRao.jl")
 include("Common/common.jl")
 include("Common/utils.jl")
 include("Control/GRAPE.jl")
 include("Control/PSO.jl")
+include("Control/DiffEvo.jl")
 include("Control/common.jl")
 include("Dynamics/dynamcs.jl")
 # include("QuanResources/")
