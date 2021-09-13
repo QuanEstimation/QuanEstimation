@@ -632,9 +632,10 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
         else
             gradient_QFI!(grape)
         end
-        while true
-            if save_file == true
-                if Adam == true
+        
+        if save_file == true
+            if Adam == true
+                while true
                     f_now = QFI(grape)
                     gradient_QFI_Adam!(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
@@ -650,7 +651,9 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                         SaveFile_auto(Tend, f_now, grape.control_coefficients)
                         print("current QFI is ", f_now, " ($(f_list|>length) epochs)    \r")
                     end
-                else
+                end
+            else
+                while true
                     f_now = QFI(grape)
                     gradient_QFI!(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
@@ -668,8 +671,10 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                         print("current QFI is ", f_now, " ($(f_list|>length) epochs)    \r")
                     end
                 end
-            else
-                if Adam == true
+            end
+        else
+            if Adam == true
+                while true
                     f_now = QFI(grape)
                     gradient_QFI_Adam!(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
@@ -685,7 +690,9 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                         append!(f_list,f_now)
                         print("current QFI is ", f_now, " ($(f_list|>length) epochs)    \r")
                     end
-                else
+                end
+            else
+                while true
                     f_now = QFI(grape)
                     gradient_QFI!(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
@@ -706,36 +713,21 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
         end
     else
         println("multiple parameters scenario")
-        f_ini = (grape |> QFIM |> inv |> tr)
+        f_ini = tr(inv(QFIM(grape)))
         f_list = [f_ini]
         println("initial value of the target function is $(f_ini)")
         if Adam == true
-            gradient_QFI_Adam!(grape)
+            gradient_QFIM_Adam!(grape)
         else
-            gradient_QFI!(grape)
+            gradient_QFIM!(grape)
         end
-        while true
-            if save_file == true
-                if Adam == true
-                    f_now = (grape |> QFIM |> inv |> tr)
+        
+        if save_file == true
+            if Adam == true
+                while true
+                    f_now = tr(inv(QFIM(grape)))
                     gradient_QFIM_Adam!(grape)
-                    if  abd(f_now - f_ini) < epsilon || episodes > max_episodes
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value of the target function is ", f_now)
-                        save("controls_T$Tend.jld", "controls", grape.control_coefficients, "time_span", grape.times, "f", f_list)
-                        SaveFile_auto(Tend, f_now, grape.control_coefficients)
-                        break
-                    else
-                        f_ini = f_now
-                        episodes += 1
-                        SaveFile_auto(Tend, f_now, grape.control_coefficients)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
-                    end
-                else
-                    f_now = (grape |> QFIM |> inv |> tr)
-                    gradient_QFIM!(grape)
-                    if  abd(f_now - f_ini) < epsilon || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of the target function is ", f_now)
@@ -750,7 +742,27 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                     end
                 end
             else
-                if Adam == true
+                while true
+                    f_now = (grape |> QFIM |> inv |> tr)
+                    gradient_QFIM!(grape)
+                    if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of the target function is ", f_now)
+                        save("controls_T$Tend.jld", "controls", grape.control_coefficients, "time_span", grape.times, "f", f_list)
+                        SaveFile_auto(Tend, f_now, grape.control_coefficients)
+                        break
+                    else
+                        f_ini = f_now
+                        episodes += 1
+                        SaveFile_auto(Tend, f_now, grape.control_coefficients)
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                    end
+                end
+            end
+        else
+            if Adam == true
+                while true
                     f_now = (grape |> QFIM |> inv |> tr)
                     gradient_QFIM_Adam!(grape)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
@@ -766,7 +778,9 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                         append!(f_list,f_now)
                         print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
                     end
-                else
+                end
+            else
+                while true
                     f_now = (grape |> QFIM |> inv |> tr)
                     gradient_QFIM!(grape)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
@@ -802,9 +816,10 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
         end
         f_list = [f_ini]
         println("initial QFI is $(f_ini)")
-        while true
-            if save_file == true
-                if Adam == true
+        
+        if save_file == true
+            if Adam == true
+                while true
                     grape.control_coefficients, f_now = gradient_QFIM_analy_Adam(grape)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes  
                         print("\e[2K")
@@ -819,8 +834,10 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
                         SaveFile_analy(Tend, f_now, grape.control_coefficients)
                         append!(f_list,f_now)
                         print("current QFI is ", f_now, " ($(f_list|>length) epochs)    \r")
-                    end   
-                else
+                    end  
+                end 
+            else
+                while true
                     grape.control_coefficients, f_now = gradient_QFIM_analy(grape)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes  
                         print("\e[2K")
@@ -836,9 +853,11 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
                         append!(f_list,f_now)
                         print("current QFI is ", f_now, " ($(f_list|>length) epochs)    \r")
                     end  
-                end                     
-            else
-                if Adam == true
+                end 
+            end                    
+        else
+            if Adam == true
+                while true
                     grape.control_coefficients, f_now = gradient_QFIM_analy_Adam(grape)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
                         print("\e[2K")
@@ -853,7 +872,9 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
                         append!(f_list,f_now)
                         print("current QFI is ", f_now, " ($(f_list|>length) epochs)    \r")
                     end
-                else
+                end
+            else
+                while true
                     grape.control_coefficients, f_now = gradient_QFIM_analy(grape)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
                         print("\e[2K")
@@ -880,26 +901,11 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
         end
         f_list = [f_ini]
         println("initial value of the target function is $(f_ini)")
-        while true
-            if save_file == true
-                if Adam == true
+        
+        if save_file == true
+            if Adam == true
+                while true
                     grape.control_coefficients, f_now = gradient_QFIM_analy_Adam(grape)
-                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value is ", f_now)
-                        save("controls_T$Tend.jld", "controls", grape.control_coefficients, "time_span", grape.times, "f", f_list)
-                        SaveFile_analy(Tend, f_now, grape.control_coefficients)
-                        break
-                    else
-                        f_ini = f_now
-                        episodes += 1
-                        SaveFile_analy(Tend, f_now, grape.control_coefficients)
-                        append!(f_list,f_now)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
-                    end
-                else
-                    grape.control_coefficients, f_now = gradient_QFIM_analy(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -916,7 +922,27 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
                     end
                 end
             else
-                if Adam == true
+                while true
+                    grape.control_coefficients, f_now = gradient_QFIM_analy(grape)
+                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value is ", f_now)
+                        save("controls_T$Tend.jld", "controls", grape.control_coefficients, "time_span", grape.times, "f", f_list)
+                        SaveFile_analy(Tend, f_now, grape.control_coefficients)
+                        break
+                    else
+                        f_ini = f_now
+                        episodes += 1
+                        SaveFile_analy(Tend, f_now, grape.control_coefficients)
+                        append!(f_list,f_now)
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                    end
+                end
+            end
+        else
+            if Adam == true
+                while true
                     grape.control_coefficients, f_now = gradient_QFIM_analy_Adam(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
                         print("\e[2K")
@@ -931,7 +957,9 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
                         append!(f_list,f_now)
                         print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
                     end
-                else
+                end
+            else
+                while true
                     grape.control_coefficients, f_now = gradient_QFIM_analy(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
                         print("\e[2K")
@@ -967,9 +995,10 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
         else
             gradient_CFI!(grape, Measurement)
         end
-        while true
-            if save_file == true
-                if Adam == true
+        
+        if save_file == true
+            if Adam == true
+                while true
                     f_now = CFI(Measurement, grape)
                     gradient_CFI_Adam!(grape, Measurement)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
@@ -986,7 +1015,9 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
                         append!(f_list,f_now)
                         print("current CFI is ", f_now, " ($(f_list|>length) epochs)    \r")
                     end
-                else
+                end
+            else
+                while true
                     f_now = CFI(Measurement, grape)
                     gradient_CFI!(grape, Measurement)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
@@ -1004,8 +1035,10 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
                         print("current CFI is ", f_now, " ($(f_list|>length) epochs)    \r")
                     end
                 end
-            else
-                if Adam == true
+            end
+        else
+            if Adam == true
+                while true
                     f_now = CFI(Measurement, grape)
                     gradient_CFI_Adam!(grape, Measurement)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
@@ -1021,7 +1054,9 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
                         append!(f_list,f_now)
                         print("current CFI is ", f_now, " ($(f_list|>length) epochs)    \r")
                     end
-                else
+                end
+            else
+                while true
                     f_now = CFI(Measurement, grape)
                     gradient_CFI!(grape, Measurement)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
@@ -1040,7 +1075,6 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
                 end
             end
         end
-
     else
         println("multiparameter scenario")
         f_ini = tr(inv(CFIM(Measurement, grape)))
@@ -1051,9 +1085,10 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
         else
             gradient_CFIM!(grape, Measurement)
         end
-        while true
-            if save_file == true
-                if Adam == true
+        
+        if save_file == true
+            if Adam == true
+                while true
                     f_now = tr(inv(CFIM(Measurement, grape)))
                     gradient_CFIM_Adam!(grape, Measurement)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
@@ -1070,7 +1105,9 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
                         append!(f_list,f_now)
                         print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
                     end
-                else
+                end
+            else
+                while true
                     f_now = tr(inv(CFIM(Measurement, grape)))
                     gradient_CFIM!(grape, Measurement)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
@@ -1088,8 +1125,10 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
                         print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
                     end
                 end
-            else
-                if Adam == true
+            end
+        else
+            if Adam == true
+                while true
                     f_now = tr(inv(CFIM(Measurement, grape)))
                     gradient_CFIM_Adam!(grape, Measurement)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
@@ -1105,7 +1144,9 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
                         append!(f_list,f_now)
                         print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
                     end
-                else
+                end
+            else
+                while true
                     f_now = tr(inv(CFIM(Measurement, grape)))
                     gradient_CFIM!(grape, Measurement)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
@@ -1141,9 +1182,10 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
         end
         f_list = [f_ini]
         println("initial CFI is $(f_ini)")
-        while true
-            if save_file == true
-                if Adam == true
+        
+        if save_file == true
+            if Adam == true
+                while true
                     grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(Measurement, grape)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes   
                         print("\e[2K")
@@ -1159,7 +1201,9 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
                         append!(f_list,f_now)
                         print("current CFI is ", f_now, " ($(f_list|>length) epochs)    \r")
                     end 
-                else
+                end
+            else
+                while true
                     grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes   
                         print("\e[2K")
@@ -1175,10 +1219,11 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
                         append!(f_list,f_now)
                         print("current CFI is ", f_now, " ($(f_list|>length) epochs)    \r")
                     end 
-                end                       
-
-            else
-                if Adam == true
+                end  
+            end                     
+        else
+            if Adam == true
+                while true
                     grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(Measurement, grape)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
                         print("\e[2K")
@@ -1193,7 +1238,9 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
                         append!(f_list,f_now)
                         print("current CFI is ", f_now, " ($(f_list|>length) epochs)    \r")
                     end
-                else
+                end
+            else
+                while true
                     grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
                         print("\e[2K")
@@ -1220,26 +1267,11 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
         end
         f_list = [f_ini]
         println("initial value of the target function is $(f_ini)")
-        while true
-            if save_file == true
-                if Adam == true
+        
+        if save_file == true
+            if Adam == true
+                while true
                     grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(Measurement, grape)
-                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value of the target function is ", f_now)
-                        save("controls_T$Tend.jld", "controls", grape.control_coefficients, "time_span", grape.times, "f", f_list)
-                        SaveFile_analy(Tend, f_now, grape.control_coefficients)
-                        break
-                    else
-                        f_ini = f_now
-                        episodes += 1
-                        SaveFile_analy(Tend, f_now, grape.control_coefficients)
-                        append!(f_list,f_now)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
-                    end
-                else
-                    grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -1256,7 +1288,27 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
                     end
                 end
             else
-                if Adam == true
+                while true
+                    grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape)
+                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of the target function is ", f_now)
+                        save("controls_T$Tend.jld", "controls", grape.control_coefficients, "time_span", grape.times, "f", f_list)
+                        SaveFile_analy(Tend, f_now, grape.control_coefficients)
+                        break
+                    else
+                        f_ini = f_now
+                        episodes += 1
+                        SaveFile_analy(Tend, f_now, grape.control_coefficients)
+                        append!(f_list,f_now)
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                    end
+                end
+            end
+        else
+            if Adam == true
+                while true
                     grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(Measurement, grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
                         print("\e[2K")
@@ -1271,7 +1323,9 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
                         append!(f_list,f_now)
                         print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
                     end
-                else
+                end
+            else
+                while true
                     grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
                         print("\e[2K")
