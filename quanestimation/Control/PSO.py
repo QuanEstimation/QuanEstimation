@@ -4,7 +4,7 @@ import quanestimation.Control.Control as Control
 
 class PSO(Control.ControlSystem):
     def __init__(self, particle_num, tspan, rho_initial, H0, Hc=[], dH=[], ctrl_initial=[], Liouville_operator=[], \
-                 gamma=[], episode=400, seed=100, c0=1.0, c1=2.0, c2=2.0, v0=0.01,control_option=True):
+                 gamma=[], episode=400, control_option=True, c0=1.0, c1=2.0, c2=2.0, v0=0.1, seed=100):
         
         """
         --------
@@ -37,6 +37,7 @@ class PSO(Control.ControlSystem):
         self.c2 = c2
         self.v0 = v0
         self.seed = seed
+        self.tnum = len(tspan)
         self.rho = None
         self.rho_derivative = None
         self.F = None
@@ -44,8 +45,8 @@ class PSO(Control.ControlSystem):
     def QFIM(self, save_file=False):
         pso = Main.QuanEstimation.PSO(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
                         self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients)
-        Main.QuanEstimation.PSO_QFIM(pso, self.episode, particle_num=self.particle_num, c0=self.c0, c1=self.c1, c2=self.c2, \
-                                     v0=self.v0, sd=self.seed)
+        Main.QuanEstimation.PSO_QFIM(pso,  particle_num=self.particle_num, c0=self.c0, c1=self.c1, c2=self.c2, \
+                                     v0=self.v0, sd=self.seed, episode=self.episode)
          
     
     def swarm_origin(self):
