@@ -3,7 +3,7 @@ function liouville_commu(H)
 end
 
 function liouville_dissip(Γ)
-    kron(Γ |> conj, Γ) - 0.5 * kron((Γ |> transpose) * Γ |> conj, Γ |> one) - 0.5 * kron(Γ |> one, Γ' * Γ)
+    kron(Γ |> conj, Γ) - 0.5 * kron((Γ |> transpose) * (Γ |> conj), Γ |> one) - 0.5 * kron(Γ |> one, Γ' * Γ)
 end
 
 function liouville_commu_py(A::Array{T}) where {T <: Complex}

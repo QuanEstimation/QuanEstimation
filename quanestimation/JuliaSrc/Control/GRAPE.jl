@@ -36,12 +36,12 @@ function gradient_CFI_Adam!(grape::Gradient{T}, Measurement) where {T <: Complex
 end
 
 function gradient_CFIM!(grape::Gradient{T}, Measurement) where {T <: Complex}
-    δI = gradient(x->1/CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times), grape.control_coefficients).|>real
+    δI = gradient(x->1/(CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times) |> pinv |> tr |>real), grape.control_coefficients).|>real |>sum
     grape.control_coefficients += grape.ϵ*δI
 end
 
 function gradient_CFIM_Adam!(grape::Gradient{T}, Measurement) where {T <: Complex}
-    δI = gradient(x->1/CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times), grape.control_coefficients).|>real
+    δI = gradient(x->1/(CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times) |> pinv |> tr |>real), grape.control_coefficients).|>real |>sum
     Adam!(grape, δI)
 end
 
@@ -632,7 +632,6 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
         else
             gradient_QFI!(grape)
         end
-        
         if save_file == true
             if Adam == true
                 while true
@@ -649,7 +648,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                         f_ini = f_now
                         episodes += 1
                         SaveFile_auto(Tend, f_now, grape.control_coefficients)
-                        print("current QFI is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current QFI is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             else
@@ -668,7 +667,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                         f_ini = f_now
                         episodes += 1
                         SaveFile_auto(Tend, f_now, grape.control_coefficients)
-                        print("current QFI is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current QFI is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             end
@@ -688,7 +687,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                         f_ini = f_now
                         episodes += 1
                         append!(f_list,f_now)
-                        print("current QFI is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current QFI is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             else
@@ -706,7 +705,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                         f_ini = f_now
                         episodes += 1
                         append!(f_list,f_now)
-                        print("current QFI is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current QFI is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             end
@@ -737,8 +736,9 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                     else
                         f_ini = f_now
                         episodes += 1
+                        append!(f_list,f_now)
                         SaveFile_auto(Tend, f_now, grape.control_coefficients)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             else
@@ -756,7 +756,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                         f_ini = f_now
                         episodes += 1
                         SaveFile_auto(Tend, f_now, grape.control_coefficients)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             end
@@ -776,7 +776,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                         f_ini = f_now
                         episodes += 1
                         append!(f_list,f_now)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             else
@@ -794,7 +794,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                         f_ini = f_now
                         episodes += 1
                         append!(f_list,f_now)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             end
@@ -833,7 +833,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
                         episodes += 1
                         SaveFile_analy(Tend, f_now, grape.control_coefficients)
                         append!(f_list,f_now)
-                        print("current QFI is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current QFI is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end  
                 end 
             else
@@ -851,7 +851,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
                         episodes += 1
                         SaveFile_analy(Tend, f_now, grape.control_coefficients)
                         append!(f_list,f_now)
-                        print("current QFI is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current QFI is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end  
                 end 
             end                    
@@ -870,7 +870,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
                         f_ini = f_now
                         episodes += 1
                         append!(f_list,f_now)
-                        print("current QFI is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current QFI is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             else
@@ -887,7 +887,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
                         f_ini = f_now
                         episodes += 1
                         append!(f_list,f_now)
-                        print("current QFI is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current QFI is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             end
@@ -918,7 +918,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
                         episodes += 1
                         SaveFile_analy(Tend, f_now, grape.control_coefficients)
                         append!(f_list,f_now)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             else
@@ -936,7 +936,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
                         episodes += 1
                         SaveFile_analy(Tend, f_now, grape.control_coefficients)
                         append!(f_list,f_now)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             end
@@ -955,7 +955,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
                         f_ini = f_now
                         episodes += 1
                         append!(f_list,f_now)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             else
@@ -972,7 +972,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
                         f_ini = f_now
                         episodes += 1
                         append!(f_list,f_now)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             end
@@ -1013,7 +1013,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
                         episodes += 1
                         SaveFile_auto(Tend, f_now, grape.control_coefficients)
                         append!(f_list,f_now)
-                        print("current CFI is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current CFI is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             else
@@ -1032,7 +1032,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
                         episodes += 1
                         SaveFile_auto(Tend, f_now, grape.control_coefficients)
                         append!(f_list,f_now)
-                        print("current CFI is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current CFI is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             end
@@ -1052,7 +1052,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
                         f_ini = f_now
                         episodes += 1
                         append!(f_list,f_now)
-                        print("current CFI is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current CFI is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             else
@@ -1070,7 +1070,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
                         f_ini = f_now
                         episodes += 1
                         append!(f_list,f_now)
-                        print("current CFI is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current CFI is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             end
@@ -1079,13 +1079,12 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
         println("multiparameter scenario")
         f_ini = tr(inv(CFIM(Measurement, grape)))
         f_list = [f_ini]
-        println("initial val ue of the target function is $(f_ini)")
+        println("initial value of the target function is $(f_ini)")
         if Adam == true
             gradient_CFIM_Adam!(grape, Measurement)
         else
             gradient_CFIM!(grape, Measurement)
         end
-        
         if save_file == true
             if Adam == true
                 while true
@@ -1103,7 +1102,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
                         episodes += 1
                         SaveFile_auto(Tend, f_now, grape.control_coefficients)
                         append!(f_list,f_now)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             else
@@ -1122,7 +1121,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
                         episodes += 1
                         SaveFile_auto(Tend, f_now, grape.control_coefficients)
                         append!(f_list,f_now)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             end
@@ -1142,7 +1141,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
                         f_ini = f_now
                         episodes += 1
                         append!(f_list,f_now)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             else
@@ -1160,7 +1159,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
                         f_ini = f_now
                         episodes += 1
                         append!(f_list,f_now)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             end
@@ -1199,7 +1198,7 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
                         episodes += 1
                         SaveFile_analy(Tend, f_now, grape.control_coefficients)
                         append!(f_list,f_now)
-                        print("current CFI is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current CFI is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end 
                 end
             else
@@ -1217,7 +1216,7 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
                         episodes += 1
                         SaveFile_analy(Tend, f_now, grape.control_coefficients)
                         append!(f_list,f_now)
-                        print("current CFI is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current CFI is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end 
                 end  
             end                     
@@ -1236,7 +1235,7 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
                         f_ini = f_now
                         episodes += 1
                         append!(f_list,f_now)
-                        print("current CFI is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current CFI is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             else
@@ -1253,7 +1252,7 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
                         f_ini = f_now
                         episodes += 1
                         append!(f_list,f_now)
-                        print("current CFI is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current CFI is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             end
@@ -1284,7 +1283,7 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
                         episodes += 1
                         SaveFile_analy(Tend, f_now, grape.control_coefficients)
                         append!(f_list,f_now)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             else
@@ -1302,7 +1301,7 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
                         episodes += 1
                         SaveFile_analy(Tend, f_now, grape.control_coefficients)
                         append!(f_list,f_now)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             end
@@ -1321,7 +1320,7 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
                         f_ini = f_now
                         episodes += 1
                         append!(f_list,f_now)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             else
@@ -1338,7 +1337,7 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
                         f_ini = f_now
                         episodes += 1
                         append!(f_list,f_now)
-                        print("current value of the target function is ", f_now, " ($(f_list|>length) epochs)    \r")
+                        print("current value of the target function is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
                 end
             end
