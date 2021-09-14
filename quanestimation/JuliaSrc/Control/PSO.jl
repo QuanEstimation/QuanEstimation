@@ -89,7 +89,6 @@ function PSO_QFIM(pso::PSO{T}, episode::Int64=400; particle_num= 10, c0=1.0, c1=
     pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
     Tend = pso.times[end]
     print("\e[2K")
-    println("Final QFI is $fit ($ei epochs)")
     save("controls_T$Tend.jld", "controls", pso.control_coefficients, "time_span", pso.times)
     open("ctrl_pso_T$Tend.csv","w") do g
         writedlm(g, pso.control_coefficients)
@@ -97,6 +96,8 @@ function PSO_QFIM(pso::PSO{T}, episode::Int64=400; particle_num= 10, c0=1.0, c1=
     open("qfilist_pso_T$Tend.csv","w") do h
         writedlm(h, f_list)
     end
+    println("Final QFI is $fit ($(episode[1]) epochs)")
+
     return nothing
 end
 
@@ -176,8 +177,7 @@ function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}; particle_num= 10, c0=1.0,
     end
     pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
     Tend = pso.times[end]
-    print("\e[2K")
-    println("Final QFI is $fit ($(episode[1]) epochs)")
+    print("\e[2K")    
     save("controls_T$Tend.jld", "controls", pso.control_coefficients, "time_span", pso.times)
     open("ctrl_pso_T$Tend.csv","w") do g
         writedlm(g, pso.control_coefficients)
@@ -185,5 +185,7 @@ function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}; particle_num= 10, c0=1.0,
     open("qfilist_pso_T$Tend.csv","w") do h
         writedlm(h, f_list)
     end
+    println("Final QFI is $fit ($(episode[1]) epochs)")
+
     return nothing
 end
