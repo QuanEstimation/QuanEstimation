@@ -91,16 +91,17 @@ function DE_train(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             cr = c0
         end
         ctrl_cross = [Vector{Float64}(undef, ctrl_length)  for i in 1:ctrl_num]
-        cross_int = sample(1:p_num, 1, replace=false)
         for cj in 1:ctrl_num
+            cross_int = sample(1:ctrl_length, 1, replace=false)
             for tj in 1:ctrl_length
                 rand_num = rand()
-                if rand_num < cr ||  cross_int == pi
+                if rand_num <= cr
                     ctrl_cross[cj][tj] = ctrl_mut[cj][tj]
                 else
                     ctrl_cross[cj][tj] = populations[pi].control_coefficients[cj][tj]
                 end
             end
+            ctrl_cross[cj][cross_int] = ctrl_mut[cj][cross_int]
         end
         #selection
         f_cross = QFI(populations[pi].freeHamiltonian, populations[pi].Hamiltonian_derivative[1], populations[pi].ρ_initial, 
