@@ -81,7 +81,7 @@ class GRAPE(Control.ControlSystem):
         self.vt = vt
         self.Adam = Adam
         if W == []:
-            self.W = np.eye(len(rho_initial))
+            self.W = np.eye(len(dH))
         else:
             self.W = W
 
