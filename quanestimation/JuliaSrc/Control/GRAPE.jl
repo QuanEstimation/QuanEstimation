@@ -709,7 +709,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
             end
         end
     else
-        println("multiple parameters scenario")
+        println("multiparameter scenario")
         f_ini = tr(inv(QFIM(grape)))
         f_list = [f_ini]
         println("initial value of the target function is $(f_ini)")
