@@ -18,3 +18,13 @@ function Adam!(system, δ)
         end
     end
 end
+
+function ctrl_bound(system)
+    ctrl_num = length(system.control_coefficients)
+    ctrl_length = length(system.control_coefficients[1])
+    for ck in 1:ctrl_num
+        for tk in 1:ctrl_length
+            system.control_coefficients[ck][tk] = (x-> (x|>abs) < system.ctrl_max ? x : system.ctrl_max)(system.control_coefficients[ck][tk])
+        end 
+    end
+end
