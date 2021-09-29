@@ -245,7 +245,7 @@ function gradient_QFIM_analy_Adam(grape::Gradient{T}) where {T <: Complex}
         end
     else       
         cost_function = [1/F_T[para,para] for para in 1:para_num] |>sum
-        coeff = [1.0/(grape.W[para,para]*F_T[para,para]) for para in 1:para_num] |>sum
+        coeff = [grape.W[para,para]/F_T[para,para] for para in 1:para_num] |>sum
         coeff = coeff^(-2)
         for cm in 1:ctrl_num
             mt = grape.mt
@@ -258,7 +258,7 @@ function gradient_QFIM_analy_Adam(grape::Gradient{T}) where {T <: Complex}
                     term1 = tr(∂xδρt_T_δV * Lx[pm])
                     anti_commu = 2 * Lx[pm] * Lx[pm]
                     term2 = tr(∂ρt_T_δV * anti_commu)
-                    δF = δF + (1.0/grape.W[pm,pm])*(1.0/F_T[pm,pm]/F_T[pm,pm])*((2*term1-0.5*term2) |> real)
+                    δF = δF + grape.W[pm,pm]*(1.0/F_T[pm,pm]/F_T[pm,pm])*((2*term1-0.5*term2) |> real)
                 end
                 δF = δF*coeff
                 grape.control_coefficients[cm][tm], mt, vt = Adam(δF, tm, grape.control_coefficients[cm][tm], mt, vt, grape.ϵ, grape.beta1, grape.beta2, grape.precision)
@@ -325,7 +325,7 @@ function gradient_QFIM_analy(grape::Gradient{T}) where {T <: Complex}
 
     else
         cost_function = [1/F_T[para,para] for para in 1:para_num] |>sum
-        coeff = [1.0/(grape.W[para,para]*F_T[para,para]) for para in 1:para_num] |>sum
+        coeff = [grape.W[para,para]/F_T[para,para] for para in 1:para_num] |>sum
         coeff = coeff^(-2)
         for cm in 1:ctrl_num
             for tm in 1:tnum
@@ -336,7 +336,7 @@ function gradient_QFIM_analy(grape::Gradient{T}) where {T <: Complex}
                     term1 = tr(∂xδρt_T_δV * Lx[pm])
                     anti_commu = 2 * Lx[pm] * Lx[pm]
                     term2 = tr(∂ρt_T_δV * anti_commu)
-                    δF = δF + (1.0/grape.W[pm,pm])*(1.0/F_T[pm,pm]/F_T[pm,pm])*((2*term1-0.5*term2) |> real)
+                    δF = δF + grape.W[pm,pm]*(1.0/F_T[pm,pm]/F_T[pm,pm])*((2*term1-0.5*term2) |> real)
                 end
                 δF = δF*coeff
                 grape.control_coefficients[cm][tm] = grape.control_coefficients[cm][tm] + grape.ϵ*δF
@@ -452,7 +452,7 @@ function gradient_CFIM_analy_Adam(Measurement::Vector{Matrix{T}}, grape::Gradien
         end
 
         cost_function = [1/F_T[para,para] for para in 1:para_num] |>sum
-        coeff = [1.0/(grape.W[para,para]*F_T[para,para]) for para in 1:para_num] |>sum
+        coeff = [grape.W[para,para]/F_T[para,para] for para in 1:para_num] |>sum
         coeff = coeff^(-2)
         for cm in 1:ctrl_num
             mt = grape.mt
@@ -464,7 +464,7 @@ function gradient_CFIM_analy_Adam(Measurement::Vector{Matrix{T}}, grape::Gradien
                     ∂xδρt_T_δV = ∂xδρt_δV[pm][cm][tm] |> vec2mat
                     term1 = tr(∂xδρt_T_δV * L1_tidle[pm])
                     term2 = tr(∂ρt_T_δV * L2_tidle[pm])
-                    δF = δF + (1.0/grape.W[pm,pm])*(1.0/F_T[pm,pm]/F_T[pm,pm])*((2*term1-term2) |> real)
+                    δF = δF + grape.W[pm,pm]*(1.0/F_T[pm,pm]/F_T[pm,pm])*((2*term1-term2) |> real)
                 end
                 δF = δF*coeff
                 grape.control_coefficients[cm][tm], mt, vt = Adam(δF, tm, grape.control_coefficients[cm][tm], mt, vt, grape.ϵ, grape.beta1, grape.beta2, grape.precision)
@@ -577,7 +577,7 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, grape::Gradient{T})
         end
 
         cost_function = [1/F_T[para,para] for para in 1:para_num] |>sum
-        coeff = [1.0/(grape.W[para,para]*F_T[para,para]) for para in 1:para_num] |>sum
+        coeff = [grape.W[para,para]/F_T[para,para] for para in 1:para_num] |>sum
         coeff = coeff^(-2)
         for cm in 1:ctrl_num
             for tm in 1:tnum
@@ -587,7 +587,7 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, grape::Gradient{T})
                     ∂xδρt_T_δV = ∂xδρt_δV[pm][cm][tm] |> vec2mat
                     term1 = tr(∂xδρt_T_δV * L1_tidle[pm])
                     term2 = tr(∂ρt_T_δV * L2_tidle[pm])
-                    δF = δF + (1.0/grape.W[pm,pm])*(1.0/F_T[pm,pm]/F_T[pm,pm])*((2*term1-term2) |> real)
+                    δF = δF + grape.W[pm,pm]*(1.0/F_T[pm,pm]/F_T[pm,pm])*((2*term1-term2) |> real)
                 end
                 δF = δF*coeff
                 grape.control_coefficients[cm][tm] = grape.control_coefficients[cm][tm] + grape.ϵ*δF
