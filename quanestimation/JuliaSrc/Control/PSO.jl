@@ -446,7 +446,7 @@ function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,
             end
         end
         print("\e[2K")
-        println("Final value of the target function is $fit ($(episode[1]) epochs)")
+        println("Final value of the target function is $(1.0/fit) ($(episode[1]) epochs)")
     else
         for ei in 1:episode[1]
             @inbounds for pi in 1:particle_num
