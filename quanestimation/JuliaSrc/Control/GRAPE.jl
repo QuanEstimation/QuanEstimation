@@ -640,7 +640,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
     println("auto-GRAPE:")
     println("quantum parameter estimation")
     episodes = 1
-    Tend = (grape.times)[end] |> Int
+    Tend = (grape.times)[end]
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         f_ini = QFI(grape)
@@ -825,7 +825,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
     println("GRAPE:")
     println("quantum parameter estimation")
     episodes = 1
-    Tend = (grape.times)[end] |> Int
+    Tend = (grape.times)[end]
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         if Adam == true
@@ -1003,7 +1003,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
     println("auto-GRAPE:")
     println("classical parameter estimation")
     episodes = 1
-    Tend = (grape.times)[end] |> Int
+    Tend = (grape.times)[end] 
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         f_ini = CFI(Measurement, grape)
@@ -1190,7 +1190,7 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
     println("GRAPE:")
     println("classical parameter estimation")
     episodes = 1
-    Tend = (grape.times)[end] |> Int
+    Tend = (grape.times)[end] 
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         if Adam == true
