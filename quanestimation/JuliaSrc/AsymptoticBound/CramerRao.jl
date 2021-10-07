@@ -106,6 +106,29 @@ function SLD_ori(ρ::Matrix{T}, dρ::Vector{Matrix{T}}, rep="original", precisio
     SLD
 end
 
+function SLD_ori(ρ::Matrix{T}, dρ::Matrix{T}, rep="original", precision=1e-6) where {T <: Complex}
+    dim = size(ρ)[1]
+    SLD = Matrix{ComplexF64}(undef, dim, dim)
+
+    val, vec = eigen(ρ)
+    SLD_eig = zeros(T, dim, dim)
+    for fi in 1:dim
+        for fj in 1:dim
+            if abs(val[fi] + val[fj]) > precision
+                SLD_eig[fi,fj] = 2 * (vec[:,fi]' * dρ * vec[:,fj])/(val[fi] + val[fj])
+            end
+        end
+    end
+    SLD_eig[findall(SLD_eig == Inf)] .= 0.
+
+    if rep=="original"
+        SLD = vec*(SLD_eig*vec')
+    else
+        SLD = SLD_eig
+    end
+SLD
+end
+
 # function SLD_ori(ρ::Matrix{T}, dρ::Vector{Matrix{T}}, rep="original", precision=1e-6) where {T <: Complex}
 #     (x->SLD_ori(ρ, x, rep, precision)).(dρ)   
 # end
@@ -122,7 +145,7 @@ function QFI(ρ, dρ)
 end
 
 function QFI_ori(ρ, dρ)
-    SLD_tp = SLD_ori(ρ, dρ)[1]
+    SLD_tp = SLD_ori(ρ, dρ)
     SLD2_tp = SLD_tp * SLD_tp
     F = tr(ρ * SLD2_tp)
     F |> real
@@ -275,6 +298,10 @@ end
 
 function QFIM_ori(system)
     QFIM_ori(system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ_initial, system.Liouville_operator, system.γ, system.control_Hamiltonian, system.control_coefficients, system.times)
+end
+
+function QFI_bfgs(system, control_coefficients)
+    QFI_ori(system.freeHamiltonian, system.Hamiltonian_derivative[1], system.ρ_initial, system.Liouville_operator, system.γ, system.control_Hamiltonian, control_coefficients, system.times)
 end
 
 function QFIM_saveall(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
