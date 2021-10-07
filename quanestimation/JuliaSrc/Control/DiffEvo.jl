@@ -28,8 +28,8 @@ function DiffEvo_QFI(DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, max
     p_num = populations
     populations = repeat(DE, p_num)
     # initialize
-    for pi in 1:p_num
-        populations[pi].control_coefficients = [ctrl_max*rand(ctrl_length)  for i in 1:ctrl_num]
+    for pj in 1:p_num
+        populations[pj].control_coefficients = [ctrl_max*rand(ctrl_length)  for i in 1:ctrl_num]
     end
 
     p_fit = [QFI_ori(populations[i]) for i in 1:p_num]
@@ -37,7 +37,7 @@ function DiffEvo_QFI(DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, max
     f_list = [f_ini]
     println("initial QFI is $(f_ini)")
     
-    Tend = (DE.times)[end] |> Int
+    Tend = (DE.times)[end]
     if save_file == true
         for i in 1:max_episodes
             p_fit = DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_max)
@@ -85,17 +85,17 @@ function DiffEvo_QFIM(DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, ma
     p_num = populations
     populations = repeat(DE, p_num)
     # initialize
-    for pi in 1:p_num
-        populations[pi].control_coefficients = [ctrl_max*rand(ctrl_length)  for i in 1:ctrl_num]
+    for pj in 1:p_num
+        populations[pj].control_coefficients = [ctrl_max*rand(ctrl_length)  for i in 1:ctrl_num]
     end
 
     p_fit = [1.0/real(tr(pinv(QFIM_ori(populations[i])))) for i in 1:p_num]
 
     f_ini = maximum(p_fit)
-    f_list = [f_ini]
+    f_list = [1.0/f_ini]
     println("initial value of the target function is $(1.0/f_ini)")
     
-    Tend = (DE.times)[end] |> Int
+    Tend = (DE.times)[end]
     if save_file == true
         for i in 1:max_episodes
             F = DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_max)
@@ -143,8 +143,8 @@ function DiffEvo_CFI(M, DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, 
     p_num = populations
     populations = repeat(DE, p_num)
     # initialize
-    for pi in 1:p_num
-        populations[pi].control_coefficients = [ctrl_max*rand(ctrl_length)  for i in 1:ctrl_num]
+    for pj in 1:p_num
+        populations[pj].control_coefficients = [ctrl_max*rand(ctrl_length)  for i in 1:ctrl_num]
     end
 
     p_fit = [CFI(M,populations[i]) for i in 1:p_num]
@@ -152,7 +152,7 @@ function DiffEvo_CFI(M, DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, 
     f_list = [f_ini]
     println("initial CFI is $(f_ini)")
     
-    Tend = (DE.times)[end] |> Int
+    Tend = (DE.times)[end]
     if save_file == true
         for i in 1:max_episodes
             p_fit = DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_max)
@@ -200,17 +200,17 @@ function DiffEvo_CFIM(M, DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed,
     p_num = populations
     populations = repeat(DE, p_num)
     # initialize
-    for pi in 1:p_num
-        populations[pi].control_coefficients = [ctrl_max*rand(ctrl_length)  for i in 1:ctrl_num]
+    for pj in 1:p_num
+        populations[pj].control_coefficients = [ctrl_max*rand(ctrl_length)  for i in 1:ctrl_num]
     end
 
     p_fit = [1.0/real(tr(pinv(CFIM(M, populations[i])))) for i in 1:p_num]
 
     f_ini = maximum(p_fit)
-    f_list = [f_ini]
+    f_list = [1.0/f_ini]
     println("initial value of the target function is $(1.0/f_ini)")
     
-    Tend = (DE.times)[end] |> Int
+    Tend = (DE.times)[end]
     if save_file == true
         for i in 1:max_episodes
             F = DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_max)
@@ -248,7 +248,7 @@ end
 
 function DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_max)
     f_mean = p_fit |> mean
-    for pi in 1:p_num
+    for pj in 1:p_num
         #mutations
         mut_num = sample(1:p_num, 3, replace=false)
         ctrl_mut = [Vector{Float64}(undef, ctrl_length)  for i in 1:ctrl_num]
@@ -260,8 +260,8 @@ function DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fi
             end
         end
         #crossover
-        if p_fit[pi] > f_mean
-            cr = c0 + (c1-c0)*(p_fit[pi]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
+        if p_fit[pj] > f_mean
+            cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
         else
             cr = c0
         end
@@ -273,21 +273,26 @@ function DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fi
                 if rand_num <= cr
                     ctrl_cross[cj][tj] = ctrl_mut[cj][tj]
                 else
-                    ctrl_cross[cj][tj] = populations[pi].control_coefficients[cj][tj]
+                    ctrl_cross[cj][tj] = populations[pj].control_coefficients[cj][tj]
                 end
             end
             ctrl_cross[cj][cross_int] = ctrl_mut[cj][cross_int]
         end
         #selection
-        f_cross = QFI_ori(populations[pi].freeHamiltonian, populations[pi].Hamiltonian_derivative[1], populations[pi].ρ_initial, 
-                      populations[pi].Liouville_operator, populations[pi].γ, populations[pi].control_Hamiltonian, 
-                      ctrl_cross, populations[pi].times)
+        for ck in 1:ctrl_num
+            for tk in 1:ctrl_length
+                ctrl_cross[ck][tk] = (x-> (x|>abs) < ctrl_max ? x : ctrl_max)(ctrl_cross[ck][tk])
+            end
+        end
+        f_cross = QFI_ori(populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative[1], populations[pj].ρ_initial, 
+                      populations[pj].Liouville_operator, populations[pj].γ, populations[pj].control_Hamiltonian, 
+                      ctrl_cross, populations[pj].times)
 
-        if f_cross > p_fit[pi]
-            p_fit[pi] = f_cross
+        if f_cross > p_fit[pj]
+            p_fit[pj] = f_cross
             for ck in 1:ctrl_num
                 for tk in 1:ctrl_length
-                    populations[pi].control_coefficients[ck][tk] = (x-> (x|>abs) < ctrl_max ? x : ctrl_max)(ctrl_cross[ck][tk])
+                    populations[pj].control_coefficients[ck][tk] = ctrl_cross[ck][tk]
                 end
             end
         end
@@ -297,7 +302,7 @@ end
 
 function DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_max)
     f_mean = p_fit |> mean
-    for pi in 1:p_num
+    for pj in 1:p_num
         #mutations
         mut_num = sample(1:p_num, 3, replace=false)
         ctrl_mut = [Vector{Float64}(undef, ctrl_length)  for i in 1:ctrl_num]
@@ -309,8 +314,8 @@ function DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_f
             end
         end
         #crossover
-        if p_fit[pi] > f_mean
-            cr = c0 + (c1-c0)*(p_fit[pi]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
+        if p_fit[pj] > f_mean
+            cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
         else
             cr = c0
         end
@@ -322,22 +327,28 @@ function DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_f
                 if rand_num <= cr
                     ctrl_cross[cj][tj] = ctrl_mut[cj][tj]
                 else
-                    ctrl_cross[cj][tj] = populations[pi].control_coefficients[cj][tj]
+                    ctrl_cross[cj][tj] = populations[pj].control_coefficients[cj][tj]
                 end
             end
             ctrl_cross[cj][cross_int] = ctrl_mut[cj][cross_int]
         end
         #selection
-        F = QFIM_ori(populations[pi].freeHamiltonian, populations[pi].Hamiltonian_derivative, populations[pi].ρ_initial, 
-                      populations[pi].Liouville_operator, populations[pi].γ, populations[pi].control_Hamiltonian, 
-                      ctrl_cross, populations[pi].times)
+        for ck in 1:ctrl_num
+            for tk in 1:ctrl_length
+                ctrl_cross[ck][tk] = (x-> (x|>abs) < ctrl_max ? x : ctrl_max)(ctrl_cross[ck][tk])
+            end
+        end
+
+        F = QFIM_ori(populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, populations[pj].ρ_initial, 
+                      populations[pj].Liouville_operator, populations[pj].γ, populations[pj].control_Hamiltonian, 
+                      ctrl_cross, populations[pj].times)
         f_cross = 1.0/real(tr(pinv(F)))
 
-        if f_cross > p_fit[pi]
-            p_fit[pi] = f_cross
+        if f_cross > p_fit[pj]
+            p_fit[pj] = f_cross
             for ck in 1:ctrl_num
                 for tk in 1:ctrl_length
-                    populations[pi].control_coefficients[ck][tk] = (x-> (x|>abs) < ctrl_max ? x : ctrl_max)(ctrl_cross[ck][tk])
+                    populations[pj].control_coefficients[ck][tk] = ctrl_cross[ck][tk]
                 end
             end
         end
@@ -347,7 +358,7 @@ end
 
 function DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_max)
     f_mean = p_fit |> mean
-    for pi in 1:p_num
+    for pj in 1:p_num
         #mutations
         mut_num = sample(1:p_num, 3, replace=false)
         ctrl_mut = [Vector{Float64}(undef, ctrl_length)  for i in 1:ctrl_num]
@@ -359,8 +370,8 @@ function DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p
             end
         end
         #crossover
-        if p_fit[pi] > f_mean
-            cr = c0 + (c1-c0)*(p_fit[pi]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
+        if p_fit[pj] > f_mean
+            cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
         else
             cr = c0
         end
@@ -372,21 +383,26 @@ function DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p
                 if rand_num <= cr
                     ctrl_cross[cj][tj] = ctrl_mut[cj][tj]
                 else
-                    ctrl_cross[cj][tj] = populations[pi].control_coefficients[cj][tj]
+                    ctrl_cross[cj][tj] = populations[pj].control_coefficients[cj][tj]
                 end
             end
             ctrl_cross[cj][cross_int] = ctrl_mut[cj][cross_int]
         end
         #selection
-        f_cross = CFI(M, populations[pi].freeHamiltonian, populations[pi].Hamiltonian_derivative[1], populations[pi].ρ_initial, 
-                      populations[pi].Liouville_operator, populations[pi].γ, populations[pi].control_Hamiltonian, 
-                      ctrl_cross, populations[pi].times)
+        for ck in 1:ctrl_num
+            for tk in 1:ctrl_length
+                ctrl_cross[ck][tk] = (x-> (x|>abs) < ctrl_max ? x : ctrl_max)(ctrl_cross[ck][tk])
+            end
+        end
+        f_cross = CFI(M, populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative[1], populations[pj].ρ_initial, 
+                      populations[pj].Liouville_operator, populations[pj].γ, populations[pj].control_Hamiltonian, 
+                      ctrl_cross, populations[pj].times)
 
-        if f_cross > p_fit[pi]
-            p_fit[pi] = f_cross
+        if f_cross > p_fit[pj]
+            p_fit[pj] = f_cross
             for ck in 1:ctrl_num
                 for tk in 1:ctrl_length
-                    populations[pi].control_coefficients[ck][tk] = (x-> (x|>abs) < ctrl_max ? x : ctrl_max)(ctrl_cross[ck][tk])
+                    populations[pj].control_coefficients[ck][tk] = ctrl_cross[ck][tk]
                 end
             end
         end
@@ -396,7 +412,7 @@ end
 
 function DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_max)
     f_mean = p_fit |> mean
-    for pi in 1:p_num
+    for pj in 1:p_num
         #mutations
         mut_num = sample(1:p_num, 3, replace=false)
         ctrl_mut = [Vector{Float64}(undef, ctrl_length)  for i in 1:ctrl_num]
@@ -408,8 +424,8 @@ function DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, 
             end
         end
         #crossover
-        if p_fit[pi] > f_mean
-            cr = c0 + (c1-c0)*(p_fit[pi]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
+        if p_fit[pj] > f_mean
+            cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
         else
             cr = c0
         end
@@ -421,22 +437,27 @@ function DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, 
                 if rand_num <= cr
                     ctrl_cross[cj][tj] = ctrl_mut[cj][tj]
                 else
-                    ctrl_cross[cj][tj] = populations[pi].control_coefficients[cj][tj]
+                    ctrl_cross[cj][tj] = populations[pj].control_coefficients[cj][tj]
                 end
             end
             ctrl_cross[cj][cross_int] = ctrl_mut[cj][cross_int]
         end
         #selection
-        F = CFIM(populations[pi].freeHamiltonian, populations[pi].Hamiltonian_derivative, populations[pi].ρ_initial, 
-                      populations[pi].Liouville_operator, populations[pi].γ, populations[pi].control_Hamiltonian, 
-                      ctrl_cross, populations[pi].times)
+        for ck in 1:ctrl_num
+            for tk in 1:ctrl_length
+                ctrl_cross[ck][tk] = (x-> (x|>abs) < ctrl_max ? x : ctrl_max)(ctrl_cross[ck][tk])
+            end
+        end
+        F = CFIM(populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, populations[pj].ρ_initial, 
+                      populations[pj].Liouville_operator, populations[pj].γ, populations[pj].control_Hamiltonian, 
+                      ctrl_cross, populations[pj].times)
         f_cross = 1.0/real(tr(pinv(F)))
 
-        if f_cross > p_fit[pi]
-            p_fit[pi] = f_cross
+        if f_cross > p_fit[pj]
+            p_fit[pj] = f_cross
             for ck in 1:ctrl_num
                 for tk in 1:ctrl_length
-                    populations[pi].control_coefficients[ck][tk] = (x-> (x|>abs) < ctrl_max ? x : ctrl_max)(ctrl_cross[ck][tk])
+                    populations[pj].control_coefficients[ck][tk] = ctrl_cross[ck][tk]
                 end
             end
         end

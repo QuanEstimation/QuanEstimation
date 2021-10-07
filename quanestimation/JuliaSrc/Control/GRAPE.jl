@@ -39,13 +39,13 @@ function gradient_CFI_Adam!(grape::Gradient{T}, Measurement) where {T <: Complex
 end
 
 function gradient_CFIM!(grape::Gradient{T}, Measurement) where {T <: Complex}
-    δI = gradient(x->1/(grape.W*(CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times) |> pinv) |> tr |>real), grape.control_coefficients).|>real |>sum
+    δI = gradient(x->1/(grape.W*(CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times) |> pinv) |> tr |>real), grape.control_coefficients)
     grape.control_coefficients += grape.ϵ*δI
     ctrl_bound(grape)
 end
 
 function gradient_CFIM_Adam!(grape::Gradient{T}, Measurement) where {T <: Complex}
-    δI = gradient(x->1/(grape.W*(CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times) |> pinv) |> tr |>real), grape.control_coefficients).|>real |>sum
+    δI = gradient(x->1/(grape.W*(CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times) |> pinv) |> tr |>real), grape.control_coefficients)
     Adam!(grape, δI)
     ctrl_bound(grape)
 end
@@ -59,19 +59,24 @@ end
 function gradient_QFI_Adam!(grape::Gradient{T}) where {T <: Complex}
     δF = gradient(x->QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times), grape.control_coefficients)[1].|>real
     Adam!(grape, δF)
+    println(δF)
     ctrl_bound(grape)
 end
 
 function gradient_QFIM!(grape::Gradient{T}) where {T <: Complex}
-    δF = gradient(x->1/(grape.W*(QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times) |> pinv) |> tr |>real), grape.control_coefficients).|>real |>sum
+    δF = gradient(x->1/(grape.W*(QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times) |> pinv) |> tr |>real), grape.control_coefficients)
     grape.control_coefficients += grape.ϵ*δF
     ctrl_bound(grape)
 end
 
 function gradient_QFIM_Adam!(grape::Gradient{T}) where {T <: Complex}
-    δF = gradient(x->1/(grape.W*(QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times) |> pinv) |> tr |>real), grape.control_coefficients).|>real |>sum
+    δF = gradient(x->1/real(tr(grape.W*pinv(QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times)))), grape.control_coefficients)
     Adam!(grape, δF)
     ctrl_bound(grape)
+end
+
+function gradient_QFI_bfgs(grape::Gradient{T}, control_coefficients) where {T <: Complex}
+    δF = gradient(x->QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times), control_coefficients)[1].|>real
 end
 
 # function gradient_QFIM_ODE(grape::Gradient)
@@ -643,7 +648,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
     Tend = (grape.times)[end] |> Int
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
-        f_ini = QFI(grape)
+        f_ini = QFI_ori(grape)
         f_list = [f_ini]
         println("initial QFI is $(f_ini)")
         if Adam == true
@@ -654,7 +659,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
         if save_file == true
             if Adam == true
                 while true
-                    f_now = QFI(grape)
+                    f_now = QFI_ori(grape)
                     gradient_QFI_Adam!(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
                         print("\e[2K")
@@ -672,7 +677,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                 end
             else
                 while true
-                    f_now = QFI(grape)
+                    f_now = QFI_ori(grape)
                     gradient_QFI!(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
                         print("\e[2K")
@@ -693,7 +698,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
         else
             if Adam == true
                 while true
-                    f_now = QFI(grape)
+                    f_now = QFI_ori(grape)
                     gradient_QFI_Adam!(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
                         print("\e[2K")
@@ -711,7 +716,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                 end
             else
                 while true
-                    f_now = QFI(grape)
+                    f_now = QFI_ori(grape)
                     gradient_QFI!(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
                         print("\e[2K")
@@ -731,7 +736,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
         end
     else
         println("multiparameter scenario")
-        f_ini = tr(inv(QFIM(grape)))
+        f_ini = tr(inv(QFIM_ori(grape)))
         f_list = [f_ini]
         println("initial value of the target function is $(f_ini)")
         if Adam == true
@@ -743,7 +748,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
         if save_file == true
             if Adam == true
                 while true
-                    f_now = tr(inv(QFIM(grape)))
+                    f_now = tr(inv(QFIM_ori(grape)))
                     gradient_QFIM_Adam!(grape)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
                         print("\e[2K")
@@ -762,7 +767,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                 end
             else
                 while true
-                    f_now = (grape |> QFIM |> inv |> tr)
+                    f_now = tr(inv(QFIM_ori(grape)))
                     gradient_QFIM!(grape)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
                         print("\e[2K")
@@ -782,7 +787,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
         else
             if Adam == true
                 while true
-                    f_now = (grape |> QFIM |> inv |> tr)
+                    f_now = tr(inv(QFIM_ori(grape)))
                     gradient_QFIM_Adam!(grape)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
                         print("\e[2K")
@@ -800,7 +805,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                 end
             else
                 while true
-                    f_now = (grape |> QFIM |> inv |> tr)
+                    f_now = tr(inv(QFIM_ori(grape)))
                     gradient_QFIM!(grape)
                     if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
                         print("\e[2K")
@@ -1358,6 +1363,149 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
                         append!(f_list,f_now)
                         print("current value of the target function is ", f_now, " ($(f_list|>length) episodes)    \r")
                     end
+                end
+            end
+        end
+    end
+end
+
+function line_search(grape, f_pre, uk, p, δF, c1, c2, ctrl_total)
+    #backtrack line search with wolfe conditions
+    ϵ = 1.0
+    uk_new = uk + ϵ*p
+    δF_new = gradient_QFI_bfgs(grape, uk_new)
+    δF = reshape(reduce(vcat,δF), 1, ctrl_total)
+    p1 = reshape(reduce(vcat,p), ctrl_total, 1)
+    while -QFI_bfgs(grape, uk_new) >= f_pre+(c1*ϵ*(δF*p1)[1]) || (reshape(reduce(vcat,δF_new), 1, ctrl_total)*p1)[1] <= (δF*p1)[1]
+        ϵ = 0.5*ϵ
+        uk_new = uk + ϵ*p
+        δF_new = gradient_QFI_bfgs(grape, uk_new)
+    end
+    return uk_new, δF_new, ϵ
+end
+
+function BFGS(grape, B, c1, c2, epsilon, max_episodes)
+    ctrl_length = length(grape.control_coefficients)
+    cnum = length(grape.control_coefficients[1])
+    ctrl_total = ctrl_length*cnum
+    Tend = (grape.times[end])|>Int
+    f_ini = QFI_bfgs(grape, grape.control_coefficients)
+    f_list = [f_ini]
+    println("initial QFI is $(f_ini)")
+    δF = gradient_QFI_bfgs(grape, grape.control_coefficients)
+    println(δF)
+    episodes = 1
+    while true
+        p = -B.*δF
+        grape.control_coefficients, δF_new, ϵ = line_search(grape, -f_ini, grape.control_coefficients, p, δF, c1, c2, ctrl_total)
+        y = δF_new - δF
+        x = ϵ*p
+        #update B
+        if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
+            for i in 1:ctrl_length
+                sk = reshape(x[i],cnum, 1)
+                sk_T = reshape(x[i],1, cnum)
+                yk = reshape(y[i],cnum, 1)
+                yk_T = reshape(y[i],1, cnum)
+                B[i] = B[i] - B[i]*sk*sk_T*B[i]/(sk_T*B[i]*sk)[1]+yk*yk_T/(yk_T*sk)[1]
+            end
+        end
+        f_now = QFI_bfgs(grape, grape.control_coefficients)
+        if abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+            print("\e[2K")
+            println("Iteration over, data saved.")
+            println("Final QFI is ", f_now)
+            SaveFile_analy(Tend, f_list, grape.control_coefficients)
+            break
+        end
+        f_ini = f_now
+        δF = δF_new 
+        episodes += 1
+        append!(f_list,f_now)
+        println("current QFI is $(f_ini)")
+    end
+end
+
+function autoGRAPE_BFGS(grape, save_file, epsilon, max_episodes, B, c1, c2, e)
+    println("auto-GRAPE with BFGS:")
+    println("quantum parameter estimation")
+    episodes = 1
+    Tend = (grape.times)[end] |> Int
+    ctrl_length = length(grape.control_coefficients)
+    cnum = length(grape.control_coefficients[1])
+    ctrl_total = ctrl_length*cnum
+    if length(grape.Hamiltonian_derivative) == 1
+        println("single parameter scenario")
+        f_ini = QFI_ori(grape)
+        f_list = [f_ini]
+        println("initial QFI is $(f_ini)")
+        if save_file == true
+            while true
+                gradient_QFI!(grape)
+                f_now = QFI_ori(grape)
+                if abs(f_now - f_ini) < e
+                    δF = gradient_QFI_bfgs(grape, grape.control_coefficients)  #merge into gradient
+                    p = -B.*δF
+                    grape.control_coefficients, δF_new, ϵ = line_search(grape, -f_ini, grape.control_coefficients, p, δF, c1, c2, ctrl_total)
+                    y = δF_new - δF
+                    x = ϵ*p
+                    #update B
+                    if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
+                        for i in 1:ctrl_length
+                            sk = reshape(x[i],cnum, 1)
+                            sk_T = reshape(x[i],1, cnum)
+                            yk = reshape(y[i],cnum, 1)
+                            yk_T = reshape(y[i],1, cnum)
+                            B[i] = B[i] - B[i]*sk*sk_T*B[i]/(sk_T*B[i]*sk)[1]+yk*yk_T/(yk_T*sk)[1]
+                        end
+                    end
+                    f_now = QFI_bfgs(grape, grape.control_coefficients)
+                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final QFI is ", f_now)
+                        # save("controls_T$Tend.jld", "controls", grape.control_coefficients, "time_span", grape.times, "f", f_list)
+                        SaveFile_auto(Tend, f_now, grape.control_coefficients)
+                        break
+                    else
+                        f_ini = f_now
+                        δF = δF_new 
+                        episodes += 1
+                        append!(f_list,f_now)
+                        SaveFile_auto(Tend, f_now, grape.control_coefficients)
+                        print("current QFI is ", f_now, " ($(f_list|>length) episodes2)    \r")
+                    end
+                elseif episodes > max_episodes
+                    print("\e[2K")
+                    println("Iteration over, data saved.")
+                    println("Final QFI is ", f_now)
+                    # save("controls_T$Tend.jld", "controls", grape.control_coefficients, "time_span", grape.times, "f", f_list)
+                    SaveFile_auto(Tend, f_now, grape.control_coefficients)
+                    break
+                else
+                    f_ini = f_now
+                    episodes += 1
+                    append!(f_list,f_now)
+                    SaveFile_auto(Tend, f_now, grape.control_coefficients)
+                    print("current QFI is ", f_now, " ($(f_list|>length) episodes1)    \r")
+                end
+            end      
+        else
+            while true
+                gradient_QFI!(grape)
+                f_now = QFI_ori(grape)
+                if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                    print("\e[2K")
+                    println("Iteration over, data saved.")
+                    println("Final QFI is ", f_now)
+                    # save("controls_T$Tend.jld", "controls", grape.control_coefficients, "time_span", grape.times, "f", f_list)
+                    SaveFile_auto(Tend, f_list, grape.control_coefficients)
+                    break
+                else
+                    f_ini = f_now
+                    episodes += 1
+                    append!(f_list,f_now)
+                    print("current QFI is ", f_now, " ($(f_list|>length) episodes)    \r")
                 end
             end
         end
