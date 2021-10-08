@@ -80,33 +80,33 @@ function SLD_qr(ρ::Matrix{T}, ∂ρ_∂x::Matrix{T}) where {T <: Complex}
     2 * (qr(kron(ρ |> transpose, ρ |> one) + kron(ρ |> one, ρ), Val(true)) \ vec(∂ρ_∂x)) |> vec2mat
 end
 
-function SLD_ori(ρ::Matrix{T}, dρ::Vector{Matrix{T}}, rep="original", precision=1e-6) where {T <: Complex}
+function SLD_ori(ρ::Matrix{T}, dρ::Vector{Matrix{T}}, rep="original", precision=1e-8) where {T <: Complex}
     dim = size(ρ)[1]
     para_num = length(dρ)
     SLD = [Matrix{ComplexF64}(undef, dim, dim) for i in 1:para_num]
 
     val, vec = eigen(ρ)
-    for pi in 1:para_num
+    for pj in 1:para_num
         SLD_eig = zeros(T, dim, dim)
         for fi in 1:dim
             for fj in 1:dim
                 if abs(val[fi] + val[fj]) > precision
-                    SLD_eig[fi,fj] = 2 * (vec[:,fi]' * dρ[pi] * vec[:,fj])/(val[fi] + val[fj])
+                    SLD_eig[fi,fj] = 2 * (vec[:,fi]' * dρ[pj] * vec[:,fj])/(val[fi] + val[fj])
                 end
             end
         end
         SLD_eig[findall(SLD_eig == Inf)] .= 0.
 
         if rep=="original"
-            SLD[pi] = vec*(SLD_eig*vec')
+            SLD[pj] = vec*(SLD_eig*vec')
         else
-            SLD[pi] = SLD_eig
+            SLD[pj] = SLD_eig
         end
     end
     SLD
 end
 
-function SLD_ori(ρ::Matrix{T}, dρ::Matrix{T}, rep="original", precision=1e-6) where {T <: Complex}
+function SLD_ori(ρ::Matrix{T}, dρ::Matrix{T}, rep="original", precision=1e-8) where {T <: Complex}
     dim = size(ρ)[1]
     SLD = Matrix{ComplexF64}(undef, dim, dim)
 
@@ -126,7 +126,7 @@ function SLD_ori(ρ::Matrix{T}, dρ::Matrix{T}, rep="original", precision=1e-6) 
     else
         SLD = SLD_eig
     end
-SLD
+    SLD
 end
 
 # function SLD_ori(ρ::Matrix{T}, dρ::Vector{Matrix{T}}, rep="original", precision=1e-6) where {T <: Complex}
