@@ -42,7 +42,7 @@ function DiffEvo_QFI(DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, max
         for i in 1:max_episodes
             p_fit = DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_max)
             indx = findmax(p_fit)[2]
-            print("current QFI is ", maximum(p_fit), " ($i epochs)    \r")
+            print("current QFI is ", maximum(p_fit), " ($i episodes)    \r")
             open("f_de_T$Tend.csv","a") do f
                 writedlm(f, [maximum(p_fit)])
             end
@@ -57,7 +57,7 @@ function DiffEvo_QFI(DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, max
     else
         for i in 1:max_episodes
             p_fit = DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_max)
-            print("current QFI is ", maximum(p_fit), " ($i epochs)    \r")
+            print("current QFI is ", maximum(p_fit), " ($i episodes)    \r")
             append!(f_list,maximum(p_fit))
         end
         indx = findmax(p_fit)[2]
@@ -93,14 +93,14 @@ function DiffEvo_QFIM(DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, ma
 
     f_ini = maximum(p_fit)
     f_list = [1.0/f_ini]
-    println("initial value of the target function is $(1.0/f_ini)")
+    println("initial value of Tr(WF^{-1}) is $(1.0/f_ini)")
     
     Tend = (DE.times)[end]
     if save_file == true
         for i in 1:max_episodes
             F = DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_max)
             indx = findmax(p_fit)[2]
-            print("current value of the target function is ", 1.0/maximum(p_fit), " ($i epochs)    \r")
+            print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             open("f_de_T$Tend.csv","a") do f
                 writedlm(f, [1.0/maximum(p_fit)])
             end
@@ -110,12 +110,12 @@ function DiffEvo_QFIM(DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, ma
         end
         print("\e[2K")
         println("Iteration over, data saved.")
-        println("Final value of the target function is ", 1.0/maximum(p_fit))
+        println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
 
     else
         for i in 1:max_episodes
             p_fit = DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_max)
-            print("current value of the target function is ", 1.0/maximum(p_fit), " ($i epochs)    \r")
+            print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             append!(f_list, 1.0/maximum(p_fit))
         end
         indx = findmax(p_fit)[2]
@@ -127,7 +127,7 @@ function DiffEvo_QFIM(DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, ma
         end
         print("\e[2K")
         println("Iteration over, data saved.")
-        println("Final value of the target function is ", 1.0/maximum(p_fit))
+        println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
     end
 end
 
@@ -157,7 +157,7 @@ function DiffEvo_CFI(M, DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, 
         for i in 1:max_episodes
             p_fit = DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_max)
             indx = findmax(p_fit)[2]
-            print("current CFI is ", maximum(p_fit), " ($i epochs)    \r")
+            print("current CFI is ", maximum(p_fit), " ($i episodes)    \r")
             open("f_de_T$Tend.csv","a") do f
                 writedlm(f, [maximum(p_fit)])
             end
@@ -172,7 +172,7 @@ function DiffEvo_CFI(M, DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, 
     else
         for i in 1:max_episodes
             p_fit = DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_max)
-            print("current CFI is ", maximum(p_fit), " ($i epochs)    \r")
+            print("current CFI is ", maximum(p_fit), " ($i episodes)    \r")
             append!(f_list,maximum(p_fit))
         end
         indx = findmax(p_fit)[2]
@@ -208,14 +208,14 @@ function DiffEvo_CFIM(M, DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed,
 
     f_ini = maximum(p_fit)
     f_list = [1.0/f_ini]
-    println("initial value of the target function is $(1.0/f_ini)")
+    println("initial value of Tr(WF^{-1}) is $(1.0/f_ini)")
     
     Tend = (DE.times)[end]
     if save_file == true
         for i in 1:max_episodes
             F = DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_max)
             indx = findmax(p_fit)[2]
-            print("current value of the target function is ", 1.0/maximum(p_fit), " ($i epochs)    \r")
+            print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             open("f_de_T$Tend.csv","a") do f
                 writedlm(f, [1.0/maximum(p_fit)])
             end
@@ -225,12 +225,12 @@ function DiffEvo_CFIM(M, DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed,
         end
         print("\e[2K")
         println("Iteration over, data saved.")
-        println("Final value of the target function is ", 1.0/maximum(p_fit))
+        println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
 
     else
         for i in 1:max_episodes
             p_fit = DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_max)
-            print("current value of the target function is ", 1.0/maximum(p_fit), " ($i epochs)    \r")
+            print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             append!(f_list, 1.0/maximum(p_fit))
         end
         indx = findmax(p_fit)[2]
@@ -242,7 +242,7 @@ function DiffEvo_CFIM(M, DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed,
         end
         print("\e[2K")
         println("Iteration over, data saved.")
-        println("Final value of the target function is ", 1.0/maximum(p_fit))
+        println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
     end
 end
 
