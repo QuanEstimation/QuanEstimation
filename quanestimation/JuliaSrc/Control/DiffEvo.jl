@@ -17,9 +17,9 @@ mutable struct DiffEvo{T <: Complex,M <: Real} <: ControlSystem
 end
 
 function DiffEvo_QFI(DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
-    println("Differential Evolution:")
     println("quantum parameter estimation")
     println("single parameter scenario")
+    println("control algorithm: DE")
 
     Random.seed!(seed)
     ctrl_num = length(DE.control_Hamiltonian)
@@ -74,9 +74,9 @@ function DiffEvo_QFI(DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, max
 end
 
 function DiffEvo_QFIM(DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
-    println("Differential Evolution:")
     println("quantum parameter estimation")
     println("multiparameter scenario")
+    println("control algorithm: DE")
 
     Random.seed!(seed)
     ctrl_num = length(DE.control_Hamiltonian)
@@ -132,9 +132,9 @@ function DiffEvo_QFIM(DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, ma
 end
 
 function DiffEvo_CFI(M, DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
-    println("Differential Evolution:")
     println("classical parameter estimation")
     println("single parameter scenario")
+    println("control algorithm: DE")
 
     Random.seed!(seed)
     ctrl_num = length(DE.control_Hamiltonian)
@@ -189,9 +189,9 @@ function DiffEvo_CFI(M, DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, 
 end
 
 function DiffEvo_CFIM(M, DE::DiffEvo{T}, populations, ctrl_max, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
-    println("Differential Evolution:")
     println("classical parameter estimation")
     println("multiparameter scenario")
+    println("control algorithm: DE")
 
     Random.seed!(seed)
     ctrl_num = length(DE.control_Hamiltonian)

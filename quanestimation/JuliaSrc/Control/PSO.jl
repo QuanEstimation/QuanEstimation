@@ -16,10 +16,10 @@ mutable struct PSO{T <: Complex,M <: Real} <: ControlSystem
                 Hamiltonian_derivative, ρ_initial, times, Liouville_operator, γ, control_Hamiltonian, control_coefficients, ρ, ∂ρ_∂x) 
 end
 
-function PSO_QFI(pso::PSO{T}, episode; particle_num, c0, c1, c2, v0, sd, ctrl_max, save_file) where {T<: Complex}
-    println("Particle Swarm Optimization:")
+function PSO_QFI(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, ctrl_max, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("single parameter scenario")
+    println("control algorithm: PSO")
     Random.seed!(sd)
     ctrl_length = length(pso.control_coefficients[1])
     ctrl_num = length(pso.control_Hamiltonian)
@@ -37,14 +37,14 @@ function PSO_QFI(pso::PSO{T}, episode; particle_num, c0, c1, c2, v0, sd, ctrl_ma
     f_list = [qfi_ini]
     if save_file==true
         for ei in 1:episode
-            @inbounds for pi in 1:particle_num
-                # propagate!(particles[pi])
-                f_now = QFI_ori(particles[pi])
-                if f_now > p_fit[pi]
-                    p_fit[pi] = f_now
+            @inbounds for pj in 1:particle_num
+                # propagate!(particles[pj])
+                f_now = QFI_ori(particles[pj])
+                if f_now > p_fit[pj]
+                    p_fit[pj] = f_now
                     for di in 1:ctrl_num
                         for ni in 1:ctrl_length
-                            pbest[di,ni,pi] = particles[pi].control_coefficients[di][ni]
+                            pbest[di,ni,pj] = particles[pj].control_coefficients[di][ni]
                         end
                     end
                 end
@@ -71,7 +71,7 @@ function PSO_QFI(pso::PSO{T}, episode; particle_num, c0, c1, c2, v0, sd, ctrl_ma
                 end
             end
             append!(f_list, fit)
-            print("current QFI is $fit ($ei epochs) \r")
+            print("current QFI is $fit ($ei episodes) \r")
             open("ctrl_pso_T$Tend.csv","w") do g
                 writedlm(g, [gbest[k, :] for k in 1:ctrl_num])
             end
@@ -80,18 +80,19 @@ function PSO_QFI(pso::PSO{T}, episode; particle_num, c0, c1, c2, v0, sd, ctrl_ma
             end
         end
         print("\e[2K")
-        println("Final QFI is $fit ($(episode[1]) epochs)")
+        println("Iteration over, data saved.")
+        println("Final QFI is $fit")
 
     else
         for ei in 1:episode
-            @inbounds for pi in 1:particle_num
-                # propagate!(particles[pi])
-                f_now = QFI_ori(particles[pi])
-                if f_now > p_fit[pi]
-                    p_fit[pi] = f_now
+            @inbounds for pj in 1:particle_num
+                # propagate!(particles[pj])
+                f_now = QFI_ori(particles[pj])
+                if f_now > p_fit[pj]
+                    p_fit[pj] = f_now
                     for di in 1:ctrl_num
                         for ni in 1:ctrl_length
-                            pbest[di,ni,pi] = particles[pi].control_coefficients[di][ni]
+                            pbest[di,ni,pj] = particles[pj].control_coefficients[di][ni]
                         end
                     end
                 end
@@ -118,10 +119,9 @@ function PSO_QFI(pso::PSO{T}, episode; particle_num, c0, c1, c2, v0, sd, ctrl_ma
                 end
             end
             append!(f_list, fit)
-            print("current QFI is $fit ($ei epochs) \r")
+            print("current QFI is $fit ($ei episodes) \r")
         end
         pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
-        print("\e[2K")
         # save("controls_T$Tend.jld", "controls", pso.control_coefficients, "time_span", pso.times)
         open("ctrl_pso_T$Tend.csv","w") do g
             writedlm(g, pso.control_coefficients)
@@ -129,15 +129,17 @@ function PSO_QFI(pso::PSO{T}, episode; particle_num, c0, c1, c2, v0, sd, ctrl_ma
         open("f_pso_T$Tend.csv","w") do h
             writedlm(h, f_list)
         end
-        println("Final QFI is $fit ($(episode[1]) epochs)")
+        print("\e[2K")
+        println("Iteration over, data saved.")
+        println("Final QFI is $fit")
     end
     return nothing
 end
 
-function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}; particle_num, c0, c1, c2,v0, sd, ctrl_max, save_file) where {T<: Complex}
-    println("Particle Swarm Optimization:")
+function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,v0, sd, ctrl_max, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("single parameter scenario")
+    println("control algorithm: PSO")
     Random.seed!(sd)
     ctrl_length = length(pso.control_coefficients[1])
     ctrl_num = length(pso.control_Hamiltonian)
@@ -155,14 +157,14 @@ function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}; particle_num, c0, c1, c2,v
     f_list = [qfi_ini]
     if save_file==true
         for ei in 1:episode[1]
-            @inbounds for pi in 1:particle_num
-                # propagate!(particles[pi])
-                f_now = QFI_ori(particles[pi])
-                if f_now > p_fit[pi]
-                    p_fit[pi] = f_now
+            @inbounds for pj in 1:particle_num
+                # propagate!(particles[pj])
+                f_now = QFI_ori(particles[pj])
+                if f_now > p_fit[pj]
+                    p_fit[pj] = f_now
                     for di in 1:ctrl_num
                         for ni in 1:ctrl_length
-                            pbest[di,ni,pi] = particles[pi].control_coefficients[di][ni]
+                            pbest[di,ni,pj] = particles[pj].control_coefficients[di][ni]
                         end
                     end
                 end
@@ -194,7 +196,7 @@ function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}; particle_num, c0, c1, c2,v
                 particles = repeat(pso, particle_num)
             end
             append!(f_list, fit)
-            print("current QFI is $fit ($ei epochs) \r")
+            print("current QFI is $fit ($ei episodes) \r")
             open("ctrl_pso_T$Tend.csv","w") do g
                 writedlm(g, [gbest[k, :] for k in 1:ctrl_num])
             end
@@ -202,18 +204,19 @@ function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}; particle_num, c0, c1, c2,v
                 writedlm(h, f_list)
             end
         end
-        print("\e[2K")    
-        println("Final QFI is $fit ($(episode[1]) epochs)")
+        print("\e[2K")
+        println("Iteration over, data saved.")    
+        println("Final QFI is $fit")
     else
         for ei in 1:episode[1]
-            @inbounds for pi in 1:particle_num
-                # propagate!(particles[pi])
-                f_now = QFI_ori(particles[pi])
-                if f_now > p_fit[pi]
-                    p_fit[pi] = f_now
+            @inbounds for pj in 1:particle_num
+                # propagate!(particles[pj])
+                f_now = QFI_ori(particles[pj])
+                if f_now > p_fit[pj]
+                    p_fit[pj] = f_now
                     for di in 1:ctrl_num
                         for ni in 1:ctrl_length
-                            pbest[di,ni,pi] = particles[pi].control_coefficients[di][ni]
+                            pbest[di,ni,pj] = particles[pj].control_coefficients[di][ni]
                         end
                     end
                 end
@@ -245,26 +248,27 @@ function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}; particle_num, c0, c1, c2,v
                 particles = repeat(pso, particle_num)
             end
             append!(f_list, fit)
-            print("current QFI is $fit ($ei epochs) \r")
+            print("current QFI is $fit ($ei episodes) \r")
         end
-        pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
-        print("\e[2K")    
-        save("controls_T$Tend.jld", "controls", pso.control_coefficients, "time_span", pso.times)
+        pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]    
+        # save("controls_T$Tend.jld", "controls", pso.control_coefficients, "time_span", pso.times)
         open("ctrl_pso_T$Tend.csv","w") do g
             writedlm(g, pso.control_coefficients)
         end
         open("f_pso_T$Tend.csv","w") do h
             writedlm(h, f_list)
         end
-        println("Final QFI is $fit ($(episode[1]) epochs)")
+        print("\e[2K")
+        println("Iteration over, data saved.")
+        println("Final QFI is $fit")
     end
     return nothing
 end
 
-function PSO_QFIM(pso::PSO{T}, episode; particle_num, c0, c1, c2, v0, sd, ctrl_max, save_file) where {T<: Complex}
-    println("Particle Swarm Optimization:")
+function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, ctrl_max, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("multiparameter scenario")
+    println("control algorithm: PSO")
     Random.seed!(sd)
     ctrl_length = length(pso.control_coefficients[1])
     ctrl_num = length(pso.control_Hamiltonian)
@@ -275,21 +279,21 @@ function PSO_QFIM(pso::PSO{T}, episode; particle_num, c0, c1, c2, v0, sd, ctrl_m
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
     qfi_ini = 1.0/real(tr(pinv(QFIM_ori(pso))))
-    println("initial value of the target function is $(1/qfi_ini)")
+    println("initial value of Tr(WF^{-1}) is $(1/qfi_ini)")
     Tend = pso.times[end]
     # fit_pre = 0.0        
     fit = 0.0
     f_list = [1.0/qfi_ini]
     if save_file==true
         for ei in 1:episode
-            @inbounds for pi in 1:particle_num
-                # propagate!(particles[pi])
-                f_now = 1.0/real(tr(pinv(QFIM_ori(particles[pi]))))
-                if f_now > p_fit[pi]
-                    p_fit[pi] = f_now
+            @inbounds for pj in 1:particle_num
+                # propagate!(particles[pj])
+                f_now = 1.0/real(tr(pinv(QFIM_ori(particles[pj]))))
+                if f_now > p_fit[pj]
+                    p_fit[pj] = f_now
                     for di in 1:ctrl_num
                         for ni in 1:ctrl_length
-                            pbest[di,ni,pi] = particles[pi].control_coefficients[di][ni]
+                            pbest[di,ni,pj] = particles[pj].control_coefficients[di][ni]
                         end
                     end
                 end
@@ -316,7 +320,7 @@ function PSO_QFIM(pso::PSO{T}, episode; particle_num, c0, c1, c2, v0, sd, ctrl_m
                 end
             end
             append!(f_list, 1.0/fit)
-            print("current value of the target function is $(1.0/fit) ($ei epochs) \r")
+            print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
             open("ctrl_pso_T$Tend.csv","w") do g
                 writedlm(g, [gbest[k, :] for k in 1:ctrl_num])
             end
@@ -325,17 +329,18 @@ function PSO_QFIM(pso::PSO{T}, episode; particle_num, c0, c1, c2, v0, sd, ctrl_m
             end
         end
         print("\e[2K")
-        println("Final value of the target function is $(1.0/fit) ($(episode[1]) epochs)")
+        println("Iteration over, data saved.")
+        println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
     else
         for ei in 1:episode
-            @inbounds for pi in 1:particle_num
-                # propagate!(particles[pi])
-                f_now = 1.0/real(tr(pinv(QFIM_ori(particles[pi]))))
-                if f_now > p_fit[pi]
-                    p_fit[pi] = f_now
+            @inbounds for pj in 1:particle_num
+                # propagate!(particles[pj])
+                f_now = 1.0/real(tr(pinv(QFIM_ori(particles[pj]))))
+                if f_now > p_fit[pj]
+                    p_fit[pj] = f_now
                     for di in 1:ctrl_num
                         for ni in 1:ctrl_length
-                            pbest[di,ni,pi] = particles[pi].control_coefficients[di][ni]
+                            pbest[di,ni,pj] = particles[pj].control_coefficients[di][ni]
                         end
                     end
                 end
@@ -362,26 +367,27 @@ function PSO_QFIM(pso::PSO{T}, episode; particle_num, c0, c1, c2, v0, sd, ctrl_m
                 end
             end
             append!(f_list, 1.0/fit)
-            print("current value of the target function is $(1.0/fit) ($ei epochs) \r")
+            print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
         end
         pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
-        print("\e[2K")
-        save("controls_T$Tend.jld", "controls", pso.control_coefficients, "time_span", pso.times)
+        # save("controls_T$Tend.jld", "controls", pso.control_coefficients, "time_span", pso.times)
         open("ctrl_pso_T$Tend.csv","w") do g
             writedlm(g, pso.control_coefficients)
         end
         open("f_pso_T$Tend.csv","w") do h
             writedlm(h, f_list)
         end
-        println("Final value of the target function is $(1.0/fit) ($(episode[1]) epochs)")
+        print("\e[2K")
+        println("Iteration over, data saved.")
+        println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
     end
     return nothing
 end
 
 function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2, v0, sd, ctrl_max, save_file) where {T<: Complex}
-    println("Particle Swarm Optimization:")
     println("quantum parameter estimation")
     println("multiparameter scenario")
+    println("control algorithm: PSO")
     Random.seed!(sd)
     ctrl_length = length(pso.control_coefficients[1])
     ctrl_num = length(pso.control_Hamiltonian)
@@ -392,21 +398,21 @@ function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
     qfi_ini = 1.0/real(tr(pinv(QFIM_ori(pso))))
-    println("initial value of the target function is $(1.0/qfi_ini)")
+    println("initial value of Tr(WF^{-1}) is $(1.0/qfi_ini)")
     Tend = pso.times[end]
     # fit_pre = 0.0
     fit = 0.0
     f_list = [1.0/qfi_ini]
     if save_file==true
         for ei in 1:episode[1]
-            @inbounds for pi in 1:particle_num
-                # propagate!(particles[pi])
-                f_now = 1.0/real(tr(pinv(QFIM_ori(particles[pi]))))
-                if f_now > p_fit[pi]
-                    p_fit[pi] = f_now
+            @inbounds for pj in 1:particle_num
+                # propagate!(particles[pj])
+                f_now = 1.0/real(tr(pinv(QFIM_ori(particles[pj]))))
+                if f_now > p_fit[pj]
+                    p_fit[pj] = f_now
                     for di in 1:ctrl_num
                         for ni in 1:ctrl_length
-                            pbest[di,ni,pi] = particles[pi].control_coefficients[di][ni]
+                            pbest[di,ni,pj] = particles[pj].control_coefficients[di][ni]
                         end
                     end
                 end
@@ -437,7 +443,7 @@ function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,
                 particles = repeat(pso, particle_num)
             end
             append!(f_list, 1.0/fit)
-            print("current value of the target function is $((1.0/fit)) ($ei epochs) \r")
+            print("current value of Tr(WF^{-1}) is $((1.0/fit)) ($ei episodes) \r")
             open("ctrl_pso_T$Tend.csv","w") do g
                 writedlm(g, [gbest[k, :] for k in 1:ctrl_num])
             end
@@ -446,17 +452,18 @@ function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,
             end
         end
         print("\e[2K")
-        println("Final value of the target function is $(1.0/fit) ($(episode[1]) epochs)")
+        println("Iteration over, data saved.")
+        println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
     else
         for ei in 1:episode[1]
-            @inbounds for pi in 1:particle_num
-                # propagate!(particles[pi])
-                f_now = 1.0/real(tr(pinv(QFIM_ori(particles[pi]))))
-                if f_now > p_fit[pi]
-                    p_fit[pi] = f_now
+            @inbounds for pj in 1:particle_num
+                # propagate!(particles[pj])
+                f_now = 1.0/real(tr(pinv(QFIM_ori(particles[pj]))))
+                if f_now > p_fit[pj]
+                    p_fit[pj] = f_now
                     for di in 1:ctrl_num
                         for ni in 1:ctrl_length
-                            pbest[di,ni,pi] = particles[pi].control_coefficients[di][ni]
+                            pbest[di,ni,pj] = particles[pj].control_coefficients[di][ni]
                         end
                     end
                 end
@@ -488,18 +495,19 @@ function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,
                 particles = repeat(pso, particle_num)
             end
             append!(f_list, 1.0/fit)
-            print("current value of the target function is $((1.0/fit)) ($ei epochs) \r")
+            print("current value of Tr(WF^{-1}) is $((1.0/fit)) ($ei episodes) \r")
         end
-        pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
-        print("\e[2K")    
-        save("controls_T$Tend.jld", "controls", pso.control_coefficients, "time_span", pso.times)
+        pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]   
+        # save("controls_T$Tend.jld", "controls", pso.control_coefficients, "time_span", pso.times)
         open("ctrl_pso_T$Tend.csv","w") do g
             writedlm(g, pso.control_coefficients)
         end
         open("f_pso_T$Tend.csv","w") do h
             writedlm(h, f_list)
         end
-        println("Final value of the target function is $((1.0/fit)) ($(episode[1]) epochs)")
+        print("\e[2K")
+        println("Iteration over, data saved.")
+        println("Final value of Tr(WF^{-1}) is $((1.0/fit))")
     end
     return nothing
 end
