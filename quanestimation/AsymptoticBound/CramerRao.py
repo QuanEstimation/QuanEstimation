@@ -122,6 +122,10 @@ def SLD(rho, drho, rep='original', precision=1e-8):
                 SLD[para_i] = np.dot(vec.conj().transpose(),np.dot(SLD_org[para_i],vec))
             else:
                 raise NameError('NameError: rep should be choosen in {original, eigen}')
+        if para_num == 1:
+            return SLD[0]
+        else:
+            return SLD
 
     else:
         val, vec = np.linalg.eig(rho)
@@ -140,7 +144,11 @@ def SLD(rho, drho, rep='original', precision=1e-8):
                 SLD[para_i] = SLD_eig
             else:
                 raise NameError('NameError: rep should be choosen in {original, eigen}')
-    return SLD
+
+        if para_num == 1:
+            return SLD[0]
+        else:
+            return SLD
 
 def RLD(rho, drho, rep='original', precision=1e-8):
     """
@@ -198,8 +206,10 @@ def RLD(rho, drho, rep='original', precision=1e-8):
             RLD[para_i] = RLD_eig
         else:
             raise NameError('NameError: rep should be choosen in {original, eigen}')
-
-    return RLD
+    if para_num == 1:
+        return RLD[0]
+    else:
+        return RLD
 
 def LLD(rho, drho, rep='original', precision=1e-8):
     """
@@ -259,7 +269,10 @@ def LLD(rho, drho, rep='original', precision=1e-8):
         else:
             raise NameError('NameError: rep should be choosen in {original, eigen}')
 
-    return LLD
+    if para_num == 1:
+        return LLD[0]
+    else:
+        return LLD
 
 def QFIM(rho, drho, dtype='SLD', rep='original', rho_type = 'DM', exportLD=False):
     """
@@ -321,8 +334,7 @@ def QFIM(rho, drho, dtype='SLD', rep='original', rho_type = 'DM', exportLD=False
         raise TypeError('Please make sure drho is a list')
 
     para_num = len(drho)
-    QFIM_res = np.zeros([para_num,para_num])
-  
+
     #===========================================================
     if rho_type == 'Bloch_vector':
         r = rho
@@ -339,39 +351,52 @@ def QFIM(rho, drho, dtype='SLD', rep='original', rho_type = 'DM', exportLD=False
             for j in range(len(r)):
                 drho[para] = drho[para] + np.sqrt((dim-1)/(2*dim))*dr[para][j]*Lambda[j]
     #=========================================================== 
-        
-    if dtype=='SLD':
-        LD_tp = SLD(rho, drho, rep)
-        for para_i in range(0, para_num):
-            for para_j in range(para_i, para_num):
-                SLD_ac = np.dot(LD_tp[para_i],LD_tp[para_j])+np.dot(LD_tp[para_j],LD_tp[para_i])
-                QFIM_res[para_i][para_j] = np.real(0.5*np.trace(np.dot(rho,SLD_ac)))
-                QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
 
-    elif dtype=='RLD':
-        LD_tp = RLD(rho, drho, rep)
-        for para_i in range(0, para_num):
-            for para_j in range(para_i, para_num):
-                QFIM_res[para_i][para_j] = np.real(np.trace(np.dot(rho,np.dot(LD_tp[para_i],                                                             LD_tp[para_j]).conj().transpose())))
-                QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
-
-    elif dtype=='LLD':
-        LD_tp = LLD(rho, drho, rep)
-        for para_i in range(0, para_num):
-            for para_j in range(para_i, para_num):
-                QFIM_res[para_i][para_j] = np.real(np.trace(np.dot(rho,np.dot(LD_tp[para_i],                                                              LD_tp[para_j]).conj().transpose())))
-                QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
-    else:
-        raise NameError('NameError: dtype should be choosen in {SLD, RLD, LLD}')
-
+    # singleparameter estimation
     if para_num == 1:
-        if exportLD==False:
-            return QFIM_res[0][0]
+        if dtype=='SLD':
+            LD_tp = SLD(rho, drho, rep)
+            SLD_ac = np.dot(LD_tp,LD_tp)+np.dot(LD_tp,LD_tp)
+            QFIM_res = np.real(0.5*np.trace(np.dot(rho,SLD_ac)))
+
+        elif dtype=='RLD':
+            LD_tp = RLD(rho, drho, rep)
+            QFIM_res = np.real(np.trace(np.dot(rho,np.dot(LD_tp, LD_tp).conj().transpose())))
+
+        elif dtype=='LLD':
+            LD_tp = LLD(rho, drho, rep)
+            QFIM_res = np.real(np.trace(np.dot(rho,np.dot(LD_tp, LD_tp).conj().transpose())))
         else:
-            return QFIM_res[0][0], LD_tp[0]
+            raise NameError('NameError: dtype should be choosen in {SLD, RLD, LLD}')
+
+    # multiparameter estimation
+    else:  
+        QFIM_res = np.zeros([para_num,para_num])
+        if dtype=='SLD':
+            LD_tp = SLD(rho, drho, rep)
+            for para_i in range(0, para_num):
+                for para_j in range(para_i, para_num):
+                    SLD_ac = np.dot(LD_tp[para_i],LD_tp[para_j])+np.dot(LD_tp[para_j],LD_tp[para_i])
+                    QFIM_res[para_i][para_j] = np.real(0.5*np.trace(np.dot(rho,SLD_ac)))
+                    QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
+
+        elif dtype=='RLD':
+            LD_tp = RLD(rho, drho, rep)
+            for para_i in range(0, para_num):
+                for para_j in range(para_i, para_num):
+                    QFIM_res[para_i][para_j] = np.real(np.trace(np.dot(rho,np.dot(LD_tp[para_i],                                                             LD_tp[para_j]).conj().transpose())))
+                    QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
+
+        elif dtype=='LLD':
+            LD_tp = LLD(rho, drho, rep)
+            for para_i in range(0, para_num):
+                for para_j in range(para_i, para_num):
+                    QFIM_res[para_i][para_j] = np.real(np.trace(np.dot(rho,np.dot(LD_tp[para_i],                                                              LD_tp[para_j]).conj().transpose())))
+                    QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
+        else:
+            raise NameError('NameError: dtype should be choosen in {SLD, RLD, LLD}')
+
+    if exportLD==False:
+        return QFIM_res
     else:
-        if exportLD==False:
-            return QFIM_res
-        else:
-            return QFIM_res, LD_tp
-            
+        return QFIM_res, LD_tp

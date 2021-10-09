@@ -13,15 +13,15 @@ function RunMixed( grape, particle_num= 10, c0=0.5, c1=0.5, c2=0.5, prec_rough =
     for ei in 1:episode
         fit_pre = 0.0
         fit = 0.0
-        for pi in 1:particle_num
-            propagate!(particles[pi])
-            f_now = QFI(particles[pi])
+        for pj in 1:particle_num
+            propagate!(particles[pj])
+            f_now = QFI(particles[pj])
             
-            if f_now > p_fit[pi]
-                p_fit[pi] = f_now
+            if f_now > p_fit[pj]
+                p_fit[pj] = f_now
                 for di in 1:ctrl_num
                     for ni in 1:tnum
-                        pbest[pi][di][ni] = particles[pi].control_coefficients[di][ni]
+                        pbest[pj][di][ni] = particles[pj].control_coefficients[di][ni]
                     end
                 end
             end
