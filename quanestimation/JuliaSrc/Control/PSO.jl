@@ -7,16 +7,18 @@ mutable struct PSO{T <: Complex,M <: Real} <: ControlSystem
     γ::Vector{M}
     control_Hamiltonian::Vector{Matrix{T}}
     control_coefficients::Vector{Vector{M}}
+    ctrl_bound::M
+    W::Matrix{M}
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
     PSO(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, ρ_initial::Matrix{T},
              times::Vector{M}, Liouville_operator::Vector{Matrix{T}},γ::Vector{M}, control_Hamiltonian::Vector{Matrix{T}},
-             control_coefficients::Vector{Vector{M}}, ρ=Vector{Matrix{T}}(undef, 1), 
+             control_coefficients::Vector{Vector{M}}, ctrl_bound::M, W::Matrix{M}, ρ=Vector{Matrix{T}}(undef, 1), 
              ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 
-                Hamiltonian_derivative, ρ_initial, times, Liouville_operator, γ, control_Hamiltonian, control_coefficients, ρ, ∂ρ_∂x) 
+                Hamiltonian_derivative, ρ_initial, times, Liouville_operator, γ, control_Hamiltonian, control_coefficients, ctrl_bound, W, ρ, ∂ρ_∂x) 
 end
 
-function PSO_QFI(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, ctrl_bound, save_file) where {T<: Complex}
+function PSO_QFI(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("single parameter scenario")
     println("control algorithm: PSO")
@@ -66,7 +68,7 @@ function PSO_QFI(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, ctrl_bo
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
                         # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < ctrl_bound ? x+velocity[dk, ck, pk] : ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
                     end
                 end
             end
@@ -114,7 +116,7 @@ function PSO_QFI(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, ctrl_bo
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
                         # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < ctrl_bound ? x+velocity[dk, ck, pk] : ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
                     end
                 end
             end
@@ -136,7 +138,7 @@ function PSO_QFI(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, ctrl_bo
     return nothing
 end
 
-function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,v0, sd, ctrl_bound, save_file) where {T<: Complex}
+function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,v0, sd, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("single parameter scenario")
     println("control algorithm: PSO")
@@ -186,7 +188,7 @@ function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,v
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
                         # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < ctrl_bound ? x+velocity[dk, ck, pk] : ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
                     end
                 end
             end
@@ -238,7 +240,7 @@ function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,v
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
                         # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < ctrl_bound ? x+velocity[dk, ck, pk] : ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
                     end
                 end
             end
@@ -265,7 +267,7 @@ function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,v
     return nothing
 end
 
-function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, ctrl_bound, save_file) where {T<: Complex}
+function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("multiparameter scenario")
     println("control algorithm: PSO")
@@ -278,7 +280,7 @@ function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, ctrl_b
     gbest = zeros(ctrl_num, ctrl_length)
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
-    qfi_ini = 1.0/real(tr(pinv(QFIM_ori(pso))))
+    qfi_ini = 1.0/real(tr(pso.W*pinv(QFIM_ori(pso))))
     println("initial value of Tr(WF^{-1}) is $(1/qfi_ini)")
     Tend = pso.times[end]
     # fit_pre = 0.0        
@@ -288,7 +290,7 @@ function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, ctrl_b
         for ei in 1:episode
             @inbounds for pj in 1:particle_num
                 # propagate!(particles[pj])
-                f_now = 1.0/real(tr(pinv(QFIM_ori(particles[pj]))))
+                f_now = 1.0/real(tr(particles[pj].W*pinv(QFIM_ori(particles[pj]))))
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
                     for di in 1:ctrl_num
@@ -315,7 +317,7 @@ function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, ctrl_b
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
                         # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < ctrl_bound ? x+velocity[dk, ck, pk] : ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
                     end
                 end
             end
@@ -335,7 +337,7 @@ function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, ctrl_b
         for ei in 1:episode
             @inbounds for pj in 1:particle_num
                 # propagate!(particles[pj])
-                f_now = 1.0/real(tr(pinv(QFIM_ori(particles[pj]))))
+                f_now = 1.0/real(tr(particles[pj].W*pinv(QFIM_ori(particles[pj]))))
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
                     for di in 1:ctrl_num
@@ -362,7 +364,7 @@ function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, ctrl_b
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
                         # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < ctrl_bound ? x+velocity[dk, ck, pk] : ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
                     end
                 end
             end
@@ -384,7 +386,7 @@ function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, ctrl_b
     return nothing
 end
 
-function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2, v0, sd, ctrl_bound, save_file) where {T<: Complex}
+function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("multiparameter scenario")
     println("control algorithm: PSO")
@@ -397,7 +399,7 @@ function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,
     gbest = zeros(ctrl_num, ctrl_length)
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
-    qfi_ini = 1.0/real(tr(pinv(QFIM_ori(pso))))
+    qfi_ini = 1.0/real(tr(pso.W*pinv(QFIM_ori(pso))))
     println("initial value of Tr(WF^{-1}) is $(1.0/qfi_ini)")
     Tend = pso.times[end]
     # fit_pre = 0.0
@@ -407,7 +409,7 @@ function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,
         for ei in 1:episode[1]
             @inbounds for pj in 1:particle_num
                 # propagate!(particles[pj])
-                f_now = 1.0/real(tr(pinv(QFIM_ori(particles[pj]))))
+                f_now = 1.0/real(tr(particles[pj].W*pinv(QFIM_ori(particles[pj]))))
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
                     for di in 1:ctrl_num
@@ -434,7 +436,7 @@ function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
                         # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < ctrl_bound ? x+velocity[dk, ck, pk] : ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
                     end
                 end
             end
@@ -458,7 +460,7 @@ function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,
         for ei in 1:episode[1]
             @inbounds for pj in 1:particle_num
                 # propagate!(particles[pj])
-                f_now = 1.0/real(tr(pinv(QFIM_ori(particles[pj]))))
+                f_now = 1.0/real(tr(pinv(particles[pj].W*QFIM_ori(particles[pj]))))
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
                     for di in 1:ctrl_num
@@ -485,7 +487,7 @@ function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
                         # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < ctrl_bound ? x+velocity[dk, ck, pk] : ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
                     end
                 end
             end

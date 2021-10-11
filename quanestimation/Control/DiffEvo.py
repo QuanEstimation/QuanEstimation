@@ -3,7 +3,7 @@ from julia import Main
 import quanestimation.Control.Control as Control
 class DiffEvo(Control.ControlSystem):
     def __init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
-                gamma, control_option=True, ctrl_bound=1.0, populations=10, c=0.5, c0=0.1, \
+                gamma, control_option=True, ctrl_bound=1.0, W=[], populations=10, c=0.5, c0=0.1, \
                 c1=0.6, seed=1234, max_episodes=200):
         
         """
@@ -28,21 +28,25 @@ class DiffEvo(Control.ControlSystem):
         self.c1 = c1
         self.seed = seed
         self.max_episodes = max_episodes
+        if W == []:
+            self.W = np.eye(len(dH))
+        else:
+            self.W = W
 
     def QFIM(self, save_file):
         diffevo = Main.QuanEstimation.DiffEvo(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
-                        self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients)
+                        self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W)
         if len(self.Hamiltonian_derivative) == 1:
-            Main.QuanEstimation.DiffEvo_QFI(diffevo, self.populations, self.ctrl_bound, self.c, self.c0, self.c1, self.seed, self.max_episodes, save_file)
+            Main.QuanEstimation.DiffEvo_QFI(diffevo, self.populations, self.c, self.c0, self.c1, self.seed, self.max_episodes, save_file)
         else:
-            Main.QuanEstimation.DiffEvo_QFIM(diffevo, self.populations, self.ctrl_bound, self.c, self.c0, self.c1, self.seed, self.max_episodes, save_file)
+            Main.QuanEstimation.DiffEvo_QFIM(diffevo, self.populations, self.c, self.c0, self.c1, self.seed, self.max_episodes, save_file)
 
     def CFIM(self, M, save_file):
         diffevo = Main.QuanEstimation.DiffEvo(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
                         self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients)
         if len(self.Hamiltonian_derivative) == 1:
-            Main.QuanEstimation.DiffEvo_CFI(M, diffevo, self.populations, self.ctrl_bound, self.c, self.c0, self.c1, self.seed, self.max_episodes, save_file)
+            Main.QuanEstimation.DiffEvo_CFI(M, diffevo, self.populations, self.c, self.c0, self.c1, self.seed, self.max_episodes, save_file)
         else:
-            Main.QuanEstimation.DiffEvo_CFIM(M, diffevo, self.populations, self.ctrl_bound, self.c, self.c0, self.c1, self.seed, self.max_episodes, save_file)
+            Main.QuanEstimation.DiffEvo_CFIM(M, diffevo, self.populations, self.c, self.c0, self.c1, self.seed, self.max_episodes, save_file)
 
             

@@ -7,16 +7,18 @@ mutable struct DiffEvo{T <: Complex,M <: Real} <: ControlSystem
     γ::Vector{M}
     control_Hamiltonian::Vector{Matrix{T}}
     control_coefficients::Vector{Vector{M}}
+    ctrl_bound::M
+    W::Matrix{M}
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
     DiffEvo(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, ρ_initial::Matrix{T},
              times::Vector{M}, Liouville_operator::Vector{Matrix{T}},γ::Vector{M}, control_Hamiltonian::Vector{Matrix{T}},
-             control_coefficients::Vector{Vector{M}}, ρ=Vector{Matrix{T}}(undef, 1), 
+             control_coefficients::Vector{Vector{M}}, ctrl_bound::M, W::Matrix{M}, ρ=Vector{Matrix{T}}(undef, 1), 
              ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 
-                Hamiltonian_derivative, ρ_initial, times, Liouville_operator, γ, control_Hamiltonian, control_coefficients, ρ, ∂ρ_∂x) 
+                Hamiltonian_derivative, ρ_initial, times, Liouville_operator, γ, control_Hamiltonian, control_coefficients, ctrl_bound, W, ρ, ∂ρ_∂x) 
 end
 
-function DiffEvo_QFI(DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
+function DiffEvo_QFI(DE::DiffEvo{T}, populations, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("single parameter scenario")
     println("control algorithm: DE")
@@ -29,7 +31,7 @@ function DiffEvo_QFI(DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, seed, m
     populations = repeat(DE, p_num)
     # initialize
     for pj in 1:p_num
-        populations[pj].control_coefficients = [ctrl_bound*rand(ctrl_length)  for i in 1:ctrl_num]
+        populations[pj].control_coefficients = [DE.ctrl_bound*rand(ctrl_length)  for i in 1:ctrl_num]
     end
 
     p_fit = [QFI_ori(populations[i]) for i in 1:p_num]
@@ -40,7 +42,7 @@ function DiffEvo_QFI(DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, seed, m
     Tend = (DE.times)[end]
     if save_file == true
         for i in 1:max_episodes
-            p_fit = DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_bound)
+            p_fit = DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             print("current QFI is ", maximum(p_fit), " ($i episodes)    \r")
             open("f_de_T$Tend.csv","a") do f
@@ -56,7 +58,7 @@ function DiffEvo_QFI(DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, seed, m
 
     else
         for i in 1:max_episodes
-            p_fit = DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_bound)
+            p_fit = DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             print("current QFI is ", maximum(p_fit), " ($i episodes)    \r")
             append!(f_list,maximum(p_fit))
         end
@@ -73,7 +75,7 @@ function DiffEvo_QFI(DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, seed, m
     end
 end
 
-function DiffEvo_QFIM(DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
+function DiffEvo_QFIM(DE::DiffEvo{T}, populations, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("multiparameter scenario")
     println("control algorithm: DE")
@@ -86,10 +88,12 @@ function DiffEvo_QFIM(DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, seed, 
     populations = repeat(DE, p_num)
     # initialize
     for pj in 1:p_num
-        populations[pj].control_coefficients = [ctrl_bound*rand(ctrl_length)  for i in 1:ctrl_num]
+        #for test
+        populations[pj].control_coefficients = [0.001*rand(ctrl_length)  for i in 1:ctrl_num]
+        # populations[pj].control_coefficients = [DE.ctrl_bound*rand(ctrl_length)  for i in 1:ctrl_num]
     end
 
-    p_fit = [1.0/real(tr(pinv(QFIM_ori(populations[i])))) for i in 1:p_num]
+    p_fit = [1.0/real(tr(DE.W*pinv(QFIM_ori(populations[i])))) for i in 1:p_num]
 
     f_ini = maximum(p_fit)
     f_list = [1.0/f_ini]
@@ -98,7 +102,7 @@ function DiffEvo_QFIM(DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, seed, 
     Tend = (DE.times)[end]
     if save_file == true
         for i in 1:max_episodes
-            F = DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_bound)
+            F = DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             open("f_de_T$Tend.csv","a") do f
@@ -114,7 +118,7 @@ function DiffEvo_QFIM(DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, seed, 
 
     else
         for i in 1:max_episodes
-            p_fit = DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_bound)
+            p_fit = DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             append!(f_list, 1.0/maximum(p_fit))
         end
@@ -131,7 +135,7 @@ function DiffEvo_QFIM(DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, seed, 
     end
 end
 
-function DiffEvo_CFI(M, DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
+function DiffEvo_CFI(M, DE::DiffEvo{T}, populations, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
     println("classical parameter estimation")
     println("single parameter scenario")
     println("control algorithm: DE")
@@ -144,7 +148,7 @@ function DiffEvo_CFI(M, DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, seed
     populations = repeat(DE, p_num)
     # initialize
     for pj in 1:p_num
-        populations[pj].control_coefficients = [ctrl_bound*rand(ctrl_length)  for i in 1:ctrl_num]
+        populations[pj].control_coefficients = [DE.ctrl_bound*rand(ctrl_length)  for i in 1:ctrl_num]
     end
 
     p_fit = [CFI(M,populations[i]) for i in 1:p_num]
@@ -155,7 +159,7 @@ function DiffEvo_CFI(M, DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, seed
     Tend = (DE.times)[end]
     if save_file == true
         for i in 1:max_episodes
-            p_fit = DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_bound)
+            p_fit = DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             print("current CFI is ", maximum(p_fit), " ($i episodes)    \r")
             open("f_de_T$Tend.csv","a") do f
@@ -171,7 +175,7 @@ function DiffEvo_CFI(M, DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, seed
 
     else
         for i in 1:max_episodes
-            p_fit = DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_bound)
+            p_fit = DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             print("current CFI is ", maximum(p_fit), " ($i episodes)    \r")
             append!(f_list,maximum(p_fit))
         end
@@ -188,7 +192,7 @@ function DiffEvo_CFI(M, DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, seed
     end
 end
 
-function DiffEvo_CFIM(M, DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
+function DiffEvo_CFIM(M, DE::DiffEvo{T}, populations, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
     println("classical parameter estimation")
     println("multiparameter scenario")
     println("control algorithm: DE")
@@ -201,10 +205,10 @@ function DiffEvo_CFIM(M, DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, see
     populations = repeat(DE, p_num)
     # initialize
     for pj in 1:p_num
-        populations[pj].control_coefficients = [ctrl_bound*rand(ctrl_length)  for i in 1:ctrl_num]
+        populations[pj].control_coefficients = [DE.ctrl_bound*rand(ctrl_length)  for i in 1:ctrl_num]
     end
 
-    p_fit = [1.0/real(tr(pinv(CFIM(M, populations[i])))) for i in 1:p_num]
+    p_fit = [1.0/real(tr(DE.W*pinv(CFIM(M, populations[i])))) for i in 1:p_num]
 
     f_ini = maximum(p_fit)
     f_list = [1.0/f_ini]
@@ -213,7 +217,7 @@ function DiffEvo_CFIM(M, DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, see
     Tend = (DE.times)[end]
     if save_file == true
         for i in 1:max_episodes
-            F = DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_bound)
+            F = DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             open("f_de_T$Tend.csv","a") do f
@@ -229,7 +233,7 @@ function DiffEvo_CFIM(M, DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, see
 
     else
         for i in 1:max_episodes
-            p_fit = DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_bound)
+            p_fit = DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             append!(f_list, 1.0/maximum(p_fit))
         end
@@ -246,7 +250,7 @@ function DiffEvo_CFIM(M, DE::DiffEvo{T}, populations, ctrl_bound, c, c0, c1, see
     end
 end
 
-function DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_bound)
+function DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
     f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations
@@ -281,7 +285,7 @@ function DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fi
         #selection
         for ck in 1:ctrl_num
             for tk in 1:ctrl_length
-                ctrl_cross[ck][tk] = (x-> (x|>abs) < ctrl_bound ? x : ctrl_bound)(ctrl_cross[ck][tk])
+                ctrl_cross[ck][tk] = (x-> (x|>abs) < populations[pj].ctrl_bound ? x : populations[pj].ctrl_bound)(ctrl_cross[ck][tk])
             end
         end
         f_cross = QFI_ori(populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative[1], populations[pj].ρ_initial, 
@@ -300,7 +304,7 @@ function DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fi
     return p_fit
 end
 
-function DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_bound)
+function DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
     f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations
@@ -335,14 +339,14 @@ function DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_f
         #selection
         for ck in 1:ctrl_num
             for tk in 1:ctrl_length
-                ctrl_cross[ck][tk] = (x-> (x|>abs) < ctrl_bound ? x : ctrl_bound)(ctrl_cross[ck][tk])
+                ctrl_cross[ck][tk] = (x-> (x|>abs) < populations[pj].ctrl_bound ? x : populations[pj].ctrl_bound)(ctrl_cross[ck][tk])
             end
         end
 
         F = QFIM_ori(populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, populations[pj].ρ_initial, 
                       populations[pj].Liouville_operator, populations[pj].γ, populations[pj].control_Hamiltonian, 
                       ctrl_cross, populations[pj].times)
-        f_cross = 1.0/real(tr(pinv(F)))
+        f_cross = 1.0/real(tr(populations[pj].W*pinv(F)))
 
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
@@ -356,7 +360,7 @@ function DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_f
     return p_fit
 end
 
-function DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_bound)
+function DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
     f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations
@@ -391,7 +395,7 @@ function DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p
         #selection
         for ck in 1:ctrl_num
             for tk in 1:ctrl_length
-                ctrl_cross[ck][tk] = (x-> (x|>abs) < ctrl_bound ? x : ctrl_bound)(ctrl_cross[ck][tk])
+                ctrl_cross[ck][tk] = (x-> (x|>abs) < populations[pj].ctrl_bound ? x : populations[pj].ctrl_bound)(ctrl_cross[ck][tk])
             end
         end
         f_cross = CFI(M, populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative[1], populations[pj].ρ_initial, 
@@ -410,7 +414,7 @@ function DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p
     return p_fit
 end
 
-function DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit, ctrl_bound)
+function DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
     f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations
@@ -445,13 +449,13 @@ function DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, 
         #selection
         for ck in 1:ctrl_num
             for tk in 1:ctrl_length
-                ctrl_cross[ck][tk] = (x-> (x|>abs) < ctrl_bound ? x : ctrl_bound)(ctrl_cross[ck][tk])
+                ctrl_cross[ck][tk] = (x-> (x|>abs) < populations[pj].ctrl_bound ? x : populations[pj].ctrl_bound)(ctrl_cross[ck][tk])
             end
         end
         F = CFIM(populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, populations[pj].ρ_initial, 
                       populations[pj].Liouville_operator, populations[pj].γ, populations[pj].control_Hamiltonian, 
                       ctrl_cross, populations[pj].times)
-        f_cross = 1.0/real(tr(pinv(F)))
+        f_cross = 1.0/real(tr(populations[pj].W*pinv(F)))
 
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
