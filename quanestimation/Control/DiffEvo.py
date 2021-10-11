@@ -33,7 +33,7 @@ class DiffEvo(Control.ControlSystem):
         else:
             self.W = W
 
-    def QFIM(self, save_file):
+    def QFIM(self, save_file=False):
         diffevo = Main.QuanEstimation.DiffEvo(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
                         self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W)
         if len(self.Hamiltonian_derivative) == 1:
@@ -41,7 +41,7 @@ class DiffEvo(Control.ControlSystem):
         else:
             Main.QuanEstimation.DiffEvo_QFIM(diffevo, self.populations, self.c, self.c0, self.c1, self.seed, self.max_episodes, save_file)
 
-    def CFIM(self, M, save_file):
+    def CFIM(self, M, save_file=False):
         diffevo = Main.QuanEstimation.DiffEvo(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
                         self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients)
         if len(self.Hamiltonian_derivative) == 1:
