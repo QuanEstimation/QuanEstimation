@@ -267,6 +267,255 @@ function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,v
     return nothing
 end
 
+function PSO_CFI(M, pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
+    println("quantum parameter estimation")
+    println("single parameter scenario")
+    println("control algorithm: PSO")
+    Random.seed!(sd)
+    ctrl_length = length(pso.control_coefficients[1])
+    ctrl_num = length(pso.control_Hamiltonian)
+    particles = repeat(pso, particle_num)
+    velocity = v0.*randn(ctrl_num, ctrl_length, particle_num)
+    pbest = zeros(ctrl_num, ctrl_length, particle_num)
+    gbest = zeros(ctrl_num, ctrl_length)
+    velocity_best = zeros(ctrl_num,ctrl_length)
+    p_fit = zeros(particle_num)
+    cfi_ini = CFI(M, pso)
+    println("initial CFI is $(cfi_ini)")
+    Tend = pso.times[end]
+    # fit_pre = 0.0        
+    fit = 0.0
+    f_list = [cfi_ini]
+    if save_file==true
+        for ei in 1:episode
+            @inbounds for pj in 1:particle_num
+                # propagate!(particles[pj])
+                f_now = CFI(M, particles[pj])
+                if f_now > p_fit[pj]
+                    p_fit[pj] = f_now
+                    for di in 1:ctrl_num
+                        for ni in 1:ctrl_length
+                            pbest[di,ni,pj] = particles[pj].control_coefficients[di][ni]
+                        end
+                    end
+                end
+            end
+            @inbounds for pj in 1:particle_num
+                if p_fit[pj] > fit
+                    fit = p_fit[pj]
+                    for dj in 1:ctrl_num
+                        @inbounds for nj in 1:ctrl_length
+                            gbest[dj, nj] =  particles[pj].control_coefficients[dj][nj]
+                            velocity_best[dj, nj] = velocity[dj, nj, pj]
+                        end
+                    end
+                end
+            end  
+            @inbounds for pk in 1:particle_num
+                for dk in 1:ctrl_num
+                    @inbounds for ck in 1:ctrl_length
+                        velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
+                                              + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
+                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                    end
+                end
+            end
+            append!(f_list, fit)
+            print("current CFI is $fit ($ei episodes) \r")
+            open("ctrl_pso_T$Tend.csv","w") do g
+                writedlm(g, [gbest[k, :] for k in 1:ctrl_num])
+            end
+            open("f_pso_T$Tend.csv","w") do h
+                writedlm(h, f_list)
+            end
+        end
+        print("\e[2K")
+        println("Iteration over, data saved.")
+        println("Final CFI is $fit")
+
+    else
+        for ei in 1:episode
+            @inbounds for pj in 1:particle_num
+                # propagate!(particles[pj])
+                f_now = CFI(M, particles[pj])
+                if f_now > p_fit[pj]
+                    p_fit[pj] = f_now
+                    for di in 1:ctrl_num
+                        for ni in 1:ctrl_length
+                            pbest[di,ni,pj] = particles[pj].control_coefficients[di][ni]
+                        end
+                    end
+                end
+            end
+            @inbounds for pj in 1:particle_num
+                if p_fit[pj] > fit
+                    fit = p_fit[pj]
+                    for dj in 1:ctrl_num
+                        @inbounds for nj in 1:ctrl_length
+                            gbest[dj, nj] =  particles[pj].control_coefficients[dj][nj]
+                            velocity_best[dj, nj] = velocity[dj, nj, pj]
+                        end
+                    end
+                end
+            end  
+            @inbounds for pk in 1:particle_num
+                for dk in 1:ctrl_num
+                    @inbounds for ck in 1:ctrl_length
+                        velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
+                                              + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
+                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                    end
+                end
+            end
+            append!(f_list, fit)
+            print("current CFI is $fit ($ei episodes) \r")
+        end
+        pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
+        # save("controls_T$Tend.jld", "controls", pso.control_coefficients, "time_span", pso.times)
+        open("ctrl_pso_T$Tend.csv","w") do g
+            writedlm(g, pso.control_coefficients)
+        end
+        open("f_pso_T$Tend.csv","w") do h
+            writedlm(h, f_list)
+        end
+        print("\e[2K")
+        println("Iteration over, data saved.")
+        println("Final CFI is $fit")
+    end
+    return nothing
+end
+
+function PSO_CFI(M, pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,v0, sd, save_file) where {T<: Complex}
+    println("quantum parameter estimation")
+    println("single parameter scenario")
+    println("control algorithm: PSO")
+    Random.seed!(sd)
+    ctrl_length = length(pso.control_coefficients[1])
+    ctrl_num = length(pso.control_Hamiltonian)
+    particles = repeat(pso, particle_num)
+    velocity = v0.*randn(ctrl_num, ctrl_length, particle_num)
+    pbest = zeros(ctrl_num, ctrl_length, particle_num)
+    gbest = zeros(ctrl_num, ctrl_length)
+    velocity_best = zeros(ctrl_num,ctrl_length)
+    p_fit = zeros(particle_num)
+    cfi_ini = CFI(M, pso)
+    println("initial CFI is $(cfi_ini)")
+    Tend = pso.times[end]
+    # fit_pre = 0.0
+    fit = 0.0
+    f_list = [cfi_ini]
+    if save_file==true
+        for ei in 1:episode[1]
+            @inbounds for pj in 1:particle_num
+                # propagate!(particles[pj])
+                f_now = CFI(M, particles[pj])
+                if f_now > p_fit[pj]
+                    p_fit[pj] = f_now
+                    for di in 1:ctrl_num
+                        for ni in 1:ctrl_length
+                            pbest[di,ni,pj] = particles[pj].control_coefficients[di][ni]
+                        end
+                    end
+                end
+            end
+            @inbounds for pj in 1:particle_num
+                if p_fit[pj] > fit
+                    fit = p_fit[pj]
+                    for dj in 1:ctrl_num
+                        @inbounds for nj in 1:ctrl_length
+                            gbest[dj, nj] =  particles[pj].control_coefficients[dj][nj]
+                            velocity_best[dj, nj] = velocity[dj, nj, pj]
+                        end
+                    end
+                end
+            end  
+            @inbounds for pk in 1:particle_num
+                for dk in 1:ctrl_num
+                    @inbounds for ck in 1:ctrl_length
+                        velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
+                                              + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
+                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                    end
+                end
+            end
+    
+            if ei%episode[2] == 0
+                pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
+                particles = repeat(pso, particle_num)
+            end
+            append!(f_list, fit)
+            print("current CFI is $fit ($ei episodes) \r")
+            open("ctrl_pso_T$Tend.csv","w") do g
+                writedlm(g, [gbest[k, :] for k in 1:ctrl_num])
+            end
+            open("f_pso_T$Tend.csv","w") do h
+                writedlm(h, f_list)
+            end
+        end
+        print("\e[2K")
+        println("Iteration over, data saved.")    
+        println("Final CFI is $fit")
+    else
+        for ei in 1:episode[1]
+            @inbounds for pj in 1:particle_num
+                # propagate!(particles[pj])
+                f_now = CFI(M, particles[pj])
+                if f_now > p_fit[pj]
+                    p_fit[pj] = f_now
+                    for di in 1:ctrl_num
+                        for ni in 1:ctrl_length
+                            pbest[di,ni,pj] = particles[pj].control_coefficients[di][ni]
+                        end
+                    end
+                end
+            end
+            @inbounds for pj in 1:particle_num
+                if p_fit[pj] > fit
+                    fit = p_fit[pj]
+                    for dj in 1:ctrl_num
+                        @inbounds for nj in 1:ctrl_length
+                            gbest[dj, nj] =  particles[pj].control_coefficients[dj][nj]
+                            velocity_best[dj, nj] = velocity[dj, nj, pj]
+                        end
+                    end
+                end
+            end  
+            @inbounds for pk in 1:particle_num
+                for dk in 1:ctrl_num
+                    @inbounds for ck in 1:ctrl_length
+                        velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
+                                              + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
+                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                    end
+                end
+            end
+    
+            if ei%episode[2] == 0
+                pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
+                particles = repeat(pso, particle_num)
+            end
+            append!(f_list, fit)
+            print("current CFI is $fit ($ei episodes) \r")
+        end
+        pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]    
+        # save("controls_T$Tend.jld", "controls", pso.control_coefficients, "time_span", pso.times)
+        open("ctrl_pso_T$Tend.csv","w") do g
+            writedlm(g, pso.control_coefficients)
+        end
+        open("f_pso_T$Tend.csv","w") do h
+            writedlm(h, f_list)
+        end
+        print("\e[2K")
+        println("Iteration over, data saved.")
+        println("Final CFI is $fit")
+    end
+    return nothing
+end
+
 function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("multiparameter scenario")
@@ -461,6 +710,253 @@ function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,
             @inbounds for pj in 1:particle_num
                 # propagate!(particles[pj])
                 f_now = 1.0/real(tr(pinv(particles[pj].W*QFIM_ori(particles[pj]))))
+                if f_now > p_fit[pj]
+                    p_fit[pj] = f_now
+                    for di in 1:ctrl_num
+                        for ni in 1:ctrl_length
+                            pbest[di,ni,pj] = particles[pj].control_coefficients[di][ni]
+                        end
+                    end
+                end
+            end
+            @inbounds for pj in 1:particle_num
+                if p_fit[pj] > fit
+                    fit = p_fit[pj]
+                    for dj in 1:ctrl_num
+                        @inbounds for nj in 1:ctrl_length
+                            gbest[dj, nj] =  particles[pj].control_coefficients[dj][nj]
+                            velocity_best[dj, nj] = velocity[dj, nj, pj]
+                        end
+                    end
+                end
+            end  
+            @inbounds for pk in 1:particle_num
+                for dk in 1:ctrl_num
+                    @inbounds for ck in 1:ctrl_length
+                        velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
+                                              + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
+                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                    end
+                end
+            end
+    
+            if ei%episode[2] == 0
+                pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
+                particles = repeat(pso, particle_num)
+            end
+            append!(f_list, 1.0/fit)
+            print("current value of Tr(WF^{-1}) is $((1.0/fit)) ($ei episodes) \r")
+        end
+        pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]   
+        # save("controls_T$Tend.jld", "controls", pso.control_coefficients, "time_span", pso.times)
+        open("ctrl_pso_T$Tend.csv","w") do g
+            writedlm(g, pso.control_coefficients)
+        end
+        open("f_pso_T$Tend.csv","w") do h
+            writedlm(h, f_list)
+        end
+        print("\e[2K")
+        println("Iteration over, data saved.")
+        println("Final value of Tr(WF^{-1}) is $((1.0/fit))")
+    end
+    return nothing
+end
+
+function PSO_CFIM(M, pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
+    println("quantum parameter estimation")
+    println("multiparameter scenario")
+    println("control algorithm: PSO")
+    Random.seed!(sd)
+    ctrl_length = length(pso.control_coefficients[1])
+    ctrl_num = length(pso.control_Hamiltonian)
+    particles = repeat(pso, particle_num)
+    velocity = v0.*randn(ctrl_num, ctrl_length, particle_num)
+    pbest = zeros(ctrl_num, ctrl_length, particle_num)
+    gbest = zeros(ctrl_num, ctrl_length)
+    velocity_best = zeros(ctrl_num,ctrl_length)
+    p_fit = zeros(particle_num)
+    cfi_ini = 1.0/real(tr(pso.W*pinv(CFIM(M, pso))))
+    println("initial value of Tr(WF^{-1}) is $(1/cfi_ini)")
+    Tend = pso.times[end]
+    # fit_pre = 0.0        
+    fit = 0.0
+    f_list = [1.0/cfi_ini]
+    if save_file==true
+        for ei in 1:episode
+            @inbounds for pj in 1:particle_num
+                # propagate!(particles[pj])
+                f_now = 1.0/real(tr(particles[pj].W*pinv(CFIM(M, particles[pj]))))
+                if f_now > p_fit[pj]
+                    p_fit[pj] = f_now
+                    for di in 1:ctrl_num
+                        for ni in 1:ctrl_length
+                            pbest[di,ni,pj] = particles[pj].control_coefficients[di][ni]
+                        end
+                    end
+                end
+            end
+            @inbounds for pj in 1:particle_num
+                if p_fit[pj] > fit
+                    fit = p_fit[pj]
+                    for dj in 1:ctrl_num
+                        @inbounds for nj in 1:ctrl_length
+                            gbest[dj, nj] =  particles[pj].control_coefficients[dj][nj]
+                            velocity_best[dj, nj] = velocity[dj, nj, pj]
+                        end
+                    end
+                end
+            end  
+            @inbounds for pk in 1:particle_num
+                for dk in 1:ctrl_num
+                    @inbounds for ck in 1:ctrl_length
+                        velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
+                                              + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
+                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                    end
+                end
+            end
+            append!(f_list, 1.0/fit)
+            print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
+            open("ctrl_pso_T$Tend.csv","w") do g
+                writedlm(g, [gbest[k, :] for k in 1:ctrl_num])
+            end
+            open("f_pso_T$Tend.csv","w") do h
+                writedlm(h, f_list)
+            end
+        end
+        print("\e[2K")
+        println("Iteration over, data saved.")
+        println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
+    else
+        for ei in 1:episode
+            @inbounds for pj in 1:particle_num
+                # propagate!(particles[pj])
+                f_now = 1.0/real(tr(particles[pj].W*pinv(CFIM(M, particles[pj]))))
+                if f_now > p_fit[pj]
+                    p_fit[pj] = f_now
+                    for di in 1:ctrl_num
+                        for ni in 1:ctrl_length
+                            pbest[di,ni,pj] = particles[pj].control_coefficients[di][ni]
+                        end
+                    end
+                end
+            end
+            @inbounds for pj in 1:particle_num
+                if p_fit[pj] > fit
+                    fit = p_fit[pj]
+                    for dj in 1:ctrl_num
+                        @inbounds for nj in 1:ctrl_length
+                            gbest[dj, nj] =  particles[pj].control_coefficients[dj][nj]
+                            velocity_best[dj, nj] = velocity[dj, nj, pj]
+                        end
+                    end
+                end
+            end  
+            @inbounds for pk in 1:particle_num
+                for dk in 1:ctrl_num
+                    @inbounds for ck in 1:ctrl_length
+                        velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
+                                              + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
+                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                    end
+                end
+            end
+            append!(f_list, 1.0/fit)
+            print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
+        end
+        pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
+        # save("controls_T$Tend.jld", "controls", pso.control_coefficients, "time_span", pso.times)
+        open("ctrl_pso_T$Tend.csv","w") do g
+            writedlm(g, pso.control_coefficients)
+        end
+        open("f_pso_T$Tend.csv","w") do h
+            writedlm(h, f_list)
+        end
+        print("\e[2K")
+        println("Iteration over, data saved.")
+        println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
+    end
+    return nothing
+end
+
+function PSO_CFIM(M, pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
+    println("quantum parameter estimation")
+    println("multiparameter scenario")
+    println("control algorithm: PSO")
+    Random.seed!(sd)
+    ctrl_length = length(pso.control_coefficients[1])
+    ctrl_num = length(pso.control_Hamiltonian)
+    particles = repeat(pso, particle_num)
+    velocity = v0.*randn(ctrl_num, ctrl_length, particle_num)
+    pbest = zeros(ctrl_num, ctrl_length, particle_num)
+    gbest = zeros(ctrl_num, ctrl_length)
+    velocity_best = zeros(ctrl_num,ctrl_length)
+    p_fit = zeros(particle_num)
+    cfi_ini = 1.0/real(tr(pso.W*pinv(CFIM(M, pso))))
+    println("initial value of Tr(WF^{-1}) is $(1.0/cfi_ini)")
+    Tend = pso.times[end]
+    # fit_pre = 0.0
+    fit = 0.0
+    f_list = [1.0/cfi_ini]
+    if save_file==true
+        for ei in 1:episode[1]
+            @inbounds for pj in 1:particle_num
+                # propagate!(particles[pj])
+                f_now = 1.0/real(tr(particles[pj].W*pinv(CFIM(M, particles[pj]))))
+                if f_now > p_fit[pj]
+                    p_fit[pj] = f_now
+                    for di in 1:ctrl_num
+                        for ni in 1:ctrl_length
+                            pbest[di,ni,pj] = particles[pj].control_coefficients[di][ni]
+                        end
+                    end
+                end
+            end
+            @inbounds for pj in 1:particle_num
+                if p_fit[pj] > fit
+                    fit = p_fit[pj]
+                    for dj in 1:ctrl_num
+                        @inbounds for nj in 1:ctrl_length
+                            gbest[dj, nj] =  particles[pj].control_coefficients[dj][nj]
+                            velocity_best[dj, nj] = velocity[dj, nj, pj]
+                        end
+                    end
+                end
+            end  
+            @inbounds for pk in 1:particle_num
+                for dk in 1:ctrl_num
+                    @inbounds for ck in 1:ctrl_length
+                        velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
+                                              + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
+                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                    end
+                end
+            end
+            if ei%episode[2] == 0
+                pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
+                particles = repeat(pso, particle_num)
+            end
+            append!(f_list, 1.0/fit)
+            print("current value of Tr(WF^{-1}) is $((1.0/fit)) ($ei episodes) \r")
+            open("ctrl_pso_T$Tend.csv","w") do g
+                writedlm(g, [gbest[k, :] for k in 1:ctrl_num])
+            end
+            open("f_pso_T$Tend.csv","w") do h
+                writedlm(h, f_list)
+            end
+        end
+        print("\e[2K")
+        println("Iteration over, data saved.")
+        println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
+    else
+        for ei in 1:episode[1]
+            @inbounds for pj in 1:particle_num
+                # propagate!(particles[pj])
+                f_now = 1.0/real(tr(pinv(particles[pj].W*CFIM(M, particles[pj]))))
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
                     for di in 1:ctrl_num
