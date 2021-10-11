@@ -88,9 +88,7 @@ function DiffEvo_QFIM(DE::DiffEvo{T}, populations, c, c0, c1, seed, max_episodes
     populations = repeat(DE, p_num)
     # initialize
     for pj in 1:p_num
-        #for test
-        populations[pj].control_coefficients = [0.001*rand(ctrl_length)  for i in 1:ctrl_num]
-        # populations[pj].control_coefficients = [DE.ctrl_bound*rand(ctrl_length)  for i in 1:ctrl_num]
+        populations[pj].control_coefficients = [DE.ctrl_bound*rand(ctrl_length)  for i in 1:ctrl_num]
     end
 
     p_fit = [1.0/real(tr(DE.W*pinv(QFIM_ori(populations[i])))) for i in 1:p_num]
