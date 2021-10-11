@@ -1556,21 +1556,3 @@ function autoGRAPE_BFGS(grape, save_file, epsilon, max_episodes, B, c1, c2, e)
         end
     end
 end
-
-#for test
-
-function gradient_QFIM_nobound(grape::Gradient{T}) where {T <: Complex}
-    for i in 1:100
-        δF = gradient(x->1/(grape.W*(QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times) |> pinv) |> tr |>real), grape.control_coefficients).|>real |>sum
-        Adam!(grape, δF)
-    end
-end
-
-function gradient_QFIM_bound(grape::Gradient{T}) where {T <: Complex}
-    for i in 1:100
-        δF = gradient(x->1/(grape.W*(QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times) |> pinv) |> tr |>real), grape.control_coefficients).|>real |>sum
-        Adam!(grape, δF)
-        bound!(grape)
-    end
-end
-

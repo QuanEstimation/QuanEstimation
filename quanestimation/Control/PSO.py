@@ -4,7 +4,7 @@ import quanestimation.Control.Control as Control
 
 class PSO(Control.ControlSystem):
     def __init__(self, tspan, rho_initial, H0, Hc=[], dH=[], ctrl_initial=[], Liouville_operator=[], \
-                 gamma=[], control_option=True, ctrl_bound=10.0, particle_num=10, max_episodes=400, \
+                 gamma=[], control_option=True, ctrl_bound=10.0, W=[], particle_num=10, max_episodes=400, \
                  seed=100, c0=1.0, c1=2.0, c2=2.0, v0=0.01):
         
         """
@@ -42,14 +42,18 @@ class PSO(Control.ControlSystem):
         self.rho = None
         self.rho_derivative = None
         self.F = None
+        if W == []:
+            self.W = np.eye(len(dH))
+        else:
+            self.W = W
     
     def QFIM(self, save_file=False):
         pso = Main.QuanEstimation.PSO(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
-                        self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients)
+                        self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W)
         if len(self.Hamiltonian_derivative) == 1:
             Main.QuanEstimation.PSO_QFI(pso, self.max_episodes, self.particle_num, self.c0, self.c1, self.c2, self.v0, \
-                                        self.seed, self.ctrl_bound, save_file)
+                                        self.seed, save_file)
         else:
             Main.QuanEstimation.PSO_QFIM(pso, self.max_episodes, self.particle_num, self.c0, self.c1, self.c2, self.v0, \
-                                         self.seed, self.ctrl_bound, save_file)
+                                         self.seed, save_file)
          
