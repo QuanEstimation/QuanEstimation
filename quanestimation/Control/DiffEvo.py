@@ -2,8 +2,8 @@ import numpy as np
 from julia import Main
 import quanestimation.Control.Control as Control
 class DiffEvo(Control.ControlSystem):
-    def __init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
-                gamma, control_option=True, ctrl_bound=1.0, W=[], populations=10, c=0.5, c0=0.1, \
+    def __init__(self, tspan, rho_initial, H0, Hc=[], dH=[], ctrl_initial=[], Liouville_operator=[], \
+                gamma=[], control_option=True, ctrl_bound=1.0, W=[], populations=10, c=0.5, c0=0.1, \
                 c1=0.6, seed=1234, max_episodes=200):
         
         """

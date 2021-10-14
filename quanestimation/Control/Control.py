@@ -59,18 +59,18 @@ class ControlSystem:
         if type(self.Hamiltonian_derivative) != list:
             raise TypeError('The derivative of Hamiltonian should be a list!')    
         
-
-        ctrl_length = len(self.control_coefficients)
-        ctrlnum = len(self.control_Hamiltonian)
-        if ctrlnum < ctrl_length:
-            raise TypeError('There are %d control Hamiltonians but %d coefficients sequences: \
-                            too many coefficients sequences'%(ctrlnum,ctrl_length))
-        elif ctrlnum > ctrl_length:
-            warnings.warn('Not enough coefficients sequences: there are %d control Hamiltonians \
-                           but %d coefficients sequences. The rest of the control sequences are\
-                           set to be 0.'%(ctrlnum,ctrl_length), DeprecationWarning)
+        if ctrl_initial != []:
+            ctrl_length = len(self.control_coefficients)
+            ctrlnum = len(self.control_Hamiltonian)
+            if ctrlnum < ctrl_length:
+                raise TypeError('There are %d control Hamiltonians but %d coefficients sequences: \
+                                too many coefficients sequences'%(ctrlnum,ctrl_length))
+            elif ctrlnum > ctrl_length:
+                warnings.warn('Not enough coefficients sequences: there are %d control Hamiltonians \
+                            but %d coefficients sequences. The rest of the control sequences are\
+                            set to be 0.'%(ctrlnum,ctrl_length), DeprecationWarning)
         
-        number = math.ceil(len(self.tspan)/len(self.control_coefficients[0]))
-        if len(self.tspan) % len(self.control_coefficients[0]) != 0:
-            self.tnum = number*len(self.control_coefficients[0])
-            self.tspan = np.linspace(self.tspan[0], self.tspan[-1], self.tnum)
+            number = math.ceil(len(self.tspan)/len(self.control_coefficients[0]))
+            if len(self.tspan) % len(self.control_coefficients[0]) != 0:
+                self.tnum = number*len(self.control_coefficients[0])
+                self.tspan = np.linspace(self.tspan[0], self.tspan[-1], self.tnum)

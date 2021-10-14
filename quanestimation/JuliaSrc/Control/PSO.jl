@@ -63,12 +63,21 @@ function PSO_QFI(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_fi
                 end
             end  
             @inbounds for pk in 1:particle_num
+                control_coeff_pre = [zeros(ctrl_length) for i in 1:ctrl_num]
                 for dk in 1:ctrl_num
                     @inbounds for ck in 1:ctrl_length
+                        control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
+
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
-                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                    end
+                end
+
+                for dm in 1:ctrl_num
+                    @inbounds for cm in 1:ctrl_length
+                        particles[pk].control_coefficients[dm][cm] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dm][cm])
+                        velocity[dm, cm, pk] = particles[pk].control_coefficients[dm][cm] - control_coeff_pre[dm][cm]
                     end
                 end
             end
@@ -111,12 +120,21 @@ function PSO_QFI(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_fi
                 end
             end  
             @inbounds for pk in 1:particle_num
+                control_coeff_pre = [zeros(ctrl_length) for i in 1:ctrl_num]
                 for dk in 1:ctrl_num
                     @inbounds for ck in 1:ctrl_length
+                        control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
+
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
-                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                    end
+                end
+
+                for dm in 1:ctrl_num
+                    @inbounds for cm in 1:ctrl_length
+                        particles[pk].control_coefficients[dm][cm] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dm][cm])
+                        velocity[dm, cm, pk] = particles[pk].control_coefficients[dm][cm] - control_coeff_pre[dm][cm]
                     end
                 end
             end
@@ -183,12 +201,21 @@ function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,v
                 end
             end  
             @inbounds for pk in 1:particle_num
+                control_coeff_pre = [zeros(ctrl_length) for i in 1:ctrl_num]
                 for dk in 1:ctrl_num
                     @inbounds for ck in 1:ctrl_length
+                        control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
+
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
-                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                    end
+                end
+
+                for dm in 1:ctrl_num
+                    @inbounds for cm in 1:ctrl_length
+                        particles[pk].control_coefficients[dm][cm] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dm][cm])
+                        velocity[dm, cm, pk] = particles[pk].control_coefficients[dm][cm] - control_coeff_pre[dm][cm]
                     end
                 end
             end
@@ -235,12 +262,21 @@ function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,v
                 end
             end  
             @inbounds for pk in 1:particle_num
+                control_coeff_pre = [zeros(ctrl_length) for i in 1:ctrl_num]
                 for dk in 1:ctrl_num
                     @inbounds for ck in 1:ctrl_length
+                        control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
+
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
-                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                    end
+                end
+
+                for dm in 1:ctrl_num
+                    @inbounds for cm in 1:ctrl_length
+                        particles[pk].control_coefficients[dm][cm] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dm][cm])
+                        velocity[dm, cm, pk] = particles[pk].control_coefficients[dm][cm] - control_coeff_pre[dm][cm]
                     end
                 end
             end
@@ -312,12 +348,21 @@ function PSO_CFI(M, pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save
                 end
             end  
             @inbounds for pk in 1:particle_num
+                control_coeff_pre = [zeros(ctrl_length) for i in 1:ctrl_num]
                 for dk in 1:ctrl_num
                     @inbounds for ck in 1:ctrl_length
+                        control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
+
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
-                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                    end
+                end
+
+                for dm in 1:ctrl_num
+                    @inbounds for cm in 1:ctrl_length
+                        particles[pk].control_coefficients[dm][cm] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dm][cm])
+                        velocity[dm, cm, pk] = particles[pk].control_coefficients[dm][cm] - control_coeff_pre[dm][cm]
                     end
                 end
             end
@@ -360,12 +405,21 @@ function PSO_CFI(M, pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save
                 end
             end  
             @inbounds for pk in 1:particle_num
+                control_coeff_pre = [zeros(ctrl_length) for i in 1:ctrl_num]
                 for dk in 1:ctrl_num
                     @inbounds for ck in 1:ctrl_length
+                        control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
+
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
-                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                    end
+                end
+
+                for dm in 1:ctrl_num
+                    @inbounds for cm in 1:ctrl_length
+                        particles[pk].control_coefficients[dm][cm] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dm][cm])
+                        velocity[dm, cm, pk] = particles[pk].control_coefficients[dm][cm] - control_coeff_pre[dm][cm]
                     end
                 end
             end
@@ -432,12 +486,21 @@ function PSO_CFI(M, pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c
                 end
             end  
             @inbounds for pk in 1:particle_num
+                control_coeff_pre = [zeros(ctrl_length) for i in 1:ctrl_num]
                 for dk in 1:ctrl_num
                     @inbounds for ck in 1:ctrl_length
+                        control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
+
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
-                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                    end
+                end
+
+                for dm in 1:ctrl_num
+                    @inbounds for cm in 1:ctrl_length
+                        particles[pk].control_coefficients[dm][cm] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dm][cm])
+                        velocity[dm, cm, pk] = particles[pk].control_coefficients[dm][cm] - control_coeff_pre[dm][cm]
                     end
                 end
             end
@@ -484,12 +547,21 @@ function PSO_CFI(M, pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c
                 end
             end  
             @inbounds for pk in 1:particle_num
+                control_coeff_pre = [zeros(ctrl_length) for i in 1:ctrl_num]
                 for dk in 1:ctrl_num
                     @inbounds for ck in 1:ctrl_length
+                        control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
+
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
-                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                    end
+                end
+
+                for dm in 1:ctrl_num
+                    @inbounds for cm in 1:ctrl_length
+                        particles[pk].control_coefficients[dm][cm] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dm][cm])
+                        velocity[dm, cm, pk] = particles[pk].control_coefficients[dm][cm] - control_coeff_pre[dm][cm]
                     end
                 end
             end
@@ -561,12 +633,21 @@ function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_f
                 end
             end  
             @inbounds for pk in 1:particle_num
+                control_coeff_pre = [zeros(ctrl_length) for i in 1:ctrl_num]
                 for dk in 1:ctrl_num
                     @inbounds for ck in 1:ctrl_length
+                        control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
+
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
-                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                    end
+                end
+
+                for dm in 1:ctrl_num
+                    @inbounds for cm in 1:ctrl_length
+                        particles[pk].control_coefficients[dm][cm] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dm][cm])
+                        velocity[dm, cm, pk] = particles[pk].control_coefficients[dm][cm] - control_coeff_pre[dm][cm]
                     end
                 end
             end
@@ -608,12 +689,21 @@ function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_f
                 end
             end  
             @inbounds for pk in 1:particle_num
+                control_coeff_pre = [zeros(ctrl_length) for i in 1:ctrl_num]
                 for dk in 1:ctrl_num
                     @inbounds for ck in 1:ctrl_length
+                        control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
+
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
-                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                    end
+                end
+
+                for dm in 1:ctrl_num
+                    @inbounds for cm in 1:ctrl_length
+                        particles[pk].control_coefficients[dm][cm] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dm][cm])
+                        velocity[dm, cm, pk] = particles[pk].control_coefficients[dm][cm] - control_coeff_pre[dm][cm]
                     end
                 end
             end
@@ -680,12 +770,21 @@ function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,
                 end
             end  
             @inbounds for pk in 1:particle_num
+                control_coeff_pre = [zeros(ctrl_length) for i in 1:ctrl_num]
                 for dk in 1:ctrl_num
                     @inbounds for ck in 1:ctrl_length
+                        control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
+
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
-                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                    end
+                end
+
+                for dm in 1:ctrl_num
+                    @inbounds for cm in 1:ctrl_length
+                        particles[pk].control_coefficients[dm][cm] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dm][cm])
+                        velocity[dm, cm, pk] = particles[pk].control_coefficients[dm][cm] - control_coeff_pre[dm][cm]
                     end
                 end
             end
@@ -731,12 +830,21 @@ function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,
                 end
             end  
             @inbounds for pk in 1:particle_num
+                control_coeff_pre = [zeros(ctrl_length) for i in 1:ctrl_num]
                 for dk in 1:ctrl_num
                     @inbounds for ck in 1:ctrl_length
+                        control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
+
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
-                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                    end
+                end
+
+                for dm in 1:ctrl_num
+                    @inbounds for cm in 1:ctrl_length
+                        particles[pk].control_coefficients[dm][cm] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dm][cm])
+                        velocity[dm, cm, pk] = particles[pk].control_coefficients[dm][cm] - control_coeff_pre[dm][cm]
                     end
                 end
             end
@@ -808,12 +916,21 @@ function PSO_CFIM(M, pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, sav
                 end
             end  
             @inbounds for pk in 1:particle_num
+                control_coeff_pre = [zeros(ctrl_length) for i in 1:ctrl_num]
                 for dk in 1:ctrl_num
                     @inbounds for ck in 1:ctrl_length
+                        control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
+
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
-                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                    end
+                end
+
+                for dm in 1:ctrl_num
+                    @inbounds for cm in 1:ctrl_length
+                        particles[pk].control_coefficients[dm][cm] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dm][cm])
+                        velocity[dm, cm, pk] = particles[pk].control_coefficients[dm][cm] - control_coeff_pre[dm][cm]
                     end
                 end
             end
@@ -855,12 +972,21 @@ function PSO_CFIM(M, pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, sav
                 end
             end  
             @inbounds for pk in 1:particle_num
+                control_coeff_pre = [zeros(ctrl_length) for i in 1:ctrl_num]
                 for dk in 1:ctrl_num
                     @inbounds for ck in 1:ctrl_length
+                        control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
+
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
-                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                    end
+                end
+
+                for dm in 1:ctrl_num
+                    @inbounds for cm in 1:ctrl_length
+                        particles[pk].control_coefficients[dm][cm] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dm][cm])
+                        velocity[dm, cm, pk] = particles[pk].control_coefficients[dm][cm] - control_coeff_pre[dm][cm]
                     end
                 end
             end
@@ -927,12 +1053,21 @@ function PSO_CFIM(M, pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, 
                 end
             end  
             @inbounds for pk in 1:particle_num
+                control_coeff_pre = [zeros(ctrl_length) for i in 1:ctrl_num]
                 for dk in 1:ctrl_num
                     @inbounds for ck in 1:ctrl_length
+                        control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
+
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
-                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                    end
+                end
+
+                for dm in 1:ctrl_num
+                    @inbounds for cm in 1:ctrl_length
+                        particles[pk].control_coefficients[dm][cm] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dm][cm])
+                        velocity[dm, cm, pk] = particles[pk].control_coefficients[dm][cm] - control_coeff_pre[dm][cm]
                     end
                 end
             end
@@ -978,12 +1113,21 @@ function PSO_CFIM(M, pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, 
                 end
             end  
             @inbounds for pk in 1:particle_num
+                control_coeff_pre = [zeros(ctrl_length) for i in 1:ctrl_num]
                 for dk in 1:ctrl_num
                     @inbounds for ck in 1:ctrl_length
+                        control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
+
                         velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
-                        # particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
-                        particles[pk].control_coefficients[dk][ck] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x+velocity[dk, ck, pk] : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dk][ck])
+                        particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
+                    end
+                end
+
+                for dm in 1:ctrl_num
+                    @inbounds for cm in 1:ctrl_length
+                        particles[pk].control_coefficients[dm][cm] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dm][cm])
+                        velocity[dm, cm, pk] = particles[pk].control_coefficients[dm][cm] - control_coeff_pre[dm][cm]
                     end
                 end
             end
