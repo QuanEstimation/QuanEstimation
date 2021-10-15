@@ -18,7 +18,7 @@ mutable struct DiffEvo{T <: Complex,M <: Real} <: ControlSystem
                 Hamiltonian_derivative, ρ_initial, times, Liouville_operator, γ, control_Hamiltonian, control_coefficients, ctrl_bound, W, ρ, ∂ρ_∂x) 
 end
 
-function DiffEvo_QFI(DE::DiffEvo{T}, populations, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
+function DiffEvo_QFI(DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("single parameter scenario")
     println("control algorithm: DE")
@@ -27,17 +27,22 @@ function DiffEvo_QFI(DE::DiffEvo{T}, populations, c, c0, c1, seed, max_episodes,
     ctrl_num = length(DE.control_Hamiltonian)
     ctrl_length = length(DE.control_coefficients[1])
 
-    p_num = populations
+    p_num = popsize
     populations = repeat(DE, p_num)
     # initialize
-    for pj in 1:p_num
-        populations[pj].control_coefficients = [DE.ctrl_bound*rand(ctrl_length)  for i in 1:ctrl_num]
+    for pj in 1:length(ini_population)
+        populations[pj].control_coefficients = [[ini_population[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
+    for pj in (length(ini_population)+1):(p_num-1)
+        populations[pj].control_coefficients = [[DE.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
 
     p_fit = [QFI_ori(populations[i]) for i in 1:p_num]
-    f_ini = maximum(p_fit)
+    f_ini = QFI_ori(DE.freeHamiltonian, DE.Hamiltonian_derivative[1], DE.ρ_initial, DE.Liouville_operator, DE.γ, 
+                    DE.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], DE.times)
     f_list = [f_ini]
-    println("initial QFI is $(f_ini)")
+    println("non-controlled QFI is $(f_ini)")
     
     Tend = (DE.times)[end]
     if save_file == true
@@ -75,7 +80,7 @@ function DiffEvo_QFI(DE::DiffEvo{T}, populations, c, c0, c1, seed, max_episodes,
     end
 end
 
-function DiffEvo_QFIM(DE::DiffEvo{T}, populations, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
+function DiffEvo_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("multiparameter scenario")
     println("control algorithm: DE")
@@ -84,18 +89,23 @@ function DiffEvo_QFIM(DE::DiffEvo{T}, populations, c, c0, c1, seed, max_episodes
     ctrl_num = length(DE.control_Hamiltonian)
     ctrl_length = length(DE.control_coefficients[1])
 
-    p_num = populations
+    p_num = popsize
     populations = repeat(DE, p_num)
     # initialize
-    for pj in 1:p_num
-        populations[pj].control_coefficients = [DE.ctrl_bound*rand(ctrl_length)  for i in 1:ctrl_num]
+    for pj in 1:length(ini_population)
+        populations[pj].control_coefficients = [[ini_population[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
+    for pj in (length(ini_population)+1):(p_num-1)
+        populations[pj].control_coefficients = [[DE.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
 
     p_fit = [1.0/real(tr(DE.W*pinv(QFIM_ori(populations[i])))) for i in 1:p_num]
-
-    f_ini = maximum(p_fit)
-    f_list = [1.0/f_ini]
-    println("initial value of Tr(WF^{-1}) is $(1.0/f_ini)")
+    F_ini = QFIM_ori(DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ_initial, DE.Liouville_operator, DE.γ, 
+                    DE.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], DE.times)
+    f_ini = real(tr(DE.W*pinv(F_ini)))
+    f_list = [f_ini]
+    println("non-controlled value of Tr(WF^{-1}) is $(f_ini)")
     
     Tend = (DE.times)[end]
     if save_file == true
@@ -133,7 +143,7 @@ function DiffEvo_QFIM(DE::DiffEvo{T}, populations, c, c0, c1, seed, max_episodes
     end
 end
 
-function DiffEvo_CFI(M, DE::DiffEvo{T}, populations, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
+function DiffEvo_CFI(M, DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
     println("classical parameter estimation")
     println("single parameter scenario")
     println("control algorithm: DE")
@@ -142,17 +152,22 @@ function DiffEvo_CFI(M, DE::DiffEvo{T}, populations, c, c0, c1, seed, max_episod
     ctrl_num = length(DE.control_Hamiltonian)
     ctrl_length = length(DE.control_coefficients[1])
 
-    p_num = populations
+    p_num = popsize
     populations = repeat(DE, p_num)
     # initialize
-    for pj in 1:p_num
-        populations[pj].control_coefficients = [DE.ctrl_bound*rand(ctrl_length)  for i in 1:ctrl_num]
+    for pj in 1:length(ini_population)
+        populations[pj].control_coefficients = [[ini_population[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
+    for pj in (length(ini_population)+1):(p_num-1)
+        populations[pj].control_coefficients = [[DE.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
 
     p_fit = [CFI(M,populations[i]) for i in 1:p_num]
-    f_ini = maximum(p_fit)
+    f_ini = CFI(M, DE.freeHamiltonian, DE.Hamiltonian_derivative[1], DE.ρ_initial, DE.Liouville_operator, DE.γ, 
+                    DE.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], DE.times)
     f_list = [f_ini]
-    println("initial CFI is $(f_ini)")
+    println("non-controlled CFI is $(f_ini)")
     
     Tend = (DE.times)[end]
     if save_file == true
@@ -190,7 +205,7 @@ function DiffEvo_CFI(M, DE::DiffEvo{T}, populations, c, c0, c1, seed, max_episod
     end
 end
 
-function DiffEvo_CFIM(M, DE::DiffEvo{T}, populations, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
+function DiffEvo_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
     println("classical parameter estimation")
     println("multiparameter scenario")
     println("control algorithm: DE")
@@ -199,18 +214,25 @@ function DiffEvo_CFIM(M, DE::DiffEvo{T}, populations, c, c0, c1, seed, max_episo
     ctrl_num = length(DE.control_Hamiltonian)
     ctrl_length = length(DE.control_coefficients[1])
 
-    p_num = populations
+    p_num = popsize
     populations = repeat(DE, p_num)
     # initialize
-    for pj in 1:p_num
-        populations[pj].control_coefficients = [DE.ctrl_bound*rand(ctrl_length)  for i in 1:ctrl_num]
+    for pj in 1:length(ini_population)
+        populations[pj].control_coefficients = [[ini_population[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
+    for pj in (length(ini_population)+1):(p_num-1)
+        populations[pj].control_coefficients = [[DE.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
 
     p_fit = [1.0/real(tr(DE.W*pinv(CFIM(M, populations[i])))) for i in 1:p_num]
 
-    f_ini = maximum(p_fit)
-    f_list = [1.0/f_ini]
-    println("initial value of Tr(WF^{-1}) is $(1.0/f_ini)")
+    F_ini = CFIM(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ_initial, DE.Liouville_operator, DE.γ, 
+                DE.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], DE.times)
+    f_ini = real(tr(DE.W*pinv(F_ini)))
+    f_list = [f_ini]
+    println("non-controlled value of Tr(WF^{-1}) is $(f_ini)")
+    
     
     Tend = (DE.times)[end]
     if save_file == true
@@ -466,4 +488,3 @@ function DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, 
     end
     return p_fit
 end
-

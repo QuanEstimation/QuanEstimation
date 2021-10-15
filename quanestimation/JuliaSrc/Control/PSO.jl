@@ -18,7 +18,7 @@ mutable struct PSO{T <: Complex,M <: Real} <: ControlSystem
                 Hamiltonian_derivative, ρ_initial, times, Liouville_operator, γ, control_Hamiltonian, control_coefficients, ctrl_bound, W, ρ, ∂ρ_∂x) 
 end
 
-function PSO_QFI(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
+function PSO_QFI(pso::PSO{T}, episode, particle_num, ini_particle, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("single parameter scenario")
     println("control algorithm: PSO")
@@ -31,16 +31,25 @@ function PSO_QFI(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_fi
     gbest = zeros(ctrl_num, ctrl_length)
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
-    qfi_ini = QFI_ori(pso)
-    println("initial QFI is $(qfi_ini)")
-    Tend = pso.times[end]
-    # fit_pre = 0.0        
-    fit = 0.0
+    qfi_ini = QFI_ori(pso.freeHamiltonian, pso.Hamiltonian_derivative[1], pso.ρ_initial, pso.Liouville_operator, pso.γ, 
+                    pso.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], pso.times)
     f_list = [qfi_ini]
+    println("non-controlled QFI is $(qfi_ini)")
+
+    # initialize
+    for pj in 1:length(ini_particle)
+        particles[pj].control_coefficients = [[ini_particle[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
+    for pj in (length(ini_particle)+1):(particle_num-1)
+        particles[pj].control_coefficients = [[pso.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
+    Tend = pso.times[end]      
+    fit = 0.0
     if save_file==true
         for ei in 1:episode
             @inbounds for pj in 1:particle_num
-                # propagate!(particles[pj])
                 f_now = QFI_ori(particles[pj])
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
@@ -97,7 +106,6 @@ function PSO_QFI(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_fi
     else
         for ei in 1:episode
             @inbounds for pj in 1:particle_num
-                # propagate!(particles[pj])
                 f_now = QFI_ori(particles[pj])
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
@@ -156,7 +164,7 @@ function PSO_QFI(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_fi
     return nothing
 end
 
-function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,v0, sd, save_file) where {T<: Complex}
+function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}, particle_num, ini_particle, c0, c1, c2,v0, sd, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("single parameter scenario")
     println("control algorithm: PSO")
@@ -169,16 +177,25 @@ function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,v
     gbest = zeros(ctrl_num, ctrl_length)
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
-    qfi_ini = QFI_ori(pso)
-    println("initial QFI is $(qfi_ini)")
-    Tend = pso.times[end]
-    # fit_pre = 0.0
-    fit = 0.0
+    qfi_ini = QFI_ori(pso.freeHamiltonian, pso.Hamiltonian_derivative[1], pso.ρ_initial, pso.Liouville_operator, pso.γ, 
+                    pso.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], pso.times)
     f_list = [qfi_ini]
+    println("non-controlled QFI is $(qfi_ini)")
+
+    # initialize
+    for pj in 1:length(ini_particle)
+        particles[pj].control_coefficients = [[ini_particle[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
+    for pj in (length(ini_particle)+1):(particle_num-1)
+        particles[pj].control_coefficients = [[pso.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
+    Tend = pso.times[end]
+    fit = 0.0
     if save_file==true
         for ei in 1:episode[1]
             @inbounds for pj in 1:particle_num
-                # propagate!(particles[pj])
                 f_now = QFI_ori(particles[pj])
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
@@ -239,7 +256,6 @@ function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,v
     else
         for ei in 1:episode[1]
             @inbounds for pj in 1:particle_num
-                # propagate!(particles[pj])
                 f_now = QFI_ori(particles[pj])
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
@@ -303,7 +319,7 @@ function PSO_QFI(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,v
     return nothing
 end
 
-function PSO_CFI(M, pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
+function PSO_CFI(M, pso::PSO{T}, episode, particle_num, ini_particle, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("single parameter scenario")
     println("control algorithm: PSO")
@@ -316,16 +332,25 @@ function PSO_CFI(M, pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save
     gbest = zeros(ctrl_num, ctrl_length)
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
-    cfi_ini = CFI(M, pso)
-    println("initial CFI is $(cfi_ini)")
-    Tend = pso.times[end]
-    # fit_pre = 0.0        
-    fit = 0.0
+    cfi_ini = CFI(M, pso.freeHamiltonian, pso.Hamiltonian_derivative[1], pso.ρ_initial, pso.Liouville_operator, pso.γ, 
+                  pso.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], pso.times)
     f_list = [cfi_ini]
+    println("non-controlled CFI is $(cfi_ini)")
+
+    # initialize
+    for pj in 1:length(ini_particle)
+        particles[pj].control_coefficients = [[ini_particle[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
+    for pj in (length(ini_particle)+1):(particle_num-1)
+        particles[pj].control_coefficients = [[pso.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
+    Tend = pso.times[end]      
+    fit = 0.0
     if save_file==true
         for ei in 1:episode
             @inbounds for pj in 1:particle_num
-                # propagate!(particles[pj])
                 f_now = CFI(M, particles[pj])
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
@@ -382,7 +407,6 @@ function PSO_CFI(M, pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save
     else
         for ei in 1:episode
             @inbounds for pj in 1:particle_num
-                # propagate!(particles[pj])
                 f_now = CFI(M, particles[pj])
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
@@ -441,7 +465,7 @@ function PSO_CFI(M, pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save
     return nothing
 end
 
-function PSO_CFI(M, pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,v0, sd, save_file) where {T<: Complex}
+function PSO_CFI(M, pso::PSO{T}, episode::Vector{Int64}, particle_num, ini_particle, c0, c1, c2,v0, sd, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("single parameter scenario")
     println("control algorithm: PSO")
@@ -454,16 +478,25 @@ function PSO_CFI(M, pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c
     gbest = zeros(ctrl_num, ctrl_length)
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
-    cfi_ini = CFI(M, pso)
-    println("initial CFI is $(cfi_ini)")
-    Tend = pso.times[end]
-    # fit_pre = 0.0
-    fit = 0.0
+    cfi_ini = CFI(M, pso.freeHamiltonian, pso.Hamiltonian_derivative[1], pso.ρ_initial, pso.Liouville_operator, pso.γ, 
+                  pso.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], pso.times)
     f_list = [cfi_ini]
+    println("non-controlled CFI is $(cfi_ini)")    
+    
+    # initialize
+    for pj in 1:length(ini_particle)
+        particles[pj].control_coefficients = [[ini_particle[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
+    for pj in (length(ini_particle)+1):(particle_num-1)
+        particles[pj].control_coefficients = [[pso.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
+    Tend = pso.times[end]
+    fit = 0.0
     if save_file==true
         for ei in 1:episode[1]
             @inbounds for pj in 1:particle_num
-                # propagate!(particles[pj])
                 f_now = CFI(M, particles[pj])
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
@@ -524,7 +557,6 @@ function PSO_CFI(M, pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c
     else
         for ei in 1:episode[1]
             @inbounds for pj in 1:particle_num
-                # propagate!(particles[pj])
                 f_now = CFI(M, particles[pj])
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
@@ -588,7 +620,7 @@ function PSO_CFI(M, pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c
     return nothing
 end
 
-function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
+function PSO_QFIM(pso::PSO{T}, episode, particle_num, ini_particle, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("multiparameter scenario")
     println("control algorithm: PSO")
@@ -601,16 +633,27 @@ function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_f
     gbest = zeros(ctrl_num, ctrl_length)
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
-    qfi_ini = 1.0/real(tr(pso.W*pinv(QFIM_ori(pso))))
-    println("initial value of Tr(WF^{-1}) is $(1/qfi_ini)")
-    Tend = pso.times[end]
-    # fit_pre = 0.0        
+    F_ini = QFIM_ori(pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ_initial, pso.Liouville_operator, pso.γ, 
+                    pso.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], pso.times)
+    qfi_ini = real(tr(pso.W*pinv(F_ini)))
+    f_list = [qfi_ini]
+    println("non-controlled value of Tr(WF^{-1}) is $(qfi_ini)")
+
+    # initialize
+    for pj in 1:length(ini_particle)
+        particles[pj].control_coefficients = [[ini_particle[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
+    for pj in (length(ini_particle)+1):(particle_num-1)
+        particles[pj].control_coefficients = [[pso.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
+    Tend = pso.times[end]      
     fit = 0.0
-    f_list = [1.0/qfi_ini]
+    
     if save_file==true
         for ei in 1:episode
             @inbounds for pj in 1:particle_num
-                # propagate!(particles[pj])
                 f_now = 1.0/real(tr(particles[pj].W*pinv(QFIM_ori(particles[pj]))))
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
@@ -626,7 +669,7 @@ function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_f
                     fit = p_fit[pj]
                     for dj in 1:ctrl_num
                         @inbounds for nj in 1:ctrl_length
-                            gbest[dj, nj] =  particles[pj].control_coefficients[dj][nj]
+                            gbest[dj, nj] = particles[pj].control_coefficients[dj][nj]
                             velocity_best[dj, nj] = velocity[dj, nj, pj]
                         end
                     end
@@ -638,7 +681,7 @@ function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_f
                     @inbounds for ck in 1:ctrl_length
                         control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
 
-                        velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
+                        velocity[dk, ck, pk] = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
                         particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
                     end
@@ -666,7 +709,6 @@ function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_f
     else
         for ei in 1:episode
             @inbounds for pj in 1:particle_num
-                # propagate!(particles[pj])
                 f_now = 1.0/real(tr(particles[pj].W*pinv(QFIM_ori(particles[pj]))))
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
@@ -682,7 +724,7 @@ function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_f
                     fit = p_fit[pj]
                     for dj in 1:ctrl_num
                         @inbounds for nj in 1:ctrl_length
-                            gbest[dj, nj] =  particles[pj].control_coefficients[dj][nj]
+                            gbest[dj, nj] = particles[pj].control_coefficients[dj][nj]
                             velocity_best[dj, nj] = velocity[dj, nj, pj]
                         end
                     end
@@ -694,7 +736,7 @@ function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_f
                     @inbounds for ck in 1:ctrl_length
                         control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
 
-                        velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
+                        velocity[dk, ck, pk] = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
                                               + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
                         particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
                     end
@@ -725,7 +767,7 @@ function PSO_QFIM(pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_f
     return nothing
 end
 
-function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
+function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, ini_particle, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("multiparameter scenario")
     println("control algorithm: PSO")
@@ -738,16 +780,26 @@ function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,
     gbest = zeros(ctrl_num, ctrl_length)
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
-    qfi_ini = 1.0/real(tr(pso.W*pinv(QFIM_ori(pso))))
-    println("initial value of Tr(WF^{-1}) is $(1.0/qfi_ini)")
+    F_ini = QFIM_ori(pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ_initial, pso.Liouville_operator, pso.γ, 
+                    pso.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], pso.times)
+    qfi_ini = real(tr(pso.W*pinv(F_ini)))
+    f_list = [qfi_ini]
+    println("non-controlled value of Tr(WF^{-1}) is $(qfi_ini)")
+    
+    # initialize
+    for pj in 1:length(ini_particle)
+        particles[pj].control_coefficients = [[ini_particle[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
+    for pj in (length(ini_particle)+1):(particle_num-1)
+        particles[pj].control_coefficients = [[pso.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
     Tend = pso.times[end]
-    # fit_pre = 0.0
     fit = 0.0
-    f_list = [1.0/qfi_ini]
     if save_file==true
         for ei in 1:episode[1]
             @inbounds for pj in 1:particle_num
-                # propagate!(particles[pj])
                 f_now = 1.0/real(tr(particles[pj].W*pinv(QFIM_ori(particles[pj]))))
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
@@ -807,7 +859,6 @@ function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,
     else
         for ei in 1:episode[1]
             @inbounds for pj in 1:particle_num
-                # propagate!(particles[pj])
                 f_now = 1.0/real(tr(pinv(particles[pj].W*QFIM_ori(particles[pj]))))
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
@@ -871,7 +922,7 @@ function PSO_QFIM(pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2,
     return nothing
 end
 
-function PSO_CFIM(M, pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
+function PSO_CFIM(M, pso::PSO{T}, episode, particle_num, ini_particle, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("multiparameter scenario")
     println("control algorithm: PSO")
@@ -884,16 +935,26 @@ function PSO_CFIM(M, pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, sav
     gbest = zeros(ctrl_num, ctrl_length)
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
-    cfi_ini = 1.0/real(tr(pso.W*pinv(CFIM(M, pso))))
-    println("initial value of Tr(WF^{-1}) is $(1/cfi_ini)")
-    Tend = pso.times[end]
-    # fit_pre = 0.0        
+    F_ini = CFIM(M, pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ_initial, pso.Liouville_operator, pso.γ, 
+                    pso.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], pso.times)
+    cfi_ini = real(tr(pso.W*pinv(F_ini)))
+    f_list = [cfi_ini]
+    println("non-controlled value of Tr(WF^{-1}) is $(cfi_ini)")
+
+    # initialize
+    for pj in 1:length(ini_particle)
+        particles[pj].control_coefficients = [[ini_particle[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
+    for pj in (length(ini_particle)+1):(particle_num-1)
+        particles[pj].control_coefficients = [[pso.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
+    Tend = pso.times[end]       
     fit = 0.0
-    f_list = [1.0/cfi_ini]
     if save_file==true
         for ei in 1:episode
             @inbounds for pj in 1:particle_num
-                # propagate!(particles[pj])
                 f_now = 1.0/real(tr(particles[pj].W*pinv(CFIM(M, particles[pj]))))
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
@@ -949,7 +1010,6 @@ function PSO_CFIM(M, pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, sav
     else
         for ei in 1:episode
             @inbounds for pj in 1:particle_num
-                # propagate!(particles[pj])
                 f_now = 1.0/real(tr(particles[pj].W*pinv(CFIM(M, particles[pj]))))
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
@@ -1008,7 +1068,7 @@ function PSO_CFIM(M, pso::PSO{T}, episode, particle_num, c0, c1, c2, v0, sd, sav
     return nothing
 end
 
-function PSO_CFIM(M, pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
+function PSO_CFIM(M, pso::PSO{T}, episode::Vector{Int64}, particle_num, ini_particle, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("multiparameter scenario")
     println("control algorithm: PSO")
@@ -1021,16 +1081,26 @@ function PSO_CFIM(M, pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, 
     gbest = zeros(ctrl_num, ctrl_length)
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
-    cfi_ini = 1.0/real(tr(pso.W*pinv(CFIM(M, pso))))
-    println("initial value of Tr(WF^{-1}) is $(1.0/cfi_ini)")
+    F_ini = CFIM(M, pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ_initial, pso.Liouville_operator, pso.γ, 
+                    pso.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], pso.times)
+    cfi_ini = real(tr(pso.W*pinv(F_ini)))
+    f_list = [cfi_ini]
+    println("non-controlled value of Tr(WF^{-1}) is $(cfi_ini)")
+
+    # initialize
+    for pj in 1:length(ini_particle)
+        particles[pj].control_coefficients = [[ini_particle[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
+
+    for pj in (length(ini_particle)+1):(particle_num-1)
+        particles[pj].control_coefficients = [[pso.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
+    end
     Tend = pso.times[end]
-    # fit_pre = 0.0
     fit = 0.0
-    f_list = [1.0/cfi_ini]
+    
     if save_file==true
         for ei in 1:episode[1]
             @inbounds for pj in 1:particle_num
-                # propagate!(particles[pj])
                 f_now = 1.0/real(tr(particles[pj].W*pinv(CFIM(M, particles[pj]))))
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
@@ -1090,7 +1160,6 @@ function PSO_CFIM(M, pso::PSO{T}, episode::Vector{Int64}, particle_num, c0, c1, 
     else
         for ei in 1:episode[1]
             @inbounds for pj in 1:particle_num
-                # propagate!(particles[pj])
                 f_now = 1.0/real(tr(pinv(particles[pj].W*CFIM(M, particles[pj]))))
                 if f_now > p_fit[pj]
                     p_fit[pj] = f_now
