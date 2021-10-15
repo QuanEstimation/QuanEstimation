@@ -238,7 +238,7 @@ function QFIM(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T
     QFIM(ρt|> vec2mat, ∂ρt_∂x|> vec2mat)
 end
 
-function QFIM_ori(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
+function QFIM_ori(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
 
     para_num = length(∂H_∂x)
     ctrl_num = length(control_Hamiltonian)

@@ -642,19 +642,17 @@ end
 
 function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
     println("quantum parameter estimation")
+    ctrl_num = length(grape.control_Hamiltonian)
+    ctrl_length = length(grape.control_coefficients[1])
     episodes = 1
     Tend = (grape.times)[end]
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("control algorithm: auto-GRAPE")
-        f_ini = QFI_ori(grape)
+        f_ini = QFI_ori(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ_initial, grape.Liouville_operator, grape.γ, 
+                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.times)
         f_list = [f_ini]
-        println("initial QFI is $(f_ini)")
-        if Adam == true
-            gradient_QFI_Adam!(grape)
-        else
-            gradient_QFI!(grape)
-        end
+        println("non-controlled QFI is $(f_ini)")
         if save_file == true
             if Adam == true
                 while true
@@ -736,15 +734,11 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
     else
         println("multiparameter scenario")
         println("control algorithm: auto-GRAPE")
-        f_ini = real(tr(grape.W*pinv(QFIM_ori(grape))))
+        F_ini = QFIM_ori(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, 
+                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.times)
+        f_ini = real(tr(grape.W*pinv(F_ini)))
         f_list = [f_ini]
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
-        if Adam == true
-            gradient_QFIM_Adam!(grape)
-        else
-            gradient_QFIM!(grape)
-        end
-        
+        println("non-controlled value of Tr(WF^{-1}) is $(f_ini)")
         if save_file == true
             if Adam == true
                 while true
@@ -837,19 +831,17 @@ end
 
 function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
     println("quantum parameter estimation")
+    ctrl_num = length(grape.control_Hamiltonian)
+    ctrl_length = length(grape.control_coefficients[1])
     episodes = 1
     Tend = (grape.times)[end]
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("control algorithm: GRAPE")
-        if Adam == true
-            grape.control_coefficients, f_ini = gradient_QFIM_analy_Adam(grape)
-        else
-            grape.control_coefficients, f_ini = gradient_QFIM_analy(grape)
-        end
+        f_ini = QFI_ori(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ_initial, grape.Liouville_operator, grape.γ, 
+                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.times)
         f_list = [f_ini]
-        println("initial QFI is $(f_ini)")
-        
+        println("non-controlled QFI is $(f_ini)")
         if save_file == true
             if Adam == true
                 while true
@@ -928,14 +920,11 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
     else
         println("multiparameter scenario")
         println("control algorithm: GRAPE")
-        if Adam == true
-            grape.control_coefficients, f_ini = gradient_QFIM_analy_Adam(grape)
-        else
-            grape.control_coefficients, f_ini = gradient_QFIM_analy(grape)
-        end
+        F_ini = QFIM_ori(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, 
+                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.times)
+        f_ini = real(tr(grape.W*pinv(F_ini)))
         f_list = [f_ini]
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
-        
+        println("non-controlled value of Tr(WF^{-1}) is $(f_ini)")
         if save_file == true
             if Adam == true
                 while true
@@ -1016,20 +1005,17 @@ end
 
 function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_file)
     println("classical parameter estimation")
+    ctrl_num = length(grape.control_Hamiltonian)
+    ctrl_length = length(grape.control_coefficients[1])
     episodes = 1
     Tend = (grape.times)[end] 
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("control algorithm: auto_GRAPE")
-        f_ini = CFI(Measurement, grape)
+        f_ini = CFI(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, 
+                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.times)
         f_list = [f_ini]
-        println("initial CFI is $(f_ini)")
-        if Adam == true
-            gradient_CFI_Adam!(grape, Measurement)
-        else
-            gradient_CFI!(grape, Measurement)
-        end
-        
+        println("non-controlled CFI is $(f_ini)")
         if save_file == true
             if Adam == true
                 while true
@@ -1112,14 +1098,11 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
     else
         println("multiparameter scenario")
         println("control algorithm: auto-GRAPE")
-        f_ini = real(tr(grape.W*pinv(CFIM(Measurement, grape))))
+        F_ini = CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, 
+                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.times)
+        f_ini = real(tr(grape.W*pinv(F_ini)))
         f_list = [f_ini]
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
-        if Adam == true
-            gradient_CFIM_Adam!(grape, Measurement)
-        else
-            gradient_CFIM!(grape, Measurement)
-        end
+        println("non-controlled value of Tr(WF^{-1}) is $(f_ini)")
         if save_file == true
             if Adam == true
                 while true
@@ -1204,18 +1187,17 @@ end
 
 function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_file)
     println("classical parameter estimation")
+    ctrl_num = length(grape.control_Hamiltonian)
+    ctrl_length = length(grape.control_coefficients[1])
     episodes = 1
     Tend = (grape.times)[end] 
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("control algorithm: GRAPE")
-        if Adam == true
-            grape.control_coefficients, f_ini = gradient_CFIM_analy_Adam(Measurement, grape)
-        else
-            grape.control_coefficients, f_ini = gradient_CFIM_analy(Measurement, grape)
-        end
+        if_ini = CFI(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, 
+                     grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.times)
         f_list = [f_ini]
-        println("initial CFI is $(f_ini)")
+        println("non-controlled CFI is $(f_ini)")
         
         if save_file == true
             if Adam == true
@@ -1295,14 +1277,11 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
     else
         println("multiparameter scenario")
         println("control algorithm: GRAPE")
-        if Adam == true
-            grape.control_coefficients, f_ini = gradient_CFIM_analy_Adam(Measurement, grape)
-        else
-            grape.control_coefficients, f_ini = gradient_CFIM_analy(Measurement, grape)
-        end
+        F_ini = CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, 
+                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.times)
+        f_ini = real(tr(grape.W*pinv(F_ini)))
         f_list = [f_ini]
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
-        
+        println("non-controlled value of Tr(WF^{-1}) is $(f_ini)")
         if save_file == true
             if Adam == true
                 while true

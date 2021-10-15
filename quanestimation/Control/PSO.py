@@ -4,7 +4,7 @@ import quanestimation.Control.Control as Control
 
 class PSO(Control.ControlSystem):
     def __init__(self, tspan, rho_initial, H0, Hc=[], dH=[], ctrl_initial=[], Liouville_operator=[], \
-                 gamma=[], control_option=True, ctrl_bound=10.0, W=[], particle_num=10, max_episodes=400, \
+                 gamma=[], control_option=True, ctrl_bound=10.0, W=[], particle_num=10, ini_particle=[], max_episodes=400, \
                  seed=100, c0=1.0, c1=2.0, c2=2.0, v0=0.01):
         
         """
@@ -23,6 +23,7 @@ class PSO(Control.ControlSystem):
         Control.ControlSystem.__init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
                                        gamma, control_option)
         self.particle_num = particle_num
+        self.ini_particle = ini_particle
         self.max_episodes = max_episodes
         self.ctrlnum = len(Hc)
         self.ctrl_dim = len(ctrl_initial[0])
@@ -51,18 +52,18 @@ class PSO(Control.ControlSystem):
         pso = Main.QuanEstimation.PSO(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
                         self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W)
         if len(self.Hamiltonian_derivative) == 1:
-            Main.QuanEstimation.PSO_QFI(pso, self.max_episodes, self.particle_num, self.c0, self.c1, self.c2, self.v0, \
+            Main.QuanEstimation.PSO_QFI(pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                         self.seed, save_file)
         else:
-            Main.QuanEstimation.PSO_QFIM(pso, self.max_episodes, self.particle_num, self.c0, self.c1, self.c2, self.v0, \
+            Main.QuanEstimation.PSO_QFIM(pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                          self.seed, save_file)
 
     def CFIM(self, M, save_file):
         pso = Main.QuanEstimation.PSO(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
                         self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W)
         if len(self.Hamiltonian_derivative) == 1:
-            Main.QuanEstimation.PSO_CFI(pso, self.max_episodes, self.particle_num, self.c0, self.c1, self.c2, self.v0, \
+            Main.QuanEstimation.PSO_CFI(pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                         self.seed, save_file)
         else:
-            Main.QuanEstimation.PSO_CFIM(pso, self.max_episodes, self.particle_num, self.c0, self.c1, self.c2, self.v0, \
+            Main.QuanEstimation.PSO_CFIM(pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                          self.seed, save_file)
