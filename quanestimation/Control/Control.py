@@ -3,8 +3,8 @@ import warnings
 import math
 
 class ControlSystem:
-    def __init__(self, tspan, rho_initial, H0, Hc=[], dH=[], ctrl_initial=[], Liouville_operator=[], \
-                 gamma=[], control_option=True):
+    def __init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
+                 gamma, control_option=True):
         
         """
         ----------
@@ -46,6 +46,27 @@ class ControlSystem:
         
         """   
         
+        if type(dH) != list:
+            raise TypeError('The derivative of Hamiltonian should be a list!')    
+        
+        if len(gamma) != len(Liouville_operator):
+            raise TypeError('The length of decay rates and the length of Liouville operator should be the same!')
+
+        if Hc == []:
+            Hc = [np.zeros((len(H0), len(H0)))]
+
+        if ctrl_initial == []:
+            ctrl_initial = [np.zeros(len(tspan))]
+        
+        if dH == []:
+            dH = [np.zeros((len(H0), len(H0)))]
+
+        if Liouville_operator == []:
+            Liouville_operator = [np.zeros((len(H0), len(H0)))]
+
+        if gamma == []:
+            gamma = [0.0]
+
         self.tspan = tspan
         self.rho_initial = np.array(rho_initial,dtype=np.complex128)
         self.freeHamiltonian = np.array(H0,dtype=np.complex128)
@@ -56,21 +77,17 @@ class ControlSystem:
         self.gamma = gamma
         self.control_option = control_option
         
-        if type(self.Hamiltonian_derivative) != list:
-            raise TypeError('The derivative of Hamiltonian should be a list!')    
-        
-        if ctrl_initial != []:
-            ctrl_length = len(self.control_coefficients)
-            ctrlnum = len(self.control_Hamiltonian)
-            if ctrlnum < ctrl_length:
-                raise TypeError('There are %d control Hamiltonians but %d coefficients sequences: \
+        ctrl_length = len(self.control_coefficients)
+        ctrlnum = len(self.control_Hamiltonian)
+        if ctrlnum < ctrl_length:
+            raise TypeError('There are %d control Hamiltonians but %d coefficients sequences: \
                                 too many coefficients sequences'%(ctrlnum,ctrl_length))
-            elif ctrlnum > ctrl_length:
-                warnings.warn('Not enough coefficients sequences: there are %d control Hamiltonians \
+        elif ctrlnum > ctrl_length:
+            warnings.warn('Not enough coefficients sequences: there are %d control Hamiltonians \
                             but %d coefficients sequences. The rest of the control sequences are\
                             set to be 0.'%(ctrlnum,ctrl_length), DeprecationWarning)
         
-            number = math.ceil(len(self.tspan)/len(self.control_coefficients[0]))
-            if len(self.tspan) % len(self.control_coefficients[0]) != 0:
-                self.tnum = number*len(self.control_coefficients[0])
-                self.tspan = np.linspace(self.tspan[0], self.tspan[-1], self.tnum)
+        number = math.ceil(len(self.tspan)/len(self.control_coefficients[0]))
+        if len(self.tspan) % len(self.control_coefficients[0]) != 0:
+            self.tnum = number*len(self.control_coefficients[0])
+            self.tspan = np.linspace(self.tspan[0], self.tspan[-1], self.tnum)
