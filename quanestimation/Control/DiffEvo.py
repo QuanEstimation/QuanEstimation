@@ -21,7 +21,7 @@ class DiffEvo(Control.ControlSystem):
         """
         Control.ControlSystem.__init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
                                        gamma, control_option)
-        self.popsize = popsize
+        self.popsize =  popsize
         self.ini_population = ini_population
         self.ctrl_bound = ctrl_bound
         self.c = c

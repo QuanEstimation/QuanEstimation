@@ -653,6 +653,11 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                         grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.times)
         f_list = [f_ini]
         println("non-controlled QFI is $(f_ini)")
+        if Adam == true
+            gradient_QFI_Adam!(grape)
+        else
+            gradient_QFI!(grape)
+        end
         if save_file == true
             if Adam == true
                 while true
@@ -739,6 +744,11 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
         f_ini = real(tr(grape.W*pinv(F_ini)))
         f_list = [f_ini]
         println("non-controlled value of Tr(WF^{-1}) is $(f_ini)")
+        if Adam == true
+            gradient_QFIM_Adam!(grape)
+        else
+            gradient_QFIM!(grape)
+        end
         if save_file == true
             if Adam == true
                 while true
@@ -842,6 +852,11 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
                         grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.times)
         f_list = [f_ini]
         println("non-controlled QFI is $(f_ini)")
+        if Adam == true
+            grape.control_coefficients, f_ini = gradient_QFIM_analy_Adam(grape)
+        else
+            grape.control_coefficients, f_ini = gradient_QFIM_analy(grape)
+        end
         if save_file == true
             if Adam == true
                 while true
@@ -925,6 +940,11 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
         f_ini = real(tr(grape.W*pinv(F_ini)))
         f_list = [f_ini]
         println("non-controlled value of Tr(WF^{-1}) is $(f_ini)")
+        if Adam == true
+            grape.control_coefficients, f_ini = gradient_QFIM_analy_Adam(grape)
+        else
+            grape.control_coefficients, f_ini = gradient_QFIM_analy(grape)
+        end
         if save_file == true
             if Adam == true
                 while true
@@ -1016,6 +1036,11 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
                         grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.times)
         f_list = [f_ini]
         println("non-controlled CFI is $(f_ini)")
+        if Adam == true
+            gradient_CFI_Adam!(grape, Measurement)
+        else
+            gradient_CFI!(grape, Measurement)
+        end
         if save_file == true
             if Adam == true
                 while true
@@ -1103,6 +1128,11 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
         f_ini = real(tr(grape.W*pinv(F_ini)))
         f_list = [f_ini]
         println("non-controlled value of Tr(WF^{-1}) is $(f_ini)")
+        if Adam == true
+            gradient_CFIM_Adam!(grape, Measurement)
+        else
+            gradient_CFIM!(grape, Measurement)
+        end
         if save_file == true
             if Adam == true
                 while true
@@ -1198,7 +1228,11 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
                      grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.times)
         f_list = [f_ini]
         println("non-controlled CFI is $(f_ini)")
-        
+        if Adam == true
+            grape.control_coefficients, f_ini = gradient_CFIM_analy_Adam(Measurement, grape)
+        else
+            grape.control_coefficients, f_ini = gradient_CFIM_analy(Measurement, grape)
+        end
         if save_file == true
             if Adam == true
                 while true
@@ -1282,6 +1316,11 @@ function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_
         f_ini = real(tr(grape.W*pinv(F_ini)))
         f_list = [f_ini]
         println("non-controlled value of Tr(WF^{-1}) is $(f_ini)")
+        if Adam == true
+            grape.control_coefficients, f_ini = gradient_CFIM_analy_Adam(Measurement, grape)
+        else
+            grape.control_coefficients, f_ini = gradient_CFIM_analy(Measurement, grape)
+        end
         if save_file == true
             if Adam == true
                 while true
