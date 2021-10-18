@@ -25,24 +25,12 @@ class PSO(Control.ControlSystem):
         self.particle_num = particle_num
         self.ini_particle = ini_particle
         self.max_episodes = max_episodes
-        self.ctrlnum = len(Hc)
-        self.ctrl_dim = len(ctrl_initial[0])
-        self.ctrl_dim_total = self.ctrlnum*self.ctrl_dim
-        self.X = np.zeros((particle_num,self.ctrl_dim_total))     #the position and velocity of all the particle
-        self.V = np.zeros((particle_num,self.ctrl_dim_total))
-        self.pbest = np.zeros((particle_num,self.ctrl_dim_total))  #the personal best position of a particle 
-        self.gbest = np.zeros(particle_num)                #the global best position of a particle 
-        self.p_fit = np.zeros(particle_num)            #target function of a particle
-        self.fit = 0.0
         self.c0 = c0
         self.c1 = c1
         self.c2 = c2
         self.v0 = v0
         self.seed = seed
         self.ctrl_bound = ctrl_bound
-        self.rho = None
-        self.rho_derivative = None
-        self.F = None
         if W == []:
             self.W = np.eye(len(dH))
         else:
