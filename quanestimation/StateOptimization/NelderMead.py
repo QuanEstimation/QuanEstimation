@@ -1,77 +1,43 @@
 import numpy as np
-from quanestimation.AsymptoticBound.CramerRao import QFIM
-from quanestimation.Dynamics.dynamics import Lindblad
-from quanestimation.Common.common import mat_vec_convert
+from julia import Main
+import quanestimation.Control.Control as Control
 
-class NelderMead(Lindblad):
-    def __init__(self, a_r, a_c, a_e, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, gamma, control_option=True):
-        
-        Lindblad.__init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
-                        gamma, control_option)
-        """
-        --------
-        inputs
-        --------
-        a_r:
-           --description: reflection parameter.
-           --type: float
-        
-        a_c:
-           --description: contraction parameter.
-           --type: float
-           
-        a_e:
-           --description: expansion parameter.
-           --type: float
-        
-        """
-        if type(rho_initial) != list:
-            raise TypeError('Please make sure rho is a list!')
-            
-        self.len_state = len(rho_initial)
-        self.a_r = a_r
-        self.a_c = a_c
-        self.a_e = a_e
-        
-        # self.rho, self.F = self.sort(rho, drho)
-        
-        
-        # def sort(self, rho, drho):
-        #     """
-        #     Order the states according to their value.
-        #     """
-        #     F = np.zeros(len(rho))
-        #     for si in range(len(rho)):
-        #         F[si] = QFIM(rho[si], drho[si])
-        #     ind = np.argsort(F)
-        #     F_sort = F[ind]
-        #     rho_sort = rho[ind]
-            
-        #     return rho_sort, F_sort
-        
-        # def reflection(self):
-        #     """
-        #     Reflection-extension step.
-        #     refl: refl = 1 is a standard reflection
-        #     """
-        #     # reflected point and score
-        #     cr = self.rho[0] + self.a_r*(self.rho[0] - self.rho[-1])
-        #     rscore = QFIM(cr)   #calculate the target function
+class NelderMead(Control.ControlSystem):
+    def __init__(self, tspan, rho_initial, H0, Hc=[], dH=[], ctrl_initial=[], Liouville_operator=[], \
+                gamma=[], control_option=True, ctrl_bound=1.0, W=[], state_num=10, ini_state=[], coeff_r=1.0, coeff_e=2.0, \
+                coeff_c=0.5, coeff_s=0.5, seed=1234, max_episodes=200, epsilon=1e-3):
 
-        #     return rscore
-        
-        # def expansion(self, res, x0, ext):
-        #     """
-        #     ext: the amount of the expansion; ext=0 means no expansion
-        #     """
-        #     xr, rscore = res[-1]
-        #     # if it is the new best point, we try to expand
-        #     if rscore < res[0][1]:
-        #         xe = xr + ext*(xr - x0)
-        #         escore = self.f(xe)
-        #         if escore < rscore:
-        #             new_res = res[:]
-        #             new_res[-1] = (xe, escore)
-        #             return new_res
-        #     return None
+        Control.ControlSystem.__init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
+                                       gamma, control_option)
+        self.state_num = state_num
+        self.ini_state = ini_state
+        self.ctrl_bound = ctrl_bound
+        self.coeff_r = coeff_r
+        self.coeff_e = coeff_e
+        self.coeff_c = coeff_c
+        self.coeff_s = coeff_s
+        self.max_episodes = max_episodes
+        self.epsilon = epsilon
+        self.seed = seed
+        if W == []:
+            self.W = np.eye(len(dH))
+        else:
+            self.W = W
+
+    def QFIM(self, save_file=False):
+        neldermead = Main.QuanEstimation.NelderMead(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
+                        self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W)
+        if len(self.Hamiltonian_derivative) == 1:
+            Main.QuanEstimation.NelderMead_QFI(neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
+        else:
+            Main.QuanEstimation.NelderMead_QFIM(neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
+
+    def CFIM(self, M, save_file=False):
+        neldermead = Main.QuanEstimation.NelderMead(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
+                        self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W)
+        if len(self.Hamiltonian_derivative) == 1:
+            Main.QuanEstimation.NelderMead_CFI(M, neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
+        else:
+            Main.QuanEstimation.NelderMead_CFIM(M, neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
+
             
