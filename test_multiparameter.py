@@ -32,12 +32,13 @@ Hc_ctrl = [S1, S2, S3]
 L_opt = [S3]
 gamma = [2*np.pi/cons]
 
-T = 2.0
+T = 3.0
 tnum = int(2000*T)
 tspan = np.linspace(0.0, T, tnum)
 cnum = tnum
 #initial control coefficients
-Hc_coeff = [np.zeros(cnum), np.zeros(cnum), np.zeros(cnum)]
+# Hc_coeff = [np.zeros(cnum), np.zeros(cnum), np.zeros(cnum)]
+Hc_coeff = [np.random.random(cnum), np.random.random(cnum), np.random.random(cnum)]
 
 # initial controls for PSO and DE
 ini_1, ini_2, ini_3  = np.zeros((len(Hc_ctrl), cnum)), 0.2*np.ones((len(Hc_ctrl), cnum)), -0.2*np.ones((len(Hc_ctrl), cnum))
@@ -51,8 +52,8 @@ ini_10 = -0.2*np.ones((len(Hc_ctrl), cnum))+0.05*np.random.random((len(Hc_ctrl),
 ini_pop = [ini_1, ini_2, ini_3, ini_4, ini_5, ini_6, ini_7, ini_8, ini_9, ini_10]
 
 #GRAPE algorithm
-# GRAPE = GRAPE(tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, L_opt, gamma, ctrl_bound=0.2, lr=0.001, epsilon=1e-8, max_episodes=300, Adam=False)
-# GRAPE.QFIM(auto=True, save_file=True)
+GRAPE = GRAPE(tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, L_opt, gamma, ctrl_bound=0.2, lr=0.01, epsilon=1e-8, max_episodes=300, Adam=False)
+GRAPE.QFIM(auto=True, save_file=True)
 # GRAPE.QFIM(auto=False, save_file=True)
 
 # #DE algorithm
@@ -61,6 +62,6 @@ ini_pop = [ini_1, ini_2, ini_3, ini_4, ini_5, ini_6, ini_7, ini_8, ini_9, ini_10
 # diffevo.QFIM(save_file=True)
 
 # #PSO algorithm
-pso = PSO(tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, L_opt, gamma, ctrl_bound=0.2, particle_num=10, ini_particle=ini_pop, \
-          max_episodes=[1000, 100], seed=1234, c0=1.0, c1=2.0, c2=2.0, v0=0.02)
-pso.QFIM(save_file=True)
+# pso = PSO(tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, L_opt, gamma, ctrl_bound=0.2, particle_num=10, ini_particle=ini_pop, \
+#           max_episodes=[1000, 100], seed=1234, c0=1.0, c1=2.0, c2=2.0, v0=0.02)
+# pso.QFIM(save_file=True)

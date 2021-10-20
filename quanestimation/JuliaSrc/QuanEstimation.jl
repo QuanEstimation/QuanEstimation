@@ -19,6 +19,11 @@ include("Control/PSO.jl")
 include("Control/DiffEvo.jl")
 include("Control/common.jl")
 include("Dynamics/dynamcs.jl")
+include("StateOptimization/StateOpt_DE.jl")
+include("StateOptimization/NelderMead.jl")
+include("StateOptimization/StateOpt_PSO.jl")
+include("StateOptimization/StateOpt_AD.jl")
+include("StateOptimization/common.jl")
 # include("QuanResources/")
 
 export sigmax, sigmay, sigmaz, sigmam
