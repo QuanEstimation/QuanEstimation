@@ -44,16 +44,16 @@ function DiffEvo_QFI(DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed, m
     f_list = [f_ini]
     println("non-controlled QFI is $(f_ini)")
     
-    Tend = (DE.times)[end]
     if save_file == true
         for i in 1:max_episodes
             p_fit = DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
+            append!(f_list,maximum(p_fit))
             print("current QFI is ", maximum(p_fit), " ($i episodes)    \r")
-            open("f_de_T$Tend.csv","a") do f
-                writedlm(f, [maximum(p_fit)])
+            open("f.csv","w") do f
+                writedlm(f, f_list)
             end
-            open("ctrl_de_T$Tend.csv","w") do g
+            open("controls.csv","w") do g
                 writedlm(g, populations[indx].control_coefficients)
             end
         end
@@ -68,10 +68,10 @@ function DiffEvo_QFI(DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed, m
             append!(f_list,maximum(p_fit))
         end
         indx = findmax(p_fit)[2]
-        open("f_de_T$Tend.csv","a") do f
+        open("f.csv","w") do f
             writedlm(f, [f_list])
         end
-        open("ctrl_de_T$Tend.csv","a") do g
+        open("controls.csv","w") do g
             writedlm(g, populations[indx].control_coefficients)
         end
         print("\e[2K")
@@ -107,16 +107,16 @@ function DiffEvo_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed, 
     f_list = [f_ini]
     println("non-controlled value of Tr(WF^{-1}) is $(f_ini)")
     
-    Tend = (DE.times)[end]
     if save_file == true
         for i in 1:max_episodes
             F = DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
+            append!(f_list, 1.0/maximum(p_fit))
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
-            open("f_de_T$Tend.csv","a") do f
-                writedlm(f, [1.0/maximum(p_fit)])
+            open("f.csv","w") do f
+                writedlm(f, f_list)
             end
-            open("ctrl_de_T$Tend.csv","w") do g
+            open("controls.csv","w") do g
                 writedlm(g, populations[indx].control_coefficients)
             end
         end
@@ -131,10 +131,10 @@ function DiffEvo_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed, 
             append!(f_list, 1.0/maximum(p_fit))
         end
         indx = findmax(p_fit)[2]
-        open("f_de_T$Tend.csv","a") do f
+        open("f.csv","w") do f
             writedlm(f, [f_list])
         end
-        open("ctrl_de_T$Tend.csv","a") do g
+        open("controls.csv","w") do g
             writedlm(g, populations[indx].control_coefficients)
         end
         print("\e[2K")
@@ -169,16 +169,16 @@ function DiffEvo_CFI(M, DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed
     f_list = [f_ini]
     println("non-controlled CFI is $(f_ini)")
     
-    Tend = (DE.times)[end]
     if save_file == true
         for i in 1:max_episodes
             p_fit = DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
+            append!(f_list,maximum(p_fit))
             print("current CFI is ", maximum(p_fit), " ($i episodes)    \r")
-            open("f_de_T$Tend.csv","a") do f
-                writedlm(f, [maximum(p_fit)])
+            open("f.csv","w") do f
+                writedlm(f, f_list)
             end
-            open("ctrl_de_T$Tend.csv","w") do g
+            open("controls.csv","w") do g
                 writedlm(g, populations[indx].control_coefficients)
             end
         end
@@ -193,10 +193,10 @@ function DiffEvo_CFI(M, DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed
             append!(f_list,maximum(p_fit))
         end
         indx = findmax(p_fit)[2]
-        open("f_de_T$Tend.csv","a") do f
+        open("f.csv","w") do f
             writedlm(f, [f_list])
         end
-        open("ctrl_de_T$Tend.csv","a") do g
+        open("controls.csv","w") do g
             writedlm(g, populations[indx].control_coefficients)
         end
         print("\e[2K")
@@ -233,17 +233,16 @@ function DiffEvo_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, see
     f_list = [f_ini]
     println("non-controlled value of Tr(WF^{-1}) is $(f_ini)")
     
-    
-    Tend = (DE.times)[end]
     if save_file == true
         for i in 1:max_episodes
             F = DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
+            append!(f_list, 1.0/maximum(p_fit))
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
-            open("f_de_T$Tend.csv","a") do f
-                writedlm(f, [1.0/maximum(p_fit)])
+            open("f.csv","w") do f
+                writedlm(f, f_list)
             end
-            open("ctrl_de_T$Tend.csv","w") do g
+            open("controls.csv","w") do g
                 writedlm(g, populations[indx].control_coefficients)
             end
         end
@@ -258,10 +257,10 @@ function DiffEvo_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, see
             append!(f_list, 1.0/maximum(p_fit))
         end
         indx = findmax(p_fit)[2]
-        open("f_de_T$Tend.csv","a") do f
+        open("f.csv","w") do f
             writedlm(f, [f_list])
         end
-        open("ctrl_de_T$Tend.csv","a") do g
+        open("controls.csv","w") do g
             writedlm(g, populations[indx].control_coefficients)
         end
         print("\e[2K")
