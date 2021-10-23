@@ -1,5 +1,6 @@
 module QuanEstimation
 
+using LinearAlgebra: similar
 using LinearAlgebra
 using Zygote
 using DifferentialEquations
@@ -10,6 +11,7 @@ using Base.Threads
 using SparseArrays
 using DelimitedFiles
 using StatsBase
+using ReinforcementLearning
 
 include("AsymptoticBound/CramerRao.jl")
 include("Common/common.jl")
