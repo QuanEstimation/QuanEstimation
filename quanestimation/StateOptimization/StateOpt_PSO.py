@@ -1,27 +1,66 @@
 import numpy as np
 from julia import Main
-import quanestimation.Control.Control as Control
 
-class StateOpt_PSO(Control.ControlSystem):
-    def __init__(self, tspan, rho_initial, H0, Hc=[], dH=[], ctrl_initial=[], Liouville_operator=[], \
-                 gamma=[], control_option=True, ctrl_bound=10.0, W=[], particle_num=10, ini_particle=[], max_episodes=400, \
+class StateOpt_PSO():
+    def __init__(self, tspan, rho_initial, H0, dH=[], Liouville_operator=[], \
+                 gamma=[], W=[], particle_num=10, ini_particle=[], max_episodes=400, \
                  seed=100, c0=1.0, c1=2.0, c2=2.0, v0=0.01):
         
         """
         --------
         inputs
         --------
-        particle_num:
-           --description: number of particles.
-           --type: float
-        
+                tspan:
+            --description: time series.
+            --type: array
+
+        rho_initial:
+            --description: initial state (density matrix).
+            --type: matrix
+            
+        H0:
+            --description: free Hamiltonian.
+            --type: matrix
+
+        dH:
+            --description: derivatives of Hamiltonian on all parameters to
+                                be estimated. For example, dH[0] is the derivative
+                                vector on the first parameter.
+            --type: list (of matrix)
+
+        Liouville operator:
+            --description: Liouville operator.
+            --type: list (of matrix)
+
+        gamma:
+            --description: decay rates.
+            --type: list (of float number)
+
+        W:
+            --description: weight matrix.
+            --type: matrix
+            
         particle_num:
            --description: number of particles.
            --type: float
         
         """
-        Control.ControlSystem.__init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
-                                       gamma, control_option)
+        if type(dH) != list:
+            raise TypeError('The derivative of Hamiltonian should be a list!')    
+        
+        if len(gamma) != len(Liouville_operator):
+            raise TypeError('The length of decay rates and the length of Liouville operator should be the same!')
+        
+        if dH == []:
+            dH = [np.zeros((len(H0), len(H0)))]
+        
+        self.tspan = tspan
+        self.rho_initial = np.array(rho_initial,dtype=np.complex128)
+        self.freeHamiltonian = np.array(H0,dtype=np.complex128)
+        self.Hamiltonian_derivative = [np.array(x,dtype=np.complex128) for x in dH]
+        self.Liouville_operator = [np.array(x, dtype=np.complex128) for x in Liouville_operator]
+        self.gamma = gamma
+
         self.particle_num = particle_num
         self.ini_particle = ini_particle
         self.max_episodes = max_episodes
@@ -30,29 +69,49 @@ class StateOpt_PSO(Control.ControlSystem):
         self.c2 = c2
         self.v0 = v0
         self.seed = seed
-        self.ctrl_bound = ctrl_bound
         if W == []:
             self.W = np.eye(len(dH))
         else:
             self.W = W
     
     def QFIM(self, save_file=False):
-        pso = Main.QuanEstimation.StateOpt_PSO(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
-                        self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W)
-        if len(self.Hamiltonian_derivative) == 1:
-            Main.QuanEstimation.PSO_QFI(pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
+
+        if self.gamma == []:
+            pso = Main.QuanEstimation.StateOptPSO_TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
+                                                                               self.rho_initial, self.tspan, self.W)
+            if len(self.Hamiltonian_derivative) == 1:
+                Main.QuanEstimation.PSO_QFI(pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                         self.seed, save_file)
+            else:
+                Main.QuanEstimation.PSO_QFIM(pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
+                                         self.seed, save_file)
         else:
-            Main.QuanEstimation.PSO_QFIM(pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
+            pso = Main.QuanEstimation.StateOptPSO_TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
+                        self.Liouville_operator, self.gamma, self.W)
+            if len(self.Hamiltonian_derivative) == 1:
+                Main.QuanEstimation.PSO_QFI(pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
+                                        self.seed, save_file)
+            else:
+                Main.QuanEstimation.PSO_QFIM(pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                          self.seed, save_file)
 
     def CFIM(self, M, save_file=False):
-        pso = Main.QuanEstimation.StateOpt_PSO(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
-                        self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W)
-        if len(self.Hamiltonian_derivative) == 1:
-            Main.QuanEstimation.PSO_CFI(M, pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
+        
+        if self.gamma == []:
+            pso = Main.QuanEstimation.StateOptPSO_TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
+                                                                               self.rho_initial, self.tspan, self.W)
+            if len(self.Hamiltonian_derivative) == 1:
+                Main.QuanEstimation.PSO_CFI(M, pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                         self.seed, save_file)
-        else:
-            Main.QuanEstimation.PSO_CFIM(M, pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
+            else:
+                Main.QuanEstimation.PSO_CFIM(M, pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                          self.seed, save_file)
-         
+        else:
+            pso = Main.QuanEstimation.StateOptPSO_TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
+                        self.Liouville_operator, self.gamma, self.W)
+            if len(self.Hamiltonian_derivative) == 1:
+                Main.QuanEstimation.PSO_CFI(M, pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
+                                        self.seed, save_file)
+            else:
+                Main.QuanEstimation.PSO_CFIM(M, pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
+                                         self.seed, save_file)
