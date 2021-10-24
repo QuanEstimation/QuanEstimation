@@ -4,11 +4,10 @@ import math
 # import julia
 from julia import Main
 # from julia import QuanEstimation
-import quanestimation.Control.Control as Control
 
-class StateOpt_AD(Control.ControlSystem):
-    def __init__(self, tspan, rho_initial, H0, Hc=[], dH=[], ctrl_initial=[], Liouville_operator=[], \
-                 gamma=[], control_option=True, ctrl_bound=10.0, W=[], epsilon=1e-4, max_episodes=200, Adam=True, lr=0.01, \
+class StateOpt_AD():
+    def __init__(self, tspan, rho_initial, H0, dH=[], Liouville_operator=[], \
+                 gamma=[], W=[], epsilon=1e-4, max_episodes=200, Adam=True, lr=0.01, \
                  beta1=0.90, beta2=0.99, mt=0.0, vt=0.0, precision=1e-8):
 
         """
@@ -27,19 +26,11 @@ class StateOpt_AD(Control.ControlSystem):
             --description: free Hamiltonian.
             --type: matrix
 
-        Hc:
-            --description: control Hamiltonian.
-            --type: list (of matrix)
-
         dH:
             --description: derivatives of Hamiltonian on all parameters to
                                 be estimated. For example, dH[0] is the derivative
                                 vector on the first parameter.
             --type: list (of matrix)
-
-        ctrl_initial:
-            --description: control coefficients.
-            --type: list (of array)
 
         Liouville operator:
             --description: Liouville operator.
@@ -70,11 +61,26 @@ class StateOpt_AD(Control.ControlSystem):
             --type: float number
 
         """
-        Control.ControlSystem.__init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, gamma, control_option)
+        
+        if type(dH) != list:
+            raise TypeError('The derivative of Hamiltonian should be a list!')    
+        
+        if len(gamma) != len(Liouville_operator):
+            raise TypeError('The length of decay rates and the length of Liouville operator should be the same!')
+        
+        if dH == []:
+            dH = [np.zeros((len(H0), len(H0)))]
+        
+        self.tspan = tspan
+        self.rho_initial = np.array(rho_initial,dtype=np.complex128)
+        self.freeHamiltonian = np.array(H0,dtype=np.complex128)
+        self.Hamiltonian_derivative = [np.array(x,dtype=np.complex128) for x in dH]
+        self.Liouville_operator = [np.array(x, dtype=np.complex128) for x in Liouville_operator]
+        self.gamma = gamma
+
         self.lr = lr
         self.precision = precision
         self.max_episodes = max_episodes
-        self.ctrl_bound = ctrl_bound
         self.epsilon = epsilon
         self.beta1 = beta1
         self.beta2 = beta2
@@ -114,11 +120,14 @@ class StateOpt_AD(Control.ControlSystem):
             1) maximize is always more accurate than the minimize in this code.
 
         """
-        AD = Main.QuanEstimation.StateOpt_AD(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
-                        self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound,\
-                        self.W, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision)
-
-        Main.QuanEstimation.AD_QFIM(AD, self.epsilon, self.max_episodes, self.Adam, save_file)
+        if self.gamma == []:
+            AD = Main.QuanEstimation.StateOptAD_TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
+                 self.rho_initial, self.tspan, self.W, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision)
+            Main.QuanEstimation.AD_QFIM(AD, self.epsilon, self.max_episodes, self.Adam, save_file)
+        else:
+            AD = Main.QuanEstimation.StateOptAD_TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, \
+                 self.rho_initial, self.tspan, self.Liouville_operator, self.gamma, self.W, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision)
+            Main.QuanEstimation.AD_QFIM(AD, self.epsilon, self.max_episodes, self.Adam, save_file)
             
     def CFIM(self, Measurement, save_file=False):
         """
@@ -153,8 +162,12 @@ class StateOpt_AD(Control.ControlSystem):
 
         """
 
-        AD = Main.QuanEstimation.StateOpt_AD(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
-                        self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound,\
-                        self.W, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision)
-        Main.QuanEstimation.AD_CFIM(Measurement, AD, self.epsilon, self.max_episodes, self.Adam, save_file)
+        if self.gamma == []:
+            AD = Main.QuanEstimation.StateOptAD_TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
+                 self.rho_initial, self.tspan, self.W, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision)
+            Main.QuanEstimation.AD_CFIM(Measurement, AD, self.epsilon, self.max_episodes, self.Adam, save_file)
+        else:
+            AD = Main.QuanEstimation.StateOptAD_TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, \
+                 self.rho_initial, self.tspan, self.Liouville_operator, self.gamma, self.W, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision)
+            Main.QuanEstimation.AD_CFIM(Measurement, AD, self.epsilon, self.max_episodes, self.Adam, save_file)
         
