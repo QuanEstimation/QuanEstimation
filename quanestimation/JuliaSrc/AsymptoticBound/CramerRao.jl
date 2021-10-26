@@ -163,7 +163,6 @@ function QFIM_TimeIndepend(H0::Matrix{T}, ∂H_∂x::Matrix{T}, ρ_initial::Matr
     ∂ρt_∂x = ρt |> zero 
     expL = evolute(H0, Liouville_operator, γ, Δt, 1)
     ∂H_L = liouville_commu(∂H_∂x)
-    F = [0.0 for i in 1:length(times)] 
     for t in 2:length(times)
         ρt = expL * ρt
         ∂ρt_∂x = -im * Δt * ∂H_L * ρt + expL*∂ρt_∂x
@@ -177,7 +176,6 @@ function QFIM_TimeIndepend_AD(H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_initial::
     ∂ρt_∂x = ρt |> zero 
     expL = evolute(H0, Liouville_operator, γ, Δt, 1)
     ∂H_L = liouville_commu(∂H_∂x)
-    F = [0.0 for i in 1:length(times)] 
     for t in 2:length(times)
         ρt = expL * ρt
         ∂ρt_∂x = -im * Δt * ∂H_L * ρt + expL*∂ρt_∂x
@@ -270,7 +268,6 @@ function QFIM_TimeIndepend(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  psi_ini
     U = exp(-im*H0*Δt)
     psi_t = psi_initial
     ∂psi_∂x = [psi_initial |> zero for i in 1:para_num]
-    F = [Matrix{Float64}(undef, length(∂H_∂x), length(∂H_∂x)) for i in 1:length(times)] 
     for t in 2:length(times)
         psi_t = U*psi_t
         ∂psi_∂x = [-im*Δt*∂H_∂x[i]*psi_t for i in 1:para_num] + [U].*∂psi_∂x
@@ -287,7 +284,6 @@ function QFIM_TimeIndepend(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_init
     ∂ρt_∂x = [ρt |> zero for i in 1:para_num]
     expL = evolute(H0, Liouville_operator, γ, Δt, 1)
     ∂H_L = [liouville_commu(∂H_∂x[i]) for i in 1:para_num]
-    F = [Matrix{Float64}(undef, para_num, para_num) for i in 1:length(times)] 
     for t in 2:length(times)
         ρt = expL*ρt
         ∂ρt_∂x = [-im * Δt * ∂H_L[i] * ρt for i in 1:para_num] + [expL].*∂ρt_∂x
@@ -302,7 +298,6 @@ function QFIM_TimeIndepend_AD(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_i
     ∂ρt_∂x = [ρt |> zero for i in 1:para_num]
     expL = evolute(H0, Liouville_operator, γ, Δt, 1)
     ∂H_L = [liouville_commu(∂H_∂x[i]) for i in 1:para_num]
-    F = [Matrix{Float64}(undef, para_num, para_num) for i in 1:length(times)] 
     for t in 2:length(times)
         ρt = expL*ρt
         ∂ρt_∂x = [-im * Δt * ∂H_L[i] * ρt for i in 1:para_num] + [expL].*∂ρt_∂x
