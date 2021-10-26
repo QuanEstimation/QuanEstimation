@@ -21,7 +21,7 @@ end
 function DiffEvo_QFI(DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("single parameter scenario")
-    println("control algorithm: DE")
+    println("control algorithm: Differential Evolution (DE)")
 
     Random.seed!(seed)
     ctrl_num = length(DE.control_Hamiltonian)
@@ -83,7 +83,7 @@ end
 function DiffEvo_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("multiparameter scenario")
-    println("control algorithm: DE")
+    println("control algorithm: Differential Evolution (DE)")
 
     Random.seed!(seed)
     ctrl_num = length(DE.control_Hamiltonian)
@@ -146,7 +146,7 @@ end
 function DiffEvo_CFI(M, DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
     println("classical parameter estimation")
     println("single parameter scenario")
-    println("control algorithm: DE")
+    println("control algorithm: Differential Evolution (DE)")
 
     Random.seed!(seed)
     ctrl_num = length(DE.control_Hamiltonian)
@@ -208,7 +208,7 @@ end
 function DiffEvo_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
     println("classical parameter estimation")
     println("multiparameter scenario")
-    println("control algorithm: DE")
+    println("control algorithm: Differential Evolution (DE)")
 
     Random.seed!(seed)
     ctrl_num = length(DE.control_Hamiltonian)

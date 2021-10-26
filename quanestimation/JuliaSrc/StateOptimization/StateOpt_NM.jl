@@ -16,7 +16,7 @@ end
 function NelderMead_QFI(NM::StateOptNM_TimeIndepend_noiseless{T}, state_num, ini_state, coeff_r, coeff_e, coeff_c, coeff_s, epsilon, max_episodes, seed, save_file) where {T<: Complex}
     println("state optimization")
     println("single parameter scenario")
-    println("search algorithm: Nelder Mead (NM)")
+    println("search algorithm: Nelder-Mead method (NM)")
 
     Random.seed!(seed)
     dim = length(NM.psi)
@@ -47,7 +47,7 @@ function NelderMead_QFI(NM::StateOptNM_TimeIndepend_noiseless{T}, state_num, ini
     episodes = 1
     if save_file == true
         while true
-            p_fit, sort_ind = neldermead_train_QFI(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+            p_fit, sort_ind = train_QFI_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
             if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
                 open("state_nm_N$(dim-1).csv","w") do g
                     writedlm(g, nelder_mead[sort_ind[1]].psi)
@@ -73,7 +73,7 @@ function NelderMead_QFI(NM::StateOptNM_TimeIndepend_noiseless{T}, state_num, ini
         end
     else
         while true
-            p_fit, sort_ind = neldermead_train_QFI(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+            p_fit, sort_ind = train_QFI_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
             if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
                 open("state_nm_N$(dim-1).csv","w") do g
                     writedlm(g, nelder_mead[sort_ind[1]].psi)
@@ -97,7 +97,7 @@ end
 function NelderMead_QFIM(NM::StateOptNM_TimeIndepend_noiseless{T}, state_num, ini_state, coeff_r, coeff_e, coeff_c, coeff_s, epsilon, max_episodes, seed, save_file) where {T<: Complex}
     println("state optimization")
     println("multiparameter scenario")
-    println("search algorithm: Nelder Mead (NM)")
+    println("search algorithm: Nelder-Mead method (NM)")
 
     Random.seed!(seed)
     dim = length(NM.psi)
@@ -130,7 +130,7 @@ function NelderMead_QFIM(NM::StateOptNM_TimeIndepend_noiseless{T}, state_num, in
     episodes = 1
     if save_file == true
         while true
-            p_fit, sort_ind = neldermead_train_QFIM(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+            p_fit, sort_ind = train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
             if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
                 open("state_nm_N$(dim-1).csv","w") do g
                     writedlm(g, nelder_mead[sort_ind[1]].psi)
@@ -156,7 +156,7 @@ function NelderMead_QFIM(NM::StateOptNM_TimeIndepend_noiseless{T}, state_num, in
         end
     else
         while true
-            p_fit, sort_ind = neldermead_train_QFIM(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+            p_fit, sort_ind = train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
             if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
                 open("state_nm_N$(dim-1).csv","w") do g
                     writedlm(g, nelder_mead[sort_ind[1]].psi)
@@ -180,7 +180,7 @@ end
 function NelderMead_CFI(M, NM::StateOptNM_TimeIndepend_noiseless{T}, state_num, ini_state, coeff_r, coeff_e, coeff_c, coeff_s, epsilon, max_episodes, seed, save_file) where {T<: Complex}
     println("state optimization")
     println("single parameter scenario")
-    println("search algorithm: Nelder Mead (NM)")
+    println("search algorithm: Nelder-Mead method (NM)")
 
     Random.seed!(seed)
     dim = length(NM.psi)
@@ -211,7 +211,7 @@ function NelderMead_CFI(M, NM::StateOptNM_TimeIndepend_noiseless{T}, state_num, 
     episodes = 1
     if save_file == true
         while true
-            p_fit, sort_ind = neldermead_train_CFI(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+            p_fit, sort_ind = train_CFI_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
             if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
                 open("state_nm_N$(dim-1).csv","w") do g
                     writedlm(g, nelder_mead[sort_ind[1]].psi)
@@ -237,7 +237,7 @@ function NelderMead_CFI(M, NM::StateOptNM_TimeIndepend_noiseless{T}, state_num, 
         end
     else
         while true
-            p_fit, sort_ind = neldermead_train_CFI(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+            p_fit, sort_ind = train_CFI_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
             if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
                 open("state_nm_N$(dim-1).csv","w") do g
                     writedlm(g, nelder_mead[sort_ind[1]].psi)
@@ -261,7 +261,7 @@ end
 function NelderMead_CFIM(M, NM::StateOptNM_TimeIndepend_noiseless{T}, state_num, ini_state, coeff_r, coeff_e, coeff_c, coeff_s, epsilon, max_episodes, seed, save_file) where {T<: Complex}
     println("state optimization")
     println("multiparameter scenario")
-    println("search algorithm: Nelder Mead (NM)")
+    println("search algorithm: Nelder-Mead method (NM)")
 
     Random.seed!(seed)
     dim = length(NM.psi)
@@ -294,7 +294,7 @@ function NelderMead_CFIM(M, NM::StateOptNM_TimeIndepend_noiseless{T}, state_num,
     episodes = 1
     if save_file == true
         while true
-            p_fit, sort_ind = neldermead_train_CFIM(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+            p_fit, sort_ind = train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
             if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
                 open("state_nm_N$(dim-1).csv","w") do g
                     writedlm(g, nelder_mead[sort_ind[1]].psi)
@@ -320,7 +320,7 @@ function NelderMead_CFIM(M, NM::StateOptNM_TimeIndepend_noiseless{T}, state_num,
         end
     else
         while true
-            p_fit, sort_ind = neldermead_train_CFIM(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+            p_fit, sort_ind = train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
             if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
                 open("state_nm_N$(dim-1).csv","w") do g
                     writedlm(g, nelder_mead[sort_ind[1]].psi)
@@ -341,7 +341,7 @@ function NelderMead_CFIM(M, NM::StateOptNM_TimeIndepend_noiseless{T}, state_num,
     end
 end
 
-function neldermead_train_QFI(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+function train_QFI_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
     # calculate the average vector
     vec_ave = zeros(ComplexF64, dim)
     for ni in 1:dim
@@ -453,7 +453,7 @@ function neldermead_train_QFI(nelder_mead, NM, p_fit, sort_ind, dim, state_num, 
     return p_fit, sort_ind
 end
 
-function neldermead_train_QFIM(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+function train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
     # calculate the average vector
     vec_ave = zeros(ComplexF64, dim)
     for ni in 1:dim
@@ -571,7 +571,7 @@ function neldermead_train_QFIM(nelder_mead, NM, p_fit, sort_ind, dim, state_num,
     return p_fit, sort_ind
 end
 
-function neldermead_train_CFI(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+function train_CFI_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
     # calculate the average vector
     vec_ave = zeros(ComplexF64, dim)
     for ni in 1:dim
@@ -683,7 +683,7 @@ function neldermead_train_CFI(M, nelder_mead, NM, p_fit, sort_ind, dim, state_nu
     return p_fit, sort_ind
 end
 
-function neldermead_train_CFIM(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+function train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
     # calculate the average vector
     vec_ave = zeros(ComplexF64, dim)
     for ni in 1:dim
@@ -821,7 +821,7 @@ end
 function NelderMead_QFI(NM::StateOptNM_TimeIndepend_noise{T}, state_num, ini_state, coeff_r, coeff_e, coeff_c, coeff_s, epsilon, max_episodes, seed, save_file) where {T<: Complex}
     println("state optimization")
     println("single parameter scenario")
-    println("search algorithm: Nelder Mead (NM)")
+    println("search algorithm: Nelder-Mead method (NM)")
 
     Random.seed!(seed)
     dim = length(NM.psi)
@@ -853,7 +853,7 @@ function NelderMead_QFI(NM::StateOptNM_TimeIndepend_noise{T}, state_num, ini_sta
     episodes = 1
     if save_file == true
         while true
-            p_fit, sort_ind = neldermead_train_QFI(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+            p_fit, sort_ind = train_QFI_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
             if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
                 open("state_nm_N$(dim-1).csv","w") do g
                     writedlm(g, nelder_mead[sort_ind[1]].psi)
@@ -879,7 +879,7 @@ function NelderMead_QFI(NM::StateOptNM_TimeIndepend_noise{T}, state_num, ini_sta
         end
     else
         while true
-            p_fit, sort_ind = neldermead_train_QFI(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+            p_fit, sort_ind = train_QFI_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
             if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
                 open("state_nm_N$(dim-1).csv","w") do g
                     writedlm(g, nelder_mead[sort_ind[1]].psi)
@@ -903,7 +903,7 @@ end
 function NelderMead_QFIM(NM::StateOptNM_TimeIndepend_noise{T}, state_num, ini_state, coeff_r, coeff_e, coeff_c, coeff_s, epsilon, max_episodes, seed, save_file) where {T<: Complex}
     println("state optimization")
     println("multiparameter scenario")
-    println("search algorithm: Nelder Mead (NM)")
+    println("search algorithm: Nelder-Mead method (NM)")
 
     Random.seed!(seed)
     dim = length(NM.psi)
@@ -937,7 +937,7 @@ function NelderMead_QFIM(NM::StateOptNM_TimeIndepend_noise{T}, state_num, ini_st
     episodes = 1
     if save_file == true
         while true
-            p_fit, sort_ind = neldermead_train_QFIM(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+            p_fit, sort_ind = train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
             if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
                 open("state_nm_N$(dim-1).csv","w") do g
                     writedlm(g, nelder_mead[sort_ind[1]].psi)
@@ -963,7 +963,7 @@ function NelderMead_QFIM(NM::StateOptNM_TimeIndepend_noise{T}, state_num, ini_st
         end
     else
         while true
-            p_fit, sort_ind = neldermead_train_QFIM(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+            p_fit, sort_ind = train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
             if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
                 open("state_nm_N$(dim-1).csv","w") do g
                     writedlm(g, nelder_mead[sort_ind[1]].psi)
@@ -987,7 +987,7 @@ end
 function NelderMead_CFI(M, NM::StateOptNM_TimeIndepend_noise{T}, state_num, ini_state, coeff_r, coeff_e, coeff_c, coeff_s, epsilon, max_episodes, seed, save_file) where {T<: Complex}
     println("state optimization")
     println("single parameter scenario")
-    println("search algorithm: Nelder Mead (NM)")
+    println("search algorithm: Nelder-Mead method (NM)")
 
     Random.seed!(seed)
     dim = length(NM.psi)
@@ -1019,7 +1019,7 @@ function NelderMead_CFI(M, NM::StateOptNM_TimeIndepend_noise{T}, state_num, ini_
     episodes = 1
     if save_file == true
         while true
-            p_fit, sort_ind = neldermead_train_CFI(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+            p_fit, sort_ind = train_CFI_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
             if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
                 open("state_nm_N$(dim-1).csv","w") do g
                     writedlm(g, nelder_mead[sort_ind[1]].psi)
@@ -1045,7 +1045,7 @@ function NelderMead_CFI(M, NM::StateOptNM_TimeIndepend_noise{T}, state_num, ini_
         end
     else
         while true
-            p_fit, sort_ind = neldermead_train_CFI(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+            p_fit, sort_ind = train_CFI_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
             if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
                 open("state_nm_N$(dim-1).csv","w") do g
                     writedlm(g, nelder_mead[sort_ind[1]].psi)
@@ -1070,7 +1070,7 @@ end
 function NelderMead_CFIM(M, NM::StateOptNM_TimeIndepend_noise{T}, state_num, ini_state, coeff_r, coeff_e, coeff_c, coeff_s, epsilon, max_episodes, seed, save_file) where {T<: Complex}
     println("state optimization")
     println("multiparameter scenario")
-    println("search algorithm: Nelder Mead (NM)")
+    println("search algorithm: Nelder-Mead method (NM)")
 
     Random.seed!(seed)
     dim = length(NM.psi)
@@ -1104,7 +1104,7 @@ function NelderMead_CFIM(M, NM::StateOptNM_TimeIndepend_noise{T}, state_num, ini
     episodes = 1
     if save_file == true
         while true
-            p_fit, sort_ind = neldermead_train_CFIM(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+            p_fit, sort_ind = train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
             if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
                 open("state_nm_N$(dim-1).csv","w") do g
                     writedlm(g, nelder_mead[sort_ind[1]].psi)
@@ -1130,7 +1130,7 @@ function NelderMead_CFIM(M, NM::StateOptNM_TimeIndepend_noise{T}, state_num, ini
         end
     else
         while true
-            p_fit, sort_ind = neldermead_train_CFIM(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+            p_fit, sort_ind = train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
             if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
                 open("state_nm_N$(dim-1).csv","w") do g
                     writedlm(g, nelder_mead[sort_ind[1]].psi)
@@ -1151,7 +1151,7 @@ function NelderMead_CFIM(M, NM::StateOptNM_TimeIndepend_noise{T}, state_num, ini
     end
 end
 
-function neldermead_train_QFI(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+function train_QFI_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
     # calculate the average vector
     vec_ave = zeros(ComplexF64, dim)
     for ni in 1:dim
@@ -1265,7 +1265,7 @@ function neldermead_train_QFI(nelder_mead, NM, p_fit, sort_ind, dim, state_num, 
     return p_fit, sort_ind
 end
 
-function neldermead_train_QFIM(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+function train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
     # calculate the average vector
     vec_ave = zeros(ComplexF64, dim)
     for ni in 1:dim
@@ -1385,7 +1385,7 @@ function neldermead_train_QFIM(nelder_mead, NM, p_fit, sort_ind, dim, state_num,
     return p_fit, sort_ind
 end
 
-function neldermead_train_CFI(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+function train_CFI_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
     # calculate the average vector
     vec_ave = zeros(ComplexF64, dim)
     for ni in 1:dim
@@ -1499,7 +1499,7 @@ function neldermead_train_CFI(M, nelder_mead, NM, p_fit, sort_ind, dim, state_nu
     return p_fit, sort_ind
 end
 
-function neldermead_train_CFIM(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
+function train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
     # calculate the average vector
     vec_ave = zeros(ComplexF64, dim)
     for ni in 1:dim

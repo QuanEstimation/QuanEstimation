@@ -14,7 +14,7 @@ h = 0.1
 Jx, Jy, Jz = jmat(0.5*N)
 Jx, Jy, Jz = Jx.full(), Jy.full(), Jz.full()
 H0 = -Lambda*(np.dot(Jx, Jx)+g*np.dot(Jy, Jy))/N-h*Jz
-dH0 = [-np.dot(Jy, Jy)/N]
+dH0 = [-Lambda*np.dot(Jy, Jy)/N]
 #dissipation
 L_opt = [Jz]
 gamma = [0.1]
@@ -27,7 +27,7 @@ tspan = np.linspace(0.0, T, tnum)
 ini_state = [psi0]
 
 # #AD algorithm
-# AD = StateOpt_AD(tspan, psi0, H0, dH=dH0, Liouville_operator=L_opt, gamma=gamma, lr=0.01, epsilon=1e-8, max_episodes=100, Adam=False)
+# AD = StateOpt_AD(tspan, psi0, H0, dH=dH0, Liouville_operator=L_opt, gamma=gamma, lr=0.01, epsilon=1e-8, max_episodes=300, Adam=False)
 # AD.QFIM(save_file=True)
 
 # #DE algorithm

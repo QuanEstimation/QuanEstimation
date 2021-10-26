@@ -21,7 +21,7 @@ end
 function PSO_QFI(pso::PSO{T}, max_episodes, particle_num, ini_particle, c0, c1, c2,v0, sd, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("single parameter scenario")
-    println("control algorithm: PSO")
+    println("control algorithm: Particle Swarm Optimization (PSO)")
     Random.seed!(sd)
     ctrl_length = length(pso.control_coefficients[1])
     ctrl_num = length(pso.control_Hamiltonian)
@@ -178,7 +178,7 @@ end
 function PSO_CFI(M, pso::PSO{T}, max_episodes, particle_num, ini_particle, c0, c1, c2,v0, sd, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("single parameter scenario")
-    println("control algorithm: PSO")
+    println("control algorithm: Particle Swarm Optimization (PSO)")
     Random.seed!(sd)
     ctrl_length = length(pso.control_coefficients[1])
     ctrl_num = length(pso.control_Hamiltonian)
@@ -335,7 +335,7 @@ end
 function PSO_QFIM(pso::PSO{T}, max_episodes, particle_num, ini_particle, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("multiparameter scenario")
-    println("control algorithm: PSO")
+    println("control algorithm: Particle Swarm Optimization (PSO)")
     Random.seed!(sd)
     ctrl_length = length(pso.control_coefficients[1])
     ctrl_num = length(pso.control_Hamiltonian)
@@ -492,7 +492,7 @@ end
 function PSO_CFIM(M, pso::PSO{T}, max_episodes, particle_num, ini_particle, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     println("multiparameter scenario")
-    println("control algorithm: PSO")
+    println("control algorithm: Particle Swarm Optimization (PSO)")
     Random.seed!(sd)
     ctrl_length = length(pso.control_coefficients[1])
     ctrl_num = length(pso.control_Hamiltonian)
