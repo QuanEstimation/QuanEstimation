@@ -531,7 +531,7 @@ function AD_QFIM(AD::StateOptAD_TimeIndepend_noise{T}, epsilon, max_episodes, Ad
     if length(AD.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("search algorithm: Automatic Differentiation (AD)")
-        f_ini = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.times)
+        f_ini = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
         f_list = [f_ini]
         println("initial QFI is $(f_ini)")
         if Adam == true
