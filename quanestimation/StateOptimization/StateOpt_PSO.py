@@ -95,23 +95,23 @@ class StateOpt_PSO():
                 Main.QuanEstimation.PSO_QFIM(pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                          self.seed, save_file)
 
-    def CFIM(self, M, save_file=False):
+    def CFIM(self, Measurement, save_file=False):
         
         if self.gamma == []:
             pso = Main.QuanEstimation.StateOptPSO_TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
                                                                                self.rho_initial, self.tspan, self.W)
             if len(self.Hamiltonian_derivative) == 1:
-                Main.QuanEstimation.PSO_CFI(M, pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
+                Main.QuanEstimation.PSO_CFI(Measurement, pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                         self.seed, save_file)
             else:
-                Main.QuanEstimation.PSO_CFIM(M, pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
+                Main.QuanEstimation.PSO_CFIM(Measurement, pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                          self.seed, save_file)
         else:
             pso = Main.QuanEstimation.StateOptPSO_TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
                         self.Liouville_operator, self.gamma, self.W)
             if len(self.Hamiltonian_derivative) == 1:
-                Main.QuanEstimation.PSO_CFI(M, pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
+                Main.QuanEstimation.PSO_CFI(Measurement, pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                         self.seed, save_file)
             else:
-                Main.QuanEstimation.PSO_CFIM(M, pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
+                Main.QuanEstimation.PSO_CFIM(Measurement, pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                          self.seed, save_file)

@@ -65,7 +65,11 @@ function SLD_qr(ρ::Matrix{T}, ∂ρ_∂x::Matrix{T}) where {T <: Complex}
 end
 
 function RLD(ρ::Matrix{T}, dρ::Matrix{T}) where {T <: Complex}
-    dρ * pinv(ρ)
+    pinv(ρ) * dρ
+end
+
+function LLD(ρ::Matrix{T}, dρ::Matrix{T}) where {T <: Complex}
+    (dρ * pinv(ρ))'
 end
 
 #========================================================#
@@ -381,14 +385,13 @@ function CFIM_TimeIndepend(M, H0::Matrix{T}, ∂H_∂x::Matrix{T},  psi_initial:
     U = exp(-im*H0*Δt)
     psi_t = psi_initial
     ∂psi_∂x = psi_initial |> zero 
-    F = [0.0 for i in 1:length(times)] 
     for t in 2:length(times)
         psi_t = U*psi_t
         ∂psi_∂x = -im*Δt*∂H_∂x*psi_t + U*∂psi_∂x 
     end
     ρt = psi_t*psi_t'
     ∂ρt_∂x = ∂psi_∂x*psi_t'+psi_t*∂psi_∂x'
-    CFI(M, ρt, ∂ρt_∂x)
+    CFI(ρt, ∂ρt_∂x, M)
 end
 
 function CFIM_TimeIndepend(M, H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, times) where {T <: Complex,R <: Real}
@@ -397,12 +400,11 @@ function CFIM_TimeIndepend(M, H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_initial::
     ∂ρt_∂x = ρt |> zero 
     expL = evolute(H0, Liouville_operator, γ, Δt, 1)
     ∂H_L = liouville_commu(∂H_∂x)
-    F = [0.0 for i in 1:length(times)] 
     for t in 2:length(times)
         ρt = expL * ρt
         ∂ρt_∂x = -im * Δt * ∂H_L * ρt + expL*∂ρt_∂x
     end
-    CFI(M, ρt|> vec2mat, ∂ρt_∂x|> vec2mat)
+    CFI(ρt|> vec2mat, ∂ρt_∂x|> vec2mat, M)
 end
 
 function CFI(M, system)
@@ -451,7 +453,7 @@ function CFIM_TimeIndepend(M, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  psi_
     end
     ρt = psi_t*psi_t'
     ∂ρt_∂x = [(∂psi_∂x[i]*psi_t'+psi_t*∂psi_∂x[i]') for i in 1:para_num]
-    CFIM(M, ρt, ∂ρt_∂x)
+    CFIM(ρt, ∂ρt_∂x, M)
 end
 
 function CFIM_TimeIndepend(M, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, times) where {T <: Complex,R <: Real}
@@ -466,7 +468,7 @@ function CFIM_TimeIndepend(M, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_i
         ρt = expL*ρt
         ∂ρt_∂x = [-im * Δt * ∂H_L[i] * ρt for i in 1:para_num] + [expL].*∂ρt_∂x
     end
-    CFIM(M, ρt|> vec2mat, ∂ρt_∂x|> vec2mat)
+    CFIM(ρt|> vec2mat, ∂ρt_∂x|> vec2mat, M)
 end
 
 function CFIM(M, system)

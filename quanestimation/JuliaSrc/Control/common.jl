@@ -28,3 +28,21 @@ function bound!(system)
         end 
     end
 end
+
+function SaveFile(f_now::Float64, control)
+    open("f.csv","a") do f
+        writedlm(f, [f_now])
+    end
+    open("controls.csv","a") do g
+        writedlm(g, control)
+    end
+end
+
+function SaveFile(f_now::Vector{Float64}, control)
+    open("f.csv","w") do f
+        writedlm(f, f_now)
+    end
+    open("controls.csv","w") do g
+        writedlm(g, control)
+    end
+end

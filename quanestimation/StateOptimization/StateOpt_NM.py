@@ -91,20 +91,20 @@ class StateOpt_NM():
             else:
                 Main.QuanEstimation.NelderMead_QFIM(neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
 
-    def CFIM(self, M, save_file=False):
+    def CFIM(self, Measurement, save_file=False):
         if self.gamma == []:
             neldermead = Main.QuanEstimation.StateOptNM_TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
                                                                                self.rho_initial, self.tspan, self.W)
             if len(self.Hamiltonian_derivative) == 1:
-                Main.QuanEstimation.NelderMead_CFI(M, neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
+                Main.QuanEstimation.NelderMead_CFI(Measurement, neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
             else:
-                Main.QuanEstimation.NelderMead_CFIM(M, neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
+                Main.QuanEstimation.NelderMead_CFIM(Measurement, neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
         else:
             neldermead = Main.QuanEstimation.StateOptNM_TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, \
                                                                      self.tspan, self.Liouville_operator, self.gamma, self.W)
             if len(self.Hamiltonian_derivative) == 1:
-                Main.QuanEstimation.NelderMead_CFI(M, neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
+                Main.QuanEstimation.NelderMead_CFI(Measurement, neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
             else:
-                Main.QuanEstimation.NelderMead_CFIM(M, neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
+                Main.QuanEstimation.NelderMead_CFIM(Measurement, neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
 
             

@@ -46,95 +46,31 @@ function PSO_QFI(pso::StateOptPSO_TimeIndepend_noiseless{T}, max_episodes, parti
     println("initial QFI is $(qfi_ini)")      
     fit = 0.0
     if save_file==true
-        for ei in 1:max_episodes[1]
+        for ei in 1:(max_episodes[1]-1)
             #### train ####
-            for pj in 1:particle_num
-                f_now = QFIM_TimeIndepend(particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative[1], particles[pj].psi, particles[pj].times)
-                if f_now > p_fit[pj]
-                    p_fit[pj] = f_now
-                    for di in 1:dim
-                        pbest[di,pj] = particles[pj].psi[di]
-                    end
-                end
-            end
-
-            for pj in 1:particle_num
-                if p_fit[pj] > fit
-                    fit = p_fit[pj]
-                    for dj in 1:dim
-                        gbest[dj] = particles[pj].psi[dj]
-                        velocity_best[dj] = velocity[dj, pj]
-                    end
-                end
-            end  
-
-            for pk in 1:particle_num
-                psi_pre = zeros(ComplexF64, dim)
-                for dk in 1:dim
-                    psi_pre[dk] = particles[pk].psi[dk]
-                    velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
-                    particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
-                end
-
-                particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
-
-                for dm in 1:dim
-                    velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
-                end
-            end
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFI_noiseless(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
             if ei%max_episodes[2] == 0
                 pso.psi = [gbest[i] for i in 1:dim]
                 particles = repeat(pso, particle_num)
             end
             append!(f_list, fit)
+            SaveFile_pso(dim, f_list, gbest)
             print("current QFI is $fit ($ei episodes) \r")
-            open("state_pso_N$(dim-1).csv","w") do g
-                writedlm(g, gbest)
-            end
-            open("f_pso_N$(dim-1).csv","w") do h
-                writedlm(h, f_list)
-            end
+            
         end
+        p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFI_noiseless(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
+        append!(f_list, fit)
+        SaveFile_pso(dim, f_list, gbest)
         print("\e[2K")    
         println("Iteration over, data saved.")
         println("Final QFI is $fit")
     else
-        for ei in 1:max_episodes[1]
+        for ei in 1:(max_episodes[1]-1)
             #### train ####
-            for pj in 1:particle_num
-                f_now = QFIM_TimeIndepend(particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative[1], particles[pj].psi, particles[pj].times)
-                if f_now > p_fit[pj]
-                    p_fit[pj] = f_now
-                    for di in 1:dim
-                        pbest[di,pj] = particles[pj].psi[di]
-                    end
-                end
-            end
-
-            for pj in 1:particle_num
-                if p_fit[pj] > fit
-                    fit = p_fit[pj]
-                    for dj in 1:dim
-                        gbest[dj] = particles[pj].psi[dj]
-                        velocity_best[dj] = velocity[dj, pj]
-                    end
-                end
-            end  
-
-            for pk in 1:particle_num
-                psi_pre = zeros(ComplexF64, dim)
-                for dk in 1:dim
-                    psi_pre[dk] = particles[pk].psi[dk]
-                    velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
-                    particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
-                end
-
-                particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
-
-                for dm in 1:dim
-                    velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
-                end
-            end
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFI_noiseless(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
             if ei%max_episodes[2] == 0
                 pso.psi = [gbest[i] for i in 1:dim]
                 particles = repeat(pso, particle_num)
@@ -142,12 +78,10 @@ function PSO_QFI(pso::StateOptPSO_TimeIndepend_noiseless{T}, max_episodes, parti
             append!(f_list, fit)
             print("current QFI is $fit ($ei episodes) \r")
         end
-        open("state_pso_N$(dim-1).csv","w") do g
-            writedlm(g, gbest)
-        end
-        open("f_pso_N$(dim-1).csv","w") do h
-            writedlm(h, f_list)
-        end
+        p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFI_noiseless(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
+        append!(f_list, fit)
+        SaveFile_pso(dim, f_list, gbest)
         print("\e[2K") 
         println("Iteration over, data saved.") 
         println("Final QFI is $fit")
@@ -190,97 +124,31 @@ function PSO_QFIM(pso::StateOptPSO_TimeIndepend_noiseless{T}, max_episodes, part
     println("initial value of Tr(WF^{-1}) is $(qfi_ini)")       
     fit = 0.0
     if save_file==true
-        for ei in 1:max_episodes[1]
+        for ei in 1:(max_episodes[1]-1)
             #### train ####
-            for pj in 1:particle_num
-                F_tp = QFIM_TimeIndepend(particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, particles[pj].psi, particles[pj].times)
-                f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
-                if f_now > p_fit[pj]
-                    p_fit[pj] = f_now
-                    for di in 1:dim
-                        pbest[di,pj] = particles[pj].psi[di]
-                    end
-                end
-            end
-
-            for pj in 1:particle_num
-                if p_fit[pj] > fit
-                    fit = p_fit[pj]
-                    for dj in 1:dim
-                        gbest[dj] = particles[pj].psi[dj]
-                        velocity_best[dj] = velocity[dj, pj]
-                    end
-                end
-            end  
-
-            for pk in 1:particle_num
-                psi_pre = zeros(ComplexF64, dim)
-                for dk in 1:dim
-                    psi_pre[dk] = particles[pk].psi[dk]
-                    velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
-                    particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
-                end
-
-                particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
-
-                for dm in 1:dim
-                    velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
-                end
-            end
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFIM_noiseless(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
             if ei%max_episodes[2] == 0
                 pso.psi = [gbest[i] for i in 1:dim]
                 particles = repeat(pso, particle_num)
             end
             append!(f_list, (1.0/fit))
+            SaveFile_pso(dim, f_list, gbest)
             print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
-            open("state_pso_N$(dim-1).csv","w") do g
-                writedlm(g, gbest)
-            end
-            open("f_pso_N$(dim-1).csv","w") do h
-                writedlm(h, f_list)
-            end
+            
         end
+        p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFIM_noiseless(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
+        append!(f_list, (1.0/fit))
+        SaveFile_pso(dim, f_list, gbest)
         print("\e[2K")    
         println("Iteration over, data saved.")
         println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
     else
-        for ei in 1:max_episodes[1]
+        for ei in 1:(max_episodes[1]-1)
             #### train ####
-            for pj in 1:particle_num
-                F_tp = QFIM_TimeIndepend(particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, particles[pj].psi, particles[pj].times)
-                f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
-                if f_now > p_fit[pj]
-                    p_fit[pj] = f_now
-                    for di in 1:dim
-                        pbest[di,pj] = particles[pj].psi[di]
-                    end
-                end
-            end
-
-            for pj in 1:particle_num
-                if p_fit[pj] > fit
-                    fit = p_fit[pj]
-                    for dj in 1:dim
-                        gbest[dj] = particles[pj].psi[dj]
-                        velocity_best[dj] = velocity[dj, pj]
-                    end
-                end
-            end  
-
-            for pk in 1:particle_num
-                psi_pre = zeros(ComplexF64, dim)
-                for dk in 1:dim
-                    psi_pre[dk] = particles[pk].psi[dk]
-                    velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
-                    particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
-                end
-
-                particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
-
-                for dm in 1:dim
-                    velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
-                end
-            end
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFIM_noiseless(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
             if ei%max_episodes[2] == 0
                 pso.psi = [gbest[i] for i in 1:dim]
                 particles = repeat(pso, particle_num)
@@ -288,12 +156,10 @@ function PSO_QFIM(pso::StateOptPSO_TimeIndepend_noiseless{T}, max_episodes, part
             append!(f_list, (1.0/fit))
             print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
         end
-        open("state_pso_N$(dim-1).csv","w") do g
-            writedlm(g, gbest)
-        end
-        open("f_pso_N$(dim-1).csv","w") do h
-            writedlm(h, f_list)
-        end
+        p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFIM_noiseless(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
+        append!(f_list, (1.0/fit))
+        SaveFile_pso(dim, f_list, gbest)
         print("\e[2K") 
         println("Iteration over, data saved.") 
         println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
@@ -335,95 +201,31 @@ function PSO_CFI(M, pso::StateOptPSO_TimeIndepend_noiseless{T}, max_episodes, pa
     println("initial CFI is $(f_ini)")       
     fit = 0.0
     if save_file==true
-        for ei in 1:max_episodes[1]
+        for ei in 1:(max_episodes[1]-1)
             #### train ####
-            for pj in 1:particle_num
-                f_now = CFIM_TimeIndepend(M, particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative[1], particles[pj].psi, particles[pj].times)
-                if f_now > p_fit[pj]
-                    p_fit[pj] = f_now
-                    for di in 1:dim
-                        pbest[di,pj] = particles[pj].psi[di]
-                    end
-                end
-            end
-
-            for pj in 1:particle_num
-                if p_fit[pj] > fit
-                    fit = p_fit[pj]
-                    for dj in 1:dim
-                        gbest[dj] = particles[pj].psi[dj]
-                        velocity_best[dj] = velocity[dj, pj]
-                    end
-                end
-            end  
-
-            for pk in 1:particle_num
-                psi_pre = zeros(ComplexF64, dim)
-                for dk in 1:dim
-                    psi_pre[dk] = particles[pk].psi[dk]
-                    velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
-                    particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
-                end
-
-                particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
-
-                for dm in 1:dim
-                    velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
-                end
-            end
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFI_noiseless(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
             if ei%max_episodes[2] == 0
                 pso.psi = [gbest[i] for i in 1:dim]
                 particles = repeat(pso, particle_num)
             end
             append!(f_list, fit)
+            SaveFile_pso(dim, f_list, gbest)
             print("current CFI is $fit ($ei episodes) \r")
-            open("state_pso_N$(dim-1).csv","w") do g
-                writedlm(g, gbest)
-            end
-            open("f_pso_N$(dim-1).csv","w") do h
-                writedlm(h, f_list)
-            end
+            
         end
+        p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFI_noiseless(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
+        append!(f_list, fit)
+        SaveFile_pso(dim, f_list, gbest)
         print("\e[2K")    
         println("Iteration over, data saved.")
         println("Final CFI is $fit")
     else
-        for ei in 1:max_episodes[1]
+        for ei in 1:(max_episodes[1]-1)
             #### train ####
-            for pj in 1:particle_num
-                f_now = CFIM_TimeIndepend(M, particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative[1], particles[pj].psi, particles[pj].times)
-                if f_now > p_fit[pj]
-                    p_fit[pj] = f_now
-                    for di in 1:dim
-                        pbest[di,pj] = particles[pj].psi[di]
-                    end
-                end
-            end
-
-            for pj in 1:particle_num
-                if p_fit[pj] > fit
-                    fit = p_fit[pj]
-                    for dj in 1:dim
-                        gbest[dj] = particles[pj].psi[dj]
-                        velocity_best[dj] = velocity[dj, pj]
-                    end
-                end
-            end  
-
-            for pk in 1:particle_num
-                psi_pre = zeros(ComplexF64, dim)
-                for dk in 1:dim
-                    psi_pre[dk] = particles[pk].psi[dk]
-                    velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
-                    particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
-                end
-
-                particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
-
-                for dm in 1:dim
-                    velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
-                end
-            end
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFI_noiseless(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
             if ei%max_episodes[2] == 0
                 pso.psi = [gbest[i] for i in 1:dim]
                 particles = repeat(pso, particle_num)
@@ -431,12 +233,10 @@ function PSO_CFI(M, pso::StateOptPSO_TimeIndepend_noiseless{T}, max_episodes, pa
             append!(f_list, fit)
             print("current CFI is $fit ($ei episodes) \r")
         end
-        open("state_pso_N$(dim-1).csv","w") do g
-            writedlm(g, gbest)
-        end
-        open("f_pso_N$(dim-1).csv","w") do h
-            writedlm(h, f_list)
-        end
+        p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFI_noiseless(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
+        append!(f_list, fit) 
+        SaveFile_pso(dim, f_list, gbest)
         print("\e[2K") 
         println("Iteration over, data saved.") 
         println("Final CFI is $fit")
@@ -479,97 +279,29 @@ function PSO_CFIM(M, pso::StateOptPSO_TimeIndepend_noiseless{T}, max_episodes, p
     println("initial value of Tr(WF^{-1}) is $(f_ini)")       
     fit = 0.0
     if save_file==true
-        for ei in 1:max_episodes[1]
+        for ei in 1:(max_episodes[1]-1)
             #### train ####
-            for pj in 1:particle_num
-                F_tp = CFIM_TimeIndepend(M, particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, particles[pj].psi, particles[pj].times)
-                f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
-                if f_now > p_fit[pj]
-                    p_fit[pj] = f_now
-                    for di in 1:dim
-                        pbest[di,pj] = particles[pj].psi[di]
-                    end
-                end
-            end
-
-            for pj in 1:particle_num
-                if p_fit[pj] > fit
-                    fit = p_fit[pj]
-                    for dj in 1:dim
-                        gbest[dj] = particles[pj].psi[dj]
-                        velocity_best[dj] = velocity[dj, pj]
-                    end
-                end
-            end  
-
-            for pk in 1:particle_num
-                psi_pre = zeros(ComplexF64, dim)
-                for dk in 1:dim
-                    psi_pre[dk] = particles[pk].psi[dk]
-                    velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
-                    particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
-                end
-
-                particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
-
-                for dm in 1:dim
-                    velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
-                end
-            end
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noiseless(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
             if ei%max_episodes[2] == 0
                 pso.psi = [gbest[i] for i in 1:dim]
                 particles = repeat(pso, particle_num)
             end
             append!(f_list, (1.0/fit))
             print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
-            open("state_pso_N$(dim-1).csv","w") do g
-                writedlm(g, gbest)
-            end
-            open("f_pso_N$(dim-1).csv","w") do h
-                writedlm(h, f_list)
-            end
+            SaveFile_pso(dim, f_list, gbest)
         end
+        p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noiseless(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
+        append!(f_list, (1.0/fit))
         print("\e[2K")    
         println("Iteration over, data saved.")
         println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
     else
-        for ei in 1:max_episodes[1]
+        for ei in 1:(max_episodes[1]-1)
             #### train ####
-            for pj in 1:particle_num
-                F_tp = CFIM_TimeIndepend(M, particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, particles[pj].psi, particles[pj].times)
-                f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
-                if f_now > p_fit[pj]
-                    p_fit[pj] = f_now
-                    for di in 1:dim
-                        pbest[di,pj] = particles[pj].psi[di]
-                    end
-                end
-            end
-
-            for pj in 1:particle_num
-                if p_fit[pj] > fit
-                    fit = p_fit[pj]
-                    for dj in 1:dim
-                        gbest[dj] = particles[pj].psi[dj]
-                        velocity_best[dj] = velocity[dj, pj]
-                    end
-                end
-            end  
-
-            for pk in 1:particle_num
-                psi_pre = zeros(ComplexF64, dim)
-                for dk in 1:dim
-                    psi_pre[dk] = particles[pk].psi[dk]
-                    velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
-                    particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
-                end
-
-                particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
-
-                for dm in 1:dim
-                    velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
-                end
-            end
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noiseless(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
             if ei%max_episodes[2] == 0
                 pso.psi = [gbest[i] for i in 1:dim]
                 particles = repeat(pso, particle_num)
@@ -577,17 +309,169 @@ function PSO_CFIM(M, pso::StateOptPSO_TimeIndepend_noiseless{T}, max_episodes, p
             append!(f_list, (1.0/fit))
             print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
         end
-        open("state_pso_N$(dim-1).csv","w") do g
-            writedlm(g, gbest)
-        end
-        open("f_pso_N$(dim-1).csv","w") do h
-            writedlm(h, f_list)
-        end
+        p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noiseless(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
+        append!(f_list, (1.0/fit))
+        SaveFile_pso(dim, f_list, gbest)
         print("\e[2K") 
         println("Iteration over, data saved.") 
         println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
     end
     return nothing
+end
+
+function train_QFI_noiseless(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, dim, pbest, gbest, velocity_best, velocity)
+    for pj in 1:particle_num
+        f_now = QFIM_TimeIndepend(particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative[1], particles[pj].psi, particles[pj].times)
+        if f_now > p_fit[pj]
+            p_fit[pj] = f_now
+            for di in 1:dim
+                pbest[di,pj] = particles[pj].psi[di]
+            end
+        end
+    end
+
+    for pj in 1:particle_num
+        if p_fit[pj] > fit
+            fit = p_fit[pj]
+            for dj in 1:dim
+                gbest[dj] = particles[pj].psi[dj]
+                velocity_best[dj] = velocity[dj, pj]
+            end
+        end
+    end  
+
+    for pk in 1:particle_num
+        psi_pre = zeros(ComplexF64, dim)
+        for dk in 1:dim
+            psi_pre[dk] = particles[pk].psi[dk]
+            velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
+            particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
+        end
+
+        particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
+
+        for dm in 1:dim
+            velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
+        end
+    end
+    return p_fit, fit, pbest, gbest, velocity_best, velocity
+end
+
+function train_QFIM_noiseless(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, dim, pbest, gbest, velocity_best, velocity)
+    for pj in 1:particle_num
+        F_tp = QFIM_TimeIndepend(particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, particles[pj].psi, particles[pj].times)
+        f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
+        if f_now > p_fit[pj]
+            p_fit[pj] = f_now
+            for di in 1:dim
+                pbest[di,pj] = particles[pj].psi[di]
+            end
+        end
+    end
+
+    for pj in 1:particle_num
+        if p_fit[pj] > fit
+            fit = p_fit[pj]
+            for dj in 1:dim
+                gbest[dj] = particles[pj].psi[dj]
+                velocity_best[dj] = velocity[dj, pj]
+            end
+        end
+    end  
+
+    for pk in 1:particle_num
+        psi_pre = zeros(ComplexF64, dim)
+        for dk in 1:dim
+            psi_pre[dk] = particles[pk].psi[dk]
+            velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
+            particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
+        end
+
+        particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
+
+        for dm in 1:dim
+            velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
+        end
+    end
+    return p_fit, fit, pbest, gbest, velocity_best, velocity
+end
+
+function train_CFI_noiseless(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, dim, pbest, gbest, velocity_best, velocity)
+    for pj in 1:particle_num
+        f_now = CFIM_TimeIndepend(M, particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative[1], particles[pj].psi, particles[pj].times)
+        if f_now > p_fit[pj]
+            p_fit[pj] = f_now
+            for di in 1:dim
+                pbest[di,pj] = particles[pj].psi[di]
+            end
+        end
+    end
+
+    for pj in 1:particle_num
+        if p_fit[pj] > fit
+            fit = p_fit[pj]
+            for dj in 1:dim
+                gbest[dj] = particles[pj].psi[dj]
+                velocity_best[dj] = velocity[dj, pj]
+            end
+        end
+    end  
+
+    for pk in 1:particle_num
+        psi_pre = zeros(ComplexF64, dim)
+        for dk in 1:dim
+            psi_pre[dk] = particles[pk].psi[dk]
+            velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
+            particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
+        end
+
+        particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
+
+        for dm in 1:dim
+            velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
+        end
+    end
+    return p_fit, fit, pbest, gbest, velocity_best, velocity
+end
+
+function train_CFIM_noiseless(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, dim, pbest, gbest, velocity_best, velocity)
+    for pj in 1:particle_num
+        F_tp = CFIM_TimeIndepend(M, particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, particles[pj].psi, particles[pj].times)
+        f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
+        if f_now > p_fit[pj]
+            p_fit[pj] = f_now
+            for di in 1:dim
+                pbest[di,pj] = particles[pj].psi[di]
+            end
+        end
+    end
+
+    for pj in 1:particle_num
+        if p_fit[pj] > fit
+            fit = p_fit[pj]
+            for dj in 1:dim
+                gbest[dj] = particles[pj].psi[dj]
+                velocity_best[dj] = velocity[dj, pj]
+            end
+        end
+    end  
+
+    for pk in 1:particle_num
+        psi_pre = zeros(ComplexF64, dim)
+        for dk in 1:dim
+            psi_pre[dk] = particles[pk].psi[dk]
+            velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
+            particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
+        end
+
+        particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
+
+        for dm in 1:dim
+            velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
+        end
+    end
+    return p_fit, fit, pbest, gbest, velocity_best, velocity
 end
 
 ############# time-independent Hamiltonian (noise) ################
@@ -640,97 +524,31 @@ function PSO_QFI(pso::StateOptPSO_TimeIndepend_noise{T}, max_episodes, particle_
     println("initial QFI is $(qfi_ini)")      
     fit = 0.0
     if save_file==true
-        for ei in 1:max_episodes[1]
+        for ei in 1:(max_episodes[1]-1)
             #### train ####
-            for pj in 1:particle_num
-                rho = particles[pj].psi*(particles[pj].psi)'
-                f_now = QFIM_TimeIndepend(particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative[1], rho, particles[pj].Liouville_operator, particles[pj].γ, particles[pj].times)
-                if f_now > p_fit[pj]
-                    p_fit[pj] = f_now
-                    for di in 1:dim
-                        pbest[di,pj] = particles[pj].psi[di]
-                    end
-                end
-            end
-
-            for pj in 1:particle_num
-                if p_fit[pj] > fit
-                    fit = p_fit[pj]
-                    for dj in 1:dim
-                        gbest[dj] = particles[pj].psi[dj]
-                        velocity_best[dj] = velocity[dj, pj]
-                    end
-                end
-            end  
-
-            for pk in 1:particle_num
-                psi_pre = zeros(ComplexF64, dim)
-                for dk in 1:dim
-                    psi_pre[dk] = particles[pk].psi[dk]
-                    velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
-                    particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
-                end
-
-                particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
-
-                for dm in 1:dim
-                    velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
-                end
-            end
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFI_noise(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
             if ei%max_episodes[2] == 0
                 pso.psi = [gbest[i] for i in 1:dim]
                 particles = repeat(pso, particle_num)
             end
             append!(f_list, fit)
+            SaveFile_pso(dim, f_list, gbest)
             print("current QFI is $fit ($ei episodes) \r")
-            open("state_pso_N$(dim-1).csv","w") do g
-                writedlm(g, gbest)
-            end
-            open("f_pso_N$(dim-1).csv","w") do h
-                writedlm(h, f_list)
-            end
+            
         end
+        p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFI_noise(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
+        append!(f_list, fit)
+        SaveFile_pso(dim, f_list, gbest)
         print("\e[2K")    
         println("Iteration over, data saved.")
         println("Final QFI is $fit")
     else
-        for ei in 1:max_episodes[1]
+        for ei in 1:(max_episodes[1]-1)
             #### train ####
-            for pj in 1:particle_num
-                rho = particles[pj].psi*(particles[pj].psi)'
-                f_now = QFIM_TimeIndepend(particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative[1], rho, particles[pj].Liouville_operator, particles[pj].γ, particles[pj].times)
-                if f_now > p_fit[pj]
-                    p_fit[pj] = f_now
-                    for di in 1:dim
-                        pbest[di,pj] = particles[pj].psi[di]
-                    end
-                end
-            end
-
-            for pj in 1:particle_num
-                if p_fit[pj] > fit
-                    fit = p_fit[pj]
-                    for dj in 1:dim
-                        gbest[dj] = particles[pj].psi[dj]
-                        velocity_best[dj] = velocity[dj, pj]
-                    end
-                end
-            end  
-
-            for pk in 1:particle_num
-                psi_pre = zeros(ComplexF64, dim)
-                for dk in 1:dim
-                    psi_pre[dk] = particles[pk].psi[dk]
-                    velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
-                    particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
-                end
-
-                particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
-
-                for dm in 1:dim
-                    velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
-                end
-            end
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFI_noise(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
             if ei%max_episodes[2] == 0
                 pso.psi = [gbest[i] for i in 1:dim]
                 particles = repeat(pso, particle_num)
@@ -738,12 +556,10 @@ function PSO_QFI(pso::StateOptPSO_TimeIndepend_noise{T}, max_episodes, particle_
             append!(f_list, fit)
             print("current QFI is $fit ($ei episodes) \r")
         end
-        open("state_pso_N$(dim-1).csv","w") do g
-            writedlm(g, gbest)
-        end
-        open("f_pso_N$(dim-1).csv","w") do h
-            writedlm(h, f_list)
-        end
+        p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFI_noise(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
+        append!(f_list, fit)
+        SaveFile_pso(dim, f_list, gbest)
         print("\e[2K") 
         println("Iteration over, data saved.") 
         println("Final QFI is $fit")
@@ -786,99 +602,31 @@ function PSO_QFIM(pso::StateOptPSO_TimeIndepend_noise{T}, max_episodes, particle
     println("initial value of Tr(WF^{-1}) is $(qfi_ini)")       
     fit = 0.0
     if save_file==true
-        for ei in 1:max_episodes[1]
+        for ei in 1:(max_episodes[1]-1)
             #### train ####
-            for pj in 1:particle_num
-                rho = particles[pj].psi*(particles[pj].psi)'
-                F_tp = QFIM_TimeIndepend(particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, rho, particles[pj].Liouville_operator, particles[pj].γ, particles[pj].times)
-                f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
-                if f_now > p_fit[pj]
-                    p_fit[pj] = f_now
-                    for di in 1:dim
-                        pbest[di,pj] = particles[pj].psi[di]
-                    end
-                end
-            end
-
-            for pj in 1:particle_num
-                if p_fit[pj] > fit
-                    fit = p_fit[pj]
-                    for dj in 1:dim
-                        gbest[dj] = particles[pj].psi[dj]
-                        velocity_best[dj] = velocity[dj, pj]
-                    end
-                end
-            end  
-
-            for pk in 1:particle_num
-                psi_pre = zeros(ComplexF64, dim)
-                for dk in 1:dim
-                    psi_pre[dk] = particles[pk].psi[dk]
-                    velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
-                    particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
-                end
-
-                particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
-
-                for dm in 1:dim
-                    velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
-                end
-            end
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFIM_noise(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
             if ei%max_episodes[2] == 0
                 pso.psi = [gbest[i] for i in 1:dim]
                 particles = repeat(pso, particle_num)
             end
             append!(f_list, (1.0/fit))
+            SaveFile_pso(dim, f_list, gbest)
             print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
-            open("state_pso_N$(dim-1).csv","w") do g
-                writedlm(g, gbest)
-            end
-            open("f_pso_N$(dim-1).csv","w") do h
-                writedlm(h, f_list)
-            end
+            
         end
+        p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFIM_noise(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
+        append!(f_list, (1.0/fit))
+        SaveFile_pso(dim, f_list, gbest)
         print("\e[2K")    
         println("Iteration over, data saved.")
         println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
     else
-        for ei in 1:max_episodes[1]
+        for ei in 1:(max_episodes[1]-1)
             #### train ####
-            for pj in 1:particle_num
-                rho = particles[pj].psi*(particles[pj].psi)'
-                F_tp = QFIM_TimeIndepend(particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, rho, particles[pj].Liouville_operator, particles[pj].γ, particles[pj].times)
-                f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
-                if f_now > p_fit[pj]
-                    p_fit[pj] = f_now
-                    for di in 1:dim
-                        pbest[di,pj] = particles[pj].psi[di]
-                    end
-                end
-            end
-
-            for pj in 1:particle_num
-                if p_fit[pj] > fit
-                    fit = p_fit[pj]
-                    for dj in 1:dim
-                        gbest[dj] = particles[pj].psi[dj]
-                        velocity_best[dj] = velocity[dj, pj]
-                    end
-                end
-            end  
-
-            for pk in 1:particle_num
-                psi_pre = zeros(ComplexF64, dim)
-                for dk in 1:dim
-                    psi_pre[dk] = particles[pk].psi[dk]
-                    velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
-                    particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
-                end
-
-                particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
-
-                for dm in 1:dim
-                    velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
-                end
-            end
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFIM_noise(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
             if ei%max_episodes[2] == 0
                 pso.psi = [gbest[i] for i in 1:dim]
                 particles = repeat(pso, particle_num)
@@ -886,12 +634,10 @@ function PSO_QFIM(pso::StateOptPSO_TimeIndepend_noise{T}, max_episodes, particle
             append!(f_list, (1.0/fit))
             print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
         end
-        open("state_pso_N$(dim-1).csv","w") do g
-            writedlm(g, gbest)
-        end
-        open("f_pso_N$(dim-1).csv","w") do h
-            writedlm(h, f_list)
-        end
+        p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFIM_noise(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
+        append!(f_list, (1.0/fit))
+        SaveFile_pso(dim, f_list, gbest)
         print("\e[2K") 
         println("Iteration over, data saved.") 
         println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
@@ -933,97 +679,31 @@ function PSO_CFI(M, pso::StateOptPSO_TimeIndepend_noise{T}, max_episodes, partic
     println("initial CFI is $(f_ini)")       
     fit = 0.0
     if save_file==true
-        for ei in 1:max_episodes[1]
+        for ei in 1:(max_episodes[1]-1)
             #### train ####
-            for pj in 1:particle_num
-                rho = particles[pj].psi*(particles[pj].psi)'
-                f_now = CFIM_TimeIndepend(M, particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative[1], rho, particles[pj].Liouville_operator, particles[pj].γ, particles[pj].times)
-                if f_now > p_fit[pj]
-                    p_fit[pj] = f_now
-                    for di in 1:dim
-                        pbest[di,pj] = particles[pj].psi[di]
-                    end
-                end
-            end
-
-            for pj in 1:particle_num
-                if p_fit[pj] > fit
-                    fit = p_fit[pj]
-                    for dj in 1:dim
-                        gbest[dj] = particles[pj].psi[dj]
-                        velocity_best[dj] = velocity[dj, pj]
-                    end
-                end
-            end  
-
-            for pk in 1:particle_num
-                psi_pre = zeros(ComplexF64, dim)
-                for dk in 1:dim
-                    psi_pre[dk] = particles[pk].psi[dk]
-                    velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
-                    particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
-                end
-
-                particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
-
-                for dm in 1:dim
-                    velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
-                end
-            end
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFI_noise(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
             if ei%max_episodes[2] == 0
                 pso.psi = [gbest[i] for i in 1:dim]
                 particles = repeat(pso, particle_num)
             end
             append!(f_list, fit)
+            SaveFile_pso(dim, f_list, gbest)
             print("current CFI is $fit ($ei episodes) \r")
-            open("state_pso_N$(dim-1).csv","w") do g
-                writedlm(g, gbest)
-            end
-            open("f_pso_N$(dim-1).csv","w") do h
-                writedlm(h, f_list)
-            end
+            
         end
+        p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFI_noise(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
+        append!(f_list, fit)
+        SaveFile_pso(dim, f_list, gbest)
         print("\e[2K")    
         println("Iteration over, data saved.")
         println("Final CFI is $fit")
     else
-        for ei in 1:max_episodes[1]
+        for ei in 1:(max_episodes[1]-1)
             #### train ####
-            for pj in 1:particle_num
-                rho = particles[pj].psi*(particles[pj].psi)'
-                f_now = CFIM_TimeIndepend(M, particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative[1], rho, particles[pj].Liouville_operator, particles[pj].γ, particles[pj].times)
-                if f_now > p_fit[pj]
-                    p_fit[pj] = f_now
-                    for di in 1:dim
-                        pbest[di,pj] = particles[pj].psi[di]
-                    end
-                end
-            end
-
-            for pj in 1:particle_num
-                if p_fit[pj] > fit
-                    fit = p_fit[pj]
-                    for dj in 1:dim
-                        gbest[dj] = particles[pj].psi[dj]
-                        velocity_best[dj] = velocity[dj, pj]
-                    end
-                end
-            end  
-
-            for pk in 1:particle_num
-                psi_pre = zeros(ComplexF64, dim)
-                for dk in 1:dim
-                    psi_pre[dk] = particles[pk].psi[dk]
-                    velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
-                    particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
-                end
-
-                particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
-
-                for dm in 1:dim
-                    velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
-                end
-            end
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFI_noise(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
             if ei%max_episodes[2] == 0
                 pso.psi = [gbest[i] for i in 1:dim]
                 particles = repeat(pso, particle_num)
@@ -1031,12 +711,10 @@ function PSO_CFI(M, pso::StateOptPSO_TimeIndepend_noise{T}, max_episodes, partic
             append!(f_list, fit)
             print("current CFI is $fit ($ei episodes) \r")
         end
-        open("state_pso_N$(dim-1).csv","w") do g
-            writedlm(g, gbest)
-        end
-        open("f_pso_N$(dim-1).csv","w") do h
-            writedlm(h, f_list)
-        end
+        p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFI_noise(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
+        append!(f_list, fit)
+        SaveFile_pso(dim, f_list, gbest)
         print("\e[2K") 
         println("Iteration over, data saved.") 
         println("Final CFI is $fit")
@@ -1079,99 +757,31 @@ function PSO_CFIM(M, pso::StateOptPSO_TimeIndepend_noise{T}, max_episodes, parti
     println("initial value of Tr(WF^{-1}) is $(f_ini)")       
     fit = 0.0
     if save_file==true
-        for ei in 1:max_episodes[1]
+        for ei in 1:(max_episodes[1]-1)
             #### train ####
-            for pj in 1:particle_num
-                rho = particles[pj].psi*(particles[pj].psi)'
-                F_tp = CFIM_TimeIndepend(M, particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, rho, particles[pj].Liouville_operator, particles[pj].γ, particles[pj].times)
-                f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
-                if f_now > p_fit[pj]
-                    p_fit[pj] = f_now
-                    for di in 1:dim
-                        pbest[di,pj] = particles[pj].psi[di]
-                    end
-                end
-            end
-
-            for pj in 1:particle_num
-                if p_fit[pj] > fit
-                    fit = p_fit[pj]
-                    for dj in 1:dim
-                        gbest[dj] = particles[pj].psi[dj]
-                        velocity_best[dj] = velocity[dj, pj]
-                    end
-                end
-            end  
-
-            for pk in 1:particle_num
-                psi_pre = zeros(ComplexF64, dim)
-                for dk in 1:dim
-                    psi_pre[dk] = particles[pk].psi[dk]
-                    velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
-                    particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
-                end
-
-                particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
-
-                for dm in 1:dim
-                    velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
-                end
-            end
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noise(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
             if ei%max_episodes[2] == 0
                 pso.psi = [gbest[i] for i in 1:dim]
                 particles = repeat(pso, particle_num)
             end
             append!(f_list, (1.0/fit))
+            SaveFile_pso(dim, f_list, gbest)
             print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
-            open("state_pso_N$(dim-1).csv","w") do g
-                writedlm(g, gbest)
-            end
-            open("f_pso_N$(dim-1).csv","w") do h
-                writedlm(h, f_list)
-            end
+            
         end
+        p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noise(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
+        append!(f_list, (1.0/fit))
+        SaveFile_pso(dim, f_list, gbest)
         print("\e[2K")    
         println("Iteration over, data saved.")
         println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
     else
-        for ei in 1:max_episodes[1]
+        for ei in 1:(max_episodes[1]-1)
             #### train ####
-            for pj in 1:particle_num
-                rho = particles[pj].psi*(particles[pj].psi)'
-                F_tp = CFIM_TimeIndepend(M, particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, rho, particles[pj].Liouville_operator, particles[pj].γ, particles[pj].times)
-                f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
-                if f_now > p_fit[pj]
-                    p_fit[pj] = f_now
-                    for di in 1:dim
-                        pbest[di,pj] = particles[pj].psi[di]
-                    end
-                end
-            end
-
-            for pj in 1:particle_num
-                if p_fit[pj] > fit
-                    fit = p_fit[pj]
-                    for dj in 1:dim
-                        gbest[dj] = particles[pj].psi[dj]
-                        velocity_best[dj] = velocity[dj, pj]
-                    end
-                end
-            end  
-
-            for pk in 1:particle_num
-                psi_pre = zeros(ComplexF64, dim)
-                for dk in 1:dim
-                    psi_pre[dk] = particles[pk].psi[dk]
-                    velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
-                    particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
-                end
-
-                particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
-
-                for dm in 1:dim
-                    velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
-                end
-            end
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noise(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
             if ei%max_episodes[2] == 0
                 pso.psi = [gbest[i] for i in 1:dim]
                 particles = repeat(pso, particle_num)
@@ -1179,15 +789,171 @@ function PSO_CFIM(M, pso::StateOptPSO_TimeIndepend_noise{T}, max_episodes, parti
             append!(f_list, (1.0/fit))
             print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
         end
-        open("state_pso_N$(dim-1).csv","w") do g
-            writedlm(g, gbest)
-        end
-        open("f_pso_N$(dim-1).csv","w") do h
-            writedlm(h, f_list)
-        end
+        p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noise(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
+                                                                                    dim, pbest, gbest, velocity_best, velocity)
+        append!(f_list, (1.0/fit))
+        SaveFile_pso(dim, f_list, gbest)
         print("\e[2K") 
         println("Iteration over, data saved.") 
         println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
     end
     return nothing
+end
+
+function train_QFI_noise(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, dim, pbest, gbest, velocity_best, velocity)
+    for pj in 1:particle_num
+        rho = particles[pj].psi*(particles[pj].psi)'
+        f_now = QFIM_TimeIndepend(particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative[1], rho, particles[pj].Liouville_operator, particles[pj].γ, particles[pj].times)
+        if f_now > p_fit[pj]
+            p_fit[pj] = f_now
+            for di in 1:dim
+                pbest[di,pj] = particles[pj].psi[di]
+            end
+        end
+    end
+
+    for pj in 1:particle_num
+        if p_fit[pj] > fit
+            fit = p_fit[pj]
+            for dj in 1:dim
+                gbest[dj] = particles[pj].psi[dj]
+                velocity_best[dj] = velocity[dj, pj]
+            end
+        end
+    end  
+
+    for pk in 1:particle_num
+        psi_pre = zeros(ComplexF64, dim)
+        for dk in 1:dim
+            psi_pre[dk] = particles[pk].psi[dk]
+            velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
+            particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
+        end
+
+        particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
+
+        for dm in 1:dim
+            velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
+        end
+    end
+    return p_fit, fit, pbest, gbest, velocity_best, velocity
+end
+
+function train_QFIM_noise(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, dim, pbest, gbest, velocity_best, velocity)
+    for pj in 1:particle_num
+        rho = particles[pj].psi*(particles[pj].psi)'
+        F_tp = QFIM_TimeIndepend(particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, rho, particles[pj].Liouville_operator, particles[pj].γ, particles[pj].times)
+        f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
+        if f_now > p_fit[pj]
+            p_fit[pj] = f_now
+            for di in 1:dim
+                pbest[di,pj] = particles[pj].psi[di]
+            end
+        end
+    end
+
+    for pj in 1:particle_num
+        if p_fit[pj] > fit
+            fit = p_fit[pj]
+            for dj in 1:dim
+                gbest[dj] = particles[pj].psi[dj]
+                velocity_best[dj] = velocity[dj, pj]
+            end
+        end
+    end  
+
+    for pk in 1:particle_num
+        psi_pre = zeros(ComplexF64, dim)
+        for dk in 1:dim
+            psi_pre[dk] = particles[pk].psi[dk]
+            velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
+            particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
+        end
+
+        particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
+
+        for dm in 1:dim
+            velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
+        end
+    end
+    return p_fit, fit, pbest, gbest, velocity_best, velocity
+end
+
+function train_CFI_noise(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, dim, pbest, gbest, velocity_best, velocity)
+    for pj in 1:particle_num
+        rho = particles[pj].psi*(particles[pj].psi)'
+        f_now = CFIM_TimeIndepend(M, particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative[1], rho, particles[pj].Liouville_operator, particles[pj].γ, particles[pj].times)
+        if f_now > p_fit[pj]
+            p_fit[pj] = f_now
+            for di in 1:dim
+                pbest[di,pj] = particles[pj].psi[di]
+            end
+        end
+    end
+
+    for pj in 1:particle_num
+        if p_fit[pj] > fit
+            fit = p_fit[pj]
+            for dj in 1:dim
+                gbest[dj] = particles[pj].psi[dj]
+                velocity_best[dj] = velocity[dj, pj]
+            end
+        end
+    end  
+
+    for pk in 1:particle_num
+        psi_pre = zeros(ComplexF64, dim)
+        for dk in 1:dim
+            psi_pre[dk] = particles[pk].psi[dk]
+            velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
+            particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
+        end
+
+        particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
+
+        for dm in 1:dim
+            velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
+        end
+    end
+    return p_fit, fit, pbest, gbest, velocity_best, velocity
+end
+
+function train_CFIM_noise(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, dim, pbest, gbest, velocity_best, velocity)
+    for pj in 1:particle_num
+        rho = particles[pj].psi*(particles[pj].psi)'
+        F_tp = CFIM_TimeIndepend(M, particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, rho, particles[pj].Liouville_operator, particles[pj].γ, particles[pj].times)
+        f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
+        if f_now > p_fit[pj]
+            p_fit[pj] = f_now
+            for di in 1:dim
+                pbest[di,pj] = particles[pj].psi[di]
+            end
+        end
+    end
+
+    for pj in 1:particle_num
+        if p_fit[pj] > fit
+            fit = p_fit[pj]
+            for dj in 1:dim
+                gbest[dj] = particles[pj].psi[dj]
+                velocity_best[dj] = velocity[dj, pj]
+            end
+        end
+    end  
+
+    for pk in 1:particle_num
+        psi_pre = zeros(ComplexF64, dim)
+        for dk in 1:dim
+            psi_pre[dk] = particles[pk].psi[dk]
+            velocity[dk, pk] = c0*velocity[dk, pk] + c1*rand()*(pbest[dk, pk] - particles[pk].psi[dk]) + c2*rand()*(gbest[dk] - particles[pk].psi[dk])
+            particles[pk].psi[dk] = particles[pk].psi[dk] + velocity[dk, pk]
+        end
+
+        particles[pk].psi = particles[pk].psi/norm(particles[pk].psi)
+
+        for dm in 1:dim
+            velocity[dm, pk] = particles[pk].psi[dm] - psi_pre[dm]
+        end
+    end
+    return p_fit, fit, pbest, gbest, velocity_best, velocity
 end
