@@ -46,49 +46,37 @@ function NelderMead_QFI(NM::StateOptNM_TimeIndepend_noiseless{T}, state_num, ini
 
     episodes = 1
     if save_file == true
+        SaveFile_nm(dim, f_list, NM.psi)
         while true
             p_fit, sort_ind = train_QFI_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
-            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
+            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes >= max_episodes
+                append!(f_list, -minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
                 print("\e[2K")
                 println("Iteration over, data saved.")
                 println("Final QFI is ", -minimum(p_fit))
                 break
             else
                 episodes += 1
-                append!(f_list,-minimum(p_fit))
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
-                print("current QFI is ", -minimum(p_fit), " ($(f_list|>length) episodes)    \r")
+                append!(f_list, -minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                print("current QFI is ", -minimum(p_fit), " ($(episodes-1) episodes)    \r")
             end
         end
     else
         while true
             p_fit, sort_ind = train_QFI_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
-            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
+            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes >= max_episodes
+                append!(f_list, -minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
                 print("\e[2K")
                 println("Iteration over, data saved.")
                 println("Final QFI is ", -minimum(p_fit))
                 break
             else
                 episodes += 1
-                append!(f_list,-minimum(p_fit))
-                print("current QFI is ", -minimum(p_fit), " ($(f_list|>length) episodes)    \r")
+                append!(f_list, -minimum(p_fit))
+                print("current QFI is ", -minimum(p_fit), " ($(episodes-1) episodes)    \r")
             end
         end
     end
@@ -129,49 +117,37 @@ function NelderMead_QFIM(NM::StateOptNM_TimeIndepend_noiseless{T}, state_num, in
 
     episodes = 1
     if save_file == true
+        SaveFile_nm(dim, f_list, NM.psi)
         while true
             p_fit, sort_ind = train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
-            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
+            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes >= max_episodes
+                append!(f_list, -1.0/minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
                 print("\e[2K")
                 println("Iteration over, data saved.")
                 println("Final value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit))
                 break
             else
                 episodes += 1
-                append!(f_list,-1.0/minimum(p_fit))
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
-                print("current value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit), " ($(f_list|>length) episodes)    \r")
+                append!(f_list, -1.0/minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                print("current value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit), " ($(episodes-1) episodes)    \r")
             end
         end
     else
         while true
             p_fit, sort_ind = train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
-            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
+            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes >= max_episodes
+                append!(f_list, -1.0/minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
                 print("\e[2K")
                 println("Iteration over, data saved.")
                 println("Final value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit))
                 break
             else
                 episodes += 1
-                append!(f_list,-1.0/minimum(p_fit))
-                print("current value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit), " ($(f_list|>length) episodes)    \r")
+                append!(f_list, -1.0/minimum(p_fit))
+                print("current value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit), " ($(episodes-1) episodes)    \r")
             end
         end
     end
@@ -210,49 +186,37 @@ function NelderMead_CFI(M, NM::StateOptNM_TimeIndepend_noiseless{T}, state_num, 
 
     episodes = 1
     if save_file == true
+        SaveFile_nm(dim, f_list, NM.psi)
         while true
             p_fit, sort_ind = train_CFI_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
-            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
+            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes >= max_episodes
+                append!(f_list, -minimum(p_fit))    
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
                 print("\e[2K")
                 println("Iteration over, data saved.")
                 println("Final CFI is ", -minimum(p_fit))
                 break
             else
                 episodes += 1
-                append!(f_list,-minimum(p_fit))
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
-                print("current CFI is ", -minimum(p_fit), " ($(f_list|>length) episodes)    \r")
+                append!(f_list, -minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                print("current CFI is ", -minimum(p_fit), " ($(episodes-1) episodes)    \r")
             end
         end
     else
         while true
             p_fit, sort_ind = train_CFI_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
-            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
+            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes >= max_episodes
+                append!(f_list, -minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
                 print("\e[2K")
                 println("Iteration over, data saved.")
                 println("Final CFI is ", -minimum(p_fit))
                 break
             else
                 episodes += 1
-                append!(f_list,-minimum(p_fit))
-                print("current CFI is ", -minimum(p_fit), " ($(f_list|>length) episodes)    \r")
+                append!(f_list, -minimum(p_fit))
+                print("current CFI is ", -minimum(p_fit), " ($(episodes-1) episodes)    \r")
             end
         end
     end
@@ -293,49 +257,37 @@ function NelderMead_CFIM(M, NM::StateOptNM_TimeIndepend_noiseless{T}, state_num,
 
     episodes = 1
     if save_file == true
+        SaveFile_nm(dim, f_list, NM.psi)
         while true
             p_fit, sort_ind = train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
-            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
+            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes >= max_episodes
+                append!(f_list, -1.0/minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
                 print("\e[2K")
                 println("Iteration over, data saved.")
                 println("Final value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit))
                 break
             else
                 episodes += 1
-                append!(f_list,-1.0/minimum(p_fit))
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
-                print("current value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit), " ($(f_list|>length) episodes)    \r")
+                append!(f_list, -1.0/minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                print("current value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit), " ($(episodes-1) episodes)    \r")
             end
         end
     else
         while true
             p_fit, sort_ind = train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
-            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
+            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes >= max_episodes
+                append!(f_list, -1.0/minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
                 print("\e[2K")
                 println("Iteration over, data saved.")
                 println("Final value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit))
                 break
             else
                 episodes += 1
-                append!(f_list,-1.0/minimum(p_fit))
-                print("current value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit), " ($(f_list|>length) episodes)    \r")
+                append!(f_list, -1.0/minimum(p_fit))
+                print("current value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit), " ($(episodes-1) episodes)    \r")
             end
         end
     end
@@ -852,49 +804,37 @@ function NelderMead_QFI(NM::StateOptNM_TimeIndepend_noise{T}, state_num, ini_sta
 
     episodes = 1
     if save_file == true
+        SaveFile_nm(dim, f_list, NM.psi)
         while true
             p_fit, sort_ind = train_QFI_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
-            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
+            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes >= max_episodes
+                append!(f_list, -minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
                 print("\e[2K")
                 println("Iteration over, data saved.")
                 println("Final QFI is ", -minimum(p_fit))
                 break
             else
                 episodes += 1
-                append!(f_list,-minimum(p_fit))
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
-                print("current QFI is ", -minimum(p_fit), " ($(f_list|>length) episodes)    \r")
+                append!(f_list, -minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                print("current QFI is ", -minimum(p_fit), " ($(episodes-1) episodes)    \r")
             end
         end
     else
         while true
             p_fit, sort_ind = train_QFI_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
-            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
+            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes >= max_episodes
+                append!(f_list, -minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)    
                 print("\e[2K")
                 println("Iteration over, data saved.")
                 println("Final QFI is ", -minimum(p_fit))
                 break
             else
                 episodes += 1
-                append!(f_list,-minimum(p_fit))
-                print("current QFI is ", -minimum(p_fit), " ($(f_list|>length) episodes)    \r")
+                append!(f_list, -minimum(p_fit))
+                print("current QFI is ", -minimum(p_fit), " ($(episodes-1) episodes)    \r")
             end
         end
     end
@@ -928,7 +868,6 @@ function NelderMead_QFIM(NM::StateOptNM_TimeIndepend_noise{T}, state_num, ini_st
         p_fit[pj] = -1.0/real(tr(NM.W*pinv(F_tp)))
     end
     sort_ind = sortperm(p_fit)
-
     F = QFIM_TimeIndepend(NM.freeHamiltonian, NM.Hamiltonian_derivative, NM.psi*(NM.psi)', NM.Liouville_operator, NM.γ, NM.times)
     f_ini = real(tr(NM.W*pinv(F)))
     f_list = [f_ini]
@@ -936,49 +875,37 @@ function NelderMead_QFIM(NM::StateOptNM_TimeIndepend_noise{T}, state_num, ini_st
 
     episodes = 1
     if save_file == true
+        SaveFile_nm(dim, f_list, NM.psi)
         while true
             p_fit, sort_ind = train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
-            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
+            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes >= max_episodes
+                append!(f_list, -1.0/minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
                 print("\e[2K")
                 println("Iteration over, data saved.")
                 println("Final value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit))
                 break
             else
                 episodes += 1
-                append!(f_list,-1.0/minimum(p_fit))
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
-                print("current value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit), " ($(f_list|>length) episodes)    \r")
+                append!(f_list, -1.0/minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                print("current value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit), " ($(episodes-1) episodes)    \r")
             end
         end
     else
         while true
             p_fit, sort_ind = train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
-            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
+            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes >= max_episodes
+                append!(f_list, -1.0/minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
                 print("\e[2K")
                 println("Iteration over, data saved.")
                 println("Final value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit))
                 break
             else
                 episodes += 1
-                append!(f_list,-1.0/minimum(p_fit))
-                print("current value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit), " ($(f_list|>length) episodes)    \r")
+                append!(f_list, -1.0/minimum(p_fit))
+                print("current value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit), " ($(episodes-1) episodes)    \r")
             end
         end
     end
@@ -1018,49 +945,37 @@ function NelderMead_CFI(M, NM::StateOptNM_TimeIndepend_noise{T}, state_num, ini_
 
     episodes = 1
     if save_file == true
+        SaveFile_nm(dim, f_list, NM.psi)
         while true
             p_fit, sort_ind = train_CFI_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
-            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
+            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes >= max_episodes
+                append!(f_list, -minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
                 print("\e[2K")
                 println("Iteration over, data saved.")
                 println("Final CFI is ", -minimum(p_fit))
                 break
             else
                 episodes += 1
-                append!(f_list,-minimum(p_fit))
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
-                print("current CFI is ", -minimum(p_fit), " ($(f_list|>length) episodes)    \r")
+                append!(f_list, -minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                print("current CFI is ", -minimum(p_fit), " ($(episodes-1) episodes)    \r")
             end
         end
     else
         while true
             p_fit, sort_ind = train_CFI_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
-            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
+            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes >= max_episodes
+                append!(f_list, -minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
                 print("\e[2K")
                 println("Iteration over, data saved.")
                 println("Final CFI is ", -minimum(p_fit))
                 break
             else
                 episodes += 1
-                append!(f_list,-minimum(p_fit))
-                print("current CFI is ", -minimum(p_fit), " ($(f_list|>length) episodes)    \r")
+                append!(f_list, -minimum(p_fit))
+                print("current CFI is ", -minimum(p_fit), " ($(episodes-1) episodes)    \r")
             end
         end
     end
@@ -1103,49 +1018,37 @@ function NelderMead_CFIM(M, NM::StateOptNM_TimeIndepend_noise{T}, state_num, ini
 
     episodes = 1
     if save_file == true
+        SaveFile_nm(dim, f_list, NM.psi)
         while true
             p_fit, sort_ind = train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
-            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
+            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes >= max_episodes
+                append!(f_list, -1.0/minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
                 print("\e[2K")
                 println("Iteration over, data saved.")
                 println("Final value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit))
                 break
             else
                 episodes += 1
-                append!(f_list,-1.0/minimum(p_fit))
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
-                print("current value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit), " ($(f_list|>length) episodes)    \r")
+                append!(f_list, -1.0/minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                print("current value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit), " ($(episodes-1) episodes)    \r")
             end
         end
     else
         while true
             p_fit, sort_ind = train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
-            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes > max_episodes
-                open("state_nm_N$(dim-1).csv","w") do g
-                    writedlm(g, nelder_mead[sort_ind[1]].psi)
-                end
-                open("f_nm_N$(dim-1).csv","w") do h
-                    writedlm(h, f_list)
-                end
+            if p_fit[sort_ind[end]]-p_fit[sort_ind[1]] < epsilon || episodes >= max_episodes
+                append!(f_list, -1.0/minimum(p_fit))
+                SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
                 print("\e[2K")
                 println("Iteration over, data saved.")
                 println("Final value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit))
                 break
             else
                 episodes += 1
-                append!(f_list,-1.0/minimum(p_fit))
-                print("current value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit), " ($(f_list|>length) episodes)    \r")
+                append!(f_list, -1.0/minimum(p_fit))
+                print("current value of Tr(WF^{-1}) is ", -1.0/minimum(p_fit), " ($(episodes-1) episodes)    \r")
             end
         end
     end

@@ -45,35 +45,32 @@ function DiffEvo_QFI(DE::StateOptDE_TimeIndepend_noiseless{T}, popsize, ini_popu
     println("initial QFI is $(f_ini)")
 
     if save_file == true
-        for i in 1:max_episodes
+        indx = findmax(p_fit)[2]
+        SaveFile_de(dim, f_list, populations[indx].psi)
+        for i in 1:(max_episodes-1)
             p_fit = train_QFI_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
-            append!(f_list,maximum(p_fit))
+            append!(f_list, maximum(p_fit))
+            SaveFile_de(dim, f_list, populations[indx].psi)
             print("current QFI is ", maximum(p_fit), " ($i eposides)    \r")
-            open("f_de_N$(dim-1).csv","w") do f
-                writedlm(f, f_list)
-            end
-            open("state_de_N$(dim-1).csv","w") do g
-                writedlm(g, populations[indx].psi)
-            end
         end
+        p_fit = train_QFI_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
+        indx = findmax(p_fit)[2]
+        append!(f_list, maximum(p_fit))
+        SaveFile_de(dim, f_list, populations[indx].psi)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final QFI is ", maximum(p_fit))
 
     else
-        for i in 1:max_episodes
+        for i in 1:(max_episodes-1)
             p_fit = train_QFI_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
+            append!(f_list, maximum(p_fit))
             print("current QFI is ", maximum(p_fit), " ($i eposides)    \r")
-            append!(f_list,maximum(p_fit))
         end
+        p_fit = train_QFI_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
-        open("f_de_N$(dim-1).csv","w") do f
-            writedlm(f, [f_list])
-        end
-        open("state_de_N$(dim-1).csv","w") do g
-            writedlm(g, populations[indx].psi)
-        end
+        SaveFile_de(dim, f_list, populations[indx].psi)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final QFI is ", maximum(p_fit))
@@ -115,35 +112,33 @@ function DiffEvo_QFIM(DE::StateOptDE_TimeIndepend_noiseless{T}, popsize, ini_pop
     println("initial value of Tr(WF^{-1}) is $(f_ini)")
 
     if save_file == true
-        for i in 1:max_episodes
+        indx = findmax(p_fit)[2]
+        SaveFile_de(dim, f_list, populations[indx].psi)
+        for i in 1:(max_episodes-1)
             p_fit = train_QFIM_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
-            append!(f_list,1.0/maximum(p_fit))
+            append!(f_list, 1.0/maximum(p_fit))
+            SaveFile_de(dim, f_list, populations[indx].psi)
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
-            open("f_de_N$(dim-1).csv","w") do f
-                writedlm(f, f_list)
-            end
-            open("state_de_N$(dim-1).csv","w") do g
-                writedlm(g, populations[indx].psi)
-            end
         end
+        p_fit = train_QFIM_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
+        indx = findmax(p_fit)[2]
+        append!(f_list, 1.0/maximum(p_fit))
+        SaveFile_de(dim, f_list, populations[indx].psi)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
 
     else
-        for i in 1:max_episodes
+        for i in 1:(max_episodes-1)
             p_fit = train_QFIM_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
+            append!(f_list, 1.0/maximum(p_fit))
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
-            append!(f_list,1.0/maximum(p_fit))
         end
+        p_fit = train_QFIM_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
-        open("f_de_N$(dim-1).csv","w") do f
-            writedlm(f, [f_list])
-        end
-        open("state_de_N$(dim-1).csv","w") do g
-            writedlm(g, populations[indx].psi)
-        end
+        append!(f_list, 1.0/maximum(p_fit))
+        SaveFile_de(dim, f_list, populations[indx].psi)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -182,35 +177,33 @@ function DiffEvo_CFI(M, DE::StateOptDE_TimeIndepend_noiseless{T}, popsize, ini_p
     println("initial CFI is $(f_ini)")
 
     if save_file == true
-        for i in 1:max_episodes
+        indx = findmax(p_fit)[2]
+        SaveFile_de(dim, f_list, populations[indx].psi)
+        for i in 1:(max_episodes-1)
             p_fit = train_CFI_noiseless(M, populations, c, c0, c1, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
-            append!(f_list,maximum(p_fit))
+            append!(f_list, maximum(p_fit))
+            SaveFile_de(dim, f_list, populations[indx].psi)
             print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
-            open("f_de_N$(dim-1).csv","w") do f
-                writedlm(f, f_list)
-            end
-            open("state_de_N$(dim-1).csv","w") do g
-                writedlm(g, populations[indx].psi)
-            end
         end
+        p_fit = train_CFI_noiseless(M, populations, c, c0, c1, p_num, dim, p_fit)
+        indx = findmax(p_fit)[2]
+        append!(f_list, maximum(p_fit))
+        SaveFile_de(dim, f_list, populations[indx].psi)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final CFI is ", maximum(p_fit))
 
     else
-        for i in 1:max_episodes
+        for i in 1:(max_episodes-1)
             p_fit = train_CFI_noiseless(M, populations, c, c0, c1, p_num, dim, p_fit)
+            append!(f_list, maximum(p_fit))
             print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
-            append!(f_list,maximum(p_fit))
         end
+        p_fit = train_CFI_noiseless(M, populations, c, c0, c1, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
-        open("f_de_N$(dim-1).csv","w") do f
-            writedlm(f, [f_list])
-        end
-        open("state_de_N$(dim-1).csv","w") do g
-            writedlm(g, populations[indx].psi)
-        end
+        append!(f_list, maximum(p_fit))
+        SaveFile_de(dim, f_list, populations[indx].psi)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final CFI is ", maximum(p_fit))
@@ -251,35 +244,33 @@ function DiffEvo_CFIM(M, DE::StateOptDE_TimeIndepend_noiseless{T}, popsize, ini_
     println("initial value of Tr(WF^{-1}) is $(f_ini)")
 
     if save_file == true
-        for i in 1:max_episodes
+        indx = findmax(p_fit)[2]
+        SaveFile_de(dim, f_list, populations[indx].psi)
+        for i in 1:(max_episodes-1)
             p_fit = train_CFIM_noiseless(M, populations, c, c0, c1, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
-            append!(f_list,1.0/maximum(p_fit))
+            append!(f_list, 1.0/maximum(p_fit))
+            SaveFile_de(dim, f_list, populations[indx].psi)
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
-            open("f_de_N$(dim-1).csv","w") do f
-                writedlm(f, f_list)
-            end
-            open("state_de_N$(dim-1).csv","w") do g
-                writedlm(g, populations[indx].psi)
-            end
         end
+        p_fit = train_CFIM_noiseless(M, populations, c, c0, c1, p_num, dim, p_fit)
+        indx = findmax(p_fit)[2]
+        append!(f_list, 1.0/maximum(p_fit))
+        SaveFile_de(dim, f_list, populations[indx].psi)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
 
     else
-        for i in 1:max_episodes
+        for i in 1:(max_episodes-1)
             p_fit = train_CFIM_noiseless(M, populations, c, c0, c1, p_num, dim, p_fit)
+            append!(f_list, 1.0/maximum(p_fit))
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
-            append!(f_list,1.0/maximum(p_fit))
         end
+        p_fit = train_CFIM_noiseless(M, populations, c, c0, c1, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
-        open("f_de_N$(dim-1).csv","w") do f
-            writedlm(f, [f_list])
-        end
-        open("state_de_N$(dim-1).csv","w") do g
-            writedlm(g, populations[indx].psi)
-        end
+        append!(f_list, 1.0/maximum(p_fit))
+        SaveFile_de(dim, f_list, populations[indx].psi)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -507,35 +498,33 @@ function DiffEvo_QFI(DE::StateOptDE_TimeIndepend_noise{T}, popsize, ini_populati
     println("initial QFI is $(f_ini)")
 
     if save_file == true
-        for i in 1:max_episodes
+        indx = findmax(p_fit)[2]
+        SaveFile_de(dim, f_list, populations[indx].psi)
+        for i in 1:(max_episodes-1)
             p_fit = train_QFI_noise(populations, c, c0, c1, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
-            append!(f_list,maximum(p_fit))
+            append!(f_list, maximum(p_fit))
+            SaveFile_de(dim, f_list, populations[indx].psi)
             print("current QFI is ", maximum(p_fit), " ($i eposides)    \r")
-            open("f_de_N$(dim-1).csv","w") do f
-                writedlm(f, f_list)
-            end
-            open("state_de_N$(dim-1).csv","w") do g
-                writedlm(g, populations[indx].psi)
-            end
         end
+        p_fit = train_QFI_noise(populations, c, c0, c1, p_num, dim, p_fit)
+        indx = findmax(p_fit)[2]
+        append!(f_list, maximum(p_fit))
+        SaveFile_de(dim, f_list, populations[indx].psi)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final QFI is ", maximum(p_fit))
 
     else
-        for i in 1:max_episodes
+        for i in 1:(max_episodes-1)
             p_fit = train_QFI_noise(populations, c, c0, c1, p_num, dim, p_fit)
+            append!(f_list, maximum(p_fit))
             print("current QFI is ", maximum(p_fit), " ($i eposides)    \r")
-            append!(f_list,maximum(p_fit))
         end
+        p_fit = train_QFI_noise(populations, c, c0, c1, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
-        open("f_de_N$(dim-1).csv","w") do f
-            writedlm(f, [f_list])
-        end
-        open("state_de_N$(dim-1).csv","w") do g
-            writedlm(g, populations[indx].psi)
-        end
+        append!(f_list, maximum(p_fit))
+        SaveFile_de(dim, f_list, populations[indx].psi)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final QFI is ", maximum(p_fit))
@@ -578,35 +567,33 @@ function DiffEvo_QFIM(DE::StateOptDE_TimeIndepend_noise{T}, popsize, ini_populat
     println("initial value of Tr(WF^{-1}) is $(f_ini)")
 
     if save_file == true
-        for i in 1:max_episodes
-            p_fit = train_QFIM_noise(populations, c, c0, c1, p_num, dim, p_fit)
+        indx = findmax(p_fit)[2]
+        SaveFile_de(dim, f_list, populations[indx].psi)
+        for i in 1:(max_episodes-1)
+            p_fit = train_QFI_noise(populations, c, c0, c1, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
-            append!(f_list,1.0/maximum(p_fit))
+            append!(f_list, 1.0/maximum(p_fit))
+            SaveFile_de(dim, f_list, populations[indx].psi)
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
-            open("f_de_N$(dim-1).csv","w") do f
-                writedlm(f, f_list)
-            end
-            open("state_de_N$(dim-1).csv","w") do g
-                writedlm(g, populations[indx].psi)
-            end
         end
+        p_fit = train_QFI_noise(populations, c, c0, c1, p_num, dim, p_fit)
+        indx = findmax(p_fit)[2]
+        append!(f_list, 1.0/maximum(p_fit))
+        SaveFile_de(dim, f_list, populations[indx].psi)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
 
     else
-        for i in 1:max_episodes
+        for i in 1:(max_episodes-1)
             p_fit = train_QFIM_noise(populations, c, c0, c1, p_num, dim, p_fit)
+            append!(f_list, 1.0/maximum(p_fit))
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
-            append!(f_list,1.0/maximum(p_fit))
         end
+        p_fit = train_QFI_noise(populations, c, c0, c1, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
-        open("f_de_N$(dim-1).csv","w") do f
-            writedlm(f, [f_list])
-        end
-        open("state_de_N$(dim-1).csv","w") do g
-            writedlm(g, populations[indx].psi)
-        end
+        append!(f_list, 1.0/maximum(p_fit))
+        SaveFile_de(dim, f_list, populations[indx].psi)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -646,35 +633,34 @@ function DiffEvo_CFI(M, DE::StateOptDE_TimeIndepend_noise{T}, popsize, ini_popul
     println("initial CFI is $(f_ini)")
 
     if save_file == true
-        for i in 1:max_episodes
-            p_fit = train_CFI_noise(M, populations, c, c0, c1, p_num, dim, p_fit)
+        indx = findmax(p_fit)[2]
+        SaveFile_de(dim, f_list, populations[indx].psi)
+        for i in 1:(max_episodes-1)
+            p_fit = train_QFI_noise(populations, c, c0, c1, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
-            append!(f_list,maximum(p_fit))
+            append!(f_list, maximum(p_fit))
+            SaveFile_de(dim, f_list, populations[indx].psi)
             print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
-            open("f_de_N$(dim-1).csv","w") do f
-                writedlm(f, f_list)
-            end
-            open("state_de_N$(dim-1).csv","w") do g
-                writedlm(g, populations[indx].psi)
-            end
         end
+        p_fit = train_QFI_noise(populations, c, c0, c1, p_num, dim, p_fit)
+        indx = findmax(p_fit)[2]
+        append!(f_list, maximum(p_fit))
+        SaveFile_de(dim, f_list, populations[indx].psi)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final CFI is ", maximum(p_fit))
 
     else
-        for i in 1:max_episodes
+        for i in 1:(max_episodes-1)
             p_fit = train_CFI_noise(M, populations, c, c0, c1, p_num, dim, p_fit)
+            append!(f_list, maximum(p_fit))
             print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
-            append!(f_list,maximum(p_fit))
+            
         end
+        p_fit = train_QFI_noise(populations, c, c0, c1, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
-        open("f_de_N$(dim-1).csv","w") do f
-            writedlm(f, [f_list])
-        end
-        open("state_de_N$(dim-1).csv","w") do g
-            writedlm(g, populations[indx].psi)
-        end
+        append!(f_list, maximum(p_fit))
+        SaveFile_de(dim, f_list, populations[indx].psi)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final CFI is ", maximum(p_fit))
@@ -716,35 +702,33 @@ function DiffEvo_CFIM(M, DE::StateOptDE_TimeIndepend_noise{T}, popsize, ini_popu
     println("initial value of Tr(WF^{-1}) is $(f_ini)")
 
     if save_file == true
-        for i in 1:max_episodes
-            p_fit = train_CFIM_noise(M, populations, c, c0, c1, p_num, dim, p_fit)
+        indx = findmax(p_fit)[2]
+        SaveFile_de(dim, f_list, populations[indx].psi)
+        for i in 1:(max_episodes-1)
+            p_fit = train_QFI_noise(populations, c, c0, c1, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
-            append!(f_list,1.0/maximum(p_fit))
+            append!(f_list, 1.0/maximum(p_fit))
+            SaveFile_de(dim, f_list, populations[indx].psi)
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
-            open("f_de_N$(dim-1).csv","w") do f
-                writedlm(f, f_list)
-            end
-            open("state_de_N$(dim-1).csv","w") do g
-                writedlm(g, populations[indx].psi)
-            end
         end
+        p_fit = train_QFI_noise(populations, c, c0, c1, p_num, dim, p_fit)
+        indx = findmax(p_fit)[2]
+        append!(f_list, 1.0/maximum(p_fit))
+        SaveFile_de(dim, f_list, populations[indx].psi)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
 
     else
-        for i in 1:max_episodes
+        for i in 1:(max_episodes-1)
             p_fit = train_CFIM_noise(M, populations, c, c0, c1, p_num, dim, p_fit)
+            append!(f_list, 1.0/maximum(p_fit))
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
-            append!(f_list,1.0/maximum(p_fit))
         end
+        p_fit = train_QFI_noise(populations, c, c0, c1, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
-        open("f_de_N$(dim-1).csv","w") do f
-            writedlm(f, [f_list])
-        end
-        open("state_de_N$(dim-1).csv","w") do g
-            writedlm(g, populations[indx].psi)
-        end
+        append!(f_list, 1.0/maximum(p_fit))
+        SaveFile_de(dim, f_list, populations[indx].psi)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))

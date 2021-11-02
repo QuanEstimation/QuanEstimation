@@ -67,18 +67,9 @@ function gradient_CFIM_Adam!(AD::StateOptAD_TimeIndepend_noiseless{T}, Measureme
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function SaveFile(dim, f_now, control)
-    open("f_auto_N$(dim-1).csv","a") do f
-        writedlm(f, [f_now])
-    end
-    open("state_auto_N$(dim-1).csv","a") do g
-        writedlm(g, control)
-    end
-end
-
 function AD_QFIM(AD::StateOptAD_TimeIndepend_noiseless{T}, epsilon, max_episodes, Adam, save_file) where {T <: Complex}
     println("state optimization")
-    episodes = 1
+    episodes = 0
     dim = length(AD.psi)
     if length(AD.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -92,77 +83,80 @@ function AD_QFIM(AD::StateOptAD_TimeIndepend_noiseless{T}, epsilon, max_episodes
             gradient_QFI!(AD)
         end
         if save_file == true
+            SaveFile_ad(dim, f_ini, AD.psi)
             if Adam == true
                 while true
                     f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.times)
-                    gradient_QFI_Adam!(AD)
-                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
-                        SaveFile(dim, f_now, AD.psi)
+                        SaveFile_ad(dim, f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        SaveFile(dim, f_now, AD.psi)
-                        print("current QFI is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_now, AD.psi)
+                        print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_QFI_Adam!(AD)
                 end
             else
                 while true
                     f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.times)
-                    gradient_QFI!(AD)
-                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
-                        SaveFile(dim, f_now, AD.psi)
+                        SaveFile_ad(dim, f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        SaveFile(dim, f_now, AD.psi)
-                        print("current QFI is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_now, AD.psi)
+                        print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_QFI!(AD)
                 end
             end
         else
             if Adam == true
                 while true
                     f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.times)
-                    gradient_QFI_Adam!(AD)
-                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
-                        SaveFile(dim, f_list, AD.psi)
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        print("current QFI is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_QFI_Adam!(AD)
                 end
             else
                 while true
                     f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.times)
-                    gradient_QFI!(AD)
-                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
-                        SaveFile(dim, f_list, AD.psi)
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        print("current QFI is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_QFI!(AD)
                 end
             end
         end
@@ -179,43 +173,44 @@ function AD_QFIM(AD::StateOptAD_TimeIndepend_noiseless{T}, epsilon, max_episodes
             gradient_QFIM!(AD)
         end
         if save_file == true
+            SaveFile_ad(dim, f_ini, AD.psi)
             if Adam == true
                 while true
                     F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.times)
                     f_now = real(tr(AD.W*pinv(F)))
-                    gradient_QFIM_Adam!(AD)
-                    if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile(dim, f_now, AD.psi)
+                        SaveFile_ad(dim, f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        SaveFile(dim, f_now, AD.psi)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_now, AD.psi)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_QFIM_Adam!(AD)
                 end
             else
                 while true
                     F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.times)
                     f_now = real(tr(AD.W*pinv(F)))
-                    gradient_QFIM!(AD)
-                    if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile(dim, f_now, AD.psi)
+                        SaveFile_ad(dim, f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        SaveFile(dim, f_now, AD.psi)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_now, AD.psi)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_QFIM!(AD)
                 end
             end
         else
@@ -223,37 +218,39 @@ function AD_QFIM(AD::StateOptAD_TimeIndepend_noiseless{T}, epsilon, max_episodes
                 while true
                     F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.times)
                     f_now = real(tr(AD.W*pinv(F)))
-                    gradient_QFIM_Adam!(AD)
-                    if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile(dim, f_list, AD.psi)
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_QFIM_Adam!(AD)
                 end
             else
                 while true
                     F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.times)
                     f_now = real(tr(AD.W*pinv(F)))
-                    gradient_QFIM!(AD)
-                    if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile(dim, f_list, AD.psi)
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_QFIM!(AD)
                 end
             end
         end
@@ -262,7 +259,7 @@ end
 
 function AD_CFIM(M, AD::StateOptAD_TimeIndepend_noiseless{T}, epsilon, max_episodes, Adam, save_file) where {T <: Complex}
     println("state optimization")
-    episodes = 1
+    episodes = 0
     dim = length(AD.psi)
     if length(AD.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -276,77 +273,80 @@ function AD_CFIM(M, AD::StateOptAD_TimeIndepend_noiseless{T}, epsilon, max_episo
             gradient_CFI!(AD, M)
         end
         if save_file == true
+            SaveFile_ad(dim, f_ini, AD.psi)
             if Adam == true
                 while true
                     f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.times)
-                    gradient_CFI_Adam!(AD, M)
-                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
-                        SaveFile(dim, f_now, AD.psi)
+                        SaveFile_ad(dim, f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        SaveFile(dim, f_now, AD.psi)
-                        print("current CFI is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_now, AD.psi)
+                        print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_CFI_Adam!(AD, M)
                 end
             else
                 while true
                     f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.times)
-                    gradient_CFI!(AD, M)
-                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
-                        SaveFile(dim, f_now, AD.psi)
+                        SaveFile_ad(dim, f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        SaveFile(dim, f_now, AD.psi)
-                        print("current CFI is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_now, AD.psi)
+                        print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_CFI!(AD, M)
                 end
             end
         else
             if Adam == true
                 while true
                     f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.times)
-                    gradient_CFI_Adam!(AD, M)
-                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
-                        SaveFile(dim, f_list, AD.psi)
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        print("current CFI is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_CFI_Adam!(AD, M)
                 end
             else
                 while true
                     f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.times)
-                    gradient_CFI!(AD, M)
-                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
-                        SaveFile(dim, f_list, AD.psi)
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        print("current CFI is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_CFI!(AD, M)
                 end
             end
         end
@@ -363,43 +363,44 @@ function AD_CFIM(M, AD::StateOptAD_TimeIndepend_noiseless{T}, epsilon, max_episo
             gradient_CFIM!(AD, M)
         end
         if save_file == true
+            SaveFile_ad(dim, f_ini, AD.psi)
             if Adam == true
                 while true
                     F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.times)
                     f_now = real(tr(AD.W*pinv(F)))
-                    gradient_CFIM_Adam!(AD, M)
-                    if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile(dim, f_now, AD.psi)
+                        SaveFile_ad(dim, f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        SaveFile(dim, f_now, AD.psi)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_now, AD.psi)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_CFIM_Adam!(AD, M)
                 end
             else
                 while true
                     F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.times)
                     f_now = real(tr(AD.W*pinv(F)))
-                    gradient_CFIM!(AD, M)
-                    if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile(dim, f_now, AD.psi)
+                        SaveFile_ad(dim, f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        SaveFile(dim, f_now, AD.psi)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_now, AD.psi)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_CFIM!(AD, M)
                 end
             end
         else
@@ -407,37 +408,39 @@ function AD_CFIM(M, AD::StateOptAD_TimeIndepend_noiseless{T}, epsilon, max_episo
                 while true
                     F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.times)
                     f_now = real(tr(AD.W*pinv(F)))
-                    gradient_CFIM_Adam!(AD, M)
-                    if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile(dim, f_list, AD.psi)
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_CFIM_Adam!(AD, M)
                 end
             else
                 while true
                     F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.times)
                     f_now = real(tr(AD.W*pinv(F)))
-                    gradient_CFIM!(AD, M)
-                    if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile(dim, f_list, AD.psi)
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_CFIM!(AD, M)
                 end
             end
         end
@@ -515,7 +518,7 @@ function gradient_CFIM_Adam!(AD::StateOptAD_TimeIndepend_noise{T}, Measurement) 
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function SaveFile(dim, f_now, control)
+function SaveFile_ad(dim, f_now, control)
     open("f_auto_N$(dim-1).csv","a") do f
         writedlm(f, [f_now])
     end
@@ -526,7 +529,7 @@ end
 
 function AD_QFIM(AD::StateOptAD_TimeIndepend_noise{T}, epsilon, max_episodes, Adam, save_file) where {T <: Complex}
     println("state optimization")
-    episodes = 1
+    episodes = 0
     dim = length(AD.psi)
     if length(AD.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -540,77 +543,80 @@ function AD_QFIM(AD::StateOptAD_TimeIndepend_noise{T}, epsilon, max_episodes, Ad
             gradient_QFI!(AD)
         end
         if save_file == true
+            SaveFile_ad(dim, f_ini, AD.psi)
             if Adam == true
                 while true
                     f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
-                    gradient_QFI_Adam!(AD)
-                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
-                        SaveFile(dim, f_now, AD.psi)
+                        SaveFile_ad(dim, f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        SaveFile(dim, f_now, AD.psi)
-                        print("current QFI is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_now, AD.psi)
+                        print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_QFI_Adam!(AD)
                 end
             else
                 while true
                     f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
-                    gradient_QFI!(AD)
-                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
-                        SaveFile(dim, f_now, AD.psi)
+                        SaveFile_ad(dim, f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        SaveFile(dim, f_now, AD.psi)
-                        print("current QFI is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_now, AD.psi)
+                        print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_QFI!(AD)
                 end
             end
         else
             if Adam == true
                 while true
                     f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
-                    gradient_QFI_Adam!(AD)
-                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
-                        SaveFile(dim, f_list, AD.psi)
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        print("current QFI is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_QFI_Adam!(AD)
                 end
             else
                 while true
                     f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
-                    gradient_QFI!(AD)
-                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
-                        SaveFile(dim, f_list, AD.psi)
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        print("current QFI is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_QFI!(AD)
                 end
             end
         end
@@ -627,43 +633,44 @@ function AD_QFIM(AD::StateOptAD_TimeIndepend_noise{T}, epsilon, max_episodes, Ad
             gradient_QFIM!(AD)
         end
         if save_file == true
+            SaveFile_ad(dim, f_ini, AD.psi)
             if Adam == true
                 while true
                     F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
                     f_now = real(tr(AD.W*pinv(F)))
-                    gradient_QFIM_Adam!(AD)
-                    if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile(dim, f_now, AD.psi)
+                        SaveFile_ad(dim, f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        SaveFile(dim, f_now, AD.psi)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_now, AD.psi)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_QFIM_Adam!(AD)
                 end
             else
                 while true
                     F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
                     f_now = real(tr(AD.W*pinv(F)))
-                    gradient_QFIM!(AD)
-                    if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile(dim, f_now, AD.psi)
+                        SaveFile_ad(dim, f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        SaveFile(dim, f_now, AD.psi)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_now, AD.psi)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_QFIM!(AD)
                 end
             end
         else
@@ -671,37 +678,39 @@ function AD_QFIM(AD::StateOptAD_TimeIndepend_noise{T}, epsilon, max_episodes, Ad
                 while true
                     F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
                     f_now = real(tr(AD.W*pinv(F)))
-                    gradient_QFIM_Adam!(AD)
-                    if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile(dim, f_list, AD.psi)
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_QFIM_Adam!(AD)
                 end
             else
                 while true
                     F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
                     f_now = real(tr(AD.W*pinv(F)))
-                    gradient_QFIM!(AD)
-                    if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile(dim, f_list, AD.psi)
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_QFIM!(AD)
                 end
             end
         end
@@ -710,7 +719,7 @@ end
 
 function AD_CFIM(M, AD::StateOptAD_TimeIndepend_noise{T}, epsilon, max_episodes, Adam, save_file) where {T <: Complex}
     println("state optimization")
-    episodes = 1
+    episodes = 0
     dim = length(AD.psi)
     if length(AD.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -724,77 +733,80 @@ function AD_CFIM(M, AD::StateOptAD_TimeIndepend_noise{T}, epsilon, max_episodes,
             gradient_CFI!(AD, M)
         end
         if save_file == true
+            SaveFile_ad(dim, f_ini, AD.psi)
             if Adam == true
                 while true
                     f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
-                    gradient_CFI_Adam!(AD, M)
-                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
-                        SaveFile(dim, f_now, AD.psi)
+                        SaveFile_ad(dim, f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        SaveFile(dim, f_now, AD.psi)
-                        print("current CFI is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_now, AD.psi)
+                        print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_CFI_Adam!(AD, M)
                 end
             else
                 while true
                     f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
-                    gradient_CFI!(AD, M)
-                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
-                        SaveFile(dim, f_now, AD.psi)
+                        SaveFile_ad(dim, f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        SaveFile(dim, f_now, AD.psi)
-                        print("current CFI is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_now, AD.psi)
+                        print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_CFI!(AD, M)
                 end
             end
         else
             if Adam == true
                 while true
                     f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
-                    gradient_CFI_Adam!(AD, M)
-                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
-                        SaveFile(dim, f_list, AD.psi)
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        print("current CFI is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_CFI_Adam!(AD, M)
                 end
             else
                 while true
                     f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
-                    gradient_CFI!(AD, M)
-                    if  abs(f_now - f_ini) < epsilon  || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
-                        SaveFile(dim, f_list, AD.psi)
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        print("current CFI is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_CFI!(AD, M)
                 end
             end
         end
@@ -811,43 +823,44 @@ function AD_CFIM(M, AD::StateOptAD_TimeIndepend_noise{T}, epsilon, max_episodes,
             gradient_CFIM!(AD, M)
         end
         if save_file == true
+            SaveFile_ad(dim, f_ini, AD.psi)
             if Adam == true
                 while true
                     F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
                     f_now = real(tr(AD.W*pinv(F)))
-                    gradient_CFIM_Adam!(AD, M)
-                    if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile(dim, f_now, AD.psi)
+                        SaveFile_ad(dim, f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        SaveFile(dim, f_now, AD.psi)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_now, AD.psi)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_CFIM_Adam!(AD, M)
                 end
             else
                 while true
                     F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
                     f_now = real(tr(AD.W*pinv(F)))
-                    gradient_CFIM!(AD, M)
-                    if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile(dim, f_now, AD.psi)
+                        SaveFile_ad(dim, f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        SaveFile(dim, f_now, AD.psi)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_now, AD.psi)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_CFIM!(AD, M)
                 end
             end
         else
@@ -855,37 +868,39 @@ function AD_CFIM(M, AD::StateOptAD_TimeIndepend_noise{T}, epsilon, max_episodes,
                 while true
                     F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
                     f_now = real(tr(AD.W*pinv(F)))
-                    gradient_CFIM_Adam!(AD, M)
-                    if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile(dim, f_list, AD.psi)
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_CFIM_Adam!(AD, M)
                 end
             else
                 while true
                     F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
                     f_now = real(tr(AD.W*pinv(F)))
-                    gradient_CFIM!(AD, M)
-                    if  abs(f_now - f_ini) < epsilon || episodes > max_episodes
+                    if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile(dim, f_list, AD.psi)
+                        append!(f_list, f_now)
+                        SaveFile_ad(dim, f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
-                        append!(f_list,f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(f_list|>length) episodes)    \r")
+                        append!(f_list, f_now)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
+                    gradient_CFIM!(AD, M)
                 end
             end
         end

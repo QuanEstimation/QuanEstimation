@@ -39,41 +39,39 @@ function DiffEvo_QFI(DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed, m
     end
 
     p_fit = [QFI_ori(populations[i]) for i in 1:p_num]
-    f_ini = QFI_ori(DE.freeHamiltonian, DE.Hamiltonian_derivative[1], DE.ρ_initial, DE.Liouville_operator, DE.γ, 
+    f_noctrl = QFI_ori(DE.freeHamiltonian, DE.Hamiltonian_derivative[1], DE.ρ_initial, DE.Liouville_operator, DE.γ, 
                     DE.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], DE.times)
+    f_ini = QFI_ori(DE.freeHamiltonian, DE.Hamiltonian_derivative[1], DE.ρ_initial, DE.Liouville_operator, DE.γ, 
+                    DE.control_Hamiltonian, DE.control_coefficients, DE.times)
     f_list = [f_ini]
-    println("non-controlled QFI is $(f_ini)")
+    println("non-controlled QFI is $(f_noctrl)")
+    println("initial QFI is $(f_ini)")
     
     if save_file == true
-        for i in 1:max_episodes
+        for i in 1:(max_episodes-1)
             p_fit = DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
-            append!(f_list,maximum(p_fit))
+            append!(f_list, maximum(p_fit))
             print("current QFI is ", maximum(p_fit), " ($i episodes)    \r")
-            open("f.csv","w") do f
-                writedlm(f, f_list)
-            end
-            open("controls.csv","w") do g
-                writedlm(g, populations[indx].control_coefficients)
-            end
+            SaveFile(f_list, populations[indx].control_coefficients)
         end
+        p_fit = DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
+        append!(f_list, maximum(p_fit))
+        indx = findmax(p_fit)[2]
+        SaveFile(f_list, populations[indx].control_coefficients)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final QFI is ", maximum(p_fit))
-
     else
-        for i in 1:max_episodes
+        for i in 1:(max_episodes-1)
             p_fit = DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             print("current QFI is ", maximum(p_fit), " ($i episodes)    \r")
             append!(f_list,maximum(p_fit))
         end
+        p_fit = DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
         indx = findmax(p_fit)[2]
-        open("f.csv","w") do f
-            writedlm(f, [f_list])
-        end
-        open("controls.csv","w") do g
-            writedlm(g, populations[indx].control_coefficients)
-        end
+        append!(f_list,maximum(p_fit))
+        SaveFile(f_list, populations[indx].control_coefficients)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final QFI is ", maximum(p_fit))
@@ -101,42 +99,41 @@ function DiffEvo_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed, 
     end
 
     p_fit = [1.0/real(tr(DE.W*pinv(QFIM_ori(populations[i])))) for i in 1:p_num]
-    F_ini = QFIM_ori(DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ_initial, DE.Liouville_operator, DE.γ, 
+    F_noctrl = QFIM_ori(DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ_initial, DE.Liouville_operator, DE.γ, 
                     DE.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], DE.times)
+    f_noctrl = real(tr(DE.W*pinv(F_noctrl)))
+    F_ini = QFIM_ori(DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ_initial, DE.Liouville_operator, DE.γ, 
+                    DE.control_Hamiltonian, DE.control_coefficients, DE.times)
     f_ini = real(tr(DE.W*pinv(F_ini)))
     f_list = [f_ini]
-    println("non-controlled value of Tr(WF^{-1}) is $(f_ini)")
+    println("non-controlled value of Tr(WF^{-1}) is $(f_noctrl)")
+    println("initial value of Tr(WF^{-1}) is $(f_ini)")
     
     if save_file == true
-        for i in 1:max_episodes
+        for i in 1:(max_episodes-1)
             F = DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
+            SaveFile(f_list, populations[indx].control_coefficients)
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
-            open("f.csv","w") do f
-                writedlm(f, f_list)
-            end
-            open("controls.csv","w") do g
-                writedlm(g, populations[indx].control_coefficients)
-            end
         end
+        F = DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
+        indx = findmax(p_fit)[2]
+        append!(f_list, 1.0/maximum(p_fit))
+        SaveFile(f_list, populations[indx].control_coefficients)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
-
     else
-        for i in 1:max_episodes
+        for i in 1:(max_episodes-1)
             p_fit = DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
-            print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             append!(f_list, 1.0/maximum(p_fit))
+            print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
         end
+        p_fit = DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
         indx = findmax(p_fit)[2]
-        open("f.csv","w") do f
-            writedlm(f, [f_list])
-        end
-        open("controls.csv","w") do g
-            writedlm(g, populations[indx].control_coefficients)
-        end
+        append!(f_list, 1.0/maximum(p_fit))
+        SaveFile(f_list, populations[indx].control_coefficients)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -164,41 +161,39 @@ function DiffEvo_CFI(M, DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed
     end
 
     p_fit = [CFI(M,populations[i]) for i in 1:p_num]
-    f_ini = CFI(M, DE.freeHamiltonian, DE.Hamiltonian_derivative[1], DE.ρ_initial, DE.Liouville_operator, DE.γ, 
+    f_noctrl = CFI(M, DE.freeHamiltonian, DE.Hamiltonian_derivative[1], DE.ρ_initial, DE.Liouville_operator, DE.γ, 
                     DE.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], DE.times)
+    f_ini = CFI(M, DE.freeHamiltonian, DE.Hamiltonian_derivative[1], DE.ρ_initial, DE.Liouville_operator, DE.γ, 
+                    DE.control_Hamiltonian, DE.control_coefficients, DE.times)
     f_list = [f_ini]
-    println("non-controlled CFI is $(f_ini)")
+    println("non-controlled CFI is $(f_noctrl)")
+    println("initial CFI is $(f_ini)")
     
     if save_file == true
-        for i in 1:max_episodes
+        for i in 1:(max_episodes-1)
             p_fit = DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list,maximum(p_fit))
             print("current CFI is ", maximum(p_fit), " ($i episodes)    \r")
-            open("f.csv","w") do f
-                writedlm(f, f_list)
-            end
-            open("controls.csv","w") do g
-                writedlm(g, populations[indx].control_coefficients)
-            end
+            SaveFile(f_list, populations[indx].control_coefficients)
         end
+        p_fit = DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
+        indx = findmax(p_fit)[2]
+        append!(f_list,maximum(p_fit))
+        SaveFile(f_list, populations[indx].control_coefficients)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final CFI is ", maximum(p_fit))
-
     else
-        for i in 1:max_episodes
+        for i in 1:(max_episodes-1)
             p_fit = DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
-            print("current CFI is ", maximum(p_fit), " ($i episodes)    \r")
             append!(f_list,maximum(p_fit))
+            print("current CFI is ", maximum(p_fit), " ($i episodes)    \r")
         end
+        p_fit = DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
         indx = findmax(p_fit)[2]
-        open("f.csv","w") do f
-            writedlm(f, [f_list])
-        end
-        open("controls.csv","w") do g
-            writedlm(g, populations[indx].control_coefficients)
-        end
+        append!(f_list,maximum(p_fit))
+        SaveFile(f_list, populations[indx].control_coefficients)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final CFI is ", maximum(p_fit))
@@ -227,42 +222,41 @@ function DiffEvo_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, see
 
     p_fit = [1.0/real(tr(DE.W*pinv(CFIM(M, populations[i])))) for i in 1:p_num]
 
-    F_ini = CFIM(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ_initial, DE.Liouville_operator, DE.γ, 
+    F_noctrl = CFIM(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ_initial, DE.Liouville_operator, DE.γ, 
                 DE.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], DE.times)
+    f_noctrl = real(tr(DE.W*pinv(F_noctrl)))
+    F_ini = CFIM(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ_initial, DE.Liouville_operator, DE.γ, 
+                DE.control_Hamiltonian, DE.control_coefficients, DE.times)
     f_ini = real(tr(DE.W*pinv(F_ini)))
     f_list = [f_ini]
-    println("non-controlled value of Tr(WF^{-1}) is $(f_ini)")
+    println("non-controlled value of Tr(WF^{-1}) is $(f_noctrl)")
+    println("initial value of Tr(WF^{-1}) is $(f_ini)")
     
     if save_file == true
-        for i in 1:max_episodes
+        for i in 1:(max_episodes-1)
             F = DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
+            SaveFile(f_list, populations[indx].control_coefficients)
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
-            open("f.csv","w") do f
-                writedlm(f, f_list)
-            end
-            open("controls.csv","w") do g
-                writedlm(g, populations[indx].control_coefficients)
-            end
         end
+        F = DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
+        indx = findmax(p_fit)[2]
+        append!(f_list, 1.0/maximum(p_fit))
+        SaveFile(f_list, populations[indx].control_coefficients)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
-
     else
-        for i in 1:max_episodes
+        for i in 1:(max_episodes-1)
             p_fit = DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
-            print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             append!(f_list, 1.0/maximum(p_fit))
+            print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
         end
+        p_fit = DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
         indx = findmax(p_fit)[2]
-        open("f.csv","w") do f
-            writedlm(f, [f_list])
-        end
-        open("controls.csv","w") do g
-            writedlm(g, populations[indx].control_coefficients)
-        end
+        append!(f_list, 1.0/maximum(p_fit))
+        SaveFile(f_list, populations[indx].control_coefficients)
         print("\e[2K")
         println("Iteration over, data saved.")
         println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
