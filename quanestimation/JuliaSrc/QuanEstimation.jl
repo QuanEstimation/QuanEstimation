@@ -1,6 +1,6 @@
 module QuanEstimation
 
-using LinearAlgebra: similar
+# using LinearAlgebra: similar
 using LinearAlgebra
 using Zygote
 using DifferentialEquations
@@ -28,8 +28,8 @@ include("StateOptimization/StateOpt_AD.jl")
 include("StateOptimization/common.jl")
 # include("QuanResources/")
 
-export sigmax, sigmay, sigmaz, sigmam
-export Gradient, evolute, propagate!, QFI, CFI, gradient_CFI!,gradient_QFIM!
+export sigmax, sigmay, sigmaz, sigmam, sigmap, vec2mat
+export Gradient, evolute, propagate!, propagate, QFI, CFI, gradient_CFI!,gradient_QFIM!
 export GRAPE_QFIM_auto, GRAPE_CFIM_auto, GRAPE_QFIM_ana,GRAPE_CFIM_ana, RunODE, RunMixed, RunPSO
 
 end

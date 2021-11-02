@@ -69,7 +69,7 @@ function Htot(H0::Matrix{T}, control_Hamiltonian::Vector{Matrix{T}}, control_coe
     Htot = [H0] .+  ([control_coefficients[i] .* [control_Hamiltonian[i]] for i in 1:length(control_coefficients)] |> sum )
 end
 
-function Htot(H0::Matrix{T}, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{R}) where {T <: Complex, R}
+function Htot(H0::Matrix{T}, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{R}) where {T <: Complex, R<:Real}
     Htot = H0 + ([control_coefficients[i] * control_Hamiltonian[i] for i in 1:length(control_coefficients)] |> sum )
 end
 
@@ -100,17 +100,31 @@ function propagate(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Mat
     ρₜ .|> vec2mat, ∂ₓρₜ .|> vec2mat
 end
 
-function propagate(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρₜ::Matrix{T}, ∂ₓρₜ::Vector{Matrix{T}}, Liouville_operator::Matrix{T},
-                   γ, control_Hamiltonian::Matrix{T}, control_coefficients::Vector{R}, Δt::Real, t::Int=0) where {T <: Complex,R <: Real}
+function propagate(ρₜ::Matrix{T}, ∂ₓρₜ::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  Liouville_operator::Vector{Matrix{T}},
+                   γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{R}, Δt::Real, t::Int=0, ctrl_interval::Int=1) where {T <: Complex,R <: Real}
     para_num = length(∂H_∂x)
+    # ctrl_num = length(control_Hamiltonian)
+    # control_coefficients = [transpose(repeat(control_coefficients[i], 1, ctrl_interval))[:] for i in 1:ctrl_num]
     H = Htot(H0, control_Hamiltonian, control_coefficients)
-    expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
+    # expL = (x->evolute(H, Liouville_operator, γ, Δt, x)).([t:t+ctrl_interval]...)
+    expL = evolute(H, Liouville_operator, γ, Δt, t)
     ρₜ_next =expL * (ρₜ |> vec)
-    ∂ₓρₜ_next = ∂ₓρₜ |> similar
+    ∂ₓρₜ_next = (∂ₓρₜ.|>vec) |> similar
     for para in para_num
-        ∂ₓρₜ_next[para] = -im * Δt * liouville_commu(∂H_∂x[para]) * ρₜ_next + expL * ∂ₓρₜ
+        ∂ₓρₜ_next[para] = -im * Δt * liouville_commu(∂H_∂x[para]) * ρₜ_next + expL * (∂ₓρₜ[para]|>vec)
+    end
+    for i in 2:ctrl_interval
+        ρₜ_next =expL * ρₜ_next 
+        for para in para_num
+            ∂ₓρₜ_next[para] = -im * Δt * liouville_commu(∂H_∂x[para])ρₜ_next + expL * ∂ₓρₜ_next[para]
+        end
     end
     ρₜ_next|> vec2mat, ∂ₓρₜ_next|> vec2mat
+end
+
+function propagate(ρₜ, ∂ₓρₜ, system, ctrl, t=1)
+    Δt = system.times[2] - system.times[1]
+    propagate(ρₜ, ∂ₓρₜ, system.freeHamiltonian, system.Hamiltonian_derivative, system.Liouville_operator, system.γ, system.control_Hamiltonian, ctrl, Δt, t, system.ctrl_interval)
 end
 
 function propagate!(system)

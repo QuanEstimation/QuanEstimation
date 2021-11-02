@@ -19,6 +19,14 @@ function Adam!(system, δ)
     end
 end
 
+function bound!(A::Array, bound)
+    for a in A
+        if a|>abs >=bound
+            a = 0. #bound
+        end
+    end
+end
+
 function bound!(system)
     ctrl_num = length(system.control_coefficients)
     ctrl_length = length(system.control_coefficients[1])
@@ -28,3 +36,5 @@ function bound!(system)
         end 
     end
 end
+
+

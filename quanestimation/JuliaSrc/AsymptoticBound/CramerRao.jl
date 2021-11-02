@@ -125,7 +125,7 @@ function QFI(H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouvi
 
     ctrl_num = length(control_Hamiltonian)
     ctrl_interval = (length(times)/length(control_coefficients[1])) |> Int
-    control_coefficients = [repeat(control_coefficients[i], 1, ctrl_interval) |>transpose |>vec for i in 1:ctrl_num]
+    control_coefficients = [transpose(repeat(control_coefficients[i], 1, ctrl_interval))[:] for i in 1:ctrl_num]
 
     H = Htot(H0, control_Hamiltonian, control_coefficients)
     ∂H_L = liouville_commu(∂H_∂x)
@@ -244,7 +244,7 @@ function QFIM(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T
     para_num = length(∂H_∂x)
     ctrl_num = length(control_Hamiltonian)
     ctrl_interval = (length(times)/length(control_coefficients[1])) |> Int
-    control_coefficients = [repeat(control_coefficients[i], 1, ctrl_interval) |>transpose |>vec for i in 1:ctrl_num]
+    control_coefficients = [transpose(repeat(control_coefficients[i], 1, ctrl_interval))[:] for i in 1:ctrl_num]
     H = Htot(H0, control_Hamiltonian, control_coefficients)
     ∂H_L = [liouville_commu(∂H_∂x[i]) for i in 1:para_num]
 
@@ -310,7 +310,8 @@ function QFIM_saveall(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::
     para_num = length(∂H_∂x)
     ctrl_num = length(control_Hamiltonian)
     ctrl_interval = (length(times)/length(control_coefficients[1])) |> Int
-    control_coefficients = [repeat(control_coefficients[i], 1, ctrl_interval) |>transpose |>vec for i in 1:ctrl_num]
+    control_coefficients = [transpose(repeat(control_coefficients[i], 1, ctrl_interval))[:] for i in 1:ctrl_num]
+
     H = Htot(H0, control_Hamiltonian, control_coefficients)
     ∂H_L = [liouville_commu(∂H_∂x[i]) for i in 1:para_num]
 
@@ -422,7 +423,7 @@ function CFIM(M::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},
     para_num = length(∂H_∂x)
     ctrl_num = length(control_Hamiltonian)
     ctrl_interval = (length(times)/length(control_coefficients[1])) |> Int
-    control_coefficients = [repeat(control_coefficients[i], 1, ctrl_interval) |>transpose |>vec for i in 1:ctrl_num]
+    control_coefficients = [transpose(repeat(control_coefficients[i], 1, ctrl_interval))[:] for i in 1:ctrl_num]
     H = Htot(H0, control_Hamiltonian, control_coefficients)
     ∂H_L = [liouville_commu(∂H_∂x[i]) for i in 1:para_num]
 
@@ -471,4 +472,8 @@ end
 
 function CFIM(M, system)
     CFIM(M, system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ_initial, system.Liouville_operator, system.γ, system.control_Hamiltonian, system.control_coefficients, system.times)
+end
+
+function QFIM_saveall(system)
+    QFIM_saveall(system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ_initial, system.Liouville_operator, system.γ, system.control_Hamiltonian, system.control_coefficients, system.times)
 end
