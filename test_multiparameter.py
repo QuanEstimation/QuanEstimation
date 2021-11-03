@@ -52,8 +52,8 @@ ini_10 = -0.2*np.ones((len(Hc_ctrl), cnum))+0.05*np.random.random((len(Hc_ctrl),
 ini_pop = [ini_1, ini_2, ini_3, ini_4, ini_5, ini_6, ini_7, ini_8, ini_9, ini_10]
 
 #GRAPE algorithm
-GRAPE = GRAPE(tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, L_opt, gamma, ctrl_bound=0.2, lr=0.01, epsilon=1e-8, max_episodes=300, Adam=False)
-GRAPE.QFIM(auto=True, save_file=True)
+grape = control(tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, L_opt, gamma, method = 'GRAPE', ctrl_bound=0.2, lr=0.01, epsilon=1e-8, max_episodes=300, Adam=False)
+grape.QFIM(auto=True, save_file=True)
 # GRAPE.QFIM(auto=False, save_file=True)
 
 # #DE algorithm

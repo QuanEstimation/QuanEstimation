@@ -1,7 +1,7 @@
 import numpy as np
 import warnings
 import math
-
+import quanestimation.Control as ctrl
 class ControlSystem:
     def __init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
                  gamma, control_option=True):
@@ -91,3 +91,35 @@ class ControlSystem:
         if len(self.tspan) % len(self.control_coefficients[0]) != 0:
             self.tnum = number*len(self.control_coefficients[0])
             self.tspan = np.linspace(self.tspan[0], self.tspan[-1], self.tnum)
+
+def control(*args, method = 'GRAPE', **kwargs):
+    """
+    ----------
+    Inputs
+    ----------
+    args: 
+        --description: arguments of the ControlSystem class.
+        --type: list
+    
+    kwargs: 
+        --description: keyword arguments of the ControlSystem class.
+        --type: dictionary
+        
+    method: 
+        --description: method of control.
+        --type: string
+        
+    ----------
+    Outputs
+    ----------
+    rho_final: 
+        --description: final state (density matrix).
+        --type: matrix
+        
+    """
+    if method == 'GRAPE':
+        return ctrl.GRAPE(*args, **kwargs)
+    elif method == 'DE':
+        return ctrl.DiffEvo(*args, **kwargs)
+    else:
+        raise ValueError('The method of control should be exponential or linear!')
