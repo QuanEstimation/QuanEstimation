@@ -7,13 +7,13 @@ mutable struct PSO{T <: Complex,M <: Real} <: ControlSystem
     γ::Vector{M}
     control_Hamiltonian::Vector{Matrix{T}}
     control_coefficients::Vector{Vector{M}}
-    ctrl_bound::M
+    ctrl_bound::Vector{M}
     W::Matrix{M}
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
     PSO(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, ρ_initial::Matrix{T},
              times::Vector{M}, Liouville_operator::Vector{Matrix{T}},γ::Vector{M}, control_Hamiltonian::Vector{Matrix{T}},
-             control_coefficients::Vector{Vector{M}}, ctrl_bound::M, W::Matrix{M}, ρ=Vector{Matrix{T}}(undef, 1), 
+             control_coefficients::Vector{Vector{M}}, ctrl_bound::Vector{M}, W::Matrix{M}, ρ=Vector{Matrix{T}}(undef, 1), 
              ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 
                 Hamiltonian_derivative, ρ_initial, times, Liouville_operator, γ, control_Hamiltonian, control_coefficients, ctrl_bound, W, ρ, ∂ρ_∂x) 
 end
@@ -49,7 +49,7 @@ function PSO_QFI(pso::PSO{T}, max_episodes, particle_num, ini_particle, c0, c1, 
     end
 
     for pj in (length(ini_particle)+1):(particle_num-1)
-        particles[pj].control_coefficients = [[pso.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
+        particles[pj].control_coefficients = [[rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
 
     fit = 0.0
@@ -125,7 +125,7 @@ function PSO_CFI(M, pso::PSO{T}, max_episodes, particle_num, ini_particle, c0, c
     end
 
     for pj in (length(ini_particle)+1):(particle_num-1)
-        particles[pj].control_coefficients = [[pso.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
+        particles[pj].control_coefficients = [[rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
 
     fit = 0.0
@@ -203,7 +203,7 @@ function PSO_QFIM(pso::PSO{T}, max_episodes, particle_num, ini_particle, c0, c1,
     end
 
     for pj in (length(ini_particle)+1):(particle_num-1)
-        particles[pj].control_coefficients = [[pso.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
+        particles[pj].control_coefficients = [[rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
 
     fit = 0.0
@@ -281,7 +281,7 @@ function PSO_CFIM(M, pso::PSO{T}, max_episodes, particle_num, ini_particle, c0, 
     end
 
     for pj in (length(ini_particle)+1):(particle_num-1)
-        particles[pj].control_coefficients = [[pso.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
+        particles[pj].control_coefficients = [[rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
 
     fit = 0.0
@@ -363,7 +363,7 @@ function PSO_train_QFIM(particles, p_fit, fit, max_episodes, c0, c1, c2, particl
 
         for dm in 1:ctrl_num
             @inbounds for cm in 1:ctrl_length
-                particles[pk].control_coefficients[dm][cm] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dm][cm])
+                particles[pk].control_coefficients[dm][cm] = (x-> x < particles[pk].ctrl_bound[1] ? particles[pk].ctrl_bound[1] : x > particles[pk].ctrl_bound[2] ? particles[pk].ctrl_bound[2] : x)(particles[pk].control_coefficients[dm][cm])
                 velocity[dm, cm, pk] = particles[pk].control_coefficients[dm][cm] - control_coeff_pre[dm][cm]
             end
         end
@@ -408,7 +408,7 @@ function PSO_train_CFIM(M, particles, p_fit, fit, max_episodes, c0, c1, c2, part
 
         for dm in 1:ctrl_num
             @inbounds for cm in 1:ctrl_length
-                particles[pk].control_coefficients[dm][cm] = (x-> (x|>abs) < particles[pk].ctrl_bound ? x : particles[pk].ctrl_bound)(particles[pk].control_coefficients[dm][cm])
+                particles[pk].control_coefficients[dm][cm] = (x-> x < particles[pk].ctrl_bound[1] ? particles[pk].ctrl_bound[1] : x > particles[pk].ctrl_bound[2] ? particles[pk].ctrl_bound[2] : x)(particles[pk].control_coefficients[dm][cm])
                 velocity[dm, cm, pk] = particles[pk].control_coefficients[dm][cm] - control_coeff_pre[dm][cm]
             end
         end

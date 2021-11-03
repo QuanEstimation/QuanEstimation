@@ -4,7 +4,7 @@ import math
 import quanestimation.Control as ctrl
 class ControlSystem:
     def __init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
-                 gamma, control_option=True):
+                 gamma, control_option, ctrl_bound, W):
         
         """
         ----------
@@ -66,6 +66,11 @@ class ControlSystem:
 
         if gamma == []:
             gamma = [0.0]
+        
+        if W == []:
+            self.W = np.eye(len(dH))
+        else:
+            self.W = W
 
         self.tspan = tspan
         self.rho_initial = np.array(rho_initial,dtype=np.complex128)
@@ -76,6 +81,7 @@ class ControlSystem:
         self.Liouville_operator = [np.array(x, dtype=np.complex128) for x in Liouville_operator]
         self.gamma = gamma
         self.control_option = control_option
+        self.ctrl_bound = ctrl_bound
         
         ctrl_length = len(self.control_coefficients)
         ctrlnum = len(self.control_Hamiltonian)
@@ -92,34 +98,17 @@ class ControlSystem:
             self.tnum = number*len(self.control_coefficients[0])
             self.tspan = np.linspace(self.tspan[0], self.tspan[-1], self.tnum)
 
-def control(*args, method = 'GRAPE', **kwargs):
-    """
-    ----------
-    Inputs
-    ----------
-    args: 
-        --description: arguments of the ControlSystem class.
-        --type: list
-    
-    kwargs: 
-        --description: keyword arguments of the ControlSystem class.
-        --type: dictionary
-        
-    method: 
-        --description: method of control.
-        --type: string
-        
-    ----------
-    Outputs
-    ----------
-    rho_final: 
-        --description: final state (density matrix).
-        --type: matrix
-        
-    """
-    if method == 'GRAPE':
-        return ctrl.GRAPE(*args, **kwargs)
+def ControlOptimize(*args, method = 'auto-GRAPE', **kwargs):
+
+    if method == 'auto-GRAPE':
+        return ctrl.GRAPE(*args, **kwargs, auto=True)
+    elif method == 'GRAPE':
+        return ctrl.GRAPE(*args, **kwargs, auto=False)
+    elif method == 'PSO':
+        return ctrl.PSO(*args, **kwargs)
     elif method == 'DE':
         return ctrl.DiffEvo(*args, **kwargs)
+    elif method == 'DDPG':
+        return ctrl.DDPG(*args, **kwargs)
     else:
-        raise ValueError('The method of control should be exponential or linear!')
+        raise ValueError("{!r} is not a valid value for method, supported values are 'auto-GRAPE', 'GRAPE', 'PSO', 'DE', 'DDPG'.".format(method))

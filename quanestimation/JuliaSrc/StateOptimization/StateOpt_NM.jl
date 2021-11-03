@@ -300,6 +300,7 @@ function train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, 
         vec_ave[ni] = [nelder_mead[pk].psi[ni] for pk in 1:(state_num-1)] |>sum
         vec_ave[ni] = vec_ave[ni]/(state_num-1)
     end
+    vec_ave = vec_ave/norm(vec_ave)
 
     # reflection
     vec_ref = zeros(ComplexF64, dim)
@@ -417,6 +418,7 @@ function train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_nu
         vec_ave[ni] = [nelder_mead[pk].psi[ni] for pk in 1:(state_num-1)] |>sum
         vec_ave[ni] = vec_ave[ni]/(state_num-1)
     end
+    vec_ave = vec_ave/norm(vec_ave)
 
     # reflection
     vec_ref = zeros(ComplexF64, dim)
@@ -830,11 +832,13 @@ end
 
 function train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, coeff_r, coeff_e, coeff_c, coeff_s)
     # calculate the average vector
+    ####test
     vec_ave = zeros(ComplexF64, dim)
     for ni in 1:dim
         vec_ave[ni] = [nelder_mead[pk].psi[ni] for pk in 1:(state_num-1)] |>sum
         vec_ave[ni] = vec_ave[ni]/(state_num-1)
     end
+    vec_ave = vec_ave/norm(vec_ave)
 
     # reflection
     vec_ref = zeros(ComplexF64, dim)
@@ -954,6 +958,7 @@ function train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, c
         vec_ave[ni] = [nelder_mead[pk].psi[ni] for pk in 1:(state_num-1)] |>sum
         vec_ave[ni] = vec_ave[ni]/(state_num-1)
     end
+    vec_ave = vec_ave/norm(vec_ave)
 
     # reflection
     vec_ref = zeros(ComplexF64, dim)

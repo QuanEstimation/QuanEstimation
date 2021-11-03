@@ -74,7 +74,7 @@ class StateOpt_DE():
             self.W = W
 
     def QFIM(self, save_file):
-        if self.gamma == []:
+        if self.gamma == [] or self.gamma == 0.0:
             diffevo = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
                                                                                self.rho_initial, self.tspan, self.W)
             if len(self.Hamiltonian_derivative) == 1:
@@ -90,7 +90,7 @@ class StateOpt_DE():
                 Main.QuanEstimation.DiffEvo_QFIM(diffevo, self.popsize, self.ini_population, self.c, self.c0, self.c1, self.seed, self.max_episodes, save_file)
 
     def CFIM(self, Measurement, save_file):
-        if self.gamma == []:
+        if self.gamma == [] or self.gamma == 0.0:
             diffevo = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
                                                                                self.rho_initial, self.tspan, self.W)
             if len(self.Hamiltonian_derivative) == 1:

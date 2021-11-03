@@ -25,22 +25,12 @@ tspan = np.linspace(0.0, T, tnum)
 
 #initial psi0 for DE, PSO and NM
 ini_state = [psi0]
-
+W = np.array([[0.5,0.0],[0.0,0.5]])
 # #AD algorithm
-# AD = StateOpt_AD(tspan, psi0, H0, dH=dH0, Liouville_operator=L_opt, gamma=gamma, lr=0.01, epsilon=1e-8, max_episodes=300, Adam=False)
-# AD.QFIM(save_file=True)
+AD_paras = {"lr":0.01, "epsilon":1e-8, "max_episodes":300, "Adam":False}
+PSO_paras = {"particle_num":10, "ini_particle":ini_state, "c0":0.5, "c1":0.1, "c2":0.6, "v0":0.01, "seed":1234, "max_episodes":[1000,100]}
+DE_paras = {"popsize":10, "ini_population":ini_state, "c":0.5, "c0":0.1, "c1":0.6, "seed":1234, "max_episodes":1000}
+NM_paras = {"state_num":10, "ini_state":ini_state, "coeff_r":1.2, "coeff_e":2.5, "coeff_c":0.7, "coeff_s":0.7, "seed":200, "epsilon":1e-6, "max_episodes":1000}
 
-# #DE algorithm
-diffevo = StateOpt_DE(tspan, psi0, H0, dH=dH0, Liouville_operator=L_opt, gamma=gamma, popsize=10, ini_population=ini_state,\
-                      c=0.5, c0=0.1, c1=0.6, seed=1234, max_episodes=1000)
-diffevo.QFIM(save_file=True)
-
-# #PSO algorithm
-# pso = StateOpt_PSO(tspan, psi0, H0, dH=dH0, Liouville_operator=L_opt, gamma=gamma, particle_num=10, ini_particle=ini_state, \
-#                    max_episodes=[1000,100], seed=1234, c0=1.0, c1=2.0, c2=2.0, v0=0.01)
-# pso.QFIM(save_file=True)
-
-# #Nelder Mead algorithm
-# NM = StateOpt_NM(tspan, psi0, H0, dH=dH0, Liouville_operator=L_opt, gamma=gamma, state_num=10, ini_state=ini_state,\
-#                 coeff_r=1.0, coeff_e=2.0, coeff_c=0.5, coeff_s=0.5, seed=200, max_episodes=1000, epsilon=1e-6)
-# NM.QFIM(save_file=True)
+stateopt = StateOptimize(tspan, psi0, H0, dH=dH0, Liouville_operator=L_opt, gamma=gamma, W=W, method='PSO', **PSO_paras)
+stateopt.QFIM(save_file=True)
