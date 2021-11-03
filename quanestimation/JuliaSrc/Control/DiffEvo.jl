@@ -7,13 +7,13 @@ mutable struct DiffEvo{T <: Complex,M <: Real} <: ControlSystem
     γ::Vector{M}
     control_Hamiltonian::Vector{Matrix{T}}
     control_coefficients::Vector{Vector{M}}
-    ctrl_bound::M
+    ctrl_bound::Vector{M}
     W::Matrix{M}
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
     DiffEvo(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, ρ_initial::Matrix{T},
              times::Vector{M}, Liouville_operator::Vector{Matrix{T}},γ::Vector{M}, control_Hamiltonian::Vector{Matrix{T}},
-             control_coefficients::Vector{Vector{M}}, ctrl_bound::M, W::Matrix{M}, ρ=Vector{Matrix{T}}(undef, 1), 
+             control_coefficients::Vector{Vector{M}}, ctrl_bound::Vector{M}, W::Matrix{M}, ρ=Vector{Matrix{T}}(undef, 1), 
              ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 
                 Hamiltonian_derivative, ρ_initial, times, Liouville_operator, γ, control_Hamiltonian, control_coefficients, ctrl_bound, W, ρ, ∂ρ_∂x) 
 end
@@ -35,7 +35,7 @@ function DiffEvo_QFI(DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed, m
     end
 
     for pj in (length(ini_population)+1):(p_num-1)
-        populations[pj].control_coefficients = [[DE.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
+        populations[pj].control_coefficients = [[rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
 
     p_fit = [QFI_ori(populations[i]) for i in 1:p_num]
@@ -95,7 +95,7 @@ function DiffEvo_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed, 
     end
 
     for pj in (length(ini_population)+1):(p_num-1)
-        populations[pj].control_coefficients = [[DE.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
+        populations[pj].control_coefficients = [[rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
 
     p_fit = [1.0/real(tr(DE.W*pinv(QFIM_ori(populations[i])))) for i in 1:p_num]
@@ -157,7 +157,7 @@ function DiffEvo_CFI(M, DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed
     end
 
     for pj in (length(ini_population)+1):(p_num-1)
-        populations[pj].control_coefficients = [[DE.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
+        populations[pj].control_coefficients = [[rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
 
     p_fit = [CFI(M,populations[i]) for i in 1:p_num]
@@ -217,7 +217,7 @@ function DiffEvo_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, see
     end
 
     for pj in (length(ini_population)+1):(p_num-1)
-        populations[pj].control_coefficients = [[DE.ctrl_bound*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
+        populations[pj].control_coefficients = [[rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
 
     p_fit = [1.0/real(tr(DE.W*pinv(CFIM(M, populations[i])))) for i in 1:p_num]
@@ -296,11 +296,7 @@ function DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_f
             ctrl_cross[cj][cross_int] = ctrl_mut[cj][cross_int]
         end
         #selection
-        for ck in 1:ctrl_num
-            for tk in 1:ctrl_length
-                ctrl_cross[ck][tk] = (x-> (x|>abs) < populations[pj].ctrl_bound ? x : populations[pj].ctrl_bound)(ctrl_cross[ck][tk])
-            end
-        end
+        bound!(ctrl_cross, populations[pj].ctrl_bound)
 
         F = QFIM_ori(populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, populations[pj].ρ_initial, 
                       populations[pj].Liouville_operator, populations[pj].γ, populations[pj].control_Hamiltonian, 
@@ -352,11 +348,8 @@ function DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, 
             ctrl_cross[cj][cross_int] = ctrl_mut[cj][cross_int]
         end
         #selection
-        for ck in 1:ctrl_num
-            for tk in 1:ctrl_length
-                ctrl_cross[ck][tk] = (x-> (x|>abs) < populations[pj].ctrl_bound ? x : populations[pj].ctrl_bound)(ctrl_cross[ck][tk])
-            end
-        end
+        bound!(ctrl_cross, populations[pj].ctrl_bound)
+        
         F = CFIM(populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, populations[pj].ρ_initial, 
                       populations[pj].Liouville_operator, populations[pj].γ, populations[pj].control_Hamiltonian, 
                       ctrl_cross, populations[pj].times)

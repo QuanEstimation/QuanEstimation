@@ -76,7 +76,7 @@ class StateOpt_PSO():
     
     def QFIM(self, save_file=False):
 
-        if self.gamma == []:
+        if self.gamma == [] or self.gamma == 0.0:
             pso = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
                                                                                self.rho_initial, self.tspan, self.W)
             if len(self.Hamiltonian_derivative) == 1:
@@ -97,7 +97,7 @@ class StateOpt_PSO():
 
     def CFIM(self, Measurement, save_file=False):
         
-        if self.gamma == []:
+        if self.gamma == [] or self.gamma == 0.0:
             pso = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
                                                                                self.rho_initial, self.tspan, self.W)
             if len(self.Hamiltonian_derivative) == 1:

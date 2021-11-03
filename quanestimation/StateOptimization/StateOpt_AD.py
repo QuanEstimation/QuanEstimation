@@ -120,7 +120,7 @@ class StateOpt_AD():
             1) maximize is always more accurate than the minimize in this code.
 
         """
-        if self.gamma == []:
+        if self.gamma == [] or self.gamma == 0.0:
             AD = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
                  self.rho_initial, self.tspan, self.W)
             Main.QuanEstimation.AD_QFIM(AD, self.epsilon, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision, self.max_episodes, self.Adam, save_file)
@@ -162,7 +162,7 @@ class StateOpt_AD():
 
         """
 
-        if self.gamma == []:
+        if self.gamma == [] or self.gamma == 0.0:
             AD = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
                  self.rho_initial, self.tspan, self.W)
             Main.QuanEstimation.AD_CFIM(Measurement, AD, self.epsilon, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision, self.max_episodes, self.Adam, save_file)

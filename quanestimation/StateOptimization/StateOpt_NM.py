@@ -76,7 +76,7 @@ class StateOpt_NM():
             self.W = W
 
     def QFIM(self, save_file=False):
-        if self.gamma == []:
+        if self.gamma == [] or self.gamma == 0.0:
             neldermead = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
                                                                                self.rho_initial, self.tspan, self.W)
             if len(self.Hamiltonian_derivative) == 1:
@@ -92,7 +92,7 @@ class StateOpt_NM():
                 Main.QuanEstimation.NelderMead_QFIM(neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
 
     def CFIM(self, Measurement, save_file=False):
-        if self.gamma == []:
+        if self.gamma == [] or self.gamma == 0.0:
             neldermead = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
                                                                                self.rho_initial, self.tspan, self.W)
             if len(self.Hamiltonian_derivative) == 1:
