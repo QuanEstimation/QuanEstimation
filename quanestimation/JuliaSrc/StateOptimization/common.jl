@@ -8,11 +8,9 @@ function StateOpt_Adam(gt, t, para, m_t, v_t, ϵ, beta1, beta2, precision)
     return para, m_t, v_t
 end
 
-function StateOpt_Adam!(system, δ)
-    mt = system.mt
-    vt = system.vt
+function StateOpt_Adam!(system, δ, ϵ, mt, vt, beta1, beta2, precision)
     for ctrl in 1:length(δ)
-        system.psi[ctrl], mt, vt = StateOpt_Adam(δ[ctrl], ctrl, system.psi[ctrl], mt, vt, system.ϵ, system.beta1, system.beta2, system.precision)
+        system.psi[ctrl], mt, vt = StateOpt_Adam(δ[ctrl], ctrl, system.psi[ctrl], mt, vt, ϵ, beta1, beta2, precision)
     end
 end
 

@@ -121,13 +121,13 @@ class StateOpt_AD():
 
         """
         if self.gamma == []:
-            AD = Main.QuanEstimation.StateOptAD_TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                 self.rho_initial, self.tspan, self.W, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision)
-            Main.QuanEstimation.AD_QFIM(AD, self.epsilon, self.max_episodes, self.Adam, save_file)
+            AD = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
+                 self.rho_initial, self.tspan, self.W)
+            Main.QuanEstimation.AD_QFIM(AD, self.epsilon, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision, self.max_episodes, self.Adam, save_file)
         else:
-            AD = Main.QuanEstimation.StateOptAD_TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                 self.rho_initial, self.tspan, self.Liouville_operator, self.gamma, self.W, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision)
-            Main.QuanEstimation.AD_QFIM(AD, self.epsilon, self.max_episodes, self.Adam, save_file)
+            AD = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, \
+                 self.rho_initial, self.tspan, self.Liouville_operator, self.gamma, self.W)
+            Main.QuanEstimation.AD_QFIM(AD, self.epsilon, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision, self.max_episodes, self.Adam, save_file)
             
     def CFIM(self, Measurement, save_file=False):
         """
@@ -163,11 +163,11 @@ class StateOpt_AD():
         """
 
         if self.gamma == []:
-            AD = Main.QuanEstimation.StateOptAD_TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                 self.rho_initial, self.tspan, self.W, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision)
-            Main.QuanEstimation.AD_CFIM(Measurement, AD, self.epsilon, self.max_episodes, self.Adam, save_file)
+            AD = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
+                 self.rho_initial, self.tspan, self.W)
+            Main.QuanEstimation.AD_CFIM(Measurement, AD, self.epsilon, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision, self.max_episodes, self.Adam, save_file)
         else:
-            AD = Main.QuanEstimation.StateOptAD_TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                 self.rho_initial, self.tspan, self.Liouville_operator, self.gamma, self.W, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision)
-            Main.QuanEstimation.AD_CFIM(Measurement, AD, self.epsilon, self.max_episodes, self.Adam, save_file)
+            AD = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, \
+                 self.rho_initial, self.tspan, self.Liouville_operator, self.gamma, self.W)
+            Main.QuanEstimation.AD_CFIM(Measurement, AD, self.epsilon, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision, self.max_episodes, self.Adam, save_file)
         

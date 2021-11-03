@@ -75,14 +75,14 @@ class StateOpt_DE():
 
     def QFIM(self, save_file):
         if self.gamma == []:
-            diffevo = Main.QuanEstimation.StateOptDE_TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
+            diffevo = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
                                                                                self.rho_initial, self.tspan, self.W)
             if len(self.Hamiltonian_derivative) == 1:
                 Main.QuanEstimation.DiffEvo_QFI(diffevo, self.popsize, self.ini_population, self.c, self.c0, self.c1, self.seed, self.max_episodes, save_file)
             else:
                 Main.QuanEstimation.DiffEvo_QFIM(diffevo, self.popsize, self.ini_population, self.c, self.c0, self.c1, self.seed, self.max_episodes, save_file)
         else:
-            diffevo = Main.QuanEstimation.StateOptDE_TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
+            diffevo = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
                         self.Liouville_operator, self.gamma, self.W)
             if len(self.Hamiltonian_derivative) == 1:
                 Main.QuanEstimation.DiffEvo_QFI(diffevo, self.popsize, self.ini_population, self.c, self.c0, self.c1, self.seed, self.max_episodes, save_file)
@@ -91,14 +91,14 @@ class StateOpt_DE():
 
     def CFIM(self, Measurement, save_file):
         if self.gamma == []:
-            diffevo = Main.QuanEstimation.StateOptDE_TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
+            diffevo = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
                                                                                self.rho_initial, self.tspan, self.W)
             if len(self.Hamiltonian_derivative) == 1:
                 Main.QuanEstimation.DiffEvo_CFI(Measurement, diffevo, self.popsize, self.ini_population, self.c, self.c0, self.c1, self.seed, self.max_episodes, save_file)
             else:
                 Main.QuanEstimation.DiffEvo_CFIM(Measurement, diffevo, self.popsize, self.ini_population, self.c, self.c0, self.c1, self.seed, self.max_episodes, save_file)
         else:
-            diffevo = Main.QuanEstimation.StateOptDE_TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
+            diffevo = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
                         self.Liouville_operator, self.gamma, self.W)
             if len(self.Hamiltonian_derivative) == 1:
                 Main.QuanEstimation.DiffEvo_CFI(Measurement, diffevo, self.popsize, self.ini_population, self.c, self.c0, self.c1, self.seed, self.max_episodes, save_file)

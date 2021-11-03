@@ -49,13 +49,13 @@ function DiffEvo_QFI(DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed, m
     
     if save_file == true
         for i in 1:(max_episodes-1)
-            p_fit = DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
+            p_fit = DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
             print("current QFI is ", maximum(p_fit), " ($i episodes)    \r")
             SaveFile(f_list, populations[indx].control_coefficients)
         end
-        p_fit = DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
+        p_fit = DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
         append!(f_list, maximum(p_fit))
         indx = findmax(p_fit)[2]
         SaveFile(f_list, populations[indx].control_coefficients)
@@ -64,11 +64,11 @@ function DiffEvo_QFI(DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed, m
         println("Final QFI is ", maximum(p_fit))
     else
         for i in 1:(max_episodes-1)
-            p_fit = DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
+            p_fit = DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             print("current QFI is ", maximum(p_fit), " ($i episodes)    \r")
             append!(f_list,maximum(p_fit))
         end
-        p_fit = DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
+        p_fit = DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
         indx = findmax(p_fit)[2]
         append!(f_list,maximum(p_fit))
         SaveFile(f_list, populations[indx].control_coefficients)
@@ -171,13 +171,13 @@ function DiffEvo_CFI(M, DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed
     
     if save_file == true
         for i in 1:(max_episodes-1)
-            p_fit = DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
+            p_fit = DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list,maximum(p_fit))
             print("current CFI is ", maximum(p_fit), " ($i episodes)    \r")
             SaveFile(f_list, populations[indx].control_coefficients)
         end
-        p_fit = DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
+        p_fit = DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
         indx = findmax(p_fit)[2]
         append!(f_list,maximum(p_fit))
         SaveFile(f_list, populations[indx].control_coefficients)
@@ -186,11 +186,11 @@ function DiffEvo_CFI(M, DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, seed
         println("Final CFI is ", maximum(p_fit))
     else
         for i in 1:(max_episodes-1)
-            p_fit = DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
+            p_fit = DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
             append!(f_list,maximum(p_fit))
             print("current CFI is ", maximum(p_fit), " ($i episodes)    \r")
         end
-        p_fit = DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
+        p_fit = DE_train_CFIM(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
         indx = findmax(p_fit)[2]
         append!(f_list,maximum(p_fit))
         SaveFile(f_list, populations[indx].control_coefficients)
@@ -263,60 +263,6 @@ function DiffEvo_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, c0, c1, see
     end
 end
 
-function DE_train_QFI(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
-    f_mean = p_fit |> mean
-    for pj in 1:p_num
-        #mutations
-        mut_num = sample(1:p_num, 3, replace=false)
-        ctrl_mut = [Vector{Float64}(undef, ctrl_length)  for i in 1:ctrl_num]
-        for ci in 1:ctrl_num
-            for ti in 1:ctrl_length
-                ctrl_mut[ci][ti] = populations[mut_num[1]].control_coefficients[ci][ti]+
-                                   c*(populations[mut_num[2]].control_coefficients[ci][ti]-
-                                   populations[mut_num[3]].control_coefficients[ci][ti])
-            end
-        end
-        #crossover
-        if p_fit[pj] > f_mean
-            cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
-        else
-            cr = c0
-        end
-        ctrl_cross = [Vector{Float64}(undef, ctrl_length)  for i in 1:ctrl_num]
-        for cj in 1:ctrl_num
-            cross_int = sample(1:ctrl_length, 1, replace=false)
-            for tj in 1:ctrl_length
-                rand_num = rand()
-                if rand_num <= cr
-                    ctrl_cross[cj][tj] = ctrl_mut[cj][tj]
-                else
-                    ctrl_cross[cj][tj] = populations[pj].control_coefficients[cj][tj]
-                end
-            end
-            ctrl_cross[cj][cross_int] = ctrl_mut[cj][cross_int]
-        end
-        #selection
-        for ck in 1:ctrl_num
-            for tk in 1:ctrl_length
-                ctrl_cross[ck][tk] = (x-> (x|>abs) < populations[pj].ctrl_bound ? x : populations[pj].ctrl_bound)(ctrl_cross[ck][tk])
-            end
-        end
-        f_cross = QFI_ori(populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative[1], populations[pj].ρ_initial, 
-                      populations[pj].Liouville_operator, populations[pj].γ, populations[pj].control_Hamiltonian, 
-                      ctrl_cross, populations[pj].times)
-
-        if f_cross > p_fit[pj]
-            p_fit[pj] = f_cross
-            for ck in 1:ctrl_num
-                for tk in 1:ctrl_length
-                    populations[pj].control_coefficients[ck][tk] = ctrl_cross[ck][tk]
-                end
-            end
-        end
-    end
-    return p_fit
-end
-
 function DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
     f_mean = p_fit |> mean
     for pj in 1:p_num
@@ -360,60 +306,6 @@ function DE_train_QFIM(populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_f
                       populations[pj].Liouville_operator, populations[pj].γ, populations[pj].control_Hamiltonian, 
                       ctrl_cross, populations[pj].times)
         f_cross = 1.0/real(tr(populations[pj].W*pinv(F)))
-
-        if f_cross > p_fit[pj]
-            p_fit[pj] = f_cross
-            for ck in 1:ctrl_num
-                for tk in 1:ctrl_length
-                    populations[pj].control_coefficients[ck][tk] = ctrl_cross[ck][tk]
-                end
-            end
-        end
-    end
-    return p_fit
-end
-
-function DE_train_CFI(M, populations, c, c0, c1, p_num, ctrl_num, ctrl_length, p_fit)
-    f_mean = p_fit |> mean
-    for pj in 1:p_num
-        #mutations
-        mut_num = sample(1:p_num, 3, replace=false)
-        ctrl_mut = [Vector{Float64}(undef, ctrl_length)  for i in 1:ctrl_num]
-        for ci in 1:ctrl_num
-            for ti in 1:ctrl_length
-                ctrl_mut[ci][ti] = populations[mut_num[1]].control_coefficients[ci][ti]+
-                                   c*(populations[mut_num[2]].control_coefficients[ci][ti]-
-                                   populations[mut_num[3]].control_coefficients[ci][ti])
-            end
-        end
-        #crossover
-        if p_fit[pj] > f_mean
-            cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
-        else
-            cr = c0
-        end
-        ctrl_cross = [Vector{Float64}(undef, ctrl_length)  for i in 1:ctrl_num]
-        for cj in 1:ctrl_num
-            cross_int = sample(1:ctrl_length, 1, replace=false)
-            for tj in 1:ctrl_length
-                rand_num = rand()
-                if rand_num <= cr
-                    ctrl_cross[cj][tj] = ctrl_mut[cj][tj]
-                else
-                    ctrl_cross[cj][tj] = populations[pj].control_coefficients[cj][tj]
-                end
-            end
-            ctrl_cross[cj][cross_int] = ctrl_mut[cj][cross_int]
-        end
-        #selection
-        for ck in 1:ctrl_num
-            for tk in 1:ctrl_length
-                ctrl_cross[ck][tk] = (x-> (x|>abs) < populations[pj].ctrl_bound ? x : populations[pj].ctrl_bound)(ctrl_cross[ck][tk])
-            end
-        end
-        f_cross = CFI(M, populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative[1], populations[pj].ρ_initial, 
-                      populations[pj].Liouville_operator, populations[pj].γ, populations[pj].control_Hamiltonian, 
-                      ctrl_cross, populations[pj].times)
 
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
