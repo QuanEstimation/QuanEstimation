@@ -51,96 +51,32 @@ function gradient_CFIM_Adam!(grape::Gradient{T}, Measurement) where {T <: Comple
 end
 
 function gradient_QFI!(grape::Gradient{T}) where {T <: Complex}
-    δF = gradient(x->QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times), grape.control_coefficients)[1].|>real
+    δF = gradient(x->QFI_auto(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times), grape.control_coefficients)[1].|>real
     grape.control_coefficients += grape.ϵ*δF
     bound!(grape.control_coefficients, grape.ctrl_bound)
 end
 
 function gradient_QFI_Adam!(grape::Gradient{T}) where {T <: Complex}
-    δF = gradient(x->QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times), grape.control_coefficients)[1].|>real
+    δF = gradient(x->QFI_auto(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times), grape.control_coefficients)[1].|>real
     Adam!(grape, δF)
     bound!(grape.control_coefficients, grape.ctrl_bound)
 end
 
 function gradient_QFIM!(grape::Gradient{T}) where {T <: Complex}
-    δF = gradient(x->1/(grape.W*(QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times) |> pinv) |> tr |>real), grape.control_coefficients).|>real |>sum
+    δF = gradient(x->1/(grape.W*(QFIM_auto(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times) |> pinv) |> tr |>real), grape.control_coefficients).|>real |>sum
     grape.control_coefficients += grape.ϵ*δF
     bound!(grape.control_coefficients, grape.ctrl_bound)
 end
 
 function gradient_QFIM_Adam!(grape::Gradient{T}) where {T <: Complex}
-    δF = gradient(x->1/(grape.W*(QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times) |> pinv) |> tr |>real), grape.control_coefficients).|>real |>sum
+    δF = gradient(x->1/(grape.W*(QFIM_auto(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times) |> pinv) |> tr |>real), grape.control_coefficients).|>real |>sum
     Adam!(grape, δF)
     bound!(grape.control_coefficients, grape.ctrl_bound)
 end
 
 function gradient_QFI_bfgs(grape::Gradient{T}, control_coefficients) where {T <: Complex}
-    δF = gradient(x->QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times), control_coefficients)[1].|>real
+    δF = gradient(x->QFI_auto(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ_initial, grape.Liouville_operator, grape.γ, grape.control_Hamiltonian, x, grape.times), control_coefficients)[1].|>real
 end
-
-# function gradient_QFIM_ODE(grape::Gradient)
-#     H = Htot(grape.freeHamiltonian, grape.control_Hamiltonian, grape.control_coefficients)
-#     Δt = grape.times[2] - grape.times[1]
-#     t_num = length(grape.times)
-#     para_num = length(grape.Hamiltonian_derivative)    
-#     ctrl_num = length(grape.control_Hamiltonian)
-#     tspan(j) = (grape.times[1], grape.times[j])
-#     tspan() = (grape.times[1], grape.times[end])
-#     u0 = grape.ρ_initial |> vec
-#     evo(p, t) = evolute(p[t2Num(tspan()[1], Δt,  t)], grape.Liouville_operator, grape.γ, grape.times, t2Num(tspan()[1], Δt, t)) 
-#     f(u, p, t) = evo(p, t) * u
-#     prob = DiscreteProblem(f, u0, tspan(), H,dt=Δt)
-#     ρt = solve(prob).u 
-#     ∂ρt_∂x = Vector{Vector{Vector{eltype(u0)}}}(undef, 1)
-#     for para in 1:para_num
-#         devo(p, t) = -1.0im * Δt * liouville_commu(grape.Hamiltonian_derivative[para]) * evo(p, t) 
-#         du0 = devo(H, tspan()[1]) * u0
-#         g(du, p, t) = evo(p, t) * du + devo(p, t) * ρt[t2Num(tspan()[1], Δt,  t)] 
-#         dprob = DiscreteProblem(g, du0, tspan(), H,dt=Δt) 
-#         ∂ρt_∂x[para] = solve(dprob).u
-#     end
-#     δρt_δV = Matrix{Vector{Vector{eltype(u0)}}}(undef,ctrl_num,length(grape.times))
-#     for ctrl in 1:ctrl_num
-#         for j in 1:t_num
-#             devo(p, t) = -1.0im * Δt * liouville_commu(grape.control_Hamiltonian[ctrl]) * evo(p, t) 
-#             du0 = devo(H, tspan()[1]) * u0
-#             g(du, p, t) = evo(p, t) * du + devo(p, t) * ρt[t2Num(tspan()[1], Δt,  t)] 
-#             dprob = DiscreteProblem(g, du0, tspan(j), H,dt=Δt) 
-#             δρt_δV[ctrl,j] = solve(dprob).u
-#         end
-#     end
-#     ∂xδρt_δV = Array{Vector{eltype(u0)}, 3}(undef,para_num, ctrl_num,length(grape.times))
-#     for para in 1:para_num
-#         for ctrl in 1:ctrl_num
-#             dxevo = -1.0im * Δt * liouville_commu(grape.Hamiltonian_derivative[para]) 
-#             dkevo = -1.0im * Δt * liouville_commu(grape.control_Hamiltonian[ctrl])
-#             for j in 1:t_num
-#                 g(du, p, t) = dxevo * dkevo  * evo(p, t) * ρt[t2Num(tspan()[1], Δt,  t)] +
-#                               dxevo * evo(p, t) * δρt_δV[ctrl, j][t2Num(tspan()[1], Δt,  t)] +
-#                               dkevo * evo(p, t) * ∂ρt_∂x[para][t2Num(tspan()[1], Δt,  t)] + 
-#                               evo(p, t) * du
-#                 du0 = dxevo * dkevo  * evo(H,tspan()[1]) * ρt[t2Num(tspan()[1], Δt, tspan()[1])]
-#                 dprob = DiscreteProblem(g, du0, tspan(j), H, dt=Δt)
-#                 ∂xδρt_δV[para, ctrl, j] = solve(dprob).u[end]
-#             end
-#         end
-#     end
-#     δF = grape.control_coefficients .|> zero
-#     for para in 1:para_num
-#         SLD_tp = SLD(ρt[end], ∂ρt_∂x[para][end])
-#         for ctrl in 1:ctrl_num
-#             for j in 1:t_num   
-#                 δF[ctrl][j] -= 2 * tr((∂xδρt_δV[para,ctrl,j]|> vec2mat) * SLD_tp) - 
-#                                    tr((δρt_δV[ctrl, j][end] |> vec2mat) * SLD_tp^2) |> real
-#             end
-#         end
-#     end
-#     δF
-# end
-
-# function gradient_QFIM_ODE!(grape::Gradient{T}) where {T <: Complex}
-#     grape.control_coefficients += grape.ϵ * gradient_QFIM_ODE(grape)
-# end
 
 function dynamics_analy(grape::Gradient{T}, dim, tnum, para_num, ctrl_num) where {T <: Complex}
     Δt = grape.times[2] - grape.times[1]
@@ -209,8 +145,8 @@ function gradient_QFIM_analy_Adam(grape::Gradient{T}) where {T <: Complex}
     
     ρt_T, ∂ρt_T, δρt_δV, ∂xδρt_δV = dynamics_analy(grape, dim, tnum, para_num, ctrl_num)
 
-    Lx = SLD_ori(ρt_T, ∂ρt_T)
-    F_T = QFIM_ori(ρt_T, ∂ρt_T)
+    Lx = SLD(ρt_T, ∂ρt_T)
+    F_T = QFIM(ρt_T, ∂ρt_T)
 
     if para_num == 1
         cost_function = F_T[1]
@@ -292,8 +228,8 @@ function gradient_QFIM_analy(grape::Gradient{T}) where {T <: Complex}
     
     ρt_T, ∂ρt_T, δρt_δV, ∂xδρt_δV = dynamics_analy(grape, dim, tnum, para_num, ctrl_num)
 
-    Lx = SLD_ori(ρt_T, ∂ρt_T)
-    F_T = QFIM_ori(ρt_T, ∂ρt_T)
+    Lx = SLD(ρt_T, ∂ρt_T)
+    F_T = QFIM(ρt_T, ∂ρt_T)
 
     cost_function = F_T[1]
     
@@ -630,9 +566,9 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("control algorithm: auto-GRAPE")
-        f_noctrl = QFI_ori(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ_initial, grape.Liouville_operator, grape.γ, 
+        f_noctrl = QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ_initial, grape.Liouville_operator, grape.γ, 
                         grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.times)
-        f_ini = QFI_ori(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ_initial, grape.Liouville_operator, grape.γ, 
+        f_ini = QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ_initial, grape.Liouville_operator, grape.γ, 
                         grape.control_Hamiltonian, grape.control_coefficients, grape.times)
         f_list = [f_ini]
         println("non-controlled QFI is $(f_noctrl)")
@@ -646,7 +582,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
             SaveFile(f_ini, grape.control_coefficients)
             if Adam == true
                 while true
-                    f_now = QFI_ori(grape)
+                    f_now = QFI(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -663,7 +599,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                 end
             else
                 while true
-                    f_now = QFI_ori(grape)
+                    f_now = QFI(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -683,7 +619,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
         else
             if Adam == true
                 while true
-                    f_now = QFI_ori(grape)
+                    f_now = QFI(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -701,7 +637,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                 end
             else
                 while true
-                    f_now = QFI_ori(grape)
+                    f_now = QFI(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -722,10 +658,10 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
     else
         println("multiparameter scenario")
         println("control algorithm: auto-GRAPE")
-        F_noctrl = QFIM_ori(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, 
+        F_noctrl = QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, 
                         grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.times)
         f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
-        F_ini = QFI_ori(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ_initial, grape.Liouville_operator, grape.γ, 
+        F_ini = QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ_initial, grape.Liouville_operator, grape.γ, 
                         grape.control_Hamiltonian, grape.control_coefficients, grape.times)
         f_ini = real(tr(grape.W*pinv(F_ini)))
         f_list = [f_ini]
@@ -740,7 +676,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
             SaveFile(f_ini, grape.control_coefficients)
             if Adam == true
                 while true
-                    f_now = real(tr(grape.W*pinv(QFIM_ori(grape))))
+                    f_now = real(tr(grape.W*pinv(QFIM(grape))))
                     if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -758,7 +694,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                 end
             else
                 while true
-                    f_now = real(tr(grape.W*pinv(QFIM_ori(grape))))
+                    f_now = real(tr(grape.W*pinv(QFIM(grape))))
                     if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -778,7 +714,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
         else
             if Adam == true
                 while true
-                    f_now = real(tr(grape.W*pinv(QFIM_ori(grape))))
+                    f_now = real(tr(grape.W*pinv(QFIM(grape))))
                     if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -796,7 +732,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
                 end
             else
                 while true
-                    f_now = real(tr(grape.W*pinv(QFIM_ori(grape))))
+                    f_now = real(tr(grape.W*pinv(QFIM(grape))))
                     if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -825,7 +761,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("control algorithm: GRAPE")
-        f_noctrl = QFI_ori(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ_initial, grape.Liouville_operator, grape.γ, 
+        f_noctrl = QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ_initial, grape.Liouville_operator, grape.γ, 
                         grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.times)
         println("non-controlled QFI is $(f_noctrl)")
         ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
@@ -917,7 +853,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
     else
         println("multiparameter scenario")
         println("control algorithm: GRAPE")
-        F_noctrl = QFIM_ori(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, 
+        F_noctrl = QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ_initial, grape.Liouville_operator, grape.γ, 
                         grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.times)
         f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
         println("non-controlled value of Tr(WF^{-1}) is $(f_noctrl)")
@@ -1469,13 +1405,13 @@ function autoGRAPE_BFGS(grape, save_file, epsilon, max_episodes, B, c1, c2, e)
     ctrl_total = ctrl_length*cnum
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
-        f_ini = QFI_ori(grape)
+        f_ini = QFI(grape)
         f_list = [f_ini]
         println("initial QFI is $(f_ini)")
         if save_file == true
             while true
                 gradient_QFI!(grape)
-                f_now = QFI_ori(grape)
+                f_now = QFI(grape)
                 if abs(f_now - f_ini) < e
                     δF = gradient_QFI_bfgs(grape, grape.control_coefficients)  #merge into gradient
                     p = -B.*δF
@@ -1524,7 +1460,7 @@ function autoGRAPE_BFGS(grape, save_file, epsilon, max_episodes, B, c1, c2, e)
         else
             while true
                 gradient_QFI!(grape)
-                f_now = QFI_ori(grape)
+                f_now = QFI(grape)
 
                 if abs(f_now - f_ini) < e
                     δF = gradient_QFI_bfgs(grape, grape.control_coefficients)  #merge into gradient

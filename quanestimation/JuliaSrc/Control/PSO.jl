@@ -31,9 +31,9 @@ function PSO_QFI(pso::PSO{T}, max_episodes, particle_num, ini_particle, c0, c1, 
     gbest = zeros(ctrl_num, ctrl_length)
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
-    qfi_noctrl = QFI_ori(pso.freeHamiltonian, pso.Hamiltonian_derivative[1], pso.ρ_initial, pso.Liouville_operator, pso.γ, 
+    qfi_noctrl = QFI(pso.freeHamiltonian, pso.Hamiltonian_derivative[1], pso.ρ_initial, pso.Liouville_operator, pso.γ, 
                     pso.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], pso.times)
-    qfi_ini = QFI_ori(pso.freeHamiltonian, pso.Hamiltonian_derivative[1], pso.ρ_initial, pso.Liouville_operator, pso.γ, 
+    qfi_ini = QFI(pso.freeHamiltonian, pso.Hamiltonian_derivative[1], pso.ρ_initial, pso.Liouville_operator, pso.γ, 
                     pso.control_Hamiltonian, pso.control_coefficients, pso.times)
     f_list = [qfi_ini]
     println("non-controlled QFI is $(qfi_noctrl)")
@@ -183,10 +183,10 @@ function PSO_QFIM(pso::PSO{T}, max_episodes, particle_num, ini_particle, c0, c1,
     gbest = zeros(ctrl_num, ctrl_length)
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
-    F_noctrl = QFIM_ori(pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ_initial, pso.Liouville_operator, pso.γ, 
+    F_noctrl = QFIM(pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ_initial, pso.Liouville_operator, pso.γ, 
                     pso.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], pso.times)
     qfi_noctrl = real(tr(pso.W*pinv(F_noctrl)))
-    F_ini = QFIM_ori(pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ_initial, pso.Liouville_operator, pso.γ, 
+    F_ini = QFIM(pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ_initial, pso.Liouville_operator, pso.γ, 
                     pso.control_Hamiltonian, pso.control_coefficients, pso.times)
     qfi_ini = real(tr(pso.W*pinv(F_ini)))
     f_list = [qfi_ini]
@@ -328,7 +328,7 @@ end
 
 function PSO_train_QFIM(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, gbest, velocity_best, velocity)
     @inbounds for pj in 1:particle_num
-        f_now = 1.0/real(tr(particles[pj].W*pinv(QFIM_ori(particles[pj]))))
+        f_now = 1.0/real(tr(particles[pj].W*pinv(QFIM(particles[pj]))))
         if f_now > p_fit[pj]
             p_fit[pj] = f_now
             for di in 1:ctrl_num

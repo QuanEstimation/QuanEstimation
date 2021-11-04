@@ -1,3 +1,33 @@
+mutable struct TimeIndepend_noiseless{T <: Complex,M <: Real}
+    freeHamiltonian::Matrix{T}
+    Hamiltonian_derivative::Vector{Matrix{T}}
+    psi::Vector{T}
+    times::Vector{M}
+    W::Matrix{M}
+    ρ::Vector{Matrix{T}}
+    ∂ρ_∂x::Vector{Vector{Matrix{T}}}
+    TimeIndepend_noiseless(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
+                 times::Vector{M}, W::Matrix{M},
+                 ρ=Vector{Matrix{T}}(undef, 1), ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1),∂ρ_∂V=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = 
+                 new{T,M}(freeHamiltonian, Hamiltonian_derivative, psi, times, W, ρ, ∂ρ_∂x) 
+end
+
+mutable struct TimeIndepend_noise{T <: Complex,M <: Real}
+    freeHamiltonian::Matrix{T}
+    Hamiltonian_derivative::Vector{Matrix{T}}
+    psi::Vector{T}
+    times::Vector{M}
+    Liouville_operator::Vector{Matrix{T}}
+    γ::Vector{M}
+    W::Matrix{M}
+    ρ::Vector{Matrix{T}}
+    ∂ρ_∂x::Vector{Vector{Matrix{T}}}
+    TimeIndepend_noise(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
+                 times::Vector{M}, Liouville_operator::Vector{Matrix{T}},γ::Vector{M}, W::Matrix{M}, 
+                 ρ=Vector{Matrix{T}}(undef, 1), ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1),∂ρ_∂V=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = 
+                 new{T,M}(freeHamiltonian, Hamiltonian_derivative, psi, times, Liouville_operator, γ, W, ρ, ∂ρ_∂x) 
+end
+
 function StateOpt_Adam(gt, t, para, m_t, v_t, ϵ, beta1, beta2, precision)
     t = t+1
     m_t = beta1*m_t + (1-beta1)*gt

@@ -1,19 +1,4 @@
 ############# time-independent Hamiltonian (noiseless) ################
-mutable struct TimeIndepend_noiseless{T <: Complex,M <: Real}
-    freeHamiltonian::Matrix{T}
-    Hamiltonian_derivative::Vector{Matrix{T}}
-    psi::Vector{T}
-    times::Vector{M}
-    W::Matrix{M}
-    ρ::Vector{Matrix{T}}
-    ∂ρ_∂x::Vector{Vector{Matrix{T}}}
-    TimeIndepend_noiseless(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
-                 times::Vector{M}, W::Matrix{M},
-                 ρ=Vector{Matrix{T}}(undef, 1), ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1),∂ρ_∂V=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = 
-                 new{T,M}(freeHamiltonian, Hamiltonian_derivative, psi, times, W, ρ, ∂ρ_∂x) 
-end
-
-
 function gradient_QFI!(AD::TimeIndepend_noiseless{T}, lr) where {T <: Complex}
     δF = gradient(x->QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x, AD.times), AD.psi)[1]
     AD.psi += lr*δF
@@ -443,22 +428,6 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, epsilon, mt, vt, lr, beta1, b
 end
 
 ############# time-independent Hamiltonian (noise) ################
-mutable struct TimeIndepend_noise{T <: Complex,M <: Real}
-    freeHamiltonian::Matrix{T}
-    Hamiltonian_derivative::Vector{Matrix{T}}
-    psi::Vector{T}
-    times::Vector{M}
-    Liouville_operator::Vector{Matrix{T}}
-    γ::Vector{M}
-    W::Matrix{M}
-    ρ::Vector{Matrix{T}}
-    ∂ρ_∂x::Vector{Vector{Matrix{T}}}
-    TimeIndepend_noise(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
-                 times::Vector{M}, Liouville_operator::Vector{Matrix{T}},γ::Vector{M}, W::Matrix{M}, 
-                 ρ=Vector{Matrix{T}}(undef, 1), ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1),∂ρ_∂V=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = 
-                 new{T,M}(freeHamiltonian, Hamiltonian_derivative, psi, times, Liouville_operator, γ, W, ρ, ∂ρ_∂x) 
-end
-
 function gradient_QFI!(AD::TimeIndepend_noise{T}, lr) where {T <: Complex}
     δF = gradient(x->QFIM_TimeIndepend_AD(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x*x', AD.Liouville_operator, AD.γ, AD.times), AD.psi)[1]
     AD.psi += lr*δF

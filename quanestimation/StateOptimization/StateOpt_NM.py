@@ -2,9 +2,9 @@ import numpy as np
 from julia import Main
 
 class StateOpt_NM():
-    def __init__(self, tspan, rho_initial, H0, dH=[], Liouville_operator=[], \
-                gamma=[], W=[], state_num=10, ini_state=[], coeff_r=1.0, coeff_e=2.0, \
-                coeff_c=0.5, coeff_s=0.5, seed=1234, max_episodes=200, epsilon=1e-3):
+    def __init__(self, tspan, psi_initial, H0, dH=[], Liouville_operator=[], \
+                gamma=[], W=[], state_num=10, ini_state=[], a_r=1.0, a_e=2.0, \
+                a_c=0.5, a_s=0.5, seed=1234, max_episodes=200, epsilon=1e-3):
         """
         --------
         inputs
@@ -13,9 +13,9 @@ class StateOpt_NM():
             --description: time series.
             --type: array
 
-        rho_initial:
-            --description: initial state (density matrix).
-            --type: matrix
+        psi_initial:
+            --description: initial state.
+            --type: array
             
         H0:
             --description: free Hamiltonian.
@@ -54,8 +54,11 @@ class StateOpt_NM():
         if dH == []:
             dH = [np.zeros((len(H0), len(H0)))]
         
+        if ini_state == []: 
+            ini_state = [psi_initial]
+        
         self.tspan = tspan
-        self.rho_initial = np.array(rho_initial,dtype=np.complex128)
+        self.psi_initial = np.array(psi_initial,dtype=np.complex128)
         self.freeHamiltonian = np.array(H0,dtype=np.complex128)
         self.Hamiltonian_derivative = [np.array(x,dtype=np.complex128) for x in dH]
         self.Liouville_operator = [np.array(x, dtype=np.complex128) for x in Liouville_operator]
@@ -63,10 +66,10 @@ class StateOpt_NM():
 
         self.state_num = state_num
         self.ini_state = ini_state
-        self.coeff_r = coeff_r
-        self.coeff_e = coeff_e
-        self.coeff_c = coeff_c
-        self.coeff_s = coeff_s
+        self.a_r = a_r
+        self.a_e = a_e
+        self.a_c = a_c
+        self.a_s = a_s
         self.max_episodes = max_episodes
         self.epsilon = epsilon
         self.seed = seed
@@ -78,33 +81,33 @@ class StateOpt_NM():
     def QFIM(self, save_file=False):
         if self.gamma == [] or self.gamma == 0.0:
             neldermead = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                                                                               self.rho_initial, self.tspan, self.W)
+                                                                               self.psi_initial, self.tspan, self.W)
             if len(self.Hamiltonian_derivative) == 1:
-                Main.QuanEstimation.NelderMead_QFI(neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
+                Main.QuanEstimation.NelderMead_QFI(neldermead, self.state_num, self.ini_state, self.a_r, self.a_e, self.a_c, self.a_s, self.epsilon, self.max_episodes, self.seed, save_file)
             else:
-                Main.QuanEstimation.NelderMead_QFIM(neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
+                Main.QuanEstimation.NelderMead_QFIM(neldermead, self.state_num, self.ini_state, self.a_r, self.a_e, self.a_c, self.a_s, self.epsilon, self.max_episodes, self.seed, save_file)
         else:
-            neldermead = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
+            neldermead = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi_initial, self.tspan, \
                         self.Liouville_operator, self.gamma, self.W)
             if len(self.Hamiltonian_derivative) == 1:
-                Main.QuanEstimation.NelderMead_QFI(neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
+                Main.QuanEstimation.NelderMead_QFI(neldermead, self.state_num, self.ini_state, self.a_r, self.a_e, self.a_c, self.a_s, self.epsilon, self.max_episodes, self.seed, save_file)
             else:
-                Main.QuanEstimation.NelderMead_QFIM(neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
+                Main.QuanEstimation.NelderMead_QFIM(neldermead, self.state_num, self.ini_state, self.a_r, self.a_e, self.a_c, self.a_s, self.epsilon, self.max_episodes, self.seed, save_file)
 
     def CFIM(self, Measurement, save_file=False):
         if self.gamma == [] or self.gamma == 0.0:
             neldermead = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                                                                               self.rho_initial, self.tspan, self.W)
+                                                                               self.psi_initial, self.tspan, self.W)
             if len(self.Hamiltonian_derivative) == 1:
-                Main.QuanEstimation.NelderMead_CFI(Measurement, neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
+                Main.QuanEstimation.NelderMead_CFI(Measurement, neldermead, self.state_num, self.ini_state, self.a_r, self.a_e, self.a_c, self.a_s, self.epsilon, self.max_episodes, self.seed, save_file)
             else:
-                Main.QuanEstimation.NelderMead_CFIM(Measurement, neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
+                Main.QuanEstimation.NelderMead_CFIM(Measurement, neldermead, self.state_num, self.ini_state, self.a_r, self.a_e, self.a_c, self.a_s, self.epsilon, self.max_episodes, self.seed, save_file)
         else:
-            neldermead = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, \
+            neldermead = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi_initial, \
                                                                      self.tspan, self.Liouville_operator, self.gamma, self.W)
             if len(self.Hamiltonian_derivative) == 1:
-                Main.QuanEstimation.NelderMead_CFI(Measurement, neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
+                Main.QuanEstimation.NelderMead_CFI(Measurement, neldermead, self.state_num, self.ini_state, self.a_r, self.a_e, self.a_c, self.a_s, self.epsilon, self.max_episodes, self.seed, save_file)
             else:
-                Main.QuanEstimation.NelderMead_CFIM(Measurement, neldermead, self.state_num, self.ini_state, self.coeff_r, self.coeff_e, self.coeff_c, self.coeff_s, self.epsilon, self.max_episodes, self.seed, save_file)
+                Main.QuanEstimation.NelderMead_CFIM(Measurement, neldermead, self.state_num, self.ini_state, self.a_r, self.a_e, self.a_c, self.a_s, self.epsilon, self.max_episodes, self.seed, save_file)
 
             

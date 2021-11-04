@@ -102,67 +102,55 @@ function propagate!(system)
                                        system.control_coefficients, system.times )
 end
 
-# function expm(H::Vector{Matrix{T}}, ∂H_∂x::Vector{Vector{T}},  ρ_in::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ,  times) where {T <: Complex,R <: Real}
-#     Δt = times[2] - times[1]
-#     println(111)
-#     para_num = length(∂H_∂x)
-#     ρt = evolute(H[1], Liouville_operator, γ, Δt, 1) * (ρ_in |> vec)
-#     ∂ρt_∂x = [-im * Δt * ∂H_∂x[i] * ρt for i in 1:para_num]
-#     println(ρt)
-#     println(∂ρt_∂x)
-#     for t in 2:length(times)
-#         expL = evolute(H[t], Liouville_operator, γ, Δt, t)
-#         ρt = expL * ρt
-#         ∂ρt_∂x = [-im * Δt * ∂H_∂x[i] * ρt for i in 1:para_num] + [expL] .* ∂ρt_∂x
-#     end
-#     ρt, ∂ρt_∂x
-# end
+function expm(H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ,control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
 
-# function evolute_ODE!(grape::Gradient)
-#     H(p) = Htot(grape.freeHamiltonian, grape.control_Hamiltonian, p)
-#     dt = grape.times[2] - grape.times[1]    
-#     tspan = (grape.times[1], grape.times[end])
-#     u0 = grape.ρ_initial
-#     Γ = grape.Liouville_operator
-#     f(u, p, t) = -im * (H(p)[t2Num(tspan[1], dt, t)] * u + u * H(p)[t2Num(tspan[1], dt, t)]) + 
-#                  ([grape.γ[i] * (Γ[i] * u * Γ[i]' - (Γ[i]' * Γ[i] * u + u * Γ[i]' * Γ[i] )) for i in 1:length(Γ)] |> sum)
-#     prob = ODEProblem(f, u0, tspan, grape.control_coefficients, saveat=dt)
-#     sol = solve(prob)
-#     sol.u
-# end
+    ctrl_num = length(control_Hamiltonian)
+    ctrl_interval = (length(times)/length(control_coefficients[1])) |> Int
+    control_coefficients = [repeat(control_coefficients[i], 1, ctrl_interval) |>transpose |>vec for i in 1:ctrl_num]
 
-# function propagate_ODEAD!(grape::Gradient)
-#     H(p) = Htot(grape.freeHamiltonian, grape.control_Hamiltonian, p)
-#     dt = grape.times[2] - grape.times[1]    
-#     tspan = (grape.times[1], grape.times[end])
-#     u0 = grape.ρ_initial
-#     Γ = grape.Liouville_operator
-#     f(u, p, t) = -im * (H(p)[t2Num(tspan[1], dt, t)] * u + u * H(p)[t2Num(tspan[1], dt, t)]) + 
-#                  ([grape.γ[i] * (Γ[i] * u * Γ[i]' - (Γ[i]' * Γ[i] * u + u * Γ[i]' * Γ[i] )) for i in 1:length(Γ)] |> sum)
-#     p = grape.control_coefficients
-#     prob = ODEProblem(f, u0, tspan, p, saveat=dt)
-#     u = solve(prob).u
-#     du = Zygote.jacobian(solve(remake(prob, u0=u, p), sensealg=QuadratureAdjoint()))
-#     u, du
-# end
+    H = Htot(H0, control_Hamiltonian, control_coefficients)
+    ∂H_L = liouville_commu(∂H_∂x)
 
-# function propagate_L_ODE!(grape::Gradient)
-#     H = Htot(grape.freeHamiltonian, grape.control_Hamiltonian, grape.control_coefficients)
-#     Δt = grape.times[2] - grape.times[1]    
-#     tspan = (grape.times[1], grape.times[end])
-#     u0 = grape.ρ_initial |> vec
-#     evo(p, t) = evolute(p[t2Num(tspan[1], Δt,  t)], grape.Liouville_operator, grape.γ, grape.times, t2Num(tspan[1], Δt, t)) 
-#     f(u, p, t) = evo(p, t) * u
-#     prob = DiscreteProblem(f, u0, tspan, H,dt=Δt)
-#     ρt = solve(prob).u 
-#     ∂ρt_∂x = Vector{Vector{Vector{eltype(u0)}}}(undef, 1)
-#     for para in 1:length(grape.Hamiltonian_derivative)
-#         devo(p, t) = -1.0im * Δt * liouville_commu(grape.Hamiltonian_derivative[para]) * evo(p, t) 
-#         du0 = devo(H, tspan[1]) * u0
-#         g(du, p, t) = evo(p, t) * du + devo(p, t) * ρt[t2Num(tspan[1], Δt,  t)] 
-#         dprob = DiscreteProblem(g, du0, tspan, H,dt=Δt) 
-#         ∂ρt_∂x[para] = solve(dprob).u
-#     end
+    Δt = times[2] - times[1]
 
-#     grape.ρ, grape.∂ρ_∂x = ρt |> vec2mat, ∂ρt_∂x |> vec2mat
-# end
+    ρt_all = [Vector{ComplexF64}(undef, (length(H0))^2) for i in 1:length(times)]
+    ∂ρt_∂x_all = [Vector{ComplexF64}(undef, (length(H0))^2) for i in 1:length(times)]
+    ρt_all[1] = ρ_initial |> vec
+    ∂ρt_∂x_all[1] = ρt_all[1] |> zero
+    
+    for t in 2:length(times)
+        expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
+        ρt_all[t] =  expL * ρt_all[t-1]
+        ∂ρt_∂x_all[t] = -im * Δt * ∂H_L * ρt_all[t] + expL * ∂ρt_∂x_all[t-1]
+    end
+    ρt_all |> vec2mat, ∂ρt_∂x_all |> vec2mat
+end
+
+function expm(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
+
+    para_num = length(∂H_∂x)
+    ctrl_num = length(control_Hamiltonian)
+    ctrl_interval = (length(times)/length(control_coefficients[1])) |> Int
+    control_coefficients = [repeat(control_coefficients[i], 1, ctrl_interval) |>transpose |>vec for i in 1:ctrl_num]
+
+    H = Htot(H0, control_Hamiltonian, control_coefficients)
+    ∂H_L = [liouville_commu(∂H_∂x[i]) for i in 1:para_num]
+
+    Δt = times[2] - times[1]
+    
+    ρt_all = [Vector{ComplexF64}(undef, (length(H0))^2) for i in 1:length(times)]
+    ∂ρt_∂x_all = [[Vector{ComplexF64}(undef, (length(H0))^2) for j in 1:para_num] for i in 1:length(times)]
+    ρt_all[1] = ρ_initial |> vec
+    for pj in 1:para_num
+        ∂ρt_∂x_all[1][pj] = ρt_all[1] |> zero
+    end
+
+    for t in 2:length(times)
+        expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
+        ρt_all[t] =  expL * ρt_all[t-1]
+        for pj in 1:para_num
+            ∂ρt_∂x_all[t][pj] = -im * Δt * ∂H_L[pj] * ρt_all[t] + expL* ∂ρt_∂x_all[t-1][pj]
+        end
+    end
+    ρt_all |> vec2mat, ∂ρt_∂x_all |> vec2mat
+end

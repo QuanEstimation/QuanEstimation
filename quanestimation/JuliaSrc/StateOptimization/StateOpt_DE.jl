@@ -1,19 +1,5 @@
 ############# time-independent Hamiltonian (noiseless) ################
-mutable struct TimeIndepend_noiseless{T <: Complex,M <: Real}
-    freeHamiltonian::Matrix{T}
-    Hamiltonian_derivative::Vector{Matrix{T}}
-    psi::Vector{T}
-    times::Vector{M}
-    W::Matrix{M}
-    ρ::Vector{Matrix{T}}
-    ∂ρ_∂x::Vector{Vector{Matrix{T}}}
-    TimeIndepend_noiseless(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
-             times::Vector{M}, W::Matrix{M}, ρ=Vector{Matrix{T}}(undef, 1), 
-             ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 
-                Hamiltonian_derivative, psi, times, W, ρ, ∂ρ_∂x) 
-end
-
-function DiffEvo_QFI(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
+function DiffEvo_QFI(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
     println("state optimization")
     println("single parameter scenario")
     println("search algorithm: Differential Evolution (DE)")
@@ -48,13 +34,13 @@ function DiffEvo_QFI(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, 
         indx = findmax(p_fit)[2]
         SaveFile_de(dim, f_list, populations[indx].psi)
         for i in 1:(max_episodes-1)
-            p_fit = train_QFIM_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
+            p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
             SaveFile_de(dim, f_list, populations[indx].psi)
             print("current QFI is ", maximum(p_fit), " ($i eposides)    \r")
         end
-        p_fit = train_QFIM_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
+        p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
         append!(f_list, maximum(p_fit))
         SaveFile_de(dim, f_list, populations[indx].psi)
@@ -64,11 +50,11 @@ function DiffEvo_QFI(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, 
 
     else
         for i in 1:(max_episodes-1)
-            p_fit = train_QFIM_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
+            p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
             append!(f_list, maximum(p_fit))
             print("current QFI is ", maximum(p_fit), " ($i eposides)    \r")
         end
-        p_fit = train_QFIM_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
+        p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
         SaveFile_de(dim, f_list, populations[indx].psi)
         print("\e[2K")
@@ -77,7 +63,7 @@ function DiffEvo_QFI(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, 
     end
 end
 
-function DiffEvo_QFIM(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
+function DiffEvo_QFIM(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
     println("state optimization")
     println("multiparameter scenario")
     println("search algorithm: Differential Evolution (DE)")
@@ -115,13 +101,13 @@ function DiffEvo_QFIM(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c,
         indx = findmax(p_fit)[2]
         SaveFile_de(dim, f_list, populations[indx].psi)
         for i in 1:(max_episodes-1)
-            p_fit = train_QFIM_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
+            p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_de(dim, f_list, populations[indx].psi)
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
         end
-        p_fit = train_QFIM_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
+        p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
         append!(f_list, 1.0/maximum(p_fit))
         SaveFile_de(dim, f_list, populations[indx].psi)
@@ -131,11 +117,11 @@ function DiffEvo_QFIM(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c,
 
     else
         for i in 1:(max_episodes-1)
-            p_fit = train_QFIM_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
+            p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
             append!(f_list, 1.0/maximum(p_fit))
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
         end
-        p_fit = train_QFIM_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
+        p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
         append!(f_list, 1.0/maximum(p_fit))
         SaveFile_de(dim, f_list, populations[indx].psi)
@@ -145,7 +131,7 @@ function DiffEvo_QFIM(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c,
     end
 end
 
-function DiffEvo_CFI(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
+function DiffEvo_CFI(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
     println("state optimization")
     println("single parameter scenario")
     println("search algorithm: Differential Evolution (DE)")
@@ -180,13 +166,13 @@ function DiffEvo_CFI(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, 
         indx = findmax(p_fit)[2]
         SaveFile_de(dim, f_list, populations[indx].psi)
         for i in 1:(max_episodes-1)
-            p_fit = train_CFIM_noiseless(M, populations, c, c0, c1, p_num, dim, p_fit)
+            p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
             SaveFile_de(dim, f_list, populations[indx].psi)
             print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
         end
-        p_fit = train_CFIM_noiseless(M, populations, c, c0, c1, p_num, dim, p_fit)
+        p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
         append!(f_list, maximum(p_fit))
         SaveFile_de(dim, f_list, populations[indx].psi)
@@ -196,11 +182,11 @@ function DiffEvo_CFI(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, 
 
     else
         for i in 1:(max_episodes-1)
-            p_fit = train_CFIM_noiseless(M, populations, c, c0, c1, p_num, dim, p_fit)
+            p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
             append!(f_list, maximum(p_fit))
             print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
         end
-        p_fit = train_CFIM_noiseless(M, populations, c, c0, c1, p_num, dim, p_fit)
+        p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
         append!(f_list, maximum(p_fit))
         SaveFile_de(dim, f_list, populations[indx].psi)
@@ -210,7 +196,7 @@ function DiffEvo_CFI(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, 
     end
 end
 
-function DiffEvo_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
+function DiffEvo_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
     println("state optimization")
     println("multiparameter scenario")
     println("search algorithm: Differential Evolution (DE)")
@@ -247,13 +233,13 @@ function DiffEvo_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population,
         indx = findmax(p_fit)[2]
         SaveFile_de(dim, f_list, populations[indx].psi)
         for i in 1:(max_episodes-1)
-            p_fit = train_CFIM_noiseless(M, populations, c, c0, c1, p_num, dim, p_fit)
+            p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_de(dim, f_list, populations[indx].psi)
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
         end
-        p_fit = train_CFIM_noiseless(M, populations, c, c0, c1, p_num, dim, p_fit)
+        p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
         append!(f_list, 1.0/maximum(p_fit))
         SaveFile_de(dim, f_list, populations[indx].psi)
@@ -263,11 +249,11 @@ function DiffEvo_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population,
 
     else
         for i in 1:(max_episodes-1)
-            p_fit = train_CFIM_noiseless(M, populations, c, c0, c1, p_num, dim, p_fit)
+            p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
             append!(f_list, 1.0/maximum(p_fit))
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
         end
-        p_fit = train_CFIM_noiseless(M, populations, c, c0, c1, p_num, dim, p_fit)
+        p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
         append!(f_list, 1.0/maximum(p_fit))
         SaveFile_de(dim, f_list, populations[indx].psi)
@@ -277,7 +263,7 @@ function DiffEvo_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population,
     end
 end
 
-function train_QFIM_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
+function train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
     f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations
@@ -287,11 +273,11 @@ function train_QFIM_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
             ctrl_mut[ci] = populations[mut_num[1]].psi[ci]+c*(populations[mut_num[2]].psi[ci]-populations[mut_num[3]].psi[ci])
         end
         #crossover
-        if p_fit[pj] > f_mean
-            cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
-        else
-            cr = c0
-        end
+        # if p_fit[pj] > f_mean
+        #     cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
+        # else
+        #     cr = c0
+        # end
         ctrl_cross = zeros(ComplexF64, dim)
         cross_int = sample(1:dim, 1, replace=false)
         for cj in 1:dim
@@ -320,7 +306,7 @@ function train_QFIM_noiseless(populations, c, c0, c1, p_num, dim, p_fit)
     return p_fit
 end
 
-function train_CFIM_noiseless(M, populations, c, c0, c1, p_num, dim, p_fit)
+function train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
     f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations
@@ -330,11 +316,11 @@ function train_CFIM_noiseless(M, populations, c, c0, c1, p_num, dim, p_fit)
             ctrl_mut[ci] = populations[mut_num[1]].psi[ci]+c*(populations[mut_num[2]].psi[ci]-populations[mut_num[3]].psi[ci])
         end
         #crossover
-        if p_fit[pj] > f_mean
-            cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
-        else
-            cr = c0
-        end
+        # if p_fit[pj] > f_mean
+        #     cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
+        # else
+        #     cr = c0
+        # end
         ctrl_cross = zeros(ComplexF64, dim)
         cross_int = sample(1:dim, 1, replace=false)
         for cj in 1:dim
@@ -365,23 +351,7 @@ end
 
 
 ############# time-independent Hamiltonian (noise) ################
-mutable struct TimeIndepend_noise{T <: Complex, M <: Real}
-    freeHamiltonian::Matrix{T}
-    Hamiltonian_derivative::Vector{Matrix{T}}
-    psi::Vector{T}
-    times::Vector{M}
-    Liouville_operator::Vector{Matrix{T}}
-    γ::Vector{M}
-    W::Matrix{M}
-    ρ::Vector{Matrix{T}}
-    ∂ρ_∂x::Vector{Vector{Matrix{T}}}
-    TimeIndepend_noise(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
-             times::Vector{M}, Liouville_operator::Vector{Matrix{T}}, γ::Vector{M}, W::Matrix{M}, ρ=Vector{Matrix{T}}(undef, 1), 
-             ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 
-             Hamiltonian_derivative, psi, times, Liouville_operator, γ, W, ρ, ∂ρ_∂x) 
-end
-
-function DiffEvo_QFI(DE::TimeIndepend_noise{T}, popsize, ini_population, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
+function DiffEvo_QFI(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
     println("state optimization")
     println("single parameter scenario")
     println("search algorithm: Differential Evolution (DE)")
@@ -417,13 +387,13 @@ function DiffEvo_QFI(DE::TimeIndepend_noise{T}, popsize, ini_population, c, c0, 
         indx = findmax(p_fit)[2]
         SaveFile_de(dim, f_list, populations[indx].psi)
         for i in 1:(max_episodes-1)
-            p_fit = train_QFIM_noise(populations, c, c0, c1, p_num, dim, p_fit)
+            p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
             SaveFile_de(dim, f_list, populations[indx].psi)
             print("current QFI is ", maximum(p_fit), " ($i eposides)    \r")
         end
-        p_fit = train_QFIM_noise(populations, c, c0, c1, p_num, dim, p_fit)
+        p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
         append!(f_list, maximum(p_fit))
         SaveFile_de(dim, f_list, populations[indx].psi)
@@ -433,11 +403,11 @@ function DiffEvo_QFI(DE::TimeIndepend_noise{T}, popsize, ini_population, c, c0, 
 
     else
         for i in 1:(max_episodes-1)
-            p_fit = train_QFIM_noise(populations, c, c0, c1, p_num, dim, p_fit)
+            p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
             append!(f_list, maximum(p_fit))
             print("current QFI is ", maximum(p_fit), " ($i eposides)    \r")
         end
-        p_fit = train_QFIM_noise(populations, c, c0, c1, p_num, dim, p_fit)
+        p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
         append!(f_list, maximum(p_fit))
         SaveFile_de(dim, f_list, populations[indx].psi)
@@ -447,7 +417,7 @@ function DiffEvo_QFI(DE::TimeIndepend_noise{T}, popsize, ini_population, c, c0, 
     end
 end
 
-function DiffEvo_QFIM(DE::TimeIndepend_noise{T}, popsize, ini_population, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
+function DiffEvo_QFIM(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
     println("state optimization")
     println("multiparameter scenario")
     println("search algorithm: Differential Evolution (DE)")
@@ -486,13 +456,13 @@ function DiffEvo_QFIM(DE::TimeIndepend_noise{T}, popsize, ini_population, c, c0,
         indx = findmax(p_fit)[2]
         SaveFile_de(dim, f_list, populations[indx].psi)
         for i in 1:(max_episodes-1)
-            p_fit = train_QFIM_noise(populations, c, c0, c1, p_num, dim, p_fit)
+            p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_de(dim, f_list, populations[indx].psi)
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
         end
-        p_fit = train_QFIM_noise(populations, c, c0, c1, p_num, dim, p_fit)
+        p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
         append!(f_list, 1.0/maximum(p_fit))
         SaveFile_de(dim, f_list, populations[indx].psi)
@@ -502,11 +472,11 @@ function DiffEvo_QFIM(DE::TimeIndepend_noise{T}, popsize, ini_population, c, c0,
 
     else
         for i in 1:(max_episodes-1)
-            p_fit = train_QFIM_noise(populations, c, c0, c1, p_num, dim, p_fit)
+            p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
             append!(f_list, 1.0/maximum(p_fit))
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
         end
-        p_fit = train_QFIM_noise(populations, c, c0, c1, p_num, dim, p_fit)
+        p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
         append!(f_list, 1.0/maximum(p_fit))
         SaveFile_de(dim, f_list, populations[indx].psi)
@@ -516,7 +486,7 @@ function DiffEvo_QFIM(DE::TimeIndepend_noise{T}, popsize, ini_population, c, c0,
     end
 end
 
-function DiffEvo_CFI(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
+function DiffEvo_CFI(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
     println("state optimization")
     println("single parameter scenario")
     println("search algorithm: Differential Evolution (DE)")
@@ -552,13 +522,13 @@ function DiffEvo_CFI(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, c
         indx = findmax(p_fit)[2]
         SaveFile_de(dim, f_list, populations[indx].psi)
         for i in 1:(max_episodes-1)
-            p_fit = train_CFIM_noise(M, populations, c, c0, c1, p_num, dim, p_fit)
+            p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
             SaveFile_de(dim, f_list, populations[indx].psi)
             print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
         end
-        p_fit = train_CFIM_noise(M, populations, c, c0, c1, p_num, dim, p_fit)
+        p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
         append!(f_list, maximum(p_fit))
         SaveFile_de(dim, f_list, populations[indx].psi)
@@ -568,12 +538,12 @@ function DiffEvo_CFI(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, c
 
     else
         for i in 1:(max_episodes-1)
-            p_fit = train_CFIM_noise(M, populations, c, c0, c1, p_num, dim, p_fit)
+            p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
             append!(f_list, maximum(p_fit))
             print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
             
         end
-        p_fit = train_CFIM_noise(M, populations, c, c0, c1, p_num, dim, p_fit)
+        p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
         append!(f_list, maximum(p_fit))
         SaveFile_de(dim, f_list, populations[indx].psi)
@@ -583,7 +553,7 @@ function DiffEvo_CFI(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, c
     end
 end
 
-function DiffEvo_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, c0, c1, seed, max_episodes, save_file) where {T<: Complex}
+function DiffEvo_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
     println("state optimization")
     println("multiparameter scenario")
     println("search algorithm: Differential Evolution (DE)")
@@ -621,13 +591,13 @@ function DiffEvo_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, 
         indx = findmax(p_fit)[2]
         SaveFile_de(dim, f_list, populations[indx].psi)
         for i in 1:(max_episodes-1)
-            p_fit = train_CFIM_noise(M, populations, c, c0, c1, p_num, dim, p_fit)
+            p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_de(dim, f_list, populations[indx].psi)
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
         end
-        p_fit = train_CFIM_noise(M, populations, c, c0, c1, p_num, dim, p_fit)
+        p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
         append!(f_list, 1.0/maximum(p_fit))
         SaveFile_de(dim, f_list, populations[indx].psi)
@@ -637,11 +607,11 @@ function DiffEvo_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, 
 
     else
         for i in 1:(max_episodes-1)
-            p_fit = train_CFIM_noise(M, populations, c, c0, c1, p_num, dim, p_fit)
+            p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
             append!(f_list, 1.0/maximum(p_fit))
             print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
         end
-        p_fit = train_CFIM_noise(M, populations, c, c0, c1, p_num, dim, p_fit)
+        p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
         indx = findmax(p_fit)[2]
         append!(f_list, 1.0/maximum(p_fit))
         SaveFile_de(dim, f_list, populations[indx].psi)
@@ -651,7 +621,7 @@ function DiffEvo_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, 
     end
 end
 
-function train_QFIM_noise(populations, c, c0, c1, p_num, dim, p_fit)
+function train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
     f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations
@@ -661,11 +631,11 @@ function train_QFIM_noise(populations, c, c0, c1, p_num, dim, p_fit)
             ctrl_mut[ci] = populations[mut_num[1]].psi[ci]+c*(populations[mut_num[2]].psi[ci]-populations[mut_num[3]].psi[ci])
         end
         #crossover
-        if p_fit[pj] > f_mean
-            cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
-        else
-            cr = c0
-        end
+        # if p_fit[pj] > f_mean
+        #     cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
+        # else
+        #     cr = c0
+        # end
         ctrl_cross = zeros(ComplexF64, dim)
         cross_int = sample(1:dim, 1, replace=false)
         for cj in 1:dim
@@ -694,7 +664,7 @@ function train_QFIM_noise(populations, c, c0, c1, p_num, dim, p_fit)
     return p_fit
 end
 
-function train_CFIM_noise(M, populations, c, c0, c1, p_num, dim, p_fit)
+function train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
     f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations
@@ -704,11 +674,11 @@ function train_CFIM_noise(M, populations, c, c0, c1, p_num, dim, p_fit)
             ctrl_mut[ci] = populations[mut_num[1]].psi[ci]+c*(populations[mut_num[2]].psi[ci]-populations[mut_num[3]].psi[ci])
         end
         #crossover
-        if p_fit[pj] > f_mean
-            cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
-        else
-            cr = c0
-        end
+        # if p_fit[pj] > f_mean
+        #     cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
+        # else
+        #     cr = c0
+        # end
         ctrl_cross = zeros(ComplexF64, dim)
         cross_int = sample(1:dim, 1, replace=false)
         for cj in 1:dim

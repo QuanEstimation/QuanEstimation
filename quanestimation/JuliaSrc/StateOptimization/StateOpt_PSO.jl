@@ -1,18 +1,4 @@
 ############# time-independent Hamiltonian (noiseless) ################
-mutable struct TimeIndepend_noiseless{T <: Complex,M <: Real}
-    freeHamiltonian::Matrix{T}
-    Hamiltonian_derivative::Vector{Matrix{T}}
-    psi::Vector{T}
-    times::Vector{M}
-    W::Matrix{M}
-    ρ::Vector{Matrix{T}}
-    ∂ρ_∂x::Vector{Vector{Matrix{T}}}
-    TimeIndepend_noiseless(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
-             times::Vector{M}, W::Matrix{M}, ρ=Vector{Matrix{T}}(undef, 1), 
-             ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 
-                Hamiltonian_derivative, psi, times, W, ρ, ∂ρ_∂x) 
-end
-
 function PSO_QFI(pso::TimeIndepend_noiseless{T}, max_episodes, particle_num, ini_particle, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
     println("state optimization")
     println("single parameter scenario")
@@ -399,22 +385,6 @@ function train_CFIM_noiseless(M, particles, p_fit, fit, max_episodes, c0, c1, c2
 end
 
 ############# time-independent Hamiltonian (noise) ################
-mutable struct TimeIndepend_noise{T <: Complex,M <: Real}
-    freeHamiltonian::Matrix{T}
-    Hamiltonian_derivative::Vector{Matrix{T}}
-    psi::Vector{T}
-    times::Vector{M}
-    Liouville_operator::Vector{Matrix{T}}
-    γ::Vector{M}
-    W::Matrix{M}
-    ρ::Vector{Matrix{T}}
-    ∂ρ_∂x::Vector{Vector{Matrix{T}}}
-    TimeIndepend_noise(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
-             times::Vector{M}, Liouville_operator::Vector{Matrix{T}}, γ::Vector{M}, W::Matrix{M}, ρ=Vector{Matrix{T}}(undef, 1), 
-             ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 
-                Hamiltonian_derivative, psi, times, Liouville_operator, γ, W, ρ, ∂ρ_∂x) 
-end
-
 function PSO_QFI(pso::TimeIndepend_noise{T}, max_episodes, particle_num, ini_particle, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
     println("state optimization")
     println("single parameter scenario")

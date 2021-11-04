@@ -98,7 +98,7 @@ class ControlSystem:
             self.tnum = number*len(self.control_coefficients[0])
             self.tspan = np.linspace(self.tspan[0], self.tspan[-1], self.tnum)
 
-def ControlOptimize(*args, method = 'auto-GRAPE', **kwargs):
+def ControlOpt(*args, method = 'auto-GRAPE', **kwargs):
 
     if method == 'auto-GRAPE':
         return ctrl.GRAPE(*args, **kwargs, auto=True)

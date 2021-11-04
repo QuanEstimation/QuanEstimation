@@ -3,7 +3,7 @@ import warnings
 import math
 import quanestimation.StateOptimization as stateoptimize
 
-def StateOptimize(*args, method = 'AD', **kwargs):
+def StateOpt(*args, method = 'AD', **kwargs):
 
     if method == 'AD':
         return stateoptimize.StateOpt_AD(*args, **kwargs)

@@ -26,14 +26,15 @@ A2 = (2*np.pi*3.03)/cons
 H0 = D*np.kron(np.dot(s3, s3), ide2)+gS*(B1*S1+B2*S2+B3*S3)+gI*(B1*I1+B2*I2+B3*I3)+\
      + A1*(np.kron(s1, sx)+np.kron(s2, sy)) + A2*np.kron(s3, sz)
 dH1, dH2, dH3 = gS*S1+gI*I1, gS*S2+gI*I2, gS*S3+gI*I3
-dH0 = [dH1, dH2, dH3]
+dH0 = [dH1]
+# dH0 = [dH1, dH2, dH3]
 Hc_ctrl = [S1, S2, S3]
 #dissipation
 L_opt = [S3]
 gamma = [2*np.pi/cons]
 
 T = 2.0
-tnum = int(2000*T)
+tnum = int(200*T)
 tspan = np.linspace(0.0, T, tnum)
 cnum = tnum
 #initial control coefficients
@@ -52,9 +53,10 @@ ini_10 = -0.2*np.ones((len(Hc_ctrl), cnum))+0.05*np.random.random((len(Hc_ctrl),
 ini_ctrl = [ini_1, ini_2, ini_3, ini_4, ini_5, ini_6, ini_7, ini_8, ini_9, ini_10]
 
 #GRAPE algorithm
-GRAPE_para = {"lr":0.01, "epsilon":1e-8, "max_episodes":300, "Adam":True}
-PSO_paras = {"particle_num":10, "ini_particle":ini_ctrl, "c0":0.5, "c1":0.1, "c2":0.6, "v0":0.01, "seed":1234, "max_episodes":[1000,100]}
-DE_paras = {"popsize":10, "ini_population":ini_ctrl, "c":0.5, "c0":0.1, "c1":0.6, "seed":1234, "max_episodes":1000}
+GRAPE_para = {'lr':0.01, 'epsilon':1e-8, 'max_episodes':300, 'Adam':True}
+PSO_paras = {'particle_num':10, 'ini_particle':ini_ctrl, 'c0':0.5, 'c1':0.1, 'c2':0.6, 'v0':0.01, 'seed':1234, 'max_episodes':[1000,100]}
+DE_paras = {'popsize':10, 'ini_population':ini_ctrl, 'c':0.5, 'cr':0.5, 'seed':1234, 'max_episodes':1000}
 
-ctrlopt = ControlOptimize(tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, L_opt, gamma, ctrl_bound=[-0.1,0.2], method = 'auto-GRAPE', **GRAPE_para)
+ctrlopt = ControlOpt(tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, L_opt, gamma, ctrl_bound=[-0.1,0.2], method = 'auto-GRAPE', **GRAPE_para)
 ctrlopt.QFIM(save_file=True)
+

@@ -6,7 +6,7 @@ from julia import Main
 # from julia import QuanEstimation
 
 class StateOpt_AD():
-    def __init__(self, tspan, rho_initial, H0, dH=[], Liouville_operator=[], \
+    def __init__(self, tspan, psi_initial, H0, dH=[], Liouville_operator=[], \
                  gamma=[], W=[], epsilon=1e-4, max_episodes=200, Adam=True, lr=0.01, \
                  beta1=0.90, beta2=0.99, mt=0.0, vt=0.0, precision=1e-8):
 
@@ -18,9 +18,9 @@ class StateOpt_AD():
             --description: time series.
             --type: array
 
-        rho_initial:
-            --description: initial state (density matrix).
-            --type: matrix
+        psi_initial:
+            --description: initial state.
+            --type: array
             
         H0:
             --description: free Hamiltonian.
@@ -72,7 +72,7 @@ class StateOpt_AD():
             dH = [np.zeros((len(H0), len(H0)))]
         
         self.tspan = tspan
-        self.rho_initial = np.array(rho_initial,dtype=np.complex128)
+        self.psi_initial = np.array(psi_initial,dtype=np.complex128)
         self.freeHamiltonian = np.array(H0,dtype=np.complex128)
         self.Hamiltonian_derivative = [np.array(x,dtype=np.complex128) for x in dH]
         self.Liouville_operator = [np.array(x, dtype=np.complex128) for x in Liouville_operator]
@@ -122,11 +122,11 @@ class StateOpt_AD():
         """
         if self.gamma == [] or self.gamma == 0.0:
             AD = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                 self.rho_initial, self.tspan, self.W)
+                 self.psi_initial, self.tspan, self.W)
             Main.QuanEstimation.AD_QFIM(AD, self.epsilon, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision, self.max_episodes, self.Adam, save_file)
         else:
             AD = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                 self.rho_initial, self.tspan, self.Liouville_operator, self.gamma, self.W)
+                 self.psi_initial, self.tspan, self.Liouville_operator, self.gamma, self.W)
             Main.QuanEstimation.AD_QFIM(AD, self.epsilon, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision, self.max_episodes, self.Adam, save_file)
             
     def CFIM(self, Measurement, save_file=False):
@@ -164,10 +164,10 @@ class StateOpt_AD():
 
         if self.gamma == [] or self.gamma == 0.0:
             AD = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                 self.rho_initial, self.tspan, self.W)
+                 self.psi_initial, self.tspan, self.W)
             Main.QuanEstimation.AD_CFIM(Measurement, AD, self.epsilon, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision, self.max_episodes, self.Adam, save_file)
         else:
             AD = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                 self.rho_initial, self.tspan, self.Liouville_operator, self.gamma, self.W)
+                 self.psi_initial, self.tspan, self.Liouville_operator, self.gamma, self.W)
             Main.QuanEstimation.AD_CFIM(Measurement, AD, self.epsilon, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision, self.max_episodes, self.Adam, save_file)
         
