@@ -2,19 +2,7 @@
 
 import numpy as np
 from scipy.sparse import csc_matrix
-from sympy import Matrix,GramSchmidt
-
-def dydt(d_rho, Liouv_tot, A): 
-    drho = np.dot(Liouv_tot, d_rho) + A
-    return drho
-
-def dRHO(d_rho, Liouv_tot, A, h): 
-    k1 = h * dydt(d_rho, Liouv_tot, A) 
-    k2 = h * dydt(d_rho+0.5*k1, Liouv_tot, A) 
-    k3 = h * dydt(d_rho+0.5*k2, Liouv_tot, A) 
-    k4 = h * dydt(d_rho+k3, Liouv_tot, A) 
-    d_rho = d_rho + (1.0 / 6.0)*(k1 + 2 * k2 + 2 * k3 + k4)
-    return d_rho
+from sympy import Matrix, GramSchmidt
         
 def mat_vec_convert(A):
     if A.shape[1] == 1:

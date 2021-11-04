@@ -1,104 +1,78 @@
-function RunMixed( grape, particle_num= 10, c0=0.5, c1=0.5, c2=0.5, prec_rough = 0.1, sd=1234, episode=400)
-    println("Combined strategies")
-    println("searching initial controls with particle swarm optimization ")
-    tnum = length(grape.times)
-    ctrl_num = length(grape.control_Hamiltonian)
-    particles, velocity = repeat(grape, particle_num), [[10*ones(tnum) for i in 1:ctrl_num] for j in 1:particle_num]
-    pbest = [[zeros(tnum) for i in 1:ctrl_num] for j in 1:particle_num]
-    gbest = [zeros(tnum) for i in 1:ctrl_num]
-    velocity_best = [zeros(Float64, tnum) for i in 1:ctrl_num]
-    p_fit = zeros(particle_num)
-    qfi_ini = QFI(grape)
-    println("initial QFI is $(qfi_ini)")
-    for ei in 1:episode
-        fit_pre = 0.0
-        fit = 0.0
-        for pj in 1:particle_num
-            propagate!(particles[pj])
-            f_now = QFI(particles[pj])
-            
-            if f_now > p_fit[pj]
-                p_fit[pj] = f_now
-                for di in 1:ctrl_num
-                    for ni in 1:tnum
-                        pbest[pj][di][ni] = particles[pj].control_coefficients[di][ni]
-                    end
-                end
-            end
-        end
-        for pj in 1:particle_num
-            if p_fit[pj] > fit
-                fit = p_fit[pj]
-                for dj in 1:ctrl_num
-                    for nj in 1:tnum
-                        gbest[dj][nj] =  particles[pj].control_coefficients[dj][nj]
-                        velocity_best[dj][nj] = velocity[pj][dj][nj]
-                    end
-                end
-            end
-        end
-        Random.seed!(sd)
-        for pk in 1:particle_num
-            for dk in 1:ctrl_num
-                for ck in 1:tnum
-                    velocity[pk][dk][ck]  = c0*velocity[pk][dk][ck] + c1*rand()*(pbest[pk][dk][ck] - particles[pk].control_coefficients[dk][ck]) 
-                                          + c2*rand()*(gbest[dk][ck] - particles[pk].control_coefficients[dk][ck])  
-                    particles[pk].control_coefficients[dk][ck] = particles[pk].control_coefficients[dk][ck] + velocity[pk][dk][ck]
-                end
-            end
-        end
-        fit_pre = fit
-        if abs(fit-fit_pre) < prec_rough
-            grape.control_coefficients = gbest
-            println("PSO strategy finished, switching to GRAPE")
-            Run(grape)
-            return nothing
-        end
-        print("current QFI is $fit ($ei epochs)    \r")
-    end
+
+function vec2mat(x::Vector{T}) where {T <: Number}
+    reshape(x, x |> length |> sqrt |> Int, :)  
 end
 
-function RunODE(grape)
-    println("quantum parameter estimation")
-    if length(grape.Hamiltonian_derivative) == 1
-        println("single parameter estimation scenario")
-        qfi_ini = QFI(grape)
-        qfi_list = [qfi_ini]
-        println("initial QFI is $(qfi_ini)")
-        gradient_QFIM_ODE!(grape)
-        while true
-            qfi_now = QFI(grape)
-            gradient_QFIM_ODE!(grape)
-            if  0 < (qfi_now - qfi_ini) < 1e-4
-                println("\n Iteration over, data saved.")
-                println("Final QFI is ", qfi_now)
-                save("controls.jld", "controls", grape.control_coefficients, "time_span", grape.times, "qfi", qfi_list)
-                break
-            else
-                qfi_ini = qfi_now
-                append!(qfi_list,qfi_now)
-                print("current QFI is ", qfi_now, " ($(qfi_list|>length) epochs)    \r")
-            end
-        end
-    else
-        println("multiple parameters estimation scenario")
-        f_ini =1/(grape |> QFIM |> inv |> tr)
-        f_list = [f_ini]
-        println("initial 1/tr(F^-1) is $(f_ini)")
-        gradient_QFIM!(grape)
-        while true
-            f_now = 1/(grape |> QFIM |> inv |> tr)
-            gradient_QFIM!(grape)
-            if  0< f_now - f_ini < 1e-4
-                println("\n Iteration over, data saved.")
-                println("Final 1/tr(F^-1) is ", f_now)
-                save("controls.jld", "controls", grape.control_coefficients, "time_span", grape.times, "f", f_list)
-                break
-            else
-                f_ini = f_now
-                append!(f_list,f_now)
-                print("current 1/tr(F^-1) is ", f_now, " ($(f_list|>length) epochs)    \r")
-            end
-        end
+function vec2mat(x)
+    vec2mat.(x)
+end
+
+function vec2mat(x::Matrix)
+    throw(ErrorException("vec2mating a matrix of size $(size(x))"))
+end
+
+function Base.repeat(system, N)
+    [deepcopy(system) for i in 1:N]
+end
+
+function Base.repeat(system, M, N)
+    reshape(repeat(system, M * N), M, N)
+end
+
+function filterZeros!(x::Matrix{T}) where {T <: Complex}
+    x[abs.(x) .< eps()] .= zero(T)
+    x
+end
+function filterZeros!(x) 
+    filterZeros!.(x)
+end
+
+function t2Num(t0, dt, t)
+    Int(round((t - t0) / dt)) + 1 
+end
+
+function basis(dim, si, ::T)::Array{T} where {T <: Complex}
+    result = zeros(T, dim)
+    result[si] = 1.0
+    result
+end
+
+function suN_generatorU(n, k)
+    tmp1, tmp2 = ceil((1+sqrt(1+8k))/2), ceil((-1+sqrt(1+8k))/2) 
+    i = k - tmp2*(tmp2-1)/2 |> Int
+    j =  tmp1 |> Int
+    return sparse([i, j], [j,i], [1, 1], n, n)
+end
+
+function suN_generatorV(n, k)
+    tmp1, tmp2 = ceil((1+sqrt(1+8k))/2), ceil((-1+sqrt(1+8k))/2) 
+    i = k - tmp2*(tmp2-1)/2 |> Int
+    j =  tmp1 |> Int 
+    return sparse([i, j], [j,i], [-im, im], n, n)
+end
+
+function suN_generatorW(n, k)
+    diagw = spzeros(n)
+    diagw[1:k] .=1
+    diagw[k+1] = -k
+    return spdiagm(n,n,diagw)
+end
+
+function suN_generator(n)
+    result = Vector{SparseMatrixCSC{ComplexF64, Int64}}(undef, n^2-1)
+    idx = 2
+    itr = 1
+
+    for i in 1:n-1
+       idx_t = idx
+       while idx_t > 0
+            result[itr] = iseven(idx_t) ? suN_generatorU(n, (i*(i-1)+idx-idx_t+2)/2) : suN_generatorV(n, (i*(i-1)+idx-idx_t+1)/2)
+            itr += 1
+            idx_t -= 1
+       end
+       result[itr] = sqrt(2/(i+i*i))*suN_generatorW(n, i)
+       itr += 1
+       idx += 2
     end
-end 
+    return result
+end
