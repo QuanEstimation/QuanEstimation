@@ -558,7 +558,7 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, grape::Gradient{T})
     grape.control_coefficients, cost_function
 end
 
-function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
+function auto_GRAPE_QFIM(grape, epsilon, max_episodes, Adam, save_file)
     println("quantum parameter estimation")
     ctrl_num = length(grape.control_Hamiltonian)
     ctrl_length = length(grape.control_coefficients[1])
@@ -753,7 +753,7 @@ function GRAPE_QFIM_auto(grape, epsilon, max_episodes, Adam, save_file)
     end
 end
 
-function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
+function GRAPE_QFIM(grape, epsilon, max_episodes, Adam, save_file)
     println("quantum parameter estimation")
     ctrl_num = length(grape.control_Hamiltonian)
     ctrl_length = length(grape.control_coefficients[1])
@@ -946,7 +946,7 @@ function GRAPE_QFIM_analy(grape, epsilon, max_episodes, Adam, save_file)
     end
 end
 
-function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_file)
+function auto_GRAPE_CFIM(Measurement, grape, epsilon, max_episodes, Adam, save_file)
     println("classical parameter estimation")
     ctrl_num = length(grape.control_Hamiltonian)
     ctrl_length = length(grape.control_coefficients[1])
@@ -1142,7 +1142,7 @@ function GRAPE_CFIM_auto(Measurement, grape, epsilon, max_episodes, Adam, save_f
     end
 end
 
-function GRAPE_CFIM_analy(Measurement, grape, epsilon, max_episodes, Adam, save_file)
+function GRAPE_CFIM(Measurement, grape, epsilon, max_episodes, Adam, save_file)
     println("classical parameter estimation")
     ctrl_num = length(grape.control_Hamiltonian)
     ctrl_length = length(grape.control_coefficients[1])

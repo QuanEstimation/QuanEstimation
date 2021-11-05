@@ -27,14 +27,13 @@ include("StateOptimization/StateOpt_AD.jl")
 export QFI, QFIM, CFI, CFIM
 export suN_generator, expm
 ######## control optimization ########
-export Gradient, GRAPE_QFIM_auto, GRAPE_CFIM_auto, GRAPE_QFIM_ana, GRAPE_CFIM_ana
-export DiffEvo, DiffEvo_QFI, DiffEvo_CFI, DiffEvo_QFIM, DiffEvo_CFIM
-export PSO, PSO_QFI, PSO_CFI, PSO_QFIM, PSO_CFIM
+export Gradient, auto_GRAPE_QFIM, auto_GRAPE_CFIM, GRAPE_QFIM, GRAPE_CFIM
+export DiffEvo, DE_QFIM, DE_CFIM
+export PSO, PSO_QFIM, PSO_CFIM
 ######## state optimization ########
 export TimeIndepend_noiseless, TimeIndepend_noise
 export AD_QFIM, AD_CFIM
-export DiffEvo_QFI, DiffEvo_CFI, DiffEvo_QFIM, DiffEvo_CFIM
-export PSO_QFI, PSO_CFI, PSO_QFIM, PSO_CFIM
-export NelderMead_QFI, NelderMead_CFI, NelderMead_QFIM, NelderMead_CFIM
-
+export DE_QFIM, DE_CFIM
+export PSO_QFIM, PSO_CFIM
+export NM_QFIM, NM_CFIM
 end

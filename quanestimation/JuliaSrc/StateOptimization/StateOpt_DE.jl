@@ -1,83 +1,14 @@
 ############# time-independent Hamiltonian (noiseless) ################
-function DiffEvo_QFI(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
+function DE_QFIM(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
     println("state optimization")
-    println("single parameter scenario")
-    println("search algorithm: Differential Evolution (DE)")
-
     Random.seed!(seed)
     dim = length(DE.psi)
-
     p_num = popsize
     populations = repeat(DE, p_num)
     # initialize 
     for pj in 1:length(ini_population)
         populations[pj].psi = [ini_population[pj][i] for i in 1:dim]
     end
-
-    for pj in (length(ini_population)+1):(p_num-1)
-        r_ini = 2*rand(dim)-rand(dim)
-        r = r_ini/norm(r_ini)
-        phi = 2*pi*rand(dim)
-        populations[pj].psi = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
-    end
-
-    p_fit = [0.0 for i in 1:p_num] 
-    for pj in 1:p_num
-        p_fit[pj] = QFIM_TimeIndepend(DE.freeHamiltonian, DE.Hamiltonian_derivative[1], populations[pj].psi, DE.times)
-    end
-
-    f_ini = QFIM_TimeIndepend(DE.freeHamiltonian, DE.Hamiltonian_derivative[1], DE.psi, DE.times)
-    f_list = [f_ini]
-    println("initial QFI is $(f_ini)")
-
-    if save_file == true
-        indx = findmax(p_fit)[2]
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        for i in 1:(max_episodes-1)
-            p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
-            indx = findmax(p_fit)[2]
-            append!(f_list, maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
-            print("current QFI is ", maximum(p_fit), " ($i eposides)    \r")
-        end
-        p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
-        indx = findmax(p_fit)[2]
-        append!(f_list, maximum(p_fit))
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        print("\e[2K")
-        println("Iteration over, data saved.")
-        println("Final QFI is ", maximum(p_fit))
-
-    else
-        for i in 1:(max_episodes-1)
-            p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
-            append!(f_list, maximum(p_fit))
-            print("current QFI is ", maximum(p_fit), " ($i eposides)    \r")
-        end
-        p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
-        indx = findmax(p_fit)[2]
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        print("\e[2K")
-        println("Iteration over, data saved.")
-        println("Final QFI is ", maximum(p_fit))
-    end
-end
-
-function DiffEvo_QFIM(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
-    println("state optimization")
-    println("multiparameter scenario")
-    println("search algorithm: Differential Evolution (DE)")
-
-    Random.seed!(seed)
-    dim = length(DE.psi)
-
-    p_num = popsize
-    populations = repeat(DE, p_num)
-    # initialize 
-    for pj in 1:length(ini_population)
-        populations[pj].psi = [ini_population[pj][i] for i in 1:dim]
-    end
-
     for pj in (length(ini_population)+1):(p_num-1)
         r_ini = 2*rand(dim)-rand(dim)
         r = r_ini/norm(r_ini)
@@ -92,50 +23,86 @@ function DiffEvo_QFIM(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c,
     end
 
     F = QFIM_TimeIndepend(DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.psi, DE.times)
-
     f_ini= real(tr(DE.W*pinv(F)))
-    f_list = [f_ini]
-    println("initial value of Tr(WF^{-1}) is $(f_ini)")
 
-    if save_file == true
-        indx = findmax(p_fit)[2]
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        for i in 1:(max_episodes-1)
+    if length(DE.Hamiltonian_derivative) == 1
+        println("single parameter scenario")
+        println("search algorithm: Differential Evolution (DE)")
+        println("initial QFI is $(1.0/f_ini)")
+    
+        f_list = [1.0/f_ini]
+        if save_file == true
+            indx = findmax(p_fit)[2]
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            for i in 1:(max_episodes-1)
+                p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
+                indx = findmax(p_fit)[2]
+                append!(f_list, maximum(p_fit))
+                SaveFile_de(dim, f_list, populations[indx].psi)
+                print("current QFI is ", maximum(p_fit), " ($i eposides)    \r")
+            end
+            p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
+            indx = findmax(p_fit)[2]
+            append!(f_list, maximum(p_fit))
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            print("\e[2K")
+            println("Iteration over, data saved.")
+            println("Final QFI is ", maximum(p_fit))
+        else
+            for i in 1:(max_episodes-1)
+                p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
+                append!(f_list, maximum(p_fit))
+                print("current QFI is ", maximum(p_fit), " ($i eposides)    \r")
+            end
+            p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
+            indx = findmax(p_fit)[2]
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            print("\e[2K")
+            println("Iteration over, data saved.")
+            println("Final QFI is ", maximum(p_fit))
+        end
+    else
+        println("multiparameter scenario")
+        println("search algorithm: Differential Evolution (DE)")
+        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+
+        f_list = [f_ini]
+        if save_file == true
+            indx = findmax(p_fit)[2]
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            for i in 1:(max_episodes-1)
+                p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
+                indx = findmax(p_fit)[2]
+                append!(f_list, 1.0/maximum(p_fit))
+                SaveFile_de(dim, f_list, populations[indx].psi)
+                print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+            end
             p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_de(dim, f_list, populations[indx].psi)
-            print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
-        end
-        p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
-        indx = findmax(p_fit)[2]
-        append!(f_list, 1.0/maximum(p_fit))
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        print("\e[2K")
-        println("Iteration over, data saved.")
-        println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
-
-    else
-        for i in 1:(max_episodes-1)
+            print("\e[2K")
+            println("Iteration over, data saved.")
+            println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
+        else
+            for i in 1:(max_episodes-1)
+                p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
+                append!(f_list, 1.0/maximum(p_fit))
+                print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+            end
             p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
+            indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
-            print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            print("\e[2K")
+            println("Iteration over, data saved.")
+            println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
         end
-        p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
-        indx = findmax(p_fit)[2]
-        append!(f_list, 1.0/maximum(p_fit))
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        print("\e[2K")
-        println("Iteration over, data saved.")
-        println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
     end
 end
 
-function DiffEvo_CFI(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
+function DE_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
     println("state optimization")
-    println("single parameter scenario")
-    println("search algorithm: Differential Evolution (DE)")
-
     Random.seed!(seed)
     dim = length(DE.psi)
 
@@ -145,72 +112,6 @@ function DiffEvo_CFI(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, 
     for pj in 1:length(ini_population)
         populations[pj].psi = [ini_population[pj][i] for i in 1:dim]
     end
-
-    for pj in (length(ini_population)+1):(p_num-1)
-        r_ini = 2*rand(dim)-rand(dim)
-        r = r_ini/norm(r_ini)
-        phi = 2*pi*rand(dim)
-        populations[pj].psi = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
-    end
-
-    p_fit = [0.0 for i in 1:p_num] 
-    for pj in 1:p_num
-        p_fit[pj] = CFIM_TimeIndepend(M, DE.freeHamiltonian, DE.Hamiltonian_derivative[1], populations[pj].psi, DE.times)
-    end
-
-    f_ini = CFIM_TimeIndepend(M, DE.freeHamiltonian, DE.Hamiltonian_derivative[1], DE.psi, DE.times)
-    f_list = [f_ini]
-    println("initial CFI is $(f_ini)")
-
-    if save_file == true
-        indx = findmax(p_fit)[2]
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        for i in 1:(max_episodes-1)
-            p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
-            indx = findmax(p_fit)[2]
-            append!(f_list, maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
-            print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
-        end
-        p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
-        indx = findmax(p_fit)[2]
-        append!(f_list, maximum(p_fit))
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        print("\e[2K")
-        println("Iteration over, data saved.")
-        println("Final CFI is ", maximum(p_fit))
-
-    else
-        for i in 1:(max_episodes-1)
-            p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
-            append!(f_list, maximum(p_fit))
-            print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
-        end
-        p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
-        indx = findmax(p_fit)[2]
-        append!(f_list, maximum(p_fit))
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        print("\e[2K")
-        println("Iteration over, data saved.")
-        println("Final CFI is ", maximum(p_fit))
-    end
-end
-
-function DiffEvo_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
-    println("state optimization")
-    println("multiparameter scenario")
-    println("search algorithm: Differential Evolution (DE)")
-
-    Random.seed!(seed)
-    dim = length(DE.psi)
-
-    p_num = popsize
-    populations = repeat(DE, p_num)
-    # initialize 
-    for pj in 1:length(ini_population)
-        populations[pj].psi = [ini_population[pj][i] for i in 1:dim]
-    end
-
     for pj in (length(ini_population)+1):(p_num-1)
         r_ini = 2*rand(dim)-rand(dim)
         r = r_ini/norm(r_ini)
@@ -226,40 +127,81 @@ function DiffEvo_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population,
 
     F = CFIM_TimeIndepend(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.psi, DE.times)
     f_ini= real(tr(DE.W*pinv(F)))
-    f_list = [f_ini]
-    println("initial value of Tr(WF^{-1}) is $(f_ini)")
 
-    if save_file == true
-        indx = findmax(p_fit)[2]
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        for i in 1:(max_episodes-1)
+    if length(DE.Hamiltonian_derivative) == 1
+        println("single parameter scenario")
+        println("search algorithm: Differential Evolution (DE)")
+        println("initial CFI is $(1.0/f_ini)")
+
+        f_list = [1.0/f_ini]
+        if save_file == true
+            indx = findmax(p_fit)[2]
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            for i in 1:(max_episodes-1)
+                p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
+                indx = findmax(p_fit)[2]
+                append!(f_list, maximum(p_fit))
+                SaveFile_de(dim, f_list, populations[indx].psi)
+                print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
+            end
+            p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
+            indx = findmax(p_fit)[2]
+            append!(f_list, maximum(p_fit))
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            print("\e[2K")
+            println("Iteration over, data saved.")
+            println("Final CFI is ", maximum(p_fit))
+        else
+            for i in 1:(max_episodes-1)
+                p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
+                append!(f_list, maximum(p_fit))
+                print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
+            end
+            p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
+            indx = findmax(p_fit)[2]
+            append!(f_list, maximum(p_fit))
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            print("\e[2K")
+            println("Iteration over, data saved.")
+            println("Final CFI is ", maximum(p_fit))
+        end
+    else  
+        println("multiparameter scenario")
+        println("search algorithm: Differential Evolution (DE)")
+        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+
+        f_list = [f_ini]
+        if save_file == true
+            indx = findmax(p_fit)[2]
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            for i in 1:(max_episodes-1)
+                p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
+                indx = findmax(p_fit)[2]
+                append!(f_list, 1.0/maximum(p_fit))
+                SaveFile_de(dim, f_list, populations[indx].psi)
+                print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+            end
             p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_de(dim, f_list, populations[indx].psi)
-            print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
-        end
-        p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
-        indx = findmax(p_fit)[2]
-        append!(f_list, 1.0/maximum(p_fit))
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        print("\e[2K")
-        println("Iteration over, data saved.")
-        println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
-
-    else
-        for i in 1:(max_episodes-1)
+            print("\e[2K")
+            println("Iteration over, data saved.")
+            println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
+        else
+            for i in 1:(max_episodes-1)
+                p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
+                append!(f_list, 1.0/maximum(p_fit))
+                print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+            end
             p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
+            indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
-            print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            print("\e[2K")
+            println("Iteration over, data saved.")
+            println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
         end
-        p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
-        indx = findmax(p_fit)[2]
-        append!(f_list, 1.0/maximum(p_fit))
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        print("\e[2K")
-        println("Iteration over, data saved.")
-        println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
     end
 end
 
@@ -289,13 +231,11 @@ function train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
             end
             ctrl_cross[cross_int] = ctrl_mut[cross_int]
         end
-
         psi_cross = ctrl_cross/norm(ctrl_cross)
 
         #selection
         F_tp = QFIM_TimeIndepend(populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, psi_cross, populations[pj].times)
         f_cross = 1.0/real(tr(populations[pj].W*pinv(F_tp)))
-
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
             for ck in 1:dim
@@ -332,13 +272,11 @@ function train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
             end
             ctrl_cross[cross_int] = ctrl_mut[cross_int]
         end
-
         psi_cross = ctrl_cross/norm(ctrl_cross)
 
         #selection
         F_tp = CFIM_TimeIndepend(M, populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, psi_cross, populations[pj].times)
         f_cross = 1.0/real(tr(populations[pj].W*pinv(F_tp)))
-
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
             for ck in 1:dim
@@ -351,11 +289,8 @@ end
 
 
 ############# time-independent Hamiltonian (noise) ################
-function DiffEvo_QFI(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
+function DE_QFIM(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
     println("state optimization")
-    println("single parameter scenario")
-    println("search algorithm: Differential Evolution (DE)")
-
     Random.seed!(seed)
     dim = length(DE.psi)
 
@@ -365,73 +300,6 @@ function DiffEvo_QFI(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, 
     for pj in 1:length(ini_population)
         populations[pj].psi = [ini_population[pj][i] for i in 1:dim]
     end
-
-    for pj in (length(ini_population)+1):(p_num-1)
-        r_ini = 2*rand(dim)-rand(dim)
-        r = r_ini/norm(r_ini)
-        phi = 2*pi*rand(dim)
-        populations[pj].psi = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
-    end
-
-    p_fit = [0.0 for i in 1:p_num] 
-    for pj in 1:p_num
-        rho = populations[pj].psi*(populations[pj].psi)'
-        p_fit[pj] = QFIM_TimeIndepend(DE.freeHamiltonian, DE.Hamiltonian_derivative[1], rho, DE.Liouville_operator, DE.γ, DE.times)
-    end
-
-    f_ini = QFIM_TimeIndepend(DE.freeHamiltonian, DE.Hamiltonian_derivative[1], DE.psi*(DE.psi)', DE.Liouville_operator, DE.γ, DE.times)
-    f_list = [f_ini]
-    println("initial QFI is $(f_ini)")
-
-    if save_file == true
-        indx = findmax(p_fit)[2]
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        for i in 1:(max_episodes-1)
-            p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
-            indx = findmax(p_fit)[2]
-            append!(f_list, maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
-            print("current QFI is ", maximum(p_fit), " ($i eposides)    \r")
-        end
-        p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
-        indx = findmax(p_fit)[2]
-        append!(f_list, maximum(p_fit))
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        print("\e[2K")
-        println("Iteration over, data saved.")
-        println("Final QFI is ", maximum(p_fit))
-
-    else
-        for i in 1:(max_episodes-1)
-            p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
-            append!(f_list, maximum(p_fit))
-            print("current QFI is ", maximum(p_fit), " ($i eposides)    \r")
-        end
-        p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
-        indx = findmax(p_fit)[2]
-        append!(f_list, maximum(p_fit))
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        print("\e[2K")
-        println("Iteration over, data saved.")
-        println("Final QFI is ", maximum(p_fit))
-    end
-end
-
-function DiffEvo_QFIM(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
-    println("state optimization")
-    println("multiparameter scenario")
-    println("search algorithm: Differential Evolution (DE)")
-
-    Random.seed!(seed)
-    dim = length(DE.psi)
-
-    p_num = popsize
-    populations = repeat(DE, p_num)
-    # initialize 
-    for pj in 1:length(ini_population)
-        populations[pj].psi = [ini_population[pj][i] for i in 1:dim]
-    end
-
     for pj in (length(ini_population)+1):(p_num-1)
         r_ini = 2*rand(dim)-rand(dim)
         r = r_ini/norm(r_ini)
@@ -447,50 +315,86 @@ function DiffEvo_QFIM(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr,
     end
 
     F = QFIM_TimeIndepend(DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.psi*(DE.psi)', DE.Liouville_operator, DE.γ, DE.times)
-
     f_ini= real(tr(DE.W*pinv(F)))
     f_list = [f_ini]
-    println("initial value of Tr(WF^{-1}) is $(f_ini)")
 
-    if save_file == true
-        indx = findmax(p_fit)[2]
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        for i in 1:(max_episodes-1)
+    if length(DE.Hamiltonian_derivative) == 1
+        println("single parameter scenario")
+        println("search algorithm: Differential Evolution (DE)")
+        println("initial QFI is $(f_ini)")
+    
+        if save_file == true
+            indx = findmax(p_fit)[2]
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            for i in 1:(max_episodes-1)
+                p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
+                indx = findmax(p_fit)[2]
+                append!(f_list, maximum(p_fit))
+                SaveFile_de(dim, f_list, populations[indx].psi)
+                print("current QFI is ", maximum(p_fit), " ($i eposides)    \r")
+            end
+            p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
+            indx = findmax(p_fit)[2]
+            append!(f_list, maximum(p_fit))
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            print("\e[2K")
+            println("Iteration over, data saved.")
+            println("Final QFI is ", maximum(p_fit))
+        else
+            for i in 1:(max_episodes-1)
+                p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
+                append!(f_list, maximum(p_fit))
+                print("current QFI is ", maximum(p_fit), " ($i eposides)    \r")
+            end
+            p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
+            indx = findmax(p_fit)[2]
+            append!(f_list, maximum(p_fit))
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            print("\e[2K")
+            println("Iteration over, data saved.")
+            println("Final QFI is ", maximum(p_fit))
+        end
+    else    
+        println("multiparameter scenario")
+        println("search algorithm: Differential Evolution (DE)")
+        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+
+        if save_file == true
+            indx = findmax(p_fit)[2]
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            for i in 1:(max_episodes-1)
+                p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
+                indx = findmax(p_fit)[2]
+                append!(f_list, 1.0/maximum(p_fit))
+                SaveFile_de(dim, f_list, populations[indx].psi)
+                print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+            end
             p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_de(dim, f_list, populations[indx].psi)
-            print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
-        end
-        p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
-        indx = findmax(p_fit)[2]
-        append!(f_list, 1.0/maximum(p_fit))
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        print("\e[2K")
-        println("Iteration over, data saved.")
-        println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
-
-    else
-        for i in 1:(max_episodes-1)
+            print("\e[2K")
+            println("Iteration over, data saved.")
+            println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
+        else
+            for i in 1:(max_episodes-1)
+                p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
+                append!(f_list, 1.0/maximum(p_fit))
+                print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+            end
             p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
+            indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
-            print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            print("\e[2K")
+            println("Iteration over, data saved.")
+            println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
         end
-        p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
-        indx = findmax(p_fit)[2]
-        append!(f_list, 1.0/maximum(p_fit))
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        print("\e[2K")
-        println("Iteration over, data saved.")
-        println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
     end
 end
 
-function DiffEvo_CFI(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
+function DE_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
     println("state optimization")
-    println("single parameter scenario")
-    println("search algorithm: Differential Evolution (DE)")
-
     Random.seed!(seed)
     dim = length(DE.psi)
 
@@ -500,74 +404,6 @@ function DiffEvo_CFI(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, c
     for pj in 1:length(ini_population)
         populations[pj].psi = [ini_population[pj][i] for i in 1:dim]
     end
-
-    for pj in (length(ini_population)+1):(p_num-1)
-        r_ini = 2*rand(dim)-rand(dim)
-        r = r_ini/norm(r_ini)
-        phi = 2*pi*rand(dim)
-        populations[pj].psi = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
-    end
-
-    p_fit = [0.0 for i in 1:p_num] 
-    for pj in 1:p_num
-        rho = populations[pj].psi*(populations[pj].psi)'
-        p_fit[pj] = CFIM_TimeIndepend(M, DE.freeHamiltonian, DE.Hamiltonian_derivative[1], rho, DE.Liouville_operator, DE.γ, DE.times)
-    end
-
-    f_ini = CFIM_TimeIndepend(M, DE.freeHamiltonian, DE.Hamiltonian_derivative[1], DE.psi*(DE.psi)', DE.Liouville_operator, DE.γ, DE.times)
-    f_list = [f_ini]
-    println("initial CFI is $(f_ini)")
-
-    if save_file == true
-        indx = findmax(p_fit)[2]
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        for i in 1:(max_episodes-1)
-            p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
-            indx = findmax(p_fit)[2]
-            append!(f_list, maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
-            print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
-        end
-        p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
-        indx = findmax(p_fit)[2]
-        append!(f_list, maximum(p_fit))
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        print("\e[2K")
-        println("Iteration over, data saved.")
-        println("Final CFI is ", maximum(p_fit))
-
-    else
-        for i in 1:(max_episodes-1)
-            p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
-            append!(f_list, maximum(p_fit))
-            print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
-            
-        end
-        p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
-        indx = findmax(p_fit)[2]
-        append!(f_list, maximum(p_fit))
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        print("\e[2K")
-        println("Iteration over, data saved.")
-        println("Final CFI is ", maximum(p_fit))
-    end
-end
-
-function DiffEvo_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
-    println("state optimization")
-    println("multiparameter scenario")
-    println("search algorithm: Differential Evolution (DE)")
-
-    Random.seed!(seed)
-    dim = length(DE.psi)
-
-    p_num = popsize
-    populations = repeat(DE, p_num)
-    # initialize 
-    for pj in 1:length(ini_population)
-        populations[pj].psi = [ini_population[pj][i] for i in 1:dim]
-    end
-
     for pj in (length(ini_population)+1):(p_num-1)
         r_ini = 2*rand(dim)-rand(dim)
         r = r_ini/norm(r_ini)
@@ -585,39 +421,79 @@ function DiffEvo_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, 
     F = CFIM_TimeIndepend(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.psi*(DE.psi)', DE.Liouville_operator, DE.γ, DE.times)
     f_ini= real(tr(DE.W*pinv(F)))
     f_list = [f_ini]
-    println("initial value of Tr(WF^{-1}) is $(f_ini)")
 
-    if save_file == true
-        indx = findmax(p_fit)[2]
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        for i in 1:(max_episodes-1)
+    if length(DE.Hamiltonian_derivative) == 1
+        println("single parameter scenario")
+        println("search algorithm: Differential Evolution (DE)")
+        println("initial CFI is $(f_ini)")
+    
+        if save_file == true
+            indx = findmax(p_fit)[2]
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            for i in 1:(max_episodes-1)
+                p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
+                indx = findmax(p_fit)[2]
+                append!(f_list, maximum(p_fit))
+                SaveFile_de(dim, f_list, populations[indx].psi)
+                print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
+            end
+            p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
+            indx = findmax(p_fit)[2]
+            append!(f_list, maximum(p_fit))
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            print("\e[2K")
+            println("Iteration over, data saved.")
+            println("Final CFI is ", maximum(p_fit))
+        else
+            for i in 1:(max_episodes-1)
+                p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
+                append!(f_list, maximum(p_fit))
+                print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")   
+            end
+            p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
+            indx = findmax(p_fit)[2]
+            append!(f_list, maximum(p_fit))
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            print("\e[2K")
+            println("Iteration over, data saved.")
+            println("Final CFI is ", maximum(p_fit))
+        end
+    else
+        println("multiparameter scenario")
+        println("search algorithm: Differential Evolution (DE)")
+        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+
+        if save_file == true
+            indx = findmax(p_fit)[2]
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            for i in 1:(max_episodes-1)
+                p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
+                indx = findmax(p_fit)[2]
+                append!(f_list, 1.0/maximum(p_fit))
+                SaveFile_de(dim, f_list, populations[indx].psi)
+                print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+            end
             p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_de(dim, f_list, populations[indx].psi)
-            print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
-        end
-        p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
-        indx = findmax(p_fit)[2]
-        append!(f_list, 1.0/maximum(p_fit))
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        print("\e[2K")
-        println("Iteration over, data saved.")
-        println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
-
-    else
-        for i in 1:(max_episodes-1)
+            print("\e[2K")
+            println("Iteration over, data saved.")
+            println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
+        else
+            for i in 1:(max_episodes-1)
+                p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
+                append!(f_list, 1.0/maximum(p_fit))
+                print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+            end
             p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
+            indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
-            print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+            SaveFile_de(dim, f_list, populations[indx].psi)
+            print("\e[2K")
+            println("Iteration over, data saved.")
+            println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
         end
-        p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
-        indx = findmax(p_fit)[2]
-        append!(f_list, 1.0/maximum(p_fit))
-        SaveFile_de(dim, f_list, populations[indx].psi)
-        print("\e[2K")
-        println("Iteration over, data saved.")
-        println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
     end
 end
 
@@ -647,13 +523,11 @@ function train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
             end
             ctrl_cross[cross_int] = ctrl_mut[cross_int]
         end
-
         psi_cross = ctrl_cross/norm(ctrl_cross)
 
         #selection
         F_tp = QFIM_TimeIndepend(populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, psi_cross*psi_cross', populations[pj].Liouville_operator, populations[pj].γ, populations[pj].times)
         f_cross = 1.0/real(tr(populations[pj].W*pinv(F_tp)))
-
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
             for ck in 1:dim
@@ -690,13 +564,11 @@ function train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
             end
             ctrl_cross[cross_int] = ctrl_mut[cross_int]
         end
-
         psi_cross = ctrl_cross/norm(ctrl_cross)
 
         #selection
         F_tp = CFIM_TimeIndepend(M, populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, psi_cross*psi_cross', populations[pj].Liouville_operator, populations[pj].γ, populations[pj].times)
         f_cross = 1.0/real(tr(populations[pj].W*pinv(F_tp)))
-
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
             for ck in 1:dim
