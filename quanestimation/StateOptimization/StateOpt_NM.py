@@ -84,6 +84,7 @@ class StateOpt_NM(stateopt.StateOptSystem):
             neldermead = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi_initial, self.tspan, \
                         self.Liouville_operator, self.gamma, self.W)
             Main.QuanEstimation.NM_QFIM(neldermead, self.state_num, self.ini_state, self.a_r, self.a_e, self.a_c, self.a_s, self.precision, self.max_episodes, self.seed, save_file)
+        self.load_save()
 
     def CFIM(self, Measurement, save_file=False):
         """
@@ -106,5 +107,5 @@ class StateOpt_NM(stateopt.StateOptSystem):
             neldermead = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi_initial, \
                                                                      self.tspan, self.Liouville_operator, self.gamma, self.W)
             Main.QuanEstimation.NM_CFIM(Measurement, neldermead, self.state_num, self.ini_state, self.a_r, self.a_e, self.a_c, self.a_s, self.precision, self.max_episodes, self.seed, save_file)
-
+        self.load_save()
             

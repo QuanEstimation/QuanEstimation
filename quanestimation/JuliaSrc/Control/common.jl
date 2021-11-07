@@ -29,7 +29,7 @@ function bound!(control_coefficients, ctrl_bound)
     end
 end
 
-function SaveFile(f_now::Float64, control)
+function SaveFile_ctrl(f_now::Float64, control)
     open("f.csv","a") do f
         writedlm(f, [f_now])
     end
@@ -38,9 +38,9 @@ function SaveFile(f_now::Float64, control)
     end
 end
 
-function SaveFile(f_now::Vector{Float64}, control)
+function SaveFile_ctrl(f_now::Vector{Float64}, control)
     open("f.csv","w") do f
-        writedlm(f, f_now)
+        writedlm(f, [f_now])
     end
     open("controls.csv","w") do g
         writedlm(g, control)

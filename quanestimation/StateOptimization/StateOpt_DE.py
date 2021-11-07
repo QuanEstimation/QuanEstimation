@@ -54,6 +54,7 @@ class StateOpt_DE(stateopt.StateOptSystem):
             diffevo = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi_initial, self.tspan, \
                         self.Liouville_operator, self.gamma, self.W)
             Main.QuanEstimation.DE_QFIM(diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episodes, save_file)
+        self.load_save()
 
     def CFIM(self, Measurement, save_file):
         if self.gamma == [] or self.gamma == 0.0:
@@ -64,4 +65,5 @@ class StateOpt_DE(stateopt.StateOptSystem):
             diffevo = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi_initial, self.tspan, \
                         self.Liouville_operator, self.gamma, self.W)
             Main.QuanEstimation.DE_CFIM(Measurement, diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episodes, save_file)
-          
+        self.load_save()
+        

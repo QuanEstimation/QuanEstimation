@@ -55,12 +55,12 @@ function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episo
                 indx = findmax(p_fit)[2]
                 append!(f_list, maximum(p_fit))
                 print("current QFI is ", maximum(p_fit), " ($i episodes)    \r")
-                SaveFile(f_list, populations[indx].control_coefficients)
+                SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             end
             p_fit = DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
             append!(f_list, maximum(p_fit))
             indx = findmax(p_fit)[2]
-            SaveFile(f_list, populations[indx].control_coefficients)
+            SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final QFI is ", maximum(p_fit))
@@ -73,7 +73,7 @@ function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episo
             p_fit = DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
-            SaveFile(f_list, populations[indx].control_coefficients)
+            SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final QFI is ", maximum(p_fit))
@@ -90,13 +90,13 @@ function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episo
                 F = DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, 1.0/maximum(p_fit))
-                SaveFile(f_list, populations[indx].control_coefficients)
+                SaveFile_ctrl(f_list, populations[indx].control_coefficients)
                 print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             end
             F = DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile(f_list, populations[indx].control_coefficients)
+            SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -109,7 +109,7 @@ function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episo
             p_fit = DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile(f_list, populations[indx].control_coefficients)
+            SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -154,12 +154,12 @@ function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_ep
                 indx = findmax(p_fit)[2]
                 append!(f_list, maximum(p_fit))
                 print("current CFI is ", maximum(p_fit), " ($i episodes)    \r")
-                SaveFile(f_list, populations[indx].control_coefficients)
+                SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             end
             p_fit = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
-            SaveFile(f_list, populations[indx].control_coefficients)
+            SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final CFI is ", maximum(p_fit))
@@ -172,7 +172,7 @@ function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_ep
             p_fit = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
-            SaveFile(f_list, populations[indx].control_coefficients)
+            SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final CFI is ",maximum(p_fit))
@@ -189,13 +189,13 @@ function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_ep
                 F = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, 1.0/maximum(p_fit))
-                SaveFile(f_list, populations[indx].control_coefficients)
+                SaveFile_ctrl(f_list, populations[indx].control_coefficients)
                 print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             end
             F = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile(f_list, populations[indx].control_coefficients)
+            SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -208,7 +208,7 @@ function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_ep
             p_fit = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile(f_list, populations[indx].control_coefficients)
+            SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))

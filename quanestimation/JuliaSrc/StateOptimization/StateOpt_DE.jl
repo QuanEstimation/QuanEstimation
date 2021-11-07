@@ -33,18 +33,18 @@ function DE_QFIM(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, 
         f_list = [1.0/f_ini]
         if save_file == true
             indx = findmax(p_fit)[2]
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             for i in 1:(max_episodes-1)
                 p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, maximum(p_fit))
-                SaveFile_de(dim, f_list, populations[indx].psi)
+                SaveFile_state(f_list, populations[indx].psi)
                 print("current QFI is ", maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final QFI is ", maximum(p_fit))
@@ -56,7 +56,7 @@ function DE_QFIM(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, 
             end
             p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final QFI is ", maximum(p_fit))
@@ -69,18 +69,18 @@ function DE_QFIM(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, 
         f_list = [f_ini]
         if save_file == true
             indx = findmax(p_fit)[2]
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             for i in 1:(max_episodes-1)
                 p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, 1.0/maximum(p_fit))
-                SaveFile_de(dim, f_list, populations[indx].psi)
+                SaveFile_state(f_list, populations[indx].psi)
                 print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -93,7 +93,7 @@ function DE_QFIM(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, 
             p_fit = train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -136,18 +136,18 @@ function DE_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, c
         f_list = [1.0/f_ini]
         if save_file == true
             indx = findmax(p_fit)[2]
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             for i in 1:(max_episodes-1)
                 p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, maximum(p_fit))
-                SaveFile_de(dim, f_list, populations[indx].psi)
+                SaveFile_state(f_list, populations[indx].psi)
                 print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final CFI is ", maximum(p_fit))
@@ -160,7 +160,7 @@ function DE_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, c
             p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final CFI is ", maximum(p_fit))
@@ -173,18 +173,18 @@ function DE_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, c
         f_list = [f_ini]
         if save_file == true
             indx = findmax(p_fit)[2]
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             for i in 1:(max_episodes-1)
                 p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, 1.0/maximum(p_fit))
-                SaveFile_de(dim, f_list, populations[indx].psi)
+                SaveFile_state(f_list, populations[indx].psi)
                 print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -197,7 +197,7 @@ function DE_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, c
             p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -325,18 +325,18 @@ function DE_QFIM(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed
     
         if save_file == true
             indx = findmax(p_fit)[2]
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             for i in 1:(max_episodes-1)
                 p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, maximum(p_fit))
-                SaveFile_de(dim, f_list, populations[indx].psi)
+                SaveFile_state(f_list, populations[indx].psi)
                 print("current QFI is ", maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final QFI is ", maximum(p_fit))
@@ -349,7 +349,7 @@ function DE_QFIM(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed
             p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final QFI is ", maximum(p_fit))
@@ -361,18 +361,18 @@ function DE_QFIM(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed
 
         if save_file == true
             indx = findmax(p_fit)[2]
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             for i in 1:(max_episodes-1)
                 p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, 1.0/maximum(p_fit))
-                SaveFile_de(dim, f_list, populations[indx].psi)
+                SaveFile_state(f_list, populations[indx].psi)
                 print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -385,7 +385,7 @@ function DE_QFIM(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed
             p_fit = train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -429,18 +429,18 @@ function DE_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, s
     
         if save_file == true
             indx = findmax(p_fit)[2]
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             for i in 1:(max_episodes-1)
                 p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, maximum(p_fit))
-                SaveFile_de(dim, f_list, populations[indx].psi)
+                SaveFile_state(f_list, populations[indx].psi)
                 print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final CFI is ", maximum(p_fit))
@@ -453,7 +453,7 @@ function DE_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, s
             p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final CFI is ", maximum(p_fit))
@@ -465,18 +465,18 @@ function DE_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, s
 
         if save_file == true
             indx = findmax(p_fit)[2]
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             for i in 1:(max_episodes-1)
                 p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, 1.0/maximum(p_fit))
-                SaveFile_de(dim, f_list, populations[indx].psi)
+                SaveFile_state(f_list, populations[indx].psi)
                 print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -489,7 +489,7 @@ function DE_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, s
             p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile_de(dim, f_list, populations[indx].psi)
+            SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))

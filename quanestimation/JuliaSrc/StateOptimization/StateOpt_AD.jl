@@ -49,7 +49,7 @@ end
 
 function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, beta2, max_episodes, Adam, save_file) where {T <: Complex}
     println("state optimization")
-    episodes = 0
+    episodes = 1
     dim = length(AD.psi)
     if length(AD.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -63,7 +63,7 @@ function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, be
             gradient_QFI!(AD, lr)
         end
         if save_file == true
-            SaveFile_ad(dim, f_ini, AD.psi)
+            SaveFile_state(f_ini, AD.psi)
             if Adam == true
                 while true
                     f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.times)
@@ -71,13 +71,13 @@ function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, be
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_QFI_Adam!(AD, lr, mt, vt, beta1, beta2, precision)
@@ -89,13 +89,13 @@ function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, be
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_QFI!(AD, lr)
@@ -110,7 +110,7 @@ function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, be
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_list, AD.psi)
+                        SaveFile_state(f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
@@ -128,7 +128,7 @@ function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, be
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_list, AD.psi)
+                        SaveFile_state(f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
@@ -153,7 +153,7 @@ function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, be
             gradient_QFIM!(AD, lr)
         end
         if save_file == true
-            SaveFile_ad(dim, f_ini, AD.psi)
+            SaveFile_state(f_ini, AD.psi)
             if Adam == true
                 while true
                     F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.times)
@@ -162,13 +162,13 @@ function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, be
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_QFIM_Adam!(AD, lr, mt, vt, beta1, beta2, precision)
@@ -181,13 +181,13 @@ function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, be
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_QFIM!(AD, lr)
@@ -203,7 +203,7 @@ function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, be
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_list, AD.psi)
+                        SaveFile_state(f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
@@ -222,7 +222,7 @@ function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, be
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_list, AD.psi)
+                        SaveFile_state(f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
@@ -239,7 +239,7 @@ end
 
 function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, beta2, max_episodes, Adam, save_file) where {T <: Complex}
     println("state optimization")
-    episodes = 0
+    episodes = 1
     dim = length(AD.psi)
     if length(AD.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -253,7 +253,7 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
             gradient_CFI!(AD, M, lr)
         end
         if save_file == true
-            SaveFile_ad(dim, f_ini, AD.psi)
+            SaveFile_state(f_ini, AD.psi)
             if Adam == true
                 while true
                     f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.times)
@@ -261,13 +261,13 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_CFI_Adam!(AD, M, lr, mt, vt, beta1, beta2, precision)
@@ -279,13 +279,13 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_CFI!(AD, M, lr)
@@ -300,7 +300,7 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_list, AD.psi)
+                        SaveFile_state(f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
@@ -318,7 +318,7 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_list, AD.psi)
+                        SaveFile_state(f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
@@ -343,7 +343,7 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
             gradient_CFIM!(AD, M, lr)
         end
         if save_file == true
-            SaveFile_ad(dim, f_ini, AD.psi)
+            SaveFile_state(f_ini, AD.psi)
             if Adam == true
                 while true
                     F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.times)
@@ -352,13 +352,13 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_CFIM_Adam!(AD, M, lr, mt, vt, beta1, beta2, precision)
@@ -371,13 +371,13 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_CFIM!(AD, M, lr)
@@ -393,7 +393,7 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_list, AD.psi)
+                        SaveFile_state(f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
@@ -412,7 +412,7 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_list, AD.psi)
+                        SaveFile_state(f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
@@ -476,18 +476,9 @@ function gradient_CFIM_Adam!(AD::TimeIndepend_noise{T}, Measurement, lr, mt, vt,
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function SaveFile_ad(dim, f_now, control)
-    open("f_auto_N$(dim-1).csv","a") do f
-        writedlm(f, [f_now])
-    end
-    open("state_auto_N$(dim-1).csv","a") do g
-        writedlm(g, control)
-    end
-end
-
 function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2, max_episodes, Adam, save_file) where {T <: Complex}
     println("state optimization")
-    episodes = 0
+    episodes = 1
     dim = length(AD.psi)
     if length(AD.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -501,7 +492,7 @@ function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2,
             gradient_QFI!(AD, lr)
         end
         if save_file == true
-            SaveFile_ad(dim, f_ini, AD.psi)
+            SaveFile_state(f_ini, AD.psi)
             if Adam == true
                 while true
                     f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
@@ -509,13 +500,13 @@ function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2,
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_QFI_Adam!(AD, lr, mt, vt, beta1, beta2, precision)
@@ -527,13 +518,13 @@ function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2,
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_QFI!(AD, lr)
@@ -548,7 +539,7 @@ function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2,
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_list, AD.psi)
+                        SaveFile_state(f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
@@ -566,7 +557,7 @@ function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2,
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_list, AD.psi)
+                        SaveFile_state(f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
@@ -591,7 +582,7 @@ function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2,
             gradient_QFIM!(AD, lr)
         end
         if save_file == true
-            SaveFile_ad(dim, f_ini, AD.psi)
+            SaveFile_state(f_ini, AD.psi)
             if Adam == true
                 while true
                     F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
@@ -600,13 +591,13 @@ function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2,
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_QFIM_Adam!(AD, lr, mt, vt, beta1, beta2, precision)
@@ -619,13 +610,13 @@ function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2,
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_QFIM!(AD, lr)
@@ -641,7 +632,7 @@ function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2,
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_list, AD.psi)
+                        SaveFile_state(f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
@@ -660,7 +651,7 @@ function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2,
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_list, AD.psi)
+                        SaveFile_state(f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
@@ -677,7 +668,7 @@ end
 
 function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2, max_episodes, Adam, save_file) where {T <: Complex}
     println("state optimization")
-    episodes = 0
+    episodes = 1
     dim = length(AD.psi)
     if length(AD.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -691,7 +682,7 @@ function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, bet
             gradient_CFI!(AD, M, lr)
         end
         if save_file == true
-            SaveFile_ad(dim, f_ini, AD.psi)
+            SaveFile_state(f_ini, AD.psi)
             if Adam == true
                 while true
                     f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
@@ -699,13 +690,13 @@ function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, bet
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_CFI_Adam!(AD, M, lr, mt, vt, beta1, beta2, precision)
@@ -717,13 +708,13 @@ function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, bet
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_CFI!(AD, M, lr)
@@ -738,7 +729,7 @@ function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, bet
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_list, AD.psi)
+                        SaveFile_state(f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
@@ -756,7 +747,7 @@ function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, bet
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_list, AD.psi)
+                        SaveFile_state(f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
@@ -781,7 +772,7 @@ function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, bet
             gradient_CFIM!(AD, M, lr)
         end
         if save_file == true
-            SaveFile_ad(dim, f_ini, AD.psi)
+            SaveFile_state(f_ini, AD.psi)
             if Adam == true
                 while true
                     F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Liouville_operator, AD.γ, AD.times)
@@ -790,13 +781,13 @@ function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, bet
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_CFIM_Adam!(AD, M, lr, mt, vt, beta1, beta2, precision)
@@ -809,13 +800,13 @@ function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, bet
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_now, AD.psi)
+                        SaveFile_state(f_now, AD.psi)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_CFIM!(AD, M, lr)
@@ -831,7 +822,7 @@ function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, bet
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_list, AD.psi)
+                        SaveFile_state(f_list, AD.psi)
                         break
                     else
                         f_ini = f_now
@@ -850,7 +841,7 @@ function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, bet
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_ad(dim, f_list, AD.psi)
+                        SaveFile_state(f_list, AD.psi)
                         break
                     else
                         f_ini = f_now

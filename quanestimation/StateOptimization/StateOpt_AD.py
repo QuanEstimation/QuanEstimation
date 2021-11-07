@@ -62,6 +62,7 @@ class StateOpt_AD(stateopt.StateOptSystem):
             AD = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, \
                  self.psi_initial, self.tspan, self.Liouville_operator, self.gamma, self.W)
             Main.QuanEstimation.AD_QFIM(AD, self.precision, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.max_episodes, self.Adam, save_file)
+        self.load_save()
             
     def CFIM(self, Measurement, save_file=False):
         """
@@ -85,4 +86,4 @@ class StateOpt_AD(stateopt.StateOptSystem):
             AD = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, \
                  self.psi_initial, self.tspan, self.Liouville_operator, self.gamma, self.W)
             Main.QuanEstimation.AD_CFIM(Measurement, AD, self.precision, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.max_episodes, self.Adam, save_file)
-        
+        self.load_save()
