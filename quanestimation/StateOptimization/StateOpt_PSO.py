@@ -79,6 +79,7 @@ class StateOpt_PSO(stateopt.StateOptSystem):
                         self.Liouville_operator, self.gamma, self.W)
             Main.QuanEstimation.PSO_QFIM(pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                          self.seed, save_file)
+        self.load_save()
 
     def CFIM(self, Measurement, save_file=False):
         """
@@ -102,3 +103,4 @@ class StateOpt_PSO(stateopt.StateOptSystem):
                         self.Liouville_operator, self.gamma, self.W)
             Main.QuanEstimation.PSO_CFIM(Measurement, pso, self.max_episodes, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                          self.seed, save_file)
+        self.load_save()

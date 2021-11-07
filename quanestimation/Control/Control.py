@@ -1,6 +1,7 @@
 import numpy as np
 import warnings
 import math
+import os
 import quanestimation.Control as ctrl
 class ControlSystem:
     def __init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
@@ -101,6 +102,10 @@ class ControlSystem:
         if len(self.tspan) % len(self.control_coefficients[0]) != 0:
             self.tnum = number*len(self.control_coefficients[0])
             self.tspan = np.linspace(self.tspan[0], self.tspan[-1], self.tnum)
+
+        if os.path.exists('controls.csv'):
+            data = np.genfromtxt('controls.csv')
+            self.control_coefficients = [data[i] for i in range(len(data))]
 
 def ControlOpt(*args, method = 'auto-GRAPE', **kwargs):
 

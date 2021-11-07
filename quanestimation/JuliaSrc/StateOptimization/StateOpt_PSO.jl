@@ -44,14 +44,14 @@ function PSO_QFIM(pso::TimeIndepend_noiseless{T}, max_episodes, particle_num, in
                     particles = repeat(pso, particle_num)
                 end
                 append!(f_list, fit)
-                SaveFile_pso(dim, f_list, gbest)
+                SaveFile_state(f_list, gbest)
                 print("current QFI is $fit ($ei episodes) \r")
                 
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFIM_noiseless(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
                                                                                         dim, pbest, gbest, velocity_best, velocity)
             append!(f_list, fit)
-            SaveFile_pso(dim, f_list, gbest)
+            SaveFile_state(f_list, gbest)
             print("\e[2K")    
             println("Iteration over, data saved.")
             println("Final QFI is $fit")
@@ -70,7 +70,7 @@ function PSO_QFIM(pso::TimeIndepend_noiseless{T}, max_episodes, particle_num, in
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFIM_noiseless(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
                                                                                         dim, pbest, gbest, velocity_best, velocity)
             append!(f_list, fit)
-            SaveFile_pso(dim, f_list, gbest)
+            SaveFile_state(f_list, gbest)
             print("\e[2K") 
             println("Iteration over, data saved.") 
             println("Final QFI is $fit")
@@ -91,13 +91,13 @@ function PSO_QFIM(pso::TimeIndepend_noiseless{T}, max_episodes, particle_num, in
                     particles = repeat(pso, particle_num)
                 end
                 append!(f_list, (1.0/fit))
-                SaveFile_pso(dim, f_list, gbest)
+                SaveFile_state(f_list, gbest)
                 print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFIM_noiseless(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
                                                                                     dim, pbest, gbest, velocity_best, velocity)
             append!(f_list, (1.0/fit))
-            SaveFile_pso(dim, f_list, gbest)
+            SaveFile_state(f_list, gbest)
             print("\e[2K")    
             println("Iteration over, data saved.")
             println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
@@ -116,7 +116,7 @@ function PSO_QFIM(pso::TimeIndepend_noiseless{T}, max_episodes, particle_num, in
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFIM_noiseless(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
                                                                                     dim, pbest, gbest, velocity_best, velocity)
             append!(f_list, (1.0/fit))
-            SaveFile_pso(dim, f_list, gbest)
+            SaveFile_state(f_list, gbest)
             print("\e[2K") 
             println("Iteration over, data saved.") 
             println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
@@ -169,14 +169,14 @@ function PSO_CFIM(M, pso::TimeIndepend_noiseless{T}, max_episodes, particle_num,
                     particles = repeat(pso, particle_num)
                 end
                 append!(f_list, fit)
-                SaveFile_pso(dim, f_list, gbest)
+                SaveFile_state(f_list, gbest)
                 print("current CFI is $fit ($ei episodes) \r")
                 
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noiseless(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
                                                                                         dim, pbest, gbest, velocity_best, velocity)
             append!(f_list, fit)
-            SaveFile_pso(dim, f_list, gbest)
+            SaveFile_state(f_list, gbest)
             print("\e[2K")    
             println("Iteration over, data saved.")
             println("Final CFI is $fit")
@@ -195,7 +195,7 @@ function PSO_CFIM(M, pso::TimeIndepend_noiseless{T}, max_episodes, particle_num,
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noiseless(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
                                                                                         dim, pbest, gbest, velocity_best, velocity)
             append!(f_list, fit) 
-            SaveFile_pso(dim, f_list, gbest)
+            SaveFile_state(f_list, gbest)
             print("\e[2K") 
             println("Iteration over, data saved.") 
             println("Final CFI is $fit")
@@ -217,7 +217,7 @@ function PSO_CFIM(M, pso::TimeIndepend_noiseless{T}, max_episodes, particle_num,
                 end
                 append!(f_list, (1.0/fit))
                 print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
-                SaveFile_pso(dim, f_list, gbest)
+                SaveFile_state(f_list, gbest)
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noiseless(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
                                                                                     dim, pbest, gbest, velocity_best, velocity)
@@ -240,7 +240,7 @@ function PSO_CFIM(M, pso::TimeIndepend_noiseless{T}, max_episodes, particle_num,
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noiseless(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
                                                                                     dim, pbest, gbest, velocity_best, velocity)
             append!(f_list, (1.0/fit))
-            SaveFile_pso(dim, f_list, gbest)
+            SaveFile_state(f_list, gbest)
             print("\e[2K") 
             println("Iteration over, data saved.") 
             println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
@@ -370,14 +370,14 @@ function PSO_QFIM(pso::TimeIndepend_noise{T}, max_episodes, particle_num, ini_pa
                     particles = repeat(pso, particle_num)
                 end
                 append!(f_list, fit)
-                SaveFile_pso(dim, f_list, gbest)
+                SaveFile_state(f_list, gbest)
                 print("current QFI is $fit ($ei episodes) \r")
                 
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFIM_noise(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
                                                                                         dim, pbest, gbest, velocity_best, velocity)
             append!(f_list, fit)
-            SaveFile_pso(dim, f_list, gbest)
+            SaveFile_state(f_list, gbest)
             print("\e[2K")    
             println("Iteration over, data saved.")
             println("Final QFI is $fit")
@@ -396,7 +396,7 @@ function PSO_QFIM(pso::TimeIndepend_noise{T}, max_episodes, particle_num, ini_pa
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFIM_noise(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
                                                                                         dim, pbest, gbest, velocity_best, velocity)
             append!(f_list, fit)
-            SaveFile_pso(dim, f_list, gbest)
+            SaveFile_state(f_list, gbest)
             print("\e[2K") 
             println("Iteration over, data saved.") 
             println("Final QFI is $fit")
@@ -417,13 +417,13 @@ function PSO_QFIM(pso::TimeIndepend_noise{T}, max_episodes, particle_num, ini_pa
                     particles = repeat(pso, particle_num)
                 end
                 append!(f_list, (1.0/fit))
-                SaveFile_pso(dim, f_list, gbest)
+                SaveFile_state(f_list, gbest)
                 print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")  
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFIM_noise(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
                                                                                     dim, pbest, gbest, velocity_best, velocity)
             append!(f_list, (1.0/fit))
-            SaveFile_pso(dim, f_list, gbest)
+            SaveFile_state(f_list, gbest)
             print("\e[2K")    
             println("Iteration over, data saved.")
             println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
@@ -442,7 +442,7 @@ function PSO_QFIM(pso::TimeIndepend_noise{T}, max_episodes, particle_num, ini_pa
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_QFIM_noise(particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
                                                                                     dim, pbest, gbest, velocity_best, velocity)
             append!(f_list, (1.0/fit))
-            SaveFile_pso(dim, f_list, gbest)
+            SaveFile_state(f_list, gbest)
             print("\e[2K") 
             println("Iteration over, data saved.") 
             println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
@@ -495,14 +495,14 @@ function PSO_CFIM(M, pso::TimeIndepend_noise{T}, max_episodes, particle_num, ini
                     particles = repeat(pso, particle_num)
                 end
                 append!(f_list, fit)
-                SaveFile_pso(dim, f_list, gbest)
+                SaveFile_state(f_list, gbest)
                 print("current CFI is $fit ($ei episodes) \r")
                 
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noise(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
                                                                                         dim, pbest, gbest, velocity_best, velocity)
             append!(f_list, fit)
-            SaveFile_pso(dim, f_list, gbest)
+            SaveFile_state(f_list, gbest)
             print("\e[2K")    
             println("Iteration over, data saved.")
             println("Final CFI is $fit")
@@ -521,7 +521,7 @@ function PSO_CFIM(M, pso::TimeIndepend_noise{T}, max_episodes, particle_num, ini
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noise(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
                                                                                         dim, pbest, gbest, velocity_best, velocity)
             append!(f_list, fit)
-            SaveFile_pso(dim, f_list, gbest)
+            SaveFile_state(f_list, gbest)
             print("\e[2K") 
             println("Iteration over, data saved.") 
             println("Final CFI is $fit")
@@ -543,13 +543,13 @@ function PSO_CFIM(M, pso::TimeIndepend_noise{T}, max_episodes, particle_num, ini
                     particles = repeat(pso, particle_num)
                 end
                 append!(f_list, (1.0/fit))
-                SaveFile_pso(dim, f_list, gbest)
+                SaveFile_state(f_list, gbest)
                 print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r") 
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noise(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
                                                                                     dim, pbest, gbest, velocity_best, velocity)
             append!(f_list, (1.0/fit))
-            SaveFile_pso(dim, f_list, gbest)
+            SaveFile_state(f_list, gbest)
             print("\e[2K")    
             println("Iteration over, data saved.")
             println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
@@ -568,7 +568,7 @@ function PSO_CFIM(M, pso::TimeIndepend_noise{T}, max_episodes, particle_num, ini
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noise(M, particles, p_fit, fit, max_episodes, c0, c1, c2, particle_num, 
                                                                                     dim, pbest, gbest, velocity_best, velocity)
             append!(f_list, (1.0/fit))
-            SaveFile_pso(dim, f_list, gbest)
+            SaveFile_state(f_list, gbest)
             print("\e[2K") 
             println("Iteration over, data saved.") 
             println("Final value of Tr(WF^{-1}) is $(1.0/fit)")

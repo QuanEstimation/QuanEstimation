@@ -34,12 +34,12 @@ function NM_QFIM(NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_e, 
         f_list = [1.0/f_ini]
         episodes = 1
         if save_file == true
-            SaveFile_nm(dim, f_list, NM.psi)
+            SaveFile_state(f_list, NM.psi)
             while true
                 p_fit, sort_ind = train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
                 if p_fit[sort_ind[1]]-p_fit[sort_ind[end]] < epsilon || episodes >= max_episodes
                     append!(f_list, maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final QFI is ", maximum(p_fit))
@@ -47,7 +47,7 @@ function NM_QFIM(NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_e, 
                 else
                     episodes += 1
                     append!(f_list, maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("current QFI is ", maximum(p_fit), " ($(episodes-1) episodes)    \r")
                 end
             end
@@ -56,7 +56,7 @@ function NM_QFIM(NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_e, 
                 p_fit, sort_ind = train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
                 if p_fit[sort_ind[1]]-p_fit[sort_ind[end]] < epsilon || episodes >= max_episodes
                     append!(f_list, maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final QFI is ", maximum(p_fit))
@@ -76,12 +76,12 @@ function NM_QFIM(NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_e, 
         f_list = [f_ini]
         episodes = 1
         if save_file == true
-            SaveFile_nm(dim, f_list, NM.psi)
+            SaveFile_state(f_list, NM.psi)
             while true
                 p_fit, sort_ind = train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
                 if p_fit[sort_ind[1]]-p_fit[sort_ind[end]] < epsilon || episodes >= max_episodes
                     append!(f_list, 1.0/maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -89,7 +89,7 @@ function NM_QFIM(NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_e, 
                 else
                     episodes += 1
                     append!(f_list, 1.0/maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($(episodes-1) episodes)    \r")
                 end
             end
@@ -98,7 +98,7 @@ function NM_QFIM(NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_e, 
                 p_fit, sort_ind = train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
                 if p_fit[sort_ind[1]]-p_fit[sort_ind[end]] < epsilon || episodes >= max_episodes
                     append!(f_list, 1.0/maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -148,12 +148,12 @@ function NM_CFIM(M, NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_
         f_list = [1.0/f_ini]
         episodes = 1
         if save_file == true
-            SaveFile_nm(dim, f_list, NM.psi)
+            SaveFile_state(f_list, NM.psi)
             while true
                 p_fit, sort_ind = train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
                 if p_fit[sort_ind[1]]-p_fit[sort_ind[end]] < epsilon || episodes >= max_episodes
                     append!(f_list, maximum(p_fit))    
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final CFI is ", maximum(p_fit))
@@ -161,7 +161,7 @@ function NM_CFIM(M, NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_
                 else
                     episodes += 1
                     append!(f_list, maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("current CFI is ", maximum(p_fit), " ($(episodes-1) episodes)    \r")
                 end
             end
@@ -170,7 +170,7 @@ function NM_CFIM(M, NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_
                 p_fit, sort_ind = train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
                 if p_fit[sort_ind[1]]-p_fit[sort_ind[end]] < epsilon || episodes >= max_episodes
                     append!(f_list, maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final CFI is ", maximum(p_fit))
@@ -190,12 +190,12 @@ function NM_CFIM(M, NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_
         f_list = [f_ini]
         episodes = 1
         if save_file == true
-            SaveFile_nm(dim, f_list, NM.psi)
+            SaveFile_state(f_list, NM.psi)
             while true
                 p_fit, sort_ind = train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
                 if p_fit[sort_ind[1]]-p_fit[sort_ind[end]] < epsilon || episodes >= max_episodes
                     append!(f_list, 1.0/maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -203,7 +203,7 @@ function NM_CFIM(M, NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_
                 else
                     episodes += 1
                     append!(f_list, 1.0/maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($(episodes-1) episodes)    \r")
                 end
             end
@@ -212,7 +212,7 @@ function NM_CFIM(M, NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_
                 p_fit, sort_ind = train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
                 if p_fit[sort_ind[1]]-p_fit[sort_ind[end]] < epsilon || episodes >= max_episodes
                     append!(f_list, 1.0/maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -485,12 +485,12 @@ function NM_QFIM(NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a_c,
         f_list = [1.0/f_ini]
         episodes = 1
         if save_file == true
-            SaveFile_nm(dim, f_list, NM.psi)
+            SaveFile_state(f_list, NM.psi)
             while true
                 p_fit, sort_ind = train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
                 if p_fit[sort_ind[1]]-p_fit[sort_ind[end]] < epsilon || episodes >= max_episodes
                     append!(f_list, maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final QFI is ", maximum(p_fit))
@@ -498,7 +498,7 @@ function NM_QFIM(NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a_c,
                 else
                     episodes += 1
                     append!(f_list, maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("current QFI is ", maximum(p_fit), " ($(episodes-1) episodes)    \r")
                 end
             end
@@ -507,7 +507,7 @@ function NM_QFIM(NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a_c,
                 p_fit, sort_ind = train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
                 if p_fit[sort_ind[1]]-p_fit[sort_ind[end]] < epsilon || episodes >= max_episodes
                     append!(f_list, maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)    
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)    
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final QFI is ", maximum(p_fit))
@@ -527,12 +527,12 @@ function NM_QFIM(NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a_c,
         f_list = [f_ini]
         episodes = 1
         if save_file == true
-            SaveFile_nm(dim, f_list, NM.psi)
+            SaveFile_state(f_list, NM.psi)
             while true
                 p_fit, sort_ind = train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
                 if p_fit[sort_ind[1]]-p_fit[sort_ind[end]] < epsilon || episodes >= max_episodes
                     append!(f_list, 1.0/maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -540,7 +540,7 @@ function NM_QFIM(NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a_c,
                 else
                     episodes += 1
                     append!(f_list, 1.0/maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($(episodes-1) episodes)    \r")
                 end
             end
@@ -549,7 +549,7 @@ function NM_QFIM(NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a_c,
                 p_fit, sort_ind = train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
                 if p_fit[sort_ind[1]]-p_fit[sort_ind[end]] < epsilon || episodes >= max_episodes
                     append!(f_list, 1.0/maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -601,12 +601,12 @@ function NM_CFIM(M, NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a
         f_list = [1.0/f_ini]
         episodes = 1
         if save_file == true
-            SaveFile_nm(dim, f_list, NM.psi)
+            SaveFile_state(f_list, NM.psi)
             while true
                 p_fit, sort_ind = train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
                 if p_fit[sort_ind[1]]-p_fit[sort_ind[end]] < epsilon || episodes >= max_episodes
                     append!(f_list, maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final CFI is ", maximum(p_fit))
@@ -614,7 +614,7 @@ function NM_CFIM(M, NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a
                 else
                     episodes += 1
                     append!(f_list, maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("current CFI is ", maximum(p_fit), " ($(episodes-1) episodes)    \r")
                 end
             end
@@ -623,7 +623,7 @@ function NM_CFIM(M, NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a
                 p_fit, sort_ind = train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
                 if p_fit[sort_ind[1]]-p_fit[sort_ind[end]] < epsilon || episodes >= max_episodes
                     append!(f_list, maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final CFI is ", maximum(p_fit))
@@ -643,12 +643,12 @@ function NM_CFIM(M, NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a
         f_list = [f_ini]
         episodes = 1
         if save_file == true
-            SaveFile_nm(dim, f_list, NM.psi)
+            SaveFile_state(f_list, NM.psi)
             while true
                 p_fit, sort_ind = train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
                 if p_fit[sort_ind[1]]-p_fit[sort_ind[end]] < epsilon || episodes >= max_episodes
                     append!(f_list, 1.0/maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
@@ -656,7 +656,7 @@ function NM_CFIM(M, NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a
                 else
                     episodes += 1
                     append!(f_list, 1.0/maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($(episodes-1) episodes)    \r")
                 end
             end
@@ -665,7 +665,7 @@ function NM_CFIM(M, NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a
                 p_fit, sort_ind = train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
                 if p_fit[sort_ind[1]]-p_fit[sort_ind[end]] < epsilon || episodes >= max_episodes
                     append!(f_list, 1.0/maximum(p_fit))
-                    SaveFile_nm(dim, f_list, nelder_mead[sort_ind[1]].psi)
+                    SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
                     println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))

@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import quanestimation.StateOptimization as stateoptimize
 class StateOptSystem:
     def __init__(self, tspan, psi_initial, H0, dH, Liouville_operator, gamma, W):
@@ -62,6 +63,17 @@ class StateOptSystem:
         self.Hamiltonian_derivative = [np.array(x,dtype=np.complex128) for x in dH]
         self.Liouville_operator = [np.array(x, dtype=np.complex128) for x in Liouville_operator]
         self.gamma = gamma
+        
+        if os.path.exists('states.csv'):
+            self.psi_initial = np.genfromtxt('states.csv', dtype=np.complex128)
+
+    def load_save(self):
+        file_load = open('states_jl.csv', 'r')
+        file_load = ''.join([i for i in file_load]).replace("im", "j")
+        file_load = ''.join([i for i in file_load]).replace(" ", "")
+        file_save = open("states.csv","w")
+        file_save.writelines(file_load)
+        file_save.close()
 
 
 def StateOpt(*args, method = 'AD', **kwargs):
