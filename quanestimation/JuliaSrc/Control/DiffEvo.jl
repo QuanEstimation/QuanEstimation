@@ -18,7 +18,7 @@ mutable struct DiffEvo{T <: Complex,M <: Real} <: ControlSystem
                 Hamiltonian_derivative, ρ_initial, times, Liouville_operator, γ, control_Hamiltonian, control_coefficients, ctrl_bound, W, ρ, ∂ρ_∂x) 
 end
 
-function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
+function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, u0, seed, max_episodes, save_file) where {T<: Complex}
     println("quantum parameter estimation")
     Random.seed!(seed)
     ctrl_num = length(DE.control_Hamiltonian)
@@ -31,7 +31,7 @@ function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episo
         populations[pj].control_coefficients = [[ini_population[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
     for pj in (length(ini_population)+1):(p_num-1)
-        populations[pj].control_coefficients = [[rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
+        populations[pj].control_coefficients = [[u0*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
 
     p_fit = [1.0/real(tr(DE.W*pinv(QFIM(populations[i])))) for i in 1:p_num]
@@ -51,13 +51,13 @@ function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episo
         f_list = [1.0/f_ini]
         if save_file == true
             for i in 1:(max_episodes-1)
-                p_fit = DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+                p_fit = DE_train_QFIM(populations, c, cr, u0, p_num, ctrl_num, ctrl_length, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, maximum(p_fit))
                 print("current QFI is ", maximum(p_fit), " ($i episodes)    \r")
                 SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             end
-            p_fit = DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+            p_fit = DE_train_QFIM(populations, c, cr, u0, p_num, ctrl_num, ctrl_length, p_fit)
             append!(f_list, maximum(p_fit))
             indx = findmax(p_fit)[2]
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
@@ -66,11 +66,11 @@ function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episo
             println("Final QFI is ", maximum(p_fit))
         else
             for i in 1:(max_episodes-1)
-                p_fit = DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+                p_fit = DE_train_QFIM(populations, c, cr, u0, p_num, ctrl_num, ctrl_length, p_fit)
                 print("current QFI is ", maximum(p_fit), " ($i episodes)    \r")
                 append!(f_list, maximum(p_fit))
             end
-            p_fit = DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+            p_fit = DE_train_QFIM(populations, c, cr, u0, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
@@ -87,13 +87,13 @@ function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episo
         f_list = [f_ini]
         if save_file == true
             for i in 1:(max_episodes-1)
-                F = DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+                F = DE_train_QFIM(populations, c, cr, u0, p_num, ctrl_num, ctrl_length, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, 1.0/maximum(p_fit))
                 SaveFile_ctrl(f_list, populations[indx].control_coefficients)
                 print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             end
-            F = DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+            F = DE_train_QFIM(populations, c, cr, u0, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
@@ -102,11 +102,11 @@ function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episo
             println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
         else
             for i in 1:(max_episodes-1)
-                p_fit = DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+                p_fit = DE_train_QFIM(populations, c, cr, u0, p_num, ctrl_num, ctrl_length, p_fit)
                 append!(f_list, 1.0/maximum(p_fit))
                 print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             end
-            p_fit = DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+            p_fit = DE_train_QFIM(populations, c, cr, u0, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
@@ -117,7 +117,7 @@ function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episo
     end
 end
 
-function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episodes, save_file) where {T<: Complex}
+function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, u0, seed, max_episodes, save_file) where {T<: Complex}
     println("classical parameter estimation")
     Random.seed!(seed)
     ctrl_num = length(DE.control_Hamiltonian)
@@ -130,7 +130,7 @@ function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_ep
         populations[pj].control_coefficients = [[ini_population[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
     for pj in (length(ini_population)+1):(p_num-1)
-        populations[pj].control_coefficients = [[rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
+        populations[pj].control_coefficients = [[u0*rand() for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
     p_fit = [1.0/real(tr(DE.W*pinv(CFIM(M, populations[i])))) for i in 1:p_num]
 
@@ -150,13 +150,13 @@ function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_ep
         f_list = [1.0/f_ini]
         if save_file == true
             for i in 1:(max_episodes-1)
-                p_fit = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+                p_fit = DE_train_CFIM(M, populations, c, cr, u0, p_num, ctrl_num, ctrl_length, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, maximum(p_fit))
                 print("current CFI is ", maximum(p_fit), " ($i episodes)    \r")
                 SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             end
-            p_fit = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+            p_fit = DE_train_CFIM(M, populations, c, cr, u0, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
@@ -165,11 +165,11 @@ function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_ep
             println("Final CFI is ", maximum(p_fit))
         else
             for i in 1:(max_episodes-1)
-                p_fit = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+                p_fit = DE_train_CFIM(M, populations, c, cr, u0, p_num, ctrl_num, ctrl_length, p_fit)
                 append!(f_list, maximum(p_fit))
                 print("current CFI is ", maximum(p_fit), " ($i episodes)    \r")
             end
-            p_fit = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+            p_fit = DE_train_CFIM(M, populations, c, cr, u0, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
@@ -186,13 +186,13 @@ function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_ep
         f_list = [f_ini]
         if save_file == true
             for i in 1:(max_episodes-1)
-                F = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+                F = DE_train_CFIM(M, populations, c, cr, u0, p_num, ctrl_num, ctrl_length, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, 1.0/maximum(p_fit))
                 SaveFile_ctrl(f_list, populations[indx].control_coefficients)
                 print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             end
-            F = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+            F = DE_train_CFIM(M, populations, c, cr, u0, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
@@ -201,11 +201,11 @@ function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_ep
             println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
         else
             for i in 1:(max_episodes-1)
-                p_fit = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+                p_fit = DE_train_CFIM(M, populations, c, cr, u0, p_num, ctrl_num, ctrl_length, p_fit)
                 append!(f_list, 1.0/maximum(p_fit))
                 print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             end
-            p_fit = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+            p_fit = DE_train_CFIM(M, populations, c, cr, u0, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
@@ -216,7 +216,7 @@ function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_ep
     end
 end
 
-function DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+function DE_train_QFIM(populations, c, cr, u0, p_num, ctrl_num, ctrl_length, p_fit)
     f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations
@@ -267,7 +267,7 @@ function DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
     return p_fit
 end
 
-function DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+function DE_train_CFIM(M, populations, c, cr, u0, p_num, ctrl_num, ctrl_length, p_fit)
     f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations

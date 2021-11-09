@@ -4,7 +4,7 @@ import quanestimation.Control.Control as Control
 class DiffEvo(Control.ControlSystem):
     def __init__(self, tspan, rho_initial, H0, Hc=[], dH=[], ctrl_initial=[], Liouville_operator=[], \
                 gamma=[], control_option=True, ctrl_bound=[-np.inf, np.inf], W=[], popsize=10, ini_population=[], \
-                max_episodes=1000, c=1.0, cr=0.5, seed=1234):
+                max_episodes=1000, c=1.0, cr=0.5, u0=0.1, seed=1234):
 
         Control.ControlSystem.__init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
                                        gamma, control_option, ctrl_bound, W)
@@ -46,6 +46,7 @@ class DiffEvo(Control.ControlSystem):
         self.max_episodes = max_episodes
         self.c = c
         self.cr = cr
+        self.u0 = u0
         self.seed = seed
 
     def QFIM(self, save_file=False):
@@ -64,7 +65,7 @@ class DiffEvo(Control.ControlSystem):
 
         diffevo = Main.QuanEstimation.DiffEvo(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
                   self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W)
-        Main.QuanEstimation.DE_QFIM(diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episodes, save_file)
+        Main.QuanEstimation.DE_QFIM(diffevo, self.popsize, self.ini_population, self.c, self.cr, self.u0, self.seed, self.max_episodes, save_file)
 
         
     def CFIM(self, Measurement, save_file=False):
@@ -82,4 +83,4 @@ class DiffEvo(Control.ControlSystem):
         """
         diffevo = Main.QuanEstimation.DiffEvo(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
                         self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients)
-        Main.QuanEstimation.DE_CFIM(Measurement, diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episodes, save_file)
+        Main.QuanEstimation.DE_CFIM(Measurement, diffevo, self.popsize, self.ini_population, self.c, self.cr, self.u0, self.seed, self.max_episodes, save_file)

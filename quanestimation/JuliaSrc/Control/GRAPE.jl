@@ -573,14 +573,10 @@ function auto_GRAPE_QFIM(grape, epsilon, max_episodes, Adam, save_file)
         f_list = [f_ini]
         println("non-controlled QFI is $(f_noctrl)")
         println("initial QFI is $(f_ini)")
-        if Adam == true
-            gradient_QFI_Adam!(grape)
-        else
-            gradient_QFI!(grape)
-        end
         if save_file == true
             SaveFile_ctrl(f_ini, grape.control_coefficients)
             if Adam == true
+                gradient_QFI_Adam!(grape)
                 while true
                     f_now = QFI(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
@@ -598,6 +594,7 @@ function auto_GRAPE_QFIM(grape, epsilon, max_episodes, Adam, save_file)
                     gradient_QFI_Adam!(grape)
                 end
             else
+                gradient_QFI!(grape)
                 while true
                     f_now = QFI(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
@@ -618,6 +615,7 @@ function auto_GRAPE_QFIM(grape, epsilon, max_episodes, Adam, save_file)
             end
         else
             if Adam == true
+                gradient_QFI_Adam!(grape)
                 while true
                     f_now = QFI(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
@@ -636,6 +634,7 @@ function auto_GRAPE_QFIM(grape, epsilon, max_episodes, Adam, save_file)
                     gradient_QFI_Adam!(grape)
                 end
             else
+                gradient_QFI!(grape)
                 while true
                     f_now = QFI(grape)
                     if  abs(f_now - f_ini) < epsilon  || episodes >= max_episodes
@@ -667,14 +666,10 @@ function auto_GRAPE_QFIM(grape, epsilon, max_episodes, Adam, save_file)
         f_list = [f_ini]
         println("non-controlled value of Tr(WF^{-1}) is $(f_noctrl)")
         println("initial value of Tr(WF^{-1}) is $(f_ini)")
-        if Adam == true
-            gradient_QFIM_Adam!(grape)
-        else
-            gradient_QFIM!(grape)
-        end
         if save_file == true
             SaveFile_ctrl(f_ini, grape.control_coefficients)
             if Adam == true
+                gradient_QFIM_Adam!(grape)
                 while true
                     f_now = real(tr(grape.W*pinv(QFIM(grape))))
                     if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
@@ -693,6 +688,7 @@ function auto_GRAPE_QFIM(grape, epsilon, max_episodes, Adam, save_file)
                     gradient_QFIM_Adam!(grape)
                 end
             else
+                gradient_QFIM!(grape)
                 while true
                     f_now = real(tr(grape.W*pinv(QFIM(grape))))
                     if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
@@ -713,6 +709,7 @@ function auto_GRAPE_QFIM(grape, epsilon, max_episodes, Adam, save_file)
             end
         else
             if Adam == true
+                gradient_QFIM_Adam!(grape)
                 while true
                     f_now = real(tr(grape.W*pinv(QFIM(grape))))
                     if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
@@ -731,6 +728,7 @@ function auto_GRAPE_QFIM(grape, epsilon, max_episodes, Adam, save_file)
                     gradient_QFIM_Adam!(grape)
                 end
             else
+                gradient_QFIM!(grape)
                 while true
                     f_now = real(tr(grape.W*pinv(QFIM(grape))))
                     if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
@@ -961,14 +959,10 @@ function auto_GRAPE_CFIM(Measurement, grape, epsilon, max_episodes, Adam, save_f
         f_list = [f_ini]
         println("non-controlled CFI is $(f_noctrl)")
         println("initial CFI is $(f_ini)")
-        if Adam == true
-            gradient_CFI_Adam!(grape, Measurement)
-        else
-            gradient_CFI!(grape, Measurement)
-        end
         if save_file == true
             SaveFile_ctrl(f_ini, grape.control_coefficients)
             if Adam == true
+                gradient_CFI_Adam!(grape, Measurement)
                 while true
                     f_now = CFI(Measurement, grape)
                     if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
@@ -987,6 +981,7 @@ function auto_GRAPE_CFIM(Measurement, grape, epsilon, max_episodes, Adam, save_f
                     gradient_CFI_Adam!(grape, Measurement)
                 end
             else
+                gradient_CFI!(grape, Measurement)
                 while true
                     f_now = CFI(Measurement, grape)
                     if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
@@ -1007,6 +1002,7 @@ function auto_GRAPE_CFIM(Measurement, grape, epsilon, max_episodes, Adam, save_f
             end
         else
             if Adam == true
+                gradient_CFI_Adam!(grape, Measurement)
                 while true
                     f_now = CFI(Measurement, grape)
                     if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
@@ -1025,6 +1021,7 @@ function auto_GRAPE_CFIM(Measurement, grape, epsilon, max_episodes, Adam, save_f
                     gradient_CFI_Adam!(grape, Measurement)
                 end
             else
+                gradient_CFI!(grape, Measurement)
                 while true
                     f_now = CFI(Measurement, grape)
                     if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
@@ -1056,14 +1053,10 @@ function auto_GRAPE_CFIM(Measurement, grape, epsilon, max_episodes, Adam, save_f
         f_list = [f_ini]
         println("non-controlled value of Tr(WF^{-1}) is $(f_noctrl)")
         println("initial value of Tr(WF^{-1}) is $(f_ini)")
-        if Adam == true
-            gradient_CFIM_Adam!(grape, Measurement)
-        else
-            gradient_CFIM!(grape, Measurement)
-        end
         if save_file == true
             SaveFile_ctrl(f_ini, grape.control_coefficients)
             if Adam == true
+                gradient_CFIM_Adam!(grape, Measurement)
                 while true
                     f_now = real(tr(grape.W*pinv(CFIM(Measurement, grape))))
                     if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
@@ -1082,6 +1075,7 @@ function auto_GRAPE_CFIM(Measurement, grape, epsilon, max_episodes, Adam, save_f
                     gradient_CFIM_Adam!(grape, Measurement)
                 end
             else
+                gradient_CFIM!(grape, Measurement)
                 while true
                     f_now = real(tr(grape.W*pinv(CFIM(Measurement, grape))))
                     if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
@@ -1102,6 +1096,7 @@ function auto_GRAPE_CFIM(Measurement, grape, epsilon, max_episodes, Adam, save_f
             end
         else
             if Adam == true
+                gradient_CFIM_Adam!(grape, Measurement)
                 while true
                     f_now = real(tr(grape.W*pinv(CFIM(Measurement, grape))))
                     if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
@@ -1120,6 +1115,7 @@ function auto_GRAPE_CFIM(Measurement, grape, epsilon, max_episodes, Adam, save_f
                     gradient_CFIM_Adam!(grape, Measurement)
                 end
             else
+                gradient_CFIM!(grape, Measurement)
                 while true
                     f_now = real(tr(grape.W*pinv(CFIM(Measurement, grape))))
                     if  abs(f_now - f_ini) < epsilon || episodes >= max_episodes
