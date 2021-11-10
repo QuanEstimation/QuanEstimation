@@ -27,9 +27,9 @@ function bound!(A::Array, bound)
     end
 end
 
-function bound!(system)
-    ctrl_num = length(system.control_coefficients)
-    ctrl_length = length(system.control_coefficients[1])
+function bound!(control_coefficients, ctrl_bound)
+    ctrl_num = length(control_coefficients)
+    ctrl_length = length(control_coefficients[1])
     for ck in 1:ctrl_num
         for tk in 1:ctrl_length
             control_coefficients[ck][tk] = (x-> x < ctrl_bound[1] ? ctrl_bound[1] : x > ctrl_bound[2] ? ctrl_bound[2] : x)(control_coefficients[ck][tk])
