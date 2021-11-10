@@ -44,7 +44,7 @@ class ControlSystem:
         gamma:
            --description: decay rates.
            --type: list (of float number)
-           
+ 
         W:
             --description: weight matrix.
             --type: matrix
