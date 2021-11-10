@@ -47,11 +47,11 @@ function liouville_dissip_py(A::Array{T}) where {T <: Complex}
     result
 end
 
-function dissipation(Γ::Vector{Matrix{T}}, γ::Vector{R}, t::Real) where {T <: Complex,R <: Real}
+function dissipation(Γ::Vector{Matrix{T}}, γ::Vector{R}, t::Int=0) where {T <: Complex,R <: Real}
     [γ[i] * liouville_dissip(Γ[i]) for i in 1:length(Γ)] |> sum
 end
 
-function dissipation(Γ::Vector{Matrix{T}}, γ::Vector{Vector{R}}, t::Real) where {T <: Complex,R <: Real}
+function dissipation(Γ::Vector{Matrix{T}}, γ::Vector{Vector{R}}, t::Int=0) where {T <: Complex,R <: Real}
     [γ[i][t] * liouville_dissip(Γ[i]) for i in 1:length(Γ)] |> sum
 end
 
@@ -65,8 +65,12 @@ function liouvillian(H::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, t:
     -1.0im * freepart + dissp
 end
 
-function Htot(H0::Matrix{T}, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients) where {T <: Complex}
+function Htot(H0::Matrix{T}, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}) where {T <: Complex, R}
     Htot = [H0] .+  ([control_coefficients[i] .* [control_Hamiltonian[i]] for i in 1:length(control_coefficients)] |> sum )
+end
+
+function Htot(H0::Matrix{T}, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{R}) where {T <: Complex, R<:Real}
+    Htot = H0 + ([control_coefficients[i] * control_Hamiltonian[i] for i in 1:length(control_coefficients)] |> sum )
 end
 
 function Htot(H0::Vector{Matrix{T}}, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients) where {T <: Complex}
@@ -83,21 +87,48 @@ function propagate(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Mat
     dim = size(H0)[1]
     para_num = length(∂H_∂x)
     H = Htot(H0, control_Hamiltonian, control_coefficients)
-    ρt = [Vector{ComplexF64}(undef, dim^2)  for i in 1:length(times)]
-    ∂ρt_∂x = [[Vector{ComplexF64}(undef, dim^2) for i in 1:length(times)] for para in 1:para_num]
+    ρₜ = [Vector{ComplexF64}(undef, dim^2)  for i in 1:length(times)]
+    ∂ₓρₜ = [[Vector{ComplexF64}(undef, dim^2) for i in 1:length(times)] for para in 1:para_num]
     Δt = times[2] - times[1]
-    ρt[1] = ρ_initial |> vec
+    ρₜ[1] = ρ_initial |> vec
     for para in  1:para_num
-        ∂ρt_∂x[para][1] = ρt[1] |> zero
+        ∂ₓρₜ[para][1] = ρₜ[1] |> zero
     end
     for t in 2:length(times)
         expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
-        ρt[t] =  expL * ρt[t-1]
+        ρₜ[t] =  expL * ρₜ[t-1]
         for para in para_num
-            ∂ρt_∂x[para][t] = -im * Δt * liouville_commu(∂H_∂x[para]) * ρt[t] + expL * ∂ρt_∂x[para][t - 1]
+            ∂ₓρₜ[para][t] = -im * Δt * liouville_commu(∂H_∂x[para]) * ρₜ[t] + expL * ∂ₓρₜ[para][t - 1]
         end
     end
-    ρt .|> vec2mat, ∂ρt_∂x .|> vec2mat
+    ρₜ .|> vec2mat, ∂ₓρₜ .|> vec2mat
+end
+
+function propagate(ρₜ::Matrix{T}, ∂ₓρₜ::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  Liouville_operator::Vector{Matrix{T}},
+                   γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{R}, Δt::Real, t::Int=0, ctrl_interval::Int=1) where {T <: Complex,R <: Real}
+    para_num = length(∂H_∂x)
+    # ctrl_num = length(control_Hamiltonian)
+    # control_coefficients = [transpose(repeat(control_coefficients[i], 1, ctrl_interval))[:] for i in 1:ctrl_num]
+    H = Htot(H0, control_Hamiltonian, control_coefficients)
+    # expL = (x->evolute(H, Liouville_operator, γ, Δt, x)).([t:t+ctrl_interval]...)
+    expL = evolute(H, Liouville_operator, γ, Δt, t)
+    ρₜ_next =expL * (ρₜ |> vec)
+    ∂ₓρₜ_next = (∂ₓρₜ.|>vec) |> similar
+    for para in para_num
+        ∂ₓρₜ_next[para] = -im * Δt * liouville_commu(∂H_∂x[para]) * ρₜ_next + expL * (∂ₓρₜ[para]|>vec)
+    end
+    for i in 2:ctrl_interval
+        ρₜ_next =expL * ρₜ_next 
+        for para in para_num
+            ∂ₓρₜ_next[para] = -im * Δt * liouville_commu(∂H_∂x[para])ρₜ_next + expL * ∂ₓρₜ_next[para]
+        end
+    end
+    ρₜ_next|> vec2mat, ∂ₓρₜ_next|> vec2mat
+end
+
+function propagate(ρₜ, ∂ₓρₜ, system, ctrl, t=1)
+    Δt = system.times[2] - system.times[1]
+    propagate(ρₜ, ∂ₓρₜ, system.freeHamiltonian, system.Hamiltonian_derivative, system.Liouville_operator, system.γ, system.control_Hamiltonian, ctrl, Δt, t, system.ctrl_interval)
 end
 
 function propagate!(system)

@@ -10,10 +10,12 @@ using Base.Threads
 using SparseArrays
 using DelimitedFiles
 using StatsBase
+using ReinforcementLearning
 
 include("AsymptoticBound/CramerRao.jl")
 include("Common/common.jl")
 include("Control/GRAPE.jl")
+include("Control/DDPG.jl")
 include("Control/PSO.jl")
 include("Control/DiffEvo.jl")
 include("Control/common.jl")
