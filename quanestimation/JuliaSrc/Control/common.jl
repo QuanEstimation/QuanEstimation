@@ -32,9 +32,25 @@ function bound!(system)
     ctrl_length = length(system.control_coefficients[1])
     for ck in 1:ctrl_num
         for tk in 1:ctrl_length
-            system.control_coefficients[ck][tk] = (x-> (x|>abs) < system.ctrl_bound ? x : system.ctrl_bound)(system.control_coefficients[ck][tk])
+            control_coefficients[ck][tk] = (x-> x < ctrl_bound[1] ? ctrl_bound[1] : x > ctrl_bound[2] ? ctrl_bound[2] : x)(control_coefficients[ck][tk])
         end 
     end
 end
 
+function SaveFile_ctrl(f_now::Float64, control)
+    open("f.csv","a") do f
+        writedlm(f, [f_now])
+    end
+    open("controls.csv","a") do g
+        writedlm(g, control)
+    end
+end
 
+function SaveFile_ctrl(f_now::Vector{Float64}, control)
+    open("f.csv","w") do f
+        writedlm(f, [f_now])
+    end
+    open("controls.csv","w") do g
+        writedlm(g, control)
+    end
+end

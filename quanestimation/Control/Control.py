@@ -44,6 +44,7 @@ class ControlSystem:
         gamma:
            --description: decay rates.
            --type: list (of float number)
+           
         W:
             --description: weight matrix.
             --type: matrix
@@ -76,11 +77,15 @@ class ControlSystem:
         else:
             self.W = W
 
+        if type(H0) == np.ndarray:
+            self.freeHamiltonian = np.array(H0, dtype=np.complex128)
+        else:
+            self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0]
+            
         self.tspan = tspan
-        self.rho_initial = np.array(rho_initial,dtype=np.complex128)
-        self.freeHamiltonian = np.array(H0,dtype=np.complex128)
-        self.control_Hamiltonian = [np.array(x,dtype=np.complex128) for x in Hc]
-        self.Hamiltonian_derivative = [np.array(x,dtype=np.complex128) for x in dH]
+        self.rho_initial = np.array(rho_initial, dtype=np.complex128)
+        self.control_Hamiltonian = [np.array(x, dtype=np.complex128) for x in Hc]
+        self.Hamiltonian_derivative = [np.array(x, dtype=np.complex128) for x in dH]
         self.control_coefficients = ctrl_initial
         self.Liouville_operator = [np.array(x, dtype=np.complex128) for x in Liouville_operator]
         self.gamma = gamma

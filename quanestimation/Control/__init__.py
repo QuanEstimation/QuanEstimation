@@ -7,5 +7,6 @@ from quanestimation.Control.DDPG import (DDPG, )
 from quanestimation.Control.DiffEvo import (DiffEvo,)
 from quanestimation.Control.GRAPE import (GRAPE,)
 from quanestimation.Control.PSO import (PSO,)
+from quanestimation.Control.Control import (ControlOpt, )
 
 __all__ = ['DDPG', 'DiffEvo', 'GRAPE', 'PSO', ]

@@ -13,14 +13,14 @@ from quanestimation.Common import (common, dRHO, dydt, mat_vec_convert, suN_gene
 from quanestimation.Control import (DDPG, DiffEvo, GRAPE, PSO, )
 from quanestimation.Dynamics import (dynamics, learning_env, Lindblad,  env, )
 from quanestimation.Resources import (Resources, )
-from quanestimation.StateOptimization import (StateOpt_DE, StateOpt_PSO, StateOpt_NM, StateOpt_AD, )
+from quanestimation.StateOptimization import (StateOpt_DE, StateOpt_PSO, StateOpt_NM, StateOpt_AD, StateOpt, StateOptSystem)
 
 # import julia
 from julia import Main
 
 Main.include('quanestimation/JuliaSrc/QuanEstimation.jl')
 
-__all__ = ['AsymptoticBound', 'Common', 'Control', 'Dynamics', 'Resources', 'StateOpt_DE', 'StateOpt_PSO', 'StateOpt_NM', 'StateOpt_AD',
-            'CramerRao', 'Holevo', 'common', 'DDPG', 'DiffEvo',  'GRAPE', 'PSO', 'dynamics', 'learning_env', 'Resources',
-            'DDPG', 'env', 'Lindblad',
-            'CFIM', 'SLD', 'LLD', 'RLD', 'QFIM', 'dydt', 'dRHO', 'mat_vec_convert', 'suN_generator']
+__all__ = ['AsymptoticBound', 'Common', 'Control', 'Dynamics', 'Resources', 
+            'StateOpt_DE', 'StateOpt_PSO', 'StateOpt_NM', 'StateOpt_AD','StateOpt', 'StateOptSystem',
+            'CramerRao', 'Holevo', 'common', 'DDPG', 'DiffEvo',  'GRAPE', 'PSO', 'dynamics', 'Lindblad', 'Resources',
+            'ControlOpt', 'DDPG', 'CFIM', 'SLD', 'LLD', 'RLD', 'QFIM', 'mat_vec_convert', 'suN_generator']
