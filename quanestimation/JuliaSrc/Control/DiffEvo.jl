@@ -1,5 +1,5 @@
 mutable struct DiffEvo{T <: Complex,M <: Real} <: ControlSystem
-    freeHamiltonian::Matrix{T}
+    freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
     ρ_initial::Matrix{T}
     times::Vector{M}
@@ -11,7 +11,7 @@ mutable struct DiffEvo{T <: Complex,M <: Real} <: ControlSystem
     W::Matrix{M}
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
-    DiffEvo(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, ρ_initial::Matrix{T},
+    DiffEvo(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, ρ_initial::Matrix{T},
              times::Vector{M}, Liouville_operator::Vector{Matrix{T}},γ::Vector{M}, control_Hamiltonian::Vector{Matrix{T}},
              control_coefficients::Vector{Vector{M}}, ctrl_bound::Vector{M}, W::Matrix{M}, ρ=Vector{Matrix{T}}(undef, 1), 
              ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 

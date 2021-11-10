@@ -1,5 +1,5 @@
 mutable struct TimeIndepend_noiseless{T <: Complex,M <: Real}
-    freeHamiltonian::Matrix{T}
+    freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
     psi::Vector{T}
     times::Vector{M}
@@ -13,7 +13,7 @@ mutable struct TimeIndepend_noiseless{T <: Complex,M <: Real}
 end
 
 mutable struct TimeIndepend_noise{T <: Complex,M <: Real}
-    freeHamiltonian::Matrix{T}
+    freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
     psi::Vector{T}
     times::Vector{M}

@@ -103,7 +103,7 @@ function QFIM_pure(ρ::Matrix{T}, ∂ρ_∂x::Matrix{T}) where {T <: Complex}
 end
 
 #### quantum dynamics and calcalate QFI ####
-function QFI(H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ,control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
+function QFI(H0, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ,control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
 
     ctrl_num = length(control_Hamiltonian)
     ctrl_interval = (length(times)/length(control_coefficients[1])) |> Int
@@ -125,7 +125,7 @@ function QFI(H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouvi
     QFI(ρt|> vec2mat, ∂ρt_∂x|> vec2mat)
 end
 
-function QFI_auto(H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ,control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
+function QFI_auto(H0, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ,control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
 
     ctrl_num = length(control_Hamiltonian)
     ctrl_interval = (length(times)/length(control_coefficients[1])) |> Int
@@ -147,7 +147,7 @@ function QFI_auto(H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, L
     QFI_auto(ρt|> vec2mat, ∂ρt_∂x|> vec2mat)
 end
 
-function QFIM_TimeIndepend(H0::Matrix{T}, ∂H_∂x::Matrix{T}, psi_initial::Vector{T}, times) where {T <: Complex,R <: Real}
+function QFIM_TimeIndepend(H0, ∂H_∂x::Matrix{T}, psi_initial::Vector{T}, times) where {T <: Complex,R <: Real}
     Δt = times[2] - times[1]
     U = exp(-im*H0*Δt)
     psi_t = psi_initial
@@ -161,7 +161,7 @@ function QFIM_TimeIndepend(H0::Matrix{T}, ∂H_∂x::Matrix{T}, psi_initial::Vec
     QFIM_pure(ρt, ∂ρt_∂x)
 end
 
-function QFIM_TimeIndepend(H0::Matrix{T}, ∂H_∂x::Matrix{T}, ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, times) where {T <: Complex,R <: Real}
+function QFIM_TimeIndepend(H0, ∂H_∂x::Matrix{T}, ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, times) where {T <: Complex,R <: Real}
     Δt = times[2] - times[1]
     ρt = ρ_initial |> vec
     ∂ρt_∂x = ρt |> zero 
@@ -174,7 +174,7 @@ function QFIM_TimeIndepend(H0::Matrix{T}, ∂H_∂x::Matrix{T}, ρ_initial::Matr
     QFI(ρt|> vec2mat, ∂ρt_∂x|> vec2mat)
 end
 
-function QFIM_TimeIndepend_AD(H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, times) where {T <: Complex,R <: Real}
+function QFIM_TimeIndepend_AD(H0, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, times) where {T <: Complex,R <: Real}
     Δt = times[2] - times[1]
     ρt = ρ_initial |> vec
     ∂ρt_∂x = ρt |> zero 
@@ -221,7 +221,7 @@ function QFIM_pure(ρ::Matrix{T}, ∂ρ_∂x::Vector{Matrix{T}}) where {T <: Com
 end
 
 #### quantum dynamics and calcalate QFIM ####
-function QFIM(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
+function QFIM(H0, ∂H_∂x::Vector{Matrix{T}}, ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
 
     para_num = length(∂H_∂x)
     ctrl_num = length(control_Hamiltonian)
@@ -243,7 +243,7 @@ function QFIM(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ_initial::Matrix{T}
     QFIM(ρt|> vec2mat, ∂ρt_∂x|> vec2mat)
 end
 
-function QFIM_auto(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
+function QFIM_auto(H0, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
  
     para_num = length(∂H_∂x)
     ctrl_num = length(control_Hamiltonian)
@@ -266,7 +266,7 @@ function QFIM_auto(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Mat
     QFIM_auto(ρt|> vec2mat, ∂ρt_∂x|> vec2mat)
 end
 
-function QFIM_TimeIndepend(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  psi_initial::Vector{T}, times) where {T <: Complex,R <: Real}
+function QFIM_TimeIndepend(H0, ∂H_∂x::Vector{Matrix{T}},  psi_initial::Vector{T}, times) where {T <: Complex,R <: Real}
     Δt = times[2] - times[1]
     para_num = length(∂H_∂x)
     U = exp(-im*H0*Δt)
@@ -281,7 +281,7 @@ function QFIM_TimeIndepend(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  psi_ini
     QFIM_pure(ρt, ∂ρt_∂x)
 end
 
-function QFIM_TimeIndepend(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, times) where {T <: Complex,R <: Real}
+function QFIM_TimeIndepend(H0, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, times) where {T <: Complex,R <: Real}
     Δt = times[2] - times[1]
     para_num = length(∂H_∂x)
     ρt = ρ_initial |> vec
@@ -295,7 +295,7 @@ function QFIM_TimeIndepend(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_init
     QFIM(ρt|> vec2mat, ∂ρt_∂x|> vec2mat)
 end
 
-function QFIM_TimeIndepend_AD(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, times) where {T <: Complex,R <: Real}
+function QFIM_TimeIndepend_AD(H0, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, times) where {T <: Complex,R <: Real}
     Δt = times[2] - times[1]
     para_num = length(∂H_∂x)
     ρt = ρ_initial |> vec
@@ -309,7 +309,7 @@ function QFIM_TimeIndepend_AD(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_i
     QFIM_auto(ρt|> vec2mat, ∂ρt_∂x|> vec2mat)
 end
 
-function QFIM_saveall(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
+function QFIM_saveall(H0, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
  
     para_num = length(∂H_∂x)
     ctrl_num = length(control_Hamiltonian)
@@ -360,7 +360,7 @@ function CFI(ρ, dρ, M)
 end
 
 #### quantum dynamics and calcalate CFI ####
-function CFI(M::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ,  control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
+function CFI(M::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ,  control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
     
     ctrl_num = length(control_Hamiltonian)
     ctrl_interval = (length(times)/length(control_coefficients[1])) |> Int
@@ -380,7 +380,7 @@ function CFI(M::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_init
     CFI(ρt|> vec2mat, ∂ρt_∂x|> vec2mat, M)
 end
 
-function CFIM_TimeIndepend(M, H0::Matrix{T}, ∂H_∂x::Matrix{T},  psi_initial::Vector{T}, times) where {T <: Complex,R <: Real}
+function CFIM_TimeIndepend(M, H0, ∂H_∂x::Matrix{T},  psi_initial::Vector{T}, times) where {T <: Complex,R <: Real}
     Δt = times[2] - times[1]
     U = exp(-im*H0*Δt)
     psi_t = psi_initial
@@ -394,7 +394,7 @@ function CFIM_TimeIndepend(M, H0::Matrix{T}, ∂H_∂x::Matrix{T},  psi_initial:
     CFI(ρt, ∂ρt_∂x, M)
 end
 
-function CFIM_TimeIndepend(M, H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, times) where {T <: Complex,R <: Real}
+function CFIM_TimeIndepend(M, H0, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, times) where {T <: Complex,R <: Real}
     Δt = times[2] - times[1]
     ρt = ρ_initial |> vec
     ∂ρt_∂x = ρt |> zero 
@@ -420,7 +420,7 @@ function CFIM(ρ, dρ, M)
 end
 
 #### quantum dynamics and calcalate CFIM ####
-function CFIM(M::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ,  control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
+function CFIM(M::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ,  control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
     para_num = length(∂H_∂x)
     ctrl_num = length(control_Hamiltonian)
     ctrl_interval = (length(times)/length(control_coefficients[1])) |> Int
@@ -440,7 +440,7 @@ function CFIM(M::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},
     CFIM(ρt|> vec2mat, ∂ρt_∂x|> vec2mat, M)
 end
 
-function CFIM_TimeIndepend(M, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  psi_initial::Vector{T}, times) where {T <: Complex,R <: Real}
+function CFIM_TimeIndepend(M, H0, ∂H_∂x::Vector{Matrix{T}},  psi_initial::Vector{T}, times) where {T <: Complex,R <: Real}
     Δt = times[2] - times[1]
     para_num = length(∂H_∂x)
     U = exp(-im*H0*Δt)
@@ -456,7 +456,7 @@ function CFIM_TimeIndepend(M, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  psi_
     CFIM(ρt, ∂ρt_∂x, M)
 end
 
-function CFIM_TimeIndepend(M, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, times) where {T <: Complex,R <: Real}
+function CFIM_TimeIndepend(M, H0, ∂H_∂x::Vector{Matrix{T}},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ, times) where {T <: Complex,R <: Real}
     Δt = times[2] - times[1]
     para_num = length(∂H_∂x)
     ρt = ρ_initial |> vec
