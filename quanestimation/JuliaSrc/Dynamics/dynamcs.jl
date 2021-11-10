@@ -69,6 +69,10 @@ function Htot(H0::Matrix{T}, control_Hamiltonian::Vector{Matrix{T}}, control_coe
     Htot = [H0] .+  ([control_coefficients[i] .* [control_Hamiltonian[i]] for i in 1:length(control_coefficients)] |> sum )
 end
 
+function Htot(H0::Vector{Matrix{T}}, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients) where {T <: Complex}
+    Htot = H0 +  ([control_coefficients[i] .* [control_Hamiltonian[i]] for i in 1:length(control_coefficients)] |> sum )
+end
+
 function evolute(H, Liouville_operator, γ, dt, tj)
     Ld = dt * liouvillian(H, Liouville_operator, γ, tj)
     exp(Ld)
@@ -99,7 +103,7 @@ end
 function propagate!(system)
     system.ρ, system.∂ρ_∂x = propagate(system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ_initial,
                                        system.Liouville_operator, system.γ, system.control_Hamiltonian, 
-                                       system.control_coefficients, system.times )
+                                       system.control_coefficients, system.times)
 end
 
 function expm(H0::Matrix{T}, ∂H_∂x::Matrix{T},  ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ,control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
