@@ -17,10 +17,9 @@ struct ControlEnvParams{T, M}
     control_Hamiltonian::Vector{Matrix{T}}
     control_coefficients::Vector{Vector{M}}
     ctrl_interval::Int
-    ctrl_bound::M
-    W::AbstractArray
+    ctrl_bound::Vector{M}
+    W::Matrix{M}
     dim::Int
-    C::Float64
 end
 
 mutable struct ControlEnv{T, M, R<:AbstractRNG} <: AbstractEnv
@@ -56,7 +55,7 @@ function ControlEnv(;
     state = params.ρ_initial
     dstate = [state|>zero for _ in 1:para_num]
     state = state|>state_flatten
-    action_space = Space([-params.ctrl_bound..params.ctrl_bound for _ in 1:ctrl_num])
+    action_space = Space([params.ctrl_bound[1]..params.ctrl_bound[end] for _ in 1:ctrl_num])
     state_space = Space(fill(M(-1e38)..M(1e38), length(state)))
     f_init = [0., (QFIM_saveall(params)[params.ctrl_interval:params.ctrl_interval:end].|>(x->x=1/(x|>inv|>tr)))...] 
     a_list = [ Vector{Float64}() for _ in 1:ctrl_num]
@@ -105,23 +104,22 @@ function _step!(env::ControlEnv, a)
     env.state = ρₜₙ|>state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t >= env.cnum
-    f_current =1/(QFIM_ori(ρₜₙ, ∂ₓρₜₙ)|>inv|>tr)
-    reward_current = (f_current - 1.0*env.f_init[env.t])*(env.t/env.cnum)/env.f_init[env.t]/env.cnum #/env.f_init[end] #
+    f_current = 1/((env.params.W*QFIM_ori(ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
+    reward_current = log(f_current/env.f_init[env.t])
+    env.reward = reward_current
     if env.done
-        env.reward = env.params.C*reward_current
         append!(env.f_list, f_current/env.params.times[end])
-        f_current
-    else
-        env.reward = reward_current
     end
     nothing 
 end
 
 Random.seed!(env::ControlEnv, seed) = Random.seed!(env.rng, seed)
 
-function DDPG(
+function DDPG_QFIM(
     params::ControlEnvParams,
     seed = 123,
+    layer_num = 3,
+    layer_dim = 200
 )
     rng = StableRNG(seed)
     env = ControlEnv(params = params, rng=rng)
@@ -131,19 +129,15 @@ function DDPG(
     init = glorot_uniform(rng)
 
     create_actor() = Chain(
-        Dense(ns, 200, relu; init = init),
-        Dense(200, 200, relu; init = init),
-        Dense(200, 200, relu; init = init),
-        Dense(200, 200, relu; init = init),
-        Dense(200, na, tanh; init = init),
+        Dense(ns, layer_dim, relu; init = init),
+        [Dense(layer_dim, layer_dim, relu; init = init) for _ in 1:layer_num]...,
+        Dense(layer_dim, na, tanh; init = init),
     )
 
     create_critic() = Chain(
-        Dense(ns + na, 200, relu; init = init),
-        Dense(200, 200, relu; init = init),
-        Dense(200, 200, relu; init = init),
-        Dense(200, 200, relu; init = init),
-        Dense(200, 1; init = init),
+        Dense(ns + na, layer_dim, relu; init = init),
+        [Dense(layer_dim, layer_dim, relu; init = init) for _ in 1:layer_num]...,
+        Dense(layer_dim, 1; init = init),
     )
 
     agent = Agent(
@@ -172,7 +166,7 @@ function DDPG(
             start_policy = RandomPolicy(Space([-1.0..1.0 for _ in 1:env.ctrl_num]); rng = rng),
             update_after = 100*env.cnum,
             update_freq = 1*env.cnum,
-            act_limit = env.params.ctrl_bound,
+            act_limit = env.params.ctrl_bound[end],
             act_noise = 0.01,
             rng = rng,
         ),
