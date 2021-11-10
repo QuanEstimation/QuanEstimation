@@ -9,4 +9,4 @@ from quanestimation.Control.GRAPE import (GRAPE,)
 from quanestimation.Control.PSO import (PSO,)
 from quanestimation.Control.Control import (ControlOpt, )
 
-__all__ = ['DDPG', 'DiffEvo', 'GRAPE', 'PSO', ]
+__all__ = ['control', 'DDPG', 'DiffEvo', 'GRAPE', 'PSO', ]
