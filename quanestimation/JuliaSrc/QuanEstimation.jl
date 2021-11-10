@@ -26,7 +26,6 @@ include("StateOptimization/StateOpt_NM.jl")
 include("StateOptimization/StateOpt_PSO.jl")
 include("StateOptimization/StateOpt_AD.jl")
 # include("QuanResources/")
-
 export QFI, QFIM, CFI, CFIM
 export suN_generator, expm
 ######## control optimization ########
@@ -39,5 +38,4 @@ export AD_QFIM, AD_CFIM
 export DE_QFIM, DE_CFIM
 export PSO_QFIM, PSO_CFIM
 export NM_QFIM, NM_CFIM
-
 end
