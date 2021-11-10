@@ -1,6 +1,5 @@
 module QuanEstimation
 
-# using LinearAlgebra: similar
 using LinearAlgebra
 using Zygote
 using DifferentialEquations
