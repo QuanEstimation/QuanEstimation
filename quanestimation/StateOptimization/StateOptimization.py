@@ -68,7 +68,7 @@ class StateOptSystem:
             self.psi_initial = np.genfromtxt('states.csv', dtype=np.complex128)
 
     def load_save(self):
-        file_load = open('states_jl.csv', 'r')
+        file_load = open('states.csv', 'r')
         file_load = ''.join([i for i in file_load]).replace("im", "j")
         file_load = ''.join([i for i in file_load]).replace(" ", "")
         file_save = open("states.csv","w")

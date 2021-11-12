@@ -92,6 +92,10 @@ class ControlSystem:
         self.control_option = control_option
         self.ctrl_bound = ctrl_bound
         
+        if os.path.exists('controls.csv'):
+            data = np.genfromtxt('controls.csv')[-len(Hc):]
+            self.control_coefficients = [data[i] for i in range(len(data))]
+            
         ctrl_length = len(self.control_coefficients)
         ctrlnum = len(self.control_Hamiltonian)
         if ctrlnum < ctrl_length:
@@ -106,10 +110,6 @@ class ControlSystem:
         if len(self.tspan) % len(self.control_coefficients[0]) != 0:
             self.tnum = number*len(self.control_coefficients[0])
             self.tspan = np.linspace(self.tspan[0], self.tspan[-1], self.tnum)
-
-        if os.path.exists('controls.csv'):
-            data = np.genfromtxt('controls.csv')
-            self.control_coefficients = [data[i] for i in range(len(data))]
 
 def ControlOpt(*args, method = 'auto-GRAPE', **kwargs):
 

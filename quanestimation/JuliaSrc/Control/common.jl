@@ -37,6 +37,13 @@ function bound!(control_coefficients, ctrl_bound)
     end
 end
 
+function bound!(control_coefficients::Vector{Float64}, ctrl_bound)
+    ctrl_num = length(control_coefficients)
+    for ck in 1:ctrl_num
+        control_coefficients[ck] = (x-> x < ctrl_bound[1] ? ctrl_bound[1] : x > ctrl_bound[2] ? ctrl_bound[2] : x)(control_coefficients[ck])
+    end
+end
+
 function SaveFile_ctrl(f_now::Float64, control)
     open("f.csv","a") do f
         writedlm(f, [f_now])
