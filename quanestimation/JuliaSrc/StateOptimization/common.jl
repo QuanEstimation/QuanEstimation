@@ -48,7 +48,7 @@ function SaveFile_state(f_now::Float64, control)
     open("f.csv","a") do f
         writedlm(f, [f_now])
     end
-    open("states_jl.csv","a") do g
+    open("states.csv","a") do g
         writedlm(g, [control])
     end
 end
@@ -57,7 +57,7 @@ function SaveFile_state(f_now::Vector{Float64}, control)
     open("f.csv","w") do f
         writedlm(f, [f_now])
     end
-    open("states_jl.csv","w") do g
+    open("states.csv","w") do g
         writedlm(g, [control])
     end
 end

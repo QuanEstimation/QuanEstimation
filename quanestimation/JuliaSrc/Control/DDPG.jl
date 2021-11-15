@@ -1,14 +1,11 @@
-# using Base: _start
 using Flux: glorot_normal, glorot_uniform
 using StableRNGs
 using Flux
 using Flux.Losses
 using IntervalSets
-using Random
-# using Plots
-using PyPlot
+
 struct ControlEnvParams{T, M}
-    freeHamiltonian::Matrix{T}
+    freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
     ρ_initial::Matrix{T}
     times::Vector{M}
@@ -16,13 +13,14 @@ struct ControlEnvParams{T, M}
     γ::Vector{M}
     control_Hamiltonian::Vector{Matrix{T}}
     control_coefficients::Vector{Vector{M}}
-    ctrl_interval::Int
     ctrl_bound::Vector{M}
     W::Matrix{M}
+    ctrl_interval::Int
     dim::Int
 end
 
 mutable struct ControlEnv{T, M, R<:AbstractRNG} <: AbstractEnv
+    Measurement::Vector{Matrix{T}}
     params::ControlEnvParams{T, M}
     action_space::Space
     state_space::Space
@@ -37,30 +35,40 @@ mutable struct ControlEnv{T, M, R<:AbstractRNG} <: AbstractEnv
     cnum::Int
     ctrl_num::Int
     para_num::Int
-    f_init::Vector{M}
+    f_noctrl::Vector{M}
     f_list::Vector{M}
-    a_list::Vector{Vector{M}}
+    ctrl_list::Vector{Vector{M}}
+    ctrl_bound::Vector{M}
+    episode::Int
+    quantum::Bool
+    SinglePara::Bool
+    save_file::Bool
 end
 
-function ControlEnv(;
-    T = ComplexF64,
-    M = Float64,
-    params::ControlEnvParams,   
-    para_num = params.Hamiltonian_derivative|>length,
-    ctrl_num = params.control_coefficients|>length,
-    rng = Random.GLOBAL_RNG
-    )
+function ControlEnv(;T=ComplexF64, M=Float64, Measurement, params::ControlEnvParams, para_num=params.Hamiltonian_derivative|>length,
+                    ctrl_num=params.control_coefficients|>length, rng=Random.GLOBAL_RNG, episode, quantum, SinglePara, save_file)
     tnum = params.times|>length
     cnum = tnum÷params.ctrl_interval
     state = params.ρ_initial
     dstate = [state|>zero for _ in 1:para_num]
     state = state|>state_flatten
-    action_space = Space([params.ctrl_bound[1]..params.ctrl_bound[end] for _ in 1:ctrl_num])
-    state_space = Space(fill(M(-1e38)..M(1e38), length(state)))
-    f_init = [0., (QFIM_saveall(params)[params.ctrl_interval:params.ctrl_interval:end].|>(x->x=1/(x|>inv|>tr)))...] 
-    a_list = [ Vector{Float64}() for _ in 1:ctrl_num]
+    action_space = Space([-Inf..Inf for _ in 1:ctrl_num])
+    state_space = Space(fill(-Inf..Inf, length(state))) 
+
+    non_ctrl = [zeros(length(params.control_coefficients[1])) for i in 1:length(params.control_coefficients)]
+    if quantum       
+        F_noctrl = QFIM_saveall(params.freeHamiltonian, params.Hamiltonian_derivative, params.ρ_initial, params.Liouville_operator, 
+                            params.γ, params.control_Hamiltonian, non_ctrl, params.times)
+        f_noctrl = [0., (F_noctrl[params.ctrl_interval:params.ctrl_interval:end].|>(x->x=1.0/(x|>inv|>tr)))...] 
+    else
+        F_noctrl = CFIM_saveall(Measurement, params.freeHamiltonian, params.Hamiltonian_derivative, params.ρ_initial, params.Liouville_operator, 
+                            params.γ, params.control_Hamiltonian, non_ctrl, params.times)
+        f_noctrl = [0., (F_noctrl[params.ctrl_interval:params.ctrl_interval:end].|>(x->x=1.0/(x|>inv|>tr)))...]
+    end
+    ctrl_list = [Vector{Float64}() for _ in 1:ctrl_num]
     f_list = Vector{Float64}()
-    env = ControlEnv(params, action_space, state_space, state, dstate, true, rng, 0., 0, params.times, tnum, cnum, ctrl_num, para_num, f_init, f_list, a_list)
+    env = ControlEnv(Measurement, params, action_space, state_space, state, dstate, true, rng, 0., 0, params.times, tnum, cnum, ctrl_num, 
+                     para_num, f_noctrl, f_list, ctrl_list, params.ctrl_bound, episode, quantum, SinglePara, save_file)
     reset!(env)
     env
 end
@@ -81,6 +89,7 @@ function RLBase.reset!(env::ControlEnv)
     env.t = 1
     env.done = false
     env.reward = 0.
+    env.ctrl_list = [Vector{Float64}() for _ in 1:env.ctrl_num]
     nothing
 end
 
@@ -91,102 +100,302 @@ RLBase.is_terminated(env::ControlEnv) = env.done
 RLBase.state(env::ControlEnv) = env.state
 
 function (env::ControlEnv)(a)
-    @assert a in env.action_space
-    _step!(env, a)
+    # @assert a in env.action_space
+    bound!(a, env.ctrl_bound)
+    _step!(env, a, Val(env.quantum), Val(env.SinglePara), Val(env.save_file))
 end
 
-function _step!(env::ControlEnv, a)
-    # append!.(env.a_list, a)
-    # @show a
+####################### step functions #########################
+#### quantum single parameter estimation and save_file=true ####
+function _step!(env::ControlEnv, a, ::Val{true}, ::Val{true}, ::Val{true})
+    env.t += 1
+    ρₜ, ∂ₓρₜ = env.state|>density_matrix, env.dstate
+    ρₜₙ, ∂ₓρₜₙ = propagate(ρₜ, ∂ₓρₜ, env.params, a, env.t)
+    env.state = ρₜₙ|>state_flatten
+    env.dstate = ∂ₓρₜₙ
+    env.done = env.t > env.cnum
+    f_current = 1/((env.params.W*QFIM(ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
+    reward_current = log(f_current/env.f_noctrl[env.t])
+    env.reward = reward_current
+    [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
+    if env.done
+        append!(env.f_list, f_current)
+        SaveFile_ctrl(f_current, env.ctrl_list)
+        env.episode += 1
+        print("current QFI is ", f_current, " ($(env.episode) episodes)    \r")
+    end
+    nothing 
+end
+
+#### quantum single parameter estimation and save_file=false ####
+function _step!(env::ControlEnv, a, ::Val{true}, ::Val{true}, ::Val{false})
     env.t += 1
     ρₜ, ∂ₓρₜ = env.state|>density_matrix, env.dstate
     ρₜₙ, ∂ₓρₜₙ = propagate(ρₜ, ∂ₓρₜ, env.params, a, env.t)
     env.state = ρₜₙ|>state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t >= env.cnum
-    f_current = 1/((env.params.W*QFIM_ori(ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
-    reward_current = log(f_current/env.f_init[env.t])
+    f_current = 1/((env.params.W*QFIM(ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
+    reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
+    [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
     if env.done
-        append!(env.f_list, f_current/env.params.times[end])
+        append!(env.f_list, f_current)
+        env.episode += 1
+        print("current QFI is ", f_current, " ($(env.episode) episodes)    \r")
+    end
+    nothing 
+end
+
+#### quantum multiparameter estimation and save_file=true ####
+function _step!(env::ControlEnv, a, ::Val{true}, ::Val{false}, ::Val{true})
+    env.t += 1
+    ρₜ, ∂ₓρₜ = env.state|>density_matrix, env.dstate
+    ρₜₙ, ∂ₓρₜₙ = propagate(ρₜ, ∂ₓρₜ, env.params, a, env.t)
+    env.state = ρₜₙ|>state_flatten
+    env.dstate = ∂ₓρₜₙ
+    env.done = env.t >= env.cnum
+    f_current = 1/((env.params.W*QFIM(ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
+    reward_current = log(f_current/env.f_noctrl[env.t])
+    env.reward = reward_current
+    [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
+    if env.done
+        append!(env.f_list, 1.0/f_current)
+        SaveFile_ctrl(1.0/f_current, env.ctrl_list)
+        env.episode += 1
+        print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
+    end
+    nothing 
+end
+
+#### quantum multiparameter estimation and save_file=false ####
+function _step!(env::ControlEnv, a, ::Val{true}, ::Val{false}, ::Val{false})
+    env.t += 1
+    ρₜ, ∂ₓρₜ = env.state|>density_matrix, env.dstate
+    ρₜₙ, ∂ₓρₜₙ = propagate(ρₜ, ∂ₓρₜ, env.params, a, env.t)
+    env.state = ρₜₙ|>state_flatten
+    env.dstate = ∂ₓρₜₙ
+    env.done = env.t >= env.cnum
+    f_current = 1/((env.params.W*QFIM(ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
+    reward_current = log(f_current/env.f_noctrl[env.t])
+    env.reward = reward_current
+    [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
+    if env.done
+        append!(env.f_list, 1.0/f_current)
+        env.episode += 1
+        print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
+    end
+    nothing 
+end
+
+#### classical single parameter estimation and save_file=true ####
+function _step!(env::ControlEnv, a, ::Val{false}, ::Val{true}, ::Val{true})
+    env.t += 1
+    ρₜ, ∂ₓρₜ = env.state|>density_matrix, env.dstate
+    ρₜₙ, ∂ₓρₜₙ = propagate(ρₜ, ∂ₓρₜ, env.params, a, env.t)
+    env.state = ρₜₙ|>state_flatten
+    env.dstate = ∂ₓρₜₙ
+    env.done = env.t > env.cnum
+    f_current = 1/((env.params.W*CFIM(env.Measurement, ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
+    reward_current = log(f_current/env.f_noctrl[env.t])
+    env.reward = reward_current
+    [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
+    if env.done
+        append!(env.f_list, f_current)
+        SaveFile_ctrl(f_current, env.ctrl_list)
+        env.episode += 1
+        print("current CFI is ", f_current, " ($(env.episode) episodes)    \r")
+    end
+    nothing 
+end
+
+#### classical single parameter estimation and save_file=false ####
+function _step!(env::ControlEnv, a, ::Val{false}, ::Val{true}, ::Val{false})
+    env.t += 1
+    ρₜ, ∂ₓρₜ = env.state|>density_matrix, env.dstate
+    ρₜₙ, ∂ₓρₜₙ = propagate(ρₜ, ∂ₓρₜ, env.params, a, env.t)
+    env.state = ρₜₙ|>state_flatten
+    env.dstate = ∂ₓρₜₙ
+    env.done = env.t >= env.cnum
+    f_current = 1/((env.params.W*CFIM(env.Measurement, ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
+    reward_current = log(f_current/env.f_noctrl[env.t])
+    env.reward = reward_current
+    [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
+    if env.done
+        append!(env.f_list, f_current)
+        env.episode += 1
+        print("current CFI is ", f_current, " ($(env.episode) episodes)    \r")
+    end
+    nothing 
+end
+
+#### classical multiparameter estimation and save_file=true ####
+function _step!(env::ControlEnv, a, ::Val{false}, ::Val{false}, ::Val{true})
+    env.t += 1
+    ρₜ, ∂ₓρₜ = env.state|>density_matrix, env.dstate
+    ρₜₙ, ∂ₓρₜₙ = propagate(ρₜ, ∂ₓρₜ, env.params, a, env.t)
+    env.state = ρₜₙ|>state_flatten
+    env.dstate = ∂ₓρₜₙ
+    env.done = env.t >= env.cnum
+    f_current = 1/((env.params.W*CFIM(env.Measurement, ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
+    reward_current = log(f_current/env.f_noctrl[env.t])
+    env.reward = reward_current
+    [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
+    if env.done
+        append!(env.f_list, 1.0/f_current)
+        SaveFile_ctrl(1.0/f_current, env.ctrl_list)
+        env.episode += 1
+        print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
+    end
+    nothing 
+end
+
+#### classical multiparameter estimation and save_file=false ####
+function _step!(env::ControlEnv, a, ::Val{false}, ::Val{false}, ::Val{false})
+    env.t += 1
+    ρₜ, ∂ₓρₜ = env.state|>density_matrix, env.dstate
+    ρₜₙ, ∂ₓρₜₙ = propagate(ρₜ, ∂ₓρₜ, env.params, a, env.t)
+    env.state = ρₜₙ|>state_flatten
+    env.dstate = ∂ₓρₜₙ
+    env.done = env.t >= env.cnum
+    f_current = 1/((env.params.W*CFIM(env.Measurement, ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
+    reward_current = log(f_current/env.f_noctrl[env.t])
+    env.reward = reward_current
+    [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
+    if env.done
+        append!(env.f_list, 1.0/f_current)
+        env.episode += 1
+        print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
     end
     nothing 
 end
 
 Random.seed!(env::ControlEnv, seed) = Random.seed!(env.rng, seed)
 
-function DDPG_QFIM(
-    params::ControlEnvParams,
-    seed = 123,
-    layer_num = 3,
-    layer_dim = 200
-)
+function DDPG_QFIM(params::ControlEnvParams, layer_num, layer_dim, seed, max_episodes, save_file)
     rng = StableRNG(seed)
-    env = ControlEnv(params = params, rng=rng)
+    env = ControlEnv(Measurement=Vector{Matrix{ComplexF64}}(undef, 1), params=params, rng=rng, episode=1, quantum=true, 
+                     SinglePara=(length(params.Hamiltonian_derivative)==1), save_file=save_file)
     ns = 2*params.dim^2
     na = env.ctrl_num
-
     init = glorot_uniform(rng)
 
-    create_actor() = Chain(
-        Dense(ns, layer_dim, relu; init = init),
-        [Dense(layer_dim, layer_dim, relu; init = init) for _ in 1:layer_num]...,
-        Dense(layer_dim, na, tanh; init = init),
-    )
+    create_actor() = Chain(Dense(ns, layer_dim, relu; init=init),
+                           [Dense(layer_dim, layer_dim, relu; init=init) for _ in 1:layer_num]...,
+                           Dense(layer_dim, na, tanh; init=init),)
 
-    create_critic() = Chain(
-        Dense(ns + na, layer_dim, relu; init = init),
-        [Dense(layer_dim, layer_dim, relu; init = init) for _ in 1:layer_num]...,
-        Dense(layer_dim, 1; init = init),
-    )
+    create_critic() = Chain(Dense(ns+na, layer_dim, relu; init=init),
+                            [Dense(layer_dim, layer_dim, relu; init=init) for _ in 1:layer_num]...,
+                            Dense(layer_dim, 1; init=init),)
 
-    agent = Agent(
-        policy = DDPGPolicy(
-            behavior_actor = NeuralNetworkApproximator(
-                model = create_actor(),
-                optimizer = ADAM(),
-            ),
-            behavior_critic = NeuralNetworkApproximator(
-                model = create_critic(),
-                optimizer = ADAM(),
-            ),
-            target_actor = NeuralNetworkApproximator(
-                model = create_actor(),
-                optimizer = ADAM(),
-            ),
-            target_critic = NeuralNetworkApproximator(
-                model = create_critic(),
-                optimizer = ADAM(),
-            ),
-            γ = 0.99f0,
-            ρ = 0.995f0,
-            na = env.ctrl_num,
-            batch_size = 64*env.cnum,
-            start_steps = 100*env.cnum,
-            start_policy = RandomPolicy(Space([-1.0..1.0 for _ in 1:env.ctrl_num]); rng = rng),
-            update_after = 100*env.cnum,
-            update_freq = 1*env.cnum,
-            act_limit = env.params.ctrl_bound[end],
-            act_noise = 0.01,
-            rng = rng,
-        ),
-        trajectory = CircularArraySARTTrajectory(
-            capacity = 400*env.cnum,
-            state = Vector{Float64} => (ns,),
-            action = Vector{Float64} => (na, ),
-        ),
-    )
+    agent = Agent(policy=DDPGPolicy(behavior_actor=NeuralNetworkApproximator(model=create_actor(), optimizer=ADAM(),),
+                                    behavior_critic=NeuralNetworkApproximator(model=create_critic(), optimizer=ADAM(),),
+                                    target_actor=NeuralNetworkApproximator(model=create_actor(), optimizer=ADAM(),),
+                                    target_critic=NeuralNetworkApproximator(model=create_critic(), optimizer=ADAM(),),
+                                    γ=0.99f0, ρ=0.995f0, na=env.ctrl_num, batch_size=64*env.cnum, start_steps=100*env.cnum,
+                                    start_policy=RandomPolicy(Space([-0.1..0.1 for _ in 1:env.ctrl_num]); rng=rng),
+                                    update_after=100*env.cnum, update_freq=1*env.cnum, act_limit=env.params.ctrl_bound[end],
+                                    act_noise=0.01, rng=rng,),
+                  trajectory=CircularArraySARTTrajectory(capacity=400*env.cnum, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na, ),),)
 
-    stop_condition = StopAfterStep(10000*env.cnum, is_show_progress=!haskey(ENV, "CI"))
-    hook = TotalRewardPerEpisode()
+    println("quantum parameter estimation")
+    F_ini = QFIM(params.freeHamiltonian, params.Hamiltonian_derivative, params.ρ_initial, params.Liouville_operator, params.γ, 
+                    params.control_Hamiltonian, params.control_coefficients, params.times)
+    f_ini = real(tr(params.W*pinv(F_ini)))
+    if length(params.Hamiltonian_derivative) == 1
+        println("single parameter scenario")
+        println("control algorithm: deep deterministic policy gradient (DDPG)")
+        println("non-controlled QFI is $(env.f_noctrl[end])")
+        println("initial QFI is $(1.0/f_ini)")
+        append!(env.f_list, 1.0/f_ini)
+    else
+        println("multiparameter scenario")
+        println("control algorithm: deep deterministic policy gradient (DDPG)")
+        println("non-controlled value of Tr(WF^{-1}) is $(1.0/env.f_noctrl[end])")
+        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+        append!(env.f_list, f_ini)
+    end
+
+    if env.save_file
+        SaveFile_ctrl(env.f_list, params.control_coefficients)
+    end
+
+    stop_condition = StopAfterStep(max_episodes*env.cnum, is_show_progress=false)
+    hook = TotalRewardPerEpisode(is_display_on_exit=false)
     run(agent, env, stop_condition, hook)
-    #plot([env.f_list, hook.rewards], layout = (1,2))
-    plt.plot(env.f_list)
-    plt.savefig("1.png")
-    plt.clf()
-    plt.plot(hook.rewards)
-    plt.savefig("2.png")
-    plt.clf()
+
+    if !env.save_file
+        SaveFile_ctrl(env.f_list, env.ctrl_list)
+    end
+    print("\e[2K")
+    println("Iteration over, data saved.")
+    if length(params.Hamiltonian_derivative) == 1
+        println("Final QFI is ", env.f_list[end])
+    else
+        println("Final value of Tr(WF^{-1}) is ", env.f_list[end])
+    end
 end
 
+function DDPG_CFIM(Measurement, params::ControlEnvParams, layer_num, layer_dim, seed, max_episodes, save_file)
+    rng = StableRNG(seed)
+    env = ControlEnv(Measurement=Measurement, params=params, rng=rng, episode=1, quantum=false,
+                     SinglePara=(length(params.Hamiltonian_derivative)==1), save_file=save_file)
+    ns = 2*params.dim^2
+    na = env.ctrl_num
+    init = glorot_uniform(rng)
 
+    create_actor() = Chain(Dense(ns, layer_dim, relu; init=init),
+                           [Dense(layer_dim, layer_dim, relu; init=init) for _ in 1:layer_num]...,
+                           Dense(layer_dim, na, tanh; init=init),)
+
+    create_critic() = Chain(Dense(ns+na, layer_dim, relu; init=init),
+                            [Dense(layer_dim, layer_dim, relu; init=init) for _ in 1:layer_num]...,
+                            Dense(layer_dim, 1; init=init),)
+
+    agent = Agent(policy=DDPGPolicy(behavior_actor=NeuralNetworkApproximator(model=create_actor(), optimizer=ADAM(),),
+                                    behavior_critic=NeuralNetworkApproximator(model=create_critic(), optimizer=ADAM(),),
+                                    target_actor=NeuralNetworkApproximator(model=create_actor(), optimizer=ADAM(),),
+                                    target_critic=NeuralNetworkApproximator(model=create_critic(), optimizer=ADAM(),),
+                                    γ=0.99f0, ρ=0.995f0, na=env.ctrl_num, batch_size=64*env.cnum, start_steps=100*env.cnum,
+                                    start_policy=RandomPolicy(Space([-1.0..1.0 for _ in 1:env.ctrl_num]); rng=rng),
+                                    update_after=100*env.cnum, update_freq=1*env.cnum, act_limit=env.params.ctrl_bound[end],
+                                    act_noise=0.01, rng=rng,),
+                  trajectory=CircularArraySARTTrajectory(capacity=400*env.cnum, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na, ),),)
+
+    println("classical parameter estimation")
+    F_ini = CFIM(Measurement, params.freeHamiltonian, params.Hamiltonian_derivative, params.ρ_initial, params.Liouville_operator, params.γ, 
+                    params.control_Hamiltonian, params.control_coefficients, params.times)
+    f_ini = real(tr(params.W*pinv(F_ini)))
+    if length(params.Hamiltonian_derivative) == 1
+        println("single parameter scenario")
+        println("control algorithm: deep deterministic policy gradient (DDPG)")
+        println("non-controlled CFI is $(env.f_noctrl[end])")
+        println("initial CFI is $(1.0/f_ini)")
+        append!(env.f_list, 1.0/f_ini)
+    else
+        println("multiparameter scenario")
+        println("control algorithm: deep deterministic policy gradient (DDPG)")
+        println("non-controlled value of Tr(WF^{-1}) is $(1.0/env.f_noctrl[end])")
+        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+        append!(env.f_list, f_ini)
+    end
+
+    if env.save_file
+        SaveFile_ctrl(env.f_list, params.control_coefficients)
+    end
+
+    stop_condition = StopAfterStep(max_episodes*env.cnum, is_show_progress=false)
+    hook = TotalRewardPerEpisode(is_display_on_exit=false)
+    run(agent, env, stop_condition, hook)
+
+    if !env.save_file
+        SaveFile_ctrl(env.f_list, env.ctrl_list)
+    end
+    print("\e[2K")
+    println("Iteration over, data saved.")
+    if length(params.Hamiltonian_derivative) == 1
+        println("Final CFI is ", env.f_list[end])
+    else
+        println("Final value of Tr(WF^{-1}) is ", env.f_list[end])
+    end
+end
