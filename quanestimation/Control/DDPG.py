@@ -27,7 +27,7 @@ class DDPG(Control.ControlSystem):
             --type: int
 
         """
-        self.ctrl_interval = len(self.tspan)//len(self.control_coefficients[0])
+        self.ctrl_interval = (len(self.tspan)-1)//len(self.control_coefficients[0])
         self.layer_num = layer_num
         self.layer_dim = layer_dim
         self.max_episodes = max_episodes
