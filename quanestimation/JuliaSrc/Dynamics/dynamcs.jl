@@ -86,6 +86,7 @@ function propagate(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ_initial::Matr
                    γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
     dim = size(H0)[1]
     para_num = length(∂H_∂x)
+    ∂H_L = [liouville_commu(∂H_∂x[i]) for i in 1:para_num]
     H = Htot(H0, control_Hamiltonian, control_coefficients)
     ρₜ = [Vector{ComplexF64}(undef, dim^2) for i in 1:length(times)]
     ∂ₓρₜ = [[Vector{ComplexF64}(undef, dim^2) for i in 1:length(times)] for para in 1:para_num]
@@ -98,7 +99,7 @@ function propagate(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ_initial::Matr
         expL = evolute(H[t-1], Liouville_operator, γ, Δt, t)
         ρₜ[t] = expL * ρₜ[t-1]
         for para in para_num
-            ∂ₓρₜ[para][t] = -im * Δt * liouville_commu(∂H_∂x[para]) * ρₜ[t] + expL * ∂ₓρₜ[para][t - 1]
+            ∂ₓρₜ[para][t] = -im * Δt * ∂H_L[para] * ρₜ[t] + expL * ∂ₓρₜ[para][t - 1]
         end
     end
     ρₜ .|> vec2mat, ∂ₓρₜ .|> vec2mat
@@ -107,25 +108,21 @@ end
 function propagate(ρₜ::Matrix{T}, ∂ₓρₜ::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  Liouville_operator::Vector{Matrix{T}},
                    γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{R}, Δt::Real, t::Int=0, ctrl_interval::Int=1) where {T <: Complex,R <: Real}
     para_num = length(∂H_∂x)
-    # ctrl_num = length(control_Hamiltonian)
-    # control_coefficients = [transpose(repeat(control_coefficients[i], 1, ctrl_interval))[:] for i in 1:ctrl_num]
     H = Htot(H0, control_Hamiltonian, control_coefficients)
-    # expL = (x->evolute(H, Liouville_operator, γ, Δt, x)).([t:t+ctrl_interval]...)
     ∂H_L = [liouville_commu(∂H_∂x[i]) for i in 1:para_num]
     expL = evolute(H, Liouville_operator, γ, Δt, t)
-    ρₜ_next =expL * (ρₜ |> vec)
-    ∂ₓρₜ_next = (∂ₓρₜ.|>vec) |> similar
-    for para in para_num
-        ∂ₓρₜ_next[para] = -im * Δt * ∂H_L[para] * ρₜ_next + expL * (∂ₓρₜ[para]|>vec)
-    end
-    for i in 2:ctrl_interval
-        ρₜ_next =expL * ρₜ_next 
+    ρₜ_next = ρₜ |> vec
+    ∂ₓρₜ_next = [(∂ₓρₜ[para] |> vec) for para in 1:para_num]
+    for i in 1:ctrl_interval
+        ρₜ_next = expL * ρₜ_next 
         for para in para_num
             ∂ₓρₜ_next[para] = -im * Δt * ∂H_L[para] * ρₜ_next + expL * ∂ₓρₜ_next[para]
         end
     end
     ρₜ_next|> vec2mat, ∂ₓρₜ_next|> vec2mat
 end
+
+
 
 function propagate(ρₜ, ∂ₓρₜ, system, ctrl, t=1)
     Δt = system.times[2] - system.times[1]
@@ -141,7 +138,7 @@ end
 function expm(H0::Matrix{T}, ∂H_∂x::Matrix{T}, ρ_initial::Matrix{T}, Liouville_operator::Vector{Matrix{T}}, γ,control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, times) where {T <: Complex,R <: Real}
 
     ctrl_num = length(control_Hamiltonian)
-    ctrl_interval = (length(times)/length(control_coefficients[1])) |> Int
+    ctrl_interval = ((length(times)-1)/length(control_coefficients[1])) |> Int
     control_coefficients = [repeat(control_coefficients[i], 1, ctrl_interval) |>transpose |>vec for i in 1:ctrl_num]
 
     H = Htot(H0, control_Hamiltonian, control_coefficients)
@@ -166,7 +163,7 @@ function expm(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ_initial::Matrix{T}
 
     para_num = length(∂H_∂x)
     ctrl_num = length(control_Hamiltonian)
-    ctrl_interval = (length(times)/length(control_coefficients[1])) |> Int
+    ctrl_interval = ((length(times)-1)/length(control_coefficients[1])) |> Int
     control_coefficients = [repeat(control_coefficients[i], 1, ctrl_interval) |>transpose |>vec for i in 1:ctrl_num]
 
     H = Htot(H0, control_Hamiltonian, control_coefficients)
