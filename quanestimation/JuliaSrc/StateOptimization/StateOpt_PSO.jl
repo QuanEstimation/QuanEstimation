@@ -15,6 +15,9 @@ function PSO_QFIM(pso::TimeIndepend_noiseless{T}, max_episodes, particle_num, in
     end
 
     # initialize
+    if length(ini_particle) > particle_num
+        ini_particle = [ini_particle[i] for i in 1:particle_num]
+    end
     for pj in 1:length(ini_particle)
         particles[pj].psi = [ini_particle[pj][i] for i in 1:dim]
     end
@@ -140,6 +143,9 @@ function PSO_CFIM(M, pso::TimeIndepend_noiseless{T}, max_episodes, particle_num,
     end
 
     # initialize
+    if length(ini_particle) > particle_num
+        ini_particle = [ini_particle[i] for i in 1:particle_num]
+    end
     for pj in 1:length(ini_particle)
         particles[pj].psi = [ini_particle[pj][i] for i in 1:dim]
     end
@@ -341,6 +347,9 @@ function PSO_QFIM(pso::TimeIndepend_noise{T}, max_episodes, particle_num, ini_pa
     end
 
     # initialize
+    if length(ini_particle) > particle_num
+        ini_particle = [ini_particle[i] for i in 1:particle_num]
+    end
     for pj in 1:length(ini_particle)
         particles[pj].psi = [ini_particle[pj][i] for i in 1:dim]
     end
@@ -466,6 +475,9 @@ function PSO_CFIM(M, pso::TimeIndepend_noise{T}, max_episodes, particle_num, ini
     end
     
     # initialize
+    if length(ini_particle) > particle_num
+        ini_particle = [ini_particle[i] for i in 1:particle_num]
+    end
     for pj in 1:length(ini_particle)
         particles[pj].psi = [ini_particle[pj][i] for i in 1:dim]
     end
