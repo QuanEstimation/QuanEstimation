@@ -27,6 +27,9 @@ function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, u0, seed, max_e
     p_num = popsize
     populations = repeat(DE, p_num)
     # initialize
+    if length(ini_population) > popsize
+        ini_population = [ini_population[i] for i in 1:popsize]
+    end
     for pj in 1:length(ini_population)
         populations[pj].control_coefficients = [[ini_population[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
@@ -126,6 +129,9 @@ function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, u0, seed, ma
     p_num = popsize
     populations = repeat(DE, p_num)
     # initialize
+    if length(ini_population) > popsize
+        ini_population = [ini_population[i] for i in 1:popsize]
+    end
     for pj in 1:length(ini_population)
         populations[pj].control_coefficients = [[ini_population[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
     end

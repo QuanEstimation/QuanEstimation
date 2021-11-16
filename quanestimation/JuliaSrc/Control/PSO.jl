@@ -41,6 +41,9 @@ function PSO_QFIM(pso::PSO{T}, max_episodes, particle_num, ini_particle, c0, c1,
     end
 
     # initialize
+    if length(ini_particle) > particle_num
+        ini_particle = [ini_particle[i] for i in 1:particle_num]
+    end
     for pj in 1:length(ini_particle)
         particles[pj].control_coefficients = [[ini_particle[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
@@ -163,6 +166,9 @@ function PSO_CFIM(M, pso::PSO{T}, max_episodes, particle_num, ini_particle, c0, 
     end
     
     # initialize
+    if length(ini_particle) > particle_num
+        ini_particle = [ini_particle[i] for i in 1:particle_num]
+    end
     for pj in 1:length(ini_particle)
         particles[pj].control_coefficients = [[ini_particle[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
     end

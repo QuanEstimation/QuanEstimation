@@ -6,6 +6,9 @@ function NM_QFIM(NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_e, 
     nelder_mead = repeat(NM, state_num)
 
     # initialize 
+    if length(ini_state) > state_num
+        ini_state = [ini_state[i] for i in 1:state_num]
+    end 
     for pj in 1:length(ini_state)
         nelder_mead[pj].psi = [ini_state[pj][i] for i in 1:dim]
     end
@@ -120,6 +123,9 @@ function NM_CFIM(M, NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_
     nelder_mead = repeat(NM, state_num)
 
     # initialize 
+    if length(ini_state) > state_num
+        ini_state = [ini_state[i] for i in 1:state_num]
+    end 
     for pj in 1:length(ini_state)
         nelder_mead[pj].psi = [ini_state[pj][i] for i in 1:dim]
     end
@@ -456,6 +462,9 @@ function NM_QFIM(NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a_c,
     nelder_mead = repeat(NM, state_num)
 
     # initialize 
+    if length(ini_state) > state_num
+        ini_state = [ini_state[i] for i in 1:state_num]
+    end 
     for pj in 1:length(ini_state)
         nelder_mead[pj].psi = [ini_state[pj][i] for i in 1:dim]
     end
@@ -571,6 +580,9 @@ function NM_CFIM(M, NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a
     nelder_mead = repeat(NM, state_num)
 
     # initialize 
+    if length(ini_state) > state_num
+        ini_state = [ini_state[i] for i in 1:state_num]
+    end 
     for pj in 1:length(ini_state)
         nelder_mead[pj].psi = [ini_state[pj][i] for i in 1:dim]
     end

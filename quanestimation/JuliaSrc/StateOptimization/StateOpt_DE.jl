@@ -5,7 +5,10 @@ function DE_QFIM(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, 
     dim = length(DE.psi)
     p_num = popsize
     populations = repeat(DE, p_num)
-    # initialize 
+    # initialize
+    if length(ini_population) > popsize
+        ini_population = [ini_population[i] for i in 1:popsize]
+    end 
     for pj in 1:length(ini_population)
         populations[pj].psi = [ini_population[pj][i] for i in 1:dim]
     end
@@ -109,6 +112,9 @@ function DE_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, c
     p_num = popsize
     populations = repeat(DE, p_num)
     # initialize 
+    if length(ini_population) > popsize
+        ini_population = [ini_population[i] for i in 1:popsize]
+    end 
     for pj in 1:length(ini_population)
         populations[pj].psi = [ini_population[pj][i] for i in 1:dim]
     end
@@ -297,6 +303,9 @@ function DE_QFIM(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed
     p_num = popsize
     populations = repeat(DE, p_num)
     # initialize 
+    if length(ini_population) > popsize
+        ini_population = [ini_population[i] for i in 1:popsize]
+    end 
     for pj in 1:length(ini_population)
         populations[pj].psi = [ini_population[pj][i] for i in 1:dim]
     end
@@ -401,6 +410,9 @@ function DE_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, s
     p_num = popsize
     populations = repeat(DE, p_num)
     # initialize 
+    if length(ini_population) > popsize
+        ini_population = [ini_population[i] for i in 1:popsize]
+    end 
     for pj in 1:length(ini_population)
         populations[pj].psi = [ini_population[pj][i] for i in 1:dim]
     end

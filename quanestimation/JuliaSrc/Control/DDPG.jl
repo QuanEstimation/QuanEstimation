@@ -29,6 +29,7 @@ mutable struct ControlEnv{T, M, R<:AbstractRNG} <: AbstractEnv
     done::Bool
     rng::R
     reward::Float64
+    total_reward::Float64
     t::Int
     tspan::Vector{M}
     tnum::Int
@@ -39,6 +40,7 @@ mutable struct ControlEnv{T, M, R<:AbstractRNG} <: AbstractEnv
     f_final::Vector{M}
     ctrl_list::Vector{Vector{M}}
     ctrl_bound::Vector{M}
+    total_reward_all::Vector{M}
     episode::Int
     quantum::Bool
     SinglePara::Bool
@@ -59,8 +61,9 @@ function ControlEnv(;T=ComplexF64, M=Float64, Measurement, params::ControlEnvPar
 
     ctrl_list = [Vector{Float64}() for _ in 1:ctrl_num]
     f_final = Vector{Float64}()
-    env = ControlEnv(Measurement, params, action_space, state_space, state, dstate, true, rng, 0., 0, params.times, tnum, cnum, ctrl_num, 
-                     para_num, f_noctrl, f_final, ctrl_list, params.ctrl_bound, episode, quantum, SinglePara, save_file)
+    total_reward_all = Vector{Float64}()
+    env = ControlEnv(Measurement, params, action_space, state_space, state, dstate, true, rng, 0.0, 0.0, 0, params.times, tnum, cnum, ctrl_num, 
+                     para_num, f_noctrl, f_final, ctrl_list, params.ctrl_bound, total_reward_all, episode, quantum, SinglePara, save_file)
     reset!(env)
     env
 end
@@ -98,7 +101,8 @@ function RLBase.reset!(env::ControlEnv)
     env.state = state|>state_flatten
     env.t = 1
     env.done = false
-    env.reward = 0.
+    env.reward = 0.0
+    env.total_reward = 0.0
     env.ctrl_list = [Vector{Float64}() for _ in 1:env.ctrl_num]
     nothing
 end
@@ -127,10 +131,12 @@ function _step!(env::ControlEnv, a, ::Val{true}, ::Val{true}, ::Val{true})
     f_current = 1.0/((env.params.W*QFIM(ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
+    env.total_reward += reward_current
     [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
     if env.done 
         append!(env.f_final, f_current)
-        SaveFile_ctrl(f_current, env.ctrl_list)
+        append!(env.total_reward_all, env.total_reward)
+        SaveFile_ddpg(f_current, env.total_reward, env.ctrl_list)
         env.episode += 1
         print("current QFI is ", f_current, " ($(env.episode) episodes)    \r")
     end
@@ -148,9 +154,11 @@ function _step!(env::ControlEnv, a, ::Val{true}, ::Val{true}, ::Val{false})
     f_current = 1.0/((env.params.W*QFIM(ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
+    env.total_reward += reward_current
     [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
     if env.done
         append!(env.f_final, f_current)
+        append!(env.total_reward_all, env.total_reward)
         env.episode += 1
         print("current QFI is ", f_current, " ($(env.episode) episodes)    \r")
     end
@@ -168,10 +176,12 @@ function _step!(env::ControlEnv, a, ::Val{true}, ::Val{false}, ::Val{true})
     f_current = 1.0/((env.params.W*QFIM(ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
+    env.total_reward += reward_current
     [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
     if env.done
         append!(env.f_final, 1.0/f_current)
-        SaveFile_ctrl(1.0/f_current, env.ctrl_list)
+        append!(env.total_reward_all, env.total_reward)
+        SaveFile_ddpg(1.0/f_current, env.total_reward, env.ctrl_list)
         env.episode += 1
         print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
     end
@@ -189,9 +199,11 @@ function _step!(env::ControlEnv, a, ::Val{true}, ::Val{false}, ::Val{false})
     f_current = 1.0/((env.params.W*QFIM(ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
+    env.total_reward += reward_current
     [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
     if env.done
         append!(env.f_final, 1.0/f_current)
+        append!(env.total_reward_all, env.total_reward)
         env.episode += 1
         print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
     end
@@ -209,10 +221,12 @@ function _step!(env::ControlEnv, a, ::Val{false}, ::Val{true}, ::Val{true})
     f_current = 1.0/((env.params.W*CFIM(ρₜₙ, ∂ₓρₜₙ, env.Measurement))|>inv|>tr)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
+    env.total_reward += reward_current
     [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
     if env.done
         append!(env.f_final, f_current)
-        SaveFile_ctrl(f_current, env.ctrl_list)
+        SaveFile_ddpg(f_current, env.total_reward, env.ctrl_list)
+        append!(env.total_reward_all, env.total_reward)
         env.episode += 1
         print("current CFI is ", f_current, " ($(env.episode) episodes)    \r")
     end
@@ -230,9 +244,11 @@ function _step!(env::ControlEnv, a, ::Val{false}, ::Val{true}, ::Val{false})
     f_current = 1.0/((env.params.W*CFIM(ρₜₙ, ∂ₓρₜₙ, env.Measurement))|>inv|>tr)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
+    env.total_reward += reward_current
     [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
     if env.done
         append!(env.f_final, f_current)
+        append!(env.total_reward_all, env.total_reward)
         env.episode += 1
         print("current CFI is ", f_current, " ($(env.episode) episodes)    \r")
     end
@@ -250,10 +266,12 @@ function _step!(env::ControlEnv, a, ::Val{false}, ::Val{false}, ::Val{true})
     f_current = 1.0/((env.params.W*CFIM(ρₜₙ, ∂ₓρₜₙ, env.Measurement))|>inv|>tr)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
+    env.total_reward += reward_current
     [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
     if env.done
         append!(env.f_final, 1.0/f_current)
-        SaveFile_ctrl(1.0/f_current, env.ctrl_list)
+        append!(env.total_reward_all, env.total_reward)
+        SaveFile_ddpg(1.0/f_current, env.total_reward, env.ctrl_list)
         env.episode += 1
         print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
     end
@@ -271,9 +289,11 @@ function _step!(env::ControlEnv, a, ::Val{false}, ::Val{false}, ::Val{false})
     f_current = 1.0/((env.params.W*CFIM(ρₜₙ, ∂ₓρₜₙ, env.Measurement))|>inv|>tr)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
+    env.total_reward += reward_current
     [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
     if env.done
         append!(env.f_final, 1.0/f_current)
+        append!(env.total_reward_all, env.total_reward)
         env.episode += 1
         print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
     end
@@ -292,7 +312,7 @@ function DDPG_QFIM(params::ControlEnvParams, layer_num, layer_dim, seed, max_epi
 
     create_actor() = Chain(Dense(ns, layer_dim, relu; init=init),
                            [Dense(layer_dim, layer_dim, relu; init=init) for _ in 1:layer_num]...,
-                           Dense(layer_dim, na, tanh; init=init),)
+                            Dense(layer_dim, na, tanh; init=init),)
 
     create_critic() = Chain(Dense(ns+na, layer_dim, relu; init=init),
                             [Dense(layer_dim, layer_dim, relu; init=init) for _ in 1:layer_num]...,
@@ -327,7 +347,7 @@ function DDPG_QFIM(params::ControlEnvParams, layer_num, layer_dim, seed, max_epi
     end
 
     if env.save_file
-        SaveFile_ctrl(env.f_final, params.control_coefficients)
+        SaveFile_ddpg(env.f_final, env.total_reward_all, params.control_coefficients)
     end
 
     stop_condition = StopAfterStep(max_episodes*env.cnum, is_show_progress=false)
@@ -335,7 +355,7 @@ function DDPG_QFIM(params::ControlEnvParams, layer_num, layer_dim, seed, max_epi
     run(agent, env, stop_condition, hook)
 
     if !env.save_file
-        SaveFile_ctrl(env.f_final, env.ctrl_list)
+        SaveFile_ddpg(env.f_final, env.total_reward_all, env.ctrl_list)
     end
     print("\e[2K")
     println("Iteration over, data saved.")
@@ -367,7 +387,7 @@ function DDPG_CFIM(Measurement, params::ControlEnvParams, layer_num, layer_dim, 
                                     target_actor=NeuralNetworkApproximator(model=create_actor(), optimizer=ADAM(),),
                                     target_critic=NeuralNetworkApproximator(model=create_critic(), optimizer=ADAM(),),
                                     γ=0.99f0, ρ=0.995f0, na=env.ctrl_num, batch_size=64, start_steps=100*env.cnum,
-                                    start_policy=RandomPolicy(Space([-1.0..1.0 for _ in 1:env.ctrl_num]); rng=rng),
+                                    start_policy=RandomPolicy(Space([-0.1..0.1 for _ in 1:env.ctrl_num]); rng=rng),
                                     update_after=100*env.cnum, update_freq=1*env.cnum, act_limit=env.params.ctrl_bound[end],
                                     act_noise=0.01, rng=rng,),
                   trajectory=CircularArraySARTTrajectory(capacity=400*env.cnum, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na, ),),)
@@ -391,7 +411,7 @@ function DDPG_CFIM(Measurement, params::ControlEnvParams, layer_num, layer_dim, 
     end
 
     if env.save_file
-        SaveFile_ctrl(env.f_final, params.control_coefficients)
+        SaveFile_ddpg(env.f_final, env.total_reward_all, params.control_coefficients)
     end
 
     stop_condition = StopAfterStep(max_episodes*env.cnum, is_show_progress=false)
@@ -399,7 +419,7 @@ function DDPG_CFIM(Measurement, params::ControlEnvParams, layer_num, layer_dim, 
     run(agent, env, stop_condition, hook)
 
     if !env.save_file
-        SaveFile_ctrl(env.f_final, env.ctrl_list)
+        SaveFile_ddpg(env.f_final, env.total_reward_all, env.ctrl_list)
     end
     print("\e[2K")
     println("Iteration over, data saved.")
