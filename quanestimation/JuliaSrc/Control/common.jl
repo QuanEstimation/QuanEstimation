@@ -27,7 +27,7 @@ function bound!(A::Array, bound)
     end
 end
 
-function bound!(control_coefficients, ctrl_bound)
+function bound!(control_coefficients::Vector{Vector{Float64}}, ctrl_bound)
     ctrl_num = length(control_coefficients)
     ctrl_length = length(control_coefficients[1])
     for ck in 1:ctrl_num
@@ -55,7 +55,7 @@ end
 
 function SaveFile_ctrl(f_now::Vector{Float64}, control)
     open("f.csv","w") do f
-        writedlm(f, [f_now])
+        writedlm(f, f_now)
     end
     open("controls.csv","w") do g
         writedlm(g, control)
@@ -76,10 +76,10 @@ end
 
 function SaveFile_ddpg(f_now::Vector{Float64}, reward::Vector{Float64}, control)
     open("f.csv","w") do f
-        writedlm(f, [f_now])
+        writedlm(f, f_now)
     end
     open("total_reward.csv","w") do m
-        writedlm(m, [reward])
+        writedlm(m, reward)
     end
     open("controls.csv","w") do g
         writedlm(g, control)

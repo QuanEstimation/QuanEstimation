@@ -4,8 +4,7 @@ import math
 import os
 import quanestimation.Control as ctrl
 class ControlSystem:
-    def __init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
-                 gamma, control_option, ctrl_bound, W):
+    def __init__(self, tspan, rho0, H0, Hc, dH, ctrl_0, Decay, ctrl_bound, W):
         
         """
         ----------
@@ -15,7 +14,7 @@ class ControlSystem:
            --description: time series.
            --type: array
         
-        rho_initial: 
+        rho0: 
            --description: initial state (density matrix).
            --type: matrix
         
@@ -33,67 +32,79 @@ class ControlSystem:
                           vector on the first parameter.
            --type: list (of matrix)
            
-        ctrl_initial: 
+        ctrl_0: 
            --description: control coefficients.
            --type: list (of array)
            
-        Liouville operator:
-           --description: Liouville operator.
-           --type: list (of matrix)    
-           
-        gamma:
-           --description: decay rates.
-           --type: list (of float number)
+        Decay:
+           --description: decay operators and the corresponding decay rates.
+                          Decay[0] represent a list of decay operators and
+                          Decay[1] represent the corresponding decay rates.
+           --type: list 
+
+        ctrl_bound:   
+           --description: lower and upper bound of the control coefficients.
+                          ctrl_bound[0] represent the lower bound of the control coefficients and
+                          ctrl_bound[1] represent the upper bound of the control coefficients.
+           --type: list 
 
         W:
             --description: weight matrix.
             --type: matrix
         
         """   
-        
-        if type(dH) != list:
-            raise TypeError('The derivative of Hamiltonian should be a list!')    
-        
-        if len(gamma) != len(Liouville_operator):
-            raise TypeError('The length of decay rates and the length of Liouville operator should be the same!')
-
-        if Hc == []:
-            Hc = [np.zeros((len(H0), len(H0)))]
-
-        if ctrl_initial == []:
-            ctrl_initial = [np.zeros(len(tspan))]
-        
-        if dH == []:
-            dH = [np.zeros((len(H0), len(H0)))]
-
-        if Liouville_operator == []:
-            Liouville_operator = [np.zeros((len(H0), len(H0)))]
-
-        if gamma == []:
-            gamma = [0.0]
-        
-        if W == []:
-            self.W = np.eye(len(dH))
-        else:
-            self.W = W
+        self.tspan = tspan
+        self.rho0 = np.array(rho0, dtype=np.complex128)
 
         if type(H0) == np.ndarray:
             self.freeHamiltonian = np.array(H0, dtype=np.complex128)
         else:
-            self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0]
-
-        self.tspan = tspan
-        self.rho_initial = np.array(rho_initial, dtype=np.complex128)
+            self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0] 
+        
+        if Hc == []:
+            Hc = [np.zeros((len(self.rho0), len(self.rho0)))]
         self.control_Hamiltonian = [np.array(x, dtype=np.complex128) for x in Hc]
+
+        if type(dH) != list:
+            raise TypeError('The derivative of Hamiltonian should be a list!') 
+
+        if dH == []:
+            dH = [np.zeros((len(self.rho0), len(self.rho0)))]
         self.Hamiltonian_derivative = [np.array(x, dtype=np.complex128) for x in dH]
-        self.control_coefficients = ctrl_initial
-        self.Liouville_operator = [np.array(x, dtype=np.complex128) for x in Liouville_operator]
+        
+        if ctrl_0 == []:
+            if ctrl_bound == []:
+                ctrl_0 = [2*np.random.random(len(self.tspan))-np.ones(len(self.tspan)) for i in range(len(self.control_Hamiltonian))]
+            else:
+                a = ctrl_bound[0]
+                b = ctrl_bound[1]
+                ctrl_0 = [(b-a)*np.random.random(len(self.tspan))+a*np.ones(len(self.tspan)) for i in range(len(self.control_Hamiltonian))]
+        self.control_coefficients = ctrl_0
+        
+        Decay_opt = Decay[0]
+        if Decay_opt == []:
+            Decay_opt = [np.zeros((len(self.freeHamiltonian), len(self.freeHamiltonian)))]
+        self.Decay_opt = [np.array(x, dtype=np.complex128) for x in Decay_opt]
+
+        gamma = Decay[1]
+        if gamma == []:
+            gamma = [0.0]
         self.gamma = gamma
-        self.control_option = control_option
+
+        if len(self.gamma) != len(self.Decay_opt):
+            raise TypeError('The length of decay rates and the length of Liouville operator should be the same!')
+
+        ctrl_bound = [float(ctrl_bound[0]), float(ctrl_bound[1])]
+        if ctrl_bound == []:
+            ctrl_bound = [-np.inf, np.inf]
         self.ctrl_bound = ctrl_bound
         
+        if W == []:
+            W = np.eye(len(self.Hamiltonian_derivative))
+        self.W = W
+        
         if os.path.exists('controls.csv'):
-            data = np.genfromtxt('controls.csv')[-len(Hc):]
+            data = np.genfromtxt('controls.csv')[-len(self.control_Hamiltonian):]
             self.control_coefficients = [data[i] for i in range(len(data))]
             
         ctrl_length = len(self.control_coefficients)
@@ -108,8 +119,8 @@ class ControlSystem:
         
         number = math.ceil((len(self.tspan)-1)/len(self.control_coefficients[0]))
         if len(self.tspan)-1 % len(self.control_coefficients[0]) != 0:
-            self.tnum = number*len(self.control_coefficients[0])
-            self.tspan = np.linspace(self.tspan[0], self.tspan[-1], self.tnum+1)
+            tnum = number*len(self.control_coefficients[0])
+            self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum+1)
 
 def ControlOpt(*args, method = 'auto-GRAPE', **kwargs):
 

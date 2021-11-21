@@ -4,12 +4,10 @@ from julia import Main
 import quanestimation.Control.Control as Control
 
 class GRAPE(Control.ControlSystem):
-    def __init__(self, tspan, rho_initial, H0, Hc=[], dH=[], ctrl_initial=[], Liouville_operator=[], \
-                 gamma=[], control_option=True, ctrl_bound=[-np.inf, np.inf], W=[], auto=True, Adam=True, \
-                 max_episodes=1000, lr=0.01, beta1=0.90, beta2=0.99, mt=0.0, vt=0.0, precision=1e-6):
+    def __init__(self, tspan, rho0, H0, Hc=[], dH=[], ctrl_0=[], Decay=[], ctrl_bound=[], W=[], \
+                 auto=True, Adam=True, max_episode=300, lr=0.01, beta1=0.90, beta2=0.99, precision=1e-6):
 
-        Control.ControlSystem.__init__(self, tspan, rho_initial, H0, Hc, dH, ctrl_initial, Liouville_operator, \
-                                       gamma, control_option, ctrl_bound, W)
+        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, ctrl_0, Decay, ctrl_bound, W)
 
         """
         ----------
@@ -24,7 +22,7 @@ class GRAPE(Control.ControlSystem):
             --description: whether to use Adam to update the controls.
             --type: bool (True or False)
 
-        max_episodes:
+        max_episode:
             --description: max number of training episodes.
             --type: int
 
@@ -32,8 +30,12 @@ class GRAPE(Control.ControlSystem):
             --description: learning rate.
             --type: float
 
-        beta1, beta2, mt, vt:
-            --description: Adam parameters.
+        beta1:
+            --description: the exponential decay rate for the first moment estimates .
+            --type: float
+
+        beta2:
+            --description: the exponential decay rate for the second moment estimates .
             --type: float
 
         precision:
@@ -43,12 +45,12 @@ class GRAPE(Control.ControlSystem):
         """
         self.auto = auto
         self.Adam = Adam
-        self.max_episodes = max_episodes
+        self.max_episode = max_episode
         self.lr = lr
         self.beta1 = beta1
         self.beta2 = beta2
-        self.mt = mt
-        self.vt = vt
+        self.mt = 0.0
+        self.vt = 0.0
         self.precision = precision
 
     def QFIM(self, save_file=False):
@@ -65,18 +67,18 @@ class GRAPE(Control.ControlSystem):
             --type: bool
 
         """
-        grape = Main.QuanEstimation.Gradient(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, \
-                self.tspan, self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
+        grape = Main.QuanEstimation.Gradient(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, \
+                self.tspan, self.Decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
                 self.ctrl_bound, self.W, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision)
         if self.auto == True:
-            Main.QuanEstimation.auto_GRAPE_QFIM(grape, self.precision, self.max_episodes, self.Adam, save_file)
+            Main.QuanEstimation.auto_GRAPE_QFIM(grape, self.precision, self.max_episode, self.Adam, save_file)
         else:
             if len(self.tspan) != len(self.control_coefficients[0]):
                 warnings.warn('GRAPE does not support the case when the length of each control is not equal to the \
                                length of time, and is replaced by auto-GRAPE.', DeprecationWarning)
-                Main.QuanEstimation.auto_GRAPE_QFIM(grape, self.precision, self.max_episodes, self.Adam, save_file)
+                Main.QuanEstimation.auto_GRAPE_QFIM(grape, self.precision, self.max_episode, self.Adam, save_file)
             else:
-                Main.QuanEstimation.GRAPE_QFIM(grape, self.precision, self.max_episodes, self.Adam, save_file)
+                Main.QuanEstimation.GRAPE_QFIM(grape, self.precision, self.max_episode, self.Adam, save_file)
 
     def CFIM(self, Measurement, save_file=False):
         """
@@ -92,15 +94,15 @@ class GRAPE(Control.ControlSystem):
 
         """
 
-        grape = Main.QuanEstimation.Gradient(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.tspan, \
-                        self.Liouville_operator, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound,\
+        grape = Main.QuanEstimation.Gradient(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, \
+                        self.Decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound,\
                         self.W, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.precision)
         if self.auto == True:
-            Main.QuanEstimation.auto_GRAPE_CFIM(Measurement, grape, self.precision, self.max_episodes, self.Adam, save_file)
+            Main.QuanEstimation.auto_GRAPE_CFIM(Measurement, grape, self.precision, self.max_episode, self.Adam, save_file)
         else:
             if len(self.tspan) != len(self.control_coefficients[0]):
                 warnings.warn('GRAPE does not support the case when the length of each control is not equal to the length of time, \
                                and is replaced by auto-GRAPE.', DeprecationWarning)
-                Main.QuanEstimation.auto_GRAPE_QFIM(grape, self.precision, self.max_episodes, self.Adam, save_file)
+                Main.QuanEstimation.auto_GRAPE_QFIM(grape, self.precision, self.max_episode, self.Adam, save_file)
             else:
-                Main.QuanEstimation.GRAPE_CFIM(Measurement, grape, self.precision, self.max_episodes, self.Adam, save_file)
+                Main.QuanEstimation.GRAPE_CFIM(Measurement, grape, self.precision, self.max_episode, self.Adam, save_file)
