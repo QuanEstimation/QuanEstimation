@@ -2,7 +2,7 @@ import numpy as np
 import os
 import quanestimation.StateOptimization as stateoptimize
 class StateOptSystem:
-    def __init__(self, tspan, psi_initial, H0, dH, Liouville_operator, gamma, W):
+    def __init__(self, tspan, psi0, H0, dH, Decay, W):
         
         """
         ----------
@@ -12,7 +12,7 @@ class StateOptSystem:
            --description: time series.
            --type: array
         
-        psi_initial:
+        psi0:
             --description: initial state.
             --type: array
         
@@ -26,46 +26,57 @@ class StateOptSystem:
                           vector on the first parameter.
            --type: list (of matrix)
            
-        Liouville operator:
-           --description: Liouville operator.
-           --type: list (of matrix)    
-           
-        gamma:
-           --description: decay rates.
-           --type: list (of float number)
+        Decay:
+           --description: decay operators and the corresponding decay rates.
+                          Decay[0] represent a list of decay operators and
+                          Decay[1] represent the corresponding decay rates.
+           --type: list 
+
+        ctrl_bound:   
+           --description: lower and upper bound of the control coefficients.
+                          ctrl_bound[0] represent the lower bound of the control coefficients and
+                          ctrl_bound[1] represent the upper bound of the control coefficients.
+           --type: list 
 
         W:
             --description: weight matrix.
             --type: matrix
         
         """   
-        
+        self.tspan = tspan
+        self.psi0 = np.array(psi0,dtype=np.complex128)
+
+        if type(H0) == np.ndarray:
+            self.freeHamiltonian = np.array(H0, dtype=np.complex128)
+        else:
+            self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0]
+
         if type(dH) != list:
-            raise TypeError('The derivative of Hamiltonian should be a list!')    
+            raise TypeError('The derivative of Hamiltonian should be a list!') 
+            
+        if dH == []:
+            dH = [np.zeros((len(self.rho0), len(self.rho0)))]
+        self.Hamiltonian_derivative = [np.array(x, dtype=np.complex128) for x in dH]    
         
-        if len(gamma) != len(Liouville_operator):
+        Decay_opt = Decay[0]
+        if Decay_opt == []:
+            Decay_opt = [np.zeros((len(self.freeHamiltonian), len(self.freeHamiltonian)))]
+        self.Decay_opt = [np.array(x, dtype=np.complex128) for x in Decay_opt]
+
+        gamma = Decay[1]
+        if gamma == []:
+            gamma = [0.0]
+        self.gamma = gamma
+
+        if len(self.gamma) != len(self.Decay_opt):
             raise TypeError('The length of decay rates and the length of Liouville operator should be the same!')
         
-        if dH == []:
-            dH = [np.zeros((len(H0), len(H0)))]
-
-        if Liouville_operator == []:
-            Liouville_operator = [np.zeros((len(H0), len(H0)))]
-        
         if W == []:
-            self.W = np.eye(len(dH))
-        else:
-            self.W = W
-
-        self.tspan = tspan
-        self.psi_initial = np.array(psi_initial,dtype=np.complex128)
-        self.freeHamiltonian = np.array(H0,dtype=np.complex128)
-        self.Hamiltonian_derivative = [np.array(x,dtype=np.complex128) for x in dH]
-        self.Liouville_operator = [np.array(x, dtype=np.complex128) for x in Liouville_operator]
-        self.gamma = gamma
+            W = np.eye(len(self.Hamiltonian_derivative))
+        self.W = W
         
         if os.path.exists('states.csv'):
-            self.psi_initial = np.genfromtxt('states.csv', dtype=np.complex128)
+            self.psi0 = np.genfromtxt('states.csv', dtype=np.complex128)
 
     def load_save(self):
         file_load = open('states.csv', 'r')

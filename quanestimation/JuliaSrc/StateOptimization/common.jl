@@ -2,30 +2,30 @@ mutable struct TimeIndepend_noiseless{T <: Complex,M <: Real}
     freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
     psi::Vector{T}
-    times::Vector{M}
+    tspan::Vector{M}
     W::Matrix{M}
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
     TimeIndepend_noiseless(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
-                 times::Vector{M}, W::Matrix{M},
+                 tspan::Vector{M}, W::Matrix{M},
                  ρ=Vector{Matrix{T}}(undef, 1), ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1),∂ρ_∂V=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = 
-                 new{T,M}(freeHamiltonian, Hamiltonian_derivative, psi, times, W, ρ, ∂ρ_∂x) 
+                 new{T,M}(freeHamiltonian, Hamiltonian_derivative, psi, tspan, W, ρ, ∂ρ_∂x) 
 end
 
 mutable struct TimeIndepend_noise{T <: Complex,M <: Real}
     freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
     psi::Vector{T}
-    times::Vector{M}
-    Liouville_operator::Vector{Matrix{T}}
+    tspan::Vector{M}
+    Decay_opt::Vector{Matrix{T}}
     γ::Vector{M}
     W::Matrix{M}
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
     TimeIndepend_noise(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
-                 times::Vector{M}, Liouville_operator::Vector{Matrix{T}},γ::Vector{M}, W::Matrix{M}, 
+                 tspan::Vector{M}, Decay_opt::Vector{Matrix{T}},γ::Vector{M}, W::Matrix{M}, 
                  ρ=Vector{Matrix{T}}(undef, 1), ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1),∂ρ_∂V=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = 
-                 new{T,M}(freeHamiltonian, Hamiltonian_derivative, psi, times, Liouville_operator, γ, W, ρ, ∂ρ_∂x) 
+                 new{T,M}(freeHamiltonian, Hamiltonian_derivative, psi, tspan, Decay_opt, γ, W, ρ, ∂ρ_∂x) 
 end
 
 function StateOpt_Adam(gt, t, para, m_t, v_t, ϵ, beta1, beta2, precision)
@@ -55,7 +55,7 @@ end
 
 function SaveFile_state(f_now::Vector{Float64}, control)
     open("f.csv","w") do f
-        writedlm(f, [f_now])
+        writedlm(f, f_now)
     end
     open("states.csv","w") do g
         writedlm(g, [control])

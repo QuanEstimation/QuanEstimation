@@ -31,6 +31,7 @@ Hc_ctrl = [S1, S2, S3]
 #dissipation
 L_opt = [S3]
 gamma = [2*np.pi/cons]
+Decay = [L_opt, gamma]
 
 T = 2.0
 tnum = int(2000*T)
@@ -51,10 +52,10 @@ ini_9 = -0.2*np.ones((len(Hc_ctrl), cnum))+0.05*np.random.random((len(Hc_ctrl), 
 ini_10 = -0.2*np.ones((len(Hc_ctrl), cnum))+0.05*np.random.random((len(Hc_ctrl), cnum))
 ini_ctrl = [ini_1, ini_2, ini_3, ini_4, ini_5, ini_6, ini_7, ini_8, ini_9, ini_10]
 
-GRAPE_paras = {'Adam':True, 'max_episodes':300, 'lr':0.01, 'beta1':0.90, 'beta2':0.99, 'mt':0.0, 'vt':0.0, 'precision':1e-6}
-PSO_paras = {'particle_num':10, 'ini_particle':ini_ctrl, 'max_episodes':[1000,100], 'c0':1.0, 'c1':2.0, 'c2':2.0, 'v0':0.1, 'seed':1234}
-DE_paras = {'popsize':10, 'ini_population':ini_ctrl, 'max_episodes':1000, 'c':1.0, 'cr':0.5, 'u0':0.1, 'seed':1234}
-DDPG_paras = {'layer_num':4, 'layer_dim':220, 'max_episodes':500, 'seed':200}
+GRAPE_paras = {'Adam':True, 'max_episode':300, 'lr':0.01, 'beta1':0.90, 'beta2':0.99, 'precision':1e-6}
+PSO_paras = {'particle_num':10, 'ini_particle':ini_ctrl, 'max_episode':[1000,100], 'c0':1.0, 'c1':2.0, 'c2':2.0, 'seed':1234}
+DE_paras = {'popsize':10, 'ini_population':ini_ctrl, 'max_episode':1000, 'c':1.0, 'cr':0.5, 'seed':1234}
+DDPG_paras = {'layer_num':4, 'layer_dim':220, 'max_episode':500, 'seed':200}
 
-ctrlopt = ControlOpt(tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, L_opt, gamma, ctrl_bound=[-0.1,0.1], method='DDPG', **DDPG_paras)
+ctrlopt = ControlOpt(tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, Decay, ctrl_bound=[-0.1,0.1], method='DDPG', **DDPG_paras)
 ctrlopt.QFIM(save_file=True)

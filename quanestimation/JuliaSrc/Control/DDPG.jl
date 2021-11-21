@@ -7,9 +7,9 @@ using IntervalSets
 struct ControlEnvParams{T, M}
     freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
-    ρ_initial::Matrix{T}
-    times::Vector{M}
-    Liouville_operator::Vector{Matrix{T}}
+    ρ0::Matrix{T}
+    tspan::Vector{M}
+    Decay_opt::Vector{Matrix{T}}
     γ::Vector{M}
     control_Hamiltonian::Vector{Matrix{T}}
     control_coefficients::Vector{Vector{M}}
@@ -49,9 +49,9 @@ end
 
 function ControlEnv(;T=ComplexF64, M=Float64, Measurement, params::ControlEnvParams, para_num=params.Hamiltonian_derivative|>length,
                     ctrl_num=params.control_coefficients|>length, rng=Random.GLOBAL_RNG, episode, quantum, SinglePara, save_file)
-    tnum = params.times|>length
+    tnum = params.tspan|>length
     cnum = params.control_coefficients[1] |> length
-    state = params.ρ_initial
+    state = params.ρ0
     dstate = [state|>zero for _ in 1:para_num]
     state = state|>state_flatten
     action_space = Space([params.ctrl_bound[1]..params.ctrl_bound[2] for _ in 1:ctrl_num])
@@ -62,14 +62,14 @@ function ControlEnv(;T=ComplexF64, M=Float64, Measurement, params::ControlEnvPar
     ctrl_list = [Vector{Float64}() for _ in 1:ctrl_num]
     f_final = Vector{Float64}()
     total_reward_all = Vector{Float64}()
-    env = ControlEnv(Measurement, params, action_space, state_space, state, dstate, true, rng, 0.0, 0.0, 0, params.times, tnum, cnum, ctrl_num, 
+    env = ControlEnv(Measurement, params, action_space, state_space, state, dstate, true, rng, 0.0, 0.0, 0, params.tspan, tnum, cnum, ctrl_num, 
                      para_num, f_noctrl, f_final, ctrl_list, params.ctrl_bound, total_reward_all, episode, quantum, SinglePara, save_file)
     reset!(env)
     env
 end
 
 function F_noctrl(Measurement, params, quantum, para_num, cnum, ctrl_num)
-    rho = params.ρ_initial
+    rho = params.ρ0
     drho = [rho|>zero for _ in 1:(para_num)]
     f_noctrl = zeros(cnum+1)
     if quantum 
@@ -96,7 +96,7 @@ rsplit_half(v) = Base.rsplit(v, length(v)÷2)
 density_matrix(s) = complex.(rsplit_half(s)...)|>vec2mat
 
 function RLBase.reset!(env::ControlEnv)
-    state = env.params.ρ_initial
+    state = env.params.ρ0
     env.dstate = [state|>zero for _ in 1:(env.para_num)]
     env.state = state|>state_flatten
     env.t = 1
@@ -130,10 +130,12 @@ function _step!(env::ControlEnv, a, ::Val{true}, ::Val{true}, ::Val{true})
     env.done = env.t > env.cnum
     f_current = 1.0/((env.params.W*QFIM(ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
     reward_current = log(f_current/env.f_noctrl[env.t])
+    # reward_current = log(10.0, f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
     [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
     if env.done 
+        
         append!(env.f_final, f_current)
         append!(env.total_reward_all, env.total_reward)
         SaveFile_ddpg(f_current, env.total_reward, env.ctrl_list)
@@ -225,8 +227,8 @@ function _step!(env::ControlEnv, a, ::Val{false}, ::Val{true}, ::Val{true})
     [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
     if env.done
         append!(env.f_final, f_current)
-        SaveFile_ddpg(f_current, env.total_reward, env.ctrl_list)
         append!(env.total_reward_all, env.total_reward)
+        SaveFile_ddpg(f_current, env.total_reward, env.ctrl_list)
         env.episode += 1
         print("current CFI is ", f_current, " ($(env.episode) episodes)    \r")
     end
@@ -302,7 +304,7 @@ end
 
 Random.seed!(env::ControlEnv, seed) = Random.seed!(env.rng, seed)
 
-function DDPG_QFIM(params::ControlEnvParams, layer_num, layer_dim, seed, max_episodes, save_file)
+function DDPG_QFIM(params::ControlEnvParams, layer_num, layer_dim, seed, max_episode, save_file)
     rng = StableRNG(seed)
     env = ControlEnv(Measurement=Vector{Matrix{ComplexF64}}(undef, 1), params=params, rng=rng, episode=1, quantum=true, 
                      SinglePara=(length(params.Hamiltonian_derivative)==1), save_file=save_file)
@@ -322,15 +324,15 @@ function DDPG_QFIM(params::ControlEnvParams, layer_num, layer_dim, seed, max_epi
                                     behavior_critic=NeuralNetworkApproximator(model=create_critic(), optimizer=ADAM(),),
                                     target_actor=NeuralNetworkApproximator(model=create_actor(), optimizer=ADAM(),),
                                     target_critic=NeuralNetworkApproximator(model=create_critic(), optimizer=ADAM(),),
-                                    γ=0.99f0, ρ=0.995f0, na=env.ctrl_num, batch_size=64, start_steps=100*env.cnum,
-                                    start_policy=RandomPolicy(Space([-0.1..0.1 for _ in 1:env.ctrl_num]); rng=rng),
+                                    γ=0.99f0, ρ=0.995f0, na=env.ctrl_num, batch_size=128, start_steps=100*env.cnum,
+                                    start_policy=RandomPolicy(Space([-10.0..10.0 for _ in 1:env.ctrl_num]); rng=rng),
                                     update_after=100*env.cnum, update_freq=1*env.cnum, act_limit=env.params.ctrl_bound[end],
                                     act_noise=0.01, rng=rng,),
                   trajectory=CircularArraySARTTrajectory(capacity=400*env.cnum, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na, ),),)
 
     println("quantum parameter estimation")
-    F_ini = QFIM(params.freeHamiltonian, params.Hamiltonian_derivative, params.ρ_initial, params.Liouville_operator, params.γ, 
-                    params.control_Hamiltonian, params.control_coefficients, params.times)
+    F_ini = QFIM(params.freeHamiltonian, params.Hamiltonian_derivative, params.ρ0, params.Decay_opt, params.γ, 
+                    params.control_Hamiltonian, params.control_coefficients, params.tspan)
     f_ini = real(tr(params.W*pinv(F_ini)))
     if length(params.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -350,7 +352,7 @@ function DDPG_QFIM(params::ControlEnvParams, layer_num, layer_dim, seed, max_epi
         SaveFile_ddpg(env.f_final, env.total_reward_all, params.control_coefficients)
     end
 
-    stop_condition = StopAfterStep(max_episodes*env.cnum, is_show_progress=false)
+    stop_condition = StopAfterStep(max_episode*env.cnum, is_show_progress=false)
     hook = TotalRewardPerEpisode(is_display_on_exit=false)
     run(agent, env, stop_condition, hook)
 
@@ -366,7 +368,7 @@ function DDPG_QFIM(params::ControlEnvParams, layer_num, layer_dim, seed, max_epi
     end
 end
 
-function DDPG_CFIM(Measurement, params::ControlEnvParams, layer_num, layer_dim, seed, max_episodes, save_file)
+function DDPG_CFIM(Measurement, params::ControlEnvParams, layer_num, layer_dim, seed, max_episode, save_file)
     rng = StableRNG(seed)
     env = ControlEnv(Measurement=Measurement, params=params, rng=rng, episode=1, quantum=false,
                      SinglePara=(length(params.Hamiltonian_derivative)==1), save_file=save_file)
@@ -393,8 +395,8 @@ function DDPG_CFIM(Measurement, params::ControlEnvParams, layer_num, layer_dim, 
                   trajectory=CircularArraySARTTrajectory(capacity=400*env.cnum, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na, ),),)
 
     println("classical parameter estimation")
-    F_ini = CFIM(Measurement, params.freeHamiltonian, params.Hamiltonian_derivative, params.ρ_initial, params.Liouville_operator, params.γ, 
-                    params.control_Hamiltonian, params.control_coefficients, params.times)
+    F_ini = CFIM(Measurement, params.freeHamiltonian, params.Hamiltonian_derivative, params.ρ0, params.Decay_opt, params.γ, 
+                    params.control_Hamiltonian, params.control_coefficients, params.tspan)
     f_ini = real(tr(params.W*pinv(F_ini)))
     if length(params.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -414,7 +416,7 @@ function DDPG_CFIM(Measurement, params::ControlEnvParams, layer_num, layer_dim, 
         SaveFile_ddpg(env.f_final, env.total_reward_all, params.control_coefficients)
     end
 
-    stop_condition = StopAfterStep(max_episodes*env.cnum, is_show_progress=false)
+    stop_condition = StopAfterStep(max_episode*env.cnum, is_show_progress=false)
     hook = TotalRewardPerEpisode(is_display_on_exit=false)
     run(agent, env, stop_condition, hook)
 
