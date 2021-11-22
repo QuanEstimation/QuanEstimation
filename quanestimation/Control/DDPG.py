@@ -4,7 +4,7 @@ import quanestimation.Control.Control as Control
 
 class DDPG(Control.ControlSystem):
     def __init__(self, tspan, rho0, H0, Hc=[], dH=[], ctrl_0=[], Decay=[], ctrl_bound=[], W=[], \
-                 layer_num=3, layer_dim=200, max_episode=500, seed=1234):
+                 max_episode=500, layer_num=3, layer_dim=200, seed=1234):
 
         Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, ctrl_0, Decay, ctrl_bound, W)
 

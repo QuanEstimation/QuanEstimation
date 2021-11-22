@@ -25,6 +25,7 @@ include("StateOptimization/StateOpt_DE.jl")
 include("StateOptimization/StateOpt_NM.jl")
 include("StateOptimization/StateOpt_PSO.jl")
 include("StateOptimization/StateOpt_AD.jl")
+include("StateOptimization/StateOpt_DDPG.jl")
 # include("QuanResources/")
 export QFI, QFIM, CFI, CFIM
 export suN_generator, expm
@@ -38,4 +39,5 @@ export AD_QFIM, AD_CFIM
 export DE_QFIM, DE_CFIM
 export PSO_QFIM, PSO_CFIM
 export NM_QFIM, NM_CFIM
+export DDPG_QFIM, DDPG_CFIM
 end

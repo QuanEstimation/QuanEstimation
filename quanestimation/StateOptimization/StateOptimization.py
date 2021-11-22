@@ -86,7 +86,6 @@ class StateOptSystem:
         file_save.writelines(file_load)
         file_save.close()
 
-
 def StateOpt(*args, method = 'AD', **kwargs):
 
     if method == 'AD':

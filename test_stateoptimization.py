@@ -33,6 +33,7 @@ AD_paras = {'Adam':False, 'max_episode':500, 'lr':0.01, 'beta1':0.90, 'beta2':0.
 PSO_paras = {'particle_num':10, 'ini_particle':ini_state, 'max_episode':[1000,100], 'c0':1.0, 'c1':2.0, 'c2':2.0, 'seed':1234}
 DE_paras = {'popsize':10, 'ini_population':ini_state, 'max_episode':1000, 'c':1.0, 'cr':0.5, 'seed':1234}
 NM_paras = {'state_num':10, 'ini_state':ini_state, 'max_episode':1000, 'a_r':1.0, 'a_e':2.0, 'a_c':0.5, 'a_s':0.5, 'seed':1234, 'precision':1e-6}
+DDPG_paras = {'layer_num':4, 'layer_dim':250, 'max_episode':200, 'seed':1234}
 
-stateopt = StateOpt(tspan, psi0, H0, dH0, Decay, method='NM', **NM_paras)
+stateopt = StateOpt(tspan, psi0, H0, dH0, Decay, method='DDPG', **DDPG_paras)
 stateopt.QFIM(save_file=True)
