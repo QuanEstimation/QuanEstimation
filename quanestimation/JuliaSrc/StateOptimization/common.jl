@@ -61,3 +61,27 @@ function SaveFile_state(f_now::Vector{Float64}, control)
         writedlm(g, [control])
     end
 end
+
+function SaveFile_state_ddpg(f_now::Float64, reward::Float64, control)
+    open("f.csv","a") do f
+        writedlm(f, [f_now])
+    end
+    open("total_reward.csv","w") do m
+        writedlm(m, [reward])
+    end
+    open("states.csv","a") do g
+        writedlm(g, [control])
+    end
+end
+
+function SaveFile_state_ddpg(f_now::Vector{Float64}, reward::Vector{Float64}, control)
+    open("f.csv","w") do f
+        writedlm(f, f_now)
+    end
+    open("total_reward.csv","w") do m
+        writedlm(m, reward)
+    end
+    open("states.csv","w") do g
+        writedlm(g, [control])
+    end
+end

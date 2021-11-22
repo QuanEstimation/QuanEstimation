@@ -288,13 +288,10 @@ function QFIM_TimeIndepend(H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, Dec
     ∂ρt_∂x = [ρt |> zero for i in 1:para_num]
     expL = evolute(H0, Decay_opt, γ, Δt, 1)
     ∂H_L = [liouville_commu(∂H_∂x[i]) for i in 1:para_num]
-    # F = [Matrix{Float64}(undef, length(∂H_∂x), length(∂H_∂x)) for i in 1:length(tspan)] 
     for t in 2:length(tspan)
         ρt = expL*ρt
         ∂ρt_∂x = [-im * Δt * ∂H_L[i] * ρt for i in 1:para_num] + [expL].*∂ρt_∂x
-        # F[t] = QFIM(ρt|> vec2mat, ∂ρt_∂x|> vec2mat)
     end
-    # F
     QFIM(ρt|> vec2mat, ∂ρt_∂x|> vec2mat)
 end
 
