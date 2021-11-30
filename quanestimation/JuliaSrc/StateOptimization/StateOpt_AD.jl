@@ -1,73 +1,73 @@
 ############# time-independent Hamiltonian (noiseless) ################
-function gradient_QFI!(AD::TimeIndepend_noiseless{T}, lr) where {T <: Complex}
-    δF = gradient(x->QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x, AD.tspan), AD.psi)[1]
-    AD.psi += lr*δF
+function gradient_QFI!(AD::TimeIndepend_noiseless{T}, epsilon) where {T <: Complex}
+    δF = gradient(x->QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x, AD.tspan, AD.accuracy), AD.psi)[1]
+    AD.psi += epsilon*δF
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function gradient_QFI_Adam!(AD::TimeIndepend_noiseless{T}, lr, mt, vt, beta1, beta2, precision) where {T <: Complex}
-    δF = gradient(x->QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x, AD.tspan), AD.psi)[1]
-    StateOpt_Adam!(AD, δF, lr, mt, vt, beta1, beta2, precision) 
+function gradient_QFI_Adam!(AD::TimeIndepend_noiseless{T}, epsilon, mt, vt, beta1, beta2, accuracy) where {T <: Complex}
+    δF = gradient(x->QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x, AD.tspan, AD.accuracy), AD.psi)[1]
+    StateOpt_Adam!(AD, δF, epsilon, mt, vt, beta1, beta2, accuracy) 
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function gradient_QFIM!(AD::TimeIndepend_noiseless{T}, lr) where {T <: Complex}
-    δF = gradient(x->1/(AD.W*(QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, x, AD.tspan) |> pinv) |> tr |>real), AD.psi) |>sum
-    AD.psi += lr*δF
+function gradient_QFIM!(AD::TimeIndepend_noiseless{T}, epsilon) where {T <: Complex}
+    δF = gradient(x->1/(AD.W*(QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, x, AD.tspan, AD.accuracy) |> pinv) |> tr |>real), AD.psi) |>sum
+    AD.psi += epsilon*δF
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function gradient_QFIM_Adam!(AD::TimeIndepend_noiseless{T}, lr, mt, vt, beta1, beta2, precision) where {T <: Complex}
-    δF = gradient(x->1/(AD.W*(QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, x, AD.tspan) |> pinv) |> tr |>real), AD.psi) |>sum
-    StateOpt_Adam!(AD, δF, lr, mt, vt, beta1, beta2, precision) 
+function gradient_QFIM_Adam!(AD::TimeIndepend_noiseless{T}, epsilon, mt, vt, beta1, beta2, accuracy) where {T <: Complex}
+    δF = gradient(x->1/(AD.W*(QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, x, AD.tspan, AD.accuracy) |> pinv) |> tr |>real), AD.psi) |>sum
+    StateOpt_Adam!(AD, δF, epsilon, mt, vt, beta1, beta2, accuracy) 
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function gradient_CFI!(AD::TimeIndepend_noiseless{T}, Measurement, lr) where {T <: Complex}
+function gradient_CFI!(AD::TimeIndepend_noiseless{T}, Measurement, epsilon) where {T <: Complex}
     δI = gradient(x->CFIM_TimeIndepend(Measurement, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x, AD.tspan), AD.psi)[1]
-    AD.psi += lr*δI
+    AD.psi += epsilon*δI
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function gradient_CFI_Adam!(AD::TimeIndepend_noiseless{T}, Measurement, lr, mt, vt, beta1, beta2, precision) where {T <: Complex}
+function gradient_CFI_Adam!(AD::TimeIndepend_noiseless{T}, Measurement, epsilon, mt, vt, beta1, beta2, accuracy) where {T <: Complex}
     δI = gradient(x->CFIM_TimeIndepend(Measurement, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x, AD.tspan), AD.psi)[1]
-    StateOpt_Adam!(AD, δI, lr, mt, vt, beta1, beta2, precision) 
+    StateOpt_Adam!(AD, δI, epsilon, mt, vt, beta1, beta2, accuracy) 
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function gradient_CFIM!(AD::TimeIndepend_noiseless{T}, Measurement, lr) where {T <: Complex}
+function gradient_CFIM!(AD::TimeIndepend_noiseless{T}, Measurement, epsilon) where {T <: Complex}
     δI = gradient(x->1/(AD.W*(CFIM_TimeIndepend(Measurement, AD.freeHamiltonian, AD.Hamiltonian_derivative, x, AD.tspan) |> pinv) |> tr |>real), AD.psi) |>sum
-    AD.psi += lr*δI
+    AD.psi += epsilon*δI
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function gradient_CFIM_Adam!(AD::TimeIndepend_noiseless{T}, Measurement, lr, mt, vt, beta1, beta2, precision) where {T <: Complex}
+function gradient_CFIM_Adam!(AD::TimeIndepend_noiseless{T}, Measurement, epsilon, mt, vt, beta1, beta2, accuracy) where {T <: Complex}
     δI = gradient(x->1/(AD.W*(CFIM_TimeIndepend(Measurement, AD.freeHamiltonian, AD.Hamiltonian_derivative, x, AD.tspan) |> pinv) |> tr |>real), AD.psi) |>sum
-    StateOpt_Adam!(AD, δI, lr, mt, vt, beta1, beta2, precision) 
+    StateOpt_Adam!(AD, δI, epsilon, mt, vt, beta1, beta2, accuracy) 
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, beta2, max_episode, Adam, save_file) where {T <: Complex}
+function AD_QFIM(AD::TimeIndepend_noiseless{T}, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file) where {T <: Complex}
     println("state optimization")
     episodes = 1
     dim = length(AD.psi)
     if length(AD.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("search algorithm: Automatic Differentiation (AD)")
-        f_ini = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.tspan)
+        f_ini = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.tspan, AD.accuracy)
         f_list = [f_ini]
         println("initial QFI is $(f_ini)")
         if Adam == true
-            gradient_QFI_Adam!(AD, lr, mt, vt, beta1, beta2, precision)
+            gradient_QFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, AD.accuracy)
         else
-            gradient_QFI!(AD, lr)
+            gradient_QFI!(AD, epsilon)
         end
         if save_file == true
             SaveFile_state(f_ini, AD.psi)
             if Adam == true
                 while true
-                    f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.tspan)
-                    if  abs(f_now - f_ini) < precision  || episodes >= max_episode
+                    f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.tspan, AD.accuracy)
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
@@ -80,12 +80,12 @@ function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, be
                         SaveFile_state(f_now, AD.psi)
                         print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_QFI_Adam!(AD, lr, mt, vt, beta1, beta2, precision)
+                    gradient_QFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 end
             else
                 while true
-                    f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.tspan)
-                    if  abs(f_now - f_ini) < precision  || episodes >= max_episode
+                    f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.tspan, AD.accuracy)
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
@@ -98,14 +98,14 @@ function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, be
                         SaveFile_state(f_now, AD.psi)
                         print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_QFI!(AD, lr)
+                    gradient_QFI!(AD, epsilon)
                 end
             end
         else
             if Adam == true
                 while true
-                    f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.tspan)
-                    if  abs(f_now - f_ini) < precision  || episodes >= max_episode
+                    f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.tspan, AD.accuracy)
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
@@ -118,12 +118,12 @@ function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, be
                         append!(f_list, f_now)
                         print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_QFI_Adam!(AD, lr, mt, vt, beta1, beta2, precision)
+                    gradient_QFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 end
             else
                 while true
-                    f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.tspan)
-                    if  abs(f_now - f_ini) < precision  || episodes >= max_episode
+                    f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.tspan, AD.accuracy)
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
@@ -136,29 +136,29 @@ function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, be
                         append!(f_list, f_now)
                         print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_QFI!(AD, lr)
+                    gradient_QFI!(AD, epsilon)
                 end
             end
         end
     else
         println("multiparameter scenario")
         println("search algorithm: Automatic Differentiation (AD)")
-        F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.tspan)
+        F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.tspan, AD.accuracy)
         f_ini = real(tr(AD.W*pinv(F)))
         f_list = [f_ini]
         println("initial value of Tr(WF^{-1}) is $(f_ini)")
         if Adam == true
-            gradient_QFIM_Adam!(AD, lr, mt, vt, beta1, beta2, precision)
+            gradient_QFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, AD.accuracy)
         else
-            gradient_QFIM!(AD, lr)
+            gradient_QFIM!(AD, epsilon)
         end
         if save_file == true
             SaveFile_state(f_ini, AD.psi)
             if Adam == true
                 while true
-                    F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.tspan)
+                    F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.tspan, AD.accuracy)
                     f_now = real(tr(AD.W*pinv(F)))
-                    if  abs(f_now - f_ini) < precision || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
@@ -171,13 +171,13 @@ function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, be
                         SaveFile_state(f_now, AD.psi)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_QFIM_Adam!(AD, lr, mt, vt, beta1, beta2, precision)
+                    gradient_QFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 end
             else
                 while true
-                    F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.tspan)
+                    F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.tspan, AD.accuracy)
                     f_now = real(tr(AD.W*pinv(F)))
-                    if  abs(f_now - f_ini) < precision || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
@@ -190,15 +190,15 @@ function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, be
                         SaveFile_state(f_now, AD.psi)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_QFIM!(AD, lr)
+                    gradient_QFIM!(AD, epsilon)
                 end
             end
         else
             if Adam == true
                 while true
-                    F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.tspan)
+                    F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.tspan, AD.accuracy)
                     f_now = real(tr(AD.W*pinv(F)))
-                    if  abs(f_now - f_ini) < precision || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
@@ -211,13 +211,13 @@ function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, be
                         append!(f_list, f_now)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_QFIM_Adam!(AD, lr, mt, vt, beta1, beta2, precision)
+                    gradient_QFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 end
             else
                 while true
-                    F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.tspan)
+                    F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.tspan, AD.accuracy)
                     f_now = real(tr(AD.W*pinv(F)))
-                    if  abs(f_now - f_ini) < precision || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
@@ -230,14 +230,14 @@ function AD_QFIM(AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, be
                         append!(f_list, f_now)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_QFIM!(AD, lr)
+                    gradient_QFIM!(AD, epsilon)
                 end
             end
         end
     end
 end
 
-function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1, beta2, max_episode, Adam, save_file) where {T <: Complex}
+function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file) where {T <: Complex}
     println("state optimization")
     episodes = 1
     dim = length(AD.psi)
@@ -248,16 +248,16 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
         f_list = [f_ini]
         println("initial CFI is $(f_ini)")
         if Adam == true
-            gradient_CFI_Adam!(AD, M, lr, mt, vt, beta1, beta2, precision)
+            gradient_CFI_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.accuracy)
         else
-            gradient_CFI!(AD, M, lr)
+            gradient_CFI!(AD, M, epsilon)
         end
         if save_file == true
             SaveFile_state(f_ini, AD.psi)
             if Adam == true
                 while true
                     f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.tspan)
-                    if  abs(f_now - f_ini) < precision  || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
@@ -270,12 +270,12 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
                         SaveFile_state(f_now, AD.psi)
                         print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_CFI_Adam!(AD, M, lr, mt, vt, beta1, beta2, precision)
+                    gradient_CFI_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 end
             else
                 while true
                     f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.tspan)
-                    if  abs(f_now - f_ini) < precision  || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
@@ -288,14 +288,14 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
                         SaveFile_state(f_now, AD.psi)
                         print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_CFI!(AD, M, lr)
+                    gradient_CFI!(AD, M, epsilon)
                 end
             end
         else
             if Adam == true
                 while true
                     f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.tspan)
-                    if  abs(f_now - f_ini) < precision  || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
@@ -308,12 +308,12 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
                         append!(f_list, f_now)
                         print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_CFI_Adam!(AD, M, lr, mt, vt, beta1, beta2, precision)
+                    gradient_CFI_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 end
             else
                 while true
                     f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi, AD.tspan)
-                    if  abs(f_now - f_ini) < precision  || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
@@ -326,7 +326,7 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
                         append!(f_list, f_now)
                         print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_CFI!(AD, M, lr)
+                    gradient_CFI!(AD, M, epsilon)
                 end
             end
         end
@@ -338,9 +338,9 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
         f_list = [f_ini]
         println("initial value of Tr(WF^{-1}) is $(f_ini)")
         if Adam == true
-            gradient_CFIM_Adam!(AD, M, lr, mt, vt, beta1, beta2, precision)
+            gradient_CFIM_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.accuracy)
         else
-            gradient_CFIM!(AD, M, lr)
+            gradient_CFIM!(AD, M, epsilon)
         end
         if save_file == true
             SaveFile_state(f_ini, AD.psi)
@@ -348,7 +348,7 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
                 while true
                     F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.tspan)
                     f_now = real(tr(AD.W*pinv(F)))
-                    if  abs(f_now - f_ini) < precision || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
@@ -361,13 +361,13 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
                         SaveFile_state(f_now, AD.psi)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_CFIM_Adam!(AD, M, lr, mt, vt, beta1, beta2, precision)
+                    gradient_CFIM_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 end
             else
                 while true
                     F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.tspan)
                     f_now = real(tr(AD.W*pinv(F)))
-                    if  abs(f_now - f_ini) < precision || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
@@ -380,7 +380,7 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
                         SaveFile_state(f_now, AD.psi)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_CFIM!(AD, M, lr)
+                    gradient_CFIM!(AD, M, epsilon)
                 end
             end
         else
@@ -388,7 +388,7 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
                 while true
                     F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.tspan)
                     f_now = real(tr(AD.W*pinv(F)))
-                    if  abs(f_now - f_ini) < precision || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
@@ -401,13 +401,13 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
                         append!(f_list, f_now)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_CFIM_Adam!(AD, M, lr, mt, vt, beta1, beta2, precision)
+                    gradient_CFIM_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 end
             else
                 while true
                     F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.tspan)
                     f_now = real(tr(AD.W*pinv(F)))
-                    if  abs(f_now - f_ini) < precision || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
@@ -420,7 +420,7 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
                         append!(f_list, f_now)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_CFIM!(AD, M, lr)
+                    gradient_CFIM!(AD, M, epsilon)
                 end
             end
         end
@@ -428,71 +428,71 @@ function AD_CFIM(M, AD::TimeIndepend_noiseless{T}, precision, mt, vt, lr, beta1,
 end
 
 ############# time-independent Hamiltonian (noise) ################
-function gradient_QFI!(AD::TimeIndepend_noise{T}, lr) where {T <: Complex}
-    δF = gradient(x->QFIM_TimeIndepend_AD(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x*x', AD.Decay_opt, AD.γ, AD.tspan), AD.psi)[1]
-    AD.psi += lr*δF
+function gradient_QFI!(AD::TimeIndepend_noise{T}, epsilon) where {T <: Complex}
+    δF = gradient(x->QFIM_TimeIndepend_AD(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x*x', AD.decay_opt, AD.γ, AD.tspan), AD.psi)[1]
+    AD.psi += epsilon*δF
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function gradient_QFI_Adam!(AD::TimeIndepend_noise{T}, lr, mt, vt, beta1, beta2, precision) where {T <: Complex}
-    δF = gradient(x->QFIM_TimeIndepend_AD(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x*x', AD.Decay_opt, AD.γ, AD.tspan), AD.psi)[1]
-    StateOpt_Adam!(AD, δF, lr, mt, vt, beta1, beta2, precision) 
+function gradient_QFI_Adam!(AD::TimeIndepend_noise{T}, epsilon, mt, vt, beta1, beta2, accuracy) where {T <: Complex}
+    δF = gradient(x->QFIM_TimeIndepend_AD(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x*x', AD.decay_opt, AD.γ, AD.tspan), AD.psi)[1]
+    StateOpt_Adam!(AD, δF, epsilon, mt, vt, beta1, beta2, accuracy) 
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function gradient_QFIM!(AD::TimeIndepend_noise{T}, lr) where {T <: Complex}
-    δF = gradient(x->1/(AD.W*(QFIM_TimeIndepend_AD(AD.freeHamiltonian, AD.Hamiltonian_derivative, x*x', AD.Decay_opt, AD.γ, AD.tspan) |> pinv) |> tr |>real), AD.psi) |>sum
-    AD.psi += lr*δF
+function gradient_QFIM!(AD::TimeIndepend_noise{T}, epsilon) where {T <: Complex}
+    δF = gradient(x->1/(AD.W*(QFIM_TimeIndepend_AD(AD.freeHamiltonian, AD.Hamiltonian_derivative, x*x', AD.decay_opt, AD.γ, AD.tspan) |> pinv) |> tr |>real), AD.psi) |>sum
+    AD.psi += epsilon*δF
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function gradient_QFIM_Adam!(AD::TimeIndepend_noise{T}, lr, mt, vt, beta1, beta2, precision) where {T <: Complex}
-    δF = gradient(x->1/(AD.W*(QFIM_TimeIndepend_AD(AD.freeHamiltonian, AD.Hamiltonian_derivative, x*x', AD.Decay_opt, AD.γ, AD.tspan) |> pinv) |> tr |>real), AD.psi) |>sum
-    StateOpt_Adam!(AD, δF, lr, mt, vt, beta1, beta2, precision) 
+function gradient_QFIM_Adam!(AD::TimeIndepend_noise{T}, epsilon, mt, vt, beta1, beta2, accuracy) where {T <: Complex}
+    δF = gradient(x->1/(AD.W*(QFIM_TimeIndepend_AD(AD.freeHamiltonian, AD.Hamiltonian_derivative, x*x', AD.decay_opt, AD.γ, AD.tspan) |> pinv) |> tr |>real), AD.psi) |>sum
+    StateOpt_Adam!(AD, δF, epsilon, mt, vt, beta1, beta2, accuracy) 
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function gradient_CFI!(AD::TimeIndepend_noise{T}, Measurement, lr) where {T <: Complex}
-    δI = gradient(x->CFIM_TimeIndepend(Measurement, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x*x', AD.Decay_opt, AD.γ, AD.tspan), AD.psi)[1]
-    AD.psi += lr*δI
+function gradient_CFI!(AD::TimeIndepend_noise{T}, Measurement, epsilon) where {T <: Complex}
+    δI = gradient(x->CFIM_TimeIndepend(Measurement, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x*x', AD.decay_opt, AD.γ, AD.tspan), AD.psi)[1]
+    AD.psi += epsilon*δI
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function gradient_CFI_Adam!(AD::TimeIndepend_noise{T}, Measurement, lr, mt, vt, beta1, beta2, precision) where {T <: Complex}
-    δI = gradient(x->CFIM_TimeIndepend(Measurement, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x*x', AD.Decay_opt, AD.γ, AD.tspan), AD.psi)[1]
-    StateOpt_Adam!(AD, δI, lr, mt, vt, beta1, beta2, precision) 
+function gradient_CFI_Adam!(AD::TimeIndepend_noise{T}, Measurement, epsilon, mt, vt, beta1, beta2, accuracy) where {T <: Complex}
+    δI = gradient(x->CFIM_TimeIndepend(Measurement, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x*x', AD.decay_opt, AD.γ, AD.tspan), AD.psi)[1]
+    StateOpt_Adam!(AD, δI, epsilon, mt, vt, beta1, beta2, accuracy) 
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function gradient_CFIM!(AD::TimeIndepend_noise{T}, Measurement, lr) where {T <: Complex}
-    δI = gradient(x->1/(AD.W*(CFIM_TimeIndepend(Measurement, AD.freeHamiltonian, AD.Hamiltonian_derivative, x*x', AD.Decay_opt, AD.γ, AD.tspan) |> pinv) |> tr |>real), AD.psi) |>sum
-    AD.psi += lr*δI
+function gradient_CFIM!(AD::TimeIndepend_noise{T}, Measurement, epsilon) where {T <: Complex}
+    δI = gradient(x->1/(AD.W*(CFIM_TimeIndepend(Measurement, AD.freeHamiltonian, AD.Hamiltonian_derivative, x*x', AD.decay_opt, AD.γ, AD.tspan) |> pinv) |> tr |>real), AD.psi) |>sum
+    AD.psi += epsilon*δI
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function gradient_CFIM_Adam!(AD::TimeIndepend_noise{T}, Measurement, lr, mt, vt, beta1, beta2, precision) where {T <: Complex}
-    δI = gradient(x->1/(AD.W*(CFIM_TimeIndepend(Measurement, AD.freeHamiltonian, AD.Hamiltonian_derivative, x*x', AD.Decay_opt, AD.γ, AD.tspan) |> pinv) |> tr |>real), AD.psi) |>sum
-    StateOpt_Adam!(AD, δI, lr, mt, vt, beta1, beta2, precision) 
+function gradient_CFIM_Adam!(AD::TimeIndepend_noise{T}, Measurement, epsilon, mt, vt, beta1, beta2, accuracy) where {T <: Complex}
+    δI = gradient(x->1/(AD.W*(CFIM_TimeIndepend(Measurement, AD.freeHamiltonian, AD.Hamiltonian_derivative, x*x', AD.decay_opt, AD.γ, AD.tspan) |> pinv) |> tr |>real), AD.psi) |>sum
+    StateOpt_Adam!(AD, δI, epsilon, mt, vt, beta1, beta2, accuracy) 
     AD.psi = AD.psi/norm(AD.psi)
 end
 
-function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2, max_episode, Adam, save_file) where {T <: Complex}
+function AD_QFIM(AD::TimeIndepend_noise{T}, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file) where {T <: Complex}
     println("state optimization")
     episodes = 1
     dim = length(AD.psi)
     if length(AD.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("search algorithm: Automatic Differentiation (AD)")
-        f_ini = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
+        f_ini = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan, AD.accuracy)
         f_list = [f_ini]
         println("initial QFI is $(f_ini)")
         if save_file == true
             SaveFile_state(f_ini, AD.psi)
             if Adam == true
-                gradient_QFI_Adam!(AD, lr, mt, vt, beta1, beta2, precision)
+                gradient_QFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 while true
-                    f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
-                    if  abs(f_now - f_ini) < precision  || episodes >= max_episode
+                    f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan, AD.accuracy)
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
@@ -505,13 +505,13 @@ function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2,
                         SaveFile_state(f_now, AD.psi)
                         print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_QFI_Adam!(AD, lr, mt, vt, beta1, beta2, precision)
+                    gradient_QFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 end
             else
-                gradient_QFI!(AD, lr)
+                gradient_QFI!(AD, epsilon)
                 while true
-                    f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
-                    if  abs(f_now - f_ini) < precision  || episodes >= max_episode
+                    f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan, AD.accuracy)
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
@@ -524,15 +524,15 @@ function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2,
                         SaveFile_state(f_now, AD.psi)
                         print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_QFI!(AD, lr)
+                    gradient_QFI!(AD, epsilon)
                 end
             end
         else
             if Adam == true
-                gradient_QFI_Adam!(AD, lr, mt, vt, beta1, beta2, precision)
+                gradient_QFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 while true
-                    f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
-                    if  abs(f_now - f_ini) < precision  || episodes >= max_episode
+                    f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan, AD.accuracy)
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
@@ -545,13 +545,13 @@ function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2,
                         append!(f_list, f_now)
                         print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_QFI_Adam!(AD, lr, mt, vt, beta1, beta2, precision)
+                    gradient_QFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 end
             else
-                gradient_QFI!(AD, lr)
+                gradient_QFI!(AD, epsilon)
                 while true
-                    f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
-                    if  abs(f_now - f_ini) < precision  || episodes >= max_episode
+                    f_now = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan, AD.accuracy)
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
@@ -564,25 +564,25 @@ function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2,
                         append!(f_list, f_now)
                         print("current QFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_QFI!(AD, lr)
+                    gradient_QFI!(AD, epsilon)
                 end
             end
         end
     else
         println("multiparameter scenario")
         println("search algorithm: Automatic Differentiation (AD)")
-        F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
+        F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan, AD.accuracy)
         f_ini = real(tr(AD.W*pinv(F)))
         f_list = [f_ini]
         println("initial value of Tr(WF^{-1}) is $(f_ini)")
         if save_file == true
             SaveFile_state(f_ini, AD.psi)
             if Adam == true
-                gradient_QFIM_Adam!(AD, lr, mt, vt, beta1, beta2, precision)
+                gradient_QFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 while true
-                    F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
+                    F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan, AD.accuracy)
                     f_now = real(tr(AD.W*pinv(F)))
-                    if  abs(f_now - f_ini) < precision || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
@@ -595,14 +595,14 @@ function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2,
                         SaveFile_state(f_now, AD.psi)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_QFIM_Adam!(AD, lr, mt, vt, beta1, beta2, precision)
+                    gradient_QFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 end
             else
-                gradient_QFIM!(AD, lr)
+                gradient_QFIM!(AD, epsilon)
                 while true
-                    F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
+                    F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan, AD.accuracy)
                     f_now = real(tr(AD.W*pinv(F)))
-                    if  abs(f_now - f_ini) < precision || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
@@ -615,16 +615,16 @@ function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2,
                         SaveFile_state(f_now, AD.psi)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_QFIM!(AD, lr)
+                    gradient_QFIM!(AD, epsilon)
                 end
             end
         else
             if Adam == true
-                gradient_QFIM_Adam!(AD, lr, mt, vt, beta1, beta2, precision)
+                gradient_QFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 while true
-                    F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
+                    F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan, AD.accuracy)
                     f_now = real(tr(AD.W*pinv(F)))
-                    if  abs(f_now - f_ini) < precision || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
@@ -637,14 +637,14 @@ function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2,
                         append!(f_list, f_now)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_QFIM_Adam!(AD, lr, mt, vt, beta1, beta2, precision)
+                    gradient_QFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 end
             else
-                gradient_QFIM!(AD, lr)
+                gradient_QFIM!(AD, epsilon)
                 while true
-                    F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
+                    F = QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan, AD.accuracy)
                     f_now = real(tr(AD.W*pinv(F)))
-                    if  abs(f_now - f_ini) < precision || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
@@ -657,30 +657,30 @@ function AD_QFIM(AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2,
                         append!(f_list, f_now)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_QFIM!(AD, lr)
+                    gradient_QFIM!(AD, epsilon)
                 end
             end
         end
     end
 end
 
-function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, beta2, max_episode, Adam, save_file) where {T <: Complex}
+function AD_CFIM(M, AD::TimeIndepend_noise{T}, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file) where {T <: Complex}
     println("state optimization")
     episodes = 1
     dim = length(AD.psi)
     if length(AD.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("search algorithm: Automatic Differentiation (AD)")
-        f_ini = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
+        f_ini = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan)
         f_list = [f_ini]
         println("initial CFI is $(f_ini)")
         if save_file == true
             SaveFile_state(f_ini, AD.psi)
             if Adam == true
-                gradient_CFI_Adam!(AD, M, lr, mt, vt, beta1, beta2, precision)
+                gradient_CFI_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 while true
-                    f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
-                    if  abs(f_now - f_ini) < precision  || episodes >= max_episode
+                    f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan)
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
@@ -693,13 +693,13 @@ function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, bet
                         SaveFile_state(f_now, AD.psi)
                         print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_CFI_Adam!(AD, M, lr, mt, vt, beta1, beta2, precision)
+                    gradient_CFI_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 end
             else
-                gradient_CFI!(AD, M, lr)
+                gradient_CFI!(AD, M, epsilon)
                 while true
-                    f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
-                    if  abs(f_now - f_ini) < precision  || episodes >= max_episode
+                    f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan)
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
@@ -712,15 +712,15 @@ function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, bet
                         SaveFile_state(f_now, AD.psi)
                         print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_CFI!(AD, M, lr)
+                    gradient_CFI!(AD, M, epsilon)
                 end
             end
         else
             if Adam == true
-                gradient_CFI_Adam!(AD, M, lr, mt, vt, beta1, beta2, precision)
+                gradient_CFI_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 while true
-                    f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
-                    if  abs(f_now - f_ini) < precision  || episodes >= max_episode
+                    f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan)
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
@@ -733,13 +733,13 @@ function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, bet
                         append!(f_list, f_now)
                         print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_CFI_Adam!(AD, M, lr, mt, vt, beta1, beta2, precision)
+                    gradient_CFI_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 end
             else
-                gradient_CFI!(AD, M, lr)
+                gradient_CFI!(AD, M, epsilon)
                 while true
-                    f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
-                    if  abs(f_now - f_ini) < precision  || episodes >= max_episode
+                    f_now = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan)
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final CFI is ", f_now)
@@ -752,25 +752,25 @@ function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, bet
                         append!(f_list, f_now)
                         print("current CFI is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_CFI!(AD, M, lr)
+                    gradient_CFI!(AD, M, epsilon)
                 end
             end
         end
     else
         println("multiparameter scenario")
         println("search algorithm: Automatic Differentiation (AD)")
-        F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
+        F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan)
         f_ini = real(tr(AD.W*pinv(F)))
         f_list = [f_ini]
         println("initial value of Tr(WF^{-1}) is $(f_ini)")
         if save_file == true
             SaveFile_state(f_ini, AD.psi)
             if Adam == true
-                gradient_CFIM_Adam!(AD, M, lr, mt, vt, beta1, beta2, precision)
+                gradient_CFIM_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 while true
-                    F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
+                    F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan)
                     f_now = real(tr(AD.W*pinv(F)))
-                    if  abs(f_now - f_ini) < precision || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
@@ -783,14 +783,14 @@ function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, bet
                         SaveFile_state(f_now, AD.psi)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_CFIM_Adam!(AD, M, lr, mt, vt, beta1, beta2, precision)
+                    gradient_CFIM_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 end
             else
-                gradient_CFIM!(AD, M, lr)
+                gradient_CFIM!(AD, M, epsilon)
                 while true
-                    F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
+                    F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan)
                     f_now = real(tr(AD.W*pinv(F)))
-                    if  abs(f_now - f_ini) < precision || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
@@ -803,16 +803,16 @@ function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, bet
                         SaveFile_state(f_now, AD.psi)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_CFIM!(AD, M, lr)
+                    gradient_CFIM!(AD, M, epsilon)
                 end
             end
         else
             if Adam == true
-                gradient_CFIM_Adam!(AD, M, lr, mt, vt, beta1, beta2, precision)
+                gradient_CFIM_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 while true
-                    F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
+                    F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan)
                     f_now = real(tr(AD.W*pinv(F)))
-                    if  abs(f_now - f_ini) < precision || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
@@ -825,14 +825,14 @@ function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, bet
                         append!(f_list, f_now)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_CFIM_Adam!(AD, M, lr, mt, vt, beta1, beta2, precision)
+                    gradient_CFIM_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 end
             else
-                gradient_CFIM!(AD, M, lr)
+                gradient_CFIM!(AD, M, epsilon)
                 while true
-                    F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.Decay_opt, AD.γ, AD.tspan)
+                    F = CFIM_TimeIndepend(M, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi*(AD.psi)',AD.decay_opt, AD.γ, AD.tspan)
                     f_now = real(tr(AD.W*pinv(F)))
-                    if  abs(f_now - f_ini) < precision || episodes >= max_episode
+                    if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of Tr(WF^{-1}) is ", f_now)
@@ -845,7 +845,7 @@ function AD_CFIM(M, AD::TimeIndepend_noise{T}, precision, mt, vt, lr, beta1, bet
                         append!(f_list, f_now)
                         print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    gradient_CFIM!(AD, M, lr)
+                    gradient_CFIM!(AD, M, epsilon)
                 end
             end
         end

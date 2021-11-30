@@ -3,10 +3,10 @@ from julia import Main
 import quanestimation.Control.Control as Control
 
 class DDPG(Control.ControlSystem):
-    def __init__(self, tspan, rho0, H0, Hc=[], dH=[], ctrl_0=[], Decay=[], ctrl_bound=[], W=[], \
+    def __init__(self, tspan, rho0, H0, Hc=[], dH=[], ctrl_0=[], decay=[], ctrl_bound=[], W=[], \
                  max_episode=500, layer_num=3, layer_dim=200, seed=1234):
 
-        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, ctrl_0, Decay, ctrl_bound, W)
+        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, ctrl_0, decay, ctrl_bound, W, accuracy=1e-8)
 
         """
         ----------
@@ -45,8 +45,8 @@ class DDPG(Control.ControlSystem):
             --type: bool
         """
         params = Main.QuanEstimation.ControlEnvParams(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, \
-                self.tspan, self.Decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
-                self.ctrl_bound, self.W, self.ctrl_interval, len(self.rho0))
+                self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
+                self.ctrl_bound, self.W, self.ctrl_interval, len(self.rho0), self.accuracy)
         Main.QuanEstimation.DDPG_QFIM(params, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
     
     def CFIM(self, Measurement, save_file=False):
@@ -63,6 +63,6 @@ class DDPG(Control.ControlSystem):
             --type: bool
         """
         params = Main.QuanEstimation.ControlEnvParams(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, \
-                self.tspan, self.Decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
-                self.ctrl_bound, self.W, self.ctrl_interval, len(self.rho0))
+                self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
+                self.ctrl_bound, self.W, self.ctrl_interval, len(self.rho0), self.accuracy)
         Main.QuanEstimation.DDPG_CFIM(Measurement, params, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)

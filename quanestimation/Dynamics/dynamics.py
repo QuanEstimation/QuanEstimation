@@ -11,7 +11,7 @@ class Lindblad:
                  -0.5(rho.Ln^{\dagger}.Ln+Ln^{\dagger}.Ln.rho)}.
     """
 
-    def __init__(self, tspan, rho_initial, H0, dH, Liouville_operator=[], gamma=[], Hc=[], ctrl_initial=[], control_option=True):
+    def __init__(self, tspan, rho0, H0, dH, decay=[], Hc=[], ctrl_0=[]):
         """
         ----------
         Inputs
@@ -20,7 +20,7 @@ class Lindblad:
            --description: time series.
            --type: array
         
-        rho_initial: 
+        rho0: 
            --description: initial state (density matrix).
            --type: matrix
         
@@ -38,54 +38,47 @@ class Lindblad:
                           vector on the first parameter.
            --type: list (of matrix)
            
-        ctrl_initial: 
+        ctrl_0: 
            --description: control coefficients.
            --type: list (of array)
            
-        Liouville operator:
-           --description: Liouville operator in Lindblad master equation.
-           --type: list (of matrix)    
-           
-        gamma:
-           --description: decay rates.
-           --type: list (of float number)
-           
-        control_option:   
-           --description: if True, add controls to physical system.
-           --type: bool
+        decay:
+           --description: decay operators and the corresponding decay rates.
+                          decay[0] represent a list of decay operators and
+                          decay[1] represent the corresponding decay rates.
+           --type: list 
         """
-        
-        if type(dH) != list:
-            raise TypeError('The derivative of Hamiltonian should be a list!')    
-        
-        if len(gamma) != len(Liouville_operator):
-            raise TypeError('The length of decay rates and the length of Liouville operator should be the same!')
-
-        if Hc == []:
-            Hc = [np.zeros((len(H0), len(H0)))]
-
-        if ctrl_initial == []:
-            ctrl_initial = [np.zeros(len(tspan))]
-        
-        if dH == []:
-            dH = [np.zeros((len(H0), len(H0)))]
-
-        if Liouville_operator == []:
-            Liouville_operator = [np.zeros((len(H0), len(H0)))]
-
-        if gamma == []:
-            gamma = [0.0]
-
         self.tspan = tspan
-        self.rho_initial = np.array(rho_initial,dtype=np.complex128)
-        self.freeHamiltonian = np.array(H0,dtype=np.complex128)
-        self.control_Hamiltonian = [np.array(x,dtype=np.complex128) for x in Hc]
-        self.Hamiltonian_derivative = [np.array(x,dtype=np.complex128) for x in dH]
-        self.control_coefficients = ctrl_initial
-        self.Liouville_operator = [np.array(x, dtype=np.complex128) for x in Liouville_operator]
-        self.gamma = gamma
-        self.control_option = control_option
+        self.rho0 = np.array(rho0, dtype=np.complex128)
+
+        if type(H0) == np.ndarray:
+            self.freeHamiltonian = np.array(H0, dtype=np.complex128)
+        else:
+            self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0] 
         
+        if Hc == []:
+            Hc = [np.zeros((len(self.rho0), len(self.rho0)))]
+        self.control_Hamiltonian = [np.array(x, dtype=np.complex128) for x in Hc]
+
+        if type(dH) != list:
+            raise TypeError('The derivative of Hamiltonian should be a list!') 
+
+        if dH == []:
+            dH = [np.zeros((len(self.rho0), len(self.rho0)))]
+        self.Hamiltonian_derivative = [np.array(x, dtype=np.complex128) for x in dH]
+        
+        if ctrl_0 == []:
+            ctrl_0 = [np.zeros(len(self.tspan)) for i in range(len(self.control_Hamiltonian))]
+        self.control_coefficients = ctrl_0
+        
+        if decay == []:
+            decay_opt = [np.zeros((len(self.rho0), len(self.rho0)))]
+            self.gamma = [0.0]
+        else:
+            decay_opt = [decay[i][0] for i in range(len(decay))]
+            self.gamma = [decay[i][1] for i in range(len(decay))]
+        self.decay_opt = [np.array(x, dtype=np.complex128) for x in decay_opt]
+
         ctrl_length = len(self.control_coefficients)
         ctrlnum = len(self.control_Hamiltonian)
         if ctrlnum < ctrl_length:
@@ -96,19 +89,16 @@ class Lindblad:
                             but %d coefficients sequences. The rest of the control sequences are\
                             set to be 0.'%(ctrlnum,ctrl_length), DeprecationWarning)
         
-        number = math.ceil(len(self.tspan)/len(self.control_coefficients[0]))
-        if len(self.tspan) % len(self.control_coefficients[0]) != 0:
-            self.tnum = number*len(self.control_coefficients[0])
-            self.tspan = np.linspace(self.tspan[0], self.tspan[-1], self.tnum)
-
+        number = math.ceil((len(self.tspan)-1)/len(self.control_coefficients[0]))
+        if len(self.tspan)-1 % len(self.control_coefficients[0]) != 0:
+            tnum = number*len(self.control_coefficients[0])
+            self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum+1)
 
     def expm(self):
         if len(self.Hamiltonian_derivative) == 1:
-            rho, drho = Main.QuanEstimation.expm(self.freeHamiltonian, self.Hamiltonian_derivative[0], self.rho_initial, self.Liouville_operator, \
+            rho, drho = Main.QuanEstimation.expm(self.freeHamiltonian, self.Hamiltonian_derivative[0], self.rho0, self.decay_opt, \
                                  self.gamma, self.control_Hamiltonian, self.control_coefficients, self.tspan)
         else:
-            rho, drho = Main.QuanEstimation.expm(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho_initial, self.Liouville_operator, \
+            rho, drho = Main.QuanEstimation.expm(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.decay_opt, \
                                  self.gamma, self.control_Hamiltonian, self.control_coefficients, self.tspan)
         return rho, drho
-                        
-

@@ -9,7 +9,7 @@ struct ControlEnvParams{T, M}
     Hamiltonian_derivative::Vector{Matrix{T}}
     ρ0::Matrix{T}
     tspan::Vector{M}
-    Decay_opt::Vector{Matrix{T}}
+    decay_opt::Vector{Matrix{T}}
     γ::Vector{M}
     control_Hamiltonian::Vector{Matrix{T}}
     control_coefficients::Vector{Vector{M}}
@@ -17,6 +17,7 @@ struct ControlEnvParams{T, M}
     W::Matrix{M}
     ctrl_interval::Int
     dim::Int
+    accuracy::M
 end
 
 mutable struct ControlEnv{T, M, R<:AbstractRNG} <: AbstractEnv
@@ -70,17 +71,17 @@ end
 
 function F_noctrl(Measurement, params, quantum, para_num, cnum, ctrl_num)
     rho = params.ρ0
-    drho = [rho|>zero for _ in 1:(para_num)]
+    drho = [rho|>zero for _ in 1:para_num]
     f_noctrl = zeros(cnum+1)
     if quantum 
         for i in 2:cnum+1
             rho, drho = propagate(rho, drho, params, [0.0 for i in 1:ctrl_num])
-            f_noctrl[i] = 1.0/((params.W*QFIM(rho, drho))|>inv|>tr)
+            f_noctrl[i] = 1.0/((params.W*QFIM(rho, drho, params.accuracy)|>pinv)|>tr)
         end
     else
         for i in 2:cnum+1
             rho, drho = propagate(rho, drho, params, [0.0 for i in 1:ctrl_num])
-            f_noctrl[i] = 1.0/((params.W*CFIM(Measurement, rho, drho))|>inv|>tr)
+            f_noctrl[i] = 1.0/((params.W*CFIM(rho, drho, Measurement, params.accuracy)|>pinv)|>tr)
         end
     end
     f_noctrl
@@ -128,7 +129,7 @@ function _step!(env::ControlEnv, a, ::Val{true}, ::Val{true}, ::Val{true})
     env.state = ρₜₙ|>state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
-    f_current = 1.0/((env.params.W*QFIM(ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
+    f_current = 1.0/((env.params.W*QFIM(ρₜₙ, ∂ₓρₜₙ, params.accuracy)|>pinv)|>tr)
     reward_current = log(f_current/env.f_noctrl[env.t])
     # reward_current = log(10.0, f_current/env.f_noctrl[env.t])
     env.reward = reward_current
@@ -153,7 +154,7 @@ function _step!(env::ControlEnv, a, ::Val{true}, ::Val{true}, ::Val{false})
     env.state = ρₜₙ|>state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
-    f_current = 1.0/((env.params.W*QFIM(ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
+    f_current = 1.0/((env.params.W*QFIM(ρₜₙ, ∂ₓρₜₙ, params.accuracy)|>pinv)|>tr)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
@@ -175,7 +176,7 @@ function _step!(env::ControlEnv, a, ::Val{true}, ::Val{false}, ::Val{true})
     env.state = ρₜₙ|>state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
-    f_current = 1.0/((env.params.W*QFIM(ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
+    f_current = 1.0/((env.params.W*QFIM(ρₜₙ, ∂ₓρₜₙ, params.accuracy)|>pinv)|>tr)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
@@ -198,7 +199,7 @@ function _step!(env::ControlEnv, a, ::Val{true}, ::Val{false}, ::Val{false})
     env.state = ρₜₙ|>state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
-    f_current = 1.0/((env.params.W*QFIM(ρₜₙ, ∂ₓρₜₙ))|>inv|>tr)
+    f_current = 1.0/((env.params.W*QFIM(ρₜₙ, ∂ₓρₜₙ, params.accuracy)|>pinv)|>tr)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
@@ -220,7 +221,7 @@ function _step!(env::ControlEnv, a, ::Val{false}, ::Val{true}, ::Val{true})
     env.state = ρₜₙ|>state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
-    f_current = 1.0/((env.params.W*CFIM(ρₜₙ, ∂ₓρₜₙ, env.Measurement))|>inv|>tr)
+    f_current = 1.0/((env.params.W*CFIM(ρₜₙ, ∂ₓρₜₙ, env.Measurement, params.accuracy)|>pinv)|>tr)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
@@ -243,7 +244,7 @@ function _step!(env::ControlEnv, a, ::Val{false}, ::Val{true}, ::Val{false})
     env.state = ρₜₙ|>state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
-    f_current = 1.0/((env.params.W*CFIM(ρₜₙ, ∂ₓρₜₙ, env.Measurement))|>inv|>tr)
+    f_current = 1.0/((env.params.W*CFIM(ρₜₙ, ∂ₓρₜₙ, env.Measurement, params.accuracy)|>pinv)|>tr)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
@@ -265,7 +266,7 @@ function _step!(env::ControlEnv, a, ::Val{false}, ::Val{false}, ::Val{true})
     env.state = ρₜₙ|>state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
-    f_current = 1.0/((env.params.W*CFIM(ρₜₙ, ∂ₓρₜₙ, env.Measurement))|>inv|>tr)
+    f_current = 1.0/((env.params.W*CFIM(ρₜₙ, ∂ₓρₜₙ, env.Measurement, params.accuracy)|>pinv)|>tr)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
@@ -288,7 +289,7 @@ function _step!(env::ControlEnv, a, ::Val{false}, ::Val{false}, ::Val{false})
     env.state = ρₜₙ|>state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
-    f_current = 1.0/((env.params.W*CFIM(ρₜₙ, ∂ₓρₜₙ, env.Measurement))|>inv|>tr)
+    f_current = 1.0/((env.params.W*CFIM(ρₜₙ, ∂ₓρₜₙ, env.Measurement, params.accuracy)|>pinv)|>tr)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
@@ -331,8 +332,8 @@ function DDPG_QFIM(params::ControlEnvParams, layer_num, layer_dim, seed, max_epi
                   trajectory=CircularArraySARTTrajectory(capacity=400*env.cnum, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na, ),),)
 
     println("quantum parameter estimation")
-    F_ini = QFIM(params.freeHamiltonian, params.Hamiltonian_derivative, params.ρ0, params.Decay_opt, params.γ, 
-                    params.control_Hamiltonian, params.control_coefficients, params.tspan)
+    F_ini = QFIM(params.freeHamiltonian, params.Hamiltonian_derivative, params.ρ0, params.decay_opt, params.γ, 
+                    params.control_Hamiltonian, params.control_coefficients, params.tspan, params.accuracy)
     f_ini = real(tr(params.W*pinv(F_ini)))
     if length(params.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -389,14 +390,14 @@ function DDPG_CFIM(Measurement, params::ControlEnvParams, layer_num, layer_dim, 
                                     target_actor=NeuralNetworkApproximator(model=create_actor(), optimizer=ADAM(),),
                                     target_critic=NeuralNetworkApproximator(model=create_critic(), optimizer=ADAM(),),
                                     γ=0.99f0, ρ=0.995f0, na=env.ctrl_num, batch_size=64, start_steps=100*env.cnum,
-                                    start_policy=RandomPolicy(Space([-0.1..0.1 for _ in 1:env.ctrl_num]); rng=rng),
+                                    start_policy=RandomPolicy(Space([-10.0..10.0 for _ in 1:env.ctrl_num]); rng=rng),
                                     update_after=100*env.cnum, update_freq=1*env.cnum, act_limit=env.params.ctrl_bound[end],
                                     act_noise=0.01, rng=rng,),
                   trajectory=CircularArraySARTTrajectory(capacity=400*env.cnum, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na, ),),)
 
     println("classical parameter estimation")
-    F_ini = CFIM(Measurement, params.freeHamiltonian, params.Hamiltonian_derivative, params.ρ0, params.Decay_opt, params.γ, 
-                    params.control_Hamiltonian, params.control_coefficients, params.tspan)
+    F_ini = CFIM(Measurement, params.freeHamiltonian, params.Hamiltonian_derivative, params.ρ0, params.decay_opt, params.γ, 
+                    params.control_Hamiltonian, params.control_coefficients, params.tspan, params.accuracy)
     f_ini = real(tr(params.W*pinv(F_ini)))
     if length(params.Hamiltonian_derivative) == 1
         println("single parameter scenario")

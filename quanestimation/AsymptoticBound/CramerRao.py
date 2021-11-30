@@ -10,7 +10,7 @@ calculation of classical Fisher information matrix and quantum
 Fisher information matrix.
 """
        
-def CFIM(rho, drho, M, precision=1e-8):
+def CFIM(rho, drho, M, accuracy=1e-8):
     """
     Description: Calculation classical Fisher information matrix (CFIM)
                  for a density matrix.
@@ -52,7 +52,7 @@ def CFIM(rho, drho, M, precision=1e-8):
         Mp = M[pi]
         p = np.trace(np.dot(rho,Mp))
         Cadd = np.zeros([para_num,para_num])
-        if p > precision:
+        if p > accuracy:
             for para_i in range(0,para_num):
                 drho_i = drho[para_i]
                 dp_i = np.trace(np.dot(drho_i,Mp))
@@ -68,7 +68,7 @@ def CFIM(rho, drho, M, precision=1e-8):
     else:
         return CFIM_res
 
-def SLD(rho, drho, rep='original', precision=1e-8):
+def SLD(rho, drho, rep='original', accuracy=1e-8):
     """
     Description: calculation of the symmetric logarithmic derivative (SLD)
                  for a density matrix.
@@ -110,7 +110,7 @@ def SLD(rho, drho, rep='original', precision=1e-8):
         
     purity = np.trace(np.dot(rho, rho))
 
-    if np.abs(1-purity) < precision:
+    if np.abs(1-purity) < accuracy:
         SLD_org = [[] for i in range(0, para_num)]
         for para_i in range(0, para_num):
             SLD_org[para_i] = 2*drho[para_i]
@@ -133,7 +133,7 @@ def SLD(rho, drho, rep='original', precision=1e-8):
             SLD_eig = np.array([[0.+0.*1.j for i in range(0,dim)] for i in range(0,dim)])
             for fi in range (0, dim):
                 for fj in range (0, dim):
-                    if np.abs(val[fi]+val[fj])> precision:
+                    if np.abs(val[fi]+val[fj]) > accuracy:
                         SLD_eig[fi][fj] = 2*np.dot(vec[:,fi].conj().transpose(),                                                                 
                         np.dot(drho[para_i],vec[:,fj]))/(val[fi]+val[fj])
             SLD_eig[SLD_eig == np.inf] = 0.
@@ -150,7 +150,7 @@ def SLD(rho, drho, rep='original', precision=1e-8):
         else:
             return SLD
 
-def RLD(rho, drho, rep='original', precision=1e-8):
+def RLD(rho, drho, rep='original', accuracy=1e-8):
     """
         Description: calculation of the right logarithmic derivative (RLD)
                     for a density matrix.
@@ -196,7 +196,7 @@ def RLD(rho, drho, rep='original', precision=1e-8):
         RLD_eig = np.array([[0.+0.*1.j for i in range(0,dim)] for i in range(0,dim)])
         for fi in range (0, dim):
             for fj in range (0, dim):
-                if np.abs(val[fi])> precision:
+                if np.abs(val[fi]) > accuracy:
                     RLD_eig[fi][fj] = np.dot(vec[:,fi].conj().transpose(),                                                                  np.dot(drho[para_i],vec[:,fj]))/val[fi]
         RLD_eig[RLD_eig == np.inf] = 0.
 
@@ -211,7 +211,7 @@ def RLD(rho, drho, rep='original', precision=1e-8):
     else:
         return RLD
 
-def LLD(rho, drho, rep='original', precision=1e-8):
+def LLD(rho, drho, rep='original', accuracy=1e-8):
     """
     Description: Calculation of the left logarithmic derivative (LLD)
                 for a density matrix.
@@ -257,7 +257,7 @@ def LLD(rho, drho, rep='original', precision=1e-8):
         LLD_eig = np.array([[0.+0.*1.j for i in range(0,dim)] for i in range(0,dim)])
         for fi in range (0, dim):
             for fj in range (0, dim):
-                if np.abs(val[fj])> precision:
+                if np.abs(val[fj]) > accuracy:
                     LLD_eig_tp = np.dot(vec[:,fi].conj().transpose(),                                                                  np.dot(drho[para_i],vec[:,fj]))/val[fj]
                     LLD_eig[fj][fi] = LLD_eig_tp.conj()
         LLD_eig[LLD_eig == np.inf] = 0.

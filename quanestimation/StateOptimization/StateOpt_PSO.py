@@ -1,10 +1,10 @@
 from julia import Main
 import quanestimation.StateOptimization.StateOptimization as stateopt
 class StateOpt_PSO(stateopt.StateOptSystem):
-    def __init__(self, tspan, psi0, H0, dH=[], Decay=[], W=[], particle_num=10, ini_particle=[], \
+    def __init__(self, tspan, psi0, H0, dH=[], decay=[], W=[], particle_num=10, ini_particle=[], \
                  max_episode=[1000,100], c0=1.0, c1=2.0, c2=2.0, seed=1234):
 
-        stateopt.StateOptSystem.__init__(self, tspan, psi0, H0, dH, Decay, W)
+        stateopt.StateOptSystem.__init__(self, tspan, psi0, H0, dH, decay, W, accuracy=1e-8)
         
         """
         --------
@@ -66,12 +66,12 @@ class StateOpt_PSO(stateopt.StateOptSystem):
             --type: bool
         """
         if self.gamma == [] or self.gamma[0] == 0.0:
-            pso = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, self.W)
+            pso = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, self.W, self.accuracy)
             Main.QuanEstimation.PSO_QFIM(pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                          self.seed, save_file)
         else:
             pso = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, \
-                        self.Decay_opt, self.gamma, self.W)
+                        self.decay_opt, self.gamma, self.W, self.accuracy)
             Main.QuanEstimation.PSO_QFIM(pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                          self.seed, save_file)
         self.load_save()
@@ -90,12 +90,12 @@ class StateOpt_PSO(stateopt.StateOptSystem):
             --type: bool
         """
         if self.gamma == [] or self.gamma[0] == 0.0:
-            pso = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, self.W)
+            pso = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, self.W, self.accuracy)
             Main.QuanEstimation.PSO_CFIM(Measurement, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                          self.seed, save_file)
         else:
             pso = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, \
-                        self.Decay_opt, self.gamma, self.W)
+                        self.decay_opt, self.gamma, self.W, self.accuracy)
             Main.QuanEstimation.PSO_CFIM(Measurement, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
                                          self.seed, save_file)
         self.load_save()

@@ -3,10 +3,10 @@ from julia import Main
 import quanestimation.Control.Control as Control
 
 class PSO(Control.ControlSystem):
-    def __init__(self, tspan, rho0, H0, Hc=[], dH=[], ctrl_0=[], Decay=[], ctrl_bound=[], W=[], \
+    def __init__(self, tspan, rho0, H0, Hc=[], dH=[], ctrl_0=[], decay=[], ctrl_bound=[], W=[], \
                  particle_num=10, ini_particle=[], max_episode=[1000, 100], c0=1.0, c1=2.0, c2=2.0, seed=1234):
 
-        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, ctrl_0, Decay, ctrl_bound, W)
+        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, ctrl_0, decay, ctrl_bound, W, accuracy=1e-8)
         
         """
         --------
@@ -66,7 +66,7 @@ class PSO(Control.ControlSystem):
             --type: bool
         """
         pso = Main.QuanEstimation.PSO(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, \
-                        self.Decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W)
+                        self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
         Main.QuanEstimation.PSO_QFIM(pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, \
                                          self.seed, save_file)
 
@@ -84,6 +84,6 @@ class PSO(Control.ControlSystem):
             --type: bool
         """
         pso = Main.QuanEstimation.PSO(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, \
-                        self.Decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W)
+                        self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
         Main.QuanEstimation.PSO_CFIM(Measurement, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, \
                                          self.seed, save_file)

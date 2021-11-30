@@ -2,9 +2,9 @@ from julia import Main
 import quanestimation.StateOptimization.StateOptimization as stateopt
 
 class StateOpt_DDPG(stateopt.StateOptSystem):
-    def __init__(self, tspan, psi0, H0, dH=[], Decay=[], W=[], max_episode=500, layer_num=3, layer_dim=200, seed=1234):
+    def __init__(self, tspan, psi0, H0, dH=[], decay=[], W=[], max_episode=500, layer_num=3, layer_dim=200, seed=1234):
 
-        stateopt.StateOptSystem.__init__(self, tspan, psi0, H0, dH, Decay, W)
+        stateopt.StateOptSystem.__init__(self, tspan, psi0, H0, dH, decay, W, accuracy=1e-8)
 
         """
         ----------
@@ -42,11 +42,11 @@ class StateOpt_DDPG(stateopt.StateOptSystem):
             --type: bool
         """
         if self.gamma == [] or self.gamma[0] == 0.0:
-            DDPG = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, self.W)
+            DDPG = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, self.W, self.accuracy)
             Main.QuanEstimation.DDPG_QFIM(DDPG, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
         else:
             DDPG = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                                                          self.psi0, self.tspan, self.Decay_opt, self.gamma, self.W)
+                                                          self.psi0, self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
             Main.QuanEstimation.DDPG_QFIM(DDPG, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
         self.load_save()
             
@@ -65,10 +65,10 @@ class StateOpt_DDPG(stateopt.StateOptSystem):
         """
 
         if self.gamma == [] or self.gamma[0] == 0.0:
-            DDPG = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, self.W)
+            DDPG = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, self.W, self.accuracy)
             Main.QuanEstimation.DDPG_CFIM(Measurement, DDPG, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
         else:
             DDPG = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                                                          self.psi0, self.tspan, self.Decay_opt, self.gamma, self.W)
+                                                          self.psi0, self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
             Main.QuanEstimation.DDPG_CFIM(Measurement, DDPG, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
         self.load_save()

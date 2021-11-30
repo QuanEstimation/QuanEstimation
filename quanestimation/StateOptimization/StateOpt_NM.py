@@ -1,10 +1,10 @@
 from julia import Main
 import quanestimation.StateOptimization.StateOptimization as stateopt
 class StateOpt_NM(stateopt.StateOptSystem):
-    def __init__(self, tspan, psi0, H0, dH=[], Decay=[], W=[], state_num=10, ini_state=[], \
-                 max_episode=1000, a_r=1.0, a_e=2.0, a_c=0.5, a_s=0.5, seed=1234, precision=1e-6):
+    def __init__(self, tspan, psi0, H0, dH=[], decay=[], W=[], state_num=10, ini_state=[], \
+                 max_episode=1000, a_r=1.0, a_e=2.0, a_c=0.5, a_s=0.5, seed=1234):
 
-        stateopt.StateOptSystem.__init__(self, tspan, psi0, H0, dH, Decay, W)
+        stateopt.StateOptSystem.__init__(self, tspan, psi0, H0, dH, decay, W, accuracy=1e-8)
 
         """
         --------
@@ -42,8 +42,8 @@ class StateOpt_NM(stateopt.StateOptSystem):
             --description: random seed.
             --type: int
 
-        precision:
-            --description: calculation precision.
+        accuracy:
+            --description: calculation accuracy.
             --type: float
         
         """
@@ -59,7 +59,6 @@ class StateOpt_NM(stateopt.StateOptSystem):
         self.a_c = a_c
         self.a_s = a_s
         self.seed = seed
-        self.precision = precision
 
     def QFIM(self, save_file=False):
         """
@@ -77,12 +76,12 @@ class StateOpt_NM(stateopt.StateOptSystem):
 
         if self.gamma == [] or self.gamma[0] == 0.0:
             neldermead = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                                                                               self.psi0, self.tspan, self.W)
-            Main.QuanEstimation.NM_QFIM(neldermead, self.state_num, self.ini_state, self.a_r, self.a_e, self.a_c, self.a_s, self.precision, self.max_episode, self.seed, save_file)
+                                                                               self.psi0, self.tspan, self.W, self.accuracy)
+            Main.QuanEstimation.NM_QFIM(neldermead, self.state_num, self.ini_state, self.a_r, self.a_e, self.a_c, self.a_s, self.max_episode, self.seed, save_file)
         else:
             neldermead = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, \
-                        self.Decay_opt, self.gamma, self.W)
-            Main.QuanEstimation.NM_QFIM(neldermead, self.state_num, self.ini_state, self.a_r, self.a_e, self.a_c, self.a_s, self.precision, self.max_episode, self.seed, save_file)
+                        self.decay_opt, self.gamma, self.W, self.accuracy)
+            Main.QuanEstimation.NM_QFIM(neldermead, self.state_num, self.ini_state, self.a_r, self.a_e, self.a_c, self.a_s, self.max_episode, self.seed, save_file)
         self.load_save()
 
     def CFIM(self, Measurement, save_file=False):
@@ -100,11 +99,11 @@ class StateOpt_NM(stateopt.StateOptSystem):
         """
         if self.gamma == [] or self.gamma[0] == 0.0:
             neldermead = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                                                                               self.psi0, self.tspan, self.W)
-            Main.QuanEstimation.NM_CFIM(Measurement, neldermead, self.state_num, self.ini_state, self.a_r, self.a_e, self.a_c, self.a_s, self.precision, self.max_episode, self.seed, save_file)
+                                                                               self.psi0, self.tspan, self.W, self.accuracy)
+            Main.QuanEstimation.NM_CFIM(Measurement, neldermead, self.state_num, self.ini_state, self.a_r, self.a_e, self.a_c, self.a_s, self.max_episode, self.seed, save_file)
         else:
             neldermead = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                                     self.tspan, self.Decay_opt, self.gamma, self.W)
-            Main.QuanEstimation.NM_CFIM(Measurement, neldermead, self.state_num, self.ini_state, self.a_r, self.a_e, self.a_c, self.a_s, self.precision, self.max_episode, self.seed, save_file)
+                                                                     self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+            Main.QuanEstimation.NM_CFIM(Measurement, neldermead, self.state_num, self.ini_state, self.a_r, self.a_e, self.a_c, self.a_s, self.max_episode, self.seed, save_file)
         self.load_save()
             

@@ -3,19 +3,20 @@ mutable struct PSO{T <: Complex,M <: Real} <: ControlSystem
     Hamiltonian_derivative::Vector{Matrix{T}}
     ρ0::Matrix{T}
     tspan::Vector{M}
-    Decay_opt::Vector{Matrix{T}}
+    decay_opt::Vector{Matrix{T}}
     γ::Vector{M}
     control_Hamiltonian::Vector{Matrix{T}}
     control_coefficients::Vector{Vector{M}}
     ctrl_bound::Vector{M}
     W::Matrix{M}
+    accuracy::M
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
     PSO(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, ρ0::Matrix{T},
-             tspan::Vector{M}, Decay_opt::Vector{Matrix{T}},γ::Vector{M}, control_Hamiltonian::Vector{Matrix{T}},
-             control_coefficients::Vector{Vector{M}}, ctrl_bound::Vector{M}, W::Matrix{M}, ρ=Vector{Matrix{T}}(undef, 1), 
+             tspan::Vector{M}, decay_opt::Vector{Matrix{T}},γ::Vector{M}, control_Hamiltonian::Vector{Matrix{T}},
+             control_coefficients::Vector{Vector{M}}, ctrl_bound::Vector{M}, W::Matrix{M}, accuracy::M, ρ=Vector{Matrix{T}}(undef, 1), 
              ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 
-                Hamiltonian_derivative, ρ0, tspan, Decay_opt, γ, control_Hamiltonian, control_coefficients, ctrl_bound, W, ρ, ∂ρ_∂x) 
+                Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, control_Hamiltonian, control_coefficients, ctrl_bound, W, accuracy, ρ, ∂ρ_∂x) 
 end
 
 function PSO_QFIM(pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c1, c2, sd, save_file) where {T<: Complex}
@@ -35,11 +36,11 @@ function PSO_QFIM(pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c1, 
     gbest = zeros(ctrl_num, ctrl_length)
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
-    F_noctrl = QFIM(pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ0, pso.Decay_opt, pso.γ, 
-                    pso.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], pso.tspan)
+    F_noctrl = QFIM(pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ0, pso.decay_opt, pso.γ, 
+                    pso.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], pso.tspan, pso.accuracy)
     qfi_noctrl = real(tr(pso.W*pinv(F_noctrl)))
-    F_ini = QFIM(pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ0, pso.Decay_opt, pso.γ, 
-                    pso.control_Hamiltonian, pso.control_coefficients, pso.tspan)
+    F_ini = QFIM(pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ0, pso.decay_opt, pso.γ, 
+                    pso.control_Hamiltonian, pso.control_coefficients, pso.tspan, pso.accuracy)
     qfi_ini = real(tr(pso.W*pinv(F_ini)))
 
     if typeof(max_episode) == Int
@@ -174,11 +175,11 @@ function PSO_CFIM(M, pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c
     gbest = zeros(ctrl_num, ctrl_length)
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
-    F_noctrl = CFIM(M, pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ0, pso.Decay_opt, pso.γ, 
-                    pso.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], pso.tspan)
+    F_noctrl = CFIM(M, pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ0, pso.decay_opt, pso.γ, 
+                    pso.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], pso.tspan, pso.accuracy)
     cfi_noctrl = real(tr(pso.W*pinv(F_noctrl)))
-    F_ini = CFIM(M, pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ0, pso.Decay_opt, pso.γ, 
-                    pso.control_Hamiltonian, pso.control_coefficients, pso.tspan)
+    F_ini = CFIM(M, pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ0, pso.decay_opt, pso.γ, 
+                    pso.control_Hamiltonian, pso.control_coefficients, pso.tspan, pso.accuracy)
     cfi_ini = real(tr(pso.W*pinv(F_ini)))
 
     if typeof(max_episode) == Int
@@ -345,7 +346,7 @@ end
 
 function PSO_train_CFIM(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, gbest, velocity_best, velocity)
     @inbounds for pj in 1:particle_num
-        f_now = 1.0/real(tr(pinv(particles[pj].W*CFIM(M, particles[pj]))))
+        f_now = 1.0/real(tr(particles[pj].W*pinv(CFIM(M, particles[pj]))))
         if f_now > p_fit[pj]
             p_fit[pj] = f_now
             for di in 1:ctrl_num
