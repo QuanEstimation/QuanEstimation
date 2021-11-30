@@ -21,14 +21,14 @@ function PSO_QFIM(pso::TimeIndepend_noiseless{T}, max_episode, particle_num, ini
     for pj in 1:length(ini_particle)
         particles[pj].psi = [ini_particle[pj][i] for i in 1:dim]
     end
-    for pj in (length(ini_particle)+1):(particle_num-1)
+    for pj in (length(ini_particle)+1):particle_num
         r_ini = 2*rand(dim)-ones(dim)
         r = r_ini/norm(r_ini)
         phi = 2*pi*rand(dim)
         particles[pj].psi = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
     end
 
-    F = QFIM_TimeIndepend(pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.psi, pso.tspan)
+    F = QFIM_TimeIndepend(pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.psi, pso.tspan, pso.accuracy)
     qfi_ini = real(tr(pso.W*pinv(F)))
 
     if length(pso.Hamiltonian_derivative) == 1
@@ -149,14 +149,14 @@ function PSO_CFIM(M, pso::TimeIndepend_noiseless{T}, max_episode, particle_num, 
     for pj in 1:length(ini_particle)
         particles[pj].psi = [ini_particle[pj][i] for i in 1:dim]
     end
-    for pj in (length(ini_particle)+1):(particle_num-1)
+    for pj in (length(ini_particle)+1):particle_num
         r_ini = 2*rand(dim)-ones(dim)
         r = r_ini/norm(r_ini)
         phi = 2*pi*rand(dim)
         particles[pj].psi = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
     end
 
-    F = CFIM_TimeIndepend(M, pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.psi, pso.tspan)
+    F = CFIM_TimeIndepend(M, pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.psi, pso.tspan, pso.accuracy)
     f_ini = real(tr(pso.W*pinv(F)))
 
     if length(pso.Hamiltonian_derivative) == 1
@@ -256,7 +256,8 @@ end
 
 function train_QFIM_noiseless(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, pbest, gbest, velocity_best, velocity)
     for pj in 1:particle_num
-        F_tp = QFIM_TimeIndepend(particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, particles[pj].psi, particles[pj].tspan)
+        F_tp = QFIM_TimeIndepend(particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, particles[pj].psi, 
+                                 particles[pj].tspan, particles[pj].accuracy)
         f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
         if f_now > p_fit[pj]
             p_fit[pj] = f_now
@@ -294,7 +295,8 @@ end
 
 function train_CFIM_noiseless(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, pbest, gbest, velocity_best, velocity)
     for pj in 1:particle_num
-        F_tp = CFIM_TimeIndepend(M, particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, particles[pj].psi, particles[pj].tspan)
+        F_tp = CFIM_TimeIndepend(M, particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, particles[pj].psi, 
+                                 particles[pj].tspan, particles[pj].accuracy)
         f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
         if f_now > p_fit[pj]
             p_fit[pj] = f_now
@@ -353,14 +355,14 @@ function PSO_QFIM(pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_par
     for pj in 1:length(ini_particle)
         particles[pj].psi = [ini_particle[pj][i] for i in 1:dim]
     end
-    for pj in (length(ini_particle)+1):(particle_num-1)
+    for pj in (length(ini_particle)+1):particle_num
         r_ini = 2*rand(dim)-ones(dim)
         r = r_ini/norm(r_ini)
         phi = 2*pi*rand(dim)
         particles[pj].psi = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
     end
 
-    F = QFIM_TimeIndepend(pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.psi*(pso.psi)', pso.Decay_opt, pso.γ, pso.tspan)
+    F = QFIM_TimeIndepend(pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.psi*(pso.psi)', pso.decay_opt, pso.γ, pso.tspan, pso.accuracy)
     qfi_ini = real(tr(pso.W*pinv(F)))
 
     if length(pso.Hamiltonian_derivative) == 1
@@ -481,14 +483,14 @@ function PSO_CFIM(M, pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_
     for pj in 1:length(ini_particle)
         particles[pj].psi = [ini_particle[pj][i] for i in 1:dim]
     end
-    for pj in (length(ini_particle)+1):(particle_num-1)
+    for pj in (length(ini_particle)+1):particle_num
         r_ini = 2*rand(dim)-ones(dim)
         r = r_ini/norm(r_ini)
         phi = 2*pi*rand(dim)
         particles[pj].psi = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
     end
 
-    F = CFIM_TimeIndepend(M, pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.psi*(pso.psi)', pso.Decay_opt, pso.γ, pso.tspan)
+    F = CFIM_TimeIndepend(M, pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.psi*(pso.psi)', pso.decay_opt, pso.γ, pso.tspan, pso.accuracy)
     f_ini = real(tr(pso.W*pinv(F)))
 
     if length(pso.Hamiltonian_derivative) == 1
@@ -591,7 +593,8 @@ end
 function train_QFIM_noise(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, pbest, gbest, velocity_best, velocity)
     for pj in 1:particle_num
         rho = particles[pj].psi*(particles[pj].psi)'
-        F_tp = QFIM_TimeIndepend(particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, rho, particles[pj].Decay_opt, particles[pj].γ, particles[pj].tspan)
+        F_tp = QFIM_TimeIndepend(particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, rho, particles[pj].decay_opt, 
+                                 particles[pj].γ, particles[pj].tspan, particles[pj].accuracy)
         f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
         if f_now > p_fit[pj]
             p_fit[pj] = f_now
@@ -630,7 +633,8 @@ end
 function train_CFIM_noise(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, pbest, gbest, velocity_best, velocity)
     for pj in 1:particle_num
         rho = particles[pj].psi*(particles[pj].psi)'
-        F_tp = CFIM_TimeIndepend(M, particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, rho, particles[pj].Decay_opt, particles[pj].γ, particles[pj].tspan)
+        F_tp = CFIM_TimeIndepend(M, particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, rho, particles[pj].decay_opt, 
+                                 particles[pj].γ, particles[pj].tspan, particles[pj].accuracy)
         f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
         if f_now > p_fit[pj]
             p_fit[pj] = f_now

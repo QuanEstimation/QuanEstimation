@@ -2,10 +2,10 @@ import numpy as np
 from julia import Main
 import quanestimation.Control.Control as Control
 class DiffEvo(Control.ControlSystem):
-    def __init__(self, tspan, rho0, H0, Hc=[], dH=[], ctrl_0=[], Decay=[], ctrl_bound=[], W=[], \
+    def __init__(self, tspan, rho0, H0, Hc=[], dH=[], ctrl_0=[], decay=[], ctrl_bound=[], W=[], \
                 popsize=10, ini_population=[], max_episode=1000, c=1.0, cr=0.5, seed=1234):
 
-        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, ctrl_0, Decay, ctrl_bound, W)
+        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, ctrl_0, decay, ctrl_bound, W, accuracy=1e-8)
         
         """
         --------
@@ -61,7 +61,7 @@ class DiffEvo(Control.ControlSystem):
         """
 
         diffevo = Main.QuanEstimation.DiffEvo(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, \
-                  self.Decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W)
+                  self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
         Main.QuanEstimation.DE_QFIM(diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episode, save_file)
 
         
@@ -79,5 +79,5 @@ class DiffEvo(Control.ControlSystem):
             --type: bool
         """
         diffevo = Main.QuanEstimation.DiffEvo(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, \
-                        self.Decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients)
+                        self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.accuracy)
         Main.QuanEstimation.DE_CFIM(Measurement, diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episode, save_file)

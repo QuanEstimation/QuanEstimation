@@ -59,9 +59,9 @@ function free_evolution(H0)
     -1.0im * liouville_commu(H0)
 end
 
-function liouvillian(H::Matrix{T}, Decay_opt::Vector{Matrix{T}}, γ, t::Real) where {T <: Complex} 
+function liouvillian(H::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, t::Real) where {T <: Complex} 
     freepart = liouville_commu(H)
-    dissp = norm(γ) +1 ≈ 1 ? freepart|>zero : dissipation(Decay_opt, γ, t)
+    dissp = norm(γ) +1 ≈ 1 ? freepart|>zero : dissipation(decay_opt, γ, t)
     -1.0im * freepart + dissp
 end
 
@@ -77,12 +77,12 @@ function Htot(H0::Vector{Matrix{T}}, control_Hamiltonian::Vector{Matrix{T}}, con
     Htot = H0 + ([control_coefficients[i] .* [control_Hamiltonian[i]] for i in 1:length(control_coefficients)] |> sum )
 end
 
-function evolute(H, Decay_opt, γ, dt, tj)
-    Ld = dt * liouvillian(H, Decay_opt, γ, tj)
+function evolute(H, decay_opt, γ, dt, tj)
+    Ld = dt * liouvillian(H, decay_opt, γ, tj)
     exp(Ld)
 end
 
-function propagate(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, Decay_opt::Vector{Matrix{T}},
+function propagate(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}},
                    γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan) where {T <: Complex,R <: Real}
     dim = size(ρ0)[1]
     para_num = length(∂H_∂x)
@@ -96,46 +96,44 @@ function propagate(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, 
         ∂ₓρₜ[para][1] = ρₜ[1] |> zero
     end
     for t in 2:length(tspan)
-        expL = evolute(H[t-1], Decay_opt, γ, Δt, t)
+        expL = evolute(H[t-1], decay_opt, γ, Δt, t)
         ρₜ[t] = expL * ρₜ[t-1]
-        for para in para_num
+        for para in 1:para_num
             ∂ₓρₜ[para][t] = -im * Δt * ∂H_L[para] * ρₜ[t] + expL * ∂ₓρₜ[para][t - 1]
         end
     end
     ρₜ .|> vec2mat, ∂ₓρₜ .|> vec2mat
 end
 
-function propagate(ρₜ::Matrix{T}, ∂ₓρₜ::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  Decay_opt::Vector{Matrix{T}},
+function propagate(ρₜ::Matrix{T}, ∂ₓρₜ::Vector{Matrix{T}}, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}},  decay_opt::Vector{Matrix{T}},
                    γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{R}, Δt::Real, t::Int=0, ctrl_interval::Int=1) where {T <: Complex,R <: Real}
     para_num = length(∂H_∂x)
     H = Htot(H0, control_Hamiltonian, control_coefficients)
     ∂H_L = [liouville_commu(∂H_∂x[i]) for i in 1:para_num]
-    expL = evolute(H, Decay_opt, γ, Δt, t)
+    expL = evolute(H, decay_opt, γ, Δt, t)
     ρₜ_next = ρₜ |> vec
     ∂ₓρₜ_next = [(∂ₓρₜ[para] |> vec) for para in 1:para_num]
     for i in 1:ctrl_interval
         ρₜ_next = expL * ρₜ_next 
-        for para in para_num
+        for para in 1:para_num
             ∂ₓρₜ_next[para] = -im * Δt * ∂H_L[para] * ρₜ_next + expL * ∂ₓρₜ_next[para]
         end
     end
     ρₜ_next|> vec2mat, ∂ₓρₜ_next|> vec2mat
 end
 
-
-
 function propagate(ρₜ, ∂ₓρₜ, system, ctrl, t=1)
     Δt = system.tspan[2] - system.tspan[1]
-    propagate(ρₜ, ∂ₓρₜ, system.freeHamiltonian, system.Hamiltonian_derivative, system.Decay_opt, system.γ, system.control_Hamiltonian, ctrl, Δt, t, system.ctrl_interval)
+    propagate(ρₜ, ∂ₓρₜ, system.freeHamiltonian, system.Hamiltonian_derivative, system.decay_opt, system.γ, system.control_Hamiltonian, ctrl, Δt, t, system.ctrl_interval)
 end
 
 function propagate!(system)
     system.ρ, system.∂ρ_∂x = propagate(system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0,
-                                       system.Decay_opt, system.γ, system.control_Hamiltonian, 
+                                       system.decay_opt, system.γ, system.control_Hamiltonian, 
                                        system.control_coefficients, system.tspan)
 end
 
-function expm(H0::Matrix{T}, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, Decay_opt::Vector{Matrix{T}}, γ,control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan) where {T <: Complex,R <: Real}
+function expm(H0::Matrix{T}, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ,control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan) where {T <: Complex,R <: Real}
 
     ctrl_num = length(control_Hamiltonian)
     ctrl_interval = ((length(tspan)-1)/length(control_coefficients[1])) |> Int
@@ -152,14 +150,14 @@ function expm(H0::Matrix{T}, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, Decay_opt::Ve
     ∂ρt_∂x_all[1] = ρt_all[1] |> zero
     
     for t in 2:length(tspan)
-        expL = evolute(H[t-1], Decay_opt, γ, Δt, t)
+        expL = evolute(H[t-1], decay_opt, γ, Δt, t)
         ρt_all[t] = expL * ρt_all[t-1]
         ∂ρt_∂x_all[t] = -im * Δt * ∂H_L * ρt_all[t] + expL * ∂ρt_∂x_all[t-1]
     end
     ρt_all |> vec2mat, ∂ρt_∂x_all |> vec2mat
 end
 
-function expm(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, Decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan) where {T <: Complex,R <: Real}
+function expm(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan) where {T <: Complex,R <: Real}
 
     para_num = length(∂H_∂x)
     ctrl_num = length(control_Hamiltonian)
@@ -179,7 +177,7 @@ function expm(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, Decay
     end
 
     for t in 2:length(tspan)
-        expL = evolute(H[t-1], Decay_opt, γ, Δt, t)
+        expL = evolute(H[t-1], decay_opt, γ, Δt, t)
         ρt_all[t] = expL * ρt_all[t-1]
         for pj in 1:para_num
             ∂ρt_∂x_all[t][pj] = -im * Δt * ∂H_L[pj] * ρt_all[t] + expL* ∂ρt_∂x_all[t-1][pj]

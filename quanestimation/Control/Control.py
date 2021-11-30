@@ -4,7 +4,7 @@ import math
 import os
 import quanestimation.Control as ctrl
 class ControlSystem:
-    def __init__(self, tspan, rho0, H0, Hc, dH, ctrl_0, Decay, ctrl_bound, W):
+    def __init__(self, tspan, rho0, H0, Hc, dH, ctrl_0, decay, ctrl_bound, W, accuracy):
         
         """
         ----------
@@ -36,10 +36,10 @@ class ControlSystem:
            --description: control coefficients.
            --type: list (of array)
            
-        Decay:
+        decay:
            --description: decay operators and the corresponding decay rates.
-                          Decay[0] represent a list of decay operators and
-                          Decay[1] represent the corresponding decay rates.
+                          decay[0] represent a list of decay operators and
+                          decay[1] represent the corresponding decay rates.
            --type: list 
 
         ctrl_bound:   
@@ -51,6 +51,10 @@ class ControlSystem:
         W:
             --description: weight matrix.
             --type: matrix
+
+        accuracy:
+            --description: calculation accuracy.
+            --type: float
         
         """   
         self.tspan = tspan
@@ -81,18 +85,13 @@ class ControlSystem:
                 ctrl_0 = [(b-a)*np.random.random(len(self.tspan))+a*np.ones(len(self.tspan)) for i in range(len(self.control_Hamiltonian))]
         self.control_coefficients = ctrl_0
         
-        Decay_opt = Decay[0]
-        if Decay_opt == []:
-            Decay_opt = [np.zeros((len(self.freeHamiltonian), len(self.freeHamiltonian)))]
-        self.Decay_opt = [np.array(x, dtype=np.complex128) for x in Decay_opt]
-
-        gamma = Decay[1]
-        if gamma == []:
-            gamma = [0.0]
-        self.gamma = gamma
-
-        if len(self.gamma) != len(self.Decay_opt):
-            raise TypeError('The length of decay rates and the length of Liouville operator should be the same!')
+        if decay == []:
+            decay_opt = [np.zeros((len(self.rho0), len(self.rho0)))]
+            self.gamma = [0.0]
+        else:
+            decay_opt = [decay[i][0] for i in range(len(decay))]
+            self.gamma = [decay[i][1] for i in range(len(decay))]
+        self.decay_opt = [np.array(x, dtype=np.complex128) for x in decay_opt]
 
         ctrl_bound = [float(ctrl_bound[0]), float(ctrl_bound[1])]
         if ctrl_bound == []:
@@ -102,6 +101,8 @@ class ControlSystem:
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
+
+        self.accuracy = accuracy
         
         if os.path.exists('controls.csv'):
             data = np.genfromtxt('controls.csv')[-len(self.control_Hamiltonian):]

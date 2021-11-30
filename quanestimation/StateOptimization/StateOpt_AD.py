@@ -1,10 +1,10 @@
 from julia import Main
 import quanestimation.StateOptimization.StateOptimization as stateopt
 class StateOpt_AD(stateopt.StateOptSystem):
-    def __init__(self, tspan, psi0, H0, dH=[], Decay=[], W=[], Adam=True, max_episode=300, \
-                 lr=0.01, beta1=0.90, beta2=0.99, precision=1e-6):
+    def __init__(self, tspan, psi0, H0, dH=[], decay=[], W=[], Adam=True, max_episode=300, \
+                 epsilon=0.01, beta1=0.90, beta2=0.99):
 
-        stateopt.StateOptSystem.__init__(self, tspan, psi0, H0, dH, Decay, W)
+        stateopt.StateOptSystem.__init__(self, tspan, psi0, H0, dH, decay, W, accuracy=1e-8)
 
         """
         ----------
@@ -18,7 +18,7 @@ class StateOpt_AD(stateopt.StateOptSystem):
             --description: max number of training episodes.
             --type: int
 
-        lr:
+        epsilon:
             --description: learning rate.
             --type: float
 
@@ -30,20 +30,19 @@ class StateOpt_AD(stateopt.StateOptSystem):
             --description: the exponential decay rate for the second moment estimates .
             --type: float
 
-        precision:
-            --description: calculation precision.
+        accuracy:
+            --description: calculation accuracy.
             --type: float
 
         """
 
         self.Adam = Adam
         self.max_episode = max_episode
-        self.lr = lr
+        self.epsilon = epsilon
         self.beta1 = beta1
         self.beta2 = beta2
         self.mt = 0.0
         self.vt = 0.0 
-        self.precision = precision
 
     def QFIM(self, save_file=False):
         """
@@ -60,12 +59,12 @@ class StateOpt_AD(stateopt.StateOptSystem):
         """
         if self.gamma == [] or self.gamma[0] == 0.0:
             AD = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                 self.psi0, self.tspan, self.W)
-            Main.QuanEstimation.AD_QFIM(AD, self.precision, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.max_episode, self.Adam, save_file)
+                 self.psi0, self.tspan, self.W, self.accuracy)
+            Main.QuanEstimation.AD_QFIM(AD, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, self.Adam, save_file)
         else:
             AD = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                 self.psi0, self.tspan, self.Decay_opt, self.gamma, self.W)
-            Main.QuanEstimation.AD_QFIM(AD, self.precision, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.max_episode, self.Adam, save_file)
+                 self.psi0, self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+            Main.QuanEstimation.AD_QFIM(AD, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, self.Adam, save_file)
         self.load_save()
             
     def CFIM(self, Measurement, save_file=False):
@@ -84,10 +83,10 @@ class StateOpt_AD(stateopt.StateOptSystem):
 
         if self.gamma == [] or self.gamma[0] == 0.0:
             AD = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                 self.psi0, self.tspan, self.W)
-            Main.QuanEstimation.AD_CFIM(Measurement, AD, self.precision, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.max_episode, self.Adam, save_file)
+                 self.psi0, self.tspan, self.W, self.accuracy)
+            Main.QuanEstimation.AD_CFIM(Measurement, AD, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, self.Adam, save_file)
         else:
             AD = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                 self.psi0, self.tspan, self.Decay_opt, self.gamma, self.W)
-            Main.QuanEstimation.AD_CFIM(Measurement, AD, self.precision, self.mt, self.vt, self.lr, self.beta1, self.beta2, self.max_episode, self.Adam, save_file)
+                 self.psi0, self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+            Main.QuanEstimation.AD_CFIM(Measurement, AD, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, self.Adam, save_file)
         self.load_save()

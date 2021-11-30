@@ -44,8 +44,14 @@ function ControlEnv_noiseless(;T=ComplexF64, M=Float64, Measurement, params::Tim
     action_space = Space(fill(-1.0e35..1.0e35, length(state)))
     state_space = Space(fill(-1.0e35..1.0e35, length(state))) 
 
-    F_ini = QFIM_TimeIndepend(params.freeHamiltonian, params.Hamiltonian_derivative, params.psi, params.tspan)
-    f_ini = 1.0/real(tr(params.W*pinv(F_ini)))
+    f_ini = 0.0
+    if quantum 
+        F_ini = QFIM_TimeIndepend(params.freeHamiltonian, params.Hamiltonian_derivative, params.psi, params.tspan, params.accuracy)
+        f_ini = 1.0/real(tr(params.W*pinv(F_ini)))
+    else
+        F_ini = CFIM_TimeIndepend(Measurement, params.freeHamiltonian, params.Hamiltonian_derivative, params.psi, params.tspan, params.accuracy)
+        f_ini = 1.0/real(tr(params.W*pinv(F_ini)))
+    end
 
     f_list = Vector{Float64}()
     reward_all = Vector{Float64}()
@@ -79,10 +85,10 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{true}
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, env.params.tspan)
+    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, env.params.tspan, env.params.accuracy)
     f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
     env.reward = -log(f_current/env.f_ini)
-    env.total_reward = env.reward
+    env.total_reward = env.rewards
     env.done = true
 
     append!(env.f_list, f_current)
@@ -98,7 +104,7 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{true}
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, env.params.tspan)
+    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, env.params.tspan, env.params.accuracy)
     f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
@@ -117,7 +123,7 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{false
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, env.params.tspan)
+    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, env.params.tspan, env.params.accuracy)
     f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
@@ -137,7 +143,7 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{false
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, env.params.tspan)
+    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, env.params.tspan, env.params.accuracy)
     f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
@@ -156,7 +162,8 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{true
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, env.params.tspan)
+    F_tp = CFIM_TimeIndepend(env.Measurement, env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, 
+                             env.params.tspan, env.params.accuracy)
     f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
@@ -177,7 +184,7 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{true
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, env.params.tspan)
+    F_tp = CFIM_TimeIndepend(env.Measurement, env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, env.params.tspan, env.params.accuracy)
     f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
@@ -196,7 +203,8 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{fals
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, env.params.tspan)
+    F_tp = CFIM_TimeIndepend(env.Measurement, env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, 
+                             env.params.tspan, env.params.accuracy)
     f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
@@ -216,7 +224,8 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{fals
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, env.params.tspan)
+    F_tp = CFIM_TimeIndepend(env.Measurement, env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, 
+                             env.params.tspan, env.params.accuracy)
     f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
@@ -253,7 +262,7 @@ function DDPG_QFIM(params::TimeIndepend_noiseless, layer_num, layer_dim, seed, m
                                     target_actor=NeuralNetworkApproximator(model=create_actor(), optimizer=ADAM(),),
                                     target_critic=NeuralNetworkApproximator(model=create_critic(), optimizer=ADAM(),),
                                     γ=0.99f0, ρ=0.995f0, na=env.ctrl_num, batch_size=64, start_steps=100,
-                                    start_policy=RandomPolicy(Space([-10.0..10.0 for _ in 1:env.ctrl_num]); rng=rng),
+                                    start_policy=RandomPolicy(Space([-1.0..1.0 for _ in 1:env.ctrl_num]); rng=rng),
                                     update_after=100, update_freq=1, act_limit=1.0e35,
                                     act_noise=0.01, rng=rng,),
                   trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na, ),),)
@@ -312,7 +321,7 @@ function DDPG_CFIM(Measurement, params::TimeIndepend_noiseless, layer_num, layer
                                     target_actor=NeuralNetworkApproximator(model=create_actor(), optimizer=ADAM(),),
                                     target_critic=NeuralNetworkApproximator(model=create_critic(), optimizer=ADAM(),),
                                     γ=0.99f0, ρ=0.995f0, na=env.ctrl_num, batch_size=64, start_steps=100,
-                                    start_policy=RandomPolicy(Space([-0.1..0.1 for _ in 1:env.ctrl_num]); rng=rng),
+                                    start_policy=RandomPolicy(Space([-1.0..1.0 for _ in 1:env.ctrl_num]); rng=rng),
                                     update_after=100, update_freq=1, act_limit=1.0e35,
                                     act_noise=0.01, rng=rng,),
                   trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na, ),),)
@@ -382,8 +391,16 @@ function ControlEnv_noise(;T=ComplexF64, M=Float64, Measurement, params::TimeInd
     action_space = Space(fill(-1.0e35..1.0e35, length(state)))
     state_space = Space(fill(-1.0e35..1.0e35, length(state))) 
 
-    F_ini = QFIM_TimeIndepend(params.freeHamiltonian, params.Hamiltonian_derivative, params.psi*(params.psi)', params.Decay_opt, params.γ, params.tspan)
-    f_ini = 1.0/real(tr(params.W*pinv(F_ini)))
+    f_ini = 0.0
+    if quantum 
+        F_ini = QFIM_TimeIndepend(params.freeHamiltonian, params.Hamiltonian_derivative, params.psi*(params.psi)', 
+                                  params.decay_opt, params.γ, params.tspan, params.accuracy)
+        f_ini = 1.0/real(tr(params.W*pinv(F_ini)))
+    else
+        F_ini = CFIM_TimeIndepend(Measurement, params.freeHamiltonian, params.Hamiltonian_derivative, params.psi*(params.psi)', 
+                                  params.decay_opt, params.γ, params.tspan, params.accuracy)
+        f_ini = 1.0/real(tr(params.W*pinv(F_ini)))
+    end
 
     f_list = Vector{Float64}()
     reward_all = Vector{Float64}()
@@ -417,7 +434,8 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{true}, ::Val{
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', env.params.Decay_opt, env.params.γ, env.params.tspan)
+    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', 
+                             env.params.decay_opt, env.params.γ, env.params.tspan, env.params.accuracy)
     f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
@@ -436,7 +454,8 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{true}, ::Val{
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', env.params.Decay_opt, env.params.γ, env.params.tspan)
+    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', 
+                             env.params.decay_opt, env.params.γ, env.params.tspan, env.params.accuracy)
     f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
@@ -455,7 +474,8 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{false}, ::Val
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', env.params.Decay_opt, env.params.γ, env.params.tspan)
+    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', 
+                             env.params.decay_opt, env.params.γ, env.params.tspan, env.params.accuracy)
     f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
@@ -475,7 +495,8 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{false}, ::Val
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', env.params.Decay_opt, env.params.γ, env.params.tspan)
+    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', 
+                             env.params.decay_opt, env.params.γ, env.params.tspan, env.params.accuracy)
     f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
@@ -494,7 +515,8 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{false}, ::Val{true}, ::Val
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', env.params.Decay_opt, env.params.γ, env.params.tspan)
+    F_tp = CFIM_TimeIndepend(env.Measurement, env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', 
+                             env.params.decay_opt, env.params.γ, env.params.tspan, env.params.accuracy)
     f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
@@ -515,7 +537,8 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{false}, ::Val{true}, ::Val
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', env.params.Decay_opt, env.params.γ, env.params.tspan)
+    F_tp = CFIM_TimeIndepend(env.Measurement, env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', 
+                             env.params.decay_opt, env.params.γ, env.params.tspan, env.params.accuracy)
     f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
@@ -534,7 +557,8 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{false}, ::Val{false}, ::Va
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', env.params.Decay_opt, env.params.γ, env.params.tspan)
+    F_tp = CFIM_TimeIndepend(env.Measurement, env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', 
+                             env.params.decay_opt, env.params.γ, env.params.tspan, env.params.accuracy)
     f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
@@ -554,7 +578,8 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{false}, ::Val{false}, ::Va
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', env.params.Decay_opt, env.params.γ, env.params.tspan)
+    F_tp = CFIM_TimeIndepend(env.Measurement, env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', 
+                             env.params.decay_opt, env.params.γ, env.params.tspan, env.params.accuracy)
     f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
@@ -591,7 +616,7 @@ function DDPG_QFIM(params::TimeIndepend_noise, layer_num, layer_dim, seed, max_e
                                     target_actor=NeuralNetworkApproximator(model=create_actor(), optimizer=ADAM(),),
                                     target_critic=NeuralNetworkApproximator(model=create_critic(), optimizer=ADAM(),),
                                     γ=0.99f0, ρ=0.995f0, na=env.ctrl_num, batch_size=64, start_steps=100,
-                                    start_policy=RandomPolicy(Space([-10.0..10.0 for _ in 1:env.ctrl_num]); rng=rng),
+                                    start_policy=RandomPolicy(Space([-1.0..1.0 for _ in 1:env.ctrl_num]); rng=rng),
                                     update_after=100, update_freq=1, act_limit=1.0e35,
                                     act_noise=0.01, rng=rng,),
                   trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na, ),),)
@@ -650,7 +675,7 @@ function DDPG_CFIM(Measurement, params::TimeIndepend_noise, layer_num, layer_dim
                                     target_actor=NeuralNetworkApproximator(model=create_actor(), optimizer=ADAM(),),
                                     target_critic=NeuralNetworkApproximator(model=create_critic(), optimizer=ADAM(),),
                                     γ=0.99f0, ρ=0.995f0, na=env.ctrl_num, batch_size=64, start_steps=100,
-                                    start_policy=RandomPolicy(Space([-0.1..0.1 for _ in 1:env.ctrl_num]); rng=rng),
+                                    start_policy=RandomPolicy(Space([-1.0..1.0 for _ in 1:env.ctrl_num]); rng=rng),
                                     update_after=100, update_freq=1, act_limit=1.0e35,
                                     act_noise=0.01, rng=rng,),
                   trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na, ),),)

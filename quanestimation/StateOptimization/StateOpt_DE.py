@@ -1,10 +1,10 @@
 from julia import Main
 import quanestimation.StateOptimization.StateOptimization as stateopt
 class StateOpt_DE(stateopt.StateOptSystem):
-    def __init__(self, tspan, psi0, H0, dH=[], Decay=[], W=[], \
+    def __init__(self, tspan, psi0, H0, dH=[], decay=[], W=[], \
                  popsize=10, ini_population=[], max_episode=1000, c=1.0, cr=0.5, seed=1234):
 
-        stateopt.StateOptSystem.__init__(self, tspan, psi0, H0, dH, Decay, W)
+        stateopt.StateOptSystem.__init__(self, tspan, psi0, H0, dH, decay, W, accuracy=1e-8)
         
         """
         --------
@@ -48,22 +48,22 @@ class StateOpt_DE(stateopt.StateOptSystem):
     def QFIM(self, save_file):
         if self.gamma == [] or self.gamma[0] == 0.0:
             diffevo = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                                                                               self.psi0, self.tspan, self.W)
+                                                                               self.psi0, self.tspan, self.W, self.accuracy)
             Main.QuanEstimation.DE_QFIM(diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episode, save_file)
         else:
             diffevo = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, \
-                        self.Decay_opt, self.gamma, self.W)
+                        self.decay_opt, self.gamma, self.W, self.accuracy)
             Main.QuanEstimation.DE_QFIM(diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episode, save_file)
         self.load_save()
 
     def CFIM(self, Measurement, save_file):
         if self.gamma == [] or self.gamma[0] == 0.0:
             diffevo = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                                                                               self.psi0, self.tspan, self.W)
+                                                                               self.psi0, self.tspan, self.W, self.accuracy)
             Main.QuanEstimation.DE_CFIM(Measurement, diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episode, save_file)
         else:
             diffevo = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, \
-                        self.Decay_opt, self.gamma, self.W)
+                        self.decay_opt, self.gamma, self.W, self.accuracy)
             Main.QuanEstimation.DE_CFIM(Measurement, diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episode, save_file)
         self.load_save()
         

@@ -12,7 +12,7 @@ function DE_QFIM(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, 
     for pj in 1:length(ini_population)
         populations[pj].psi = [ini_population[pj][i] for i in 1:dim]
     end
-    for pj in (length(ini_population)+1):(p_num-1)
+    for pj in (length(ini_population)+1):p_num
         r_ini = 2*rand(dim)-ones(dim)
         r = r_ini/norm(r_ini)
         phi = 2*pi*rand(dim)
@@ -21,11 +21,11 @@ function DE_QFIM(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, 
 
     p_fit = [0.0 for i in 1:p_num] 
     for pj in 1:p_num
-        F_tp = QFIM_TimeIndepend(DE.freeHamiltonian, DE.Hamiltonian_derivative, populations[pj].psi, DE.tspan)
+        F_tp = QFIM_TimeIndepend(DE.freeHamiltonian, DE.Hamiltonian_derivative, populations[pj].psi, DE.tspan, DE.accuracy)
         p_fit[pj] = 1.0/real(tr(DE.W*pinv(F_tp)))
     end
 
-    F = QFIM_TimeIndepend(DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.psi, DE.tspan)
+    F = QFIM_TimeIndepend(DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.psi, DE.tspan, DE.accuracy)
     f_ini= real(tr(DE.W*pinv(F)))
 
     if length(DE.Hamiltonian_derivative) == 1
@@ -118,7 +118,7 @@ function DE_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, c
     for pj in 1:length(ini_population)
         populations[pj].psi = [ini_population[pj][i] for i in 1:dim]
     end
-    for pj in (length(ini_population)+1):(p_num-1)
+    for pj in (length(ini_population)+1):p_num
         r_ini = 2*rand(dim)-ones(dim)
         r = r_ini/norm(r_ini)
         phi = 2*pi*rand(dim)
@@ -127,11 +127,11 @@ function DE_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, c
 
     p_fit = [0.0 for i in 1:p_num] 
     for pj in 1:p_num
-        F_tp = CFIM_TimeIndepend(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, populations[pj].psi, DE.tspan)
+        F_tp = CFIM_TimeIndepend(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, populations[pj].psi, DE.tspan, DE.accuracy)
         p_fit[pj] = 1.0/real(tr(DE.W*pinv(F_tp)))
     end
 
-    F = CFIM_TimeIndepend(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.psi, DE.tspan)
+    F = CFIM_TimeIndepend(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.psi, DE.tspan, DE.accuracy)
     f_ini= real(tr(DE.W*pinv(F)))
 
     if length(DE.Hamiltonian_derivative) == 1
@@ -240,7 +240,8 @@ function train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
         psi_cross = ctrl_cross/norm(ctrl_cross)
 
         #selection
-        F_tp = QFIM_TimeIndepend(populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, psi_cross, populations[pj].tspan)
+        F_tp = QFIM_TimeIndepend(populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, psi_cross, 
+                                 populations[pj].tspan, populations[pj].accuracy)
         f_cross = 1.0/real(tr(populations[pj].W*pinv(F_tp)))
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
@@ -281,7 +282,8 @@ function train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
         psi_cross = ctrl_cross/norm(ctrl_cross)
 
         #selection
-        F_tp = CFIM_TimeIndepend(M, populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, psi_cross, populations[pj].tspan)
+        F_tp = CFIM_TimeIndepend(M, populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, psi_cross, 
+                                 populations[pj].tspan, populations[pj].accuracy)
         f_cross = 1.0/real(tr(populations[pj].W*pinv(F_tp)))
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
@@ -309,7 +311,7 @@ function DE_QFIM(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed
     for pj in 1:length(ini_population)
         populations[pj].psi = [ini_population[pj][i] for i in 1:dim]
     end
-    for pj in (length(ini_population)+1):(p_num-1)
+    for pj in (length(ini_population)+1):p_num
         r_ini = 2*rand(dim)-ones(dim)
         r = r_ini/norm(r_ini)
         phi = 2*pi*rand(dim)
@@ -319,11 +321,11 @@ function DE_QFIM(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed
     p_fit = [0.0 for i in 1:p_num] 
     for pj in 1:p_num
         rho = populations[pj].psi*(populations[pj].psi)'
-        F_tp = QFIM_TimeIndepend(DE.freeHamiltonian, DE.Hamiltonian_derivative, rho, DE.Decay_opt, DE.γ, DE.tspan)
+        F_tp = QFIM_TimeIndepend(DE.freeHamiltonian, DE.Hamiltonian_derivative, rho, DE.decay_opt, DE.γ, DE.tspan, DE.accuracy)
         p_fit[pj] = 1.0/real(tr(DE.W*pinv(F_tp)))
     end
 
-    F = QFIM_TimeIndepend(DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.psi*(DE.psi)', DE.Decay_opt, DE.γ, DE.tspan)
+    F = QFIM_TimeIndepend(DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.psi*(DE.psi)', DE.decay_opt, DE.γ, DE.tspan, DE.accuracy)
     f_ini= real(tr(DE.W*pinv(F)))
     f_list = [f_ini]
 
@@ -416,7 +418,7 @@ function DE_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, s
     for pj in 1:length(ini_population)
         populations[pj].psi = [ini_population[pj][i] for i in 1:dim]
     end
-    for pj in (length(ini_population)+1):(p_num-1)
+    for pj in (length(ini_population)+1):p_num
         r_ini = 2*rand(dim)-ones(dim)
         r = r_ini/norm(r_ini)
         phi = 2*pi*rand(dim)
@@ -426,11 +428,11 @@ function DE_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, s
     p_fit = [0.0 for i in 1:p_num] 
     for pj in 1:p_num
         rho = populations[pj].psi*(populations[pj].psi)'
-        F_tp = CFIM_TimeIndepend(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, rho, DE.Decay_opt, DE.γ, DE.tspan)
+        F_tp = CFIM_TimeIndepend(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, rho, DE.decay_opt, DE.γ, DE.tspan, DE.accuracy)
         p_fit[pj] = 1.0/real(tr(DE.W*pinv(F_tp)))
     end
 
-    F = CFIM_TimeIndepend(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.psi*(DE.psi)', DE.Decay_opt, DE.γ, DE.tspan)
+    F = CFIM_TimeIndepend(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.psi*(DE.psi)', DE.decay_opt, DE.γ, DE.tspan, DE.accuracy)
     f_ini= real(tr(DE.W*pinv(F)))
     f_list = [f_ini]
 
@@ -538,7 +540,8 @@ function train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
         psi_cross = ctrl_cross/norm(ctrl_cross)
 
         #selection
-        F_tp = QFIM_TimeIndepend(populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, psi_cross*psi_cross', populations[pj].Decay_opt, populations[pj].γ, populations[pj].tspan)
+        F_tp = QFIM_TimeIndepend(populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, psi_cross*psi_cross', 
+                                 populations[pj].decay_opt, populations[pj].γ, populations[pj].tspan, populations[pj].accuracy)
         f_cross = 1.0/real(tr(populations[pj].W*pinv(F_tp)))
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
@@ -579,7 +582,8 @@ function train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
         psi_cross = ctrl_cross/norm(ctrl_cross)
 
         #selection
-        F_tp = CFIM_TimeIndepend(M, populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, psi_cross*psi_cross', populations[pj].Decay_opt, populations[pj].γ, populations[pj].tspan)
+        F_tp = CFIM_TimeIndepend(M, populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, psi_cross*psi_cross', 
+                                 populations[pj].decay_opt, populations[pj].γ, populations[pj].tspan, populations[pj].accuracy)
         f_cross = 1.0/real(tr(populations[pj].W*pinv(F_tp)))
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross

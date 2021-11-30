@@ -3,19 +3,20 @@ mutable struct DiffEvo{T <: Complex,M <: Real} <: ControlSystem
     Hamiltonian_derivative::Vector{Matrix{T}}
     ρ0::Matrix{T}
     tspan::Vector{M}
-    Decay_opt::Vector{Matrix{T}}
+    decay_opt::Vector{Matrix{T}}
     γ::Vector{M}
     control_Hamiltonian::Vector{Matrix{T}}
     control_coefficients::Vector{Vector{M}}
     ctrl_bound::Vector{M}
     W::Matrix{M}
+    accuracy::M
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
     DiffEvo(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, ρ0::Matrix{T},
-             tspan::Vector{M}, Decay_opt::Vector{Matrix{T}},γ::Vector{M}, control_Hamiltonian::Vector{Matrix{T}},
-             control_coefficients::Vector{Vector{M}}, ctrl_bound::Vector{M}, W::Matrix{M}, ρ=Vector{Matrix{T}}(undef, 1), 
+             tspan::Vector{M}, decay_opt::Vector{Matrix{T}},γ::Vector{M}, control_Hamiltonian::Vector{Matrix{T}},
+             control_coefficients::Vector{Vector{M}}, ctrl_bound::Vector{M}, W::Matrix{M}, accuracy::M, ρ=Vector{Matrix{T}}(undef, 1), 
              ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 
-                Hamiltonian_derivative, ρ0, tspan, Decay_opt, γ, control_Hamiltonian, control_coefficients, ctrl_bound, W, ρ, ∂ρ_∂x) 
+                Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, control_Hamiltonian, control_coefficients, ctrl_bound, W, accuracy, ρ, ∂ρ_∂x) 
 end
 
 function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<: Complex}
@@ -46,11 +47,11 @@ function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episo
     end
 
     p_fit = [1.0/real(tr(DE.W*pinv(QFIM(populations[i])))) for i in 1:p_num]
-    F_noctrl = QFIM(DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ0, DE.Decay_opt, DE.γ, 
-                    DE.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], DE.tspan)
+    F_noctrl = QFIM(DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ0, DE.decay_opt, DE.γ, 
+                    DE.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], DE.tspan, DE.accuracy)
     f_noctrl = real(tr(DE.W*pinv(F_noctrl)))
-    F_ini = QFIM(DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ0, DE.Decay_opt, DE.γ, 
-                 DE.control_Hamiltonian, DE.control_coefficients, DE.tspan)
+    F_ini = QFIM(DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ0, DE.decay_opt, DE.γ, 
+                 DE.control_Hamiltonian, DE.control_coefficients, DE.tspan, DE.accuracy)
     f_ini = real(tr(DE.W*pinv(F_ini)))
     
     if length(DE.Hamiltonian_derivative) == 1 
@@ -157,11 +158,11 @@ function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_ep
 
     p_fit = [1.0/real(tr(DE.W*pinv(CFIM(M, populations[i])))) for i in 1:p_num]
 
-    F_noctrl = CFIM(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ0, DE.Decay_opt, DE.γ, 
-                    DE.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], DE.tspan)
+    F_noctrl = CFIM(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ0, DE.decay_opt, DE.γ, 
+                    DE.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], DE.tspan, DE.accuracy)
     f_noctrl = real(tr(DE.W*pinv(F_noctrl)))
-    F_ini = CFIM(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ0, DE.Decay_opt, DE.γ, 
-            DE.control_Hamiltonian, DE.control_coefficients, DE.tspan)
+    F_ini = CFIM(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ0, DE.decay_opt, DE.γ, 
+            DE.control_Hamiltonian, DE.control_coefficients, DE.tspan, DE.accuracy)
     f_ini = real(tr(DE.W*pinv(F_ini)))
 
     if length(DE.Hamiltonian_derivative) == 1
@@ -275,8 +276,8 @@ function DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
         bound!(ctrl_cross, populations[pj].ctrl_bound)
 
         F = QFIM(populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, populations[pj].ρ0, 
-                      populations[pj].Decay_opt, populations[pj].γ, populations[pj].control_Hamiltonian, 
-                      ctrl_cross, populations[pj].tspan)
+                      populations[pj].decay_opt, populations[pj].γ, populations[pj].control_Hamiltonian, 
+                      ctrl_cross, populations[pj].tspan, populations[pj].accuracy)
         f_cross = 1.0/real(tr(populations[pj].W*pinv(F)))
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
@@ -326,8 +327,8 @@ function DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fi
         bound!(ctrl_cross, populations[pj].ctrl_bound)
         
         F = CFIM(populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, populations[pj].ρ0, 
-                      populations[pj].Decay_opt, populations[pj].γ, populations[pj].control_Hamiltonian, 
-                      ctrl_cross, populations[pj].tspan)
+                      populations[pj].decay_opt, populations[pj].γ, populations[pj].control_Hamiltonian, 
+                      ctrl_cross, populations[pj].tspan, populations[pj].accuracy)
         f_cross = 1.0/real(tr(populations[pj].W*pinv(F)))
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
