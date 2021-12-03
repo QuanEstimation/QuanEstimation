@@ -1,5 +1,5 @@
 ############# time-independent Hamiltonian (noiseless) ################
-function NM_QFIM(NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_e, a_c, a_s, max_episode, seed, save_file) where {T<: Complex}
+function NM_QFIM(NM::TimeIndepend_noiseless{T}, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file) where {T<: Complex}
     println("state optimization")
     Random.seed!(seed)
     dim = length(NM.psi)
@@ -39,7 +39,7 @@ function NM_QFIM(NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_e, 
         if save_file == true
             SaveFile_state(f_list, NM.psi)
             while true
-                p_fit, sort_ind = train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+                p_fit, sort_ind = train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
                 if  episodes >= max_episode
                     append!(f_list, maximum(p_fit))
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
@@ -56,7 +56,7 @@ function NM_QFIM(NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_e, 
             end
         else
             while true
-                p_fit, sort_ind = train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+                p_fit, sort_ind = train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
                 if  episodes >= max_episode
                     append!(f_list, maximum(p_fit))
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
@@ -81,7 +81,7 @@ function NM_QFIM(NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_e, 
         if save_file == true
             SaveFile_state(f_list, NM.psi)
             while true
-                p_fit, sort_ind = train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+                p_fit, sort_ind = train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
                 if  episodes >= max_episode
                     append!(f_list, 1.0/maximum(p_fit))
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
@@ -98,7 +98,7 @@ function NM_QFIM(NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_e, 
             end
         else
             while true
-                p_fit, sort_ind = train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+                p_fit, sort_ind = train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
                 if  episodes >= max_episode
                     append!(f_list, 1.0/maximum(p_fit))
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
@@ -116,7 +116,7 @@ function NM_QFIM(NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_e, 
     end
 end
 
-function NM_CFIM(M, NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_e, a_c, a_s, max_episode, seed, save_file) where {T<: Complex}
+function NM_CFIM(M, NM::TimeIndepend_noiseless{T}, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file) where {T<: Complex}
     println("state optimization")
     Random.seed!(seed)
     dim = length(NM.psi)
@@ -156,7 +156,7 @@ function NM_CFIM(M, NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_
         if save_file == true
             SaveFile_state(f_list, NM.psi)
             while true
-                p_fit, sort_ind = train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+                p_fit, sort_ind = train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
                 if  episodes >= max_episode
                     append!(f_list, maximum(p_fit))    
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
@@ -173,7 +173,7 @@ function NM_CFIM(M, NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_
             end
         else
             while true
-                p_fit, sort_ind = train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+                p_fit, sort_ind = train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
                 if  episodes >= max_episode
                     append!(f_list, maximum(p_fit))
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
@@ -198,7 +198,7 @@ function NM_CFIM(M, NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_
         if save_file == true
             SaveFile_state(f_list, NM.psi)
             while true
-                p_fit, sort_ind = train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+                p_fit, sort_ind = train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
                 if  episodes >= max_episode
                     append!(f_list, 1.0/maximum(p_fit))
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
@@ -215,7 +215,7 @@ function NM_CFIM(M, NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_
             end
         else
             while true
-                p_fit, sort_ind = train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+                p_fit, sort_ind = train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
                 if  episodes >= max_episode
                     append!(f_list, 1.0/maximum(p_fit))
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
@@ -233,7 +233,7 @@ function NM_CFIM(M, NM::TimeIndepend_noiseless{T}, state_num, ini_state, a_r, a_
     end
 end
 
-function train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+function train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
     # calculate the average vector
     vec_ave = zeros(ComplexF64, dim)
     for ni in 1:dim
@@ -245,7 +245,7 @@ function train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, 
     # reflection
     vec_ref = zeros(ComplexF64, dim)
     for nj in 1:dim
-        vec_ref[nj] = vec_ave[nj] + a_r*(vec_ave[nj]-nelder_mead[sort_ind[end]].psi[nj])
+        vec_ref[nj] = vec_ave[nj] + ar*(vec_ave[nj]-nelder_mead[sort_ind[end]].psi[nj])
     end
     vec_ref = vec_ref/norm(vec_ref)
     F_r = QFIM_TimeIndepend(NM.freeHamiltonian, NM.Hamiltonian_derivative, vec_ref, NM.tspan, NM.accuracy)
@@ -255,7 +255,7 @@ function train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, 
         # expansion
         vec_exp = zeros(ComplexF64, dim)
         for nk in 1:dim
-            vec_exp[nk] = vec_ave[nk] + a_e*(vec_ref[nk]-vec_ave[nk])
+            vec_exp[nk] = vec_ave[nk] + ae*(vec_ref[nk]-vec_ave[nk])
         end
         vec_exp = vec_exp/norm(vec_exp)
         F_e = QFIM_TimeIndepend(NM.freeHamiltonian, NM.Hamiltonian_derivative, vec_exp, NM.tspan, NM.accuracy)
@@ -279,7 +279,7 @@ function train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, 
             # inside constraction
             vec_ic = zeros(ComplexF64, dim)
             for nl in 1:dim
-                vec_ic[nl] = vec_ave[nl] - a_c*(vec_ave[nl]-nelder_mead[sort_ind[end]].psi[nl])
+                vec_ic[nl] = vec_ave[nl] - ac*(vec_ave[nl]-nelder_mead[sort_ind[end]].psi[nl])
             end
             vec_ic = vec_ic/norm(vec_ic)
             F_ic = QFIM_TimeIndepend(NM.freeHamiltonian, NM.Hamiltonian_derivative, vec_ic, NM.tspan, NM.accuracy)
@@ -295,7 +295,7 @@ function train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, 
                 vec_first = [nelder_mead[sort_ind[1]].psi[i] for i in 1:dim]
                 for pk in 1:state_num
                     for nq in 1:dim
-                        nelder_mead[pk].psi[nq] = vec_first[nq] + a_s*(nelder_mead[pk].psi[nq]-vec_first[nq])
+                        nelder_mead[pk].psi[nq] = vec_first[nq] + as0*(nelder_mead[pk].psi[nq]-vec_first[nq])
                     end
                     nelder_mead[pk].psi = nelder_mead[pk].psi/norm(nelder_mead[pk].psi)
 
@@ -308,7 +308,7 @@ function train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, 
             # outside constraction
             vec_oc = zeros(ComplexF64, dim)
             for nn in 1:dim
-                vec_oc[nn] = vec_ave[nn] + a_c*(vec_ref[nn]-vec_ave[nn])
+                vec_oc[nn] = vec_ave[nn] + ac*(vec_ref[nn]-vec_ave[nn])
             end
             vec_oc = vec_oc/norm(vec_oc)
             F_oc = QFIM_TimeIndepend(NM.freeHamiltonian, NM.Hamiltonian_derivative, vec_oc, NM.tspan, NM.accuracy)
@@ -324,7 +324,7 @@ function train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, 
                 vec_first = [nelder_mead[sort_ind[1]].psi[i] for i in 1:dim]
                 for pk in 1:state_num
                     for nq in 1:dim
-                        nelder_mead[pk].psi[nq] = vec_first[nq] + a_s*(nelder_mead[pk].psi[nq]-vec_first[nq])
+                        nelder_mead[pk].psi[nq] = vec_first[nq] + as0*(nelder_mead[pk].psi[nq]-vec_first[nq])
                     end
                     nelder_mead[pk].psi = nelder_mead[pk].psi/norm(nelder_mead[pk].psi)
 
@@ -344,7 +344,7 @@ function train_QFIM_noiseless(nelder_mead, NM, p_fit, sort_ind, dim, state_num, 
     return p_fit, sort_ind
 end
 
-function train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+function train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
     # calculate the average vector
     vec_ave = zeros(ComplexF64, dim)
     for ni in 1:dim
@@ -356,7 +356,7 @@ function train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_nu
     # reflection
     vec_ref = zeros(ComplexF64, dim)
     for nj in 1:dim
-        vec_ref[nj] = vec_ave[nj] + a_r*(vec_ave[nj]-nelder_mead[sort_ind[end]].psi[nj])
+        vec_ref[nj] = vec_ave[nj] + ar*(vec_ave[nj]-nelder_mead[sort_ind[end]].psi[nj])
     end
     vec_ref = vec_ref/norm(vec_ref)
     F_r = CFIM_TimeIndepend(M, NM.freeHamiltonian, NM.Hamiltonian_derivative, vec_ref, NM.tspan, NM.accuracy)
@@ -366,7 +366,7 @@ function train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_nu
         # expansion
         vec_exp = zeros(ComplexF64, dim)
         for nk in 1:dim
-            vec_exp[nk] = vec_ave[nk] + a_e*(vec_ref[nk]-vec_ave[nk])
+            vec_exp[nk] = vec_ave[nk] + ae*(vec_ref[nk]-vec_ave[nk])
         end
         vec_exp = vec_exp/norm(vec_exp)
         F_e = CFIM_TimeIndepend(M, NM.freeHamiltonian, NM.Hamiltonian_derivative, vec_exp, NM.tspan, NM.accuracy)
@@ -390,7 +390,7 @@ function train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_nu
             # inside constraction
             vec_ic = zeros(ComplexF64, dim)
             for nl in 1:dim
-                vec_ic[nl] = vec_ave[nl] - a_c*(vec_ave[nl]-nelder_mead[sort_ind[end]].psi[nl])
+                vec_ic[nl] = vec_ave[nl] - ac*(vec_ave[nl]-nelder_mead[sort_ind[end]].psi[nl])
             end
             vec_ic = vec_ic/norm(vec_ic)
             F_ic = CFIM_TimeIndepend(M, NM.freeHamiltonian, NM.Hamiltonian_derivative, vec_ic, NM.tspan, NM.accuracy)
@@ -406,7 +406,7 @@ function train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_nu
                 vec_first = [nelder_mead[sort_ind[1]].psi[i] for i in 1:dim]
                 for pk in 1:state_num
                     for nq in 1:dim
-                        nelder_mead[pk].psi[nq] = vec_first[nq] + a_s*(nelder_mead[pk].psi[nq]-vec_first[nq])
+                        nelder_mead[pk].psi[nq] = vec_first[nq] + as0*(nelder_mead[pk].psi[nq]-vec_first[nq])
                     end
                     nelder_mead[pk].psi = nelder_mead[pk].psi/norm(nelder_mead[pk].psi)
 
@@ -419,7 +419,7 @@ function train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_nu
             # outside constraction
             vec_oc = zeros(ComplexF64, dim)
             for nn in 1:dim
-                vec_oc[nn] = vec_ave[nn] + a_c*(vec_ref[nn]-vec_ave[nn])
+                vec_oc[nn] = vec_ave[nn] + ac*(vec_ref[nn]-vec_ave[nn])
             end
             vec_oc = vec_oc/norm(vec_oc)
             F_oc = CFIM_TimeIndepend(M, NM.freeHamiltonian, NM.Hamiltonian_derivative, vec_oc, NM.tspan, NM.accuracy)
@@ -435,7 +435,7 @@ function train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_nu
                 vec_first = [nelder_mead[sort_ind[1]].psi[i] for i in 1:dim]
                 for pk in 1:state_num
                     for nq in 1:dim
-                        nelder_mead[pk].psi[nq] = vec_first[nq] + a_s*(nelder_mead[pk].psi[nq]-vec_first[nq])
+                        nelder_mead[pk].psi[nq] = vec_first[nq] + as0*(nelder_mead[pk].psi[nq]-vec_first[nq])
                     end
                     nelder_mead[pk].psi = nelder_mead[pk].psi/norm(nelder_mead[pk].psi)
                     F_tp = CFIM_TimeIndepend(M, NM.freeHamiltonian, NM.Hamiltonian_derivative, nelder_mead[pk].psi, NM.tspan, NM.accuracy)
@@ -455,7 +455,7 @@ function train_CFIM_noiseless(M, nelder_mead, NM, p_fit, sort_ind, dim, state_nu
 end
 
 ############# time-independent Hamiltonian (noise) ################
-function NM_QFIM(NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a_c, a_s, max_episode, seed, save_file) where {T<: Complex}
+function NM_QFIM(NM::TimeIndepend_noise{T}, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file) where {T<: Complex}
     println("state optimization")
     Random.seed!(seed)
     dim = length(NM.psi)
@@ -496,7 +496,7 @@ function NM_QFIM(NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a_c,
         if save_file == true
             SaveFile_state(f_list, NM.psi)
             while true
-                p_fit, sort_ind = train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+                p_fit, sort_ind = train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
                 if  episodes >= max_episode
                     append!(f_list, maximum(p_fit))
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
@@ -513,7 +513,7 @@ function NM_QFIM(NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a_c,
             end
         else
             while true
-                p_fit, sort_ind = train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+                p_fit, sort_ind = train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
                 if  episodes >= max_episode
                     append!(f_list, maximum(p_fit))
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)    
@@ -538,7 +538,7 @@ function NM_QFIM(NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a_c,
         if save_file == true
             SaveFile_state(f_list, NM.psi)
             while true
-                p_fit, sort_ind = train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+                p_fit, sort_ind = train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
                 if  episodes >= max_episode
                     append!(f_list, 1.0/maximum(p_fit))
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
@@ -555,7 +555,7 @@ function NM_QFIM(NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a_c,
             end
         else
             while true
-                p_fit, sort_ind = train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+                p_fit, sort_ind = train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
                 if  episodes >= max_episode
                     append!(f_list, 1.0/maximum(p_fit))
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
@@ -573,7 +573,7 @@ function NM_QFIM(NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a_c,
     end
 end
 
-function NM_CFIM(M, NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a_c, a_s, max_episode, seed, save_file) where {T<: Complex}
+function NM_CFIM(M, NM::TimeIndepend_noise{T}, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file) where {T<: Complex}
     println("state optimization")
     Random.seed!(seed)
     dim = length(NM.psi)
@@ -615,7 +615,7 @@ function NM_CFIM(M, NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a
         if save_file == true
             SaveFile_state(f_list, NM.psi)
             while true
-                p_fit, sort_ind = train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+                p_fit, sort_ind = train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
                 if  episodes >= max_episode
                     append!(f_list, maximum(p_fit))
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
@@ -632,7 +632,7 @@ function NM_CFIM(M, NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a
             end
         else
             while true
-                p_fit, sort_ind = train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+                p_fit, sort_ind = train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
                 if  episodes >= max_episode
                     append!(f_list, maximum(p_fit))
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
@@ -657,7 +657,7 @@ function NM_CFIM(M, NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a
         if save_file == true
             SaveFile_state(f_list, NM.psi)
             while true
-                p_fit, sort_ind = train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+                p_fit, sort_ind = train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
                 if  episodes >= max_episode
                     append!(f_list, 1.0/maximum(p_fit))
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
@@ -674,7 +674,7 @@ function NM_CFIM(M, NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a
             end
         else
             while true
-                p_fit, sort_ind = train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+                p_fit, sort_ind = train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
                 if  episodes >= max_episode
                     append!(f_list, 1.0/maximum(p_fit))
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
@@ -692,7 +692,7 @@ function NM_CFIM(M, NM::TimeIndepend_noise{T}, state_num, ini_state, a_r, a_e, a
     end
 end
 
-function train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+function train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
     # calculate the average vector
     ####test
     vec_ave = zeros(ComplexF64, dim)
@@ -705,7 +705,7 @@ function train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r,
     # reflection
     vec_ref = zeros(ComplexF64, dim)
     for nj in 1:dim
-        vec_ref[nj] = vec_ave[nj] + a_r*(vec_ave[nj]-nelder_mead[sort_ind[end]].psi[nj])
+        vec_ref[nj] = vec_ave[nj] + ar*(vec_ave[nj]-nelder_mead[sort_ind[end]].psi[nj])
     end
     vec_ref = vec_ref/norm(vec_ref)
     F_r = QFIM_TimeIndepend(NM.freeHamiltonian, NM.Hamiltonian_derivative, vec_ref*vec_ref', NM.decay_opt, NM.γ, NM.tspan, NM.accuracy)
@@ -714,7 +714,7 @@ function train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r,
         # expansion
         vec_exp = zeros(ComplexF64, dim)
         for nk in 1:dim
-            vec_exp[nk] = vec_ave[nk] + a_e*(vec_ref[nk]-vec_ave[nk])
+            vec_exp[nk] = vec_ave[nk] + ae*(vec_ref[nk]-vec_ave[nk])
         end
         vec_exp = vec_exp/norm(vec_exp)
         F_e = QFIM_TimeIndepend(NM.freeHamiltonian, NM.Hamiltonian_derivative, vec_exp*vec_exp', NM.decay_opt, NM.γ, NM.tspan, NM.accuracy)
@@ -738,7 +738,7 @@ function train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r,
             # inside constraction
             vec_ic = zeros(ComplexF64, dim)
             for nl in 1:dim
-                vec_ic[nl] = vec_ave[nl] - a_c*(vec_ave[nl]-nelder_mead[sort_ind[end]].psi[nl])
+                vec_ic[nl] = vec_ave[nl] - ac*(vec_ave[nl]-nelder_mead[sort_ind[end]].psi[nl])
             end
             vec_ic = vec_ic/norm(vec_ic)
             F_ic = QFIM_TimeIndepend(NM.freeHamiltonian, NM.Hamiltonian_derivative, vec_ic*vec_ic', NM.decay_opt, NM.γ, NM.tspan, NM.accuracy)
@@ -754,7 +754,7 @@ function train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r,
                 vec_first = [nelder_mead[sort_ind[1]].psi[i] for i in 1:dim]
                 for pk in 1:state_num
                     for nq in 1:dim
-                        nelder_mead[pk].psi[nq] = vec_first[nq] + a_s*(nelder_mead[pk].psi[nq]-vec_first[nq])
+                        nelder_mead[pk].psi[nq] = vec_first[nq] + as0*(nelder_mead[pk].psi[nq]-vec_first[nq])
                     end
                     nelder_mead[pk].psi = nelder_mead[pk].psi/norm(nelder_mead[pk].psi)
                     rho = nelder_mead[pk].psi*(nelder_mead[pk].psi)'
@@ -767,7 +767,7 @@ function train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r,
             # outside constraction
             vec_oc = zeros(ComplexF64, dim)
             for nn in 1:dim
-                vec_oc[nn] = vec_ave[nn] + a_c*(vec_ref[nn]-vec_ave[nn])
+                vec_oc[nn] = vec_ave[nn] + ac*(vec_ref[nn]-vec_ave[nn])
             end
             vec_oc = vec_oc/norm(vec_oc)
             F_oc = QFIM_TimeIndepend(NM.freeHamiltonian, NM.Hamiltonian_derivative, vec_oc*vec_oc', NM.decay_opt, NM.γ, NM.tspan, NM.accuracy)
@@ -783,7 +783,7 @@ function train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r,
                 vec_first = [nelder_mead[sort_ind[1]].psi[i] for i in 1:dim]
                 for pk in 1:state_num
                     for nq in 1:dim
-                        nelder_mead[pk].psi[nq] = vec_first[nq] + a_s*(nelder_mead[pk].psi[nq]-vec_first[nq])
+                        nelder_mead[pk].psi[nq] = vec_first[nq] + as0*(nelder_mead[pk].psi[nq]-vec_first[nq])
                     end
                     nelder_mead[pk].psi = nelder_mead[pk].psi/norm(nelder_mead[pk].psi)
 
@@ -804,7 +804,7 @@ function train_QFIM_noise(nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r,
     return p_fit, sort_ind
 end
 
-function train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a_r, a_e, a_c, a_s)
+function train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, ar, ae, ac, as0)
     # calculate the average vector
     vec_ave = zeros(ComplexF64, dim)
     for ni in 1:dim
@@ -816,7 +816,7 @@ function train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a
     # reflection
     vec_ref = zeros(ComplexF64, dim)
     for nj in 1:dim
-        vec_ref[nj] = vec_ave[nj] + a_r*(vec_ave[nj]-nelder_mead[sort_ind[end]].psi[nj])
+        vec_ref[nj] = vec_ave[nj] + ar*(vec_ave[nj]-nelder_mead[sort_ind[end]].psi[nj])
     end
     vec_ref = vec_ref/norm(vec_ref)
     F_r = CFIM_TimeIndepend(M, NM.freeHamiltonian, NM.Hamiltonian_derivative, vec_ref*vec_ref', NM.decay_opt, NM.γ, NM.tspan, NM.accuracy)
@@ -825,7 +825,7 @@ function train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a
         # expansion
         vec_exp = zeros(ComplexF64, dim)
         for nk in 1:dim
-            vec_exp[nk] = vec_ave[nk] + a_e*(vec_ref[nk]-vec_ave[nk])
+            vec_exp[nk] = vec_ave[nk] + ae*(vec_ref[nk]-vec_ave[nk])
         end
         vec_exp = vec_exp/norm(vec_exp)
         F_e = CFIM_TimeIndepend(M, NM.freeHamiltonian, NM.Hamiltonian_derivative, vec_exp*vec_exp', NM.decay_opt, NM.γ, NM.tspan, NM.accuracy)
@@ -849,7 +849,7 @@ function train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a
             # inside constraction
             vec_ic = zeros(ComplexF64, dim)
             for nl in 1:dim
-                vec_ic[nl] = vec_ave[nl] - a_c*(vec_ave[nl]-nelder_mead[sort_ind[end]].psi[nl])
+                vec_ic[nl] = vec_ave[nl] - ac*(vec_ave[nl]-nelder_mead[sort_ind[end]].psi[nl])
             end
             vec_ic = vec_ic/norm(vec_ic)
             F_ic = CFIM_TimeIndepend(M, NM.freeHamiltonian, NM.Hamiltonian_derivative, vec_ic*vec_ic', NM.decay_opt, NM.γ, NM.tspan, NM.accuracy)
@@ -865,7 +865,7 @@ function train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a
                 vec_first = [nelder_mead[sort_ind[1]].psi[i] for i in 1:dim]
                 for pk in 1:state_num
                     for nq in 1:dim
-                        nelder_mead[pk].psi[nq] = vec_first[nq] + a_s*(nelder_mead[pk].psi[nq]-vec_first[nq])
+                        nelder_mead[pk].psi[nq] = vec_first[nq] + as0*(nelder_mead[pk].psi[nq]-vec_first[nq])
                     end
                     nelder_mead[pk].psi = nelder_mead[pk].psi/norm(nelder_mead[pk].psi)
 
@@ -879,7 +879,7 @@ function train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a
             # outside constraction
             vec_oc = zeros(ComplexF64, dim)
             for nn in 1:dim
-                vec_oc[nn] = vec_ave[nn] + a_c*(vec_ref[nn]-vec_ave[nn])
+                vec_oc[nn] = vec_ave[nn] + ac*(vec_ref[nn]-vec_ave[nn])
             end
             vec_oc = vec_oc/norm(vec_oc)
             F_oc = CFIM_TimeIndepend(M, NM.freeHamiltonian, NM.Hamiltonian_derivative, vec_oc*vec_oc', NM.decay_opt, NM.γ, NM.tspan, NM.accuracy)
@@ -895,7 +895,7 @@ function train_CFIM_noise(M, nelder_mead, NM, p_fit, sort_ind, dim, state_num, a
                 vec_first = [nelder_mead[sort_ind[1]].psi[i] for i in 1:dim]
                 for pk in 1:state_num
                     for nq in 1:dim
-                        nelder_mead[pk].psi[nq] = vec_first[nq] + a_s*(nelder_mead[pk].psi[nq]-vec_first[nq])
+                        nelder_mead[pk].psi[nq] = vec_first[nq] + as0*(nelder_mead[pk].psi[nq]-vec_first[nq])
                     end
                     nelder_mead[pk].psi = nelder_mead[pk].psi/norm(nelder_mead[pk].psi)
                     rho = nelder_mead[pk].psi*(nelder_mead[pk].psi)'

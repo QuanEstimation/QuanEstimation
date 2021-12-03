@@ -154,7 +154,7 @@ function gradient_QFIM_analy_Adam(grape::Gradient{T}) where {T <: Complex}
         for cm in 1:ctrl_num
             mt = grape.mt
             vt = grape.vt
-            for tm in 1:tnum
+            for tm in 1:(tnum-1)
                 ∂ρt_T_δV = δρt_δV[cm][tm] |> vec2mat
                 ∂xδρt_T_δV = ∂xδρt_δV[1][cm][tm] |> vec2mat
                 term1 = tr(∂xδρt_T_δV*Lx[1])
@@ -172,7 +172,7 @@ function gradient_QFIM_analy_Adam(grape::Gradient{T}) where {T <: Complex}
         for cm in 1:ctrl_num
             mt = grape.mt
             vt = grape.vt
-            for tm in 1:tnum
+            for tm in 1:(tnum-1)
                 δF_all = [[0.0 for i in 1:para_num] for j in 1:para_num]
                 ∂ρt_T_δV = δρt_δV[cm][tm] |> vec2mat
                 for pm in 1:para_num
@@ -201,7 +201,7 @@ function gradient_QFIM_analy_Adam(grape::Gradient{T}) where {T <: Complex}
         for cm in 1:ctrl_num
             mt = grape.mt
             vt = grape.vt
-            for tm in 1:tnum
+            for tm in 1:(tnum-1)
                 δF = 0.0
                 for pm in 1:para_num
                     ∂ρt_T_δV = δρt_δV[cm][tm] |> vec2mat
@@ -238,7 +238,7 @@ function gradient_QFIM_analy(grape::Gradient{T}) where {T <: Complex}
         for cm in 1:ctrl_num
             mt = grape.mt
             vt = grape.vt
-            for tm in 1:tnum
+            for tm in 1:(tnum-1)
                 ∂ρt_T_δV = δρt_δV[cm][tm] |> vec2mat
                 ∂xδρt_T_δV = ∂xδρt_δV[1][cm][tm] |> vec2mat
                 term1 = tr(∂xδρt_T_δV*Lx[1])
@@ -254,7 +254,7 @@ function gradient_QFIM_analy(grape::Gradient{T}) where {T <: Complex}
         coeff2 = grape.W[1,1]*F_T[2,2]+grape.W[2,2]*F_T[1,1]-grape.W[1,2]*F_T[2,1]-grape.W[2,1]*F_T[1,2]
         cost_function = real(tr(grape.W*pinv(F_T)))
         for cm in 1:ctrl_num
-            for tm in 1:tnum
+            for tm in 1:(tnum-1)
                 δF_all = [[0.0 for i in 1:para_num] for j in 1:para_num]
                 ∂ρt_T_δV = δρt_δV[cm][tm] |> vec2mat
                 for pm in 1:para_num
@@ -282,7 +282,7 @@ function gradient_QFIM_analy(grape::Gradient{T}) where {T <: Complex}
         coeff = [grape.W[para,para]/F_T[para,para] for para in 1:para_num] |>sum
         coeff = coeff^(-2)
         for cm in 1:ctrl_num
-            for tm in 1:tnum
+            for tm in 1:(tnum-1)
                 δF = 0.0
                 for pm in 1:para_num
                     ∂ρt_T_δV = δρt_δV[cm][tm] |> vec2mat
@@ -327,7 +327,7 @@ function gradient_CFIM_analy_Adam(Measurement::Vector{Matrix{T}}, grape::Gradien
         for cm in 1:ctrl_num
             mt = grape.mt
             vt = grape.vt
-            for tm in 1:tnum
+            for tm in 1:(tnum-1)
                 ∂ρt_T_δV = δρt_δV[cm][tm] |> vec2mat
                 ∂xδρt_T_δV = ∂xδρt_δV[1][cm][tm] |> vec2mat
                 term1 = tr(∂xδρt_T_δV*L1_tidle)
@@ -371,7 +371,7 @@ function gradient_CFIM_analy_Adam(Measurement::Vector{Matrix{T}}, grape::Gradien
         for cm in 1:ctrl_num
             mt = grape.mt
             vt = grape.vt
-            for tm in 1:tnum
+            for tm in 1:(tnum-1)
                 δF_all = [[0.0 for i in 1:para_num] for j in 1:para_num]
                 ∂ρt_T_δV = δρt_δV[cm][tm] |> vec2mat
                 for pm in 1:para_num
@@ -414,7 +414,7 @@ function gradient_CFIM_analy_Adam(Measurement::Vector{Matrix{T}}, grape::Gradien
         for cm in 1:ctrl_num
             mt = grape.mt
             vt = grape.vt
-            for tm in 1:tnum
+            for tm in 1:(tnum-1)
                 δF = 0.0
                 for pm in 1:para_num
                     ∂ρt_T_δV = δρt_δV[cm][tm] |> vec2mat
@@ -456,7 +456,7 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, grape::Gradient{T})
         end
 
         for cm in 1:ctrl_num
-            for tm in 1:tnum
+            for tm in 1:(tnum-1)
                 ∂ρt_T_δV = δρt_δV[cm][tm] |> vec2mat
                 ∂xδρt_T_δV = ∂xδρt_δV[1][cm][tm] |> vec2mat
                 term1 = tr(∂xδρt_T_δV*L1_tidle)
@@ -498,7 +498,7 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, grape::Gradient{T})
         coeff2 = grape.W[1,1]*F_T[2,2]+grape.W[2,2]*F_T[1,1]-grape.W[1,2]*F_T[2,1]-grape.W[2,1]*F_T[1,2]
         cost_function = real(tr(grape.W*pinv(F_T)))
         for cm in 1:ctrl_num
-            for tm in 1:tnum
+            for tm in 1:(tnum-1)
                 δF_all = [[0.0 for i in 1:para_num] for j in 1:para_num]
                 ∂ρt_T_δV = δρt_δV[cm][tm] |> vec2mat
                 for pm in 1:para_num
@@ -539,7 +539,7 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, grape::Gradient{T})
         coeff = [grape.W[para,para]/F_T[para,para] for para in 1:para_num] |>sum
         coeff = coeff^(-2)
         for cm in 1:ctrl_num
-            for tm in 1:tnum
+            for tm in 1:(tnum-1)
                 δF = 0.0
                 for pm in 1:para_num
                     ∂ρt_T_δV = δρt_δV[cm][tm] |> vec2mat
