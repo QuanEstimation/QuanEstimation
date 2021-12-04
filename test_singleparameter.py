@@ -1,7 +1,5 @@
 import numpy as np
 from quanestimation import *
-from julia import Main
-from time import time
 
 #initial state
 rho0 = np.array([[1.+0.j,1.+0.j],[1.+0.j,1.+0.j]])/2.0
@@ -34,5 +32,5 @@ PSO_paras = {'particle_num':10, 'ini_particle':[], 'max_episode':[1000,100], 'c0
 DE_paras = {'popsize':10, 'ini_population':[], 'max_episode':1000, 'c':1.0, 'cr':0.5, 'seed':1234}
 DDPG_paras = {'layer_num':4, 'layer_dim':250, 'max_episode':500, 'seed':1234}
 
-ctrlopt = ControlOpt(tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, decay, ctrl_bound=[-10.0, 10.0], method='GRAPE', **GRAPE_paras)
+ctrlopt = ControlOpt(tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, decay, ctrl_bound=[-10.0, 10.0], method='auto-GRAPE', **GRAPE_paras)
 ctrlopt.QFIM(save_file=False)

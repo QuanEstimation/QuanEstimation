@@ -68,7 +68,7 @@ class Lindblad:
         self.Hamiltonian_derivative = [np.array(x, dtype=np.complex128) for x in dH]
         
         if ctrl_0 == []:
-            ctrl_0 = [np.zeros(len(self.tspan)) for i in range(len(self.control_Hamiltonian))]
+            ctrl_0 = [np.zeros(len(self.tspan)-1) for i in range(len(self.control_Hamiltonian))]
         self.control_coefficients = ctrl_0
         
         if decay == []:
@@ -95,10 +95,6 @@ class Lindblad:
             self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum+1)
 
     def expm(self):
-        if len(self.Hamiltonian_derivative) == 1:
-            rho, drho = Main.QuanEstimation.expm(self.freeHamiltonian, self.Hamiltonian_derivative[0], self.rho0, self.decay_opt, \
-                                 self.gamma, self.control_Hamiltonian, self.control_coefficients, self.tspan)
-        else:
-            rho, drho = Main.QuanEstimation.expm(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.decay_opt, \
+        rho, drho = Main.QuanEstimation.expm(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.decay_opt, \
                                  self.gamma, self.control_Hamiltonian, self.control_coefficients, self.tspan)
         return rho, drho

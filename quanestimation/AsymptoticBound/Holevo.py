@@ -1,13 +1,12 @@
 
 import numpy as np
-from quanestimation.AsymptoticBound.CramerRao import QFIM
-from scipy.linalg import sqrtm
-# import cvxpy as cp
+import scipy as sp
+import cvxpy as cp
 
-def Holevo_bound_trace(rho, drho, cost_function):
+def Holevo_bound(rho, drho, C):
     """
     Description: Calculation the trace of Holevo Cramer Rao bound
-                 for a density matrix.
+                 for a density matrix by semidefinite program (SDP).
 
     ---------
     Inputs
@@ -29,91 +28,69 @@ def Holevo_bound_trace(rho, drho, cost_function):
     ----------
     Returns
     ----------
-    Holevo trace:
-        --description: trace of Holevo Cramer Rao bound. 
-        --type: float number
+    Holevo bound:
+        --description: the Holevo bound solved by semidefined programming. 
+        --type: float
 
     """
 
     if type(drho) != list:
-        raise TypeError('Please make sure drho is list!')
-
-    dim = len(rho)
-    para_num = len(drho)
-    CostG = cost_function
-
-    QFIM_temp, SLD_temp = QFIM(rho, drho, rho_type='density_matrix', dtype='SLD', rep='original', exportLD=True)
-    QFIMinv = np.linalg.inv(QFIM_temp)
-
-    V = np.array([[0.+0.j for i in range(0,para_num)] for k in range(0,para_num)])
-    for para_i in range(0,para_num):
-        for para_j in range(0,para_num):
-            Vij_temp = 0.+0.j
-            for ki in range(0,para_num):
-                for mi in range(0,para_num):
-                    SLD_ki = SLD_temp[ki]
-                    SLD_mi = SLD_temp[mi]
-                    Vij_temp = Vij_temp+QFIMinv[para_i][ki]*QFIMinv[para_j][mi]\
-                             *np.trace(np.dot(np.dot(rho, SLD_ki), SLD_mi))
-            V[para_i][para_j] = Vij_temp
-
-    real_part = np.dot(CostG,np.real(V))
-    imag_part = np.dot(CostG,np.imag(V))
-    Holevo_trace = np.trace(real_part)+np.trace(sqrtm(np.dot(imag_part,np.conj(np.transpose(imag_part)))))
-
-    return Holevo_trace
-
-# to be discussed and tested
-# def Holevo_bound(rho, drho, C):
-#     """
-#     Description: Calculation the trace of Holevo Cramer Rao bound
-#                  for a density matrix by semidefinite program (SDP).
-
-#     ---------
-#     Inputs
-#     ---------
-#     rho:
-#        --description: parameterized density matrix.
-#        --type: matrix
-
-#     drho:
-#        --description: derivatives of density matrix on all parameters to
-#                           be estimated. For example, drho[0] is the derivative
-#                           vector on the first parameter.
-#        --type: list (of matrix)
-
-#     C:
-#        --description: cost matrix in the Holevo bound.
-#        --type: matrix
-
-#     ----------
-#     Returns
-#     ----------
-#     Holevo bound:
-#         --description: the Holevo bound solved by SDP. 
-#         --type: matrix
-
-#     """
-
-#     if type(drho) != list:
-#         raise TypeError('Please make sure drho is list!')
+        raise TypeError('Please make sure drho is a list!')
         
-#     dim = len(rho)
-#     para_num = len(drho)
+    dim, r = len(rho), np.linalg.matrix_rank(rho)
+    para_num = len(drho)
     
-#     #============optimization variables================
-#     V = cp.Variable((para_num, para_num), symmetric=True)
+    Lambda = basis_lambda(rho)
+    vec_drho = [[] for i in range(para_num)]
+    for pi in range(para_num):
+        vec_drho[pi] = np.array([np.real(np.trace(np.dot(drho[pi], Lambda[i]))) for i in range(len(Lambda))])
+
+    num = 2*dim*r-r*r
+    S = np.zeros((num,num),dtype=np.complex128)
+    for a in range(num):
+        for b in range(num):
+            S[a][b] = np.trace(np.dot(Lambda[a], np.dot(Lambda[b], rho)))
+
+    # how to decompose S when S is semidefinite matrix ???
+    # R = np.linalg.cholesky(S).conj().T
+    lu, d, perm = sp.linalg.ldl(S.round(8))
+    R = np.dot(lu, sp.linalg.sqrtm(d)).conj().T
+    #============optimization variables================
+    V = cp.Variable((para_num, para_num), symmetric=True)
+    X = cp.Variable((num, para_num))
+    #================add constrains=================== 
+    constraints = [cp.bmat([[V, X.T @ R.conj().T], [R @ X, np.identity(num)]]) >> 0]
+    for i in range(para_num):
+        for j in range(para_num):
+            if i==j:
+                constraints += [X[:,i].T @ vec_drho[j] == 1]
+            else:
+                constraints += [X[:,i].T @ vec_drho[j] == 0]
     
-#     X = []
-#     for i in range(para_num):
-#         X.append(cp.Variable((dim, dim), symmetric=True))
+    prob = cp.Problem(cp.Minimize(cp.trace(C @ V)),constraints)
+    prob.solve()
     
-#     #================add constrains=================== 
-#     constraints = [V[para_i][para_j] - cp.trace(rho@X[para_i]@X[para_j]) >= 0 for para_i in range(para_num) for para_j in range(para_num)]
-#     constraints += [X[para_i]@drho[para_i]-np.eye(dim) == 0 for para_i in range(para_num) for para_i in range(para_num)]
-#     constraints += [X[para_i]@drho[para_j] == 0 for para_i in range(para_num) for para_j in range(para_num) if para_i!=para_j]
+    return prob.value, X.value
+
+def basis_lambda(rho):
+    val, vec = np.linalg.eig(rho)
+    dim, r = len(rho), np.linalg.matrix_rank(rho)
+    basis = [vec[:,i].reshape(dim,1) for i in range(len(vec))]
+    Lambda = [[] for i in range(2*dim*r-r*r)]
+    for i in range(r):
+        Lambda[i] = np.dot(basis[i],basis[i].conj().T)
+    for j in range(1,r):
+        for i in range(j):
+            ind1 = int(r+0.5*(j*j-j)+i)
+            ind2 = int(0.5*(r*r+r)+0.5*(j*j-j)+i)
+            Lambda[ind1] = (np.dot(basis[i],basis[j].conj().T)+np.dot(basis[j],basis[i].conj().T))/np.sqrt(2.0)
+            Lambda[ind2] = 1.0j*(np.dot(basis[i],basis[j].conj().T)-np.dot(basis[j],basis[i].conj().T))/np.sqrt(2.0)    
     
-#     prob = cp.Problem(cp.Minimize(cp.trace(C @ V)),constraints)
-#     prob.solve()
+    for i in range(r):
+        for k in range(r,dim):
+            ind3 = int(r*k+i)
+            ind4 = int(r*dim-r*r+r*k+i)
+            Lambda[ind3] = (np.dot(basis[i],basis[k].conj().T)+np.dot(basis[k],basis[i].conj().T))/np.sqrt(2.0)
+            Lambda[ind4] = 1.0j*(np.dot(basis[i],basis[k].conj().T)-np.dot(basis[k],basis[i].conj().T))/np.sqrt(2.0)    
     
-#     return prob.value, X.value
+    return Lambda
