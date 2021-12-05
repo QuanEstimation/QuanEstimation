@@ -1,5 +1,4 @@
 import numpy as np
-from time import time
 from quanestimation import *
 from qutip import *
 

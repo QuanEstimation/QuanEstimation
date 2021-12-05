@@ -78,11 +78,11 @@ class ControlSystem:
         
         if ctrl_0 == []:
             if ctrl_bound == []:
-                ctrl_0 = [2*np.random.random(len(self.tspan))-np.ones(len(self.tspan)) for i in range(len(self.control_Hamiltonian))]
+                ctrl_0 = [2*np.random.random(len(self.tspan)-1)-np.ones(len(self.tspan)-1) for i in range(len(self.control_Hamiltonian))]
             else:
                 a = ctrl_bound[0]
                 b = ctrl_bound[1]
-                ctrl_0 = [(b-a)*np.random.random(len(self.tspan))+a*np.ones(len(self.tspan)) for i in range(len(self.control_Hamiltonian))]
+                ctrl_0 = [(b-a)*np.random.random(len(self.tspan)-1)+a*np.ones(len(self.tspan)-1) for i in range(len(self.control_Hamiltonian))]
         self.control_coefficients = ctrl_0
         
         if decay == []:
