@@ -197,10 +197,6 @@ function QFI_auto(system)
     QFI_auto(system.freeHamiltonian, system.Hamiltonian_derivative[1], system.ρ0, system.decay_opt, system.γ, system.control_Hamiltonian, system.control_coefficients, system.tspan)
 end
 
-function QFI_bfgs(system, control_coefficients)
-    QFI(system.freeHamiltonian, system.Hamiltonian_derivative[1], system.ρ0, system.decay_opt, system.γ, system.control_Hamiltonian, control_coefficients, system.tspan, system.accuracy)
-end
-
 
 #==========================================================#
 ####################### calculate QFIM #####################
@@ -415,8 +411,9 @@ function CFIM_TimeIndepend(M, H0, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_op
 end
 
 function CFI(M, system)
-    CFI(M,system.freeHamiltonian, system.Hamiltonian_derivative[1], system.ρ0, system.decay_opt, system.γ, system.control_Hamiltonian, system.control_coefficients, system.tspan, system.accuracy)
+    CFI(M, system.freeHamiltonian, system.Hamiltonian_derivative[1], system.ρ0, system.decay_opt, system.γ, system.control_Hamiltonian, system.control_coefficients, system.tspan, system.accuracy)
 end
+
 
 #======================================================#
 #################### calculate CFIM ####################
