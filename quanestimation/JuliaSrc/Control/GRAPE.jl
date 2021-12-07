@@ -30,53 +30,78 @@ function gradient_CFI!(grape::Gradient{T}, Measurement) where {T <: Complex}
     δI = gradient(x->CFI(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), grape.control_coefficients)[1].|>real
     grape.control_coefficients += grape.ϵ*δI
     bound!(grape.control_coefficients, grape.ctrl_bound)
+    return δI
 end
 
 function gradient_CFI_Adam!(grape::Gradient{T}, Measurement) where {T <: Complex}
     δI = gradient(x->CFI(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), grape.control_coefficients)[1].|>real
     Adam!(grape, δI)
     bound!(grape.control_coefficients, grape.ctrl_bound)
+    return δI
 end
 
 function gradient_CFIM!(grape::Gradient{T}, Measurement) where {T <: Complex}
     δI = gradient(x->1/(grape.W*(CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy) |> pinv) |> tr |>real), grape.control_coefficients).|>real |>sum
     grape.control_coefficients += grape.ϵ*δI
     bound!(grape.control_coefficients, grape.ctrl_bound)
+    return δI
 end
 
 function gradient_CFIM_Adam!(grape::Gradient{T}, Measurement) where {T <: Complex}
     δI = gradient(x->1/(grape.W*(CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy) |> pinv) |> tr |>real), grape.control_coefficients).|>real |>sum
     Adam!(grape, δI)
     bound!(grape.control_coefficients, grape.ctrl_bound)
+    return δI
 end
 
 function gradient_QFI!(grape::Gradient{T}) where {T <: Complex}
     δF = gradient(x->QFI_auto(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan), grape.control_coefficients)[1].|>real
     grape.control_coefficients += grape.ϵ*δF
     bound!(grape.control_coefficients, grape.ctrl_bound)
+    return δF
 end
 
 function gradient_QFI_Adam!(grape::Gradient{T}) where {T <: Complex}
     δF = gradient(x->QFI_auto(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan), grape.control_coefficients)[1].|>real
     Adam!(grape, δF)
     bound!(grape.control_coefficients, grape.ctrl_bound)
+    return δF
 end
 
 function gradient_QFIM!(grape::Gradient{T}) where {T <: Complex}
     δF = gradient(x->1/(grape.W*(QFIM_auto(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan) |> pinv) |> tr |>real), grape.control_coefficients).|>real |>sum
     grape.control_coefficients += grape.ϵ*δF
     bound!(grape.control_coefficients, grape.ctrl_bound)
+    return δF
 end
 
 function gradient_QFIM_Adam!(grape::Gradient{T}) where {T <: Complex}
     δF = gradient(x->1/(grape.W*(QFIM_auto(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan) |> pinv) |> tr |>real), grape.control_coefficients).|>real |>sum
     Adam!(grape, δF)
     bound!(grape.control_coefficients, grape.ctrl_bound)
+    return δF
 end
 
-function gradient_QFI_bfgs(grape::Gradient{T}, control_coefficients) where {T <: Complex}
-    δF = gradient(x->QFI_auto(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan), control_coefficients)[1].|>real
+function gradient_QFI_bfgs(grape::Gradient{T}) where {T <: Complex}
+    δF = gradient(x->QFI_auto(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan), grape.control_coefficients)[1].|>real
+    return δF
 end
+
+function gradient_QFIM_bfgs(grape::Gradient{T}) where {T <: Complex}
+    δF = gradient(x->1/(grape.W*(QFIM_auto(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan) |> pinv) |> tr |>real), grape.control_coefficients).|>real |>sum
+    return δF
+end
+
+function gradient_CFI_bfgs(grape::Gradient{T}, Measurement) where {T <: Complex}
+    δF = gradient(x->CFI(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan), grape.control_coefficients)[1].|>real
+    return δF
+end
+
+function gradient_CFIM_bfgs(grape::Gradient{T}, Measurement) where {T <: Complex}
+    δF = gradient(x->1/(grape.W*(CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan) |> pinv) |> tr |>real), grape.control_coefficients).|>real |>sum
+    return δF
+end
+
 
 function dynamics_analy(grape::Gradient{T}, dim, tnum, para_num, ctrl_num) where {T <: Complex}
     Δt = grape.tspan[2] - grape.tspan[1]
@@ -567,8 +592,7 @@ function auto_GRAPE_QFIM(grape, max_episode, Adam, save_file)
         println("control algorithm: auto-GRAPE")
         f_noctrl = QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, 
                         grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
-        f_ini = QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, 
-                        grape.control_Hamiltonian, grape.control_coefficients, grape.tspan, grape.accuracy)
+        f_ini = QFI(grape)
         f_list = [f_ini]
         println("non-controlled QFI is $(f_noctrl)")
         println("initial QFI is $(f_ini)")
@@ -659,8 +683,7 @@ function auto_GRAPE_QFIM(grape, max_episode, Adam, save_file)
         F_noctrl = QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, 
                         grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
         f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
-        F_ini = QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, 
-                        grape.control_Hamiltonian, grape.control_coefficients, grape.tspan, grape.accuracy)
+        F_ini = QFIM(grape)
         f_ini = real(tr(grape.W*pinv(F_ini)))
         f_list = [f_ini]
         println("non-controlled value of Tr(WF^{-1}) is $(f_noctrl)")
@@ -953,8 +976,7 @@ function auto_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file)
         println("control algorithm: auto_GRAPE")
         f_noctrl = CFI(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, 
                         grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
-        f_ini = CFI(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, 
-                        grape.control_Hamiltonian, grape.control_coefficients, grape.tspan, grape.accuracy)
+        f_ini = CFI(Measurement, grape)
         f_list = [f_ini]
         println("non-controlled CFI is $(f_noctrl)")
         println("initial CFI is $(f_ini)")
@@ -1046,8 +1068,7 @@ function auto_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file)
         F_noctrl = CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, 
                         grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
         f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
-        F_ini = CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, 
-                        grape.control_Hamiltonian, grape.control_coefficients, grape.tspan, grape.accuracy)
+        F_ini = CFIM(Measurement, grape)
         f_ini = real(tr(grape.W*pinv(F_ini)))
         f_list = [f_ini]
         println("non-controlled value of Tr(WF^{-1}) is $(f_noctrl)")
@@ -1330,101 +1351,318 @@ function GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file)
     end
 end
 
-function line_search(grape, f_pre, uk, p, δF, c1, c2, ctrl_total)
-    #backtrack line search with wolfe conditions
-    ϵ = 1.0
-    uk_new = uk + ϵ*p
-    δF_new = gradient_QFI_bfgs(grape, uk_new)
-    δF = reshape(reduce(vcat,δF), 1, ctrl_total)
-    p1 = reshape(reduce(vcat,p), ctrl_total, 1)
-    while -QFI_bfgs(grape, uk_new) >= f_pre+(c1*ϵ*(δF*p1)[1]) || (reshape(reduce(vcat,δF_new), 1, ctrl_total)*p1)[1] <= (δF*p1)[1]
-        ϵ = 0.5*ϵ
-        uk_new = uk + ϵ*p
-        δF_new = gradient_QFI_bfgs(grape, uk_new)
+function update_B(B, x, y, ctrl_num, ctrl_length)
+    for i in 1:ctrl_num
+        sk = reshape(x[i], ctrl_length, 1)
+        sk_T = reshape(x[i], 1, ctrl_length)
+        yk = reshape(y[i], ctrl_length, 1)
+        yk_T = reshape(y[i], 1, ctrl_length)
+        term1 = (1/(sk_T*yk)[1] + (yk_T*B[i]*yk)[1]/(sk_T*yk)[1]^2)*sk*sk_T
+        term2 = (B[i]*yk*sk_T + sk*yk_T*B[i])/(sk_T*yk)[1]
+        B[i] = B[i] + term1 - term2
     end
-    return uk_new, δF_new, ϵ
+    B
 end
 
-function BFGS(grape, B, c1, c2, max_episode)
-    ctrl_length = length(grape.control_coefficients)
-    cnum = length(grape.control_coefficients[1])
-    ctrl_total = ctrl_length*cnum
-    f_ini = QFI_bfgs(grape, grape.control_coefficients)
-    f_list = [f_ini]
-    println("initial QFI is $(f_ini)")
-    δF = gradient_QFI_bfgs(grape, grape.control_coefficients)
-    episodes = 1
-    while true
-        p = -B.*δF
-        #line_search
-        # grape.control_coefficients, δF_new, ϵ = line_search(grape, -f_ini, grape.control_coefficients, p, δF, c1, c2, ctrl_total)
-        # y = δF_new - δF
-        # x = ϵ*p
-        #bfgs algorithm
-        grape.control_coefficients = uk + p
-        δF_new = gradient_QFI_bfgs(grape, grape.control_coefficients)
-        y = δF_new - δF
-        x = ϵ*p
-        #update B
-        if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
-            for i in 1:ctrl_length
-                sk = reshape(x[i],cnum, 1)
-                sk_T = reshape(x[i],1, cnum)
-                yk = reshape(y[i],cnum, 1)
-                yk_T = reshape(y[i],1, cnum)
-                B[i] = B[i] - B[i]*sk*sk_T*B[i]/(sk_T*B[i]*sk)[1]+yk*yk_T/(yk_T*sk)[1]
-            end
-        end
-        f_now = QFI_bfgs(grape, grape.control_coefficients)
-        if episodes >= max_episode
-            print("\e[2K")
-            println("Iteration over, data saved.")
-            println("Final QFI is ", f_now)
-            SaveFile_ctrl(f_list, grape.control_coefficients)
-            break
-        end
-        f_ini = f_now
-        δF = δF_new 
-        episodes += 1
-        append!(f_list, f_now)
-        println("current QFI is $(f_ini)")
-    end
-end
-
-function autoGRAPE_BFGS(grape, save_file, max_episode, B, c1, c2, e)
-    println("auto-GRAPE with BFGS:")
+function BFGS_QFIM(grape, save_file, max_episode, B)
     println("quantum parameter estimation")
+    ctrl_num = length(grape.control_coefficients)
+    ctrl_length = length(grape.control_coefficients[1])
+    ctrl_total = ctrl_num*ctrl_length
     episodes = 1
-    ctrl_length = length(grape.control_coefficients)
-    cnum = length(grape.control_coefficients[1])
-    ctrl_total = ctrl_length*cnum
     if length(grape.Hamiltonian_derivative) == 1
-        println("single parameter scenario")
+        println("singleparameter scenario")
+        println("control algorithm: BFGS")
+        δF = gradient_QFI_bfgs(grape)
+        f_noctrl = QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, 
+                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
         f_ini = QFI(grape)
         f_list = [f_ini]
+        println("non-controlled QFI is $(f_noctrl)")
         println("initial QFI is $(f_ini)")
         if save_file == true
+            SaveFile_ctrl(f_ini, grape.control_coefficients)
             while true
-                gradient_QFI!(grape)
+                p = B.*δF
+                grape.control_coefficients = grape.control_coefficients + grape.ϵ*p
+                δF_new = gradient_QFI_bfgs(grape)
+                y = -δF_new + δF
+                x = grape.ϵ*p
+                # update B
+                if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
+                    B = update_B(B, x, y, ctrl_num, ctrl_length)
+                end
                 f_now = QFI(grape)
-                if abs(f_now - f_ini) < e
-                    δF = gradient_QFI_bfgs(grape, grape.control_coefficients)  #merge into gradient
-                    p = -B.*δF
-                    grape.control_coefficients, δF_new, ϵ = line_search(grape, -f_ini, grape.control_coefficients, p, δF, c1, c2, ctrl_total)
-                    y = δF_new - δF
-                    x = ϵ*p
-                    #update B
-                    if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
-                        for i in 1:ctrl_length
-                            sk = reshape(x[i],cnum, 1)
-                            sk_T = reshape(x[i],1, cnum)
-                            yk = reshape(y[i],cnum, 1)
-                            yk_T = reshape(y[i],1, cnum)
-                            B[i] = B[i] - B[i]*sk*sk_T*B[i]/(sk_T*B[i]*sk)[1]+yk*yk_T/(yk_T*sk)[1]
-                        end
-                    end
-                    f_now = QFI_bfgs(grape, grape.control_coefficients)
-                    if  episodes >= max_episode
+                if episodes >= max_episode
+                    print("\e[2K")
+                    println("Iteration over, data saved.")
+                    println("Final QFI is ", f_now)
+                    SaveFile_ctrl(f_now, grape.control_coefficients)
+                    break
+                end
+                δF = δF_new 
+                episodes += 1
+                append!(f_list, f_now)
+                SaveFile_ctrl(f_now, grape.control_coefficients)
+                print("current QFI is ", f_now, " ($(episodes-1) episodes)    \r")
+            end
+        else
+            while true
+                p = B.*δF
+                grape.control_coefficients = grape.control_coefficients + grape.ϵ*p
+                δF_new = gradient_QFI_bfgs(grape)
+                y = -δF_new + δF
+                x = grape.ϵ*p
+                # update B
+                if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
+                    B = update_B(B, x, y, ctrl_num, ctrl_length)
+                end
+                f_now = QFI(grape)
+                if episodes >= max_episode
+                    print("\e[2K")
+                    println("Iteration over, data saved.")
+                    println("Final QFI is ", f_now)
+                    append!(f_list, f_now)
+                    SaveFile_ctrl(f_list, grape.control_coefficients)
+                    break
+                end
+                f_ini = f_now
+                δF = δF_new 
+                episodes += 1
+                append!(f_list, f_now)
+                print("current QFI is ", f_now, " ($(episodes-1) episodes)    \r")
+            end
+        end
+    else
+        println("multiparameter scenario")
+        println("control algorithm: BFGS")
+        δF = gradient_QFIM_bfgs(grape)
+        F_noctrl = QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, 
+                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
+        f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
+        F_ini = QFIM(grape)
+        f_ini = real(tr(grape.W*pinv(F_ini)))
+        f_list = [f_ini]
+        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+        if save_file == true
+            SaveFile_ctrl(f_ini, grape.control_coefficients)
+            while true
+                p = B.*δF
+                grape.control_coefficients = grape.control_coefficients + grape.ϵ*p
+                δF_new = gradient_QFIM_bfgs(grape)
+                y = -δF_new + δF
+                x = grape.ϵ*p
+                # update B
+                if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
+                    B = update_B(B, x, y, ctrl_num, ctrl_length)
+                end
+                F_now = QFIM(grape)
+                f_now = real(tr(grape.W*pinv(F_now)))
+                if episodes >= max_episode
+                    print("\e[2K")
+                    println("Iteration over, data saved.")
+                    println("Final value of Tr(WF^{-1}) is ", f_now)
+                    SaveFile_ctrl(f_now, grape.control_coefficients)
+                    break
+                end
+                δF = δF_new 
+                episodes += 1
+                append!(f_list, f_now)
+                SaveFile_ctrl(f_now, grape.control_coefficients)
+                print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
+            end
+        else
+            while true
+                p = B.*δF
+                grape.control_coefficients = grape.control_coefficients + grape.ϵ*p
+                δF_new = gradient_QFIM_bfgs(grape)
+                y = -δF_new + δF
+                x = grape.ϵ*p
+                # update B
+                if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
+                    B = update_B(B, x, y, ctrl_num, ctrl_length)
+                end
+                F_now = QFIM(grape)
+                f_now = real(tr(grape.W*pinv(F_now)))
+                if episodes >= max_episode
+                    print("\e[2K")
+                    println("Iteration over, data saved.")
+                    println("Final value of Tr(WF^{-1}) is ", f_now)
+                    append!(f_list, f_now)
+                    SaveFile_ctrl(f_list, grape.control_coefficients)
+                    break
+                end
+                f_ini = f_now
+                δF = δF_new 
+                episodes += 1
+                append!(f_list, f_now)
+                print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
+            end
+        end
+    end
+end
+
+function BFGS_CFIM(Measurement, grape, save_file, max_episode, B)
+    println("classical parameter estimation")
+    ctrl_num = length(grape.control_coefficients)
+    ctrl_length = length(grape.control_coefficients[1])
+    ctrl_total = ctrl_num*ctrl_length
+    episodes = 1
+    if length(grape.Hamiltonian_derivative) == 1
+        println("singleparameter scenario")
+        println("control algorithm: BFGS")
+        δF = gradient_CFI_bfgs(grape, Measurement)
+        f_noctrl = CFI(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, 
+                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
+        f_ini = CFI(Measurement, grape)
+        f_list = [f_ini]
+        println("non-controlled CFI is $(f_noctrl)")
+        println("initial CFI is $(f_ini)")
+        if save_file == true
+            SaveFile_ctrl(f_ini, grape.control_coefficients)
+            while true
+                p = B.*δF
+                grape.control_coefficients = grape.control_coefficients + grape.ϵ*p
+                δF_new = gradient_CFI_bfgs(grape, Measurement)
+                y = -δF_new + δF
+                x = grape.ϵ*p
+                # update B
+                if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
+                    B = update_B(B, x, y, ctrl_num, ctrl_length)
+                end
+                f_now = CFI(Measurement, grape)
+                if episodes >= max_episode
+                    print("\e[2K")
+                    println("Iteration over, data saved.")
+                    println("Final CFI is ", f_now)
+                    SaveFile_ctrl(f_now, grape.control_coefficients)
+                    break
+                end
+                δF = δF_new 
+                episodes += 1
+                append!(f_list, f_now)
+                SaveFile_ctrl(f_now, grape.control_coefficients)
+                print("current CFI is ", f_now, " ($(episodes-1) episodes)    \r")
+            end
+        else
+            while true
+                p = B.*δF
+                grape.control_coefficients = grape.control_coefficients + grape.ϵ*p
+                δF_new = gradient_CFI_bfgs(grape, Measurement)
+                y = -δF_new + δF
+                x = grape.ϵ*p
+                # update B
+                if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
+                    B = update_B(B, x, y, ctrl_num, ctrl_length)
+                end
+                f_now = CFI(Measurement, grape)
+                if episodes >= max_episode
+                    print("\e[2K")
+                    println("Iteration over, data saved.")
+                    println("Final CFI is ", f_now)
+                    append!(f_list, f_now)
+                    SaveFile_ctrl(f_list, grape.control_coefficients)
+                    break
+                end
+                f_ini = f_now
+                δF = δF_new 
+                episodes += 1
+                append!(f_list, f_now)
+                print("current CFI is ", f_now, " ($(episodes-1) episodes)    \r")
+            end
+        end
+    else
+        println("multiparameter scenario")
+        println("control algorithm: BFGS")
+        δF = gradient_CFIM_bfgs(grape, Measurement)
+        F_noctrl = CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, 
+                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
+        f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
+        F_ini = CFIM(Measurement, grape)
+        f_ini = real(tr(grape.W*pinv(F_ini)))
+        f_list = [f_ini]
+        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+        if save_file == true
+            SaveFile_ctrl(f_ini, grape.control_coefficients)
+            while true
+                p = B.*δF
+                grape.control_coefficients = grape.control_coefficients + grape.ϵ*p
+                δF_new = gradient_CFIM_bfgs(grape, Measurement)
+                y = -δF_new + δF
+                x = grape.ϵ*p
+                # update B
+                if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
+                    B = update_B(B, x, y, ctrl_num, ctrl_length)
+                end
+                F_now = CFIM(Measurement, grape)
+                f_now = real(tr(grape.W*pinv(F_now)))
+                if episodes >= max_episode
+                    print("\e[2K")
+                    println("Iteration over, data saved.")
+                    println("Final value of Tr(WF^{-1}) is ", f_now)
+                    SaveFile_ctrl(f_now, grape.control_coefficients)
+                    break
+                end
+                δF = δF_new 
+                episodes += 1
+                append!(f_list, f_now)
+                SaveFile_ctrl(f_now, grape.control_coefficients)
+                print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
+            end
+        else
+            while true
+                p = B.*δF
+                grape.control_coefficients = grape.control_coefficients + grape.ϵ*p
+                δF_new = gradient_CFIM_bfgs(grape, Measurement)
+                y = -δF_new + δF
+                x = grape.ϵ*p
+                # update B
+                if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
+                    B = update_B(B, x, y, ctrl_num, ctrl_length)
+                end
+                F_now = CFIM(Measurement, grape)
+                f_now = real(tr(grape.W*pinv(F_now)))
+                if episodes >= max_episode
+                    print("\e[2K")
+                    println("Iteration over, data saved.")
+                    println("Final value of Tr(WF^{-1}) is ", f_now)
+                    append!(f_list, f_now)
+                    SaveFile_ctrl(f_list, grape.control_coefficients)
+                    break
+                end
+                f_ini = f_now
+                δF = δF_new 
+                episodes += 1
+                append!(f_list, f_now)
+                print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
+            end
+        end
+    end
+end
+
+function autoGRAPE_BFGS_QFIM(grape, save_file, max_episode, B, delta_f)
+    println("quantum parameter estimation")
+    ctrl_num = length(grape.control_coefficients)
+    ctrl_length = length(grape.control_coefficients[1])
+    ctrl_total = ctrl_num*ctrl_length
+    episodes = 1
+    if length(grape.Hamiltonian_derivative) == 1
+        println("single parameter scenario")
+        println("control algorithm: auto-GRAPE combined with BFGS")
+        f_noctrl = QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, 
+                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
+        f_ini = QFI(grape)
+        f_list = [f_ini]
+        println("non-controlled QFI is $(f_noctrl)")
+        println("initial QFI is $(f_ini)")
+        if save_file == true
+            SaveFile_ctrl(f_ini, grape.control_coefficients)
+            δF = gradient_QFI!(grape)
+            f_now = QFI(grape)
+            while true
+                if abs(f_now - f_ini) > delta_f
+                    # update control coefficients with constant learning rate
+                    if episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
@@ -1432,74 +1670,426 @@ function autoGRAPE_BFGS(grape, save_file, max_episode, B, c1, c2, e)
                         break
                     else
                         f_ini = f_now
-                        δF = δF_new 
                         episodes += 1
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_now, grape.control_coefficients)
-                        print("(BFGS) current QFI is ", f_now, " ($(episodes-1) episodes)    \r")
+                        print("current QFI is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
-                elseif episodes >= max_episode
-                    print("\e[2K")
-                    println("Iteration over, data saved.")
-                    println("Final QFI is ", f_now)
-                    SaveFile_ctrl(f_now, grape.control_coefficients)
-                    break
+                    δF = gradient_QFI!(grape)
+                    f_now = QFI(grape)
                 else
-                    f_ini = f_now
-                    episodes += 1
-                    append!(f_list, f_now)
-                    SaveFile_ctrl(f_now, grape.control_coefficients)
-                    print("(GRAPE) current QFI is ", f_now, " ($(episodes-1) episodes)    \r")
+                    # update control coefficients with bfgs algorithm
+                    p = B.*δF
+                    grape.control_coefficients = grape.control_coefficients + grape.ϵ*p
+                    δF_new = gradient_QFI_bfgs(grape)
+                    y = -δF_new + δF
+                    x = grape.ϵ*p
+                    if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
+                        B = update_B(B, x, y, ctrl_num, ctrl_length)
+                    end
+                    f_bfgs = QFI(grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final QFI is ", f_bfgs)
+                        SaveFile_ctrl(f_bfgs, grape.control_coefficients)
+                        break
+                    else
+                        δF = δF_new 
+                        episodes += 1
+                        append!(f_list, f_bfgs)
+                        SaveFile_ctrl(f_bfgs, grape.control_coefficients)
+                        print("current QFI is ", f_bfgs, " ($(episodes-1) episodes)    \r")
+                    end
                 end
             end      
         else
+            δF = gradient_QFI!(grape)
+            f_now = QFI(grape)
             while true
-                gradient_QFI!(grape)
-                f_now = QFI(grape)
-
-                if abs(f_now - f_ini) < e
-                    δF = gradient_QFI_bfgs(grape, grape.control_coefficients)  #merge into gradient
-                    p = -B.*δF
-                    grape.control_coefficients, δF_new, ϵ = line_search(grape, -f_ini, grape.control_coefficients, p, δF, c1, c2, ctrl_total)
-                    y = δF_new - δF
-                    x = ϵ*p
-                    #update B
-                    if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
-                        for i in 1:ctrl_length
-                            sk = reshape(x[i],cnum, 1)
-                            sk_T = reshape(x[i],1, cnum)
-                            yk = reshape(y[i],cnum, 1)
-                            yk_T = reshape(y[i],1, cnum)
-                            B[i] = B[i] - B[i]*sk*sk_T*B[i]/(sk_T*B[i]*sk)[1]+yk*yk_T/(yk_T*sk)[1]
-                        end
-                    end
-                    f_now = QFI_bfgs(grape, grape.control_coefficients)
-                    if  episodes >= max_episode
+                if abs(f_now - f_ini) > delta_f
+                    # update control coefficients with constant learning rate
+                    if episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final QFI is ", f_now)
+                        append!(f_list, f_now)
                         SaveFile_ctrl(f_now, grape.control_coefficients)
                         break
                     else
                         f_ini = f_now
-                        δF = δF_new 
                         episodes += 1
                         append!(f_list, f_now)
-                        print("current QFI is ", f_now, " ($(episodes-1) episodes2)    \r")
+                        print("current QFI is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
-                elseif episodes >= max_episode
-                    print("\e[2K")
-                    println("Iteration over, data saved.")
-                    println("Final QFI is ", f_now)
-                    SaveFile_ctrl(f_now, grape.control_coefficients)
-                    break
+                    δF = gradient_QFI!(grape)
+                    f_now = QFI(grape)
                 else
-                    f_ini = f_now
-                    episodes += 1
-                    append!(f_list, f_now)
-                    print("current QFI is ", f_now, " ($(episodes-1) episodes1)    \r")
+                    # update control coefficients with bfgs algorithm
+                    p = B.*δF
+                    grape.control_coefficients = grape.control_coefficients + grape.ϵ*p
+                    δF_new = gradient_QFI_bfgs(grape)
+                    y = -δF_new + δF
+                    x = grape.ϵ*p
+                    if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
+                        B = update_B(B, x, y, ctrl_num, ctrl_length)
+                    end
+                    f_bfgs = QFI(grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final QFI is ", f_bfgs)
+                        append!(f_list, f_bfgs)
+                        SaveFile_ctrl(f_list, grape.control_coefficients)
+                        break
+                    else
+                        δF = δF_new 
+                        episodes += 1
+                        append!(f_list, f_bfgs)
+                        print("current QFI is ", f_bfgs, " ($(episodes-1) episodes)    \r")
+                    end
                 end
-            end
+            end      
+        end
+    else
+        println("multiparameter scenario")
+        println("control algorithm: auto-GRAPE combined with BFGS")
+        F_noctrl = QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, 
+                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
+        f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
+        F_ini = QFIM(grape)
+        f_ini = real(tr(grape.W*pinv(F_ini)))
+        f_list = [f_ini]
+        println("non-controlled value of Tr(WF^{-1}) is $(f_noctrl)")
+        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+        if save_file == true
+            SaveFile_ctrl(f_ini, grape.control_coefficients)
+            δF = gradient_QFIM!(grape)
+            F_now = QFIM(grape)
+            f_now = real(tr(grape.W*pinv(F_now)))
+            while true
+                if abs(f_now - f_ini) > delta_f
+                    # update control coefficients with constant learning rate
+                    if episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        break
+                    else
+                        f_ini = f_now
+                        episodes += 1
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    δF = gradient_QFIM!(grape)
+                    F_now = QFIM(grape)
+                    f_now = real(tr(grape.W*pinv(F_now)))
+                else
+                    # update control coefficients with bfgs algorithm
+                    p = B.*δF
+                    grape.control_coefficients = grape.control_coefficients + grape.ϵ*p
+                    δF_new = gradient_QFIM_bfgs(grape)
+                    y = -δF_new + δF
+                    x = grape.ϵ*p
+                    if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
+                        B = update_B(B, x, y, ctrl_num, ctrl_length)
+                    end
+                    F_bfgs = QFIM(grape)
+                    f_bfgs = real(tr(grape.W*pinv(F_bfgs)))
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of Tr(WF^{-1}) is ", f_bfgs)
+                        SaveFile_ctrl(f_bfgs, grape.control_coefficients)
+                        break
+                    else
+                        δF = δF_new 
+                        episodes += 1
+                        append!(f_list, f_bfgs)
+                        SaveFile_ctrl(f_bfgs, grape.control_coefficients)
+                        print("current value of Tr(WF^{-1}) is ", f_bfgs, " ($(episodes-1) episodes)    \r")
+                    end
+                end
+            end      
+        else
+            δF = gradient_QFIM!(grape)
+            F_now = QFIM(grape)
+            f_now = real(tr(grape.W*pinv(F_now)))
+            while true
+                if abs(f_now - f_ini) > delta_f
+                    # update control coefficients with constant learning rate
+                    if episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        break
+                    else
+                        f_ini = f_now
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    δF = gradient_QFIM!(grape)
+                    F_now = QFIM(grape)
+                    f_now = real(tr(grape.W*pinv(F_now)))
+                else
+                    # update control coefficients with bfgs algorithm
+                    p = B.*δF
+                    grape.control_coefficients = grape.control_coefficients + grape.ϵ*p
+                    δF_new = gradient_QFIM_bfgs(grape)
+                    y = -δF_new + δF
+                    x = grape.ϵ*p
+                    if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
+                        B = update_B(B, x, y, ctrl_num, ctrl_length)
+                    end
+                    F_bfgs = QFIM(grape)
+                    f_bfgs = real(tr(grape.W*pinv(F_bfgs)))
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of Tr(WF^{-1}) is ", f_bfgs)
+                        append!(f_list, f_bfgs)
+                        SaveFile_ctrl(f_list, grape.control_coefficients)
+                        break
+                    else
+                        δF = δF_new 
+                        episodes += 1
+                        append!(f_list, f_bfgs)
+                        print("current value of Tr(WF^{-1}) is ", f_bfgs, " ($(episodes-1) episodes)    \r")
+                    end
+                end
+            end      
+        end
+    end
+end
+
+function autoGRAPE_BFGS_CFIM(Measurement, grape, save_file, max_episode, B, delta_f)
+    println("classical parameter estimation")
+    ctrl_num = length(grape.control_coefficients)
+    ctrl_length = length(grape.control_coefficients[1])
+    ctrl_total = ctrl_num*ctrl_length
+    episodes = 1
+    if length(grape.Hamiltonian_derivative) == 1
+        println("single parameter scenario")
+        println("control algorithm: auto-GRAPE combined with BFGS")
+        f_noctrl = CFI(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, 
+                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
+        f_ini = CFI(Measurement, grape)
+        f_list = [f_ini]
+        println("non-controlled CFI is $(f_noctrl)")
+        println("initial CFI is $(f_ini)")
+        if save_file == true
+            SaveFile_ctrl(f_ini, grape.control_coefficients)
+            δF = gradient_CFI!(grape, Measurement)
+            f_now = CFI(Measurement, grape)
+            while true
+                if abs(f_now - f_ini) > delta_f
+                    # update control coefficients with constant learning rate
+                    if episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final CFI is ", f_now)
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        break
+                    else
+                        f_ini = f_now
+                        episodes += 1
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        print("current CFI is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    δF = gradient_CFI!(grape, Measurement)
+                    f_now = CFI(Measurement, grape)
+                else
+                    # update control coefficients with bfgs algorithm
+                    p = B.*δF
+                    grape.control_coefficients = grape.control_coefficients + grape.ϵ*p
+                    δF_new = gradient_CFI_bfgs(grape, Measurement)
+                    y = -δF_new + δF
+                    x = grape.ϵ*p
+                    if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
+                        B = update_B(B, x, y, ctrl_num, ctrl_length)
+                    end
+                    f_bfgs = CFI(Measurement, grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final CFI is ", f_bfgs)
+                        SaveFile_ctrl(f_bfgs, grape.control_coefficients)
+                        break
+                    else
+                        δF = δF_new 
+                        episodes += 1
+                        append!(f_list, f_bfgs)
+                        SaveFile_ctrl(f_bfgs, grape.control_coefficients)
+                        print("(BFGS) current QFI is ", f_bfgs, " ($(episodes-1) episodes)    \r")
+                    end
+                end
+            end      
+        else
+            δF = gradient_CFI!(grape, Measurement)
+            f_now = CFI(Measurement, grape)
+            while true
+                if abs(f_now - f_ini) > delta_f
+                    # update control coefficients with constant learning rate
+                    if episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final CFI is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        break
+                    else
+                        f_ini = f_now
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current CFI is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    δF = gradient_CFI!(grape, Measurement)
+                    f_now = QFI(Measurement, grape)
+                else
+                    # update control coefficients with bfgs algorithm
+                    p = B.*δF
+                    grape.control_coefficients = grape.control_coefficients + grape.ϵ*p
+                    δF_new = gradient_CFI_bfgs(grape, Measurement)
+                    y = -δF_new + δF
+                    x = grape.ϵ*p
+                    if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
+                        B = update_B(B, x, y, ctrl_num, ctrl_length)
+                    end
+                    f_bfgs = CFI(Measurement, grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final CFI is ", f_bfgs)
+                        append!(f_list, f_bfgs)
+                        SaveFile_ctrl(f_list, grape.control_coefficients)
+                        break
+                    else
+                        δF = δF_new 
+                        episodes += 1
+                        append!(f_list, f_bfgs)
+                        print("current CFI is ", f_bfgs, " ($(episodes-1) episodes)    \r")
+                    end
+                end
+            end      
+        end
+    else
+        println("multiparameter scenario")
+        println("control algorithm: auto-GRAPE combined with BFGS")
+        F_noctrl = CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, 
+                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
+        f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
+        F_ini = CFIM(Measurement, grape)
+        f_ini = real(tr(grape.W*pinv(F_ini)))
+        f_list = [f_ini]
+        println("non-controlled value of Tr(WF^{-1}) is $(f_noctrl)")
+        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+        if save_file == true
+            SaveFile_ctrl(f_ini, grape.control_coefficients)
+            δF = gradient_CFIM!(grape, Measurement)
+            F_now = CFIM(Measurement, grape)
+            f_now = real(tr(grape.W*pinv(F_now)))
+            while true
+                if abs(f_now - f_ini) > delta_f
+                    # update control coefficients with constant learning rate
+                    if episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        break
+                    else
+                        f_ini = f_now
+                        episodes += 1
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    δF = gradient_CFIM!(grape, Measurement)
+                    F_now = CFIM(Measurement, grape)
+                    f_now = real(tr(grape.W*pinv(F_now)))
+                else
+                    # update control coefficients with bfgs algorithm
+                    p = B.*δF
+                    grape.control_coefficients = grape.control_coefficients + grape.ϵ*p
+                    δF_new = gradient_CFIM_bfgs(grape, Measurement)
+                    y = -δF_new + δF
+                    x = grape.ϵ*p
+                    if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
+                        B = update_B(B, x, y, ctrl_num, ctrl_length)
+                    end
+                    F_bfgs = CFIM(Measurement, grape)
+                    f_bfgs = real(tr(grape.W*pinv(F_bfgs)))
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of Tr(WF^{-1}) is ", f_bfgs)
+                        SaveFile_ctrl(f_bfgs, grape.control_coefficients)
+                        break
+                    else
+                        δF = δF_new 
+                        episodes += 1
+                        append!(f_list, f_bfgs)
+                        SaveFile_ctrl(f_bfgs, grape.control_coefficients)
+                        print("current value of Tr(WF^{-1}) is ", f_bfgs, " ($(episodes-1) episodes)    \r")
+                    end
+                end
+            end      
+        else
+            δF = gradient_CFIM!(grape, Measurement)
+            F_now = CFIM(Measurement, grape)
+            f_now = real(tr(grape.W*pinv(F_now)))
+            while true
+                if abs(f_now - f_ini) > delta_f
+                    # update control coefficients with constant learning rate
+                    if episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        break
+                    else
+                        f_ini = f_now
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    δF = gradient_CFIM!(grape, Measurement)
+                    F_now = CFIM(Measurement, grape)
+                    f_now = real(tr(grape.W*pinv(F_now)))
+                else
+                    # update control coefficients with bfgs algorithm
+                    p = B.*δF
+                    grape.control_coefficients = grape.control_coefficients + grape.ϵ*p
+                    δF_new = gradient_CFIM_bfgs(grape, Measurement)
+                    y = -δF_new + δF
+                    x = grape.ϵ*p
+                    if reshape(reduce(vcat,y), 1, ctrl_total)[1]*reshape(reduce(vcat,x), ctrl_total, 1)[1] > 0.0
+                        B = update_B(B, x, y, ctrl_num, ctrl_length)
+                    end
+                    F_bfgs = CFIM(Measurement, grape)
+                    f_bfgs = real(tr(grape.W*pinv(F_bfgs)))
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of Tr(WF^{-1}) is ", f_bfgs)
+                        append!(f_list, f_bfgs)
+                        SaveFile_ctrl(f_list, grape.control_coefficients)
+                        break
+                    else
+                        δF = δF_new 
+                        episodes += 1
+                        append!(f_list, f_bfgs)
+                        print("current value of Tr(WF^{-1}) is ", f_bfgs, " ($(episodes-1) episodes)    \r")
+                    end
+                end
+            end      
         end
     end
 end
