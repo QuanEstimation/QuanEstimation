@@ -12,6 +12,10 @@ class DDPG(Control.ControlSystem):
         ----------
         Inputs
         ----------
+        max_episode:
+            --description: max number of the training episodes.
+            --type: int
+
         layer_num:
             --description: the number of layers (including the input and output layer).
             --type: int
@@ -34,14 +38,14 @@ class DDPG(Control.ControlSystem):
     def QFIM(self, save_file=False):
         """
         Description: use DDPG algorithm to update the control coefficients that maximize the 
-                     QFI or 1/Tr(WF^{-1}).
+                     QFI (1/Tr(WF^{-1} with F the QFIM).
 
         ---------
         Inputs
         ---------
         save_file:
-            --description: True: save all the control coefficients and QFI or Tr(WF^{-1}).
-                           False: save the control coefficients for the last episode and all the QFI or Tr(WF^{-1}).
+            --description: True: save all the control coefficients and QFI (Tr(WF^{-1})).
+                           False: save the control coefficients for the last episode and all the QFI (Tr(WF^{-1})).
             --type: bool
         """
         params = Main.QuanEstimation.ControlEnvParams(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, \
@@ -52,14 +56,14 @@ class DDPG(Control.ControlSystem):
     def CFIM(self, Measurement, save_file=False):
         """
         Description: use DDPG algorithm to update the control coefficients that maximize the 
-                     CFI or 1/Tr(WF^{-1}).
+                     CFI (1/Tr(WF^{-1} with F the CFIM).
 
         ---------
         Inputs
         ---------
         save_file:
-            --description: True: save all the control coefficients and CFI or Tr(WF^{-1}).
-                           False: save the control coefficients for the last episode and all the CFI or Tr(WF^{-1}).
+            --description: True: save all the control coefficients and CFI (Tr(WF^{-1})).
+                           False: save the control coefficients for the last episode and all the CFI (Tr(WF^{-1})).
             --type: bool
         """
         params = Main.QuanEstimation.ControlEnvParams(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, \

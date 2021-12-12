@@ -104,7 +104,7 @@ function DE_QFIM(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, 
     end
 end
 
-function DE_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<: Complex}
+function DE_CFIM(Measurement, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<: Complex}
     println("state optimization")
     Random.seed!(seed)
     dim = length(DE.psi)
@@ -127,11 +127,11 @@ function DE_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, c
 
     p_fit = [0.0 for i in 1:p_num] 
     for pj in 1:p_num
-        F_tp = CFIM_TimeIndepend(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, populations[pj].psi, DE.tspan, DE.accuracy)
+        F_tp = CFIM_TimeIndepend(Measurement, DE.freeHamiltonian, DE.Hamiltonian_derivative, populations[pj].psi, DE.tspan, DE.accuracy)
         p_fit[pj] = 1.0/real(tr(DE.W*pinv(F_tp)))
     end
 
-    F = CFIM_TimeIndepend(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.psi, DE.tspan, DE.accuracy)
+    F = CFIM_TimeIndepend(Measurement, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.psi, DE.tspan, DE.accuracy)
     f_ini= real(tr(DE.W*pinv(F)))
 
     if length(DE.Hamiltonian_derivative) == 1
@@ -144,13 +144,13 @@ function DE_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, c
             indx = findmax(p_fit)[2]
             SaveFile_state(f_list, populations[indx].psi)
             for i in 1:(max_episode-1)
-                p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
+                p_fit = train_CFIM_noiseless(Measurement, populations, c, cr, p_num, dim, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, maximum(p_fit))
                 SaveFile_state(f_list, populations[indx].psi)
                 print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
+            p_fit = train_CFIM_noiseless(Measurement, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
             SaveFile_state(f_list, populations[indx].psi)
@@ -159,11 +159,11 @@ function DE_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, c
             println("Final CFI is ", maximum(p_fit))
         else
             for i in 1:(max_episode-1)
-                p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
+                p_fit = train_CFIM_noiseless(Measurement, populations, c, cr, p_num, dim, p_fit)
                 append!(f_list, maximum(p_fit))
                 print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
+            p_fit = train_CFIM_noiseless(Measurement, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
             SaveFile_state(f_list, populations[indx].psi)
@@ -181,13 +181,13 @@ function DE_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, c
             indx = findmax(p_fit)[2]
             SaveFile_state(f_list, populations[indx].psi)
             for i in 1:(max_episode-1)
-                p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
+                p_fit = train_CFIM_noiseless(Measurement, populations, c, cr, p_num, dim, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, 1.0/maximum(p_fit))
                 SaveFile_state(f_list, populations[indx].psi)
                 print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
+            p_fit = train_CFIM_noiseless(Measurement, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_state(f_list, populations[indx].psi)
@@ -196,11 +196,11 @@ function DE_CFIM(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, c
             println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
         else
             for i in 1:(max_episode-1)
-                p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
+                p_fit = train_CFIM_noiseless(Measurement, populations, c, cr, p_num, dim, p_fit)
                 append!(f_list, 1.0/maximum(p_fit))
                 print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit = train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
+            p_fit = train_CFIM_noiseless(Measurement, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_state(f_list, populations[indx].psi)
@@ -253,7 +253,7 @@ function train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
     return p_fit
 end
 
-function train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
+function train_CFIM_noiseless(Measurement, populations, c, cr, p_num, dim, p_fit)
     f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations
@@ -282,7 +282,7 @@ function train_CFIM_noiseless(M, populations, c, cr, p_num, dim, p_fit)
         psi_cross = ctrl_cross/norm(ctrl_cross)
 
         #selection
-        F_tp = CFIM_TimeIndepend(M, populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, psi_cross, 
+        F_tp = CFIM_TimeIndepend(Measurement, populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, psi_cross, 
                                  populations[pj].tspan, populations[pj].accuracy)
         f_cross = 1.0/real(tr(populations[pj].W*pinv(F_tp)))
         if f_cross > p_fit[pj]
@@ -404,7 +404,7 @@ function DE_QFIM(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed
     end
 end
 
-function DE_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<: Complex}
+function DE_CFIM(Measurement, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<: Complex}
     println("state optimization")
     Random.seed!(seed)
     dim = length(DE.psi)
@@ -428,11 +428,11 @@ function DE_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, s
     p_fit = [0.0 for i in 1:p_num] 
     for pj in 1:p_num
         rho = populations[pj].psi*(populations[pj].psi)'
-        F_tp = CFIM_TimeIndepend(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, rho, DE.decay_opt, DE.γ, DE.tspan, DE.accuracy)
+        F_tp = CFIM_TimeIndepend(Measurement, DE.freeHamiltonian, DE.Hamiltonian_derivative, rho, DE.decay_opt, DE.γ, DE.tspan, DE.accuracy)
         p_fit[pj] = 1.0/real(tr(DE.W*pinv(F_tp)))
     end
 
-    F = CFIM_TimeIndepend(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.psi*(DE.psi)', DE.decay_opt, DE.γ, DE.tspan, DE.accuracy)
+    F = CFIM_TimeIndepend(Measurement, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.psi*(DE.psi)', DE.decay_opt, DE.γ, DE.tspan, DE.accuracy)
     f_ini= real(tr(DE.W*pinv(F)))
     f_list = [f_ini]
 
@@ -445,13 +445,13 @@ function DE_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, s
             indx = findmax(p_fit)[2]
             SaveFile_state(f_list, populations[indx].psi)
             for i in 1:(max_episode-1)
-                p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
+                p_fit = train_CFIM_noise(Measurement, populations, c, cr, p_num, dim, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, maximum(p_fit))
                 SaveFile_state(f_list, populations[indx].psi)
                 print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
+            p_fit = train_CFIM_noise(Measurement, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
             SaveFile_state(f_list, populations[indx].psi)
@@ -460,11 +460,11 @@ function DE_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, s
             println("Final CFI is ", maximum(p_fit))
         else
             for i in 1:(max_episode-1)
-                p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
+                p_fit = train_CFIM_noise(Measurement, populations, c, cr, p_num, dim, p_fit)
                 append!(f_list, maximum(p_fit))
                 print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")   
             end
-            p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
+            p_fit = train_CFIM_noise(Measurement, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
             SaveFile_state(f_list, populations[indx].psi)
@@ -481,13 +481,13 @@ function DE_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, s
             indx = findmax(p_fit)[2]
             SaveFile_state(f_list, populations[indx].psi)
             for i in 1:(max_episode-1)
-                p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
+                p_fit = train_CFIM_noise(Measurement, populations, c, cr, p_num, dim, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, 1.0/maximum(p_fit))
                 SaveFile_state(f_list, populations[indx].psi)
                 print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
+            p_fit = train_CFIM_noise(Measurement, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_state(f_list, populations[indx].psi)
@@ -496,11 +496,11 @@ function DE_CFIM(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, s
             println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
         else
             for i in 1:(max_episode-1)
-                p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
+                p_fit = train_CFIM_noise(Measurement, populations, c, cr, p_num, dim, p_fit)
                 append!(f_list, 1.0/maximum(p_fit))
                 print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit = train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
+            p_fit = train_CFIM_noise(Measurement, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_state(f_list, populations[indx].psi)
@@ -553,7 +553,7 @@ function train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
     return p_fit
 end
 
-function train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
+function train_CFIM_noise(Measurement, populations, c, cr, p_num, dim, p_fit)
     f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations
@@ -582,7 +582,7 @@ function train_CFIM_noise(M, populations, c, cr, p_num, dim, p_fit)
         psi_cross = ctrl_cross/norm(ctrl_cross)
 
         #selection
-        F_tp = CFIM_TimeIndepend(M, populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, psi_cross*psi_cross', 
+        F_tp = CFIM_TimeIndepend(Measurement, populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, psi_cross*psi_cross', 
                                  populations[pj].decay_opt, populations[pj].γ, populations[pj].tspan, populations[pj].accuracy)
         f_cross = 1.0/real(tr(populations[pj].W*pinv(F_tp)))
         if f_cross > p_fit[pj]

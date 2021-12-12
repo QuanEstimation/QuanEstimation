@@ -11,15 +11,15 @@ class StateOpt_PSO(stateopt.StateOptSystem):
         inputs
         --------
         particle_num:
-           --description: number of particles.
+           --description: the number of particles.
            --type: int
 
-                ini_particle:
+        ini_particle:
            --description: initial particles.
            --type: array
 
         max_episode:
-            --description: max number of training episodes.
+            --description: max number of the training episodes.
             --type: int
         
         c0:
@@ -55,47 +55,49 @@ class StateOpt_PSO(stateopt.StateOptSystem):
     def QFIM(self, save_file=False):
         """
         Description: use particle swarm optimizaiton algorithm to search the optimal initial state that maximize the 
-                     QFI or Tr(WF^{-1}).
+                     QFI (1/Tr(WF^{-1} with F the QFIM).
 
         ---------
         Inputs
         ---------
         save_file:
-            --description: True: save the initial state for each episode but overwrite in the nest episode and all the QFI or Tr(WF^{-1}).
-                           False: save the initial states for the last episode and all the QFI or Tr(WF^{-1}).
+            --description: True: save the initial state for each episode but overwrite in the next episode and all the QFI (Tr(WF^{-1})).
+                           False: save the initial states for the last episode and all the QFI (Tr(WF^{-1})).
             --type: bool
         """
-        if self.gamma == [] or self.gamma[0] == 0.0:
-            pso = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, self.W, self.accuracy)
-            Main.QuanEstimation.PSO_QFIM(pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
-                                         self.seed, save_file)
+        if any(self.gamma):
+            pso = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
+                                                         self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+            Main.QuanEstimation.PSO_QFIM(pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, \
+                                         self.c2, self.v0, self.seed, save_file)
         else:
-            pso = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, \
-                        self.decay_opt, self.gamma, self.W, self.accuracy)
-            Main.QuanEstimation.PSO_QFIM(pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
-                                         self.seed, save_file)
+            pso = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
+                                                             self.tspan, self.W, self.accuracy)
+            Main.QuanEstimation.PSO_QFIM(pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, \
+                                         self.c2, self.v0, self.seed, save_file)
         self.load_save()
 
     def CFIM(self, Measurement, save_file=False):
         """
         Description: use particle swarm optimizaiton algorithm to search the optimal initial state that maximize the 
-                     CFI or Tr(WF^{-1}).
+                     CFI (1/Tr(WF^{-1} with F the CFIM).
 
         ---------
         Inputs
         ---------
         save_file:
-            --description: True: save the initial state for each episode but overwrite in the nest episode and all the CFI or Tr(WF^{-1}).
-                           False: save the initial states for the last episode and all the CFI or Tr(WF^{-1}).
+            --description: True: save the initial state for each episode but overwrite in the next episode and all the CFI (Tr(WF^{-1})).
+                           False: save the initial states for the last episode and all the CFI (Tr(WF^{-1})).
             --type: bool
         """
-        if self.gamma == [] or self.gamma[0] == 0.0:
-            pso = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, self.W, self.accuracy)
-            Main.QuanEstimation.PSO_CFIM(Measurement, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
-                                         self.seed, save_file)
+        if any(self.gamma):
+            pso = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
+                                                         self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+            Main.QuanEstimation.PSO_CFIM(Measurement, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, \
+                                         self.c1, self.c2, self.v0, self.seed, save_file)
         else:
-            pso = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, \
-                        self.decay_opt, self.gamma, self.W, self.accuracy)
-            Main.QuanEstimation.PSO_CFIM(Measurement, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, self.v0, \
-                                         self.seed, save_file)
+            pso = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
+                                                             self.tspan, self.W, self.accuracy)
+            Main.QuanEstimation.PSO_CFIM(Measurement, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, \
+                                         self.c1, self.c2, self.v0, self.seed, save_file)
         self.load_save()

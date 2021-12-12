@@ -13,12 +13,12 @@ class StateOptSystem:
            --type: array
         
         psi0:
-            --description: initial state.
+            --description: initial state (ket).
             --type: array
         
         H0: 
            --description: free Hamiltonian.
-           --type: matrix
+           --type: matrix (a list of matrix)
         
         dH: 
            --description: derivatives of Hamiltonian on all parameters to
@@ -28,12 +28,12 @@ class StateOptSystem:
            
         decay:
            --description: decay operators and the corresponding decay rates.
-                          decay[0] represent a list of decay operators and
-                          decay[1] represent the corresponding decay rates.
+                          decay[0][0] represent the first decay operator and
+                          decay[0][1] represent the corresponding decay rate.
            --type: list 
 
         ctrl_bound:   
-           --description: lower and upper bound of the control coefficients.
+           --description: lower and upper bounds of the control coefficients.
                           ctrl_bound[0] represent the lower bound of the control coefficients and
                           ctrl_bound[1] represent the upper bound of the control coefficients.
            --type: list 
@@ -99,4 +99,4 @@ def StateOpt(*args, method = 'AD', **kwargs):
     elif method == 'DDPG':
         return stateoptimize.StateOpt_DDPG(*args, **kwargs)
     else:
-        raise ValueError("{!r} is not a valid value for method, supported values are 'AD', 'PSO', 'DE', 'DDPG'.".format(method))
+        raise ValueError("{!r} is not a valid value for method, supported values are 'AD', 'PSO', 'DE', 'NM', 'DDPG'.".format(method))

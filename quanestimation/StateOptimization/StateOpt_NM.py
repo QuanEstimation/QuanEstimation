@@ -11,7 +11,7 @@ class StateOpt_NM(stateopt.StateOptSystem):
         inputs
         --------
         state_num:
-           --description: number of input states.
+           --description: the number of input states.
            --type: int
         
         ini_state:
@@ -19,7 +19,7 @@ class StateOpt_NM(stateopt.StateOptSystem):
            --type: array
 
         max_episode:
-            --description: max number of training episodes.
+            --description: max number of the training episodes.
             --type: int
         
         ar:
@@ -63,47 +63,51 @@ class StateOpt_NM(stateopt.StateOptSystem):
     def QFIM(self, save_file=False):
         """
         Description: use nelder-mead method to search the optimal initial state that maximize the 
-                     QFI or Tr(WF^{-1}).
+                     QFI (1/Tr(WF^{-1} with F the QFIM).
 
         ---------
         Inputs
         ---------
         save_file:
-            --description: True: save the initial state for each episode but overwrite in the nest episode and all the QFI or Tr(WF^{-1}).
-                           False: save the initial states for the last episode and all the QFI or Tr(WF^{-1}).
+            --description: True: save the initial state for each episode but overwrite in the next episode and all the QFI (Tr(WF^{-1})).
+                           False: save the initial states for the last episode and all the QFI (Tr(WF^{-1})).
             --type: bool
         """
 
-        if self.gamma == [] or self.gamma[0] == 0.0:
-            neldermead = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                                                                               self.psi0, self.tspan, self.W, self.accuracy)
-            Main.QuanEstimation.NM_QFIM(neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, self.as0, self.max_episode, self.seed, save_file)
+        if any(self.gamma):
+            neldermead = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
+                                                                self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+            Main.QuanEstimation.NM_QFIM(neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, self.as0, \
+                                        self.max_episode, self.seed, save_file)
         else:
-            neldermead = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, \
-                        self.decay_opt, self.gamma, self.W, self.accuracy)
-            Main.QuanEstimation.NM_QFIM(neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, self.as0, self.max_episode, self.seed, save_file)
+            neldermead = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
+                                                                    self.psi0, self.tspan, self.W, self.accuracy)
+            Main.QuanEstimation.NM_QFIM(neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, self.as0, \
+                                        self.max_episode, self.seed, save_file)
         self.load_save()
 
     def CFIM(self, Measurement, save_file=False):
         """
         Description: use nelder-mead method to search the optimal initial state that maximize the 
-                     CFI or Tr(WF^{-1}).
+                     CFI (1/Tr(WF^{-1} with F the CFIM).
 
         ---------
         Inputs
         ---------
         save_file:
-            --description: True: save the initial state for each episode but overwrite in the nest episode and all the CFI or Tr(WF^{-1}).
-                           False: save the initial states for the last episode and all the CFI or Tr(WF^{-1}).
+            --description: True: save the initial state for each episode but overwrite in the next episode and all the CFI (Tr(WF^{-1})).
+                           False: save the initial states for the last episode and all the CFI (Tr(WF^{-1})).
             --type: bool
         """
-        if self.gamma == [] or self.gamma[0] == 0.0:
-            neldermead = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                                                                               self.psi0, self.tspan, self.W, self.accuracy)
-            Main.QuanEstimation.NM_CFIM(Measurement, neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, self.as0, self.max_episode, self.seed, save_file)
-        else:
+        if any(self.gamma):
             neldermead = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                                     self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
-            Main.QuanEstimation.NM_CFIM(Measurement, neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, self.as0, self.max_episode, self.seed, save_file)
+                                                                self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+            Main.QuanEstimation.NM_CFIM(Measurement, neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, \
+                                        self.as0, self.max_episode, self.seed, save_file)
+        else:
+            neldermead = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
+                                                                    self.psi0, self.tspan, self.W, self.accuracy)
+            Main.QuanEstimation.NM_CFIM(Measurement, neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, \
+                                        self.as0, self.max_episode, self.seed, save_file)
         self.load_save()
             

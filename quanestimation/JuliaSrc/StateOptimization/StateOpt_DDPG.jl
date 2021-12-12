@@ -56,7 +56,7 @@ function ControlEnv_noiseless(;T=ComplexF64, M=Float64, Measurement, params::Tim
     f_list = Vector{Float64}()
     reward_all = Vector{Float64}()
     env = ControlEnv_noiseless(Measurement, params, action_space, state_space, state, true, rng, 0.0, 0.0, params.tspan, ctrl_num, 
-                     para_num, f_ini, f_list, reward_all, episode, quantum, SinglePara, save_file)
+                               para_num, f_ini, f_list, reward_all, episode, quantum, SinglePara, save_file)
     reset!(env)
     env
 end
@@ -114,7 +114,6 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{true}
     append!(env.reward_all, env.reward)
     env.episode += 1
     print("current QFI is ", f_current, " ($(env.episode) episodes)    \r")
-
     nothing 
 end
 
@@ -134,7 +133,6 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{false
     SaveFile_state_ddpg(1.0/f_current, env.reward, env.params.psi)
     env.episode += 1
     print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
-
     nothing 
 end
 
@@ -153,7 +151,6 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{false
     append!(env.reward_all, env.reward)
     env.episode += 1
     print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
-
     nothing 
 end
 
@@ -175,7 +172,6 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{true
     
     env.episode += 1
     print("current CFI is ", f_current, " ($(env.episode) episodes)    \r")
-
     nothing 
 end
 
@@ -184,7 +180,8 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{true
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = CFIM_TimeIndepend(env.Measurement, env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, env.params.tspan, env.params.accuracy)
+    F_tp = CFIM_TimeIndepend(env.Measurement, env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, 
+                             env.params.tspan, env.params.accuracy)
     f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
@@ -194,7 +191,6 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{true
     append!(env.reward_all, env.reward)
     env.episode += 1
     print("current CFI is ", f_current, " ($(env.episode) episodes)    \r")
-
     nothing 
 end
 
@@ -215,7 +211,6 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{fals
     SaveFile_state_ddpg(1.0/f_current, env.reward, env.params.psi)
     env.episode += 1
     print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
-
     nothing 
 end
 
@@ -235,7 +230,6 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{fals
     append!(env.reward_all, env.reward)
     env.episode += 1
     print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
-
     nothing 
 end
 
@@ -265,7 +259,7 @@ function DDPG_QFIM(params::TimeIndepend_noiseless, layer_num, layer_dim, seed, m
                                     start_policy=RandomPolicy(Space([-1.0..1.0 for _ in 1:env.ctrl_num]); rng=rng),
                                     update_after=100, update_freq=1, act_limit=1.0e35,
                                     act_noise=0.01, rng=rng,),
-                  trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na, ),),)
+                  trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na,),),)
 
     println("state optimization")
     if length(params.Hamiltonian_derivative) == 1
@@ -324,7 +318,7 @@ function DDPG_CFIM(Measurement, params::TimeIndepend_noiseless, layer_num, layer
                                     start_policy=RandomPolicy(Space([-1.0..1.0 for _ in 1:env.ctrl_num]); rng=rng),
                                     update_after=100, update_freq=1, act_limit=1.0e35,
                                     act_noise=0.01, rng=rng,),
-                  trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na, ),),)
+                  trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na,),),)
 
     println("state optimization")
     if length(params.Hamiltonian_derivative) == 1
@@ -405,7 +399,7 @@ function ControlEnv_noise(;T=ComplexF64, M=Float64, Measurement, params::TimeInd
     f_list = Vector{Float64}()
     reward_all = Vector{Float64}()
     env = ControlEnv_noise(Measurement, params, action_space, state_space, state, true, rng, 0.0, 0.0, params.tspan, ctrl_num, 
-                     para_num, f_ini, f_list, reward_all, episode, quantum, SinglePara, save_file)
+                           para_num, f_ini, f_list, reward_all, episode, quantum, SinglePara, save_file)
     reset!(env)
     env
 end
@@ -465,7 +459,6 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{true}, ::Val{
     append!(env.reward_all, env.reward)
     env.episode += 1
     print("current QFI is ", f_current, " ($(env.episode) episodes)    \r")
-
     nothing 
 end
 
@@ -486,7 +479,6 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{false}, ::Val
     SaveFile_state_ddpg(1.0/f_current, env.reward, env.params.psi)
     env.episode += 1
     print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
-
     nothing 
 end
 
@@ -506,7 +498,6 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{false}, ::Val
     append!(env.reward_all, env.reward)
     env.episode += 1
     print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
-
     nothing 
 end
 
@@ -528,7 +519,6 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{false}, ::Val{true}, ::Val
     
     env.episode += 1
     print("current CFI is ", f_current, " ($(env.episode) episodes)    \r")
-
     nothing 
 end
 
@@ -548,7 +538,6 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{false}, ::Val{true}, ::Val
     append!(env.reward_all, env.reward)
     env.episode += 1
     print("current CFI is ", f_current, " ($(env.episode) episodes)    \r")
-
     nothing 
 end
 
@@ -569,7 +558,6 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{false}, ::Val{false}, ::Va
     SaveFile_state_ddpg(1.0/f_current, env.reward, env.params.psi)
     env.episode += 1
     print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
-
     nothing 
 end
 
@@ -619,7 +607,7 @@ function DDPG_QFIM(params::TimeIndepend_noise, layer_num, layer_dim, seed, max_e
                                     start_policy=RandomPolicy(Space([-1.0..1.0 for _ in 1:env.ctrl_num]); rng=rng),
                                     update_after=100, update_freq=1, act_limit=1.0e35,
                                     act_noise=0.01, rng=rng,),
-                  trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na, ),),)
+                  trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na,),),)
 
     println("state optimization")
     if length(params.Hamiltonian_derivative) == 1
@@ -678,7 +666,7 @@ function DDPG_CFIM(Measurement, params::TimeIndepend_noise, layer_num, layer_dim
                                     start_policy=RandomPolicy(Space([-1.0..1.0 for _ in 1:env.ctrl_num]); rng=rng),
                                     update_after=100, update_freq=1, act_limit=1.0e35,
                                     act_noise=0.01, rng=rng,),
-                  trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na, ),),)
+                  trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na,),),)
 
     println("state optimization")
     if length(params.Hamiltonian_derivative) == 1

@@ -63,8 +63,9 @@ function ControlEnv(;T=ComplexF64, M=Float64, Measurement, params::ControlEnvPar
     ctrl_list = [Vector{Float64}() for _ in 1:ctrl_num]
     f_final = Vector{Float64}()
     total_reward_all = Vector{Float64}()
-    env = ControlEnv(Measurement, params, action_space, state_space, state, dstate, true, rng, 0.0, 0.0, 0, params.tspan, tnum, cnum, ctrl_num, 
-                     para_num, f_noctrl, f_final, ctrl_list, params.ctrl_bound, total_reward_all, episode, quantum, SinglePara, save_file)
+    env = ControlEnv(Measurement, params, action_space, state_space, state, dstate, true, rng, 0.0, 0.0, 0, params.tspan, tnum, 
+                     cnum, ctrl_num, para_num, f_noctrl, f_final, ctrl_list, params.ctrl_bound, total_reward_all, episode, 
+                     quantum, SinglePara, save_file)
     reset!(env)
     env
 end
@@ -126,17 +127,15 @@ function _step!(env::ControlEnv, a, ::Val{true}, ::Val{true}, ::Val{true})
     env.t += 1
     ρₜ, ∂ₓρₜ = env.state|>density_matrix, env.dstate
     ρₜₙ, ∂ₓρₜₙ = propagate(ρₜ, ∂ₓρₜ, env.params, a, env.t)
-    env.state = ρₜₙ|>state_flatten
+    env.state = ρₜₙ |> state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
     f_current = 1.0/((env.params.W*QFIM(ρₜₙ, ∂ₓρₜₙ, params.accuracy)|>pinv)|>tr)
     reward_current = log(f_current/env.f_noctrl[env.t])
-    # reward_current = log(10.0, f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
     [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
     if env.done 
-        
         append!(env.f_final, f_current)
         append!(env.total_reward_all, env.total_reward)
         SaveFile_ddpg(f_current, env.total_reward, env.ctrl_list)
@@ -329,11 +328,10 @@ function DDPG_QFIM(params::ControlEnvParams, layer_num, layer_dim, seed, max_epi
                                     start_policy=RandomPolicy(Space([-10.0..10.0 for _ in 1:env.ctrl_num]); rng=rng),
                                     update_after=100*env.cnum, update_freq=1*env.cnum, act_limit=env.params.ctrl_bound[end],
                                     act_noise=0.01, rng=rng,),
-                  trajectory=CircularArraySARTTrajectory(capacity=400*env.cnum, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na, ),),)
+                  trajectory=CircularArraySARTTrajectory(capacity=400*env.cnum, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na,),),)
 
     println("quantum parameter estimation")
-    F_ini = QFIM(params.freeHamiltonian, params.Hamiltonian_derivative, params.ρ0, params.decay_opt, params.γ, 
-                    params.control_Hamiltonian, params.control_coefficients, params.tspan, params.accuracy)
+    F_ini = QFIM(params)
     f_ini = real(tr(params.W*pinv(F_ini)))
     if length(params.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -393,7 +391,7 @@ function DDPG_CFIM(Measurement, params::ControlEnvParams, layer_num, layer_dim, 
                                     start_policy=RandomPolicy(Space([-10.0..10.0 for _ in 1:env.ctrl_num]); rng=rng),
                                     update_after=100*env.cnum, update_freq=1*env.cnum, act_limit=env.params.ctrl_bound[end],
                                     act_noise=0.01, rng=rng,),
-                  trajectory=CircularArraySARTTrajectory(capacity=400*env.cnum, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na, ),),)
+                  trajectory=CircularArraySARTTrajectory(capacity=400*env.cnum, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na,),),)
 
     println("classical parameter estimation")
     F_ini = CFIM(Measurement, params.freeHamiltonian, params.Hamiltonian_derivative, params.ρ0, params.decay_opt, params.γ, 

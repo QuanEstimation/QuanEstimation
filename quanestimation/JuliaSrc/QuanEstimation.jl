@@ -33,6 +33,7 @@ export suN_generator, expm
 export Gradient, auto_GRAPE_QFIM, auto_GRAPE_CFIM, GRAPE_QFIM, GRAPE_CFIM
 export DiffEvo, DE_QFIM, DE_CFIM
 export PSO, PSO_QFIM, PSO_CFIM
+export DDPG, DDPG_QFIM, DDPG_CFIM
 ######## state optimization ########
 export TimeIndepend_noiseless, TimeIndepend_noise
 export AD_QFIM, AD_CFIM

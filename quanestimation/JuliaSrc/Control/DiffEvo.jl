@@ -50,8 +50,7 @@ function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episo
     F_noctrl = QFIM(DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ0, DE.decay_opt, DE.γ, 
                     DE.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], DE.tspan, DE.accuracy)
     f_noctrl = real(tr(DE.W*pinv(F_noctrl)))
-    F_ini = QFIM(DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ0, DE.decay_opt, DE.γ, 
-                 DE.control_Hamiltonian, DE.control_coefficients, DE.tspan, DE.accuracy)
+    F_ini = QFIM(DE)
     f_ini = real(tr(DE.W*pinv(F_ini)))
     
     if length(DE.Hamiltonian_derivative) == 1 
@@ -70,8 +69,8 @@ function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episo
                 SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             end
             p_fit = DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
-            append!(f_list, maximum(p_fit))
             indx = findmax(p_fit)[2]
+            append!(f_list, maximum(p_fit))
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             print("\e[2K")
             println("Iteration over, data saved.")
@@ -99,13 +98,13 @@ function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episo
         f_list = [f_ini]
         if save_file == true
             for i in 1:(max_episode-1)
-                F = DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+                p_fit = DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, 1.0/maximum(p_fit))
                 SaveFile_ctrl(f_list, populations[indx].control_coefficients)
                 print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             end
-            F = DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+            p_fit = DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
@@ -129,7 +128,7 @@ function DE_QFIM(DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episo
     end
 end
 
-function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<: Complex}
+function DE_CFIM(Measurement, DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<: Complex}
     println("classical parameter estimation")
     Random.seed!(seed)
     ctrl_num = length(DE.control_Hamiltonian)
@@ -156,13 +155,12 @@ function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_ep
         end
     end
 
-    p_fit = [1.0/real(tr(DE.W*pinv(CFIM(M, populations[i])))) for i in 1:p_num]
+    p_fit = [1.0/real(tr(DE.W*pinv(CFIM(Measurement, populations[i])))) for i in 1:p_num]
 
-    F_noctrl = CFIM(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ0, DE.decay_opt, DE.γ, 
+    F_noctrl = CFIM(Measurement, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ0, DE.decay_opt, DE.γ, 
                     DE.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], DE.tspan, DE.accuracy)
     f_noctrl = real(tr(DE.W*pinv(F_noctrl)))
-    F_ini = CFIM(M, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ0, DE.decay_opt, DE.γ, 
-            DE.control_Hamiltonian, DE.control_coefficients, DE.tspan, DE.accuracy)
+    F_ini = CFIM(Measurement, DE)
     f_ini = real(tr(DE.W*pinv(F_ini)))
 
     if length(DE.Hamiltonian_derivative) == 1
@@ -174,26 +172,26 @@ function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_ep
         f_list = [1.0/f_ini]
         if save_file == true
             for i in 1:(max_episode-1)
-                p_fit = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+                p_fit = DE_train_CFIM(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, maximum(p_fit))
                 print("current CFI is ", maximum(p_fit), " ($i episodes)    \r")
                 SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             end
-            p_fit = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+            p_fit = DE_train_CFIM(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
-            SaveFile_ctrl(f_list, populations[indx].control_coefficients)
+            SaveFile_ctrl((f_list, populations[indx].control_coefficients)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final CFI is ", maximum(p_fit))
         else
             for i in 1:(max_episode-1)
-                p_fit = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+                p_fit = DE_train_CFIM(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
                 append!(f_list, maximum(p_fit))
                 print("current CFI is ", maximum(p_fit), " ($i episodes)    \r")
             end
-            p_fit = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+            p_fit = DE_train_CFIM(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
@@ -210,13 +208,13 @@ function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_ep
         f_list = [f_ini]
         if save_file == true
             for i in 1:(max_episode-1)
-                F = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+                p_fit = DE_train_CFIM(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
                 indx = findmax(p_fit)[2]
                 append!(f_list, 1.0/maximum(p_fit))
                 SaveFile_ctrl(f_list, populations[indx].control_coefficients)
                 print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             end
-            F = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+            p_fit = DE_train_CFIM(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
@@ -225,11 +223,11 @@ function DE_CFIM(M, DE::DiffEvo{T}, popsize, ini_population, c, cr, seed, max_ep
             println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
         else
             for i in 1:(max_episode-1)
-                p_fit = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+                p_fit = DE_train_CFIM(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
                 append!(f_list, 1.0/maximum(p_fit))
                 print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             end
-            p_fit = DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+            p_fit = DE_train_CFIM(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
@@ -245,7 +243,7 @@ function DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
     for pj in 1:p_num
         #mutations
         mut_num = sample(1:p_num, 3, replace=false)
-        ctrl_mut = [Vector{Float64}(undef, ctrl_length)  for i in 1:ctrl_num]
+        ctrl_mut = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
         for ci in 1:ctrl_num
             for ti in 1:ctrl_length
                 ctrl_mut[ci][ti] = populations[mut_num[1]].control_coefficients[ci][ti]+
@@ -259,7 +257,7 @@ function DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
         # else
         #     cr = c0
         # end
-        ctrl_cross = [Vector{Float64}(undef, ctrl_length)  for i in 1:ctrl_num]
+        ctrl_cross = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
         for cj in 1:ctrl_num
             cross_int = sample(1:ctrl_length, 1, replace=false)
             for tj in 1:ctrl_length
@@ -291,12 +289,12 @@ function DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
     return p_fit
 end
 
-function DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
+function DE_train_CFIM(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
     f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations
         mut_num = sample(1:p_num, 3, replace=false)
-        ctrl_mut = [Vector{Float64}(undef, ctrl_length)  for i in 1:ctrl_num]
+        ctrl_mut = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
         for ci in 1:ctrl_num
             for ti in 1:ctrl_length
                 ctrl_mut[ci][ti] = populations[mut_num[1]].control_coefficients[ci][ti]+
@@ -310,7 +308,7 @@ function DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fi
         # else
         #     cr = c0
         # end
-        ctrl_cross = [Vector{Float64}(undef, ctrl_length)  for i in 1:ctrl_num]
+        ctrl_cross = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
         for cj in 1:ctrl_num
             cross_int = sample(1:ctrl_length, 1, replace=false)
             for tj in 1:ctrl_length
@@ -326,9 +324,9 @@ function DE_train_CFIM(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fi
         #selection
         bound!(ctrl_cross, populations[pj].ctrl_bound)
         
-        F = CFIM(populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, populations[pj].ρ0, 
-                      populations[pj].decay_opt, populations[pj].γ, populations[pj].control_Hamiltonian, 
-                      ctrl_cross, populations[pj].tspan, populations[pj].accuracy)
+        F = CFIM(Measurement, populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, populations[pj].ρ0, 
+                 populations[pj].decay_opt, populations[pj].γ, populations[pj].control_Hamiltonian, ctrl_cross, 
+                 populations[pj].tspan, populations[pj].accuracy)
         f_cross = 1.0/real(tr(populations[pj].W*pinv(F)))
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
