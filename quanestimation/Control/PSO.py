@@ -13,7 +13,7 @@ class PSO(Control.ControlSystem):
         inputs
         --------
         particle_num:
-           --description: number of particles.
+           --description: the number of particles.
            --type: int
         
         ini_particle:
@@ -21,8 +21,8 @@ class PSO(Control.ControlSystem):
            --type: array
 
         max_episode:
-            --description: max number of training episodes.
-            --type: int
+            --description: max number of the training episodes.
+            --type: int or array
         
         c0:
             --description: damping factor that assists convergence.
@@ -55,35 +55,35 @@ class PSO(Control.ControlSystem):
     def QFIM(self, save_file=False):
         """
         Description: use particle swarm optimization algorithm to update the control coefficients  
-                     that maximize the QFI or 1/Tr(WF^{-1}).
+                     that maximize the QFI (1/Tr(WF^{-1} with F the QFIM).
 
         ---------
         Inputs
         ---------
         save_file:
-            --description: True: save all the control coefficients for each episode but overwrite in the nest episode and all the QFI or Tr(WF^{-1}).
-                           False: save the control coefficients for the last episode and all the QFI or Tr(WF^{-1}).
+            --description: True: save all the control coefficients for each episode but overwrite in the next episode and all the QFI (Tr(WF^{-1})).
+                           False: save the control coefficients for the last episode and all the QFI (Tr(WF^{-1})).
             --type: bool
         """
-        pso = Main.QuanEstimation.PSO(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, \
-                        self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
+        pso = Main.QuanEstimation.PSO(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, self.decay_opt, \
+                          self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
         Main.QuanEstimation.PSO_QFIM(pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, \
                                          self.seed, save_file)
 
-    def CFIM(self, Measurement, save_file):
+    def CFIM(self, Measurement, save_file=False):
         """
         Description: use particle swarm optimization algorithm to update the control coefficients  
-                     that maximize the CFI or 1/Tr(WF^{-1}).
+                     that maximize the CFI (1/Tr(WF^{-1} with F the CFIM).
 
         ---------
         Inputs
         ---------
         save_file:
-            --description: True: save the control coefficients for each episode but overwrite in the nest episode and all the CFI or Tr(WF^{-1}).
-                           False: save the control coefficients for the last episode and all the CFI or Tr(WF^{-1}).
+            --description: True: save the control coefficients for each episode but overwrite in the next episode and all the CFI (Tr(WF^{-1})).
+                           False: save the control coefficients for the last episode and all the CFI (Tr(WF^{-1})).
             --type: bool
         """
-        pso = Main.QuanEstimation.PSO(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, \
-                        self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
+        pso = Main.QuanEstimation.PSO(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, self.decay_opt, \
+                         self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
         Main.QuanEstimation.PSO_CFIM(Measurement, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, \
                                          self.seed, save_file)

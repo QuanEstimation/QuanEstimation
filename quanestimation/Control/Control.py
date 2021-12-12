@@ -20,7 +20,7 @@ class ControlSystem:
         
         H0: 
            --description: free Hamiltonian.
-           --type: matrix
+           --type: matrix or a list of matrix
            
         Hc: 
            --description: control Hamiltonian.
@@ -38,12 +38,12 @@ class ControlSystem:
            
         decay:
            --description: decay operators and the corresponding decay rates.
-                          decay[0] represent a list of decay operators and
-                          decay[1] represent the corresponding decay rates.
+                          decay[0][0] represent the first decay operator and
+                          decay[0][1] represent the corresponding decay rate.
            --type: list 
 
         ctrl_bound:   
-           --description: lower and upper bound of the control coefficients.
+           --description: lower and upper bounds of the control coefficients.
                           ctrl_bound[0] represent the lower bound of the control coefficients and
                           ctrl_bound[1] represent the upper bound of the control coefficients.
            --type: list 
@@ -108,15 +108,17 @@ class ControlSystem:
             data = np.genfromtxt('controls.csv')[-len(self.control_Hamiltonian):]
             self.control_coefficients = [data[i] for i in range(len(data))]
             
-        ctrl_length = len(self.control_coefficients)
-        ctrlnum = len(self.control_Hamiltonian)
-        if ctrlnum < ctrl_length:
+        ctrl_num = len(self.control_coefficients)
+        Hc_num = len(self.control_Hamiltonian)
+        if Hc_num < ctrl_num:
             raise TypeError('There are %d control Hamiltonians but %d coefficients sequences: \
-                                too many coefficients sequences'%(ctrlnum,ctrl_length))
-        elif ctrlnum > ctrl_length:
+                                too many coefficients sequences'%(Hc_num,ctrl_num))
+        elif Hc_num > ctrl_num:
             warnings.warn('Not enough coefficients sequences: there are %d control Hamiltonians \
                             but %d coefficients sequences. The rest of the control sequences are\
-                            set to be 0.'%(ctrlnum,ctrl_length), DeprecationWarning)
+                            set to be 0.'%(Hc_num,ctrl_num), DeprecationWarning)
+            for i in range(Hc_num-ctrl_num):
+                self.control_coefficients.append(np.zeros(len(self.control_coefficients[0])))
         
         number = math.ceil((len(self.tspan)-1)/len(self.control_coefficients[0]))
         if len(self.tspan)-1 % len(self.control_coefficients[0]) != 0:

@@ -12,16 +12,16 @@ mutable struct PSO{T <: Complex,M <: Real} <: ControlSystem
     accuracy::M
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
-    PSO(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, ρ0::Matrix{T},
-             tspan::Vector{M}, decay_opt::Vector{Matrix{T}},γ::Vector{M}, control_Hamiltonian::Vector{Matrix{T}},
-             control_coefficients::Vector{Vector{M}}, ctrl_bound::Vector{M}, W::Matrix{M}, accuracy::M, ρ=Vector{Matrix{T}}(undef, 1), 
-             ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 
-                Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, control_Hamiltonian, control_coefficients, ctrl_bound, W, accuracy, ρ, ∂ρ_∂x) 
+    PSO(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, ρ0::Matrix{T},tspan::Vector{M}, decay_opt::Vector{Matrix{T}},
+        γ::Vector{M}, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{M}}, ctrl_bound::Vector{M},
+        W::Matrix{M}, accuracy::M, ρ=Vector{Matrix{T}}(undef, 1), ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef,1)) where {T<:Complex,M<:Real}= 
+        new{T,M}(freeHamiltonian, Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, control_Hamiltonian, control_coefficients,
+                 ctrl_bound, W, accuracy, ρ, ∂ρ_∂x) 
 end
 
-function PSO_QFIM(pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c1, c2, sd, save_file) where {T<: Complex}
+function PSO_QFIM(pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file) where {T<:Complex}
     println("quantum parameter estimation")
-    Random.seed!(sd)
+    Random.seed!(seed)
     ctrl_length = length(pso.control_coefficients[1])
     ctrl_num = length(pso.control_Hamiltonian)
     particles = repeat(pso, particle_num)
@@ -38,10 +38,9 @@ function PSO_QFIM(pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c1, 
     p_fit = zeros(particle_num)
     F_noctrl = QFIM(pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ0, pso.decay_opt, pso.γ, 
                     pso.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], pso.tspan, pso.accuracy)
-    qfi_noctrl = real(tr(pso.W*pinv(F_noctrl)))
-    F_ini = QFIM(pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ0, pso.decay_opt, pso.γ, 
-                    pso.control_Hamiltonian, pso.control_coefficients, pso.tspan, pso.accuracy)
-    qfi_ini = real(tr(pso.W*pinv(F_ini)))
+    f_noctrl = real(tr(pso.W*pinv(F_noctrl)))
+    F_ini = QFIM(pso)
+    f_ini = real(tr(pso.W*pinv(F_ini)))
 
     if typeof(max_episode) == Int
         max_episode = [max_episode, max_episode]
@@ -70,13 +69,14 @@ function PSO_QFIM(pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c1, 
     if length(pso.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("control algorithm: Particle Swarm Optimization (PSO)")
-        println("non-controlled QFI is $(1.0/qfi_noctrl)")
-        println("initial QFI is $(1.0/qfi_ini)")
-        f_list = [1.0/qfi_ini]
-        if save_file==true
+        println("non-controlled QFI is $(1.0/f_noctrl)")
+        println("initial QFI is $(1.0/f_ini)")
+        f_list = [1.0/f_ini]
+        if save_file == true
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_QFIM(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, 
-                                                                             ctrl_length, pbest, gbest, velocity_best, velocity)
+                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_QFIM(particles, p_fit, fit, max_episode, 
+                                                                    c0, c1, c2, particle_num, ctrl_num, ctrl_length, 
+                                                                    pbest, gbest, velocity_best, velocity)
                 if ei%max_episode[2] == 0
                     pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
                     particles = repeat(pso, particle_num)
@@ -85,17 +85,19 @@ function PSO_QFIM(pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c1, 
                 SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
                 print("current QFI is $(fit) ($ei episodes) \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_QFIM(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, 
-                                                                             ctrl_length, pbest, gbest, velocity_best, velocity)
+            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_QFIM(particles, p_fit, fit, max_episode, 
+                                                                c0, c1, c2, particle_num, ctrl_num, ctrl_length, 
+                                                                pbest, gbest, velocity_best, velocity)
             append!(f_list, fit)
             SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
             print("\e[2K")
-            println("Iteration over, data saved.")    
+            println("Iteration over, data saved.")
             println("Final QFI is $(fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_QFIM(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, 
-                                                                                  ctrl_length, pbest, gbest, velocity_best, velocity)
+                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_QFIM(particles, p_fit, fit, max_episode, 
+                                                                    c0, c1, c2, particle_num, ctrl_num, ctrl_length,
+                                                                    pbest, gbest, velocity_best, velocity)
                 if ei%max_episode[2] == 0
                     pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
                     particles = repeat(pso, particle_num)
@@ -114,13 +116,14 @@ function PSO_QFIM(pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c1, 
     else
         println("multiparameter scenario")
         println("control algorithm: Particle Swarm Optimization (PSO)")
-        println("non-controlled value of Tr(WF^{-1}) is $(qfi_noctrl)")
-        println("initial value of Tr(WF^{-1}) is $(qfi_ini)")
-        f_list = [qfi_ini]
-        if save_file==true
+        println("non-controlled value of Tr(WF^{-1}) is $(f_noctrl)")
+        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+        f_list = [f_ini]
+        if save_file == true
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_QFIM(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, 
-                                                                              ctrl_length, pbest, gbest, velocity_best, velocity)
+                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_QFIM(particles, p_fit, fit, max_episode, 
+                                                                    c0, c1, c2, particle_num, ctrl_num, ctrl_length, 
+                                                                    pbest, gbest, velocity_best, velocity)
                 if ei%max_episode[2] == 0
                     pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
                     particles = repeat(pso, particle_num)
@@ -129,8 +132,9 @@ function PSO_QFIM(pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c1, 
                 SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
                 print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_QFIM(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, 
-                                                                              ctrl_length, pbest, gbest, velocity_best, velocity)
+            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_QFIM(particles, p_fit, fit, max_episode, 
+                                                                c0, c1, c2, particle_num, ctrl_num, ctrl_length,
+                                                                pbest, gbest, velocity_best, velocity)
             append!(f_list, 1.0/fit)
             SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
             print("\e[2K")
@@ -138,8 +142,9 @@ function PSO_QFIM(pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c1, 
             println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_QFIM(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, 
-                                                                              ctrl_length, pbest, gbest, velocity_best, velocity)
+                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_QFIM(particles, p_fit, fit, max_episode,
+                                                                    c0, c1, c2, particle_num, ctrl_num, ctrl_length,
+                                                                    pbest, gbest, velocity_best, velocity)
                 if ei%max_episode[2] == 0
                     pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
                     particles = repeat(pso, particle_num)
@@ -147,8 +152,9 @@ function PSO_QFIM(pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c1, 
                 append!(f_list, 1.0/fit)
                 print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_QFIM(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, 
-                                                                              ctrl_length, pbest, gbest, velocity_best, velocity)
+            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_QFIM(particles, p_fit, fit, max_episode, 
+                                                                c0, c1, c2, particle_num, ctrl_num, ctrl_length,
+                                                                pbest, gbest, velocity_best, velocity)
             append!(f_list, 1.0/fit)
             SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
             print("\e[2K")
@@ -158,9 +164,9 @@ function PSO_QFIM(pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c1, 
     end
 end
 
-function PSO_CFIM(M, pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c1, c2, sd, save_file) where {T<: Complex}
+function PSO_CFIM(Measurement, pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file) where {T<:Complex}
     println("classical parameter estimation")
-    Random.seed!(sd)
+    Random.seed!(seed)
     ctrl_length = length(pso.control_coefficients[1])
     ctrl_num = length(pso.control_Hamiltonian)
     particles = repeat(pso, particle_num)
@@ -175,12 +181,11 @@ function PSO_CFIM(M, pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c
     gbest = zeros(ctrl_num, ctrl_length)
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
-    F_noctrl = CFIM(M, pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ0, pso.decay_opt, pso.γ, 
+    F_noctrl = CFIM(Measurement, pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ0, pso.decay_opt, pso.γ, 
                     pso.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], pso.tspan, pso.accuracy)
-    cfi_noctrl = real(tr(pso.W*pinv(F_noctrl)))
-    F_ini = CFIM(M, pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ0, pso.decay_opt, pso.γ, 
-                    pso.control_Hamiltonian, pso.control_coefficients, pso.tspan, pso.accuracy)
-    cfi_ini = real(tr(pso.W*pinv(F_ini)))
+    f_noctrl = real(tr(pso.W*pinv(F_noctrl)))
+    F_ini = CFIM(Measurement, pso)
+    f_ini = real(tr(pso.W*pinv(F_ini)))
 
     if typeof(max_episode) == Int
         max_episode = [max_episode, max_episode]
@@ -209,14 +214,15 @@ function PSO_CFIM(M, pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c
     if length(pso.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("control algorithm: Particle Swarm Optimization (PSO)")
-        println("non-controlled CFI is $(1.0/cfi_noctrl)") 
-        println("initial CFI is $(1.0/cfi_ini)")  
+        println("non-controlled CFI is $(1.0/f_noctrl)") 
+        println("initial CFI is $(1.0/f_ini)")
         
-        f_list = [1.0/cfi_ini]
-        if save_file==true
+        f_list = [1.0/f_ini]
+        if save_file == true
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, 
-                                                                                  ctrl_length, pbest, gbest, velocity_best, velocity)
+                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(Measurement, particles, p_fit, fit, max_episode, 
+                                                                    c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, 
+                                                                    gbest, velocity_best, velocity)
                 if ei%max_episode[2] == 0
                     pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
                     particles = repeat(pso, particle_num)
@@ -225,17 +231,19 @@ function PSO_CFIM(M, pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c
                 SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
                 print("current CFI is $(fit) ($ei episodes) \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, 
-                                                                                  ctrl_length, pbest, gbest, velocity_best, velocity)
+            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(Measurement, particles, p_fit, fit, max_episode, 
+                                                                c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest,
+                                                                gbest, velocity_best, velocity)
             append!(f_list, fit)
             SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
             print("\e[2K")
-            println("Iteration over, data saved.")    
+            println("Iteration over, data saved.")
             println("Final CFI is $(fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, 
-                                                                                  ctrl_length, pbest, gbest, velocity_best, velocity)
+                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(Measurement, particles, p_fit, fit, max_episode, 
+                                                                    c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, 
+                                                                    gbest, velocity_best, velocity)
                 if ei%max_episode[2] == 0
                     pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
                     particles = repeat(pso, particle_num)
@@ -243,8 +251,9 @@ function PSO_CFIM(M, pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c
                 append!(f_list, fit)
                 print("current CFI is $(fit) ($ei episodes) \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, 
-                                                                                  ctrl_length, pbest, gbest, velocity_best, velocity)
+            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(Measurement, particles, p_fit, fit, max_episode, 
+                                                                c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, 
+                                                                gbest, velocity_best, velocity)
             append!(f_list, fit)
             SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
             print("\e[2K")
@@ -254,14 +263,15 @@ function PSO_CFIM(M, pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c
     else
         println("multiparameter scenario")
         println("control algorithm: Particle Swarm Optimization (PSO)")
-        println("non-controlled value of Tr(WF^{-1}) is $(cfi_noctrl)")
-        println("initial value of Tr(WF^{-1}) is $(cfi_ini)")
+        println("non-controlled value of Tr(WF^{-1}) is $(f_noctrl)")
+        println("initial value of Tr(WF^{-1}) is $(f_ini)")
         
-        f_list = [cfi_ini]
-        if save_file==true
+        f_list = [f_ini]
+        if save_file == true
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, 
-                                                                              ctrl_length, pbest, gbest, velocity_best, velocity)
+                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(Measurement, particles, p_fit, fit, max_episode,
+                                                                    c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, 
+                                                                    gbest, velocity_best, velocity)
                 if ei%max_episode[2] == 0
                     pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
                     particles = repeat(pso, particle_num)
@@ -270,8 +280,9 @@ function PSO_CFIM(M, pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c
                 SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
                 print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, 
-                                                                              ctrl_length, pbest, gbest, velocity_best, velocity)
+            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(Measurement, particles, p_fit, fit, max_episode, 
+                                                                c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, 
+                                                                gbest, velocity_best, velocity)
             append!(f_list, 1.0/fit)
             SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
             print("\e[2K")
@@ -279,8 +290,9 @@ function PSO_CFIM(M, pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c
             println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, 
-                                                                              ctrl_length, pbest, gbest, velocity_best, velocity)
+                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(Measurement, particles, p_fit, fit, max_episode, 
+                                                                    c0, c1, c2, particle_num, ctrl_num,  ctrl_length, pbest, 
+                                                                    gbest, velocity_best, velocity)
                 if ei%max_episode[2] == 0
                     pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
                     particles = repeat(pso, particle_num)
@@ -288,8 +300,9 @@ function PSO_CFIM(M, pso::PSO{T}, max_episode, particle_num, ini_particle, c0, c
                 append!(f_list, 1.0/fit)
                 print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, 
-                                                                              ctrl_length, pbest, gbest, velocity_best, velocity)
+            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(Measurement, particles, p_fit, fit, max_episode, 
+                                                                c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, 
+                                                                gbest, velocity_best, velocity)
             append!(f_list, 1.0/fit)
             SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
             print("\e[2K")
@@ -316,7 +329,7 @@ function PSO_train_QFIM(particles, p_fit, fit, max_episode, c0, c1, c2, particle
             fit = p_fit[pj]
             for dj in 1:ctrl_num
                 @inbounds for nj in 1:ctrl_length
-                    gbest[dj, nj] =  particles[pj].control_coefficients[dj][nj]
+                    gbest[dj, nj] = particles[pj].control_coefficients[dj][nj]
                     velocity_best[dj, nj] = velocity[dj, nj, pj]
                 end
             end
@@ -327,9 +340,8 @@ function PSO_train_QFIM(particles, p_fit, fit, max_episode, c0, c1, c2, particle
         for dk in 1:ctrl_num
             @inbounds for ck in 1:ctrl_length
                 control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
-
-                velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
-                                      + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
+                velocity[dk, ck, pk] = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
+                                     + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
                 particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
             end
         end
@@ -344,9 +356,9 @@ function PSO_train_QFIM(particles, p_fit, fit, max_episode, c0, c1, c2, particle
     return p_fit, fit, pbest, gbest, velocity_best, velocity
 end
 
-function PSO_train_CFIM(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, gbest, velocity_best, velocity)
+function PSO_train_CFIM(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, gbest, velocity_best, velocity)
     @inbounds for pj in 1:particle_num
-        f_now = 1.0/real(tr(particles[pj].W*pinv(CFIM(M, particles[pj]))))
+        f_now = 1.0/real(tr(particles[pj].W*pinv(CFIM(Measurement, particles[pj]))))
         if f_now > p_fit[pj]
             p_fit[pj] = f_now
             for di in 1:ctrl_num
@@ -361,7 +373,7 @@ function PSO_train_CFIM(M, particles, p_fit, fit, max_episode, c0, c1, c2, parti
             fit = p_fit[pj]
             for dj in 1:ctrl_num
                 @inbounds for nj in 1:ctrl_length
-                    gbest[dj, nj] =  particles[pj].control_coefficients[dj][nj]
+                    gbest[dj, nj] = particles[pj].control_coefficients[dj][nj]
                     velocity_best[dj, nj] = velocity[dj, nj, pj]
                 end
             end
@@ -373,8 +385,8 @@ function PSO_train_CFIM(M, particles, p_fit, fit, max_episode, c0, c1, c2, parti
             @inbounds for ck in 1:ctrl_length
                 control_coeff_pre[dk][ck] = particles[pk].control_coefficients[dk][ck]
 
-                velocity[dk, ck, pk]  = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
-                                      + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
+                velocity[dk, ck, pk] = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].control_coefficients[dk][ck]) 
+                                     + c2*rand()*(gbest[dk, ck] - particles[pk].control_coefficients[dk][ck])
                 particles[pk].control_coefficients[dk][ck] += velocity[dk, ck, pk]
             end
         end

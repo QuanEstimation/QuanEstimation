@@ -11,7 +11,7 @@ class StateOpt_DE(stateopt.StateOptSystem):
         inputs
         --------
         popsize:
-           --description: number of populations.
+           --description: the number of populations.
            --type: int
 
         ini_population:
@@ -19,7 +19,7 @@ class StateOpt_DE(stateopt.StateOptSystem):
            --type: array
 
         max_episode:
-            --description: max number of training episodes.
+            --description: max number of the training episodes.
             --type: int
         
         c:
@@ -45,25 +45,53 @@ class StateOpt_DE(stateopt.StateOptSystem):
         self.seed = seed
         self.max_episode = max_episode
 
-    def QFIM(self, save_file):
-        if self.gamma == [] or self.gamma[0] == 0.0:
-            diffevo = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                                                                               self.psi0, self.tspan, self.W, self.accuracy)
-            Main.QuanEstimation.DE_QFIM(diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episode, save_file)
+    def QFIM(self, save_file=False):
+        """
+        Description: use differential evolution algorithm to search the optimal initial state that maximize the 
+                     QFI (1/Tr(WF^{-1} with F the QFIM).
+
+        ---------
+        Inputs
+        ---------
+        save_file:
+            --description: True: save the initial state for each episode but overwrite in the next episode and all the QFI (Tr(WF^{-1})).
+                           False: save the initial states for the last episode and all the QFI (Tr(WF^{-1})).
+            --type: bool
+        """
+        if any(self.gamma):
+            diffevo = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
+                                                             self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+            Main.QuanEstimation.DE_QFIM(diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, \
+                                        self.max_episode, save_file)
         else:
-            diffevo = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, \
-                        self.decay_opt, self.gamma, self.W, self.accuracy)
-            Main.QuanEstimation.DE_QFIM(diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episode, save_file)
+            diffevo = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
+                                                                 self.psi0, self.tspan, self.W, self.accuracy)
+            Main.QuanEstimation.DE_QFIM(diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, \
+                                        self.max_episode, save_file)
         self.load_save()
 
-    def CFIM(self, Measurement, save_file):
-        if self.gamma == [] or self.gamma[0] == 0.0:
-            diffevo = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                                                                               self.psi0, self.tspan, self.W, self.accuracy)
-            Main.QuanEstimation.DE_CFIM(Measurement, diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episode, save_file)
+    def CFIM(self, Measurement, save_file=False):
+        """
+        Description: use differential evolution algorithm to search the optimal initial state that maximize the 
+                     CFI (1/Tr(WF^{-1} with F the CFIM).
+
+        ---------
+        Inputs
+        ---------
+        save_file:
+            --description: True: save the initial state for each episode but overwrite in the next episode and all the CFI (Tr(WF^{-1})).
+                           False: save the initial states for the last episode and all the CFI (Tr(WF^{-1})).
+            --type: bool
+        """
+        if any(self.gamma):
+            diffevo = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
+                                                             self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+            Main.QuanEstimation.DE_CFIM(Measurement, diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, \
+                                       self.max_episode, save_file)
         else:
-            diffevo = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, self.tspan, \
-                        self.decay_opt, self.gamma, self.W, self.accuracy)
-            Main.QuanEstimation.DE_CFIM(Measurement, diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episode, save_file)
+            diffevo = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
+                                                                 self.psi0, self.tspan, self.W, self.accuracy)
+            Main.QuanEstimation.DE_CFIM(Measurement, diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, \
+                                        self.max_episode, save_file)
         self.load_save()
         

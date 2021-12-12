@@ -23,7 +23,7 @@ class GRAPE(Control.ControlSystem):
             --type: bool (True or False)
 
         max_episode:
-            --description: max number of training episodes.
+            --description: max number of the training episodes.
             --type: int
 
         epsilon:
@@ -50,15 +50,15 @@ class GRAPE(Control.ControlSystem):
 
     def QFIM(self, save_file=False):
         """
-        Description: use auto-GRAPE (GRAPE) algorithm to calculate the gradient of QFIM (QFI) and
-                     update the control coefficients that maximize the CFI or 1/Tr(WF^{-1}).
+        Description: use auto-GRAPE (GRAPE) algorithm to update the control coefficients that maximize the
+                     QFI (1/Tr(WF^{-1} with F the QFIM).
 
         ---------
         Inputs
         ---------
         save_file:
-            --description: True: save all the control coefficients and QFI or Tr(WF^{-1}).
-                           False: save the control coefficients for the last episode and all the QFI or Tr(WF^{-1}).
+            --description: True: save all the control coefficients and QFI (Tr(WF^{-1})).
+                           False: save the control coefficients for the last episode and all the QFI (Tr(WF^{-1})).
             --type: bool
 
         """
@@ -77,27 +77,27 @@ class GRAPE(Control.ControlSystem):
 
     def CFIM(self, Measurement, save_file=False):
         """
-        Description: use auto-GRAPE (GRAPE) algorithm to calculate the gradient of CFIM (CFI) and
-                     update the control coefficients that maximize the CFI or 1/Tr(WF^{-1}).
+        Description: use auto-GRAPE (GRAPE) algorithm to update the control coefficients that maximize the
+                     CFI (1/Tr(WF^{-1} with F the CFIM).
         ---------
         Inputs
         ---------
         save_file:
-            --description: True: save all the control coefficients and CFI or Tr(WF^{-1}).
-                           False: save the control coefficients for the last episode and all the CFI or Tr(WF^{-1}).
+            --description: True: save all the control coefficients and CFI (Tr(WF^{-1})).
+                           False: save the control coefficients for the last episode and all the CFI (Tr(WF^{-1})).
             --type: bool
 
         """
 
-        grape = Main.QuanEstimation.Gradient(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, \
-                        self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound,\
-                        self.W, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.accuracy)
+        grape = Main.QuanEstimation.Gradient(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, \
+                self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
+                self.ctrl_bound, self.W, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.accuracy)
         if self.auto == True:
             Main.QuanEstimation.auto_GRAPE_CFIM(Measurement, grape, self.max_episode, self.Adam, save_file)
         else:
             if (len(self.tspan)-1) != len(self.control_coefficients[0]):
                 warnings.warn('GRAPE does not support the case when the length of each control is not equal to the length of time, \
                                and is replaced by auto-GRAPE.', DeprecationWarning)
-                Main.QuanEstimation.auto_GRAPE_QFIM(grape, self.max_episode, self.Adam, save_file)
+                Main.QuanEstimation.auto_GRAPE_CFIM(Measurement, grape, self.max_episode, self.Adam, save_file)
             else:
                 Main.QuanEstimation.GRAPE_CFIM(Measurement, grape, self.max_episode, self.Adam, save_file)

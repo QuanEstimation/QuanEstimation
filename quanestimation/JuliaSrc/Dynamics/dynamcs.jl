@@ -119,12 +119,13 @@ function propagate(ρₜ::Matrix{T}, ∂ₓρₜ::Vector{Matrix{T}}, H0::Matrix{
             ∂ₓρₜ_next[para] = -im * Δt * ∂H_L[para] * ρₜ_next + expL * ∂ₓρₜ_next[para]
         end
     end
-    ρₜ_next|> vec2mat, ∂ₓρₜ_next|> vec2mat
+    ρₜ_next |> vec2mat, ∂ₓρₜ_next |> vec2mat
 end
 
 function propagate(ρₜ, ∂ₓρₜ, system, ctrl, t=1)
     Δt = system.tspan[2] - system.tspan[1]
-    propagate(ρₜ, ∂ₓρₜ, system.freeHamiltonian, system.Hamiltonian_derivative, system.decay_opt, system.γ, system.control_Hamiltonian, ctrl, Δt, t, system.ctrl_interval)
+    propagate(ρₜ, ∂ₓρₜ, system.freeHamiltonian, system.Hamiltonian_derivative, system.decay_opt, system.γ, 
+              system.control_Hamiltonian, ctrl, Δt, t, system.ctrl_interval)
 end
 
 function propagate!(system)
