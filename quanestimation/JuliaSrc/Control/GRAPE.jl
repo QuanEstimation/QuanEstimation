@@ -1042,8 +1042,8 @@ function auto_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file)
         F_ini = CFIM(Measurement, grape)
         f_ini = real(tr(grape.W*pinv(F_ini)))
         f_list = [f_ini]
-        println("non-controlled value of Tr(WF^{-1}) is $(f_noctrl)")
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+        println("non-controlled value of Tr(WI^{-1}) is $(f_noctrl)")
+        println("initial value of Tr(WI^{-1}) is $(f_ini)")
         if save_file == true
             SaveFile_ctrl(f_ini, grape.control_coefficients)
             if Adam == true
@@ -1053,13 +1053,13 @@ function auto_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        println("Final value of Tr(WI^{-1}) is ", f_now)
                         SaveFile_ctrl(f_now, grape.control_coefficients)
                         break
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, grape.control_coefficients)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
+                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
                     gradient_CFIM_Adam!(grape, Measurement)
                 end
@@ -1070,13 +1070,13 @@ function auto_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        println("Final value of Tr(WI^{-1}) is ", f_now)
                         SaveFile_ctrl(f_now, grape.control_coefficients)
                         break
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, grape.control_coefficients)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
+                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
                     gradient_CFIM!(grape, Measurement)
                 end
@@ -1089,14 +1089,14 @@ function auto_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        println("Final value of Tr(WI^{-1}) is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, grape.control_coefficients)
                         break
                     else
                         episodes += 1
                         append!(f_list, f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
+                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
                     gradient_CFIM_Adam!(grape, Measurement)
                 end
@@ -1107,14 +1107,14 @@ function auto_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        println("Final value of Tr(WI^{-1}) is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, grape.control_coefficients)
                         break
                     else
                         episodes += 1
                         append!(f_list, f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
+                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
                     gradient_CFIM!(grape, Measurement)
                 end
@@ -1220,7 +1220,7 @@ function GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file)
         F_noctrl = CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, 
                         grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
         f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
-        println("non-controlled value of Tr(WF^{-1}) is $(f_noctrl)")
+        println("non-controlled value of Tr(WI^{-1}) is $(f_noctrl)")
         ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
         if Adam == true
             grape.control_coefficients, f_ini = gradient_CFIM_analy_Adam(Measurement, grape)
@@ -1228,7 +1228,7 @@ function GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file)
             grape.control_coefficients, f_ini = gradient_CFIM_analy(Measurement, grape)
         end
         f_list = [f_ini]
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+        println("initial value of Tr(WI^{-1}) is $(f_ini)")
         if save_file == true
             SaveFile_ctrl(f_ini, ctrl_pre)
             if Adam == true
@@ -1238,14 +1238,14 @@ function GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        println("Final value of Tr(WI^{-1}) is ", f_now)
                         SaveFile_ctrl(f_now, ctrl_pre)
                         break
                     else
                         f_ini = f_now
                         episodes += 1
                         SaveFile_ctrl(f_now, ctrl_pre)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
+                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
                 end
             else
@@ -1255,13 +1255,13 @@ function GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        println("Final value of Tr(WI^{-1}) is ", f_now)
                         SaveFile_ctrl(f_now, ctrl_pre)
                         break
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, ctrl_pre)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
+                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
                 end
             end
@@ -1273,14 +1273,14 @@ function GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        println("Final value of Tr(WI^{-1}) is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, ctrl_pre)
                         break
                     else
                         episodes += 1
                         append!(f_list, f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
+                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
                 end
             else
@@ -1290,30 +1290,17 @@ function GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        println("Final value of Tr(WI^{-1}) is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, ctrl_pre)
                         break
                     else
                         episodes += 1
                         append!(f_list, f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
+                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
                 end
             end
         end
     end
-end
-
-function update_B(B, x, y, ctrl_num, ctrl_length)
-    for i in 1:ctrl_num
-        sk = reshape(x[i], ctrl_length, 1)
-        sk_T = reshape(x[i], 1, ctrl_length)
-        yk = reshape(y[i], ctrl_length, 1)
-        yk_T = reshape(y[i], 1, ctrl_length)
-        term1 = (1/(sk_T*yk)[1] + (yk_T*B[i]*yk)[1]/(sk_T*yk)[1]^2)*sk*sk_T
-        term2 = (B[i]*yk*sk_T + sk*yk_T*B[i])/(sk_T*yk)[1]
-        B[i] = B[i] + term1 - term2
-    end
-    B
 end

@@ -181,7 +181,7 @@ function DE_CFIM(Measurement, DE::DiffEvo{T}, popsize, ini_population, c, cr, se
             p_fit = DE_train_CFIM(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
-            SaveFile_ctrl((f_list, populations[indx].control_coefficients)
+            SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final CFI is ", maximum(p_fit))
@@ -202,8 +202,8 @@ function DE_CFIM(Measurement, DE::DiffEvo{T}, popsize, ini_population, c, cr, se
     else
         println("multiparameter scenario")
         println("control algorithm: Differential Evolution (DE)")
-        println("non-controlled value of Tr(WF^{-1}) is $(f_noctrl)")
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+        println("non-controlled value of Tr(WI^{-1}) is $(f_noctrl)")
+        println("initial value of Tr(WI^{-1}) is $(f_ini)")
     
         f_list = [f_ini]
         if save_file == true
@@ -212,7 +212,7 @@ function DE_CFIM(Measurement, DE::DiffEvo{T}, popsize, ini_population, c, cr, se
                 indx = findmax(p_fit)[2]
                 append!(f_list, 1.0/maximum(p_fit))
                 SaveFile_ctrl(f_list, populations[indx].control_coefficients)
-                print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
+                print("current value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             end
             p_fit = DE_train_CFIM(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
@@ -220,12 +220,12 @@ function DE_CFIM(Measurement, DE::DiffEvo{T}, popsize, ini_population, c, cr, se
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
+            println("Final value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit))
         else
             for i in 1:(max_episode-1)
                 p_fit = DE_train_CFIM(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
                 append!(f_list, 1.0/maximum(p_fit))
-                print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
+                print("current value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             end
             p_fit = DE_train_CFIM(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
             indx = findmax(p_fit)[2]
@@ -233,13 +233,12 @@ function DE_CFIM(Measurement, DE::DiffEvo{T}, popsize, ini_population, c, cr, se
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
+            println("Final value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit))
         end
     end
 end
 
 function DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
-    f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations
         mut_num = sample(1:p_num, 3, replace=false)
@@ -252,6 +251,7 @@ function DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
             end
         end
         #crossover
+        # f_mean = p_fit |> mean
         # if p_fit[pj] > f_mean
         #     cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
         # else
@@ -290,7 +290,6 @@ function DE_train_QFIM(populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
 end
 
 function DE_train_CFIM(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit)
-    f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations
         mut_num = sample(1:p_num, 3, replace=false)
@@ -303,6 +302,7 @@ function DE_train_CFIM(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_le
             end
         end
         #crossover
+        # f_mean = p_fit |> mean
         # if p_fit[pj] > f_mean
         #     cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
         # else

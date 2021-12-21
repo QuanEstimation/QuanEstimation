@@ -263,8 +263,8 @@ function PSO_CFIM(Measurement, pso::PSO{T}, max_episode, particle_num, ini_parti
     else
         println("multiparameter scenario")
         println("control algorithm: Particle Swarm Optimization (PSO)")
-        println("non-controlled value of Tr(WF^{-1}) is $(f_noctrl)")
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+        println("non-controlled value of Tr(WI^{-1}) is $(f_noctrl)")
+        println("initial value of Tr(WI^{-1}) is $(f_ini)")
         
         f_list = [f_ini]
         if save_file == true
@@ -278,7 +278,7 @@ function PSO_CFIM(Measurement, pso::PSO{T}, max_episode, particle_num, ini_parti
                 end
                 append!(f_list, 1.0/fit)
                 SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
-                print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
+                print("current value of Tr(WI^{-1}) is $(1.0/fit) ($ei episodes) \r")
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(Measurement, particles, p_fit, fit, max_episode, 
                                                                 c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, 
@@ -287,7 +287,7 @@ function PSO_CFIM(Measurement, pso::PSO{T}, max_episode, particle_num, ini_parti
             SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
+            println("Final value of Tr(WI^{-1}) is $(1.0/fit)")
         else
             for ei in 1:(max_episode[1]-1)
                 p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(Measurement, particles, p_fit, fit, max_episode, 
@@ -298,7 +298,7 @@ function PSO_CFIM(Measurement, pso::PSO{T}, max_episode, particle_num, ini_parti
                     particles = repeat(pso, particle_num)
                 end
                 append!(f_list, 1.0/fit)
-                print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
+                print("current value of Tr(WI^{-1}) is $(1.0/fit) ($ei episodes) \r")
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_CFIM(Measurement, particles, p_fit, fit, max_episode, 
                                                                 c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, 
@@ -307,7 +307,7 @@ function PSO_CFIM(Measurement, pso::PSO{T}, max_episode, particle_num, ini_parti
             SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
+            println("Final value of Tr(WI^{-1}) is $(1.0/fit)")
         end
     end
 end

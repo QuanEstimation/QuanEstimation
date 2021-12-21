@@ -134,7 +134,7 @@ function propagate!(system)
                                        system.control_coefficients, system.tspan)
 end
 
-function expm(H0::Matrix{T}, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ,control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan) where {T <: Complex,R <: Real}
+function expm(H0::Matrix{T}, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan) where {T <: Complex,R <: Real}
 
     ctrl_num = length(control_Hamiltonian)
     ctrl_interval = ((length(tspan)-1)/length(control_coefficients[1])) |> Int

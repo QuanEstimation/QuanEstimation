@@ -1,7 +1,7 @@
 ############# time-independent Hamiltonian (noiseless) ################
-function PSO_QFIM(pso::TimeIndepend_noiseless{T}, max_episode, particle_num, ini_particle, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
+function PSO_QFIM(pso::TimeIndepend_noiseless{T}, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file) where {T<: Complex}
     println("state optimization")
-    Random.seed!(sd)
+    Random.seed!(seed)
     dim = length(pso.psi)
     particles = repeat(pso, particle_num)
     velocity = v0.*rand(ComplexF64, dim, particle_num)
@@ -9,6 +9,7 @@ function PSO_QFIM(pso::TimeIndepend_noiseless{T}, max_episode, particle_num, ini
     gbest = zeros(ComplexF64, dim)
     velocity_best = zeros(ComplexF64, dim)
     p_fit = zeros(particle_num)
+    fit = 0.0
 
     if typeof(max_episode) == Int
         max_episode = [max_episode, max_episode]
@@ -35,7 +36,6 @@ function PSO_QFIM(pso::TimeIndepend_noiseless{T}, max_episode, particle_num, ini
         println("single parameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
         println("initial QFI is $(1.0/qfi_ini)")      
-        fit = 0.0
         f_list = [1.0/qfi_ini]
         if save_file==true
             for ei in 1:(max_episode[1]-1)
@@ -82,7 +82,6 @@ function PSO_QFIM(pso::TimeIndepend_noiseless{T}, max_episode, particle_num, ini
         println("multiparameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
         println("initial value of Tr(WF^{-1}) is $(qfi_ini)")       
-        fit = 0.0
         f_list = [qfi_ini]
         if save_file==true
             for ei in 1:(max_episode[1]-1)
@@ -127,9 +126,9 @@ function PSO_QFIM(pso::TimeIndepend_noiseless{T}, max_episode, particle_num, ini
     end
 end
 
-function PSO_CFIM(M, pso::TimeIndepend_noiseless{T}, max_episode, particle_num, ini_particle, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
+function PSO_CFIM(M, pso::TimeIndepend_noiseless{T}, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file) where {T<: Complex}
     println("state optimization")
-    Random.seed!(sd)
+    Random.seed!(seed)
     dim = length(pso.psi)
     particles = repeat(pso, particle_num)
     velocity = v0.*rand(ComplexF64, dim, particle_num)
@@ -137,6 +136,7 @@ function PSO_CFIM(M, pso::TimeIndepend_noiseless{T}, max_episode, particle_num, 
     gbest = zeros(ComplexF64, dim)
     velocity_best = zeros(ComplexF64, dim)
     p_fit = zeros(particle_num)
+    fit = 0.0
 
     if typeof(max_episode) == Int
         max_episode = [max_episode, max_episode]
@@ -163,7 +163,6 @@ function PSO_CFIM(M, pso::TimeIndepend_noiseless{T}, max_episode, particle_num, 
         println("single parameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
         println("initial CFI is $(1.0/f_ini)") 
-        fit = 0.0
         f_list = [1.0/f_ini]
         if save_file==true
             for ei in 1:(max_episode[1]-1)
@@ -209,8 +208,7 @@ function PSO_CFIM(M, pso::TimeIndepend_noiseless{T}, max_episode, particle_num, 
     else
         println("multiparameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
-        fit = 0.0
+        println("initial value of Tr(WI^{-1}) is $(f_ini)")
         f_list = [f_ini]
         if save_file==true
             for ei in 1:(max_episode[1]-1)
@@ -222,7 +220,7 @@ function PSO_CFIM(M, pso::TimeIndepend_noiseless{T}, max_episode, particle_num, 
                     particles = repeat(pso, particle_num)
                 end
                 append!(f_list, (1.0/fit))
-                print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
+                print("current value of Tr(WI^{-1}) is $(1.0/fit) ($ei episodes) \r")
                 SaveFile_state(f_list, gbest)
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noiseless(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
@@ -230,7 +228,7 @@ function PSO_CFIM(M, pso::TimeIndepend_noiseless{T}, max_episode, particle_num, 
             append!(f_list, (1.0/fit))
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
+            println("Final value of Tr(WI^{-1}) is $(1.0/fit)")
         else
             for ei in 1:(max_episode[1]-1)
                 #### train ####
@@ -241,7 +239,7 @@ function PSO_CFIM(M, pso::TimeIndepend_noiseless{T}, max_episode, particle_num, 
                     particles = repeat(pso, particle_num)
                 end
                 append!(f_list, (1.0/fit))
-                print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
+                print("current value of Tr(WI^{-1}) is $(1.0/fit) ($ei episodes) \r")
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noiseless(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                                     dim, pbest, gbest, velocity_best, velocity)
@@ -249,7 +247,7 @@ function PSO_CFIM(M, pso::TimeIndepend_noiseless{T}, max_episode, particle_num, 
             SaveFile_state(f_list, gbest)
             print("\e[2K") 
             println("Iteration over, data saved.") 
-            println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
+            println("Final value of Tr(WI^{-1}) is $(1.0/fit)")
         end
     end
 end
@@ -333,9 +331,9 @@ function train_CFIM_noiseless(M, particles, p_fit, fit, max_episode, c0, c1, c2,
 end
 
 ############# time-independent Hamiltonian (noise) ################
-function PSO_QFIM(pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_particle, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
+function PSO_QFIM(pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file) where {T<: Complex}
     println("state optimization")
-    Random.seed!(sd)
+    Random.seed!(seed)
     dim = length(pso.psi)
     particles = repeat(pso, particle_num)
     velocity = v0.*rand(ComplexF64, dim, particle_num)
@@ -343,6 +341,7 @@ function PSO_QFIM(pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_par
     gbest = zeros(ComplexF64, dim)
     velocity_best = zeros(ComplexF64, dim)
     p_fit = zeros(particle_num)
+    fit = 0.0
 
     if typeof(max_episode) == Int
         max_episode = [max_episode, max_episode]
@@ -369,7 +368,6 @@ function PSO_QFIM(pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_par
         println("single parameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
         println("initial QFI is $(1.0/qfi_ini)")
-        fit = 0.0
         f_list = [1.0/qfi_ini]
         if save_file==true
             for ei in 1:(max_episode[1]-1)
@@ -416,7 +414,6 @@ function PSO_QFIM(pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_par
         println("multiparameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
         println("initial value of Tr(WF^{-1}) is $(qfi_ini)")
-        fit = 0.0
         f_list = [qfi_ini]
         if save_file==true
             for ei in 1:(max_episode[1]-1)
@@ -461,9 +458,9 @@ function PSO_QFIM(pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_par
     end
 end
 
-function PSO_CFIM(M, pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_particle, c0, c1, c2, v0, sd, save_file) where {T<: Complex}
+function PSO_CFIM(M, pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file) where {T<: Complex}
     println("state optimization")
-    Random.seed!(sd)
+    Random.seed!(seed)
     dim = length(pso.psi)
     particles = repeat(pso, particle_num)
     velocity = v0.*rand(ComplexF64, dim, particle_num)
@@ -471,6 +468,7 @@ function PSO_CFIM(M, pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_
     gbest = zeros(ComplexF64, dim)
     velocity_best = zeros(ComplexF64, dim)
     p_fit = zeros(particle_num)
+    fit = 0.0
 
     if typeof(max_episode) == Int
         max_episode = [max_episode, max_episode]
@@ -497,7 +495,6 @@ function PSO_CFIM(M, pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_
         println("single parameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
         println("initial CFI is $(1.0/f_ini)")
-        fit = 0.0
         f_list = [1.0/f_ini]
         if save_file==true
             for ei in 1:(max_episode[1]-1)
@@ -544,8 +541,7 @@ function PSO_CFIM(M, pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_
     else
         println("multiparameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
-        fit = 0.0
+        println("initial value of Tr(WI^{-1}) is $(f_ini)")
         f_list = [f_ini]
         if save_file==true
             for ei in 1:(max_episode[1]-1)
@@ -558,7 +554,7 @@ function PSO_CFIM(M, pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_
                 end
                 append!(f_list, (1.0/fit))
                 SaveFile_state(f_list, gbest)
-                print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r") 
+                print("current value of Tr(WI^{-1}) is $(1.0/fit) ($ei episodes) \r") 
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noise(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                                     dim, pbest, gbest, velocity_best, velocity)
@@ -566,7 +562,7 @@ function PSO_CFIM(M, pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_
             SaveFile_state(f_list, gbest)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
+            println("Final value of Tr(WI^{-1}) is $(1.0/fit)")
         else
             for ei in 1:(max_episode[1]-1)
                 #### train ####
@@ -577,7 +573,7 @@ function PSO_CFIM(M, pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_
                     particles = repeat(pso, particle_num)
                 end
                 append!(f_list, (1.0/fit))
-                print("current value of Tr(WF^{-1}) is $(1.0/fit) ($ei episodes) \r")
+                print("current value of Tr(WI^{-1}) is $(1.0/fit) ($ei episodes) \r")
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_noise(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                                     dim, pbest, gbest, velocity_best, velocity)
@@ -585,7 +581,7 @@ function PSO_CFIM(M, pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_
             SaveFile_state(f_list, gbest)
             print("\e[2K") 
             println("Iteration over, data saved.") 
-            println("Final value of Tr(WF^{-1}) is $(1.0/fit)")
+            println("Final value of Tr(WI^{-1}) is $(1.0/fit)")
         end
     end
 end

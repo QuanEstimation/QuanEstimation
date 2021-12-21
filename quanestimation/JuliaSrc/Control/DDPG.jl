@@ -275,7 +275,7 @@ function _step!(env::ControlEnv, a, ::Val{false}, ::Val{false}, ::Val{true})
         append!(env.total_reward_all, env.total_reward)
         SaveFile_ddpg(1.0/f_current, env.total_reward, env.ctrl_list)
         env.episode += 1
-        print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
+        print("current value of Tr(WI^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
     end
     nothing 
 end
@@ -297,7 +297,7 @@ function _step!(env::ControlEnv, a, ::Val{false}, ::Val{false}, ::Val{false})
         append!(env.f_final, 1.0/f_current)
         append!(env.total_reward_all, env.total_reward)
         env.episode += 1
-        print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
+        print("current value of Tr(WI^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
     end
     nothing 
 end
@@ -406,8 +406,8 @@ function DDPG_CFIM(Measurement, params::ControlEnvParams, layer_num, layer_dim, 
     else
         println("multiparameter scenario")
         println("control algorithm: deep deterministic policy gradient algorithm (DDPG)")
-        println("non-controlled value of Tr(WF^{-1}) is $(1.0/env.f_noctrl[end])")
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+        println("non-controlled value of Tr(WI^{-1}) is $(1.0/env.f_noctrl[end])")
+        println("initial value of Tr(WI^{-1}) is $(f_ini)")
         append!(env.f_final, f_ini)
     end
 
@@ -427,6 +427,6 @@ function DDPG_CFIM(Measurement, params::ControlEnvParams, layer_num, layer_dim, 
     if length(params.Hamiltonian_derivative) == 1
         println("Final CFI is ", env.f_final[end])
     else
-        println("Final value of Tr(WF^{-1}) is ", env.f_final[end])
+        println("Final value of Tr(WI^{-1}) is ", env.f_final[end])
     end
 end

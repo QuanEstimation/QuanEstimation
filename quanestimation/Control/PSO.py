@@ -87,3 +87,4 @@ class PSO(Control.ControlSystem):
                          self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
         Main.QuanEstimation.PSO_CFIM(Measurement, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, \
                                          self.seed, save_file)
+                                         

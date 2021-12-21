@@ -191,7 +191,7 @@ function NM_CFIM(Measurement, NM::TimeIndepend_noiseless{T}, state_num, ini_stat
     else
         println("multiparameter scenario")
         println("search algorithm: Nelder-Mead method (NM)")
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+        println("initial value of Tr(WI^{-1}) is $(f_ini)")
 
         f_list = [f_ini]
         episodes = 1
@@ -204,13 +204,13 @@ function NM_CFIM(Measurement, NM::TimeIndepend_noiseless{T}, state_num, ini_stat
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
-                    println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
+                    println("Final value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit))
                     break
                 else
                     episodes += 1
                     append!(f_list, 1.0/maximum(p_fit))
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
-                    print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($(episodes-1) episodes)    \r")
+                    print("current value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit), " ($(episodes-1) episodes)    \r")
                 end
             end
         else
@@ -221,12 +221,12 @@ function NM_CFIM(Measurement, NM::TimeIndepend_noiseless{T}, state_num, ini_stat
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
-                    println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
+                    println("Final value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit))
                     break
                 else
                     episodes += 1
                     append!(f_list, 1.0/maximum(p_fit))
-                    print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($(episodes-1) episodes)    \r")
+                    print("current value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit), " ($(episodes-1) episodes)    \r")
                 end
             end
         end
@@ -650,7 +650,7 @@ function NM_CFIM(Measurement, NM::TimeIndepend_noise{T}, state_num, ini_state, a
     else
         println("multiparameter scenario")
         println("search algorithm: Nelder-Mead method (NM)")
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+        println("initial value of Tr(WI^{-1}) is $(f_ini)")
 
         f_list = [f_ini]
         episodes = 1
@@ -663,13 +663,13 @@ function NM_CFIM(Measurement, NM::TimeIndepend_noise{T}, state_num, ini_state, a
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
-                    println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
+                    println("Final value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit))
                     break
                 else
                     episodes += 1
                     append!(f_list, 1.0/maximum(p_fit))
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
-                    print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($(episodes-1) episodes)    \r")
+                    print("current value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit), " ($(episodes-1) episodes)    \r")
                 end
             end
         else
@@ -680,12 +680,12 @@ function NM_CFIM(Measurement, NM::TimeIndepend_noise{T}, state_num, ini_state, a
                     SaveFile_state(f_list, nelder_mead[sort_ind[1]].psi)
                     print("\e[2K")
                     println("Iteration over, data saved.")
-                    println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
+                    println("Final value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit))
                     break
                 else
                     episodes += 1
                     append!(f_list, 1.0/maximum(p_fit))
-                    print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($(episodes-1) episodes)    \r")
+                    print("current value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit), " ($(episodes-1) episodes)    \r")
                 end
             end
         end

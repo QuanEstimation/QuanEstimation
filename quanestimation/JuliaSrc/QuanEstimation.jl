@@ -2,7 +2,7 @@ module QuanEstimation
 
 using LinearAlgebra
 using Zygote
-using DifferentialEquations
+# using DifferentialEquations
 using JLD
 using Random
 using SharedArrays
@@ -11,8 +11,11 @@ using SparseArrays
 using DelimitedFiles
 using StatsBase
 using ReinforcementLearning
+using Convex
+using SCS
 
 include("AsymptoticBound/CramerRao.jl")
+include("AsymptoticBound/Holevo.jl")
 include("Common/common.jl")
 include("Control/GRAPE.jl")
 include("Control/DDPG.jl")
@@ -26,6 +29,10 @@ include("StateOptimization/StateOpt_NM.jl")
 include("StateOptimization/StateOpt_PSO.jl")
 include("StateOptimization/StateOpt_AD.jl")
 include("StateOptimization/StateOpt_DDPG.jl")
+include("Measurement/common.jl")
+include("Measurement/MeasurementOpt_AD.jl")
+include("Measurement/MeasurementOpt_PSO.jl")
+include("Measurement/MeasurementOpt_DE.jl")
 # include("QuanResources/")
 export QFI, QFIM, CFI, CFIM
 export suN_generator, expm
