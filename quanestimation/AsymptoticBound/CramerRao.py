@@ -1,7 +1,6 @@
 
 import numpy as np
 import numpy.linalg as LA
-from quanestimation.Common import suN_generator
 #===============================================================================
 #Subclass: metrology
 #===============================================================================
@@ -19,14 +18,14 @@ def CFIM(rho, drho, M, accuracy=1e-8):
     Inputs
     ---------
     rho:
-       --description: parameterized density matrix.
-       --type: matrix
+        --description: parameterized density matrix.
+        --type: matrix
 
     drho:
-       --description: derivatives of density matrix on all parameters to
-                      be estimated. For example, drho[0] is the derivative
-                      vector on the first parameter.
-       --type: list (of matrix)
+        --description: derivatives of density matrix (rho) on all parameters  
+                       to be estimated. For example, drho[0] is the derivative 
+                       vector on the first parameter.
+        --type: list (of matrix)
 
     M:
        --description: a set of POVM. It takes the form [M1, M2, ...].
@@ -50,15 +49,15 @@ def CFIM(rho, drho, M, accuracy=1e-8):
     CFIM_res = np.zeros([para_num,para_num])
     for pi in range(0,m_num):
         Mp = M[pi]
-        p = np.trace(np.dot(rho,Mp))
+        p = np.real(np.trace(np.dot(rho,Mp)))
         Cadd = np.zeros([para_num,para_num])
         if p > accuracy:
             for para_i in range(0,para_num):
                 drho_i = drho[para_i]
-                dp_i = np.trace(np.dot(drho_i,Mp))
+                dp_i = np.real(np.trace(np.dot(drho_i,Mp)))
                 for para_j in range(para_i,para_num):
                     drho_j = drho[para_j]
-                    dp_j = np.trace(np.dot(drho_j,Mp))
+                    dp_j = np.real(np.trace(np.dot(drho_j,Mp)))
                     Cadd[para_i][para_j] = np.real(dp_i*dp_j/p)
                     Cadd[para_j][para_i] = np.real(dp_i*dp_j/p)
         CFIM_res += Cadd
@@ -81,23 +80,24 @@ def SLD(rho, drho, rep='original', accuracy=1e-8):
         --type: matrix
 
     drho:
-        --description: derivatives of density matrix on all parameters to
-                        be estimated. For example, drho[0] is the derivative
-                        vector on the first parameter.
+        --description: derivatives of density matrix (rho) on all parameters  
+                       to be estimated. For example, drho[0] is the derivative 
+                       vector on the first parameter.
         --type: list (of matrix)
 
     rep:
-        --description: setting the representation of SLDs. if rep=original,
-                        the output of SLDs are in the original space of the
-                        density matrix, if rep=eigen, then the output of SLDs
-                        are in the eigen space of the density matrix.
+        --description: the basis for the SLDs. 
+                       rep=original means the basis for obtained SLDs is the 
+                       same with the density matrix (rho).
+                       rep=eigen means the SLDs are written in the eigenspace of
+                       the density matrix (rho).
         --type: string {'original', 'eigen'}
 
     ----------
     Returns
     ----------
     SLD:
-        --description: SLD for a density matrix.
+        --description: SLD for the density matrix (rho).
         --type: list (of matrix)
 
     """
@@ -152,34 +152,35 @@ def SLD(rho, drho, rep='original', accuracy=1e-8):
 
 def RLD(rho, drho, rep='original', accuracy=1e-8):
     """
-        Description: calculation of the right logarithmic derivative (RLD)
-                    for a density matrix.
+    Description: calculation of the right logarithmic derivative (RLD)
+                 for a density matrix.
 
     ----------
     Inputs
     ----------
     rho:
-        --description: parameterized density matrix
+        --description: parameterized density matrix.
         --type: matrix
 
     drho:
-        --description: derivatives of density matrix on all parameters to
-                        be estimated. For example, drho[0] is the derivative
-                        vector on the first parameter.
+        --description: derivatives of density matrix (rho) on all parameters  
+                       to be estimated. For example, drho[0] is the derivative 
+                       vector on the first parameter.
         --type: list (of matrix)
 
     rep:
-        --description: setting the representation of SLDs. if rep=original,
-                        the output of SLDs are in the original space of the
-                        density matrix, if rep=eigen, then the output of SLDs
-                        are in the eigen space of the density matrix.
+        --description: the basis for the RLDs. 
+                       rep=original means the basis for obtained RLDs is the 
+                       same with the density matrix (rho).
+                       rep=eigen means the RLDs are written in the eigenspace of
+                       the density matrix (rho).
         --type: string {'original', 'eigen'}
 
     ----------
     Returns
     ----------
     RLD:
-        --description: RLD for a density matrix.
+        --description: RLD for the density matrix (rho).
         --type: list (of matrix)
 
     """
@@ -224,23 +225,24 @@ def LLD(rho, drho, rep='original', accuracy=1e-8):
         --type: matrix
 
     drho:
-        --description: derivatives of density matrix on all parameters to
-                        be estimated. For example, drho[0] is the derivative
-                        vector on the first parameter.
+        --description: derivatives of density matrix (rho) on all parameters  
+                       to be estimated. For example, drho[0] is the derivative 
+                       vector on the first parameter.
         --type: list (of matrix)
 
     rep:
-        --description: setting the representation of SLDs. if rep=original,
-                        the output of SLDs are in the original space of the
-                        density matrix, if rep=eigen, then the output of SLDs
-                        are in the eigen space of the density matrix.
+        --description: the basis for the LLDs. 
+                       rep=original means the basis for obtained LLDs is the 
+                       same with the density matrix (rho).
+                       rep=eigen means the LLDs are written in the eigenspace of
+                       the density matrix (rho).
         --type: string {'original', 'eigen'}
 
     ----------
     Returns
     ----------
     LLD:
-        --description: LLD for a density matrix.
+        --description: LLD for the density matrix (rho).
         --type: list (of matrix)
 
     """
@@ -274,7 +276,7 @@ def LLD(rho, drho, rep='original', accuracy=1e-8):
     else:
         return LLD
 
-def QFIM(rho, drho, dtype='SLD', rep='original', rho_type = 'DM', exportLD=False):
+def QFIM(rho, drho, dtype='SLD', rep='original', exportLD=False, accuracy=1e-8):
     """
     Description: Calculation of quantum Fisher information matrix (QFIM)
                 for a density matrix.
@@ -287,30 +289,26 @@ def QFIM(rho, drho, dtype='SLD', rep='original', rho_type = 'DM', exportLD=False
         --type: matrix
 
     drho:
-        --description: derivatives of density matrix on all parameters to
-                        be estimated. For example, drho[0] is the derivative
-                        vector on the first parameter.
+        --description: derivatives of density matrix (rho) on all parameters  
+                       to be estimated. For example, drho[0] is the derivative 
+                       vector on the first parameter.
         --type: list (of matrix)
 
     dtype:
-        --description: setting the type used to calculate the QFI or QFIM.
+        --description: the type of logarithmic derivatives.
         --type: string {'SLD', 'RLD', 'LLD'}
 
     rep:
-        --description: setting the representation of LDs. if rep=original,
-                        the output of LDs are in the original space of the
-                        density matrix, if rep=eigen, then the output of LDs
-                        are in the eigen space of the density matrix.
+        --description: the basis for the logarithmic derivatives (LD). 
+                       rep=original means the basis for obtained LDs is the 
+                       same with the density matrix (rho).
+                       rep=eigen means the LDs are written in the eigenspace of
+                       the density matrix (rho).
         --type: string {'original', 'eigen'}
-        
-    rho_type:
-        --description: setting the type of rho.
-        --type: string {'DM', 'Bloch_vector'}
 
-       
     exportLD:
-        --description: if True, for single parameter estimation senario, it will 
-                        return QFI and LD.
+        --description: if True, the corresponding value of logarithmic derivatives 
+                       will be exported.
         --type: bool
            
     ----------
@@ -318,15 +316,16 @@ def QFIM(rho, drho, dtype='SLD', rep='original', rho_type = 'DM', exportLD=False
     ----------
     QFIM:
         --description: Quantum Fisher information matrix. If the length
-                        of drho is one, the output is a float number (QFI),
-                        otherwise it returns a matrix (QFIM).
+                       of drho is 1, the output is a float number (QFI),
+                       otherwise it returns a matrix (QFIM).
         --type: float number (QFI) or matrix (QFIM)
 
     ----------
     notes
     ----------
     If the desity matrix that you input is in the original space, then the
-    same with SLD, otherwise the SLD be calculated in the the eigenspace.
+    same with logarithmic derivatives, otherwise the logarithmic derivatives
+    be calculated in the eigenspace of the desity matrix.
 
     """
 
@@ -335,36 +334,19 @@ def QFIM(rho, drho, dtype='SLD', rep='original', rho_type = 'DM', exportLD=False
 
     para_num = len(drho)
 
-    #===========================================================
-    if rho_type == 'Bloch_vector':
-        r = rho
-        dr = drho
-        dim = int(np.sqrt(len(r)+1))
-        Lambda = suN_generator(dim)
-        rho = np.identity(dim)/dim
-        for i in range(len(r)):
-            rho = rho + np.sqrt((dim-1)/(2*dim))*r[i]*Lambda[i]
-
-        drho = [[] for i in range(0, para_num)]
-        for para in range(para_num):
-            drho[para] = np.zeros((dim))
-            for j in range(len(r)):
-                drho[para] = drho[para] + np.sqrt((dim-1)/(2*dim))*dr[para][j]*Lambda[j]
-    #=========================================================== 
-
     # singleparameter estimation
     if para_num == 1:
         if dtype=='SLD':
-            LD_tp = SLD(rho, drho, rep)
+            LD_tp = SLD(rho, drho, rep, accuracy)
             SLD_ac = np.dot(LD_tp,LD_tp)+np.dot(LD_tp,LD_tp)
             QFIM_res = np.real(0.5*np.trace(np.dot(rho,SLD_ac)))
 
         elif dtype=='RLD':
-            LD_tp = RLD(rho, drho, rep)
+            LD_tp = RLD(rho, drho, rep, accuracy)
             QFIM_res = np.real(np.trace(np.dot(rho,np.dot(LD_tp, LD_tp).conj().transpose())))
 
         elif dtype=='LLD':
-            LD_tp = LLD(rho, drho, rep)
+            LD_tp = LLD(rho, drho, rep, accuracy)
             QFIM_res = np.real(np.trace(np.dot(rho,np.dot(LD_tp, LD_tp).conj().transpose())))
         else:
             raise NameError('NameError: dtype should be choosen in {SLD, RLD, LLD}')
@@ -373,7 +355,7 @@ def QFIM(rho, drho, dtype='SLD', rep='original', rho_type = 'DM', exportLD=False
     else:  
         QFIM_res = np.zeros([para_num,para_num])
         if dtype=='SLD':
-            LD_tp = SLD(rho, drho, rep)
+            LD_tp = SLD(rho, drho, rep, accuracy)
             for para_i in range(0, para_num):
                 for para_j in range(para_i, para_num):
                     SLD_ac = np.dot(LD_tp[para_i],LD_tp[para_j])+np.dot(LD_tp[para_j],LD_tp[para_i])
@@ -381,14 +363,14 @@ def QFIM(rho, drho, dtype='SLD', rep='original', rho_type = 'DM', exportLD=False
                     QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
 
         elif dtype=='RLD':
-            LD_tp = RLD(rho, drho, rep)
+            LD_tp = RLD(rho, drho, rep, accuracy)
             for para_i in range(0, para_num):
                 for para_j in range(para_i, para_num):
                     QFIM_res[para_i][para_j] = np.real(np.trace(np.dot(rho,np.dot(LD_tp[para_i],                                                             LD_tp[para_j]).conj().transpose())))
                     QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
 
         elif dtype=='LLD':
-            LD_tp = LLD(rho, drho, rep)
+            LD_tp = LLD(rho, drho, rep, accuracy)
             for para_i in range(0, para_num):
                 for para_j in range(para_i, para_num):
                     QFIM_res[para_i][para_j] = np.real(np.trace(np.dot(rho,np.dot(LD_tp[para_i],                                                              LD_tp[para_j]).conj().transpose())))

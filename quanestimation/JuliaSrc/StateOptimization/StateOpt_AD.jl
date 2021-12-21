@@ -318,7 +318,7 @@ function AD_CFIM(Measurement, AD::TimeIndepend_noiseless{T}, mt, vt, epsilon, be
         F = CFIM_TimeIndepend(Measurement, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.psi, AD.tspan, AD.accuracy)
         f_ini = real(tr(AD.W*pinv(F)))
         f_list = [f_ini]
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+        println("initial value of Tr(WI^{-1}) is $(f_ini)")
         if Adam == true
             gradient_CFIM_Adam!(AD, Measurement, epsilon, mt, vt, beta1, beta2)
         else
@@ -333,13 +333,13 @@ function AD_CFIM(Measurement, AD::TimeIndepend_noiseless{T}, mt, vt, epsilon, be
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        println("Final value of Tr(WI^{-1}) is ", f_now)
                         SaveFile_state(f_now, AD.psi)
                         break
                     else
                         episodes += 1
                         SaveFile_state(f_now, AD.psi)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
+                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_CFIM_Adam!(AD, Measurement, epsilon, mt, vt, beta1, beta2)
                 end
@@ -350,13 +350,13 @@ function AD_CFIM(Measurement, AD::TimeIndepend_noiseless{T}, mt, vt, epsilon, be
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        println("Final value of Tr(WI^{-1}) is ", f_now)
                         SaveFile_state(f_now, AD.psi)
                         break
                     else
                         episodes += 1
                         SaveFile_state(f_now, AD.psi)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
+                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_CFIM!(AD, Measurement, epsilon)
                 end
@@ -369,14 +369,14 @@ function AD_CFIM(Measurement, AD::TimeIndepend_noiseless{T}, mt, vt, epsilon, be
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        println("Final value of Tr(WI^{-1}) is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_state(f_list, AD.psi)
                         break
                     else
                         episodes += 1
                         append!(f_list, f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
+                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_CFIM_Adam!(AD, Measurement, epsilon, mt, vt, beta1, beta2)
                 end
@@ -387,14 +387,14 @@ function AD_CFIM(Measurement, AD::TimeIndepend_noiseless{T}, mt, vt, epsilon, be
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        println("Final value of Tr(WI^{-1}) is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_state(f_list, AD.psi)
                         break
                     else
                         episodes += 1
                         append!(f_list, f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
+                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_CFIM!(AD, Measurement, epsilon)
                 end
@@ -736,7 +736,7 @@ function AD_CFIM(Measurement, AD::TimeIndepend_noise{T}, mt, vt, epsilon, beta1,
                               AD.γ, AD.tspan, AD.accuracy)
         f_ini = real(tr(AD.W*pinv(F)))
         f_list = [f_ini]
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+        println("initial value of Tr(WI^{-1}) is $(f_ini)")
         if save_file == true
             SaveFile_state(f_ini, AD.psi)
             if Adam == true
@@ -748,13 +748,13 @@ function AD_CFIM(Measurement, AD::TimeIndepend_noise{T}, mt, vt, epsilon, beta1,
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        println("Final value of Tr(WI^{-1}) is ", f_now)
                         SaveFile_state(f_now, AD.psi)
                         break
                     else
                         episodes += 1
                         SaveFile_state(f_now, AD.psi)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
+                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_CFIM_Adam!(AD, Measurement, epsilon, mt, vt, beta1, beta2)
                 end
@@ -767,13 +767,13 @@ function AD_CFIM(Measurement, AD::TimeIndepend_noise{T}, mt, vt, epsilon, beta1,
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        println("Final value of Tr(WI^{-1}) is ", f_now)
                         SaveFile_state(f_now, AD.psi)
                         break
                     else
                         episodes += 1
                         SaveFile_state(f_now, AD.psi)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
+                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_CFIM!(AD, Measurement, epsilon)
                 end
@@ -788,14 +788,14 @@ function AD_CFIM(Measurement, AD::TimeIndepend_noise{T}, mt, vt, epsilon, beta1,
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        println("Final value of Tr(WI^{-1}) is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_state(f_list, AD.psi)
                         break
                     else
                         episodes += 1
                         append!(f_list, f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
+                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_CFIM_Adam!(AD, Measurement, epsilon, mt, vt, beta1, beta2)
                 end
@@ -808,14 +808,14 @@ function AD_CFIM(Measurement, AD::TimeIndepend_noise{T}, mt, vt, epsilon, beta1,
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
+                        println("Final value of Tr(WI^{-1}) is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_state(f_list, AD.psi)
                         break
                     else
                         episodes += 1
                         append!(f_list, f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
+                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     gradient_CFIM!(AD, Measurement, epsilon)
                 end

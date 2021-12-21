@@ -3,6 +3,7 @@ import warnings
 import math
 import os
 import quanestimation.Control as ctrl
+
 class ControlSystem:
     def __init__(self, tspan, rho0, H0, Hc, dH, ctrl_0, decay, ctrl_bound, W, accuracy):
         

@@ -210,7 +210,7 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{fals
     append!(env.reward_all, env.reward)
     SaveFile_state_ddpg(1.0/f_current, env.reward, env.params.psi)
     env.episode += 1
-    print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
+    print("current value of Tr(WI^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
     nothing 
 end
 
@@ -229,7 +229,7 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{fals
     append!(env.f_list, 1.0/f_current)
     append!(env.reward_all, env.reward)
     env.episode += 1
-    print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
+    print("current value of Tr(WI^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
     nothing 
 end
 
@@ -329,7 +329,7 @@ function DDPG_CFIM(Measurement, params::TimeIndepend_noiseless, layer_num, layer
     else
         println("multiparameter scenario")
         println("search algorithm: deep deterministic policy gradient algorithm (DDPG)")
-        println("initial value of Tr(WF^{-1}) is $(env.f_ini)")
+        println("initial value of Tr(WI^{-1}) is $(env.f_ini)")
         append!(env.f_list, env.f_ini)
     end
 
@@ -349,7 +349,7 @@ function DDPG_CFIM(Measurement, params::TimeIndepend_noiseless, layer_num, layer
     if length(params.Hamiltonian_derivative) == 1
         println("Final CFI is ", env.f_list[end])
     else
-        println("Final value of Tr(WF^{-1}) is ", env.f_list[end])
+        println("Final value of Tr(WI^{-1}) is ", env.f_list[end])
     end
 end
 
@@ -557,7 +557,7 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{false}, ::Val{false}, ::Va
     append!(env.reward_all, env.reward)
     SaveFile_state_ddpg(1.0/f_current, env.reward, env.params.psi)
     env.episode += 1
-    print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
+    print("current value of Tr(WI^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
     nothing 
 end
 
@@ -576,7 +576,7 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{false}, ::Val{false}, ::Va
     append!(env.f_list, 1.0/f_current)
     append!(env.reward_all, env.reward)
     env.episode += 1
-    print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
+    print("current value of Tr(WI^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
 
     nothing 
 end
@@ -677,7 +677,7 @@ function DDPG_CFIM(Measurement, params::TimeIndepend_noise, layer_num, layer_dim
     else
         println("multiparameter scenario")
         println("search algorithm: deep deterministic policy gradient algorithm (DDPG)")
-        println("initial value of Tr(WF^{-1}) is $(env.f_ini)")
+        println("initial value of Tr(WI^{-1}) is $(env.f_ini)")
         append!(env.f_list, env.f_ini)
     end
 
@@ -697,6 +697,6 @@ function DDPG_CFIM(Measurement, params::TimeIndepend_noise, layer_num, layer_dim
     if length(params.Hamiltonian_derivative) == 1
         println("Final CFI is ", env.f_list[end])
     else
-        println("Final value of Tr(WF^{-1}) is ", env.f_list[end])
+        println("Final value of Tr(WI^{-1}) is ", env.f_list[end])
     end
 end

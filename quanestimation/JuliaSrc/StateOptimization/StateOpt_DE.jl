@@ -174,7 +174,7 @@ function DE_CFIM(Measurement, DE::TimeIndepend_noiseless{T}, popsize, ini_popula
     else  
         println("multiparameter scenario")
         println("search algorithm: Differential Evolution (DE)")
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+        println("initial value of Tr(WI^{-1}) is $(f_ini)")
 
         f_list = [f_ini]
         if save_file == true
@@ -185,7 +185,7 @@ function DE_CFIM(Measurement, DE::TimeIndepend_noiseless{T}, popsize, ini_popula
                 indx = findmax(p_fit)[2]
                 append!(f_list, 1.0/maximum(p_fit))
                 SaveFile_state(f_list, populations[indx].psi)
-                print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+                print("current value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_CFIM_noiseless(Measurement, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
@@ -193,12 +193,12 @@ function DE_CFIM(Measurement, DE::TimeIndepend_noiseless{T}, popsize, ini_popula
             SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
+            println("Final value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit))
         else
             for i in 1:(max_episode-1)
                 p_fit = train_CFIM_noiseless(Measurement, populations, c, cr, p_num, dim, p_fit)
                 append!(f_list, 1.0/maximum(p_fit))
-                print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+                print("current value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_CFIM_noiseless(Measurement, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
@@ -206,13 +206,12 @@ function DE_CFIM(Measurement, DE::TimeIndepend_noiseless{T}, popsize, ini_popula
             SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
+            println("Final value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit))
         end
     end
 end
 
 function train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
-    f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations
         mut_num = sample(1:p_num, 3, replace=false)
@@ -221,6 +220,7 @@ function train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
             ctrl_mut[ci] = populations[mut_num[1]].psi[ci]+c*(populations[mut_num[2]].psi[ci]-populations[mut_num[3]].psi[ci])
         end
         #crossover
+        # f_mean = p_fit |> mean
         # if p_fit[pj] > f_mean
         #     cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
         # else
@@ -254,7 +254,6 @@ function train_QFIM_noiseless(populations, c, cr, p_num, dim, p_fit)
 end
 
 function train_CFIM_noiseless(Measurement, populations, c, cr, p_num, dim, p_fit)
-    f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations
         mut_num = sample(1:p_num, 3, replace=false)
@@ -263,6 +262,7 @@ function train_CFIM_noiseless(Measurement, populations, c, cr, p_num, dim, p_fit
             ctrl_mut[ci] = populations[mut_num[1]].psi[ci]+c*(populations[mut_num[2]].psi[ci]-populations[mut_num[3]].psi[ci])
         end
         #crossover
+        # f_mean = p_fit |> mean
         # if p_fit[pj] > f_mean
         #     cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
         # else
@@ -332,7 +332,7 @@ function DE_QFIM(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed
     if length(DE.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("search algorithm: Differential Evolution (DE)")
-        println("initial QFI is $(f_ini)")
+        println("initial QFI is $(1.0/f_ini)")
     
         if save_file == true
             indx = findmax(p_fit)[2]
@@ -439,7 +439,7 @@ function DE_CFIM(Measurement, DE::TimeIndepend_noise{T}, popsize, ini_population
     if length(DE.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("search algorithm: Differential Evolution (DE)")
-        println("initial CFI is $(f_ini)")
+        println("initial CFI is $(1.0/f_ini)")
     
         if save_file == true
             indx = findmax(p_fit)[2]
@@ -475,7 +475,7 @@ function DE_CFIM(Measurement, DE::TimeIndepend_noise{T}, popsize, ini_population
     else
         println("multiparameter scenario")
         println("search algorithm: Differential Evolution (DE)")
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
+        println("initial value of Tr(WI^{-1}) is $(f_ini)")
 
         if save_file == true
             indx = findmax(p_fit)[2]
@@ -485,7 +485,7 @@ function DE_CFIM(Measurement, DE::TimeIndepend_noise{T}, popsize, ini_population
                 indx = findmax(p_fit)[2]
                 append!(f_list, 1.0/maximum(p_fit))
                 SaveFile_state(f_list, populations[indx].psi)
-                print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+                print("current value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_CFIM_noise(Measurement, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
@@ -493,12 +493,12 @@ function DE_CFIM(Measurement, DE::TimeIndepend_noise{T}, popsize, ini_population
             SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
+            println("Final value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit))
         else
             for i in 1:(max_episode-1)
                 p_fit = train_CFIM_noise(Measurement, populations, c, cr, p_num, dim, p_fit)
                 append!(f_list, 1.0/maximum(p_fit))
-                print("current value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+                print("current value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_CFIM_noise(Measurement, populations, c, cr, p_num, dim, p_fit)
             indx = findmax(p_fit)[2]
@@ -506,13 +506,12 @@ function DE_CFIM(Measurement, DE::TimeIndepend_noise{T}, popsize, ini_population
             SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of Tr(WF^{-1}) is ", 1.0/maximum(p_fit))
+            println("Final value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit))
         end
     end
 end
 
 function train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
-    f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations
         mut_num = sample(1:p_num, 3, replace=false)
@@ -521,6 +520,7 @@ function train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
             ctrl_mut[ci] = populations[mut_num[1]].psi[ci]+c*(populations[mut_num[2]].psi[ci]-populations[mut_num[3]].psi[ci])
         end
         #crossover
+        # f_mean = p_fit |> mean
         # if p_fit[pj] > f_mean
         #     cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
         # else
@@ -554,7 +554,6 @@ function train_QFIM_noise(populations, c, cr, p_num, dim, p_fit)
 end
 
 function train_CFIM_noise(Measurement, populations, c, cr, p_num, dim, p_fit)
-    f_mean = p_fit |> mean
     for pj in 1:p_num
         #mutations
         mut_num = sample(1:p_num, 3, replace=false)
@@ -563,6 +562,7 @@ function train_CFIM_noise(Measurement, populations, c, cr, p_num, dim, p_fit)
             ctrl_mut[ci] = populations[mut_num[1]].psi[ci]+c*(populations[mut_num[2]].psi[ci]-populations[mut_num[3]].psi[ci])
         end
         #crossover
+        # f_mean = p_fit |> mean
         # if p_fit[pj] > f_mean
         #     cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
         # else
