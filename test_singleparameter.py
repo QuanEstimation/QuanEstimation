@@ -10,7 +10,7 @@ sy = np.array([[0.+0.j, 0.-1.j],[0.+1.j, 0.+0.j]])
 sz = np.array([[1.+0.j, 0.+0.j],[0.+0.j, -1.+0.j]])
 H0 = 0.5*omega0*sz
 dH0 = [0.5*sz]
-Hc_ctrl = [sx,sy,sz]
+Hc = [sx,sy,sz]
 #measurement
 M1 = 0.5*np.array([[1.+0.j, 1.+0.j],[1.+0.j, 1.+0.j]])
 M2 = 0.5*np.array([[1.+0.j,-1.+0.j],[-1.+0.j,1.+0.j]])
@@ -26,11 +26,12 @@ tspan = np.linspace(0., T, tnum)
 #control coefficients
 cnum = tnum
 Hc_coeff = [np.zeros(cnum), np.zeros(cnum), np.zeros(cnum)]
+ctrl0 = [Hc_coeff]
 
-GRAPE_paras = {'Adam':True, 'max_episode':300, 'epsilon':0.005, 'beta1':0.90, 'beta2':0.99}
-PSO_paras = {'particle_num':10, 'ini_particle':[], 'max_episode':[1000,100], 'c0':1.0, 'c1':2.0, 'c2':2.0, 'seed':1234}
-DE_paras = {'popsize':10, 'ini_population':[], 'max_episode':1000, 'c':1.0, 'cr':0.5, 'seed':1234}
+GRAPE_paras = {'Adam':True, 'ctrl0':ctrl0, 'max_episode':300, 'epsilon':0.005, 'beta1':0.90, 'beta2':0.99}
+PSO_paras = {'particle_num':10, 'ctrl0':ctrl0, 'max_episode':[1000,100], 'c0':1.0, 'c1':2.0, 'c2':2.0, 'seed':1234}
+DE_paras = {'popsize':10, 'ctrl0':ctrl0, 'max_episode':1000, 'c':1.0, 'cr':0.5, 'seed':1234}
 DDPG_paras = {'layer_num':4, 'layer_dim':250, 'max_episode':500, 'seed':1234}
 
-ctrlopt = ControlOpt(tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, decay, ctrl_bound=[-10.0, 10.0], method='auto-GRAPE', **GRAPE_paras)
-ctrlopt.QFIM(save_file=False)
+control = ControlOpt(tspan, rho0, H0, Hc, dH0, decay, ctrl_bound=[-10.0, 10.0], method='auto-GRAPE', **GRAPE_paras)
+control.QFIM(save_file=False)

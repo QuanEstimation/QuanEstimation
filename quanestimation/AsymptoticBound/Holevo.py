@@ -43,10 +43,10 @@ def Holevo_bound(rho, drho, W, accuracy=1e-8):
     
     Lambda = [np.identity(dim)] + suN_generator(dim)
     Lambda = Lambda/np.sqrt(2)
-    vec_drho = [[0.0 for i in range(num)] for j in range(para_num)]
+
+    vec_drho = [[] for i in range(para_num)]
     for pi in range(para_num):
-        for i in range(1, num):
-            vec_drho[pi][i] = np.real(np.trace(np.dot(drho[pi],Lambda[i])))
+        vec_drho[pi] = np.array([np.real(np.trace(np.dot(drho[pi],Lambda[i]))) for i in range(len(Lambda))])
 
     S = np.zeros((num,num),dtype=np.complex128)
     for a in range(num):
@@ -54,7 +54,7 @@ def Holevo_bound(rho, drho, W, accuracy=1e-8):
             S[a][b] = np.trace(np.dot(Lambda[a], np.dot(Lambda[b], rho)))
 
     # R = np.linalg.cholesky(S).conj().T
-    accu = len(str(int(1/accurancy)))-1
+    accu = len(str(int(1/accuracy)))-1
     lu, d, perm = sp.linalg.ldl(S.round(accu))
     R = np.dot(lu, sp.linalg.sqrtm(d)).conj().T
     #============optimization variables================
@@ -69,7 +69,7 @@ def Holevo_bound(rho, drho, W, accuracy=1e-8):
             else:
                 constraints += [X[:,i].T @ vec_drho[j] == 0]
     
-    prob = cp.Problem(cp.Minimize(cp.trace(W @ V)),constraints)
+    prob = cp.Problem(cp.Minimize(cp.trace(W @ V)), constraints)
     prob.solve()
     
-    return prob.value, X.value
+    return prob.value, X.value, V.value
