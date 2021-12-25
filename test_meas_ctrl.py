@@ -37,21 +37,17 @@ tspan = np.linspace(0.0, T, tnum)
 #initial control coefficients
 cnum = 10
 Hc_coeff = [np.zeros(cnum), np.zeros(cnum), np.zeros(cnum)]
+ctrl0 = [np.array(Hc_coeff)]
 #measurement
 M = np.genfromtxt('measurements_T%s.csv'%T, dtype=np.complex128)
 M_num = len(M)
 Measurement = [np.dot(M[i].reshape(len(rho0), 1), M[i].reshape(1, len(rho0)).conj()) for i in range(len(M))]
-Sum = np.zeros((len(rho0), len(rho0)),dtype=np.complex128)
-for i in range(len(M)):
-    a, b = np.linalg.eig(Measurement[i])
-    Sum += Measurement[i]
-    print(a.round(6))
-print(Sum.round(6))
 
-GRAPE_paras = {'Adam':True, 'max_episode':300, 'lr':0.01, 'beta1':0.90, 'beta2':0.99}
-PSO_paras = {'particle_num':10, 'ini_particle':[], 'max_episode':[1000,100], 'c0':1.0, 'c1':2.0, 'c2':2.0, 'seed':1234}
-DE_paras = {'popsize':10, 'ini_population':[], 'max_episode':1000, 'c':1.0, 'cr':0.5, 'seed':1234}
+
+GRAPE_paras = {'Adam':True, 'ctrl0':ctrl0, 'max_episode':300, 'lr':0.01, 'beta1':0.90, 'beta2':0.99}
+PSO_paras = {'particle_num':10, 'ctrl0':ctrl0, 'max_episode':[1000,100], 'c0':1.0, 'c1':2.0, 'c2':2.0, 'seed':1234}
+DE_paras = {'popsize':10, 'ctrl0':ctrl0, 'max_episode':1000, 'c':1.0, 'cr':0.5, 'seed':1234}
 DDPG_paras = {'layer_num':4, 'layer_dim':250, 'max_episode':500, 'seed':1234}
 
-ctrlopt = ControlOpt(tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, decay, ctrl_bound=[-0.2,0.2], method='DE', **DE_paras)
+ctrlopt = ControlOpt(tspan, rho0, H0, Hc_ctrl, dH0, decay, ctrl_bound=[-0.2,0.2], method='DE', **DE_paras)
 ctrlopt.CFIM(Measurement, save_file=True)

@@ -34,9 +34,13 @@ T = 2.0
 tnum = int(2000*T)
 tspan = np.linspace(0.0, T, tnum)
 cnum = tnum
-#initial control coefficients
-# Hc_coeff = [np.zeros(cnum), np.zeros(cnum), np.zeros(cnum)]
-Hc_coeff = [np.random.random(cnum), np.random.random(cnum), np.random.random(cnum)]
+# initial control coefficients
+Hc_coeff = [np.zeros(cnum), np.zeros(cnum), np.zeros(cnum)]
+ctrl0 = [Hc_coeff]
+# measurement
+# M = np.genfromtxt('measurements_T%s.csv'%T, dtype=np.complex128)
+# M_num = len(M)
+# Measurement = [np.dot(M[i].reshape(len(rho0), 1), M[i].reshape(1, len(rho0)).conj()) for i in range(len(M))]
 
 # initial controls for PSO and DE
 ini_1, ini_2, ini_3  = np.zeros((len(Hc_ctrl), cnum)), 0.2*np.ones((len(Hc_ctrl), cnum)), -0.2*np.ones((len(Hc_ctrl), cnum))
@@ -49,10 +53,11 @@ ini_9 = -0.2*np.ones((len(Hc_ctrl), cnum))+0.05*np.random.random((len(Hc_ctrl), 
 ini_10 = -0.2*np.ones((len(Hc_ctrl), cnum))+0.05*np.random.random((len(Hc_ctrl), cnum))
 ini_ctrl = [ini_1, ini_2, ini_3, ini_4, ini_5, ini_6, ini_7, ini_8, ini_9, ini_10]
 
-GRAPE_paras = {'Adam':True, 'max_episode':300, 'lr':0.01, 'beta1':0.90, 'beta2':0.99}
-PSO_paras = {'particle_num':10, 'ini_particle':ini_ctrl, 'max_episode':[1000,100], 'c0':1.0, 'c1':2.0, 'c2':2.0, 'seed':1234}
-DE_paras = {'popsize':10, 'ini_population':ini_ctrl, 'max_episode':1000, 'c':1.0, 'cr':0.5, 'seed':1234}
+GRAPE_paras = {'Adam':True, 'ctrl0':ctrl0, 'max_episode':500, 'epsilon':0.001, 'beta1':0.90, 'beta2':0.99}
+PSO_paras = {'particle_num':10, 'ctrl0':ini_ctrl, 'max_episode':[1000,100], 'c0':1.0, 'c1':2.0, 'c2':2.0, 'seed':1234}
+DE_paras = {'popsize':10, 'ctrl0':ini_ctrl, 'max_episode':1000, 'c':1.0, 'cr':0.5, 'seed':1234}
 DDPG_paras = {'layer_num':4, 'layer_dim':250, 'max_episode':500, 'seed':1234}
 
-ctrlopt = ControlOpt(tspan, rho0, H0, Hc_ctrl, dH0, Hc_coeff, decay, ctrl_bound=[-0.2,0.2], method='DDPG', **DDPG_paras)
+control = ControlOpt(tspan, rho0, H0, Hc_ctrl, dH0, decay, ctrl_bound=[-0.2,0.2], method='auto-GRAPE', **GRAPE_paras)
+# control.CFIM(Measurement, save_file=True)
 ctrlopt.QFIM(save_file=True)
