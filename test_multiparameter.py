@@ -28,7 +28,7 @@ dH1, dH2, dH3 = gS*S1+gI*I1, gS*S2+gI*I2, gS*S3+gI*I3
 dH0 = [dH1, dH2, dH3]
 Hc_ctrl = [S1, S2, S3]
 #dissipation
-decay = [[S3,2*np.pi/cons]]
+decay = [[S3,2*np.pi/cons]]  
 
 T = 2.0
 tnum = int(2000*T)
@@ -37,10 +37,6 @@ cnum = tnum
 # initial control coefficients
 Hc_coeff = [np.zeros(cnum), np.zeros(cnum), np.zeros(cnum)]
 ctrl0 = [Hc_coeff]
-# measurement
-# M = np.genfromtxt('measurements_T%s.csv'%T, dtype=np.complex128)
-# M_num = len(M)
-# Measurement = [np.dot(M[i].reshape(len(rho0), 1), M[i].reshape(1, len(rho0)).conj()) for i in range(len(M))]
 
 # initial controls for PSO and DE
 ini_1, ini_2, ini_3  = np.zeros((len(Hc_ctrl), cnum)), 0.2*np.ones((len(Hc_ctrl), cnum)), -0.2*np.ones((len(Hc_ctrl), cnum))
@@ -60,4 +56,4 @@ DDPG_paras = {'layer_num':4, 'layer_dim':250, 'max_episode':500, 'seed':1234}
 
 control = ControlOpt(tspan, rho0, H0, Hc_ctrl, dH0, decay, ctrl_bound=[-0.2,0.2], method='auto-GRAPE', **GRAPE_paras)
 # control.CFIM(Measurement, save_file=True)
-ctrlopt.QFIM(save_file=True)
+control.QFIM(save_file=True)

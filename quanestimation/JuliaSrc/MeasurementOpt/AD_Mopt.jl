@@ -1,32 +1,32 @@
-function gradient_CFI!(AD::MeasurementOpt{T}, epsilon) where {T<:Complex}
+function gradient_CFI!(AD::projection_Mopt{T}, epsilon) where {T<:Complex}
     M_num = length(AD.Measurement)
     δI = gradient(x->CFI([x[i]*x[i]' for i in 1:M_num], AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy), AD.Measurement)[1]
     AD.Measurement[1] += epsilon*δI[1]
-    AD.Measurement = GramSchmidt(AD.Measurement)
+    AD.Measurement = gramschmidt(AD.Measurement)
 end
 
-# function gradient_CFI_Adam!(AD::MeasurementOpt{T}, epsilon, mt, vt, beta1, beta2) where {T<:Complex}
+# function gradient_CFI_Adam!(AD::projection_Mopt{T}, epsilon, mt, vt, beta1, beta2) where {T<:Complex}
 #     M_num = length(AD.Measurement)
 #     δI = gradient(x->CFI([x[i]*x[i]' for i in 1:M_num], AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy), AD.Measurement)[1]
 #     StateOpt_Adam!(AD, δI, epsilon, mt, vt, beta1, beta2, AD.accuracy) 
-#     AD.Measurement = GramSchmidt(AD.Measurement)
+#     AD.Measurement = gramschmidt(AD.Measurement)
 # end
 
-function gradient_CFIM!(AD::MeasurementOpt{T}, epsilon) where {T<:Complex}
+function gradient_CFIM!(AD::projection_Mopt{T}, epsilon) where {T<:Complex}
     M_num = length(AD.Measurement)
     δI = gradient(x->1/(AD.W*(CFIM([x[i]*x[i]' for i in 1:M_num], AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy) |> pinv) |> tr |>real), AD.Measurement) |>sum
     AD.Measurement[1] += epsilon*δI[1]
-    AD.Measurement = GramSchmidt(AD.Measurement)
+    AD.Measurement = gramschmidt(AD.Measurement)
 end
 
-# function gradient_CFIM_Adam!(AD::MeasurementOpt{T}, epsilon, mt, vt, beta1, beta2) where {T<:Complex}
+# function gradient_CFIM_Adam!(AD::projection_Mopt{T}, epsilon, mt, vt, beta1, beta2) where {T<:Complex}
 #     M_num = length(AD.Measurement)
 #     δI = gradient(x->1/(AD.W*(CFIM([x[i]*x[i]' for i in 1:M_num], AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy) |> pinv) |> tr |>real), AD.Measurement) |>sum
 #     StateOpt_Adam!(AD, δI, epsilon, mt, vt, beta1, beta2, AD.accuracy) 
-#     AD.Measurement = GramSchmidt(AD.Measurement)
+#     AD.Measurement = gramschmidt(AD.Measurement)
 # end
 
-function CFIM_AD_Mopt(AD::MeasurementOpt{T}, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file) where {T<:Complex}
+function CFIM_AD_Mopt(AD::projection_Mopt{T}, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file) where {T<:Complex}
     println("measurement optimization")
     dim = size(AD.ρ0)[1]
     M_num = length(AD.Measurement)

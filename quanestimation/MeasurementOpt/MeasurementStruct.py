@@ -1,9 +1,10 @@
 import numpy as np
+import os
 import quanestimation.MeasurementOpt as Measure
-from quanestimation.Common.common import gramschmidt
+from quanestimation.Common.common import gramschmidt, sic_povm
 
 class MeasurementSystem:
-    def __init__(self, tspan, rho0, H0, dH, decay, W, measurement0, seed, accuracy):
+    def __init__(self, mtype, mgiven, tspan, rho0, H0, dH, decay, W, measurement0, seed, accuracy):
         
         """
         ----------
@@ -44,8 +45,13 @@ class MeasurementSystem:
         accuracy:
             --description: calculation accuracy.
             --type: float
+
+        notes: the Weyl-Heisenberg covariant SIC-POVM fiducial state of dimension $d$ 
+               are download from http://www.physics.umb.edu/Research/QBism/solutions.html.
         
         """   
+        self.mtype = mtype
+        self.mgiven = mgiven
         self.tspan = tspan
         self.rho0 = np.array(rho0, dtype=np.complex128)
 
@@ -73,19 +79,52 @@ class MeasurementSystem:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
 
-        if measurement0 == []: 
-            np.random.seed(seed)
-            M = [[] for i in range(len(self.rho0))]
-            for i in range(len(self.rho0)):
-                r_ini = 2*np.random.random(len(self.rho0))-np.ones(len(self.rho0))
-                r = r_ini/np.linalg.norm(r_ini)
-                phi = 2*np.pi*np.random.random(len(self.rho0))
-                M[i] = [r[i]*np.exp(1.0j*phi[i]) for i in range(len(self.rho0))]
-            self.Measurement = gramschmidt(np.array(M))
-        elif len(measurement0) >= 1:
-            self.Measurement = [measurement0[0][i] for i in range(len(self.rho0))]
-
         self.accuracy = accuracy
+        self.seed = seed
+
+        if self.mtype == 'projection':
+            if measurement0 == []: 
+                np.random.seed(self.seed)
+                M = [[] for i in range(len(self.rho0))]
+                for i in range(len(self.rho0)):
+                    r_ini = 2*np.random.random(len(self.rho0))-np.ones(len(self.rho0))
+                    r = r_ini/np.linalg.norm(r_ini)
+                    phi = 2*np.pi*np.random.random(len(self.rho0))
+                    M[i] = [r[i]*np.exp(1.0j*phi[i]) for i in range(len(self.rho0))]
+                self.Measurement = gramschmidt(np.array(M))
+            elif len(measurement0) >= 1:
+                self.Measurement = [measurement0[0][i] for i in range(len(self.rho0))]
+
+        elif self.mtype == 'sicpovm':
+            file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'sic_fiducial_vectors/d%d.txt'%(len(self.rho0)))
+            data = np.loadtxt(file_path)
+            fiducial = data[:,0] + data[:,1]*1.0j
+            fiducial = np.array(fiducial).reshape(len(fiducial),1) 
+            self.povm_basis = sic_povm(fiducial)
+            self.M_num = mgiven[1]
+        
+        elif self.mtype == 'given':
+            if type(mgiven[0]) != list:
+                raise TypeError('The given POVMs should be a list!') 
+            else:
+                for i in range(len(mgiven[0])):
+                    val, vec = np.linalg.eig(mgiven[0])
+                    if np.all(val.round(8) >= 0):
+                        pass
+                    else:
+                        raise TypeError('The given POVMs should be semidefinite!') 
+                M = np.zeros((len(self.rho0), len(self.rho0)), dtype=np.complex128)
+                for i in range(len(mgiven[0])):
+                    M += mgiven[0][i]
+                if np.all(M.round(8)-np.identity(len(self.rho0)) == 0):
+                    pass
+                else:
+                    raise TypeError('The sum of the given POVMs should be identity matrix!') 
+
+            self.povm_basis = mgiven[0]
+            self.M_num = mgiven[1]
+        else:
+            raise ValueError("{!r} is not a valid value for mtype, supported values are 'projection', 'sicpovm', 'given'.".format(self.mtype))
 
     def load_save(self):
         file_load = open('measurements.csv', 'r')
@@ -95,13 +134,13 @@ class MeasurementSystem:
         file_save.writelines(file_load)
         file_save.close()
 
-def MeasurementOpt(*args, mtype='projection', method='AD', **kwargs):
+def MeasurementOpt(*args, mtype='projection', mgiven=[], method='AD', **kwargs):
 
     if method == 'AD':
-        return Measure.AD_Mopt(*args, **kwargs)
+        return Measure.AD_Mopt(mtype, mgiven, *args, **kwargs)
     elif method == 'PSO':
-        return Measure.PSO_Mopt(*args, **kwargs)
+        return Measure.PSO_Mopt(mtype, mgiven, *args, **kwargs)
     elif method == 'DE':
-        return Measure.DE_Mopt(*args, **kwargs)
+        return Measure.DE_Mopt(mtype, mgiven, *args, **kwargs)
     else:
         raise ValueError("{!r} is not a valid value for method, supported values are 'AD', 'PSO', 'DE'.".format(method))

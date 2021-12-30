@@ -1,6 +1,8 @@
 
 import numpy as np
 import numpy.linalg as LA
+import os
+from quanestimation.Common.common import sic_povm
 #===============================================================================
 #Subclass: metrology
 #===============================================================================
@@ -9,7 +11,7 @@ calculation of classical Fisher information matrix and quantum
 Fisher information matrix.
 """
        
-def CFIM(rho, drho, M, accuracy=1e-8):
+def CFIM(rho, drho, M=[], accuracy=1e-8):
     """
     Description: Calculation classical Fisher information matrix (CFIM)
                  for a density matrix.
@@ -43,6 +45,13 @@ def CFIM(rho, drho, M, accuracy=1e-8):
     """
     if type(drho) != list or type(M) != list:
         raise TypeError('Please make sure drho and M are lists!')
+
+    if M==[]: 
+        file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'sic_fiducial_vectors/d%d.txt'%(len(rho0)))
+        data = np.loadtxt(file_path)
+        fiducial = data[:,0] + data[:,1]*1.0j
+        fiducial = np.array(fiducial).reshape(len(fiducial),1) 
+        M = sic_povm(fiducial)
 
     m_num = len(M)
     para_num = len(drho)
