@@ -76,3 +76,52 @@ function suN_generator(n)
     end
     return result
 end
+
+function get_basis(dim, index)
+    x = zeros(dim)
+    x[index] = 1.0
+    return x
+end
+
+function sic_povm(fiducial)
+    """
+    Generate a set of POVMs by applying the $d^2$ Weyl-Heisenberg displacement operators to a
+    fiducial state. 
+    The Weyl-Heisenberg displacement operators are constructioned by Fuchs et al. in the article
+    https://doi.org/10.3390/axioms6030021 and it is realized in QBism.
+    
+    """
+    d = length(fiducial)
+    w = exp(2.0*pi*1.0im/d)
+    Z = diagm([w^(i-1) for i in 1:d])
+    X = zeros(ComplexF64, d, d)
+    for i in 1:d
+        for j in 1:d
+            if j != d
+                X += get_basis(d, j+1)*get_basis(d,j)'
+            else
+                X += get_basis(d, 1)* get_basis(d,j)'
+            end
+        end
+    end
+    X = X/d
+    
+    D = [[Matrix{ComplexF64}(undef,d,d) for i in 1:d] for j in 1:d]
+    for a in 1:d
+        for b in 1:d
+            X_a = X^(b-1)
+            Z_b = Z^(a-1)
+            D[a][b] = (-exp(1.0im*pi/d))^((a-1)*(b-1))*X_a*Z_b
+        end
+    end
+            
+    res = Vector{Matrix{ComplexF64}}()
+    for m in 1:d
+        for n in 1:d
+            res_tp = D[m][n]*fiducial
+            res_tp = res_tp/norm(res_tp)
+            push!(res, res_tp*res_tp'/d)
+        end
+    end
+    return res
+end

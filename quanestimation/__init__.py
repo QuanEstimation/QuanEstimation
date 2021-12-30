@@ -18,8 +18,10 @@ from quanestimation.MeasurementOpt import (MeasurementOpt, AD_Mopt, PSO_Mopt, DE
 from quanestimation.Common import (mat_vec_convert, suN_generator, gramschmidt, )
 
 from julia import Main
+import os
 
 Main.include('quanestimation/JuliaSrc/QuanEstimation.jl')
+Main.pkgpath = os.path.join(os.path.dirname(__file__))
 
 __all__ = ['ControlOpt', 'StateOpt', 'MeasurementOpt',  
            'CFIM', 'QFIM', 'LLD',  'RLD', 'SLD', 'Holevo_bound', 

@@ -355,7 +355,28 @@ end
 
 #==========================================================#
 ####################### calculate CFI ######################
-function CFI(ρ, dρ, M, accuracy)
+function CFI(ρ, dρ, accuracy=1e-8)
+    data = readdlm("$(Main.pkgpath)/sic_fiducial_vectors/d$(size(ρ)[1]).txt", '\t', Float64, '\n')
+    fiducial = data[:,1]+1.0im*data[:,2]
+    M = sic_povm(fiducial)
+
+    m_num = length(M)
+    F = 0.
+    for i in 1:m_num
+        mp = M[i]
+        p = real(tr(ρ * mp))
+        dp = real(tr(dρ * mp))
+        cadd = 0.
+        if p > accuracy
+            cadd = (dp*dp) / p
+        end
+        F += cadd
+    end 
+    real(F)
+end
+
+function CFI(ρ, dρ, M, accuracy=1e-8)
+
     m_num = length(M)
     F = 0.
     for i in 1:m_num
@@ -456,12 +477,20 @@ end
 
 #======================================================#
 #################### calculate CFIM ####################
-function CFIM(ρ, dρ, M)
+function CFIM(ρ, dρ)
+    data = readdlm("$(Main.pkgpath)/sic_fiducial_vectors/d$(size(ρ)[1]).txt", '\t', Float64, '\n')
+    fiducial = data[:,1]+1.0im*data[:,2]
+    M = sic_povm(fiducial)
     m_num = length(M)
     p_num = length(dρ)
     cfim = [kron(tr.(dρ.*[M[i]]),reshape(tr.(dρ.*[M[i]]), 1, p_num))/ tr(ρ*M[i]) for i in 1:m_num] |> sum .|>real
 end
 
+function CFIM(ρ, dρ, M)
+    m_num = length(M)
+    p_num = length(dρ)
+    cfim = [kron(tr.(dρ.*[M[i]]),reshape(tr.(dρ.*[M[i]]), 1, p_num))/ tr(ρ*M[i]) for i in 1:m_num] |> sum .|>real
+end
 #### quantum dynamics and calcalate CFIM ####
 function CFIM(Measurement::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, accuracy) where {T<:Complex,R<:Real}
     para_num = length(∂H_∂x)

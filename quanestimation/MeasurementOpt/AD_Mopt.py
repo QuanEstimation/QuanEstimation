@@ -3,10 +3,10 @@ from julia import Main
 import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
 class AD_Mopt(Measurement.MeasurementSystem):
-    def __init__(self, tspan, rho0, H0, dH=[], decay=[], W=[], Adam=True, \
+    def __init__(self, mtype, mgiven, tspan, rho0, H0, dH=[], decay=[], W=[], Adam=True, \
                  measurement0=[], max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99):
 
-        Measurement.MeasurementSystem.__init__(self, tspan, rho0, H0, dH, decay, W, measurement0, seed=1234, accuracy=1e-8)
+        Measurement.MeasurementSystem.__init__(self, mtype, mgiven, tspan, rho0, H0, dH, decay, W, measurement0, seed=1234, accuracy=1e-8)
         
         """
         --------
@@ -62,8 +62,15 @@ class AD_Mopt(Measurement.MeasurementSystem):
                            False: save the measurements for the last episode and all the CFI (Tr(WF^{-1})).
             --type: bool
         """
-        ad = Main.QuanEstimation.MeasurementOpt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
+        if self.mtype=='projection':
+            ad = Main.QuanEstimation.projection_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
                                                 self.decay_opt, self.gamma, self.Measurement, self.W, self.accuracy)
-        Main.QuanEstimation.CFIM_AD_Mopt(ad, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, self.Adam, save_file)
-        self.load_save()
-        
+            Main.QuanEstimation.CFIM_AD_Mopt(ad, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, self.Adam, save_file)
+            self.load_save()
+        elif self.mtype=='sicpovm' or 'given':
+            ad = Main.QuanEstimation.projection_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
+                                                self.decay_opt, self.gamma, self.Measurement, self.W, self.accuracy)
+            Main.QuanEstimation.CFIM_AD_Mopt(ad, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, self.Adam, save_file)
+            self.load_save()
+        else:
+            raise ValueError("{!r} is not a valid value for method, supported values are 'projection', 'sicpovm' and 'given'.".format(self.mtype))
