@@ -3,16 +3,16 @@ from quanestimation import *
 
 #initial state
 rho0 = np.zeros((6,6),dtype=np.complex128)
-rho0[0][0], rho0[0][4], rho0[4][0], rho0[4][4] = 0.5+0.j, 0.5+0.j, 0.5+0.j, 0.5+0.j
+rho0[0][0], rho0[0][4], rho0[4][0], rho0[4][4] = 0.5 , 0.5 , 0.5 , 0.5 
 #Hamiltonian
-sx = np.array([[0.+0.j, 1.+0.j],[1.+0.j, 0.+0.j]])
-sy = np.array([[0.+0.j, 0.-1.j],[0.+1.j, 0.+0.j]]) 
-sz = np.array([[1.+0.j, 0.+0.j],[0.+0.j, -1.+0.j]])
-ide2 = np.array([[1.+0.j, 0.+0.j],[0.+0.j, 1.+0.j]])
-s1 = np.array([[0.+0.j, 1.+0.j, 0.+0.j],[1.+0.j, 0.+0.j, 1.+0.j],[0.+0.j, 1.+0.j, 0.+0.j]])/np.sqrt(2)
-s2 = np.array([[0.+0.j, 0.-1.j, 0.+0.j],[0.+1.j, 0.+0.j, 0.-1.j],[0.+0.j, 0.+1.j, 0.+0.j]])/np.sqrt(2)
-s3 = np.array([[1.+0.j, 0.+0.j, 0.+0.j],[0.+0.j, 0.+0.j, 0.+0.j],[0.+0.j, 0.+0.j, -1.+0.j]])
-ide3 = np.array([[1.+0.j, 0.+0.j, 0.+0.j],[0.+0.j, 1.+0.j, 0.+0.j],[0.+0.j, 0.+0.j, 1.+0.j]])
+sx = np.array([[0., 1.],[1., 0.]])
+sy = np.array([[0., -1.j],[1.j, 0.]]) 
+sz = np.array([[1., 0.],[0., -1.]])
+ide2 = np.array([[1., 0.],[0., 1.]])
+s1 = np.array([[0., 1., 0.],[1., 0., 1.],[0., 1., 0.]])/np.sqrt(2)
+s2 = np.array([[0., -1.j, 0.],[1.j, 0., -1.j],[0., 1.j, 0.]])/np.sqrt(2)
+s3 = np.array([[1., 0., 0.],[0., 0., 0.],[0., 0., -1.]])
+ide3 = np.array([[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]])
 I1, I2, I3 = np.kron(ide3, sx), np.kron(ide3, sy), np.kron(ide3, sz)
 S1, S2, S3 = np.kron(s1, ide2), np.kron(s2, ide2), np.kron(s3, ide2)
 B1, B2, B3 = 5.0e-4, 5.0e-4, 5.0e-4
@@ -55,5 +55,5 @@ DE_paras = {'popsize':10, 'ctrl0':ini_ctrl, 'max_episode':1000, 'c':1.0, 'cr':0.
 DDPG_paras = {'layer_num':4, 'layer_dim':250, 'max_episode':500, 'seed':1234}
 
 control = ControlOpt(tspan, rho0, H0, Hc_ctrl, dH0, decay, ctrl_bound=[-0.2,0.2], method='auto-GRAPE', **GRAPE_paras)
-# control.CFIM(Measurement, save_file=True)
-control.QFIM(save_file=True)
+control.QFIM(save_file=False)
+# control.CFIM(Measurement, save_file=False)

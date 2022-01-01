@@ -3,7 +3,7 @@ import os
 import quanestimation.StateOpt as stateoptimize
 
 class StateSystem:
-    def __init__(self, tspan, psi0, H0, dH, decay, W, accuracy):
+    def __init__(self, tspan, psi0, H0, dH, decay, W, seed, accuracy):
         
         """
         ----------

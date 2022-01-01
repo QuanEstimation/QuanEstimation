@@ -14,7 +14,7 @@ rsplit_half(v) = Base.rsplit(v, length(v)÷2)
 to_psi(s) = complex.(rsplit_half(s)...)
 
 ############# time-independent Hamiltonian (noiseless) ################
-mutable struct ControlEnv_noiseless{T, M, R<:AbstractRNG} <: AbstractEnv
+mutable struct ControlEnv_noiseless{T<:Complex, M<:Real, R<:AbstractRNG} <: AbstractEnv
     Measurement::Vector{Matrix{T}}
     params::TimeIndepend_noiseless{T, M}
     action_space::Space
@@ -36,8 +36,8 @@ mutable struct ControlEnv_noiseless{T, M, R<:AbstractRNG} <: AbstractEnv
     save_file::Bool
 end
 
-function ControlEnv_noiseless(;T=ComplexF64, M=Float64, Measurement, params::TimeIndepend_noiseless, para_num=params.Hamiltonian_derivative|>length,
-                    rng=Random.GLOBAL_RNG, episode, quantum, SinglePara, save_file)
+function DDPGEnv_noiseless(Measurement, params, episode, quantum, SinglePara, save_file, rng)
+    para_num=params.Hamiltonian_derivative|>length
     state = params.psi
     state = state |> state_flatten
     ctrl_num = length(state)
@@ -235,10 +235,34 @@ end
 
 Random.seed!(env::ControlEnv_noiseless, seed) = Random.seed!(env.rng, seed)
 
-function QFIM_DDPG_Sopt(params::TimeIndepend_noiseless, layer_num, layer_dim, seed, max_episode, save_file)
+function QFIM_DDPG_Sopt(params::TimeIndepend_noiseless, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
+    sym = Symbol(QFIM)
+    str1 = "quantum"
+    str2 = "QFI"
+    str3 = "tr(WF^{-1})"
+    quantum = true
+    Measurement = [zeros(ComplexF64, size(params.psi)[1], size(params.psi)[1])]
+    return info_DDPG_noiseless(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3, quantum)
+end
+
+function CFIM_DDPG_Sopt(Measurement, params::TimeIndepend_noiseless, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
+    sym = Symbol(CFIM)
+    str1 = "classical"
+    str2 = "CFI"
+    str3 = "tr(WI^{-1})"
+    quantum = false
+    return info_DDPG_noiseless(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3, quantum)
+end
+
+function QFIM_DDPG_noiseless(Measurement, params::TimeIndepend_noiseless, layer_num, layer_dim, seed, max_episode, save_filesym, str1, str2, str3, quantum)
     rng = StableRNG(seed)
-    env = ControlEnv_noiseless(Measurement=Vector{Matrix{ComplexF64}}(undef, 1), params=params, rng=rng, episode=1, quantum=true, 
-                     SinglePara=(length(params.Hamiltonian_derivative)==1), save_file=save_file)
+    episode = 1
+    if length(params.Hamiltonian_derivative) == 1
+        SinglePara = true
+    else
+        SinglePara = false
+    end
+    env = DDPGEnv_noiseless(Measurement, params, episode, quantum, SinglePara, save_file, rng)
     ns = 2*length(params.psi)
     na = env.ctrl_num
     init = glorot_uniform(rng)
@@ -261,16 +285,16 @@ function QFIM_DDPG_Sopt(params::TimeIndepend_noiseless, layer_num, layer_dim, se
                                     act_noise=0.01, rng=rng,),
                   trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na,),),)
 
-    println("state optimization")
+    println("$str1 state optimization")
     if length(params.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("search algorithm: deep deterministic policy gradient algorithm (DDPG)")
-        println("initial QFI is $(1.0/env.f_ini)")
+        println("initial $str2 is $(1.0/env.f_ini)")
         append!(env.f_list, 1.0/env.f_ini)
     else
         println("multiparameter scenario")
         println("search algorithm: deep deterministic policy gradient algorithm (DDPG)")
-        println("initial value of Tr(WF^{-1}) is $(env.f_ini)")
+        println("initial value of $str3 is $(env.f_ini)")
         append!(env.f_list, env.f_ini)
     end
 
@@ -288,74 +312,15 @@ function QFIM_DDPG_Sopt(params::TimeIndepend_noiseless, layer_num, layer_dim, se
     print("\e[2K")
     println("Iteration over, data saved.")
     if length(params.Hamiltonian_derivative) == 1
-        println("Final QFI is ", env.f_list[end])
+        println("Final $str2 is ", env.f_list[end])
     else
-        println("Final value of Tr(WF^{-1}) is ", env.f_list[end])
-    end
-end
-
-function CFIM_DDPG_Sopt(Measurement, params::TimeIndepend_noiseless, layer_num, layer_dim, seed, max_episode, save_file)
-    rng = StableRNG(seed)
-    env = ControlEnv_noiseless(Measurement=Measurement, params=params, rng=rng, episode=1, quantum=false,
-                     SinglePara=(length(params.Hamiltonian_derivative)==1), save_file=save_file)
-    ns = 2*length(params.psi)
-    na = env.ctrl_num
-    init = glorot_uniform(rng)
-
-    create_actor() = Chain(Dense(ns, layer_dim, relu; init=init),
-                           [Dense(layer_dim, layer_dim, relu; init=init) for _ in 1:layer_num]...,
-                           Dense(layer_dim, na, tanh; init=init),)
-
-    create_critic() = Chain(Dense(ns+na, layer_dim, relu; init=init),
-                            [Dense(layer_dim, layer_dim, relu; init=init) for _ in 1:layer_num]...,
-                            Dense(layer_dim, 1; init=init),)
-
-    agent = Agent(policy=DDPGPolicy(behavior_actor=NeuralNetworkApproximator(model=create_actor(), optimizer=ADAM(),),
-                                    behavior_critic=NeuralNetworkApproximator(model=create_critic(), optimizer=ADAM(),),
-                                    target_actor=NeuralNetworkApproximator(model=create_actor(), optimizer=ADAM(),),
-                                    target_critic=NeuralNetworkApproximator(model=create_critic(), optimizer=ADAM(),),
-                                    γ=0.99f0, ρ=0.995f0, na=env.ctrl_num, batch_size=64, start_steps=100,
-                                    start_policy=RandomPolicy(Space([-1.0..1.0 for _ in 1:env.ctrl_num]); rng=rng),
-                                    update_after=100, update_freq=1, act_limit=1.0e35,
-                                    act_noise=0.01, rng=rng,),
-                  trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na,),),)
-
-    println("state optimization")
-    if length(params.Hamiltonian_derivative) == 1
-        println("single parameter scenario")
-        println("search algorithm: deep deterministic policy gradient algorithm (DDPG)")
-        println("initial CFI is $(1.0/env.f_ini)")
-        append!(env.f_list, 1.0/env.f_ini)
-    else
-        println("multiparameter scenario")
-        println("search algorithm: deep deterministic policy gradient algorithm (DDPG)")
-        println("initial value of Tr(WI^{-1}) is $(env.f_ini)")
-        append!(env.f_list, env.f_ini)
-    end
-
-    if env.save_file
-        SaveFile_state_ddpg(env.f_list, env.reward_all, env.params.psi)
-    end
-
-    stop_condition = StopAfterStep(max_episode, is_show_progress=false)
-    hook = TotalRewardPerEpisode(is_display_on_exit=false)
-    run(agent, env, stop_condition, hook)
-
-    if !env.save_file
-        SaveFile_state_ddpg(env.f_list, env.reward_all, env.params.psi)
-    end
-    print("\e[2K")
-    println("Iteration over, data saved.")
-    if length(params.Hamiltonian_derivative) == 1
-        println("Final CFI is ", env.f_list[end])
-    else
-        println("Final value of Tr(WI^{-1}) is ", env.f_list[end])
+        println("Final value of $str3 is ", env.f_list[end])
     end
 end
 
 
 ############# time-independent Hamiltonian (noise) ################
-mutable struct ControlEnv_noise{T, M, R<:AbstractRNG} <: AbstractEnv
+mutable struct ControlEnv_noise{T<:Complex, M<:Real, R<:AbstractRNG} <: AbstractEnv
     Measurement::Vector{Matrix{T}}
     params::TimeIndepend_noise{T, M}
     action_space::Space
@@ -377,8 +342,8 @@ mutable struct ControlEnv_noise{T, M, R<:AbstractRNG} <: AbstractEnv
     save_file::Bool
 end
 
-function ControlEnv_noise(;T=ComplexF64, M=Float64, Measurement, params::TimeIndepend_noise, para_num=params.Hamiltonian_derivative|>length,
-                    rng=Random.GLOBAL_RNG, episode, quantum, SinglePara, save_file)
+function DDPGEnv_noise(Measurement, params, episode, quantum, SinglePara, save_file, rng)
+    para_num=params.Hamiltonian_derivative|>length
     state = params.psi
     state = state |> state_flatten
     ctrl_num = length(state)
@@ -583,10 +548,34 @@ end
 
 Random.seed!(env::ControlEnv_noise, seed) = Random.seed!(env.rng, seed)
 
-function QFIM_DDPG_Sopt(params::TimeIndepend_noise, layer_num, layer_dim, seed, max_episode, save_file)
+function QFIM_DDPG_Sopt(params::TimeIndepend_noise, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
+    sym = Symbol(QFIM)
+    str1 = "quantum"
+    str2 = "QFI"
+    str3 = "tr(WF^{-1})"
+    quantum = true
+    Measurement = [zeros(ComplexF64, size(params.psi)[1], size(params.psi)[1])]
+    return info_DDPG_noise(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3, quantum)
+end
+
+function CFIM_DDPG_Sopt(Measurement, params::TimeIndepend_noise, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
+    sym = Symbol(CFIM)
+    str1 = "classical"
+    str2 = "CFI"
+    str3 = "tr(WI^{-1})"
+    quantum = false
+    return info_DDPG_noise(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3, quantum)
+end
+
+function info_DDPG_noise(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3, quantum)
     rng = StableRNG(seed)
-    env = ControlEnv_noise(Measurement=Vector{Matrix{ComplexF64}}(undef, 1), params=params, rng=rng, episode=1, quantum=true, 
-                     SinglePara=(length(params.Hamiltonian_derivative)==1), save_file=save_file)
+    episode = 1
+    if length(params.Hamiltonian_derivative) == 1
+        SinglePara = true
+    else
+        SinglePara = false
+    end
+    env = DDPGEnv_noise(Measurement, params, episode, quantum, SinglePara, save_file, rng)
     ns = 2*length(params.psi)
     na = env.ctrl_num
     init = glorot_uniform(rng)
@@ -609,16 +598,16 @@ function QFIM_DDPG_Sopt(params::TimeIndepend_noise, layer_num, layer_dim, seed, 
                                     act_noise=0.01, rng=rng,),
                   trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na,),),)
 
-    println("state optimization")
+    println("$str1 state optimization")
     if length(params.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("search algorithm: deep deterministic policy gradient algorithm (DDPG)")
-        println("initial QFI is $(1.0/env.f_ini)")
+        println("initial $str2 is $(1.0/env.f_ini)")
         append!(env.f_list, 1.0/env.f_ini)
     else
         println("multiparameter scenario")
         println("search algorithm: deep deterministic policy gradient algorithm (DDPG)")
-        println("initial value of Tr(WF^{-1}) is $(env.f_ini)")
+        println("initial value of $str3 is $(env.f_ini)")
         append!(env.f_list, env.f_ini)
     end
 
@@ -636,67 +625,9 @@ function QFIM_DDPG_Sopt(params::TimeIndepend_noise, layer_num, layer_dim, seed, 
     print("\e[2K")
     println("Iteration over, data saved.")
     if length(params.Hamiltonian_derivative) == 1
-        println("Final QFI is ", env.f_list[end])
+        println("Final $str2 is ", env.f_list[end])
     else
-        println("Final value of Tr(WF^{-1}) is ", env.f_list[end])
+        println("Final value of $str3 is ", env.f_list[end])
     end
 end
 
-function CFIM_DDPG_Sopt(Measurement, params::TimeIndepend_noise, layer_num, layer_dim, seed, max_episode, save_file)
-    rng = StableRNG(seed)
-    env = ControlEnv_noise(Measurement=Measurement, params=params, rng=rng, episode=1, quantum=false,
-                     SinglePara=(length(params.Hamiltonian_derivative)==1), save_file=save_file)
-    ns = 2*length(params.psi)
-    na = env.ctrl_num
-    init = glorot_uniform(rng)
-
-    create_actor() = Chain(Dense(ns, layer_dim, relu; init=init),
-                           [Dense(layer_dim, layer_dim, relu; init=init) for _ in 1:layer_num]...,
-                           Dense(layer_dim, na, tanh; init=init),)
-
-    create_critic() = Chain(Dense(ns+na, layer_dim, relu; init=init),
-                            [Dense(layer_dim, layer_dim, relu; init=init) for _ in 1:layer_num]...,
-                            Dense(layer_dim, 1; init=init),)
-
-    agent = Agent(policy=DDPGPolicy(behavior_actor=NeuralNetworkApproximator(model=create_actor(), optimizer=ADAM(),),
-                                    behavior_critic=NeuralNetworkApproximator(model=create_critic(), optimizer=ADAM(),),
-                                    target_actor=NeuralNetworkApproximator(model=create_actor(), optimizer=ADAM(),),
-                                    target_critic=NeuralNetworkApproximator(model=create_critic(), optimizer=ADAM(),),
-                                    γ=0.99f0, ρ=0.995f0, na=env.ctrl_num, batch_size=64, start_steps=100,
-                                    start_policy=RandomPolicy(Space([-1.0..1.0 for _ in 1:env.ctrl_num]); rng=rng),
-                                    update_after=100, update_freq=1, act_limit=1.0e35,
-                                    act_noise=0.01, rng=rng,),
-                  trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na,),),)
-
-    println("state optimization")
-    if length(params.Hamiltonian_derivative) == 1
-        println("single parameter scenario")
-        println("search algorithm: deep deterministic policy gradient algorithm (DDPG)")
-        println("initial CFI is $(1.0/env.f_ini)")
-        append!(env.f_list, 1.0/env.f_ini)
-    else
-        println("multiparameter scenario")
-        println("search algorithm: deep deterministic policy gradient algorithm (DDPG)")
-        println("initial value of Tr(WI^{-1}) is $(env.f_ini)")
-        append!(env.f_list, env.f_ini)
-    end
-
-    if env.save_file
-        SaveFile_state_ddpg(env.f_list, env.reward_all, env.params.psi)
-    end
-
-    stop_condition = StopAfterStep(max_episode, is_show_progress=false)
-    hook = TotalRewardPerEpisode(is_display_on_exit=false)
-    run(agent, env, stop_condition, hook)
-
-    if !env.save_file
-        SaveFile_state_ddpg(env.f_list, env.reward_all, env.params.psi)
-    end
-    print("\e[2K")
-    println("Iteration over, data saved.")
-    if length(params.Hamiltonian_derivative) == 1
-        println("Final CFI is ", env.f_list[end])
-    else
-        println("Final value of Tr(WI^{-1}) is ", env.f_list[end])
-    end
-end
