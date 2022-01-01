@@ -26,6 +26,24 @@ mutable struct GRAPE_Copt{T<:Complex,M <: Real} <: ControlSystem
                       ctrl_bound, W, mt, vt, ϵ, beta1, beta2, accuracy, ρ, ∂ρ_∂x) 
 end
 
+###################### auto-GRAPE #########################
+function QFIM_autoGRAPE_Copt(grape::GRAPE_Copt{T}, max_episode, Adam, save_file) where {T<:Complex}
+    sym = Symbol("QFIM")
+    str1 = "quantum"
+    str2 = "QFI"
+    str3 = "tr(WF^{-1})"
+    Measurement = [zeros(ComplexF64, size(grape.ρ0)[1], size(grape.ρ0)[1])]
+    return info_autoGRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+end
+
+function CFIM_autoGRAPE_Copt(Measurement, grape::GRAPE_Copt{T}, max_episode, Adam, save_file) where {T<:Complex}
+    sym = Symbol("CFIM")
+    str1 = "classical"
+    str2 = "CFI"
+    str3 = "tr(WI^{-1})"
+    return info_autoGRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+end
+
 function gradient_QFI!(grape::GRAPE_Copt{T}) where {T<:Complex}
     δF = gradient(x->QFI_auto(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan), grape.control_coefficients)[1].|>real
     grape.control_coefficients += grape.ϵ*δF
@@ -37,11 +55,6 @@ function gradient_QFI_Adam!(grape::GRAPE_Copt{T}) where {T<:Complex}
     δF = gradient(x->QFI_auto(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan), grape.control_coefficients)[1].|>real
     Adam!(grape, δF)
     bound!(grape.control_coefficients, grape.ctrl_bound)
-    return δF
-end
-
-function gradient_QFI_bfgs(grape::GRAPE_Copt{T}) where {T<:Complex}
-    δF = gradient(x->QFI_auto(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan), grape.control_coefficients)[1].|>real
     return δF
 end
 
@@ -59,11 +72,6 @@ function gradient_QFIM_Adam!(grape::GRAPE_Copt{T}) where {T<:Complex}
     return δF
 end
 
-function gradient_QFIM_bfgs(grape::GRAPE_Copt{T}) where {T<:Complex}
-    δF = gradient(x->1/(grape.W*(QFIM_auto(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan) |> pinv) |> tr |>real), grape.control_coefficients).|>real |>sum
-    return δF
-end
-
 function gradient_CFI!(grape::GRAPE_Copt{T}, Measurement) where {T<:Complex}
     δI = gradient(x->CFI(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), grape.control_coefficients)[1].|>real
     grape.control_coefficients += grape.ϵ*δI
@@ -76,11 +84,6 @@ function gradient_CFI_Adam!(grape::GRAPE_Copt{T}, Measurement) where {T<:Complex
     Adam!(grape, δI)
     bound!(grape.control_coefficients, grape.ctrl_bound)
     return δI
-end
-
-function gradient_CFI_bfgs(grape::GRAPE_Copt{T}, Measurement) where {T<:Complex}
-    δF = gradient(x->CFI(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), grape.control_coefficients)[1].|>real
-    return δF
 end
 
 function gradient_CFIM!(grape::GRAPE_Copt{T}, Measurement) where {T<:Complex}
@@ -97,11 +100,395 @@ function gradient_CFIM_Adam!(grape::GRAPE_Copt{T}, Measurement) where {T<:Comple
     return δI
 end
 
-function gradient_CFIM_bfgs(grape::GRAPE_Copt{T}, Measurement) where {T<:Complex}
-    δF = gradient(x->1/(grape.W*(CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy) |> pinv) |> tr |>real), grape.control_coefficients).|>real |>sum
-    return δF
+function info_autoGRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+    println("$str1 parameter estimation")
+    ctrl_num = length(grape.control_Hamiltonian)
+    ctrl_length = length(grape.control_coefficients[1])
+    episodes = 1
+    if length(grape.Hamiltonian_derivative) == 1
+        println("single parameter scenario")
+        println("control algorithm: auto-GRAPE")
+        F_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
+        f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
+        F_ini = obj_func(Val{sym}(), grape, Measurement)
+        f_ini = real(tr(grape.W*pinv(F_ini)))
+
+        f_list = [1.0/f_ini]
+        println("non-controlled $str2 is $(1.0/f_noctrl)")
+        println("initial $str2 is $(1.0/f_ini)")
+        if save_file == true
+            SaveFile_ctrl(f_ini, grape.control_coefficients)
+            if Adam == true
+                gradient_QFI_Adam!(grape)
+                while true
+                    F_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = 1.0/real(tr(grape.W*pinv(F_now)))
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        break
+                    else
+                        episodes += 1
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    gradient_QFI_Adam!(grape)
+                end
+            else
+                gradient_QFI!(grape)
+                while true
+                    F_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = 1.0/real(tr(grape.W*pinv(F_now)))
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        break
+                    else
+                        episodes += 1
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    gradient_QFI!(grape)
+                end
+            end
+        else
+            if Adam == true
+                gradient_QFI_Adam!(grape)
+                while true
+                    F_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = 1.0/real(tr(grape.W*pinv(F_now)))
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_list, grape.control_coefficients)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    gradient_QFI_Adam!(grape)
+                end
+            else
+                gradient_QFI!(grape)
+                while true
+                    F_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = 1.0/real(tr(grape.W*pinv(F_now)))
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_list, grape.control_coefficients)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    gradient_QFI!(grape)
+                end
+            end
+        end
+    else
+        println("multiparameter scenario")
+        println("control algorithm: auto-GRAPE")
+        F_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
+        f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
+        F_ini = obj_func(Val{sym}(), grape, Measurement)
+        f_ini = real(tr(grape.W*pinv(F_ini)))
+
+        f_list = [f_ini]
+        println("non-controlled value of $str3 is $(f_noctrl)")
+        println("initial value of $str3 is $(f_ini)")
+        if save_file == true
+            SaveFile_ctrl(f_ini, grape.control_coefficients)
+            if Adam == true
+                gradient_QFIM_Adam!(grape)
+                while true
+                    F_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = real(tr(grape.W*pinv(F_now)))
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        break
+                    else
+                        episodes += 1
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    gradient_QFIM_Adam!(grape)
+                end
+            else
+                gradient_QFIM!(grape)
+                while true
+                    F_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = real(tr(grape.W*pinv(F_now)))
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        break
+                    else
+                        episodes += 1
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    gradient_QFIM!(grape)
+                end
+            end
+        else
+            if Adam == true
+                gradient_QFIM_Adam!(grape)
+                while true
+                    F_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = real(tr(grape.W*pinv(F_now)))
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_list, grape.control_coefficients)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    gradient_QFIM_Adam!(grape)
+                end
+            else
+                gradient_QFIM!(grape)
+                while true
+                    F_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = real(tr(grape.W*pinv(F_now)))
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_list, grape.control_coefficients)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    gradient_QFIM!(grape)
+                end
+            end
+        end
+    end
 end
 
+
+###################### GRAPE #########################
+
+function QFIM_GRAPE_Copt(grape::GRAPE_Copt{T}, max_episode, Adam, save_file) where {T<:Complex}
+    sym = Symbol("QFIM")
+    str1 = "quantum"
+    str2 = "QFI"
+    str3 = "tr(WF^{-1})"
+    Measurement = [zeros(ComplexF64, size(grape.ρ0)[1], size(grape.ρ0)[1])]
+    return info_GRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+end
+
+function CFIM_GRAPE_Copt(Measurement, grape::GRAPE_Copt{T}, max_episode, Adam, save_file) where {T<:Complex}
+    sym = Symbol("CFIM")
+    str1 = "classical"
+    str2 = "CFI"
+    str3 = "tr(WI^{-1})"
+    return info_GRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+end
+
+function info_GRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+    println("$str1 parameter estimation")
+    ctrl_num = length(grape.control_Hamiltonian)
+    ctrl_length = length(grape.control_coefficients[1])
+    episodes = 1
+    if length(grape.Hamiltonian_derivative) == 1
+        println("single parameter scenario")
+        println("control algorithm: GRAPE")
+        F_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
+        f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
+        println("non-controlled $str2 is $(1.0/f_noctrl)")
+        ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+        if Adam == true
+            grape.control_coefficients, f_ini = gradient_QFIM_analy_Adam(grape)
+        else
+            grape.control_coefficients, f_ini = gradient_QFIM_analy(grape)
+        end
+        f_list = [f_ini]
+        println("initial $str2 is $(f_ini)")
+        if save_file == true
+            SaveFile_ctrl(f_ini, ctrl_pre)
+            if Adam == true
+                while true
+                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+                    grape.control_coefficients, f_now = gradient_QFIM_analy_Adam(grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        SaveFile_ctrl(f_now, ctrl_pre) 
+                        break 
+                    else
+                        episodes += 1
+                        SaveFile_ctrl(f_now, ctrl_pre)
+                        print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end  
+                end 
+            else
+                while true
+                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+                    grape.control_coefficients, f_now = gradient_QFIM_analy(grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        SaveFile_ctrl(f_now, ctrl_pre) 
+                        break 
+                    else
+                        episodes += 1
+                        SaveFile_ctrl(f_now, ctrl_pre)
+                        print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                end 
+            end                    
+        else
+            if Adam == true
+                while true
+                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+                    grape.control_coefficients, f_now = gradient_QFIM_analy_Adam(grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_list, ctrl_pre)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                end
+            else
+                while true
+                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+                    grape.control_coefficients, f_now = gradient_QFIM_analy(grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_list, ctrl_pre)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                end
+            end
+        end
+    else
+        println("multiparameter scenario")
+        println("control algorithm: GRAPE")
+        F_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
+        f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
+        println("non-controlled value of $str3 is $(f_noctrl)")
+        ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+        if Adam == true
+            grape.control_coefficients, f_ini = gradient_QFIM_analy_Adam(grape)
+        else
+            grape.control_coefficients, f_ini = gradient_QFIM_analy(grape)
+        end
+        f_list = [f_ini]
+        println("initial value of $str3 is $(f_ini)")
+        if save_file == true
+            SaveFile_ctrl(f_ini, ctrl_pre)
+            if Adam == true
+                while true
+                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+                    grape.control_coefficients, f_now = gradient_QFIM_analy_Adam(grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        SaveFile_ctrl(f_now, ctrl_pre)
+                        break
+                    else
+                        episodes += 1
+                        SaveFile_ctrl(f_now, ctrl_pre)
+                        print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                end
+            else
+                while true
+                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+                    grape.control_coefficients, f_now = gradient_QFIM_analy(grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        SaveFile_ctrl(f_now, ctrl_pre)
+                        break
+                    else
+                        episodes += 1
+                        SaveFile_ctrl(f_now, ctrl_pre)
+                        print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                end
+            end
+        else
+            if Adam == true
+                while true
+                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+                    grape.control_coefficients, f_now = gradient_QFIM_analy_Adam(grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_list, ctrl_pre)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                end
+            else
+                while true
+                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+                    grape.control_coefficients, f_now = gradient_QFIM_analy(grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_list, ctrl_pre)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                end
+            end
+        end
+    end
+end
 
 function dynamics_analy(grape::GRAPE_Copt{T}, dim, tnum, para_num, ctrl_num) where {T<:Complex}
     Δt = grape.tspan[2] - grape.tspan[1]
@@ -580,727 +967,4 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, grape::GRAPE_Copt{T
         bound!(grape.control_coefficients, grape.ctrl_bound)
     end
     grape.control_coefficients, cost_function
-end
-
-function QFIM_autoGRAPE_Copt(grape, max_episode, Adam, save_file)
-    println("quantum parameter estimation")
-    ctrl_num = length(grape.control_Hamiltonian)
-    ctrl_length = length(grape.control_coefficients[1])
-    episodes = 1
-    if length(grape.Hamiltonian_derivative) == 1
-        println("single parameter scenario")
-        println("control algorithm: auto-GRAPE")
-        f_noctrl = QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, 
-                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
-        f_ini = QFI(grape)
-        f_list = [f_ini]
-        println("non-controlled QFI is $(f_noctrl)")
-        println("initial QFI is $(f_ini)")
-        if save_file == true
-            SaveFile_ctrl(f_ini, grape.control_coefficients)
-            if Adam == true
-                gradient_QFI_Adam!(grape)
-                while true
-                    f_now = QFI(grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final QFI is ", f_now)
-                        SaveFile_ctrl(f_now, grape.control_coefficients)
-                        break
-                    else
-                        episodes += 1
-                        SaveFile_ctrl(f_now, grape.control_coefficients)
-                        print("current QFI is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                    gradient_QFI_Adam!(grape)
-                end
-            else
-                gradient_QFI!(grape)
-                while true
-                    f_now = QFI(grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final QFI is ", f_now)
-                        SaveFile_ctrl(f_now, grape.control_coefficients)
-                        break
-                    else
-                        episodes += 1
-                        SaveFile_ctrl(f_now, grape.control_coefficients)
-                        print("current QFI is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                    gradient_QFI!(grape)
-                end
-            end
-        else
-            if Adam == true
-                gradient_QFI_Adam!(grape)
-                while true
-                    f_now = QFI(grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final QFI is ", f_now)
-                        append!(f_list, f_now)
-                        SaveFile_ctrl(f_list, grape.control_coefficients)
-                        break
-                    else
-                        episodes += 1
-                        append!(f_list, f_now)
-                        print("current QFI is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                    gradient_QFI_Adam!(grape)
-                end
-            else
-                gradient_QFI!(grape)
-                while true
-                    f_now = QFI(grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final QFI is ", f_now)
-                        append!(f_list, f_now)
-                        SaveFile_ctrl(f_list, grape.control_coefficients)
-                        break
-                    else
-                        episodes += 1
-                        append!(f_list, f_now)
-                        print("current QFI is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                    gradient_QFI!(grape)
-                end
-            end
-        end
-    else
-        println("multiparameter scenario")
-        println("control algorithm: auto-GRAPE")
-        F_noctrl = QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, 
-                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
-        f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
-        F_ini = QFIM(grape)
-        f_ini = real(tr(grape.W*pinv(F_ini)))
-        f_list = [f_ini]
-        println("non-controlled value of Tr(WF^{-1}) is $(f_noctrl)")
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
-        if save_file == true
-            SaveFile_ctrl(f_ini, grape.control_coefficients)
-            if Adam == true
-                gradient_QFIM_Adam!(grape)
-                while true
-                    f_now = real(tr(grape.W*pinv(QFIM(grape))))
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile_ctrl(f_now, grape.control_coefficients)
-                        break
-                    else
-                        episodes += 1
-                        SaveFile_ctrl(f_now, grape.control_coefficients)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                    gradient_QFIM_Adam!(grape)
-                end
-            else
-                gradient_QFIM!(grape)
-                while true
-                    f_now = real(tr(grape.W*pinv(QFIM(grape))))
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile_ctrl(f_now, grape.control_coefficients)
-                        break
-                    else
-                        episodes += 1
-                        SaveFile_ctrl(f_now, grape.control_coefficients)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                    gradient_QFIM!(grape)
-                end
-            end
-        else
-            if Adam == true
-                gradient_QFIM_Adam!(grape)
-                while true
-                    f_now = real(tr(grape.W*pinv(QFIM(grape))))
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
-                        append!(f_list, f_now)
-                        SaveFile_ctrl(f_list, grape.control_coefficients)
-                        break
-                    else
-                        episodes += 1
-                        append!(f_list, f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                    gradient_QFIM_Adam!(grape)
-                end
-            else
-                gradient_QFIM!(grape)
-                while true
-                    f_now = real(tr(grape.W*pinv(QFIM(grape))))
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
-                        append!(f_list, f_now)
-                        SaveFile_ctrl(f_list, grape.control_coefficients)
-                        break
-                    else
-                        episodes += 1
-                        append!(f_list, f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                    gradient_QFIM!(grape)
-                end
-            end
-        end
-    end
-end
-
-function QFIM_GRAPE_Copt(grape, max_episode, Adam, save_file)
-    println("quantum parameter estimation")
-    ctrl_num = length(grape.control_Hamiltonian)
-    ctrl_length = length(grape.control_coefficients[1])
-    episodes = 1
-    if length(grape.Hamiltonian_derivative) == 1
-        println("single parameter scenario")
-        println("control algorithm: GRAPE")
-        f_noctrl = QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, 
-                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
-        println("non-controlled QFI is $(f_noctrl)")
-        ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-        if Adam == true
-            grape.control_coefficients, f_ini = gradient_QFIM_analy_Adam(grape)
-        else
-            grape.control_coefficients, f_ini = gradient_QFIM_analy(grape)
-        end
-        f_list = [f_ini]
-        println("initial QFI is $(f_ini)")
-        if save_file == true
-            SaveFile_ctrl(f_ini, ctrl_pre)
-            if Adam == true
-                while true
-                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_QFIM_analy_Adam(grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final QFI is ", f_now)
-                        SaveFile_ctrl(f_now, ctrl_pre) 
-                        break 
-                    else
-                        episodes += 1
-                        SaveFile_ctrl(f_now, ctrl_pre)
-                        print("current QFI is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end  
-                end 
-            else
-                while true
-                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_QFIM_analy(grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final QFI is ", f_now)
-                        SaveFile_ctrl(f_now, ctrl_pre) 
-                        break 
-                    else
-                        episodes += 1
-                        SaveFile_ctrl(f_now, ctrl_pre)
-                        print("current QFI is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                end 
-            end                    
-        else
-            if Adam == true
-                while true
-                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_QFIM_analy_Adam(grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final QFI is ", f_now)
-                        append!(f_list, f_now)
-                        SaveFile_ctrl(f_list, ctrl_pre)
-                        break
-                    else
-                        episodes += 1
-                        append!(f_list, f_now)
-                        print("current QFI is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                end
-            else
-                while true
-                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_QFIM_analy(grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final QFI is ", f_now)
-                        append!(f_list, f_now)
-                        SaveFile_ctrl(f_list, ctrl_pre)
-                        break
-                    else
-                        episodes += 1
-                        append!(f_list, f_now)
-                        print("current QFI is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                end
-            end
-        end
-    else
-        println("multiparameter scenario")
-        println("control algorithm: GRAPE")
-        F_noctrl = QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, 
-                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
-        f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
-        println("non-controlled value of Tr(WF^{-1}) is $(f_noctrl)")
-        ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-        if Adam == true
-            grape.control_coefficients, f_ini = gradient_QFIM_analy_Adam(grape)
-        else
-            grape.control_coefficients, f_ini = gradient_QFIM_analy(grape)
-        end
-        f_list = [f_ini]
-        println("initial value of Tr(WF^{-1}) is $(f_ini)")
-        if save_file == true
-            SaveFile_ctrl(f_ini, ctrl_pre)
-            if Adam == true
-                while true
-                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_QFIM_analy_Adam(grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile_ctrl(f_now, ctrl_pre)
-                        break
-                    else
-                        episodes += 1
-                        SaveFile_ctrl(f_now, ctrl_pre)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                end
-            else
-                while true
-                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_QFIM_analy(grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
-                        SaveFile_ctrl(f_now, ctrl_pre)
-                        break
-                    else
-                        episodes += 1
-                        SaveFile_ctrl(f_now, ctrl_pre)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                end
-            end
-        else
-            if Adam == true
-                while true
-                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_QFIM_analy_Adam(grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
-                        append!(f_list, f_now)
-                        SaveFile_ctrl(f_list, ctrl_pre)
-                        break
-                    else
-                        episodes += 1
-                        append!(f_list, f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                end
-            else
-                while true
-                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_QFIM_analy(grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value of Tr(WF^{-1}) is ", f_now)
-                        append!(f_list, f_now)
-                        SaveFile_ctrl(f_list, ctrl_pre)
-                        break
-                    else
-                        episodes += 1
-                        append!(f_list, f_now)
-                        print("current value of Tr(WF^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                end
-            end
-        end
-    end
-end
-
-function CFIM_autoGRAPE_Copt(Measurement, grape, max_episode, Adam, save_file)
-    println("classical parameter estimation")
-    ctrl_num = length(grape.control_Hamiltonian)
-    ctrl_length = length(grape.control_coefficients[1])
-    episodes = 1
-    if length(grape.Hamiltonian_derivative) == 1
-        println("single parameter scenario")
-        println("control algorithm: auto_GRAPE")
-        f_noctrl = CFI(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, 
-                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
-        f_ini = CFI(Measurement, grape)
-        f_list = [f_ini]
-        println("non-controlled CFI is $(f_noctrl)")
-        println("initial CFI is $(f_ini)")
-        if save_file == true
-            SaveFile_ctrl(f_ini, grape.control_coefficients)
-            if Adam == true
-                gradient_CFI_Adam!(grape, Measurement)
-                while true
-                    f_now = CFI(Measurement, grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final CFI is ", f_now)
-                        SaveFile_ctrl(f_now, grape.control_coefficients)
-                        break
-                    else
-                        episodes += 1
-                        SaveFile_ctrl(f_now, grape.control_coefficients)
-                        print("current CFI is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                    gradient_CFI_Adam!(grape, Measurement)
-                end
-            else
-                gradient_CFI!(grape, Measurement)
-                while true
-                    f_now = CFI(Measurement, grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final CFI is ", f_now)
-                        SaveFile_ctrl(f_now, grape.control_coefficients)
-                        break
-                    else
-                        episodes += 1
-                        SaveFile_ctrl(f_now, grape.control_coefficients)
-                        print("current CFI is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                    gradient_CFI!(grape, Measurement)
-                end
-            end
-        else
-            if Adam == true
-                gradient_CFI_Adam!(grape, Measurement)
-                while true
-                    f_now = CFI(Measurement, grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final CFI is ", f_now)
-                        append!(f_list, f_now)
-                        SaveFile_ctrl(f_list, grape.control_coefficients)
-                        break
-                    else
-                        episodes += 1
-                        append!(f_list, f_now)
-                        print("current CFI is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                    gradient_CFI_Adam!(grape, Measurement)
-                end
-            else
-                gradient_CFI!(grape, Measurement)
-                while true
-                    f_now = CFI(Measurement, grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final CFI is ", f_now)
-                        append!(f_list, f_now)
-                        SaveFile_ctrl(f_list, grape.control_coefficients)
-                        break
-                    else
-                        episodes += 1
-                        append!(f_list, f_now)
-                        print("current CFI is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                    gradient_CFI!(grape, Measurement)
-                end
-            end
-        end
-    else
-        println("multiparameter scenario")
-        println("control algorithm: auto-GRAPE")
-        F_noctrl = CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, 
-                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
-        f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
-        F_ini = CFIM(Measurement, grape)
-        f_ini = real(tr(grape.W*pinv(F_ini)))
-        f_list = [f_ini]
-        println("non-controlled value of Tr(WI^{-1}) is $(f_noctrl)")
-        println("initial value of Tr(WI^{-1}) is $(f_ini)")
-        if save_file == true
-            SaveFile_ctrl(f_ini, grape.control_coefficients)
-            if Adam == true
-                gradient_CFIM_Adam!(grape, Measurement)
-                while true
-                    f_now = real(tr(grape.W*pinv(CFIM(Measurement, grape))))
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value of Tr(WI^{-1}) is ", f_now)
-                        SaveFile_ctrl(f_now, grape.control_coefficients)
-                        break
-                    else
-                        episodes += 1
-                        SaveFile_ctrl(f_now, grape.control_coefficients)
-                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                    gradient_CFIM_Adam!(grape, Measurement)
-                end
-            else
-                gradient_CFIM!(grape, Measurement)
-                while true
-                    f_now = real(tr(grape.W*pinv(CFIM(Measurement, grape))))
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value of Tr(WI^{-1}) is ", f_now)
-                        SaveFile_ctrl(f_now, grape.control_coefficients)
-                        break
-                    else
-                        episodes += 1
-                        SaveFile_ctrl(f_now, grape.control_coefficients)
-                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                    gradient_CFIM!(grape, Measurement)
-                end
-            end
-        else
-            if Adam == true
-                gradient_CFIM_Adam!(grape, Measurement)
-                while true
-                    f_now = real(tr(grape.W*pinv(CFIM(Measurement, grape))))
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value of Tr(WI^{-1}) is ", f_now)
-                        append!(f_list, f_now)
-                        SaveFile_ctrl(f_list, grape.control_coefficients)
-                        break
-                    else
-                        episodes += 1
-                        append!(f_list, f_now)
-                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                    gradient_CFIM_Adam!(grape, Measurement)
-                end
-            else
-                gradient_CFIM!(grape, Measurement)
-                while true
-                    f_now = real(tr(grape.W*pinv(CFIM(Measurement, grape))))
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value of Tr(WI^{-1}) is ", f_now)
-                        append!(f_list, f_now)
-                        SaveFile_ctrl(f_list, grape.control_coefficients)
-                        break
-                    else
-                        episodes += 1
-                        append!(f_list, f_now)
-                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                    gradient_CFIM!(grape, Measurement)
-                end
-            end
-        end
-    end
-end
-
-function CFIM_GRAPE_Copt(Measurement, grape, max_episode, Adam, save_file)
-    println("classical parameter estimation")
-    ctrl_num = length(grape.control_Hamiltonian)
-    ctrl_length = length(grape.control_coefficients[1])
-    episodes = 1
-    if length(grape.Hamiltonian_derivative) == 1
-        println("single parameter scenario")
-        println("control algorithm: GRAPE")
-        f_noctrl = CFI(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, 
-                     grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
-        println("non-controlled CFI is $(f_noctrl)")
-        ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-        if Adam == true
-            grape.control_coefficients, f_ini = gradient_CFIM_analy_Adam(Measurement, grape)
-        else
-            grape.control_coefficients, f_ini = gradient_CFIM_analy(Measurement, grape)
-        end
-        f_list = [f_ini]
-        println("initial CFI is $(f_ini)")
-        if save_file == true
-            SaveFile_ctrl(f_ini, ctrl_pre) 
-            if Adam == true
-                while true
-                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(Measurement, grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final CFI is ", f_now)
-                        SaveFile_ctrl(f_now, ctrl_pre)                    
-                        break 
-                    else
-                        episodes += 1
-                        SaveFile_ctrl(f_now, ctrl_pre)
-                        print("current CFI is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end 
-                end
-            else
-                while true
-                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final CFI is ", f_now)
-                        SaveFile_ctrl(f_now, ctrl_pre)                    
-                        break 
-                    else
-                        episodes += 1
-                        SaveFile_ctrl(f_now, ctrl_pre)
-                        print("current CFI is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end 
-                end  
-            end                     
-        else
-            if Adam == true
-                while true
-                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(Measurement, grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final CFI is ", f_now)
-                        append!(f_list, f_now)
-                        SaveFile_ctrl(f_list, ctrl_pre)
-                        break
-                    else
-                        episodes += 1
-                        append!(f_list, f_now)
-                        print("current CFI is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                end
-            else
-                while true
-                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final CFI is ", f_now)
-                        append!(f_list, f_now)
-                        SaveFile_ctrl(f_list, ctrl_pre)
-                        break
-                    else
-                        episodes += 1
-                        append!(f_list, f_now)
-                        print("current CFI is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                end
-            end
-        end
-    else
-        println("multiparameter scenario")
-        println("control algorithm: GRAPE")
-        F_noctrl = CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, 
-                        grape.control_Hamiltonian, [zeros(ctrl_length) for i in 1:ctrl_num], grape.tspan, grape.accuracy)
-        f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
-        println("non-controlled value of Tr(WI^{-1}) is $(f_noctrl)")
-        ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-        if Adam == true
-            grape.control_coefficients, f_ini = gradient_CFIM_analy_Adam(Measurement, grape)
-        else
-            grape.control_coefficients, f_ini = gradient_CFIM_analy(Measurement, grape)
-        end
-        f_list = [f_ini]
-        println("initial value of Tr(WI^{-1}) is $(f_ini)")
-        if save_file == true
-            SaveFile_ctrl(f_ini, ctrl_pre)
-            if Adam == true
-                while true
-                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(Measurement, grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value of Tr(WI^{-1}) is ", f_now)
-                        SaveFile_ctrl(f_now, ctrl_pre)
-                        break
-                    else
-                        f_ini = f_now
-                        episodes += 1
-                        SaveFile_ctrl(f_now, ctrl_pre)
-                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                end
-            else
-                while true
-                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value of Tr(WI^{-1}) is ", f_now)
-                        SaveFile_ctrl(f_now, ctrl_pre)
-                        break
-                    else
-                        episodes += 1
-                        SaveFile_ctrl(f_now, ctrl_pre)
-                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                end
-            end
-        else
-            if Adam == true
-                while true
-                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(Measurement, grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value of Tr(WI^{-1}) is ", f_now)
-                        append!(f_list, f_now)
-                        SaveFile_ctrl(f_list, ctrl_pre)
-                        break
-                    else
-                        episodes += 1
-                        append!(f_list, f_now)
-                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                end
-            else
-                while true
-                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape)
-                    if  episodes >= max_episode
-                        print("\e[2K")
-                        println("Iteration over, data saved.")
-                        println("Final value of Tr(WI^{-1}) is ", f_now)
-                        append!(f_list, f_now)
-                        SaveFile_ctrl(f_list, ctrl_pre)
-                        break
-                    else
-                        episodes += 1
-                        append!(f_list, f_now)
-                        print("current value of Tr(WI^{-1}) is ", f_now, " ($(episodes-1) episodes)    \r")
-                    end
-                end
-            end
-        end
-    end
 end

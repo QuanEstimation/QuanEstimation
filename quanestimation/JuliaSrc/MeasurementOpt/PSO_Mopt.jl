@@ -1,6 +1,12 @@
 ################ projection measurement ###############
-
 function CFIM_PSO_Mopt(pso::projection_Mopt{T}, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file) where {T<:Complex}
+    sym = Symbol("CFIM_noctrl")
+    str1 = "CFI"
+    str2 = "tr(WI^{-1})"
+    return info_PSO_projection(pso, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file, sym, str1, str2)
+end
+
+function info_PSO_projection(pso, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file, sym, str1, str2) where {T<:Complex}
     println("measurement optimization")
     Random.seed!(seed)
     dim = size(pso.ρ0)[1]
@@ -40,117 +46,122 @@ function CFIM_PSO_Mopt(pso::projection_Mopt{T}, max_episode, particle_num, ini_p
     p_fit = [0.0 for i in 1:particle_num] 
     for pj in 1:particle_num
         Measurement = [particles[pj].Measurement[i]*(particles[pj].Measurement[i])' for i in 1:M_num]
-        F_tp = CFIM(Measurement, pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ0, pso.decay_opt, pso.γ, pso.tspan, pso.accuracy)
+        F_tp = obj_func(Val{sym}(), pso, Measurement)
         p_fit[pj] = 1.0/real(tr(pso.W*pinv(F_tp)))
     end
 
     f_ini= p_fit[1]
-    F_opt = QFIM(pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ0, pso.decay_opt, pso.γ, pso.tspan, pso.accuracy)
-    f_opt= real(tr(pso.W*pinv(F_opt)))
+    F_opt = obj_func(Val{:QFIM_noctrl}(), pso, pso.Measurement)
+    f_opt= 1.0/real(tr(pso.W*pinv(F_opt)))
 
     if length(pso.Hamiltonian_derivative) == 1
         f_list = [f_ini]
 
         println("single parameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
-        println("initial CFI is $(f_ini)")
-        println("QFI is $(1.0/f_opt)")
+        println("initial $str1 is $(f_ini)")
+        println("QFI is $(f_opt)")
         
         if save_file == true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
-                                                                               M_num, dim, pbest, gbest, velocity_best, velocity)
+                p_fit, fit, pbest, gbest, velocity_best, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                                                                               M_num, dim, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.Measurement = [gbest[k, :] for k in 1:M_num]
                     particles = repeat(pso, particle_num)
                 end
+                Measurement = [gbest[i]*gbest[i]' for i in 1:M_num]
                 append!(f_list, fit)
-                SaveFile_meas(f_list, gbest)
-                print("current CFI is $fit ($ei episodes) \r")
+                SaveFile_meas(f_list, Measurement)
+                print("current $str1 is $fit ($ei episodes) \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
-                                                                           M_num, dim, pbest, gbest, velocity_best, velocity)
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                                                                           M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            Measurement = [gbest[i]*gbest[i]' for i in 1:M_num]
             append!(f_list, fit)
-            SaveFile_meas(f_list, gbest)
+            SaveFile_meas(f_list, Measurement)
             print("\e[2K")    
             println("Iteration over, data saved.")
-            println("Final CFI is $fit")
+            println("Final $str1 is $fit")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
-                                                                               M_num, dim, pbest, gbest, velocity_best, velocity)
+                p_fit, fit, pbest, gbest, velocity_best, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                                                                               M_num, dim, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.Measurement = [gbest[k, :] for k in 1:M_num]
                     particles = repeat(pso, particle_num)
                 end
                 append!(f_list, fit)
-                print("current CFI is $fit ($ei episodes) \r")
+                print("current $str1 is $fit ($ei episodes) \r")
                 
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
-                                                                           M_num, dim, pbest, gbest, velocity_best, velocity)
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                                                                           M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            Measurement = [gbest[i]*gbest[i]' for i in 1:M_num]
             append!(f_list, fit)
-            SaveFile_meas(f_list, gbest)
+            SaveFile_meas(f_list, Measurement)
             print("\e[2K")    
             println("Iteration over, data saved.")
-            println("Final CFI is $fit")
+            println("Final $str1 is $fit")
         end
     else
         f_list = [1.0/f_ini]
         println("multiparameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
-        println("initial value of Tr(WI^{-1}) is $(1.0/f_ini)")
-        println("Tr(WF^{-1}) is $(f_opt)")
+        println("initial value of $str2 is $(1.0/f_ini)")
+        println("Tr(WF^{-1}) is $(1.0/f_opt)")
 
         if save_file == true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
-                                                                               M_num, dim, pbest, gbest, velocity_best, velocity)
+                p_fit, fit, pbest, gbest, velocity_best, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                                                                               M_num, dim, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.Measurement = [gbest[k, :] for k in 1:M_num]
                     particles = repeat(pso, particle_num)
                 end
+                Measurement = [gbest[i]*gbest[i]' for i in 1:M_num]
                 append!(f_list, 1.0/fit)
-                SaveFile_meas(f_list, gbest)
-                print("current value of Tr(WI^{-1}) is $(1.0/fit) ($ei episodes) \r")
+                SaveFile_meas(f_list, Measurement)
+                print("current value of $str2 is $(1.0/fit) ($ei episodes) \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
-                                                                           M_num, dim, pbest, gbest, velocity_best, velocity)
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                                                                           M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            Measurement = [gbest[i]*gbest[i]' for i in 1:M_num]
             append!(f_list, 1.0/fit)
-            SaveFile_meas(f_list, gbest)
+            SaveFile_meas(f_list, Measurement)
             print("\e[2K")    
             println("Iteration over, data saved.")
-            println("Final value of Tr(WI^{-1}) is $(1.0/fit)")
+            println("Final value of $str2 is $(1.0/fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
-                                                                           M_num, dim, pbest, gbest, velocity_best, velocity)
+                p_fit, fit, pbest, gbest, velocity_best, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                                                                           M_num, dim, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.Measurement = [gbest[k, :] for k in 1:M_num]
                     particles = repeat(pso, particle_num)
                 end
                 append!(f_list, 1.0/fit)
-                print("current value of Tr(WI^{-1}) is $fit ($ei episodes) \r")
+                print("current value of $str2 is $fit ($ei episodes) \r")
                 
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = train_CFIM_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
-                                                                           M_num, dim, pbest, gbest, velocity_best, velocity)
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                                                                           M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            Measurement = [gbest[i]*gbest[i]' for i in 1:M_num]
             append!(f_list, 1.0/fit)
-            SaveFile_meas(f_list, gbest)
+            SaveFile_meas(f_list, Measurement)
             print("\e[2K")    
             println("Iteration over, data saved.")
-            println("Final value of Tr(WI^{-1}) is $(1.0/fit)")
+            println("Final value of $str2 is $(1.0/fit)")
         end
     end
 end
 
-function train_CFIM_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity)
+function train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
     for pj in 1:particle_num
         Measurement = [particles[pj].Measurement[i]*(particles[pj].Measurement[i])' for i in 1:M_num]
-        F_tp = CFIM(Measurement, particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, particles[pj].ρ0, 
-                    particles[pj].decay_opt, particles[pj].γ, particles[pj].tspan, particles[pj].accuracy)
+        F_tp = obj_func(Val{sym}(), particles[pj], Measurement)
         f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
 
         if f_now > p_fit[pj]
@@ -198,8 +209,14 @@ function train_CFIM_projection(particles, p_fit, fit, max_episode, c0, c1, c2, p
 end
 
 ################## update the coefficients according to the given basis ############
-
 function CFIM_PSO_Mopt(pso::givenpovm_Mopt{T}, max_episode, particle_num, c0, c1, c2, seed, save_file) where {T<:Complex}
+    sym = Symbol("CFIM_noctrl")
+    str1 = "CFI"
+    str2 = "tr(WI^{-1})"
+    return info_PSO_givenpovm(pso, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2)
+end
+
+function info_PSO_givenpovm(pso::givenpovm_Mopt{T}, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2) where {T<:Complex}
     println("measurement optimization")
     Random.seed!(seed)
     dim = size(pso.ρ0)[1]
@@ -226,52 +243,54 @@ function CFIM_PSO_Mopt(pso::givenpovm_Mopt{T}, max_episode, particle_num, c0, c1
     p_fit = [0.0 for i in 1:particle_num] 
     for pj in 1:particle_num
         Measurement = [sum([coeff[pj][i][j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
-        F_tp = CFIM(Measurement, pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ0, pso.decay_opt, pso.γ, pso.tspan, pso.accuracy)
+        F_tp = obj_func(Val{sym}(), pso, Measurement)
         p_fit[pj] = 1.0/real(tr(pso.W*pinv(F_tp)))
     end
 
     f_ini= p_fit[1]
-    F_opt = QFIM(pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ0, pso.decay_opt, pso.γ, pso.tspan, pso.accuracy)
-    f_opt= real(tr(pso.W*pinv(F_opt)))
+    F_opt = obj_func(Val{:QFIM_noctrl}(), pso, POVM_basis)
+    f_opt= 1.0/real(tr(pso.W*pinv(F_opt)))
 
-    F_povm = CFIM(POVM_basis, pso.freeHamiltonian, pso.Hamiltonian_derivative, pso.ρ0, pso.decay_opt, pso.γ, pso.tspan, pso.accuracy)
-    f_povm= real(tr(pso.W*pinv(F_povm)))
+    F_povm = obj_func(Val{sym}(), pso, POVM_basis)
+    f_povm= 1.0/real(tr(pso.W*pinv(F_povm)))
 
     if length(pso.Hamiltonian_derivative) == 1
         f_list = [f_ini]
 
         println("single parameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
-        println("initial CFI is $(f_ini)")
-        println("CFI under the given POVMs is $(1.0/f_povm)")
-        println("QFI is $(1.0/f_opt)")
+        println("initial $str1 is $(f_ini)")
+        println("CFI under the given POVMs is $(f_povm)")
+        println("QFI is $(f_opt)")
         
         if save_file == true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_CFIM_givenpovm(particles, p_fit, fit, coeff, POVM_basis, max_episode, c0, c1, c2, particle_num, 
-                                                                               M_num, dim, pbest, gbest, velocity_best, velocity)
+                p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_givenpovm(particles, p_fit, fit, coeff, POVM_basis, max_episode, c0, c1, c2, particle_num, 
+                                                                               M_num, dim, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     particles = repeat(pso, particle_num)
                     for i in 1:particle_num
                         coeff[i] = [gbest[k, :] for k in 1:M_num]
                     end
                 end
+                Measurement = [sum([gbest[i,j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
                 append!(f_list, fit)
-                SaveFile_meas(f_list, gbest)
-                print("current CFI is $fit ($ei episodes) \r")
+                SaveFile_meas(f_list, Measurement)
+                print("current $str1 is $fit ($ei episodes) \r")
             end
-            p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_CFIM_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
-                                             max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity)
+            p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
+                                             max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            Measurement = [sum([gbest[i,j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
             append!(f_list, fit)
-            SaveFile_meas(f_list, gbest)
+            SaveFile_meas(f_list, Measurement)
             print("\e[2K")    
             println("Iteration over, data saved.")
-            println("Final CFI is $fit")
+            println("Final $str1 is $fit")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_CFIM_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
-                                                 max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity)
+                p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
+                                                 max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     particles = repeat(pso, particle_num)
                     for i in 1:particle_num
@@ -279,51 +298,54 @@ function CFIM_PSO_Mopt(pso::givenpovm_Mopt{T}, max_episode, particle_num, c0, c1
                     end
                 end
                 append!(f_list, fit)
-                print("current CFI is $fit ($ei episodes) \r")
+                print("current $str1 is $fit ($ei episodes) \r")
                 
             end
-            p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_CFIM_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
-                                              max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity)
+            p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
+                                              max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            Measurement = [sum([gbest[i,j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
             append!(f_list, fit)
-            SaveFile_meas(f_list, gbest)
+            SaveFile_meas(f_list, Measurement)
             print("\e[2K")    
             println("Iteration over, data saved.")
-            println("Final CFI is $fit")
+            println("Final $str1 is $fit")
         end
     else
         f_list = [1.0/f_ini]
         println("multiparameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
-        println("initial value of Tr(WI^{-1}) is $(1.0/f_ini)")
-        println("Tr(WI^{-1}) under the given POVMs is $(f_povm)")
-        println("Tr(WF^{-1}) is $(f_opt)")
+        println("initial value of $str2 is $(1.0/f_ini)")
+        println("Tr(WI^{-1}) under the given POVMs is $(1.0/f_povm)")
+        println("Tr(WF^{-1}) is $(1.0/f_opt)")
 
         if save_file == true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_CFIM_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
-                                                 max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity)
+                p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
+                                                 max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     particles = repeat(pso, particle_num)
                     for i in 1:particle_num
                         coeff[i] = [gbest[k, :] for k in 1:M_num]
                     end
                 end
+                Measurement = [sum([gbest[i,j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
                 append!(f_list, 1.0/fit)
-                SaveFile_meas(f_list, gbest)
-                print("current value of Tr(WI^{-1}) is $(1.0/fit) ($ei episodes) \r")
+                SaveFile_meas(f_list, Measurement)
+                print("current value of $str2 is $(1.0/fit) ($ei episodes) \r")
             end
-            p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_CFIM_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
-                                              max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity)
+            p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
+                                              max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            Measurement = [sum([gbest[i,j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
             append!(f_list, 1.0/fit)
-            SaveFile_meas(f_list, gbest)
+            SaveFile_meas(f_list, Measurement)
             print("\e[2K")    
             println("Iteration over, data saved.")
-            println("Final value of Tr(WI^{-1}) is $(1.0/fit)")
+            println("Final value of $str2 is $(1.0/fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_CFIM_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
-                                                 max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity)
+                p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
+                                                 max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     particles = repeat(pso, particle_num)
                     for i in 1:particle_num
@@ -331,25 +353,25 @@ function CFIM_PSO_Mopt(pso::givenpovm_Mopt{T}, max_episode, particle_num, c0, c1
                     end
                 end
                 append!(f_list, 1.0/fit)
-                print("current value of Tr(WI^{-1}) is $fit ($ei episodes) \r")
+                print("current value of $str2 is $fit ($ei episodes) \r")
                 
             end
-            p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_CFIM_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
-                                             max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity)
+            p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
+                                             max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            Measurement = [sum([gbest[i,j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
             append!(f_list, 1.0/fit)
-            SaveFile_meas(f_list, gbest)
+            SaveFile_meas(f_list, Measurement)
             print("\e[2K")    
             println("Iteration over, data saved.")
-            println("Final value of Tr(WI^{-1}) is $(1.0/fit)")
+            println("Final value of $str2 is $(1.0/fit)")
         end
     end
 end
 
-function train_CFIM_givenpovm(particles, p_fit, fit, coeff, POVM_basis, max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity)
+function train_givenpovm(particles, p_fit, fit, coeff, POVM_basis, max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
     for pj in 1:particle_num
         Measurement = [sum([coeff[pj][i][j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
-        F_tp = CFIM(Measurement, particles[pj].freeHamiltonian, particles[pj].Hamiltonian_derivative, particles[pj].ρ0, 
-                    particles[pj].decay_opt, particles[pj].γ, particles[pj].tspan, particles[pj].accuracy)
+        F_tp = obj_func(Val{sym}(), particles[pj], Measurement)
         f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
 
         if f_now > p_fit[pj]

@@ -86,8 +86,9 @@ class PSO_Copt(Control.ControlSystem):
                            False: save the control coefficients for the last episode and all the CFI (Tr(WF^{-1})).
             --type: bool
         """
+        Measurement = [np.array(x, dtype=np.complex128) for x in Measurement]
         pso = Main.QuanEstimation.PSO_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, self.decay_opt, \
                          self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
-        Main.QuanEstimation.CFIM_PSO_Copt(Measurement, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, \
-                                         self.seed, save_file)
+        Main.QuanEstimation.CFIM_PSO_Copt(Measurement, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, \
+                                          self.c2, self.seed, save_file)
                                          

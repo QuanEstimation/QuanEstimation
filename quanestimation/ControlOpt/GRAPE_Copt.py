@@ -93,7 +93,7 @@ class GRAPE_Copt(Control.ControlSystem):
             --type: bool
 
         """
-
+        Measurement = [np.array(x, dtype=np.complex128) for x in Measurement]
         grape = Main.QuanEstimation.GRAPE_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, \
                 self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
                 self.ctrl_bound, self.W, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.accuracy)

@@ -85,7 +85,7 @@ end
 
 function sic_povm(fiducial)
     """
-    Generate a set of POVMs by applying the $d^2$ Weyl-Heisenberg displacement operators to a
+    Generate a set of POVMs by applying the d^2 Weyl-Heisenberg displacement operators to a
     fiducial state. 
     The Weyl-Heisenberg displacement operators are constructioned by Fuchs et al. in the article
     https://doi.org/10.3390/axioms6030021 and it is realized in QBism.

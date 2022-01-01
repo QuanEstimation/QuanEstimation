@@ -4,9 +4,9 @@ import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
 class AD_Mopt(Measurement.MeasurementSystem):
     def __init__(self, mtype, mgiven, tspan, rho0, H0, dH=[], decay=[], W=[], Adam=True, \
-                 measurement0=[], max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99):
+                 measurement0=[], max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99, seed=1234):
 
-        Measurement.MeasurementSystem.__init__(self, mtype, mgiven, tspan, rho0, H0, dH, decay, W, measurement0, seed=1234, accuracy=1e-8)
+        Measurement.MeasurementSystem.__init__(self, mtype, mgiven, tspan, rho0, H0, dH, decay, W, measurement0, seed, accuracy=1e-8)
         
         """
         --------
@@ -48,6 +48,7 @@ class AD_Mopt(Measurement.MeasurementSystem):
         self.beta2 = beta2
         self.mt = 0.0
         self.vt = 0.0 
+        self.seed = seed
         
     def CFIM(self, save_file=False):
         """
@@ -68,9 +69,14 @@ class AD_Mopt(Measurement.MeasurementSystem):
             Main.QuanEstimation.CFIM_AD_Mopt(ad, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, self.Adam, save_file)
             self.load_save()
         elif self.mtype=='sicpovm' or 'given':
-            ad = Main.QuanEstimation.projection_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
-                                                self.decay_opt, self.gamma, self.Measurement, self.W, self.accuracy)
-            Main.QuanEstimation.CFIM_AD_Mopt(ad, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, self.Adam, save_file)
+            ad = Main.QuanEstimation.givenpovm_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
+                                                    self.decay_opt, self.gamma, self.povm_basis, self.M_num, self.W, self.accuracy)
+            Main.QuanEstimation.CFIM_AD_Mopt(ad, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, self.Adam, save_file, self.seed)
+            self.load_save()
+        elif self.mtype=="rotation" :
+            ad = Main.QuanEstimation.RotateCoeff_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
+                                                self.decay_opt, self.gamma, self.W, self.accuracy)
+            Main.QuanEstimation.CFIM_AD_Mopt(ad, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, self.Adam, save_file, self.seed)
             self.load_save()
         else:
             raise ValueError("{!r} is not a valid value for method, supported values are 'projection', 'sicpovm' and 'given'.".format(self.mtype))

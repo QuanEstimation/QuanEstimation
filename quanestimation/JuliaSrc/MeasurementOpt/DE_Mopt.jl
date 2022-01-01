@@ -1,5 +1,12 @@
 ################ projection measurement ###############
 function CFIM_DE_Mopt(DE::projection_Mopt{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<:Complex}
+    sym = Symbol("CFIM_noctrl")
+    str1 = "CFI"
+    str2 = "tr(WI^{-1})"
+    return info_DE_projection(DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2)
+end
+
+function info_DE_projection(DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2) where {T<:Complex}
     println("measurement optimization")
     Random.seed!(seed)
     dim = size(DE.ρ0)[1]
@@ -30,95 +37,103 @@ function CFIM_DE_Mopt(DE::projection_Mopt{T}, popsize, ini_population, c, cr, se
     p_fit = [0.0 for i in 1:p_num] 
     for pj in 1:p_num
         Measurement = [populations[pj].Measurement[i]*(populations[pj].Measurement[i])' for i in 1:M_num]
-        F_tp = CFIM(Measurement, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ0, DE.decay_opt, DE.γ, DE.tspan, DE.accuracy)
+        F_tp = obj_func(Val{sym}(), DE, Measurement)
         p_fit[pj] = 1.0/real(tr(DE.W*pinv(F_tp)))
     end
 
     f_ini= p_fit[1]
-    F_opt = QFIM(DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ0, DE.decay_opt, DE.γ, DE.tspan, DE.accuracy)
-    f_opt= real(tr(DE.W*pinv(F_opt)))
+    F_opt = obj_func(Val{:QFIM_noctrl}(), DE, DE.Measurement)
+    f_opt= 1.0/real(tr(DE.W*pinv(F_opt)))
 
     if length(DE.Hamiltonian_derivative) == 1
         f_list = [f_ini]
 
         println("single parameter scenario")
         println("search algorithm: Differential Evolution (DE)")
-        println("initial CFI is $(f_ini)")
-        println("QFI is $(1.0/f_opt)")
+        println("initial $str1 is $(f_ini)")
+        println("QFI is $(f_opt)")
         
         if save_file == true
             indx = findmax(p_fit)[2]
-            SaveFile_meas(f_list, populations[indx].Measurement)
+            Measurement = [populations[indx].Measurement[i]*(populations[indx].Measurement[i])' for i in 1:M_num]
+            SaveFile_meas(f_list, Measurement)
             for i in 1:(max_episode-1)
-                p_fit = train_CFIM_projection(populations, c, cr, p_num, dim, M_num, p_fit)
+                p_fit = train_projection(populations, c, cr, p_num, dim, M_num, p_fit, sym)
                 indx = findmax(p_fit)[2]
+                Measurement = [populations[indx].Measurement[i]*(populations[indx].Measurement[i])' for i in 1:M_num]
                 append!(f_list, maximum(p_fit))
-                SaveFile_meas(f_list, populations[indx].Measurement)
-                print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
+                SaveFile_meas(f_list, Measurement)
+                print("current $str1 is ", maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit = train_CFIM_projection(populations, c, cr, p_num, dim, M_num, p_fit)
+            p_fit = train_projection(populations, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
+            Measurement = [populations[indx].Measurement[i]*(populations[indx].Measurement[i])' for i in 1:M_num]
             append!(f_list, maximum(p_fit))
-            SaveFile_meas(f_list, populations[indx].Measurement)
+            SaveFile_meas(f_list, Measurement)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final CFI is ", maximum(p_fit))
+            println("Final $str1 is ", maximum(p_fit))
         else
             for i in 1:(max_episode-1)
-                p_fit = train_CFIM_projection(populations, c, cr, p_num, dim, M_num, p_fit)
+                p_fit = train_projection(populations, c, cr, p_num, dim, M_num, p_fit, sym)
                 append!(f_list, maximum(p_fit))
-                print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")   
+                print("current $str1 is ", maximum(p_fit), " ($i eposides)    \r")   
             end
-            p_fit = train_CFIM_projection(populations, c, cr, p_num, dim, M_num, p_fit)
+            p_fit = train_projection(populations, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
+            Measurement = [populations[indx].Measurement[i]*(populations[indx].Measurement[i])' for i in 1:M_num]
             append!(f_list, maximum(p_fit))
-            SaveFile_meas(f_list, populations[indx].Measurement)
+            SaveFile_meas(f_list, Measurement)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final CFI is ", maximum(p_fit))
+            println("Final $str1 is ", maximum(p_fit))
         end
     else
         f_list = [1.0/f_ini]
         println("multiparameter scenario")
         println("search algorithm: Differential Evolution (DE)")
-        println("initial value of Tr(WI^{-1}) is $(1.0/f_ini)")
-        println("Tr(WF^{-1}) is $(f_opt)")
+        println("initial value of $str2 is $(1.0/f_ini)")
+        println("Tr(WF^{-1}) is $(1.0/f_opt)")
 
         if save_file == true
             indx = findmax(p_fit)[2]
-            SaveFile_meas(f_list, populations[indx].Measurement)
+            Measurement = [populations[indx].Measurement[i]*(populations[indx].Measurement[i])' for i in 1:M_num]
+            SaveFile_meas(f_list, Measurement)
             for i in 1:(max_episode-1)
-                p_fit = train_CFIM_projection(populations, c, cr, p_num, dim, M_num, p_fit)
+                p_fit = train_projection(populations, c, cr, p_num, dim, M_num, p_fit, sym)
                 indx = findmax(p_fit)[2]
+                Measurement = [populations[indx].Measurement[i]*(populations[indx].Measurement[i])' for i in 1:M_num]
                 append!(f_list, 1.0/maximum(p_fit))
-                SaveFile_meas(f_list, populations[indx].Measurement)
-                print("current value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+                SaveFile_meas(f_list, Measurement)
+                print("current value of $str2 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit = train_CFIM_projection(populations, c, cr, p_num, dim, M_num, p_fit)
+            p_fit = train_projection(populations, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
+            Measurement = [populations[indx].Measurement[i]*(populations[indx].Measurement[i])' for i in 1:M_num]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile_meas(f_list, populations[indx].Measurement)
+            SaveFile_meas(f_list, Measurement)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit))
+            println("Final value of $str2 is ", 1.0/maximum(p_fit))
         else
             for i in 1:(max_episode-1)
-                p_fit = train_CFIM_projection(populations, c, cr, p_num, dim, M_num, p_fit)
+                p_fit = train_projection(populations, c, cr, p_num, dim, M_num, p_fit, sym)
                 append!(f_list, 1.0/maximum(p_fit))
-                print("current value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+                print("current value of $str2 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit = train_CFIM_projection(populations, c, cr, p_num, dim, M_num, p_fit)
+            p_fit = train_projection(populations, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
+            Measurement = [populations[indx].Measurement[i]*(populations[indx].Measurement[i])' for i in 1:M_num]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile_meas(f_list, populations[indx].Measurement)
+            SaveFile_meas(f_list, Measurement)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit))
+            println("Final value of $str2 is ", 1.0/maximum(p_fit))
         end
     end
 end
 
-function train_CFIM_projection(populations, c, cr, p_num, dim, M_num, p_fit)
+function train_projection(populations, c, cr, p_num, dim, M_num, p_fit, sym)
     for pj in 1:p_num
         #mutations
         mut_num = sample(1:p_num, 3, replace=false)
@@ -130,12 +145,6 @@ function train_CFIM_projection(populations, c, cr, p_num, dim, M_num, p_fit)
             end
         end
         #crossover
-        # f_mean = p_fit |> mean
-        # if p_fit[pj] > f_mean
-        #     cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
-        # else
-        #     cr = c0
-        # end
         M_cross = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
         for cj in 1:M_num
             cross_int = sample(1:dim, 1, replace=false)
@@ -156,9 +165,9 @@ function train_CFIM_projection(populations, c, cr, p_num, dim, M_num, p_fit)
         Measurement = [M_cross[i]*(M_cross[i])' for i in 1:M_num]
 
         #selection
-        F_tp = CFIM_TimeIndepend(Measurement, populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, populations[pj].ρ0, 
-                                 populations[pj].decay_opt, populations[pj].γ, populations[pj].tspan, populations[pj].accuracy)
+        F_tp = obj_func(Val{sym}(), populations[pj], Measurement)
         f_cross = 1.0/real(tr(populations[pj].W*pinv(F_tp)))
+
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
             for ck in 1:M_num
@@ -173,8 +182,14 @@ end
 
 
 ################## update the coefficients according to the given basis ############
-
 function CFIM_DE_Mopt(DE::givenpovm_Mopt{T}, popsize, c, cr, seed, max_episode, save_file) where {T<:Complex}
+    sym = Symbol("CFIM_noctrl")
+    str1 = "CFI"
+    str2 = "tr(WI^{-1})"
+    return info_DE_givenpovm(DE, popsize, c, cr, seed, max_episode, save_file, sym, str1, str2)
+end
+
+function info_DE_givenpovm(DE, popsize, c, cr, seed, max_episode, save_file, sym, str1, str2) where {T<:Complex}
     println("measurement optimization")
     Random.seed!(seed)
     dim = size(DE.ρ0)[1]
@@ -191,100 +206,108 @@ function CFIM_DE_Mopt(DE::givenpovm_Mopt{T}, popsize, c, cr, seed, max_episode, 
     p_fit = [0.0 for i in 1:p_num] 
     for pj in 1:p_num
         Measurement = [sum([coeff[pj][i][j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
-        F_tp = CFIM(Measurement, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ0, DE.decay_opt, DE.γ, DE.tspan, DE.accuracy)
+        F_tp = obj_func(Val{sym}(), DE, Measurement)
         p_fit[pj] = 1.0/real(tr(DE.W*pinv(F_tp)))
     end
 
     f_ini= p_fit[1]
-    F_opt = QFIM(DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ0, DE.decay_opt, DE.γ, DE.tspan, DE.accuracy)
-    f_opt= real(tr(DE.W*pinv(F_opt)))
+    F_opt = F_tp = obj_func(Val{:QFIM_noctrl}(), DE, POVM_basis)
+    f_opt = 1.0/real(tr(DE.W*pinv(F_opt)))
 
-    F_povm = CFIM(POVM_basis, DE.freeHamiltonian, DE.Hamiltonian_derivative, DE.ρ0, DE.decay_opt, DE.γ, DE.tspan, DE.accuracy)
-    f_povm= real(tr(DE.W*pinv(F_povm)))
+    F_povm = obj_func(Val{sym}(), DE, POVM_basis)
+    f_povm = 1.0/real(tr(DE.W*pinv(F_povm)))
 
     if length(DE.Hamiltonian_derivative) == 1
         f_list = [f_ini]
 
         println("single parameter scenario")
         println("search algorithm: Differential Evolution (DE)")
-        println("initial CFI is $(f_ini)")
-        println("CFI under the given POVMs is $(1.0/f_povm)")
-        println("QFI is $(1.0/f_opt)")
+        println("initial $str1 is $(f_ini)")
+        println("CFI under the given POVMs is $(f_povm)")
+        println("QFI is $(f_opt)")
         
         if save_file == true
             indx = findmax(p_fit)[2]
-            SaveFile_meas(f_list, coeff[indx])
+            Measurement = [sum([coeff[indx][i][j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
+            SaveFile_meas(f_list, Measurement)
             for i in 1:(max_episode-1)
-                p_fit, coeff = train_CFIM_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim, M_num, p_fit)
+                p_fit, coeff = train_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim, M_num, p_fit, sym)
                 indx = findmax(p_fit)[2]
+                Measurement = [sum([coeff[indx][i][j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
                 append!(f_list, maximum(p_fit))
-                SaveFile_meas(f_list, coeff[indx])
-                print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")
+                SaveFile_meas(f_list, Measurement)
+                print("current $str1 is ", maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit, coeff = train_CFIM_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim, M_num, p_fit)
+            p_fit, coeff = train_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
+            Measurement = [sum([coeff[indx][i][j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
             append!(f_list, maximum(p_fit))
-            SaveFile_meas(f_list, coeff[indx])
+            SaveFile_meas(f_list, Measurement)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final CFI is ", maximum(p_fit))
+            println("Final $str1 is ", maximum(p_fit))
         else
             for i in 1:(max_episode-1)
-                p_fit, coeff = train_CFIM_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim, M_num, p_fit)
+                p_fit, coeff = train_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim, M_num, p_fit, sym)
                 append!(f_list, maximum(p_fit))
-                print("current CFI is ", maximum(p_fit), " ($i eposides)    \r")   
+                print("current $str1 is ", maximum(p_fit), " ($i eposides)    \r")   
             end
-            p_fit, coeff = train_CFIM_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim, M_num, p_fit)
+            p_fit, coeff = train_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
+            Measurement = [sum([coeff[indx][i][j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
             append!(f_list, maximum(p_fit))
-            SaveFile_meas(f_list, coeff[indx])
+            SaveFile_meas(f_list, Measurement)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final CFI is ", maximum(p_fit))
+            println("Final $str1 is ", maximum(p_fit))
         end
     else
         f_list = [1.0/f_ini]
         println("multiparameter scenario")
         println("search algorithm: Differential Evolution (DE)")
-        println("initial value of Tr(WI^{-1}) is $(1.0/f_ini)")
-        println("Tr(WI^{-1}) under the given POVMs is $(f_povm)")
-        println("Tr(WF^{-1}) is $(f_opt)")
+        println("initial value of $str2 is $(1.0/f_ini)")
+        println("Tr(WI^{-1}) under the given POVMs is $(1.0/f_povm)")
+        println("Tr(WF^{-1}) is $(1.0/f_opt)")
 
         if save_file == true
             indx = findmax(p_fit)[2]
-            SaveFile_meas(f_list, coeff[indx])
+            Measurement = [sum([coeff[indx][i][j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
+            SaveFile_meas(f_list, Measurement)
             for i in 1:(max_episode-1)
-                p_fit, coeff = train_CFIM_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim, M_num, p_fit)
+                p_fit, coeff = train_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim, M_num, p_fit, sym)
                 indx = findmax(p_fit)[2]
+                Measurement = [sum([coeff[indx][i][j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
                 append!(f_list, 1.0/maximum(p_fit))
-                SaveFile_meas(f_list, coeff[indx])
-                print("current value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+                SaveFile_meas(f_list, Measurement)
+                print("current value of $str2 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit, coeff = train_CFIM_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim, M_num, p_fit)
+            p_fit, coeff = train_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
+            Measurement = [sum([coeff[indx][i][j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile_meas(f_list, coeff[indx])
+            SaveFile_meas(f_list, Measurement)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit))
+            println("Final value of $str2 is ", 1.0/maximum(p_fit))
         else
             for i in 1:(max_episode-1)
-                p_fit, coeff = train_CFIM_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim, M_num, p_fit)
+                p_fit, coeff = train_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim, M_num, p_fit, sym)
                 append!(f_list, 1.0/maximum(p_fit))
-                print("current value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+                print("current value of $str2 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit, coeff = train_CFIM_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim, M_num, p_fit)
+            p_fit, coeff = train_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
+            Measurement = [sum([coeff[indx][i][j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile_meas(f_list, coeff[indx])
+            SaveFile_meas(f_list, Measurement)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of Tr(WI^{-1}) is ", 1.0/maximum(p_fit))
+            println("Final value of $str2 is ", 1.0/maximum(p_fit))
         end
     end
 end
 
-function train_CFIM_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim, M_num, p_fit)
+function train_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim, M_num, p_fit, sym)
     for pj in 1:p_num
         #mutations
         mut_num = sample(1:p_num, 3, replace=false)
@@ -295,12 +318,6 @@ function train_CFIM_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim,
             end
         end
         #crossover
-        # f_mean = p_fit |> mean
-        # if p_fit[pj] > f_mean
-        #     cr = c0 + (c1-c0)*(p_fit[pj]-minimum(p_fit))/(maximum(p_fit)-minimum(p_fit))
-        # else
-        #     cr = c0
-        # end
         M_cross = [Vector{Float64}(undef, dim^2) for i in 1:M_num]
         for cj in 1:M_num
             cross_int = sample(1:dim^2, 1, replace=false)
@@ -325,8 +342,7 @@ function train_CFIM_givenpovm(populations, coeff, POVM_basis, c, cr, p_num, dim,
         Measurement = [sum([M_cross[i][j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
 
         #selection
-        F_tp = CFIM_TimeIndepend(Measurement, populations[pj].freeHamiltonian, populations[pj].Hamiltonian_derivative, populations[pj].ρ0, 
-                                 populations[pj].decay_opt, populations[pj].γ, populations[pj].tspan, populations[pj].accuracy)
+        F_tp = obj_func(Val{sym}(), populations[pj], Measurement)
         f_cross = 1.0/real(tr(populations[pj].W*pinv(F_tp)))
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross

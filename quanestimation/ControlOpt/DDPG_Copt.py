@@ -66,6 +66,7 @@ class DDPG_Copt(Control.ControlSystem):
                            False: save the control coefficients for the last episode and all the CFI (Tr(WF^{-1})).
             --type: bool
         """
+        Measurement = [np.array(x, dtype=np.complex128) for x in Measurement]
         ddpg = Main.QuanEstimation.DDPG_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, \
                 self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
                 self.ctrl_bound, self.W, self.ctrl_interval, len(self.rho0), self.accuracy)
