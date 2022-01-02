@@ -63,19 +63,20 @@ class AD_Mopt(Measurement.MeasurementSystem):
                            False: save the measurements for the last episode and all the CFI (Tr(WF^{-1})).
             --type: bool
         """
+        
         if self.mtype=='projection':
             ad = Main.QuanEstimation.projection_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
                                                 self.decay_opt, self.gamma, self.Measurement, self.W, self.accuracy)
             Main.QuanEstimation.CFIM_AD_Mopt(ad, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, self.Adam, save_file)
             self.load_save()
-        elif self.mtype=='sicpovm' or 'given':
+        elif self.mtype=='sicpovm' or self.mtype=='given':
             ad = Main.QuanEstimation.givenpovm_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
                                                     self.decay_opt, self.gamma, self.povm_basis, self.M_num, self.W, self.accuracy)
             Main.QuanEstimation.CFIM_AD_Mopt(ad, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, self.Adam, save_file, self.seed)
             self.load_save()
-        elif self.mtype=="rotation" :
+        elif self.mtype=='rotation':
             ad = Main.QuanEstimation.RotateCoeff_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
-                                                self.decay_opt, self.gamma, self.W, self.accuracy)
+                                                self.decay_opt, self.gamma, self.M_num, self.W, self.accuracy)
             Main.QuanEstimation.CFIM_AD_Mopt(ad, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, self.Adam, save_file, self.seed)
             self.load_save()
         else:

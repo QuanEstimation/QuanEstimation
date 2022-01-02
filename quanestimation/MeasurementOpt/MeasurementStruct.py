@@ -123,6 +123,8 @@ class MeasurementSystem:
 
             self.povm_basis = mgiven[0]
             self.M_num = mgiven[1]
+        elif self.mtype == 'rotation':
+            self.M_num = mgiven[1]
         else:
             raise ValueError("{!r} is not a valid value for mtype, supported values are 'projection', 'sicpovm', 'given'.".format(self.mtype))
 
