@@ -6,17 +6,18 @@ mutable struct RotateCoeff_Mopt{T<:Complex, M <:Real} <:ControlSystem
     tspan::Vector{M}
     decay_opt::Vector{Matrix{T}}
     γ::Vector{M}
+    M_num::Int64
     W::Matrix{M}
     accuracy::M
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
     RotateCoeff_Mopt(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, ρ0::Matrix{T}, tspan::Vector{M}, 
-    decay_opt::Vector{Matrix{T}},γ::Vector{M}, W::Matrix{M}, accuracy::M, 
+    decay_opt::Vector{Matrix{T}},γ::Vector{M}, M_num::Int64, W::Matrix{M}, accuracy::M, 
     ρ=Vector{Matrix{T}}(undef, 1), ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T<:Complex, M<:Real}=
-    new{T,M}(freeHamiltonian, Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, W, accuracy, ρ, ∂ρ_∂x) 
+    new{T,M}(freeHamiltonian, Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, M_num, W, accuracy, ρ, ∂ρ_∂x) 
 end
 
-function CFIM_AD_Mopt(AD::RotateCoeff_Mopt{T}, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_fileseed, ) where {T<:Complex}
+function CFIM_AD_Mopt(AD::RotateCoeff_Mopt{T}, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed) where {T<:Complex}
     sym = Symbol("CFIM_noctrl")
     str1 = "CFI"
     str2 = "tr(WI^{-1})"
@@ -58,7 +59,7 @@ end
 function info_RotateCoeff_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed, sym, str1, str2) where {T<:Complex}
     println("measurement optimization")
     dim = size(AD.ρ0)[1]
-    M_num = length(AD.Measurement)
+    M_num = AD.M_num
     suN = suN_generator(dim)
     Lambda = [Matrix{ComplexF64}(I,dim,dim)]
     append!(Lambda, [suN[i] for i in 1:length(suN)])
