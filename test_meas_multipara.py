@@ -1,4 +1,5 @@
 import numpy as np
+import os
 from quanestimation import *
 
 #initial state
@@ -30,23 +31,26 @@ Hc_ctrl = [S1, S2, S3]
 #dissipation
 decay = [[S3,2*np.pi/cons]]
 #measurement
-M_num = len(rho0)
-np.random.seed(1234)
-M = [[] for i in range(M_num)]
-for i in range(M_num):
-    r_ini = 2*np.random.random(len(rho0))-np.ones(len(rho0))
-    r = r_ini/np.linalg.norm(r_ini)
-    phi = 2*np.pi*np.random.random(len(rho0))
-    M[i] = [r[i]*np.exp(1.0j*phi[i]) for i in range(len(rho0))]
-Measurement = gramschmidt(np.array(M))
+v1 = np.array([1,0,0]).reshape(3,1)
+v2 = np.array([0,1,0]).reshape(3,1)
+v3 = np.array([0,0,1]).reshape(3,1)
+M1 = np.dot(v1, v1.T.conj())+np.dot(v2, v2.T.conj())
+M2 = np.dot(v3, v3.T.conj())
 
-T = 2.0
+N1, N2 = 0.5*(ide2+sx/3), 0.5*(ide2-sx/3)
+P1, P2 = np.kron(M1, N1), np.kron(M1, N2)
+P3, P4 = np.kron(M2, N1), np.kron(M2, N2)
+minput = [P1,P2,P3,P4]
+
+T = 0.5
 tnum = int(2000*T)
 tspan = np.linspace(0.0, T, tnum)
 
-AD_paras = {'Adam':False, 'measurement0':[Measurement], 'max_episode':300, 'epsilon':0.001, 'beta1':0.90, 'beta2':0.99, 'seed':1234}
+AD_paras = {'Adam':False, 'measurement0':[minput], 'max_episode':500, 'epsilon':0.01, 'beta1':0.90, 'beta2':0.99, 'seed':1234}
 PSO_paras = {'particle_num':10, 'measurement0':[], 'max_episode':[1000,100], 'c0':1.0, 'c1':2.0, 'c2':2.0, 'seed':1234}
 DE_paras = {'popsize':10, 'measurement0':[], 'max_episode':1000, 'c':1.0, 'cr':0.5, 'seed':1234}
+Hybrid_PSO_paras = {'particle_num':10, 'measurement0':[], 'max_episode':15, 'c0':1.0, 'c1':2.0, 'c2':2.0, 'epsilon':0.001, 'seed':1234, 'update_interval':50}
+Hybrid_DE_paras = {'popsize':10, 'measurement0':[], 'max_episode':300, 'c':1.0, 'cr':0.5, 'seed':1234, 'epsilon':0.001, 'update_interval':5}
 
-Measopt = MeasurementOpt(tspan, rho0, H0, dH0, decay, mtype='projection', mgiven=[[],3], method='DE', **DE_paras)
-Measopt.CFIM(save_file=True)
+Measopt = MeasurementOpt(tspan, rho0, H0, dH0, decay, mtype='input', minput=["LC",minput,4], method='DE', **DE_paras)
+Measopt.CFIM(save_file=False)

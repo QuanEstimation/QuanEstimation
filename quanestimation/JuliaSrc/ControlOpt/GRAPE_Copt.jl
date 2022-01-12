@@ -108,10 +108,8 @@ function info_autoGRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, s
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("control algorithm: auto-GRAPE")
-        F_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
-        f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
-        F_ini = obj_func(Val{sym}(), grape, Measurement)
-        f_ini = real(tr(grape.W*pinv(F_ini)))
+        f_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
+        f_ini = obj_func(Val{sym}(), grape, Measurement)
 
         f_list = [1.0/f_ini]
         println("non-controlled $str2 is $(1.0/f_noctrl)")
@@ -121,8 +119,8 @@ function info_autoGRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, s
             if Adam == true
                 gradient_QFI_Adam!(grape)
                 while true
-                    F_now = obj_func(Val{sym}(), grape, Measurement)
-                    f_now = 1.0/real(tr(grape.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -139,8 +137,8 @@ function info_autoGRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, s
             else
                 gradient_QFI!(grape)
                 while true
-                    F_now = obj_func(Val{sym}(), grape, Measurement)
-                    f_now = 1.0/real(tr(grape.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -159,8 +157,8 @@ function info_autoGRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, s
             if Adam == true
                 gradient_QFI_Adam!(grape)
                 while true
-                    F_now = obj_func(Val{sym}(), grape, Measurement)
-                    f_now = 1.0/real(tr(grape.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -178,8 +176,8 @@ function info_autoGRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, s
             else
                 gradient_QFI!(grape)
                 while true
-                    F_now = obj_func(Val{sym}(), grape, Measurement)
-                    f_now = 1.0/real(tr(grape.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -199,10 +197,8 @@ function info_autoGRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, s
     else
         println("multiparameter scenario")
         println("control algorithm: auto-GRAPE")
-        F_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
-        f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
-        F_ini = obj_func(Val{sym}(), grape, Measurement)
-        f_ini = real(tr(grape.W*pinv(F_ini)))
+        f_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
+        f_ini = obj_func(Val{sym}(), grape, Measurement)
 
         f_list = [f_ini]
         println("non-controlled value of $str3 is $(f_noctrl)")
@@ -212,8 +208,7 @@ function info_autoGRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, s
             if Adam == true
                 gradient_QFIM_Adam!(grape)
                 while true
-                    F_now = obj_func(Val{sym}(), grape, Measurement)
-                    f_now = real(tr(grape.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), grape, Measurement)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -230,8 +225,7 @@ function info_autoGRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, s
             else
                 gradient_QFIM!(grape)
                 while true
-                    F_now = obj_func(Val{sym}(), grape, Measurement)
-                    f_now = real(tr(grape.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), grape, Measurement)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -250,8 +244,7 @@ function info_autoGRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, s
             if Adam == true
                 gradient_QFIM_Adam!(grape)
                 while true
-                    F_now = obj_func(Val{sym}(), grape, Measurement)
-                    f_now = real(tr(grape.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), grape, Measurement)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -269,8 +262,7 @@ function info_autoGRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, s
             else
                 gradient_QFIM!(grape)
                 while true
-                    F_now = obj_func(Val{sym}(), grape, Measurement)
-                    f_now = real(tr(grape.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), grape, Measurement)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -318,8 +310,7 @@ function info_GRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, sym, 
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("control algorithm: GRAPE")
-        F_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
-        f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
+        f_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
         println("non-controlled $str2 is $(1.0/f_noctrl)")
         ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
         if Adam == true
@@ -404,8 +395,7 @@ function info_GRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, sym, 
     else
         println("multiparameter scenario")
         println("control algorithm: GRAPE")
-        F_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
-        f_noctrl = real(tr(grape.W*pinv(F_noctrl)))
+        f_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
         println("non-controlled value of $str3 is $(f_noctrl)")
         ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
         if Adam == true

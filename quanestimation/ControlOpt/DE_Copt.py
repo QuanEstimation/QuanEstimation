@@ -87,3 +87,24 @@ class DE_Copt(Control.ControlSystem):
         diffevo = Main.QuanEstimation.DE_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, self.decay_opt, \
                             self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
         Main.QuanEstimation.CFIM_DE_Copt(Measurement, diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episode, save_file)
+
+    def HCRB(self, save_file=False):
+        """
+        Description: use differential evolution algorithm to update the control coefficients that maximize the 
+                     HCRB.
+
+        ---------
+        Inputs
+        ---------
+        save_file:
+            --description: True: save the control coefficients for each episode but overwrite in the next episode and all the HCRB.
+                           False: save the control coefficients for the last episode and all the HCRB.
+            --type: bool
+        """
+        if len(self.Hamiltonian_derivative) == 1:
+            warnings.warn('In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function \
+                           for control optimization', DeprecationWarning)
+        else:
+            diffevo = Main.QuanEstimation.DE_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, self.decay_opt, \
+                            self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
+            Main.QuanEstimation.HCRB_DE_Copt(diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episode, save_file)

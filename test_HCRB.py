@@ -1,5 +1,6 @@
 import numpy as np
 from quanestimation import *
+from julia import Main
 
 #initial state
 psi0 = np.array([1.0, 0.0, 0.0, 1.0])/np.sqrt(2)
@@ -31,21 +32,19 @@ tspan = np.linspace(0, T, tnum)
 
 dynamics = Lindblad(tspan, rho0, H0, dH0, decay)
 rho, drho = dynamics.expm()
-C = [[1.0, 0.0],[0.0, 1.0]]
+W = [[1.0, 0.0],[0.0, 1.0]]
 
 QFI, CFI = [], []
-value = []
+HCRB_jl, HCRB_py = [], []
 for rho_i, drho_i in zip(rho, drho):
-#     # Cramer-Rao
+    Cramer-Rao
     QFI_tp = QFIM(rho_i, drho_i)
     CFI_tp = CFIM(rho_i, drho_i, M)
     QFI.append(QFI_tp)
     CFI.append(CFI_tp)
 
-#     # Holevo
-    # f, X, V = Holevo_bound(rho_i, drho_i, C)
-    # value.append(f)
-np.save('rho', rho)
-np.save('drho', drho)
-np.save('QFIM', QFI)
-np.save('CFIM', CFI)
+    # Holevo
+    f_jl, X_jl, V_jl = Main.QuanEstimation.Holevo_bound(rho_i, drho_i, W, 1e-8) 
+    f_py, X_py, V_py = Holevo_bound(rho_i, drho_i, W, 1e-6)
+    HCRB_jl.append(f_jl)
+    HCRB_py.append(f_py)

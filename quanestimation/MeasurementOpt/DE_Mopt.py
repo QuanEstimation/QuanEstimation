@@ -3,10 +3,10 @@ from julia import Main
 import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
 class DE_Mopt(Measurement.MeasurementSystem):
-    def __init__(self, mtype, mgiven, tspan, rho0, H0, dH=[], decay=[], W=[], popsize=10, \
+    def __init__(self, mtype, minput, tspan, rho0, H0, dH=[], decay=[], W=[], popsize=10, \
                 measurement0=[], max_episode=1000, c=1.0, cr=0.5, seed=1234):
 
-        Measurement.MeasurementSystem.__init__(self, mtype, mgiven, tspan, rho0, H0, dH, decay, W, measurement0, seed, accuracy=1e-8)
+        Measurement.MeasurementSystem.__init__(self, mtype, minput, tspan, rho0, H0, dH, decay, W, measurement0, seed, accuracy=1e-8)
         
         """
         --------
@@ -63,16 +63,23 @@ class DE_Mopt(Measurement.MeasurementSystem):
                            False: save the measurements for the last episode and all the CFI (Tr(WF^{-1})).
             --type: bool
         """
-        if self.mtype=='projection':
+        if self.mtype=="projection":
             diffevo = Main.QuanEstimation.projection_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
-                                                    self.decay_opt, self.gamma, self.Measurement, self.W, self.accuracy)
+                                                        self.decay_opt, self.gamma, self.Measurement, self.W, self.accuracy)
             Main.QuanEstimation.CFIM_DE_Mopt(diffevo, self.popsize, self.ini_measurement, self.c, self.cr, self.seed, self.max_episode, save_file)
             self.load_save()
-        elif self.mtype=='sicpovm' or self.mtype=='given':
-            diffevo = Main.QuanEstimation.givenpovm_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
-                                                    self.decay_opt, self.gamma, self.povm_basis, self.M_num, self.W, self.accuracy)
+
+        elif self.mtype=="input":
+            diffevo = Main.QuanEstimation.LinearComb_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
+                                                            self.decay_opt, self.gamma, self.povm_basis, self.M_num, self.W, self.accuracy)
+            Main.QuanEstimation.CFIM_DE_Mopt(diffevo, self.popsize, self.c, self.cr, self.seed, self.max_episode, save_file)
+            self.load_save()
+
+        elif self.mtype=="rotation":
+            diffevo = Main.QuanEstimation.RotateBasis_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
+                                                            self.decay_opt, self.gamma, self.povm_basis, self.W, self.accuracy)
             Main.QuanEstimation.CFIM_DE_Mopt(diffevo, self.popsize, self.c, self.cr, self.seed, self.max_episode, save_file)
             self.load_save()
         else:
-            raise ValueError("{!r} is not a valid value for mtype, supported values are 'projection', 'sicpovm' and 'given'.".format(self.mtype))
+            raise ValueError("{!r} is not a valid value for mtype, supported values are 'projection' and 'input'.".format(self.mtype))
         

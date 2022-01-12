@@ -36,6 +36,20 @@ function CFIM_PSO_Copt(Measurement, pso::PSO_Copt{T}, max_episode, particle_num,
     return info_PSO_Copt(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file, sym, str1, str2, str3)
 end
 
+function HCRB_PSO_Copt(pso::PSO_Copt{T}, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file) where {T<: Complex}
+    sym = Symbol("HCRB")
+    str1 = ""
+    str2 = "HCRB"
+    str3 = "HCRB"
+    Measurement = [zeros(ComplexF64, size(pso.ρ0)[1], size(pso.ρ0)[1])]
+    if length(pso.Hamiltonian_derivative) == 1
+        println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for control optimization.")
+        return nothing
+    else
+        return info_PSO_Copt(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file, sym, str1, str2, str3)
+    end
+end
+
 function info_PSO_Copt(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file, sym, str1, str2, str3) where {T<:Complex}
     println("$str1 parameter estimation")
     Random.seed!(seed)
@@ -53,10 +67,8 @@ function info_PSO_Copt(Measurement, pso, max_episode, particle_num, ini_particle
     gbest = zeros(ctrl_num, ctrl_length)
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
-    F_noctrl = obj_func(Val{sym}(), pso, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
-    f_noctrl = real(tr(pso.W*pinv(F_noctrl)))
-    F_ini = obj_func(Val{sym}(), pso, Measurement)
-    f_ini = real(tr(pso.W*pinv(F_ini)))
+    f_noctrl = obj_func(Val{sym}(), pso, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
+    f_ini = obj_func(Val{sym}(), pso, Measurement)
 
     if typeof(max_episode) == Int
         max_episode = [max_episode, max_episode]
@@ -175,7 +187,8 @@ end
 
 function PSO_train_Copt(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, gbest, velocity_best, velocity, sym)
     for pj in 1:particle_num
-        f_now = 1.0/real(tr(particles[pj].W*pinv(obj_func(Val{sym}(), particles[pj], Measurement))))
+        f_tp = obj_func(Val{sym}(), particles[pj], Measurement)
+        f_now = 1.0/f_tp
         if f_now > p_fit[pj]
             p_fit[pj] = f_now
             for di in 1:ctrl_num

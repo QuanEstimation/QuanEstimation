@@ -16,6 +16,20 @@ function CFIM_NM_Sopt(Measurement, NM::TimeIndepend_noiseless{T}, state_num, ini
     return info_NM_noiseless(Measurement, NM, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file, sym, str1, str2, str3)
 end
 
+function HCRB_NM_Sopt(NM::TimeIndepend_noiseless{T}, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file) where {T<:Complex}
+    sym = Symbol("HCRB_TimeIndepend_noiseless")
+    str1 = ""
+    str2 = "HCRB"
+    str3 = "HCRB"
+    Measurement = [zeros(ComplexF64, size(NM.psi)[1], size(NM.psi)[1])]
+    if length(NM.Hamiltonian_derivative) == 1
+        println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for state optimization.")
+        return nothing
+    else
+        return info_NM_noiseless(Measurement, NM, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file)
+    end
+end
+
 function info_NM_noiseless(Measurement, NM, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file, sym, str1, str2, str3) where {T<:Complex}
     println("$str1 state optimization")
     Random.seed!(seed)
@@ -38,13 +52,12 @@ function info_NM_noiseless(Measurement, NM, state_num, ini_state, ar, ae, ac, as
 
     p_fit = [0.0 for i in 1:state_num] 
     for pj in 1:state_num
-        F_tp = obj_func(Val{sym}(), nelder_mead[pj], Measurement)
-        p_fit[pj] = 1.0/real(tr(NM.W*pinv(F_tp)))
+        f_tp = obj_func(Val{sym}(), nelder_mead[pj], Measurement)
+        p_fit[pj] = 1.0/f_tp
     end
     sort_ind = sortperm(p_fit, rev=true)
 
-    F = obj_func(Val{sym}(), NM, Measurement)
-    f_ini = real(tr(NM.W*pinv(F)))
+    f_ini = obj_func(Val{sym}(), NM, Measurement)
 
     if length(NM.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -148,8 +161,8 @@ function train_noiseless_NM(Measurement, nelder_mead, NM, p_fit, sort_ind, dim, 
         vec_ref[nj] = vec_ave[nj] + ar*(vec_ave[nj]-nelder_mead[sort_ind[end]].psi[nj])
     end
     vec_ref = vec_ref/norm(vec_ref)
-    F_r = obj_func(Val{sym}(), NM, Measurement, vec_ref)
-    fr = 1.0/real(tr(NM.W*pinv(F_r)))
+    fr = obj_func(Val{sym}(), NM, Measurement, vec_ref)
+    fr = 1.0/fr
 
     if fr > p_fit[sort_ind[1]]
         # expansion
@@ -158,8 +171,8 @@ function train_noiseless_NM(Measurement, nelder_mead, NM, p_fit, sort_ind, dim, 
             vec_exp[nk] = vec_ave[nk] + ae*(vec_ref[nk]-vec_ave[nk])
         end
         vec_exp = vec_exp/norm(vec_exp)
-        F_e = obj_func(Val{sym}(), NM, Measurement, vec_exp)
-        fe = 1.0/real(tr(NM.W*pinv(F_e)))
+        fe = obj_func(Val{sym}(), NM, Measurement, vec_exp)
+        fe = 1.0/fe
         if fe <= fr
             for np in 1:dim
                 nelder_mead[sort_ind[end]].psi[np] = vec_ref[np]
@@ -182,8 +195,8 @@ function train_noiseless_NM(Measurement, nelder_mead, NM, p_fit, sort_ind, dim, 
                 vec_ic[nl] = vec_ave[nl] - ac*(vec_ave[nl]-nelder_mead[sort_ind[end]].psi[nl])
             end
             vec_ic = vec_ic/norm(vec_ic)
-            F_ic = obj_func(Val{sym}(), NM, Measurement, vec_ic)
-            fic = 1.0/real(tr(NM.W*pinv(F_ic)))
+            fic = obj_func(Val{sym}(), NM, Measurement, vec_ic)
+            fic = 1.0/fic
             if fic > p_fit[sort_ind[end]]
                 for np in 1:dim
                     nelder_mead[sort_ind[end]].psi[np] = vec_ic[np]
@@ -199,8 +212,8 @@ function train_noiseless_NM(Measurement, nelder_mead, NM, p_fit, sort_ind, dim, 
                     end
                     nelder_mead[pk].psi = nelder_mead[pk].psi/norm(nelder_mead[pk].psi)
 
-                    F_tp = obj_func(Val{sym}(), nelder_mead[pk], Measurement)
-                    p_fit[pk] = 1.0/real(tr(NM.W*pinv(F_tp)))
+                    f_tp = obj_func(Val{sym}(), nelder_mead[pk], Measurement)
+                    p_fit[pk] = 1.0/f_tp
                 end
                 sort_ind = sortperm(p_fit, rev=true)
             end
@@ -211,8 +224,8 @@ function train_noiseless_NM(Measurement, nelder_mead, NM, p_fit, sort_ind, dim, 
                 vec_oc[nn] = vec_ave[nn] + ac*(vec_ref[nn]-vec_ave[nn])
             end
             vec_oc = vec_oc/norm(vec_oc)
-            F_oc = obj_func(Val{sym}(), NM, Measurement, vec_oc)
-            foc = 1.0/real(tr(NM.W*pinv(F_oc)))
+            foc = obj_func(Val{sym}(), NM, Measurement, vec_oc)
+            foc = 1.0/foc
             if foc >= fr
                 for np in 1:dim
                     nelder_mead[sort_ind[end]].psi[np] = vec_oc[np]
@@ -228,8 +241,8 @@ function train_noiseless_NM(Measurement, nelder_mead, NM, p_fit, sort_ind, dim, 
                     end
                     nelder_mead[pk].psi = nelder_mead[pk].psi/norm(nelder_mead[pk].psi)
 
-                    F_tp = obj_func(Val{sym}(), nelder_mead[pk], Measurement)
-                    p_fit[pk] = 1.0/real(tr(NM.W*pinv(F_tp)))
+                    f_tp = obj_func(Val{sym}(), nelder_mead[pk], Measurement)
+                    p_fit[pk] = 1.0/f_tp
                 end
                 sort_ind = sortperm(p_fit, rev=true)
             end
@@ -252,7 +265,7 @@ function QFIM_NM_Sopt(NM::TimeIndepend_noise{T}, state_num, ini_state, ar, ae, a
     str2 = "QFI"
     str3 = "Tr(WF^{-1})"
     Measurement = [zeros(ComplexF64, size(NM.psi)[1], size(NM.psi)[1])]
-    return info_NM_noiseless(Measurement, NM, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file, sym, str1, str2, str3)
+    return info_NM_noise(Measurement, NM, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file, sym, str1, str2, str3)
 end
 
 function CFIM_NM_Sopt(Measurement, NM::TimeIndepend_noise{T}, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file) where {T<:Complex}
@@ -260,10 +273,24 @@ function CFIM_NM_Sopt(Measurement, NM::TimeIndepend_noise{T}, state_num, ini_sta
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
-    return info_NM_noiseless(Measurement, NM, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file, sym, str1, str2, str3)
+    return info_NM_noise(Measurement, NM, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file, sym, str1, str2, str3)
 end
 
-function QFIM_NM_Sopt(Measurement, NM, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file, sym, str1, str2, str3) where {T<:Complex}
+function HCRB_NM_Sopt(NM::TimeIndepend_noise{T}, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file) where {T<:Complex}
+    sym = Symbol("HCRB_TimeIndepend_noise")
+    str1 = ""
+    str2 = "HCRB"
+    str3 = "HCRB"
+    Measurement = [zeros(ComplexF64, size(NM.psi)[1], size(NM.psi)[1])]
+    if length(NM.Hamiltonian_derivative) == 1
+        println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for state optimization.")
+        return nothing
+    else
+        return info_NM_noise(Measurement, NM, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file, sym, str1, str2, str3)
+    end
+end
+
+function info_NM_noise(Measurement, NM, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file, sym, str1, str2, str3) where {T<:Complex}
     println("$str1 state optimization")
     Random.seed!(seed)
     dim = length(NM.psi)
@@ -286,12 +313,11 @@ function QFIM_NM_Sopt(Measurement, NM, state_num, ini_state, ar, ae, ac, as0, ma
 
     p_fit = [0.0 for i in 1:state_num] 
     for pj in 1:state_num
-        F_tp = obj_func(Val{sym}(), nelder_mead[pj], Measurement)
-        p_fit[pj] = 1.0/real(tr(NM.W*pinv(F_tp)))
+        f_tp = obj_func(Val{sym}(), nelder_mead[pj], Measurement)
+        p_fit[pj] = 1.0/f_tp
     end
     sort_ind = sortperm(p_fit, rev=true)
-    F = obj_func(Val{sym}(), NM, Measurement)
-    f_ini = real(tr(NM.W*pinv(F)))
+    f_ini = obj_func(Val{sym}(), NM, Measurement)
 
     if length(NM.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -396,8 +422,8 @@ function train_noise_NM(Measurement, nelder_mead, NM, p_fit, sort_ind, dim, stat
         vec_ref[nj] = vec_ave[nj] + ar*(vec_ave[nj]-nelder_mead[sort_ind[end]].psi[nj])
     end
     vec_ref = vec_ref/norm(vec_ref)
-    F_r = obj_func(Val{sym}(), NM, Measurement, vec_ref)
-    fr = 1.0/real(tr(NM.W*pinv(F_r)))
+    fr = obj_func(Val{sym}(), NM, Measurement, vec_ref)
+    fr = 1.0/fr
     if fr > p_fit[sort_ind[1]]
         # expansion
         vec_exp = zeros(ComplexF64, dim)
@@ -405,8 +431,8 @@ function train_noise_NM(Measurement, nelder_mead, NM, p_fit, sort_ind, dim, stat
             vec_exp[nk] = vec_ave[nk] + ae*(vec_ref[nk]-vec_ave[nk])
         end
         vec_exp = vec_exp/norm(vec_exp)
-        F_e = obj_func(Val{sym}(), NM, Measurement, vec_exp)
-        fe = 1.0/real(tr(NM.W*pinv(F_e)))
+        fe = obj_func(Val{sym}(), NM, Measurement, vec_exp)
+        fe = 1.0/fe
         if fe <= fr
             for np in 1:dim
                 nelder_mead[sort_ind[end]].psi[np] = vec_ref[np]
@@ -429,8 +455,8 @@ function train_noise_NM(Measurement, nelder_mead, NM, p_fit, sort_ind, dim, stat
                 vec_ic[nl] = vec_ave[nl] - ac*(vec_ave[nl]-nelder_mead[sort_ind[end]].psi[nl])
             end
             vec_ic = vec_ic/norm(vec_ic)
-            F_ic = obj_func(Val{sym}(), NM, Measurement, vec_ic)
-            fic = 1.0/real(tr(NM.W*pinv(F_ic)))
+            fic = obj_func(Val{sym}(), NM, Measurement, vec_ic)
+            fic = 1.0/fic
             if fic > p_fit[sort_ind[end]]
                 for np in 1:dim
                     nelder_mead[sort_ind[end]].psi[np] = vec_ic[np]
@@ -445,8 +471,8 @@ function train_noise_NM(Measurement, nelder_mead, NM, p_fit, sort_ind, dim, stat
                         nelder_mead[pk].psi[nq] = vec_first[nq] + as0*(nelder_mead[pk].psi[nq]-vec_first[nq])
                     end
                     nelder_mead[pk].psi = nelder_mead[pk].psi/norm(nelder_mead[pk].psi)
-                    F_tp = obj_func(Val{sym}(), nelder_mead[pk], Measurement)
-                    p_fit[pk] = 1.0/real(tr(NM.W*pinv(F_tp)))
+                    f_tp = obj_func(Val{sym}(), nelder_mead[pk], Measurement)
+                    p_fit[pk] = 1.0/f_tp
                 end
                 sort_ind = sortperm(p_fit, rev=true)
             end
@@ -456,8 +482,8 @@ function train_noise_NM(Measurement, nelder_mead, NM, p_fit, sort_ind, dim, stat
             for nn in 1:dim
                 vec_oc[nn] = vec_ave[nn] + ac*(vec_ref[nn]-vec_ave[nn])
             end
-            F_oc = obj_func(Val{sym}(), NM, Measurement, vec_oc)
-            foc = 1.0/real(tr(NM.W*pinv(F_oc)))
+            foc = obj_func(Val{sym}(), NM, Measurement, vec_oc)
+            foc = 1.0/foc
             if foc >= fr
                 for np in 1:dim
                     nelder_mead[sort_ind[end]].psi[np] = vec_oc[np]
@@ -473,8 +499,8 @@ function train_noise_NM(Measurement, nelder_mead, NM, p_fit, sort_ind, dim, stat
                     end
                     nelder_mead[pk].psi = nelder_mead[pk].psi/norm(nelder_mead[pk].psi)
 
-                    F_tp = obj_func(Val{sym}(), nelder_mead[pk], Measurement)
-                    p_fit[pk] = 1.0/real(tr(NM.W*pinv(F_tp)))
+                    f_tp = obj_func(Val{sym}(), nelder_mead[pk], Measurement)
+                    p_fit[pk] = 1.0/f_tp
                 end
                 sort_ind = sortperm(p_fit, rev=true)
             end

@@ -8,7 +8,7 @@ class DDPG_Copt(Control.ControlSystem):
 
         Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, accuracy=1e-8)
 
-        """
+        """                                           
         ----------
         Inputs
         ----------
@@ -71,3 +71,25 @@ class DDPG_Copt(Control.ControlSystem):
                 self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
                 self.ctrl_bound, self.W, self.ctrl_interval, len(self.rho0), self.accuracy)
         Main.QuanEstimation.CFIM_DDPG_Copt(Measurement, ddpg, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
+
+    def HCRB(self, save_file=False):
+        """
+        Description: use DDPG algorithm to update the control coefficients that maximize the 
+                     HCRB.
+
+        ---------
+        Inputs
+        ---------
+        save_file:
+            --description: True: save all the control coefficients and HCRB.
+                           False: save the control coefficients for the last episode and all the HCRB.
+            --type: bool
+        """
+        if len(self.Hamiltonian_derivative) == 1:
+            warnings.warn('In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function \
+                           for control optimization', DeprecationWarning)
+        else:
+            ddpg = Main.QuanEstimation.DDPG_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, \
+                    self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
+                    self.ctrl_bound, self.W, self.ctrl_interval, len(self.rho0), self.accuracy)
+            Main.QuanEstimation.HCRB_DDPG_Copt(ddpg, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)

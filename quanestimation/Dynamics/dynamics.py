@@ -11,7 +11,7 @@ class Lindblad:
                  -0.5(rho.Ln^{\dagger}.Ln+Ln^{\dagger}.Ln.rho)}.
     """
 
-    def __init__(self, tspan, rho0, H0, dH, decay=[], Hc=[], ctrl_0=[]):
+    def __init__(self, tspan, rho0, H0, dH, decay=[], Hc=[], ctrl0=[]):
         """
         ----------
         Inputs
@@ -38,7 +38,7 @@ class Lindblad:
                           vector on the first parameter.
            --type: list (of matrix)
            
-        ctrl_0: 
+        ctrl0: 
            --description: control coefficients.
            --type: list (of array)
            
@@ -67,9 +67,9 @@ class Lindblad:
             dH = [np.zeros((len(self.rho0), len(self.rho0)))]
         self.Hamiltonian_derivative = [np.array(x, dtype=np.complex128) for x in dH]
         
-        if ctrl_0 == []:
-            ctrl_0 = [np.zeros(len(self.tspan)-1) for i in range(len(self.control_Hamiltonian))]
-        self.control_coefficients = ctrl_0
+        if ctrl0 == []:
+            ctrl0 = [np.zeros(len(self.tspan)-1) for i in range(len(self.control_Hamiltonian))]
+        self.control_coefficients = ctrl0
         
         if decay == []:
             decay_opt = [np.zeros((len(self.rho0), len(self.rho0)))]

@@ -104,3 +104,31 @@ class PSO_Sopt(State.StateSystem):
             Main.QuanEstimation.CFIM_PSO_Sopt(Measurement, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, \
                                          self.c1, self.c2, self.v0, self.seed, save_file)
         self.load_save()
+
+    def HCRB(self, save_file=False):
+        """
+        Description: use particle swarm optimizaiton algorithm to search the optimal initial state that maximize the HCRB.
+
+        ---------
+        Inputs
+        ---------
+        save_file:
+            --description: True: save the initial state for each episode but overwrite in the next episode and all the HCRB.
+                           False: save the initial states for the last episode and all the HCRB.
+            --type: bool
+        """
+        if len(self.Hamiltonian_derivative) == 1:
+            warnings.warn('In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function \
+                           for state optimization', DeprecationWarning)
+        else:
+            if any(self.gamma):
+                pso = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
+                                                         self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+                Main.QuanEstimation.HCRB_PSO_Sopt(pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, \
+                                         self.c2, self.v0, self.seed, save_file)
+            else:
+                pso = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
+                                                             self.tspan, self.W, self.accuracy)
+                Main.QuanEstimation.HCRB_PSO_Sopt(pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, \
+                                         self.c2, self.v0, self.seed, save_file)
+            self.load_save()

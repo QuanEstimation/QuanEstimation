@@ -46,13 +46,12 @@ function info_PSO_projection(pso, max_episode, particle_num, ini_particle, c0, c
     p_fit = [0.0 for i in 1:particle_num] 
     for pj in 1:particle_num
         Measurement = [particles[pj].Measurement[i]*(particles[pj].Measurement[i])' for i in 1:M_num]
-        F_tp = obj_func(Val{sym}(), pso, Measurement)
-        p_fit[pj] = 1.0/real(tr(pso.W*pinv(F_tp)))
+        p_fit[pj] = 1.0/obj_func(Val{sym}(), pso, Measurement)
     end
 
     f_ini= p_fit[1]
-    F_opt = obj_func(Val{:QFIM_noctrl}(), pso, pso.Measurement)
-    f_opt= 1.0/real(tr(pso.W*pinv(F_opt)))
+    f_opt = obj_func(Val{:QFIM_noctrl}(), pso, pso.Measurement)
+    f_opt= 1.0/f_opt
 
     if length(pso.Hamiltonian_derivative) == 1
         f_list = [f_ini]
@@ -161,8 +160,8 @@ end
 function train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
     for pj in 1:particle_num
         Measurement = [particles[pj].Measurement[i]*(particles[pj].Measurement[i])' for i in 1:M_num]
-        F_tp = obj_func(Val{sym}(), particles[pj], Measurement)
-        f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
+        f_now = obj_func(Val{sym}(), particles[pj], Measurement)
+        f_now = 1.0/f_now
 
         if f_now > p_fit[pj]
             p_fit[pj] = f_now
@@ -172,36 +171,36 @@ function train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, partic
                 end
             end
         end
+    end
 
-        for pj in 1:particle_num
-            if p_fit[pj] > fit
-                fit = p_fit[pj]
-                for dj in 1:M_num
-                    for nj in 1:dim
-                        gbest[dj, nj] = particles[pj].Measurement[dj][nj]
-                        velocity_best[dj, nj] = velocity[dj, nj, pj]
-                    end
+    for pj in 1:particle_num
+        if p_fit[pj] > fit
+            fit = p_fit[pj]
+            for dj in 1:M_num
+                for nj in 1:dim
+                    gbest[dj, nj] = particles[pj].Measurement[dj][nj]
+                    velocity_best[dj, nj] = velocity[dj, nj, pj]
                 end
             end
-        end  
+        end
+    end  
 
-        for pk in 1:particle_num
-            meas_pre = [zeros(ComplexF64, dim) for i in 1:M_num]
-            for dk in 1:M_num
-                for ck in 1:dim
-                    meas_pre[dk][ck] = particles[pk].Measurement[dk][ck]
+    for pk in 1:particle_num
+        meas_pre = [zeros(ComplexF64, dim) for i in 1:M_num]
+        for dk in 1:M_num
+            for ck in 1:dim
+                meas_pre[dk][ck] = particles[pk].Measurement[dk][ck]
     
-                    velocity[dk, ck, pk] = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].Measurement[dk][ck]) 
+                velocity[dk, ck, pk] = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].Measurement[dk][ck]) 
                                            + c2*rand()*(gbest[dk, ck] - particles[pk].Measurement[dk][ck])
-                    particles[pk].Measurement[dk][ck] += velocity[dk, ck, pk]
-                end
+                particles[pk].Measurement[dk][ck] += velocity[dk, ck, pk]
             end
-            particles[pk].Measurement = gramschmidt(particles[pk].Measurement)
+        end
+        particles[pk].Measurement = gramschmidt(particles[pk].Measurement)
 
-            for dm in 1:M_num
-                for cm in 1:dim
-                    velocity[dm, cm, pk] = particles[pk].Measurement[dm][cm] - meas_pre[dm][cm]
-                end
+        for dm in 1:M_num
+            for cm in 1:dim
+                velocity[dm, cm, pk] = particles[pk].Measurement[dm][cm] - meas_pre[dm][cm]
             end
         end
     end
@@ -209,24 +208,25 @@ function train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, partic
 end
 
 ################## update the coefficients according to the given basis ############
-function CFIM_PSO_Mopt(pso::givenpovm_Mopt{T}, max_episode, particle_num, c0, c1, c2, seed, save_file) where {T<:Complex}
+function CFIM_PSO_Mopt(pso::LinearComb_Mopt{T}, max_episode, particle_num, c0, c1, c2, seed, save_file) where {T<:Complex}
     sym = Symbol("CFIM_noctrl")
     str1 = "CFI"
     str2 = "tr(WI^{-1})"
-    return info_PSO_givenpovm(pso, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2)
+    return info_PSO_LinearComb(pso, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2)
 end
 
-function info_PSO_givenpovm(pso::givenpovm_Mopt{T}, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2) where {T<:Complex}
+function info_PSO_LinearComb(pso::LinearComb_Mopt{T}, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2) where {T<:Complex}
     println("measurement optimization")
     Random.seed!(seed)
     dim = size(pso.ρ0)[1]
     POVM_basis = pso.povm_basis
     M_num = pso.M_num
+    basis_num = length(POVM_basis)
     particles = repeat(pso, particle_num)
-    velocity = 0.1*rand(Float64, M_num, dim^2, particle_num)
-    pbest = zeros(Float64, M_num, dim^2, particle_num)
-    gbest = zeros(Float64, M_num, dim^2)
-    velocity_best = zeros(Float64, M_num, dim^2)
+    velocity = 0.1*rand(Float64, M_num, basis_num, particle_num)
+    pbest = zeros(Float64, M_num, basis_num, particle_num)
+    gbest = zeros(Float64, M_num, basis_num)
+    velocity_best = zeros(Float64, M_num, basis_num)
     p_fit = zeros(particle_num)
     fit = 0.0
 
@@ -235,24 +235,23 @@ function info_PSO_givenpovm(pso::givenpovm_Mopt{T}, max_episode, particle_num, c
     end
 
     # initialize 
-    coeff = [[zeros(dim^2) for i in 1:M_num] for j in 1:particle_num]
+    coeff = [[zeros(basis_num) for i in 1:M_num] for j in 1:particle_num]
     for pj in 1:particle_num
-        coeff[pj] = generate_coeff(M_num, dim)
+        coeff[pj] = generate_coeff(M_num, basis_num)
     end
 
     p_fit = [0.0 for i in 1:particle_num] 
     for pj in 1:particle_num
-        Measurement = [sum([coeff[pj][i][j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
-        F_tp = obj_func(Val{sym}(), pso, Measurement)
-        p_fit[pj] = 1.0/real(tr(pso.W*pinv(F_tp)))
+        Measurement = [sum([coeff[pj][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+        p_fit[pj] = 1.0/obj_func(Val{sym}(), pso, Measurement)
     end
 
-    f_ini= p_fit[1]
-    F_opt = obj_func(Val{:QFIM_noctrl}(), pso, POVM_basis)
-    f_opt= 1.0/real(tr(pso.W*pinv(F_opt)))
+    f_ini = p_fit[1]
+    f_opt = obj_func(Val{:QFIM_noctrl}(), pso, POVM_basis)
+    f_opt = 1.0/f_opt
 
-    F_povm = obj_func(Val{sym}(), pso, POVM_basis)
-    f_povm= 1.0/real(tr(pso.W*pinv(F_povm)))
+    f_povm = obj_func(Val{sym}(), pso, POVM_basis)
+    f_povm = 1.0/f_povm
 
     if length(pso.Hamiltonian_derivative) == 1
         f_list = [f_ini]
@@ -266,22 +265,22 @@ function info_PSO_givenpovm(pso::givenpovm_Mopt{T}, max_episode, particle_num, c
         if save_file == true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_givenpovm(particles, p_fit, fit, coeff, POVM_basis, max_episode, c0, c1, c2, particle_num, 
-                                                                               M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+                p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_LinearComb(particles, p_fit, fit, coeff, POVM_basis, max_episode, c0, c1, c2, particle_num, 
+                                                                               M_num, basis_num, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     particles = repeat(pso, particle_num)
                     for i in 1:particle_num
                         coeff[i] = [gbest[k, :] for k in 1:M_num]
                     end
                 end
-                Measurement = [sum([gbest[i,j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
+                Measurement = [sum([gbest[i,j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
                 append!(f_list, fit)
                 SaveFile_meas(f_list, Measurement)
                 print("current $str1 is $fit ($ei episodes) \r")
             end
-            p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
-                                             max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
-            Measurement = [sum([gbest[i,j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
+            p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_LinearComb(particles, p_fit, fit, coeff, POVM_basis, 
+                                             max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity_best, velocity, sym)
+            Measurement = [sum([gbest[i,j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
             append!(f_list, fit)
             SaveFile_meas(f_list, Measurement)
             print("\e[2K")    
@@ -289,8 +288,8 @@ function info_PSO_givenpovm(pso::givenpovm_Mopt{T}, max_episode, particle_num, c
             println("Final $str1 is $fit")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
-                                                 max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+                p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_LinearComb(particles, p_fit, fit, coeff, POVM_basis, 
+                                                 max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     particles = repeat(pso, particle_num)
                     for i in 1:particle_num
@@ -301,9 +300,9 @@ function info_PSO_givenpovm(pso::givenpovm_Mopt{T}, max_episode, particle_num, c
                 print("current $str1 is $fit ($ei episodes) \r")
                 
             end
-            p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
-                                              max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
-            Measurement = [sum([gbest[i,j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
+            p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_LinearComb(particles, p_fit, fit, coeff, POVM_basis, 
+                                              max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity_best, velocity, sym)
+            Measurement = [sum([gbest[i,j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
             append!(f_list, fit)
             SaveFile_meas(f_list, Measurement)
             print("\e[2K")    
@@ -321,22 +320,22 @@ function info_PSO_givenpovm(pso::givenpovm_Mopt{T}, max_episode, particle_num, c
         if save_file == true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
-                                                 max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+                p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_LinearComb(particles, p_fit, fit, coeff, POVM_basis, 
+                                                 max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     particles = repeat(pso, particle_num)
                     for i in 1:particle_num
                         coeff[i] = [gbest[k, :] for k in 1:M_num]
                     end
                 end
-                Measurement = [sum([gbest[i,j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
+                Measurement = [sum([gbest[i,j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
                 append!(f_list, 1.0/fit)
                 SaveFile_meas(f_list, Measurement)
                 print("current value of $str2 is $(1.0/fit) ($ei episodes) \r")
             end
-            p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
-                                              max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
-            Measurement = [sum([gbest[i,j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
+            p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_LinearComb(particles, p_fit, fit, coeff, POVM_basis, 
+                                              max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity_best, velocity, sym)
+            Measurement = [sum([gbest[i,j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
             append!(f_list, 1.0/fit)
             SaveFile_meas(f_list, Measurement)
             print("\e[2K")    
@@ -344,8 +343,8 @@ function info_PSO_givenpovm(pso::givenpovm_Mopt{T}, max_episode, particle_num, c
             println("Final value of $str2 is $(1.0/fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
-                                                 max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+                p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_LinearComb(particles, p_fit, fit, coeff, POVM_basis, 
+                                                 max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     particles = repeat(pso, particle_num)
                     for i in 1:particle_num
@@ -353,12 +352,12 @@ function info_PSO_givenpovm(pso::givenpovm_Mopt{T}, max_episode, particle_num, c
                     end
                 end
                 append!(f_list, 1.0/fit)
-                print("current value of $str2 is $fit ($ei episodes) \r")
+                print("current value of $str2 is $(1.0/fit) ($ei episodes) \r")
                 
             end
-            p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_givenpovm(particles, p_fit, fit, coeff, POVM_basis, 
-                                             max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
-            Measurement = [sum([gbest[i,j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
+            p_fit, fit, coeff, pbest, gbest, velocity_best, velocity = train_LinearComb(particles, p_fit, fit, coeff, POVM_basis, 
+                                             max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity_best, velocity, sym)
+            Measurement = [sum([gbest[i,j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
             append!(f_list, 1.0/fit)
             SaveFile_meas(f_list, Measurement)
             print("\e[2K")    
@@ -368,69 +367,266 @@ function info_PSO_givenpovm(pso::givenpovm_Mopt{T}, max_episode, particle_num, c
     end
 end
 
-function train_givenpovm(particles, p_fit, fit, coeff, POVM_basis, max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+function train_LinearComb(particles, p_fit, fit, coeff, POVM_basis, max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity_best, velocity, sym)
     for pj in 1:particle_num
-        Measurement = [sum([coeff[pj][i][j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
-        F_tp = obj_func(Val{sym}(), particles[pj], Measurement)
-        f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
+        Measurement = [sum([coeff[pj][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+        f_now = 1.0/obj_func(Val{sym}(), particles[pj], Measurement)
 
         if f_now > p_fit[pj]
             p_fit[pj] = f_now
             for di in 1:M_num
-                for ni in 1:dim^2
+                for ni in 1:basis_num
                     pbest[di,ni,pj] = coeff[pj][di][ni]
                 end
             end
         end
+    end
 
-        for pj in 1:particle_num
-            if p_fit[pj] > fit
-                fit = p_fit[pj]
-                for dj in 1:M_num
-                    for nj in 1:dim^2
-                        gbest[dj, nj] = coeff[pj][dj][nj]
-                        velocity_best[dj, nj] = velocity[dj, nj, pj]
-                    end
+    for pj in 1:particle_num
+        if p_fit[pj] > fit
+            fit = p_fit[pj]
+            for dj in 1:M_num
+                for nj in 1:basis_num
+                    gbest[dj, nj] = coeff[pj][dj][nj]
+                    velocity_best[dj, nj] = velocity[dj, nj, pj]
                 end
             end
-        end  
+        end
+    end  
 
-        for pk in 1:particle_num
-            meas_pre = [zeros(Float64, dim^2) for i in 1:M_num]
-            for dk in 1:M_num
-                for ck in 1:dim^2
-                    meas_pre[dk][ck] = coeff[pk][dk][ck]
+    for pk in 1:particle_num
+        meas_pre = [zeros(Float64, basis_num) for i in 1:M_num]
+        for dk in 1:M_num
+            for ck in 1:basis_num
+                meas_pre[dk][ck] = coeff[pk][dk][ck]
     
-                    velocity[dk, ck, pk] = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - coeff[pk][dk][ck]) 
+                velocity[dk, ck, pk] = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - coeff[pk][dk][ck]) 
                                            + c2*rand()*(gbest[dk, ck] - coeff[pk][dk][ck])
-                    coeff[pk][dk][ck] += velocity[dk, ck, pk]
-                end
+                coeff[pk][dk][ck] += velocity[dk, ck, pk]
             end
-            bound!(coeff[pk])
-            for i in 1:M_num
-                for j in 1:dim^2
-                    coeff[pk][i][j] = coeff[pk][i][j]/sum([coeff[pk][m][j] for m in 1:M_num])
-                end
-            end
-            Measurement = [sum([coeff[pk][i][j]*POVM_basis[j] for j in 1:dim^2]) for i in 1:M_num]
+        end
+        coeff[pk] = bound_LC_coeff(coeff[pk])
+        Measurement = [sum([coeff[pk][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
 
-            for dm in 1:M_num
-                for cm in 1:dim^2
-                    velocity[dm, cm, pk] = coeff[pk][dm][cm] - meas_pre[dm][cm]
-                end
+        for dm in 1:M_num
+            for cm in 1:basis_num
+                velocity[dm, cm, pk] = coeff[pk][dm][cm] - meas_pre[dm][cm]
             end
         end
     end
     return p_fit, fit, coeff, pbest, gbest, velocity_best, velocity
 end
 
-function generate_coeff(M_num, dim)
-    coeff_tp = [rand(dim^2) for i in 1:M_num]
-    vec_tp = ones(dim^2)
-    for i in 2:(M_num-1)
-        vec_tp -= [coeff_tp[i-1][m] for m in 1:dim^2]
-        coeff_tp[i] = [coeff_tp[i][n]*vec_tp[n] for n in 1:dim^2]
+
+################## update the coefficients of the unitary matrix ############
+function CFIM_PSO_Mopt(pso::RotateBasis_Mopt{T}, max_episode, particle_num, c0, c1, c2, seed, save_file) where {T<:Complex}
+    sym = Symbol("CFIM_noctrl")
+    str1 = "CFI"
+    str2 = "tr(WI^{-1})"
+    return info_PSO_RotateBasis(pso, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2)
+end
+
+function info_PSO_RotateBasis(pso::RotateBasis_Mopt{T}, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2) where {T<:Complex}
+    println("measurement optimization")
+    Random.seed!(seed)
+    dim = size(pso.ρ0)[1]
+    suN = suN_generator(dim)
+    Lambda = [Matrix{ComplexF64}(I,dim,dim)]
+    append!(Lambda, [suN[i] for i in 1:length(suN)])
+
+    POVM_basis = pso.povm_basis
+    M_num = length(POVM_basis)
+    particles = repeat(pso, particle_num)
+    velocity = 0.1*rand(Float64, dim^2, particle_num)
+    pbest = zeros(Float64, dim^2, particle_num)
+    gbest = zeros(Float64, dim^2)
+    velocity_best = zeros(Float64, dim^2)
+    Mcoeff = [zeros(dim*dim) for i in 1:particle_num]
+    p_fit = zeros(particle_num)
+    fit = 0.0
+
+    if typeof(max_episode) == Int
+        max_episode = [max_episode, max_episode]
     end
-    coeff_tp[end] = [1.0-sum([coeff_tp[i][j] for i in 1:(M_num-1)]) for j in 1:dim^2]
-    return coeff_tp
+
+    # initialize 
+    p_fit = [0.0 for i in 1:particle_num] 
+    for pj in 1:particle_num
+        # generate a rotation matrix randomly
+        Mcoeff[pj] = rand(dim*dim)
+        U = rotation_matrix(Mcoeff[pj], Lambda)
+        Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
+        p_fit[pj] = 1.0/obj_func(Val{sym}(), pso, Measurement)
+    end
+
+    f_ini = p_fit[1]
+    f_opt = obj_func(Val{:QFIM_noctrl}(), pso, POVM_basis)
+    f_opt = 1.0/f_opt
+
+    f_povm = obj_func(Val{sym}(), pso, POVM_basis)
+    f_povm = 1.0/f_povm
+
+    if length(pso.Hamiltonian_derivative) == 1
+        f_list = [f_ini]
+
+        println("single parameter scenario")
+        println("search algorithm: Particle Swarm Optimization (PSO)")
+        println("initial $str1 is $(f_ini)")
+        println("CFI under the given POVMs is $(f_povm)")
+        println("QFI is $(f_opt)")
+        
+        if save_file == true
+            for ei in 1:(max_episode[1]-1)
+                #### train ####
+                p_fit, fit, Mcoeff, pbest, gbest, velocity_best, velocity = train_RotateBasis(particles, Mcoeff, Lambda, p_fit, fit, POVM_basis, 
+                                                    max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+                if ei%max_episode[2] == 0
+                    particles = repeat(pso, particle_num)
+                    for pj in 1:particle_num
+                        Mcoeff[pj] = [gbest[i] for i in 1:dim^2]
+                    end
+                end
+                U = rotation_matrix(gbest, Lambda)
+                Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
+                append!(f_list, fit)
+                SaveFile_meas(f_list, Measurement)
+                print("current $str1 is $fit ($ei episodes) \r")
+            end
+            p_fit, fit, Mcoeff, pbest, gbest, velocity_best, velocity = train_RotateBasis(particles, Mcoeff, Lambda, p_fit, fit, POVM_basis, 
+                                             max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            U = rotation_matrix(gbest, Lambda)
+            Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
+            append!(f_list, fit)
+            SaveFile_meas(f_list, Measurement)
+            print("\e[2K")    
+            println("Iteration over, data saved.")
+            println("Final $str1 is $fit")
+        else
+            for ei in 1:(max_episode[1]-1)
+                p_fit, fit, Mcoeff, pbest, gbest, velocity_best, velocity = train_RotateBasis(particles, Mcoeff, Lambda, p_fit, fit, POVM_basis, 
+                                                 max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+                if ei%max_episode[2] == 0
+                    particles = repeat(pso, particle_num)
+                    for pj in 1:particle_num
+                        Mcoeff[pj] = [gbest[i] for i in 1:dim^2]
+                    end
+                end
+                append!(f_list, fit)
+                print("current $str1 is $fit ($ei episodes) \r")
+                
+            end
+            p_fit, fit, Mcoeff, pbest, gbest, velocity_best, velocity = train_RotateBasis(particles, Mcoeff, Lambda, p_fit, fit, POVM_basis, 
+                                              max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            U = rotation_matrix(gbest, Lambda)
+            Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
+            append!(f_list, fit)
+            SaveFile_meas(f_list, Measurement)
+            print("\e[2K")    
+            println("Iteration over, data saved.")
+            println("Final $str1 is $fit")
+        end
+    else
+        f_list = [1.0/f_ini]
+        println("multiparameter scenario")
+        println("search algorithm: Particle Swarm Optimization (PSO)")
+        println("initial value of $str2 is $(1.0/f_ini)")
+        println("Tr(WI^{-1}) under the given POVMs is $(1.0/f_povm)")
+        println("Tr(WF^{-1}) is $(1.0/f_opt)")
+
+        if save_file == true
+            for ei in 1:(max_episode[1]-1)
+                #### train ####
+                p_fit, fit, Mcoeff, pbest, gbest, velocity_best, velocity = train_RotateBasis(particles, Mcoeff, Lambda, p_fit, fit, POVM_basis, 
+                                                 max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+                if ei%max_episode[2] == 0
+                    particles = repeat(pso, particle_num)
+                    for pj in 1:particle_num
+                        Mcoeff[pj] = [gbest[i] for i in 1:dim^2]
+                    end
+                end
+                U = rotation_matrix(gbest, Lambda)
+                Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
+                append!(f_list, 1.0/fit)
+                SaveFile_meas(f_list, Measurement)
+                print("current value of $str2 is $(1.0/fit) ($ei episodes) \r")
+            end
+            p_fit, fit, Mcoeff, pbest, gbest, velocity_best, velocity = train_RotateBasis(particles, Mcoeff, Lambda, p_fit, fit, POVM_basis, 
+                                              max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            U = rotation_matrix(gbest, Lambda)
+            Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
+            append!(f_list, 1.0/fit)
+            SaveFile_meas(f_list, Measurement)
+            print("\e[2K")    
+            println("Iteration over, data saved.")
+            println("Final value of $str2 is $(1.0/fit)")
+        else
+            for ei in 1:(max_episode[1]-1)
+                p_fit, fit, Mcoeff, pbest, gbest, velocity_best, velocity = train_RotateBasis(particles, Mcoeff, Lambda, p_fit, fit, POVM_basis, 
+                                                 max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+                if ei%max_episode[2] == 0
+                    particles = repeat(pso, particle_num)
+                    for pj in 1:particle_num
+                        Mcoeff[pj] = [gbest[i] for i in 1:dim^2]
+                    end
+                end
+                append!(f_list, 1.0/fit)
+                print("current value of $str2 is $(1.0/fit) ($ei episodes) \r")
+                
+            end
+            p_fit, fit, Mcoeff, pbest, gbest, velocity_best, velocity = train_RotateBasis(particles, Mcoeff, Lambda, p_fit, fit, POVM_basis, 
+                                             max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            U = rotation_matrix(gbest, Lambda)
+            Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
+            append!(f_list, 1.0/fit)
+            SaveFile_meas(f_list, Measurement)
+            print("\e[2K")    
+            println("Iteration over, data saved.")
+            println("Final value of $str2 is $(1.0/fit)")
+        end
+    end
+end
+
+function train_RotateBasis(particles, Mcoeff, Lambda, p_fit, fit, POVM_basis, max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+    for pj in 1:particle_num
+        U = rotation_matrix(Mcoeff[pj], Lambda)
+        Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
+        f_now = 1.0/obj_func(Val{sym}(), particles[pj], Measurement)
+
+        if f_now > p_fit[pj]
+            p_fit[pj] = f_now
+            for ni in 1:dim^2
+                pbest[ni,pj] = Mcoeff[pj][ni]
+            end
+        end
+    end
+
+    for pj in 1:particle_num
+        if p_fit[pj] > fit
+            fit = p_fit[pj]
+            for nj in 1:dim^2
+                gbest[nj] = Mcoeff[pj][nj]
+                velocity_best[nj] = velocity[nj, pj]
+            end
+        end
+    end  
+
+    for pk in 1:particle_num
+        meas_pre = zeros(Float64, dim^2)
+
+        for ck in 1:dim^2
+            meas_pre[ck] = Mcoeff[pk][ck]
+    
+            velocity[ck, pk] = c0*velocity[ck, pk] + c1*rand()*(pbest[ck, pk] - Mcoeff[pk][ck]) + c2*rand()*(gbest[ck] - Mcoeff[pk][ck])
+            Mcoeff[pk][ck] += velocity[ck, pk]
+        end
+
+        Mcoeff[pk] = bound_rot_coeff(Mcoeff[pk])
+        U = rotation_matrix(Mcoeff[pk], Lambda)
+        Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
+
+        for cm in 1:dim^2
+            velocity[cm, pk] = Mcoeff[pk][cm] - meas_pre[cm]
+        end
+    end
+    return p_fit, fit, Mcoeff, pbest, gbest, velocity_best, velocity
 end

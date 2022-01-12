@@ -16,6 +16,20 @@ function CFIM_PSO_Sopt(Measurement, pso::TimeIndepend_noiseless{T}, max_episode,
     return info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
 end
 
+function HCRB_PSO_Sopt(pso::TimeIndepend_noiseless{T}, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file) where {T<:Complex}
+    sym = Symbol("HCRB_TimeIndepend_noiseless")
+    str1 = ""
+    str2 = "HCRB"
+    str3 = "HCRB"
+    Measurement = [zeros(ComplexF64, size(pso.psi)[1], size(pso.psi)[1])]
+    if length(pso.Hamiltonian_derivative) == 1
+        println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for state optimization.")
+        return nothing
+    else
+        return info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
+    end
+end
+
 function info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3) where {T<: Complex}
     println("$str1 state optimization")
     Random.seed!(seed)
@@ -46,8 +60,7 @@ function info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_par
         particles[pj].psi = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
     end
 
-    F = obj_func(Val{sym}(), pso, Measurement)
-    qfi_ini = real(tr(pso.W*pinv(F)))
+    qfi_ini = obj_func(Val{sym}(), pso, Measurement)
 
     if length(pso.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -145,8 +158,8 @@ end
 
 function train_noiseless_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, pbest, gbest, velocity_best, velocity, sym)
     for pj in 1:particle_num
-        F_tp = obj_func(Val{sym}(), particles[pj], Measurement) 
-        f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
+        f_now = obj_func(Val{sym}(), particles[pj], Measurement) 
+        f_now = 1.0/f_now
         if f_now > p_fit[pj]
             p_fit[pj] = f_now
             for di in 1:dim
@@ -189,7 +202,7 @@ function QFIM_PSO_Sopt(pso::TimeIndepend_noise{T}, max_episode, particle_num, in
     str2 = "QFI"
     str3 = "Tr(WF^{-1})"
     Measurement = [zeros(ComplexF64, size(pso.psi)[1], size(pso.psi)[1])]
-    return info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
+    return info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
 end
 
 function CFIM_PSO_Sopt(Measurement, pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file) where {T<:Complex}
@@ -197,10 +210,29 @@ function CFIM_PSO_Sopt(Measurement, pso::TimeIndepend_noise{T}, max_episode, par
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
-    return info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
+    if length(pso.Hamiltonian_derivative) == 1
+        println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFI as the objection function for state optimization.")
+        return nothing
+    else
+        return info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
+    end
 end
 
-function QFIM_PSO_Sopt(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3) where {T<:Complex}
+function HCRB_PSO_Sopt(pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file) where {T<:Complex}
+    sym = Symbol("HCRB_TimeIndepend_noise")
+    str1 = ""
+    str2 = "HCRB"
+    str3 = "HCRB"
+    Measurement = [zeros(ComplexF64, size(pso.psi)[1], size(pso.psi)[1])]
+    if length(pso.Hamiltonian_derivative) == 1
+        println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for state optimization.")
+        return nothing
+    else
+        return info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
+    end
+end
+
+function info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3) where {T<:Complex}
     println("$str1 state optimization")
     Random.seed!(seed)
     dim = length(pso.psi)
@@ -230,8 +262,7 @@ function QFIM_PSO_Sopt(Measurement, pso, max_episode, particle_num, ini_particle
         particles[pj].psi = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
     end
 
-    F = obj_func(Val{sym}(), pso, Measurement)
-    qfi_ini = real(tr(pso.W*pinv(F)))
+    qfi_ini = obj_func(Val{sym}(), pso, Measurement)
 
     if length(pso.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -329,8 +360,8 @@ end
 
 function train_noise_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, pbest, gbest, velocity_best, velocity, sym)
     for pj in 1:particle_num
-        F_tp = obj_func(Val{sym}(), particles[pj], Measurement)
-        f_now = 1.0/real(tr(particles[pj].W*pinv(F_tp)))
+        f_now = obj_func(Val{sym}(), particles[pj], Measurement)
+        f_now = 1.0/f_now
         if f_now > p_fit[pj]
             p_fit[pj] = f_now
             for di in 1:dim
