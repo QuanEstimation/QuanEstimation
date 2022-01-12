@@ -49,8 +49,6 @@ tspan = np.linspace(0.0, T, tnum)
 AD_paras = {'Adam':False, 'measurement0':[minput], 'max_episode':500, 'epsilon':0.01, 'beta1':0.90, 'beta2':0.99, 'seed':1234}
 PSO_paras = {'particle_num':10, 'measurement0':[], 'max_episode':[1000,100], 'c0':1.0, 'c1':2.0, 'c2':2.0, 'seed':1234}
 DE_paras = {'popsize':10, 'measurement0':[], 'max_episode':1000, 'c':1.0, 'cr':0.5, 'seed':1234}
-Hybrid_PSO_paras = {'particle_num':10, 'measurement0':[], 'max_episode':15, 'c0':1.0, 'c1':2.0, 'c2':2.0, 'epsilon':0.001, 'seed':1234, 'update_interval':50}
-Hybrid_DE_paras = {'popsize':10, 'measurement0':[], 'max_episode':300, 'c':1.0, 'cr':0.5, 'seed':1234, 'epsilon':0.001, 'update_interval':5}
 
 Measopt = MeasurementOpt(tspan, rho0, H0, dH0, decay, mtype='input', minput=["LC",minput,4], method='DE', **DE_paras)
 Measopt.CFIM(save_file=False)
