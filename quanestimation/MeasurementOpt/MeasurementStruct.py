@@ -170,9 +170,5 @@ def MeasurementOpt(*args, mtype="projection", minput=[], method="AD", **kwargs):
         return Measure.PSO_Mopt(mtype, minput, *args, **kwargs)
     elif method == "DE":
         return Measure.DE_Mopt(mtype, minput, *args, **kwargs)
-    elif method == "Hybrid_PSO":
-        return Measure.PSO_AD_Mopt(mtype, minput, *args, **kwargs)
-    elif method == "Hybrid_DE":
-        return Measure.DE_AD_Mopt(mtype, minput, *args, **kwargs)
     else:
-        raise ValueError("{!r} is not a valid value for method, supported values are 'AD', 'PSO', 'DE', 'Hybrid_PSO', 'Hybrid_DE'.".format(method))
+        raise ValueError("{!r} is not a valid value for method, supported values are 'AD', 'PSO' and 'DE'.".format(method))
