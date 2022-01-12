@@ -97,4 +97,31 @@ class DE_Sopt(State.StateSystem):
             Main.QuanEstimation.CFIM_DE_Sopt(Measurement, diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, \
                                         self.max_episode, save_file)
         self.load_save()
-        
+    
+    def HCRB(self, save_file=False):
+        """
+        Description: use differential evolution algorithm to search the optimal initial state that maximize the HCRB.
+
+        ---------
+        Inputs
+        ---------
+        save_file:
+            --description: True: save the initial state for each episode but overwrite in the next episode and all the HCRB.
+                           False: save the initial states for the last episode and all the HCRB.
+            --type: bool
+        """
+        if len(self.Hamiltonian_derivative) == 1:
+            warnings.warn('In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function \
+                           for state optimization', DeprecationWarning)
+        else:
+            if any(self.gamma):
+                diffevo = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
+                                                             self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+                Main.QuanEstimation.HCRB_DE_Sopt(diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, \
+                                       self.max_episode, save_file)
+            else:
+                diffevo = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
+                                                                 self.psi0, self.tspan, self.W, self.accuracy)
+                Main.QuanEstimation.HCRB_DE_Sopt(diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, \
+                                        self.max_episode, save_file)
+            self.load_save()

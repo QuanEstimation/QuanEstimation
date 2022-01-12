@@ -31,12 +31,14 @@ mutable struct ControlEnv_noiseless{T<:Complex, M<:Real, R<:AbstractRNG} <: Abst
     f_list::Vector{M}
     reward_all::Vector{M}
     episode::Int
-    quantum::Bool
     SinglePara::Bool
     save_file::Bool
+    sym
+    str2
+    str3
 end
 
-function DDPGEnv_noiseless(Measurement, params, episode, quantum, SinglePara, save_file, rng)
+function DDPGEnv_noiseless(Measurement, params, episode, SinglePara, save_file, rng, sym, str2, str3)
     para_num=params.Hamiltonian_derivative|>length
     state = params.psi
     state = state |> state_flatten
@@ -44,19 +46,12 @@ function DDPGEnv_noiseless(Measurement, params, episode, quantum, SinglePara, sa
     action_space = Space(fill(-1.0e35..1.0e35, length(state)))
     state_space = Space(fill(-1.0e35..1.0e35, length(state))) 
 
-    f_ini = 0.0
-    if quantum 
-        F_ini = QFIM_TimeIndepend(params.freeHamiltonian, params.Hamiltonian_derivative, params.psi, params.tspan, params.accuracy)
-        f_ini = 1.0/real(tr(params.W*pinv(F_ini)))
-    else
-        F_ini = CFIM_TimeIndepend(Measurement, params.freeHamiltonian, params.Hamiltonian_derivative, params.psi, params.tspan, params.accuracy)
-        f_ini = 1.0/real(tr(params.W*pinv(F_ini)))
-    end
+    f_ini = 1.0/obj_func(Val{sym}(), params, Measurement)
 
     f_list = Vector{Float64}()
     reward_all = Vector{Float64}()
     env = ControlEnv_noiseless(Measurement, params, action_space, state_space, state, true, rng, 0.0, 0.0, params.tspan, ctrl_num, 
-                               para_num, f_ini, f_list, reward_all, episode, quantum, SinglePara, save_file)
+                               para_num, f_ini, f_list, reward_all, episode, SinglePara, save_file, sym, str2, str3)
     reset!(env)
     env
 end
@@ -76,17 +71,16 @@ RLBase.state(env::ControlEnv_noiseless) = env.state
 
 function (env::ControlEnv_noiseless)(a)
     # @assert a in env.action_space
-    _step_noiseless!(env, a, Val(env.quantum), Val(env.SinglePara), Val(env.save_file))
+    _step_noiseless!(env, a, Val(env.SinglePara), Val(env.save_file))
 end
 
 ####################### step functions #########################
-#### quantum single parameter estimation and save_file=true ####
-function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{true}, ::Val{true})
+#### single parameter estimation and save_file=true ####
+function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{true})
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, env.params.tspan, env.params.accuracy)
-    f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, Measurement)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.rewards
     env.done = true
@@ -95,17 +89,16 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{true}
     append!(env.reward_all, env.reward)
     SaveFile_state_ddpg(f_current, env.reward, env.params.psi)
     env.episode += 1
-    print("current QFI is ", f_current, " ($(env.episode) episodes)    \r")
+    print("current $(str2) is ", f_current, " ($(env.episode) episodes)    \r")
     nothing 
 end
 
-#### quantum single parameter estimation and save_file=false ####
-function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{true}, ::Val{false})
+#### single parameter estimation and save_file=false ####
+function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{false})
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, env.params.tspan, env.params.accuracy)
-    f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, Measurement)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -113,17 +106,16 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{true}
     append!(env.f_list, f_current)
     append!(env.reward_all, env.reward)
     env.episode += 1
-    print("current QFI is ", f_current, " ($(env.episode) episodes)    \r")
+    print("current $(str2) is ", f_current, " ($(env.episode) episodes)    \r")
     nothing 
 end
 
-#### quantum multiparameter estimation and save_file=true ####
-function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{false}, ::Val{true})
+#### multiparameter estimation and save_file=true ####
+function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{true})
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, env.params.tspan, env.params.accuracy)
-    f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, Measurement)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -132,17 +124,16 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{false
     append!(env.reward_all, env.reward)
     SaveFile_state_ddpg(1.0/f_current, env.reward, env.params.psi)
     env.episode += 1
-    print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
+    print("current value of $(env.str3) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
     nothing 
 end
 
-#### quantum multiparameter estimation and save_file=false ####
-function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{false}, ::Val{false})
+#### multiparameter estimation and save_file=false ####
+function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{false})
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, env.params.tspan, env.params.accuracy)
-    f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, Measurement)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -150,111 +141,45 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{false
     append!(env.f_list, 1.0/f_current)
     append!(env.reward_all, env.reward)
     env.episode += 1
-    print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
+    print("current value of $(env.str3) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
     nothing 
 end
 
-#### classical single parameter estimation and save_file=true ####
-function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{true}, ::Val{true})
-    state_new = (env.state + a) |> to_psi
-    env.params.psi = state_new/norm(state_new)
-
-    F_tp = CFIM_TimeIndepend(env.Measurement, env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, 
-                             env.params.tspan, env.params.accuracy)
-    f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
-    env.reward = -log(f_current/env.f_ini)
-    env.total_reward = env.reward
-    env.done = true
-
-    append!(env.f_list, f_current)
-    append!(env.reward_all, env.reward)
-    SaveFile_state_ddpg(f_current, env.reward, env.params.psi)
-    
-    env.episode += 1
-    print("current CFI is ", f_current, " ($(env.episode) episodes)    \r")
-    nothing 
-end
-
-#### classical single parameter estimation and save_file=false ####
-function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{true}, ::Val{false})
-    state_new = (env.state + a) |> to_psi
-    env.params.psi = state_new/norm(state_new)
-
-    F_tp = CFIM_TimeIndepend(env.Measurement, env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, 
-                             env.params.tspan, env.params.accuracy)
-    f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
-    env.reward = -log(f_current/env.f_ini)
-    env.total_reward = env.reward
-    env.done = true
-
-    append!(env.f_list, f_current)
-    append!(env.reward_all, env.reward)
-    env.episode += 1
-    print("current CFI is ", f_current, " ($(env.episode) episodes)    \r")
-    nothing 
-end
-
-#### classical multiparameter estimation and save_file=true ####
-function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{false}, ::Val{true})
-    state_new = (env.state + a) |> to_psi
-    env.params.psi = state_new/norm(state_new)
-
-    F_tp = CFIM_TimeIndepend(env.Measurement, env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, 
-                             env.params.tspan, env.params.accuracy)
-    f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
-    env.reward = -log(f_current/env.f_ini)
-    env.total_reward = env.reward
-    env.done = true
-
-    append!(env.f_list, 1.0/f_current)
-    append!(env.reward_all, env.reward)
-    SaveFile_state_ddpg(1.0/f_current, env.reward, env.params.psi)
-    env.episode += 1
-    print("current value of Tr(WI^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
-    nothing 
-end
-
-#### classical multiparameter estimation and save_file=false ####
-function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{false}, ::Val{false})
-    state_new = (env.state + a) |> to_psi
-    env.params.psi = state_new/norm(state_new)
-
-    F_tp = CFIM_TimeIndepend(env.Measurement, env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi, 
-                             env.params.tspan, env.params.accuracy)
-    f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
-    env.reward = -log(f_current/env.f_ini)
-    env.total_reward = env.reward
-    env.done = true
-
-    append!(env.f_list, 1.0/f_current)
-    append!(env.reward_all, env.reward)
-    env.episode += 1
-    print("current value of Tr(WI^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
-    nothing 
-end
 
 Random.seed!(env::ControlEnv_noiseless, seed) = Random.seed!(env.rng, seed)
 
 function QFIM_DDPG_Sopt(params::TimeIndepend_noiseless, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
-    sym = Symbol(QFIM)
+    sym = Symbol("QFIM_TimeIndepend_noiseless")
     str1 = "quantum"
     str2 = "QFI"
     str3 = "tr(WF^{-1})"
-    quantum = true
     Measurement = [zeros(ComplexF64, size(params.psi)[1], size(params.psi)[1])]
-    return info_DDPG_noiseless(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3, quantum)
+    return info_DDPG_noiseless(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
 function CFIM_DDPG_Sopt(Measurement, params::TimeIndepend_noiseless, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
-    sym = Symbol(CFIM)
+    sym = Symbol("CFIM_TimeIndepend_noiseless")
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
-    quantum = false
-    return info_DDPG_noiseless(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3, quantum)
+    return info_DDPG_noiseless(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
-function QFIM_DDPG_noiseless(Measurement, params::TimeIndepend_noiseless, layer_num, layer_dim, seed, max_episode, save_filesym, str1, str2, str3, quantum)
+function HCRB_DDPG_Sopt(params::TimeIndepend_noiseless, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
+    sym = Symbol("HCRB_TimeIndepend_noiseless")
+    str1 = ""
+    str2 = "HCRB"
+    str3 = "HCRB"
+    Measurement = [zeros(ComplexF64, size(params.psi)[1], size(params.psi)[1])]
+    if length(params.Hamiltonian_derivative) == 1
+        println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for state optimization.")
+        return nothing
+    else
+        return info_DDPG_noiseless(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
+    end
+end
+
+function info_DDPG_noiseless(Measurement, params::TimeIndepend_noiseless, layer_num, layer_dim, seed, max_episode, save_filesym, str1, str2, str3, quantum)
     rng = StableRNG(seed)
     episode = 1
     if length(params.Hamiltonian_derivative) == 1
@@ -262,7 +187,7 @@ function QFIM_DDPG_noiseless(Measurement, params::TimeIndepend_noiseless, layer_
     else
         SinglePara = false
     end
-    env = DDPGEnv_noiseless(Measurement, params, episode, quantum, SinglePara, save_file, rng)
+    env = DDPGEnv_noiseless(Measurement, params, episode, SinglePara, save_file, rng, sym, str1, str2)
     ns = 2*length(params.psi)
     na = env.ctrl_num
     init = glorot_uniform(rng)
@@ -317,7 +242,6 @@ function QFIM_DDPG_noiseless(Measurement, params::TimeIndepend_noiseless, layer_
         println("Final value of $str3 is ", env.f_list[end])
     end
 end
-
 
 ############# time-independent Hamiltonian (noise) ################
 mutable struct ControlEnv_noise{T<:Complex, M<:Real, R<:AbstractRNG} <: AbstractEnv
@@ -337,12 +261,14 @@ mutable struct ControlEnv_noise{T<:Complex, M<:Real, R<:AbstractRNG} <: Abstract
     f_list::Vector{M}
     reward_all::Vector{M}
     episode::Int
-    quantum::Bool
     SinglePara::Bool
     save_file::Bool
+    sym
+    str2
+    str3
 end
 
-function DDPGEnv_noise(Measurement, params, episode, quantum, SinglePara, save_file, rng)
+function DDPGEnv_noise(Measurement, params, episode, SinglePara, save_file, rng, sym, str2, str3)
     para_num=params.Hamiltonian_derivative|>length
     state = params.psi
     state = state |> state_flatten
@@ -350,21 +276,12 @@ function DDPGEnv_noise(Measurement, params, episode, quantum, SinglePara, save_f
     action_space = Space(fill(-1.0e35..1.0e35, length(state)))
     state_space = Space(fill(-1.0e35..1.0e35, length(state))) 
 
-    f_ini = 0.0
-    if quantum 
-        F_ini = QFIM_TimeIndepend(params.freeHamiltonian, params.Hamiltonian_derivative, params.psi*(params.psi)', 
-                                  params.decay_opt, params.γ, params.tspan, params.accuracy)
-        f_ini = 1.0/real(tr(params.W*pinv(F_ini)))
-    else
-        F_ini = CFIM_TimeIndepend(Measurement, params.freeHamiltonian, params.Hamiltonian_derivative, params.psi*(params.psi)', 
-                                  params.decay_opt, params.γ, params.tspan, params.accuracy)
-        f_ini = 1.0/real(tr(params.W*pinv(F_ini)))
-    end
+    f_ini = 1.0/obj_func(Val{sym}(), params, Measurement)
 
     f_list = Vector{Float64}()
     reward_all = Vector{Float64}()
     env = ControlEnv_noise(Measurement, params, action_space, state_space, state, true, rng, 0.0, 0.0, params.tspan, ctrl_num, 
-                           para_num, f_ini, f_list, reward_all, episode, quantum, SinglePara, save_file)
+                           para_num, f_ini, f_list, reward_all, episode, SinglePara, save_file, sym, str2, str3)
     reset!(env)
     env
 end
@@ -384,18 +301,16 @@ RLBase.state(env::ControlEnv_noise) = env.state
 
 function (env::ControlEnv_noise)(a)
     # @assert a in env.action_space
-    _step_noise!(env, a, Val(env.quantum), Val(env.SinglePara), Val(env.save_file))
+    _step_noise!(env, a, Val(env.SinglePara), Val(env.save_file))
 end
 
 ####################### step functions #########################
-#### quantum single parameter estimation and save_file=true ####
-function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{true}, ::Val{true})
+#### single parameter estimation and save_file=true ####
+function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{true})
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', 
-                             env.params.decay_opt, env.params.γ, env.params.tspan, env.params.accuracy)
-    f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.Measurement)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -404,18 +319,16 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{true}, ::Val{
     append!(env.reward_all, env.reward)
     SaveFile_state_ddpg(f_current, env.reward, env.params.psi)
     env.episode += 1
-    print("current QFI is ", f_current, " ($(env.episode) episodes)    \r")
+    print("current $(env.str2) is ", f_current, " ($(env.episode) episodes)    \r")
     nothing 
 end
 
-#### quantum single parameter estimation and save_file=false ####
-function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{true}, ::Val{false})
+#### single parameter estimation and save_file=false ####
+function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{false})
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', 
-                             env.params.decay_opt, env.params.γ, env.params.tspan, env.params.accuracy)
-    f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.Measurement)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -423,18 +336,16 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{true}, ::Val{
     append!(env.f_list, f_current)
     append!(env.reward_all, env.reward)
     env.episode += 1
-    print("current QFI is ", f_current, " ($(env.episode) episodes)    \r")
+    print("current $(env.str2) is ", f_current, " ($(env.episode) episodes)    \r")
     nothing 
 end
 
-#### quantum multiparameter estimation and save_file=true ####
-function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{false}, ::Val{true})
+#### multiparameter estimation and save_file=true ####
+function _step_noise!(env::ControlEnv_noise, a, ::Val{false}, ::Val{true})
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', 
-                             env.params.decay_opt, env.params.γ, env.params.tspan, env.params.accuracy)
-    f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.Measurement)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -443,18 +354,16 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{false}, ::Val
     append!(env.reward_all, env.reward)
     SaveFile_state_ddpg(1.0/f_current, env.reward, env.params.psi)
     env.episode += 1
-    print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
+    print("current value of $(env.str3) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
     nothing 
 end
 
-#### quantum multiparameter estimation and save_file=false ####
-function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{false}, ::Val{false})
+#### multiparameter estimation and save_file=false ####
+function _step_noise!(env::ControlEnv_noise, a, ::Val{false}, ::Val{false})
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    F_tp = QFIM_TimeIndepend(env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', 
-                             env.params.decay_opt, env.params.γ, env.params.tspan, env.params.accuracy)
-    f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.Measurement)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -462,112 +371,45 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{false}, ::Val
     append!(env.f_list, 1.0/f_current)
     append!(env.reward_all, env.reward)
     env.episode += 1
-    print("current value of Tr(WF^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
+    print("current value of $(env.str3) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
     nothing 
 end
 
-#### classical single parameter estimation and save_file=true ####
-function _step_noise!(env::ControlEnv_noise, a, ::Val{false}, ::Val{true}, ::Val{true})
-    state_new = (env.state + a) |> to_psi
-    env.params.psi = state_new/norm(state_new)
-
-    F_tp = CFIM_TimeIndepend(env.Measurement, env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', 
-                             env.params.decay_opt, env.params.γ, env.params.tspan, env.params.accuracy)
-    f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
-    env.reward = -log(f_current/env.f_ini)
-    env.total_reward = env.reward
-    env.done = true
-
-    append!(env.f_list, f_current)
-    append!(env.reward_all, env.reward)
-    SaveFile_state_ddpg(f_current, env.reward, env.params.psi)
-    
-    env.episode += 1
-    print("current CFI is ", f_current, " ($(env.episode) episodes)    \r")
-    nothing 
-end
-
-#### classical single parameter estimation and save_file=false ####
-function _step_noise!(env::ControlEnv_noise, a, ::Val{false}, ::Val{true}, ::Val{false})
-    state_new = (env.state + a) |> to_psi
-    env.params.psi = state_new/norm(state_new)
-
-    F_tp = CFIM_TimeIndepend(env.Measurement, env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', 
-                             env.params.decay_opt, env.params.γ, env.params.tspan, env.params.accuracy)
-    f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
-    env.reward = -log(f_current/env.f_ini)
-    env.total_reward = env.reward
-    env.done = true
-
-    append!(env.f_list, f_current)
-    append!(env.reward_all, env.reward)
-    env.episode += 1
-    print("current CFI is ", f_current, " ($(env.episode) episodes)    \r")
-    nothing 
-end
-
-#### classical multiparameter estimation and save_file=true ####
-function _step_noise!(env::ControlEnv_noise, a, ::Val{false}, ::Val{false}, ::Val{true})
-    state_new = (env.state + a) |> to_psi
-    env.params.psi = state_new/norm(state_new)
-
-    F_tp = CFIM_TimeIndepend(env.Measurement, env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', 
-                             env.params.decay_opt, env.params.γ, env.params.tspan, env.params.accuracy)
-    f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
-    env.reward = -log(f_current/env.f_ini)
-    env.total_reward = env.reward
-    env.done = true
-
-    append!(env.f_list, 1.0/f_current)
-    append!(env.reward_all, env.reward)
-    SaveFile_state_ddpg(1.0/f_current, env.reward, env.params.psi)
-    env.episode += 1
-    print("current value of Tr(WI^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
-    nothing 
-end
-
-#### classical multiparameter estimation and save_file=false ####
-function _step_noise!(env::ControlEnv_noise, a, ::Val{false}, ::Val{false}, ::Val{false})
-    state_new = (env.state + a) |> to_psi
-    env.params.psi = state_new/norm(state_new)
-
-    F_tp = CFIM_TimeIndepend(env.Measurement, env.params.freeHamiltonian, env.params.Hamiltonian_derivative, env.params.psi*(env.params.psi)', 
-                             env.params.decay_opt, env.params.γ, env.params.tspan, env.params.accuracy)
-    f_current = 1.0/real(tr(env.params.W*pinv(F_tp)))
-    env.reward = -log(f_current/env.f_ini)
-    env.total_reward = env.reward
-    env.done = true
-
-    append!(env.f_list, 1.0/f_current)
-    append!(env.reward_all, env.reward)
-    env.episode += 1
-    print("current value of Tr(WI^{-1}) is ", 1.0/f_current, " ($(env.episode) episodes)    \r")
-
-    nothing 
-end
 
 Random.seed!(env::ControlEnv_noise, seed) = Random.seed!(env.rng, seed)
 
 function QFIM_DDPG_Sopt(params::TimeIndepend_noise, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
-    sym = Symbol(QFIM)
+    sym = Symbol("HCRB_TimeIndepend_noise")
     str1 = "quantum"
     str2 = "QFI"
     str3 = "tr(WF^{-1})"
-    quantum = true
     Measurement = [zeros(ComplexF64, size(params.psi)[1], size(params.psi)[1])]
-    return info_DDPG_noise(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3, quantum)
+    return info_DDPG_noise(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
 function CFIM_DDPG_Sopt(Measurement, params::TimeIndepend_noise, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
-    sym = Symbol(CFIM)
+    sym = Symbol("HCRB_TimeIndepend_noise")
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
-    quantum = false
-    return info_DDPG_noise(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3, quantum)
+    return info_DDPG_noise(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
-function info_DDPG_noise(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3, quantum)
+function HCRB_DDPG_Sopt(params::TimeIndepend_noise, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
+    sym = Symbol("HCRB_TimeIndepend_noise")
+    str1 = ""
+    str2 = "HCRB"
+    str3 = "HCRB"
+    Measurement = [zeros(ComplexF64, size(params.psi)[1], size(params.psi)[1])]
+    if length(params.Hamiltonian_derivative) == 1
+        println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for state optimization.")
+        return nothing
+    else
+        return info_DDPG_noise(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
+    end
+end
+
+function info_DDPG_noise(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
     rng = StableRNG(seed)
     episode = 1
     if length(params.Hamiltonian_derivative) == 1
@@ -575,7 +417,7 @@ function info_DDPG_noise(Measurement, params, layer_num, layer_dim, seed, max_ep
     else
         SinglePara = false
     end
-    env = DDPGEnv_noise(Measurement, params, episode, quantum, SinglePara, save_file, rng)
+    env = DDPGEnv_noise(Measurement, params, episode, SinglePara, save_file, rng, sym, str2, str3)
     ns = 2*length(params.psi)
     na = env.ctrl_num
     init = glorot_uniform(rng)
@@ -630,4 +472,3 @@ function info_DDPG_noise(Measurement, params, layer_num, layer_dim, seed, max_ep
         println("Final value of $str3 is ", env.f_list[end])
     end
 end
-

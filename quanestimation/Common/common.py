@@ -74,8 +74,8 @@ def sic_povm(fiducial):
     D = [[[] for i in range(d)] for j in range(d)]
     for a in range(d):
         for b in range(d):
-            X_a = np.linalg.matrix_power(X,b)
-            Z_b = np.linalg.matrix_power(Z,a)
+            X_a = np.linalg.matrix_power(X,a)
+            Z_b = np.linalg.matrix_power(Z,b)
             D[a][b] = (-np.exp(1.0j*np.pi/d))**(a*b)*np.dot(X_a, Z_b)
      
     res = []

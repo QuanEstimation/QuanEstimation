@@ -43,8 +43,8 @@ def CFIM(rho, drho, M=[], accuracy=1e-8):
         --type: float number (CFI) or matrix (CFIM)
 
     """
-    if type(drho) != list or type(M) != list:
-        raise TypeError('Please make sure drho and M are lists!')
+    if type(drho) != list:
+        raise TypeError('Please make sure drho is a list!')
 
     if M==[]: 
         file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'sic_fiducial_vectors/d%d.txt'%(len(rho0)))
@@ -52,6 +52,9 @@ def CFIM(rho, drho, M=[], accuracy=1e-8):
         fiducial = data[:,0] + data[:,1]*1.0j
         fiducial = np.array(fiducial).reshape(len(fiducial),1) 
         M = sic_povm(fiducial)
+    else:
+        if type(M) != list:
+            raise TypeError('Please make sure Measurement is a list!')
 
     m_num = len(M)
     para_num = len(drho)

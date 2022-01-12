@@ -92,12 +92,14 @@ class StateSystem:
             self.psi0 = np.genfromtxt('states.csv', dtype=np.complex128)
 
     def load_save(self):
-        file_load = open('states.csv', 'r')
-        file_load = ''.join([i for i in file_load]).replace("im", "j")
-        file_load = ''.join([i for i in file_load]).replace(" ", "")
-        file_save = open("states.csv","w")
-        file_save.writelines(file_load)
-        file_save.close()
+        if os.path.exists('states.csv'):
+            file_load = open('states.csv', 'r')
+            file_load = ''.join([i for i in file_load]).replace("im", "j")
+            file_load = ''.join([i for i in file_load]).replace(" ", "")
+            file_save = open("states.csv","w")
+            file_save.writelines(file_load)
+            file_save.close()
+        else: pass
 
 def StateOpt(*args, method = 'AD', **kwargs):
 

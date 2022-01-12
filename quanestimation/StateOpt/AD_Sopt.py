@@ -95,3 +95,6 @@ class AD_Sopt(State.StateSystem):
             Main.QuanEstimation.CFIM_AD_Sopt(Measurement, AD, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, \
                                         self.max_episode, self.Adam, save_file)
         self.load_save()
+
+    def HCRB(self, save_file=False):
+        warnings.warn("AD is not available when the objective function is HCRB. Supported methods are 'PSO', 'DE' and 'DDPG'.", DeprecationWarning)

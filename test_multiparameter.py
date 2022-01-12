@@ -30,7 +30,7 @@ Hc_ctrl = [S1, S2, S3]
 #dissipation
 decay = [[S3,2*np.pi/cons]]  
 
-T = 2.0
+T = 0.3
 tnum = int(2000*T)
 tspan = np.linspace(0.0, T, tnum)
 cnum = tnum
@@ -54,6 +54,7 @@ PSO_paras = {'particle_num':10, 'ctrl0':ini_ctrl, 'max_episode':[1000,100], 'c0'
 DE_paras = {'popsize':10, 'ctrl0':ini_ctrl, 'max_episode':1000, 'c':1.0, 'cr':0.5, 'seed':1234}
 DDPG_paras = {'layer_num':4, 'layer_dim':250, 'max_episode':500, 'seed':1234}
 
-control = ControlOpt(tspan, rho0, H0, Hc_ctrl, dH0, decay, ctrl_bound=[-0.2,0.2], method='auto-GRAPE', **GRAPE_paras)
+control = ControlOpt(tspan, rho0, H0, Hc_ctrl, dH0, decay, ctrl_bound=[-0.2,0.2], method='DE', **DE_paras)
 control.QFIM(save_file=False)
 # control.CFIM(Measurement, save_file=False)
+# control.HCRB(save_file=True)

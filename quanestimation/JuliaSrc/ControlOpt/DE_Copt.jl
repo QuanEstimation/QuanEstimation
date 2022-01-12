@@ -36,6 +36,20 @@ function CFIM_DE_Copt(Measurement, DE::DE_Copt{T}, popsize, ini_population, c, c
     return info_DE_Copt(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
+function HCRB_DE_Copt(DE::DE_Copt{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<:Complex}
+    sym = Symbol("HCRB")
+    str1 = ""
+    str2 = "HCRB"
+    str3 = "HCRB"
+    Measurement = [zeros(ComplexF64, size(DE.ρ0)[1], size(DE.ρ0)[1])]
+    if length(DE.Hamiltonian_derivative) == 1
+        println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for control optimization.")
+        return nothing
+    else
+        return info_DE_Copt(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
+    end
+end
+
 function info_DE_Copt(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3) where {T<:Complex}
     println("$str1 parameter estimation")
     Random.seed!(seed)
@@ -63,9 +77,9 @@ function info_DE_Copt(Measurement, DE, popsize, ini_population, c, cr, seed, max
         end
     end
 
-    p_fit = [1.0/real(tr(DE.W*pinv(obj_func(Val{sym}(), populations[i], Measurement)))) for i in 1:p_num]
-    F_noctrl = obj_func(Val{sym}(), DE, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
-    f_noctrl = 1.0/real(tr(DE.W*pinv(F_noctrl)))
+    p_fit = [1.0/obj_func(Val{sym}(), populations[i], Measurement) for i in 1:p_num]
+    f_noctrl = obj_func(Val{sym}(), DE, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
+    f_noctrl = 1.0/f_noctrl
 
     f_ini = p_fit[1]
     
@@ -173,9 +187,9 @@ function DE_train_Copt(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_le
         #selection
         bound!(ctrl_cross, populations[pj].ctrl_bound)
 
-        F = obj_func(Val{sym}(), populations[pj], Measurement, ctrl_cross)
+        f_cross = obj_func(Val{sym}(), populations[pj], Measurement, ctrl_cross)
+        f_cross = 1.0/f_cross
 
-        f_cross = 1.0/real(tr(populations[pj].W*pinv(F)))
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
             for ck in 1:ctrl_num

@@ -74,7 +74,7 @@ class GRAPE_Copt(Control.ControlSystem):
             Main.QuanEstimation.QFIM_autoGRAPE_Copt(grape, self.max_episode, self.Adam, save_file)
         else:
             if (len(self.tspan)-1) != len(self.control_coefficients[0]):
-                warnings.warn('GRAPE does not support the case when the length of each control is not equal to the \
+                warnings.warn('GRAPE is not available when the length of each control is not equal to the \
                                length of time, and is replaced by auto-GRAPE.', DeprecationWarning)
                 Main.QuanEstimation.QFIM_autoGRAPE_Copt(grape, self.max_episode, self.Adam, save_file)
             else:
@@ -101,8 +101,11 @@ class GRAPE_Copt(Control.ControlSystem):
             Main.QuanEstimation.CFIM_autoGRAPE_Copt(Measurement, grape, self.max_episode, self.Adam, save_file)
         else:
             if (len(self.tspan)-1) != len(self.control_coefficients[0]):
-                warnings.warn('GRAPE does not support the case when the length of each control is not equal to the length of time, \
+                warnings.warn('GRAPE is not available when the length of each control is not equal to the length of time, \
                                and is replaced by auto-GRAPE.', DeprecationWarning)
                 Main.QuanEstimation.CFIM_autoGRAPE_Copt(Measurement, grape, self.max_episode, self.Adam, save_file)
             else:
                 Main.QuanEstimation.CFIM_GRAPE_Copt(Measurement, grape, self.max_episode, self.Adam, save_file)
+
+    def HCRB(self, save_file=False):
+        warnings.warn("GRAPE is not available when the objective function is HCRB. Supported methods are 'PSO', 'DE' and 'DDPG'.", DeprecationWarning)

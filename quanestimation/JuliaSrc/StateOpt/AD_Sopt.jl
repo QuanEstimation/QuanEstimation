@@ -71,8 +71,7 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noiseless{T}, mt, vt, epsilo
     if length(AD.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("search algorithm: Automatic Differentiation (AD)")
-        F_ini = obj_func(Val{sym}(), AD, Measurement)
-        f_ini= real(tr(AD.W*pinv(F_ini)))
+        f_ini = obj_func(Val{sym}(), AD, Measurement)
         f_list = [1.0/f_ini]
         println("initial $str2 is $(1.0/f_ini)")
         if Adam == true
@@ -84,8 +83,8 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noiseless{T}, mt, vt, epsilo
             SaveFile_state(f_ini, AD.psi)
             if Adam == true
                 while true
-                    F_now = obj_func(Val{sym}(), AD, Measurement)
-                    f_now = 1.0/real(tr(AD.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -101,8 +100,8 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noiseless{T}, mt, vt, epsilo
                 end
             else
                 while true
-                    F_now = obj_func(Val{sym}(), AD, Measurement)
-                    f_now = 1.0/real(tr(AD.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -120,8 +119,8 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noiseless{T}, mt, vt, epsilo
         else
             if Adam == true
                 while true
-                    F_now = obj_func(Val{sym}(), AD, Measurement)
-                    f_now = 1.0/real(tr(AD.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -138,8 +137,8 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noiseless{T}, mt, vt, epsilo
                 end
             else
                 while true
-                    F_now = obj_func(Val{sym}(), AD, Measurement)
-                    f_now = 1.0/real(tr(AD.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -159,8 +158,7 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noiseless{T}, mt, vt, epsilo
     else
         println("multiparameter scenario")
         println("search algorithm: Automatic Differentiation (AD)")
-        F_ini = obj_func(Val{sym}(), AD, Measurement)
-        f_ini = real(tr(AD.W*pinv(F_ini)))
+        f_ini = obj_func(Val{sym}(), AD, Measurement)
         f_list = [f_ini]
         println("initial value of $str3 is $(f_ini)")
         if Adam == true
@@ -172,8 +170,7 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noiseless{T}, mt, vt, epsilo
             SaveFile_state(f_ini, AD.psi)
             if Adam == true
                 while true
-                    F_now = obj_func(Val{sym}(), AD, Measurement)
-                    f_now = real(tr(AD.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), AD, Measurement)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -189,8 +186,7 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noiseless{T}, mt, vt, epsilo
                 end
             else
                 while true
-                    F_now = obj_func(Val{sym}(), AD, Measurement)
-                    f_now = real(tr(AD.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), AD, Measurement)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -208,8 +204,7 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noiseless{T}, mt, vt, epsilo
         else
             if Adam == true
                 while true
-                    F_now = obj_func(Val{sym}(), AD, Measurement)
-                    f_now = real(tr(AD.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), AD, Measurement)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -226,8 +221,7 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noiseless{T}, mt, vt, epsilo
                 end
             else
                 while true
-                    F_now = obj_func(Val{sym}(), AD, Measurement)
-                    f_now = real(tr(AD.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), AD, Measurement)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -320,8 +314,7 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noise{T}, mt, vt, epsilon, b
     if length(AD.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("search algorithm: Automatic Differentiation (AD)")
-        F_ini = obj_func(Val{sym}(), AD, Measurement)
-        f_ini = real(tr(AD.W*pinv(F_ini)))
+        f_ini = obj_func(Val{sym}(), AD, Measurement)
         f_list = [1.0/f_ini]
         println("initial $str2 is $(1.0/f_ini)")
         if save_file == true
@@ -329,8 +322,8 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noise{T}, mt, vt, epsilon, b
             if Adam == true
                 gradient_QFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 while true
-                    F_now = obj_func(Val{sym}(), AD, Measurement)
-                    f_now = 1.0/real(tr(AD.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -347,8 +340,8 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noise{T}, mt, vt, epsilon, b
             else
                 gradient_QFI!(AD, epsilon)
                 while true
-                    F_now = obj_func(Val{sym}(), AD, Measurement)
-                    f_now = 1.0/real(tr(AD.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -367,8 +360,8 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noise{T}, mt, vt, epsilon, b
             if Adam == true
                 gradient_QFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 while true
-                    F_now = obj_func(Val{sym}(), AD, Measurement)
-                    f_now = 1.0/real(tr(AD.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -386,8 +379,8 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noise{T}, mt, vt, epsilon, b
             else
                 gradient_QFI!(AD, epsilon)
                 while true
-                    F_now = obj_func(Val{sym}(), AD, Measurement)
-                    f_now = 1.0/real(tr(AD.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -407,8 +400,7 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noise{T}, mt, vt, epsilon, b
     else
         println("multiparameter scenario")
         println("search algorithm: Automatic Differentiation (AD)")
-        F_ini = obj_func(Val{sym}(), AD, Measurement)
-        f_ini = real(tr(AD.W*pinv(F_ini)))
+        f_ini = obj_func(Val{sym}(), AD, Measurement)
         f_list = [f_ini]
         println("initial value of $str3 is $(f_ini)")
         if save_file == true
@@ -416,8 +408,7 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noise{T}, mt, vt, epsilon, b
             if Adam == true
                 gradient_QFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 while true
-                    F_now = obj_func(Val{sym}(), AD, Measurement)
-                    f_now = real(tr(AD.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), AD, Measurement)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -434,8 +425,7 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noise{T}, mt, vt, epsilon, b
             else
                 gradient_QFIM!(AD, epsilon)
                 while true
-                    F_now = obj_func(Val{sym}(), AD, Measurement)
-                    f_now = real(tr(AD.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), AD, Measurement)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -454,8 +444,7 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noise{T}, mt, vt, epsilon, b
             if Adam == true
                 gradient_QFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, AD.accuracy)
                 while true
-                    F_now = obj_func(Val{sym}(), AD, Measurement)
-                    f_now = real(tr(AD.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), AD, Measurement)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -473,8 +462,7 @@ function info_AD_Sopt(Measurement, AD::TimeIndepend_noise{T}, mt, vt, epsilon, b
             else
                 gradient_QFIM!(AD, epsilon)
                 while true
-                    F_now = obj_func(Val{sym}(), AD, Measurement)
-                    f_now = real(tr(AD.W*pinv(F_now)))
+                    f_now = obj_func(Val{sym}(), AD, Measurement)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")

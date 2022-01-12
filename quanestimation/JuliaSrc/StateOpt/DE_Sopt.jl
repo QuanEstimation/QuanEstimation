@@ -16,6 +16,20 @@ function CFIM_DE_Sopt(Measurement, DE::TimeIndepend_noiseless{T}, popsize, ini_p
     return info_DE_noiseless(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
+function HCRB_DE_Sopt(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<:Complex}
+    sym = Symbol("HCRB_TimeIndepend_noiseless")
+    str1 = ""
+    str2 = "HCRB"
+    str3 = "HCRB"
+    Measurement = [zeros(ComplexF64, size(DE.psi)[1], size(DE.psi)[1])]
+    if length(DE.Hamiltonian_derivative) == 1
+        println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for state optimization.")
+        return nothing
+    else
+        return info_DE_noiseless(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
+    end
+end
+
 function info_DE_noiseless(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3) where {T<:Complex}
     println("$str1 state optimization")
     Random.seed!(seed)
@@ -38,12 +52,10 @@ function info_DE_noiseless(Measurement, DE, popsize, ini_population, c, cr, seed
 
     p_fit = [0.0 for i in 1:p_num] 
     for pj in 1:p_num
-        F_tp = obj_func(Val{sym}(), populations[pj], Measurement)
-        p_fit[pj] = 1.0/real(tr(DE.W*pinv(F_tp)))
+        p_fit[pj] = 1.0/obj_func(Val{sym}(), populations[pj], Measurement)
     end
 
-    F = obj_func(Val{sym}(), DE, Measurement)
-    f_ini= real(tr(DE.W*pinv(F)))
+    f_ini = obj_func(Val{sym}(), DE, Measurement)
 
     if length(DE.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -144,8 +156,8 @@ function train_noiseless_DE(Measurement, populations, c, cr, p_num, dim, p_fit, 
         psi_cross = ctrl_cross/norm(ctrl_cross)
 
         #selection
-        F_tp = obj_func(Val{sym}(), populations[pj], Measurement, psi_cross)
-        f_cross = 1.0/real(tr(populations[pj].W*pinv(F_tp)))
+        f_cross = obj_func(Val{sym}(), populations[pj], Measurement, psi_cross)
+        f_cross = 1.0/f_cross
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
             for ck in 1:dim
@@ -175,6 +187,20 @@ function CFIM_DE_Sopt(Measurement, DE::TimeIndepend_noise{T}, popsize, ini_popul
     return info_DE_noise(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
+function HCRB_DE_Sopt(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<:Complex}
+    sym = Symbol("HCRB_TimeIndepend_noise")
+    str1 = ""
+    str2 = "HCRB"
+    str3 = "HCRB"
+    Measurement = [zeros(ComplexF64, size(DE.psi)[1], size(DE.psi)[1])]
+    if length(DE.Hamiltonian_derivative) == 1
+        println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for state optimization.")
+        return nothing
+    else
+        return info_DE_noise(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
+    end
+end
+
 function info_DE_noise(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3) where {T<:Complex}
     println("$str1 state optimization")
     Random.seed!(seed)
@@ -199,12 +225,10 @@ function info_DE_noise(Measurement, DE, popsize, ini_population, c, cr, seed, ma
 
     p_fit = [0.0 for i in 1:p_num] 
     for pj in 1:p_num
-        F_tp = obj_func(Val{sym}(), populations[pj], Measurement)
-        p_fit[pj] = 1.0/real(tr(DE.W*pinv(F_tp)))
+        p_fit[pj] = 1.0/obj_func(Val{sym}(), populations[pj], Measurement)
     end
 
-    F = obj_func(Val{sym}(), DE, Measurement)
-    f_ini= real(tr(DE.W*pinv(F)))
+    f_ini = obj_func(Val{sym}(), DE, Measurement)
     f_list = [f_ini]
 
     if length(DE.Hamiltonian_derivative) == 1
@@ -305,8 +329,8 @@ function train_noise_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
         psi_cross = ctrl_cross/norm(ctrl_cross)
 
         #selection
-        F_tp = obj_func(Val{sym}(), populations[pj], Measurement, psi_cross)
-        f_cross = 1.0/real(tr(populations[pj].W*pinv(F_tp)))
+        f_cross = obj_func(Val{sym}(), populations[pj], Measurement, psi_cross)
+        f_cross = 1.0/f_cross
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
             for ck in 1:dim
