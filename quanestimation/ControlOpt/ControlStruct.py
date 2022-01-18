@@ -67,7 +67,7 @@ class ControlSystem:
         self.control_Hamiltonian = [np.array(x, dtype=np.complex128) for x in Hc]
 
         if type(dH) != list:
-            raise TypeError('The derivative of Hamiltonian should be a list!') 
+            raise TypeError("The derivative of Hamiltonian should be a list!") 
 
         if dH == []:
             dH = [np.zeros((len(self.rho0), len(self.rho0)))]
@@ -103,19 +103,19 @@ class ControlSystem:
 
         self.accuracy = accuracy
         
-        if os.path.exists('controls.csv'):
-            data = np.genfromtxt('controls.csv')[-len(self.control_Hamiltonian):]
+        if os.path.exists("controls.csv"):
+            data = np.genfromtxt("controls.csv")[-len(self.control_Hamiltonian):]
             self.control_coefficients = [data[i] for i in range(len(data))]
             
         ctrl_num = len(self.control_coefficients)
         Hc_num = len(self.control_Hamiltonian)
         if Hc_num < ctrl_num:
-            raise TypeError('There are %d control Hamiltonians but %d coefficients sequences: \
-                                too many coefficients sequences'%(Hc_num,ctrl_num))
+            raise TypeError("There are %d control Hamiltonians but %d coefficients sequences: \
+                                too many coefficients sequences"%(Hc_num,ctrl_num))
         elif Hc_num > ctrl_num:
-            warnings.warn('Not enough coefficients sequences: there are %d control Hamiltonians \
+            warnings.warn("Not enough coefficients sequences: there are %d control Hamiltonians \
                             but %d coefficients sequences. The rest of the control sequences are\
-                            set to be 0.'%(Hc_num,ctrl_num), DeprecationWarning)
+                            set to be 0."%(Hc_num,ctrl_num), DeprecationWarning)
             for i in range(Hc_num-ctrl_num):
                 self.control_coefficients.append(np.zeros(len(self.control_coefficients[0])))
         
@@ -124,17 +124,17 @@ class ControlSystem:
             tnum = number*len(self.control_coefficients[0])
             self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum+1)
 
-def ControlOpt(*args, method = 'auto-GRAPE', **kwargs):
+def ControlOpt(*args, method = "auto-GRAPE", **kwargs):
 
-    if method == 'auto-GRAPE':
+    if method == "auto-GRAPE":
         return ctrl.GRAPE_Copt(*args, **kwargs, auto=True)
-    elif method == 'GRAPE':
+    elif method == "GRAPE":
         return ctrl.GRAPE_Copt(*args, **kwargs, auto=False)
-    elif method == 'PSO':
+    elif method == "PSO":
         return ctrl.PSO_Copt(*args, **kwargs)
-    elif method == 'DE':
+    elif method == "DE":
         return ctrl.DE_Copt(*args, **kwargs)
-    elif method == 'DDPG':
+    elif method == "DDPG":
         return ctrl.DDPG_Copt(*args, **kwargs)
     else:
         raise ValueError("{!r} is not a valid value for method, supported values are 'auto-GRAPE', 'GRAPE', 'PSO', 'DE', 'DDPG'.".format(method))

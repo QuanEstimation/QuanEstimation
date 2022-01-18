@@ -8,18 +8,17 @@ rho0 = np.dot(psi0.reshape(4,1), psi0.reshape(1,4).conj())
 
 #Hamiltonian
 omega1, omega2, g = 1.0, 1.0, 0.1
-ide = np.array([[1.+0.j,0.+0.j],[0.+0.j,1.+0.j]])   
-sx = np.array([[0.+0.j, 1.+0.j],[1.+0.j, 0.+0.j]])
-sy = np.array([[0.+0.j, 0.-1.j],[0.+1.j, 0.+0.j]]) 
-sz = np.array([[1.+0.j, 0.+0.j],[0.+0.j, -1.+0.j]])
+ide = np.array([[1.,0.],[0.,1.]])   
+sx = np.array([[0., 1.],[1., 0.]])
+sy = np.array([[0., -1.j],[1.j, 0.]]) 
+sz = np.array([[1., 0.],[0., -1.]])
 H0 = omega1*np.kron(sz,ide)+omega2*np.kron(ide,sz)+g*np.kron(sx,sx)
 dH0 = [np.kron(ide,sz), np.kron(sx,sx)] 
 
 #measurement
 m1 = np.array([0,0,0,1.0])
 M1 = 0.85*np.dot(m1.reshape(4,1), m1.reshape(1,4).conj())
-M2 = 0.1*np.array([[1.+0.j,1.+0.j,1.+0.j,1.+0.j],[1.+0.j,1.+0.j,1.+0.j,1.+0.j],\
-                    [1.+0.j,1.+0.j,1.+0.j,1.+0.j],[1.+0.j,1.+0.j,1.+0.j,1.+0.j]])
+M2 = 0.1*np.array([[1.,1.,1.,1.],[1.,1.,1.,1.],[1.,1.,1.,1.],[1.,1.,1.,1.]])
 M = [M1, M2, np.identity(4)-M1-M2]
 
 #dissipation

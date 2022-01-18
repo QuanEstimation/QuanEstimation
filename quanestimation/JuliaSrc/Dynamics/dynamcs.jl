@@ -348,3 +348,28 @@ function dynamics_TimeIndepend(H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ0:
     end
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
 end
+
+
+function dynamics_secondorder(H0, ∂H_∂x::Matrix{T}, ∂2H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan) where {T<:Complex,R<:Real}
+    ctrl_num = length(control_Hamiltonian)
+    ctrl_interval = ((length(tspan)-1)/length(control_coefficients[1])) |> Int
+    control_coefficients = [repeat(control_coefficients[i], 1, ctrl_interval) |>transpose |>vec for i in 1:ctrl_num]
+
+    H = Htot(H0, control_Hamiltonian, control_coefficients)
+    ∂H_L = liouville_commu(∂H_∂x)
+    ∂2H_L = liouville_commu(∂2H_∂x)
+
+    Δt = tspan[2] - tspan[1]
+    ρt = ρ0 |> vec
+    ∂ρt_∂x = ρt |> zero
+    ∂2ρt_∂x = ρt |> zero
+
+    for t in 2:length(tspan)
+        expL = evolute(H[t-1], decay_opt, γ, Δt, t)
+        ρt = expL * ρt
+        ∂ρt_∂x = -im * Δt * ∂H_L * ρt + expL * ∂ρt_∂x
+        ∂2ρt_∂x = (-im*Δt*∂2H_L + Δt*Δt*∂H_L*∂H_L)*ρt - 2*im*Δt*∂H_L*∂ρt_∂x + expL * ∂2ρt_∂x
+    end
+    ρt = exp(vec(H[end])' * zero(ρt)) * ρt
+    ρt |> vec2mat, ∂ρt_∂x |> vec2mat, ∂2ρt_∂x |> vec2mat
+end

@@ -56,8 +56,19 @@ class StateSystem:
             self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0]
             self.dim = len(self.freeHamiltonian[0])
 
+        if psi0 == []:
+            np.random.seed(seed)
+            for i in range(self.dim):
+                r_ini = 2*np.random.random(self.dim)-np.ones(self.dim)
+                r = r_ini/np.linalg.norm(r_ini)
+                phi = 2*np.pi*np.random.random(self.dim)
+                psi0 = [r[i]*np.exp(1.0j*phi[i]) for i in range(self.dim)]
+            self.psi0 = np.array(psi0)
+        else:
+            self.psi0 = np.array(psi0[0],dtype=np.complex128)
+
         if type(dH) != list:
-            raise TypeError('The derivative of Hamiltonian should be a list!') 
+            raise TypeError("The derivative of Hamiltonian should be a list!") 
             
         if dH == []:
             dH = [np.zeros((len(self.psi0), len(self.psi0)))]
@@ -77,23 +88,12 @@ class StateSystem:
         
         self.accuracy = accuracy
 
-        if psi0 == []:
-            np.random.seed(seed)
-            for i in range(self.dim):
-                r_ini = 2*np.random.random(self.dim)-np.ones(self.dim)
-                r = r_ini/np.linalg.norm(r_ini)
-                phi = 2*np.pi*np.random.random(self.dim)
-                psi0 = [r[i]*np.exp(1.0j*phi[i]) for i in range(self.dim)]
-            self.psi0 = np.array(psi0)
-        else:
-            self.psi0 = np.array(psi0[0],dtype=np.complex128)
-
-        if os.path.exists('states.csv'):
-            self.psi0 = np.genfromtxt('states.csv', dtype=np.complex128)
+        if os.path.exists("states.csv"):
+            self.psi0 = np.genfromtxt("states.csv", dtype=np.complex128)
 
     def load_save(self):
-        if os.path.exists('states.csv'):
-            file_load = open('states.csv', 'r')
+        if os.path.exists("states.csv"):
+            file_load = open("states.csv", "r")
             file_load = ''.join([i for i in file_load]).replace("im", "j")
             file_load = ''.join([i for i in file_load]).replace(" ", "")
             file_save = open("states.csv","w")
@@ -101,17 +101,17 @@ class StateSystem:
             file_save.close()
         else: pass
 
-def StateOpt(*args, method = 'AD', **kwargs):
+def StateOpt(*args, method = "AD", **kwargs):
 
-    if method == 'AD':
+    if method == "AD":
         return stateoptimize.AD_Sopt(*args, **kwargs)
-    elif method == 'PSO':
+    elif method == "PSO":
         return stateoptimize.PSO_Sopt(*args, **kwargs)
-    elif method == 'DE':
+    elif method == "DE":
         return stateoptimize.DE_Sopt(*args, **kwargs)
-    elif method == 'DDPG':
+    elif method == "DDPG":
         return stateoptimize.DDPG_Sopt(*args, **kwargs)
-    elif method == 'NM':
+    elif method == "NM":
         return stateoptimize.NM_Sopt(*args, **kwargs)
     else:
         raise ValueError("{!r} is not a valid value for method, supported values are 'AD', 'PSO', 'DE', 'NM', 'DDPG'.".format(method))

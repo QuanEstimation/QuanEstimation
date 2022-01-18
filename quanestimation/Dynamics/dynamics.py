@@ -61,7 +61,7 @@ class Lindblad:
         self.control_Hamiltonian = [np.array(x, dtype=np.complex128) for x in Hc]
 
         if type(dH) != list:
-            raise TypeError('The derivative of Hamiltonian should be a list!') 
+            raise TypeError("The derivative of Hamiltonian should be a list!") 
 
         if dH == []:
             dH = [np.zeros((len(self.rho0), len(self.rho0)))]
@@ -82,12 +82,12 @@ class Lindblad:
         ctrl_length = len(self.control_coefficients)
         ctrlnum = len(self.control_Hamiltonian)
         if ctrlnum < ctrl_length:
-            raise TypeError('There are %d control Hamiltonians but %d coefficients sequences: \
-                                too many coefficients sequences'%(ctrlnum,ctrl_length))
+            raise TypeError("There are %d control Hamiltonians but %d coefficients sequences: \
+                                too many coefficients sequences"%(ctrlnum,ctrl_length))
         elif ctrlnum > ctrl_length:
-            warnings.warn('Not enough coefficients sequences: there are %d control Hamiltonians \
+            warnings.warn("Not enough coefficients sequences: there are %d control Hamiltonians \
                             but %d coefficients sequences. The rest of the control sequences are\
-                            set to be 0.'%(ctrlnum,ctrl_length), DeprecationWarning)
+                            set to be 0."%(ctrlnum,ctrl_length), DeprecationWarning)
         
         number = math.ceil((len(self.tspan)-1)/len(self.control_coefficients[0]))
         if len(self.tspan)-1 % len(self.control_coefficients[0]) != 0:

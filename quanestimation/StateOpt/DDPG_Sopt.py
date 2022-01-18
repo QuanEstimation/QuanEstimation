@@ -1,8 +1,9 @@
 from julia import Main
+import warnings
 import quanestimation.StateOpt.StateStruct as State
 
 class DDPG_Sopt(State.StateSystem):
-    def __init__(self, tspan, H0, dH=[], decay=[], W=[], psi0=[], max_episode=500, layer_num=3, layer_dim=200, seed=1234):
+    def __init__(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], W=[], psi0=[], max_episode=500, layer_num=3, layer_dim=200, seed=1234):
 
         State.StateSystem.__init__(self, tspan, psi0, H0, dH, decay, W, seed, accuracy=1e-8)
 
@@ -89,8 +90,8 @@ class DDPG_Sopt(State.StateSystem):
             --type: bool
         """
         if len(self.Hamiltonian_derivative) == 1:
-            warnings.warn('In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function \
-                           for state optimization', DeprecationWarning)
+            warnings.warn("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function \
+                           for state optimization", DeprecationWarning)
         else:
             if any(self.gamma):
                 DDPG = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
@@ -101,3 +102,4 @@ class DDPG_Sopt(State.StateSystem):
                                                               self.tspan, self.W, self.accuracy)
                 Main.QuanEstimation.HCRB_DDPG_Sopt(DDPG, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
             self.load_save()
+            

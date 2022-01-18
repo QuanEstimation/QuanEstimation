@@ -26,7 +26,7 @@ function HCRB_NM_Sopt(NM::TimeIndepend_noiseless{T}, state_num, ini_state, ar, a
         println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for state optimization.")
         return nothing
     else
-        return info_NM_noiseless(Measurement, NM, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file)
+        return info_NM_noiseless(Measurement, NM, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file, sym, str1, str2, str3)
     end
 end
 

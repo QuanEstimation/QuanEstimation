@@ -46,7 +46,7 @@ function DDPGEnv_noiseless(Measurement, params, episode, SinglePara, save_file, 
     action_space = Space(fill(-1.0e35..1.0e35, length(state)))
     state_space = Space(fill(-1.0e35..1.0e35, length(state))) 
 
-    f_ini = 1.0/obj_func(Val{sym}(), params, Measurement)
+    f_ini = obj_func(Val{sym}(), params, Measurement)
 
     f_list = Vector{Float64}()
     reward_all = Vector{Float64}()
@@ -80,16 +80,16 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{true}
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    f_current = 1.0/obj_func(Val{env.sym}(), env.params, Measurement)
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.Measurement)
     env.reward = -log(f_current/env.f_ini)
-    env.total_reward = env.rewards
+    env.total_reward = env.reward
     env.done = true
 
     append!(env.f_list, f_current)
     append!(env.reward_all, env.reward)
     SaveFile_state_ddpg(f_current, env.reward, env.params.psi)
     env.episode += 1
-    print("current $(str2) is ", f_current, " ($(env.episode) episodes)    \r")
+    print("current $(env.str2) is ", f_current, " ($(env.episode) episodes)    \r")
     nothing 
 end
 
@@ -98,7 +98,7 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{false
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    f_current = 1.0/obj_func(Val{env.sym}(), env.params, Measurement)
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.Measurement)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -106,7 +106,7 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{false
     append!(env.f_list, f_current)
     append!(env.reward_all, env.reward)
     env.episode += 1
-    print("current $(str2) is ", f_current, " ($(env.episode) episodes)    \r")
+    print("current $(env.str2) is ", f_current, " ($(env.episode) episodes)    \r")
     nothing 
 end
 
@@ -115,7 +115,7 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{true
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    f_current = 1.0/obj_func(Val{env.sym}(), env.params, Measurement)
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.Measurement)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -133,7 +133,7 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{fals
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    f_current = 1.0/obj_func(Val{env.sym}(), env.params, Measurement)
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.Measurement)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -179,7 +179,7 @@ function HCRB_DDPG_Sopt(params::TimeIndepend_noiseless, layer_num, layer_dim, se
     end
 end
 
-function info_DDPG_noiseless(Measurement, params::TimeIndepend_noiseless, layer_num, layer_dim, seed, max_episode, save_filesym, str1, str2, str3, quantum)
+function info_DDPG_noiseless(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
     rng = StableRNG(seed)
     episode = 1
     if length(params.Hamiltonian_derivative) == 1
@@ -276,7 +276,7 @@ function DDPGEnv_noise(Measurement, params, episode, SinglePara, save_file, rng,
     action_space = Space(fill(-1.0e35..1.0e35, length(state)))
     state_space = Space(fill(-1.0e35..1.0e35, length(state))) 
 
-    f_ini = 1.0/obj_func(Val{sym}(), params, Measurement)
+    f_ini = obj_func(Val{sym}(), params, Measurement)
 
     f_list = Vector{Float64}()
     reward_all = Vector{Float64}()

@@ -99,7 +99,7 @@ class MeasurementSystem:
             if minput[0] == "LC":
                 ## optimize the combination of a set of SIC-POVM
                 if minput[1] == []:
-                    file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'sic_fiducial_vectors/d%d.txt'%(len(self.rho0)))
+                    file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "sic_fiducial_vectors/d%d.txt"%(len(self.rho0)))
                     data = np.loadtxt(file_path)
                     fiducial = data[:,0] + data[:,1]*1.0j
                     fiducial = np.array(fiducial).reshape(len(fiducial),1) 
@@ -124,13 +124,15 @@ class MeasurementSystem:
                             pass
                         else:
                             raise TypeError("The sum of the given POVMs should be identity matrix!") 
-                        self.povm_basis = minput[1]
+                        self.povm_basis = [np.array(x, dtype=np.complex128) for x in minput[1]]
                         self.M_num = minput[2]
             elif minput[0] == "rotation":
                 ## optimize the coefficients of the rotation matrix
                 if type(minput[1]) != list:
                         raise TypeError("The given POVMs should be a list!") 
                 else:
+                    if minput[1] == []:
+                        raise TypeError("The initial POVM should not be empty!") 
                     accu = len(str(int(1/self.accuracy)))-1
                     for i in range(len(minput[1])):
                         val, vec = np.linalg.eig(minput[1])
@@ -145,7 +147,7 @@ class MeasurementSystem:
                         pass
                     else:
                         raise TypeError("The sum of the given POVMs should be identity matrix!") 
-                    self.povm_basis = minput[1]
+                    self.povm_basis = [np.array(x, dtype=np.complex128) for x in minput[1]]
                     self.mtype = "rotation"
             else:
                 raise ValueError("{!r} is not a valid value for the first input of minput, supported values are 'LC' and 'rotation'.".format(self.minput[0]))
@@ -153,8 +155,8 @@ class MeasurementSystem:
             raise ValueError("{!r} is not a valid value for mtype, supported values are 'projection' and 'input'.".format(self.mtype))
 
     def load_save(self):
-        if os.path.exists('measurements.csv'):
-            file_load = open('measurements.csv', 'r')
+        if os.path.exists("measurements.csv"):
+            file_load = open("measurements.csv", "r")
             file_load = ''.join([i for i in file_load]).replace("im", "j")
             file_load = ''.join([i for i in file_load]).replace(" ", "")
             file_save = open("measurements.csv","w")
@@ -162,7 +164,7 @@ class MeasurementSystem:
             file_save.close()
         else: pass
 
-def MeasurementOpt(*args, mtype="projection", minput=[], method="AD", **kwargs):
+def MeasurementOpt(*args, mtype="projection", minput=[], method="DE", **kwargs):
 
     if method == "AD":
         return Measure.AD_Mopt(mtype, minput, *args, **kwargs)

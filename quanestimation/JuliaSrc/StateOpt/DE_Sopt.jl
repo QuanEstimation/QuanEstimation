@@ -143,7 +143,7 @@ function train_noiseless_DE(Measurement, populations, c, cr, p_num, dim, p_fit, 
         end
 
         ctrl_cross = zeros(ComplexF64, dim)
-        cross_int = sample(1:dim, 1, replace=false)
+        cross_int = sample(1:dim, 1, replace=false)[1]
         for cj in 1:dim
             rand_num = rand()
             if rand_num <= cr
@@ -316,7 +316,7 @@ function train_noise_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
         end
 
         ctrl_cross = zeros(ComplexF64, dim)
-        cross_int = sample(1:dim, 1, replace=false)
+        cross_int = sample(1:dim, 1, replace=false)[1]
         for cj in 1:dim
             rand_num = rand()
             if rand_num <= cr

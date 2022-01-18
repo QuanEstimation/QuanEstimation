@@ -28,12 +28,12 @@ cnum = tnum
 Hc_coeff = [np.zeros(cnum), np.zeros(cnum), np.zeros(cnum)]
 ctrl0 = [np.array(Hc_coeff)]
 
-GRAPE_paras = {'Adam':True, 'ctrl0':ctrl0, 'max_episode':300, 'epsilon':0.005, 'beta1':0.90, 'beta2':0.99}
-PSO_paras = {'particle_num':10, 'ctrl0':ctrl0, 'max_episode':[1000,100], 'c0':1.0, 'c1':2.0, 'c2':2.0, 'seed':1234}
-DE_paras = {'popsize':10, 'ctrl0':ctrl0, 'max_episode':1000, 'c':1.0, 'cr':0.5, 'seed':1234}
-DDPG_paras = {'layer_num':4, 'layer_dim':250, 'max_episode':500, 'seed':1234}
+GRAPE_paras = {"Adam":False, "ctrl0":ctrl0, "max_episode":300, "epsilon":0.01, "beta1":0.90, "beta2":0.99}
+PSO_paras = {"particle_num":10, "ctrl0":ctrl0, "max_episode":[1000,100], "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
+DE_paras = {"popsize":10, "ctrl0":ctrl0, "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
+DDPG_paras = {"layer_num":4, "layer_dim":250, "max_episode":500, "seed":1234}
 
-control = ControlOpt(tspan, rho0, H0, Hc, dH0, decay, ctrl_bound=[-10.0, 10.0], method='PSO', **PSO_paras)
+control = ControlOpt(tspan, rho0, H0, dH0, Hc, decay, ctrl_bound=[-10.0, 10.0], method="auto-GRAPE", **GRAPE_paras)
 control.QFIM(save_file=False)
 # control.CFIM(Measurement, save_file=False)
 # control.HCRB(save_file=False)
