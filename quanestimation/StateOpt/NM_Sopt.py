@@ -1,8 +1,9 @@
 from julia import Main
+import warnings
 import quanestimation.StateOpt.StateStruct as State
 
 class NM_Sopt(State.StateSystem):
-    def __init__(self, tspan, H0, dH=[], decay=[], W=[], state_num=10, psi0=[], \
+    def __init__(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], W=[], state_num=10, psi0=[], \
                  max_episode=1000, ar=1.0, ae=2.0, ac=0.5, as0=0.5, seed=1234):
 
         State.StateSystem.__init__(self, tspan, psi0, H0, dH, decay, W, seed, accuracy=1e-8)
@@ -127,8 +128,8 @@ class NM_Sopt(State.StateSystem):
             --type: bool
         """
         if len(self.Hamiltonian_derivative) == 1:
-            warnings.warn('In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function \
-                           for state optimization', DeprecationWarning)
+            warnings.warn("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function \
+                           for state optimization", DeprecationWarning)
         else:
             if any(self.gamma):
                 neldermead = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
@@ -141,3 +142,4 @@ class NM_Sopt(State.StateSystem):
                 Main.QuanEstimation.HCRB_NM_Sopt(neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, self.as0, \
                                         self.max_episode, self.seed, save_file)
             self.load_save()
+            

@@ -1,8 +1,9 @@
 from julia import Main
+import warnings
 import quanestimation.StateOpt.StateStruct as State
 
 class AD_Sopt(State.StateSystem):
-    def __init__(self, tspan, H0, dH=[], decay=[], W=[], Adam=True, psi0=[], \
+    def __init__(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], W=[], Adam=False, psi0=[], \
                  max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99):
 
         State.StateSystem.__init__(self, tspan, psi0, H0, dH, decay, W, seed=1234, accuracy=1e-8)
@@ -97,4 +98,4 @@ class AD_Sopt(State.StateSystem):
         self.load_save()
 
     def HCRB(self, save_file=False):
-        warnings.warn("AD is not available when the objective function is HCRB. Supported methods are 'PSO', 'DE' and 'DDPG'.", DeprecationWarning)
+        warnings.warn("AD is not available when the objective function is HCRB. Supported methods are 'PSO', 'DE', 'NM' and 'DDPG'.", DeprecationWarning)

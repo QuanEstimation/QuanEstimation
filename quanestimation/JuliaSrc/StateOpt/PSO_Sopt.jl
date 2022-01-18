@@ -78,7 +78,7 @@ function info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_par
                 end
                 append!(f_list, fit)
                 SaveFile_state(f_list, gbest)
-                print("current $str2 is $fit ($ei episodes) \r")
+                print("current $str2 is $fit ($ei episodes)    \r")
                 
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
@@ -98,7 +98,7 @@ function info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_par
                     particles = repeat(pso, particle_num)
                 end
                 append!(f_list, fit)
-                print("current $str2 is $fit ($ei episodes) \r")
+                print("current $str2 is $fit ($ei episodes)    \r")
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                                 dim, pbest, gbest, velocity_best, velocity, sym)
@@ -124,7 +124,7 @@ function info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_par
                 end
                 append!(f_list, (1.0/fit))
                 SaveFile_state(f_list, gbest)
-                print("current value of $str3 is $(1.0/fit) ($ei episodes) \r")
+                print("current value of $str3 is $(1.0/fit) ($ei episodes)    \r")
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                                 dim, pbest, gbest, velocity_best, velocity, sym)
@@ -143,7 +143,7 @@ function info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_par
                     particles = repeat(pso, particle_num)
                 end
                 append!(f_list, (1.0/fit))
-                print("current value of $str3 is $(1.0/fit) ($ei episodes) \r")
+                print("current value of $str3 is $(1.0/fit) ($ei episodes)    \r")
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                                 dim, pbest, gbest, velocity_best, velocity, sym)
@@ -280,7 +280,7 @@ function info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particl
                 end
                 append!(f_list, fit)
                 SaveFile_state(f_list, gbest)
-                print("current $str2 is $fit ($ei episodes) \r")
+                print("current $str2 is $fit ($ei episodes)    \r")
 
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
@@ -300,7 +300,7 @@ function info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particl
                     particles = repeat(pso, particle_num)
                 end
                 append!(f_list, fit)
-                print("current $str2 is $fit ($ei episodes) \r")
+                print("current $str2 is $fit ($ei episodes)    \r")
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                             dim, pbest, gbest, velocity_best, velocity, sym)
@@ -326,7 +326,7 @@ function info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particl
                 end
                 append!(f_list, (1.0/fit))
                 SaveFile_state(f_list, gbest)
-                print("current value of $str3 is $(1.0/fit) ($ei episodes) \r")
+                print("current value of $str3 is $(1.0/fit) ($ei episodes)    \r")
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                             dim, pbest, gbest, velocity_best, velocity, sym)
@@ -345,7 +345,7 @@ function info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particl
                     particles = repeat(pso, particle_num)
                 end
                 append!(f_list, (1.0/fit))
-                print("current value of $str3 is $(1.0/fit) ($ei episodes) \r")
+                print("current value of $str3 is $(1.0/fit) ($ei episodes)    \r")
             end
             p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                             dim, pbest, gbest, velocity_best, velocity, sym)

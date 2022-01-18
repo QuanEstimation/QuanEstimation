@@ -3,7 +3,7 @@ from julia import Main
 import quanestimation.ControlOpt.ControlStruct as Control
 
 class PSO_Copt(Control.ControlSystem):
-    def __init__(self, tspan, rho0, H0, Hc=[], dH=[], decay=[], ctrl_bound=[], W=[],  \
+    def __init__(self, tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[], W=[],  \
                  particle_num=10, ctrl0=[], max_episode=[1000, 100], c0=1.0, c1=2.0, c2=2.0, seed=1234):
 
         Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, accuracy=1e-8)
@@ -106,8 +106,8 @@ class PSO_Copt(Control.ControlSystem):
             --type: bool
         """
         if len(self.Hamiltonian_derivative) == 1:
-            warnings.warn('In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function \
-                           for control optimization', DeprecationWarning)
+            warnings.warn("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function \
+                           for control optimization", DeprecationWarning)
         else:
             pso = Main.QuanEstimation.PSO_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, self.decay_opt, \
                          self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)

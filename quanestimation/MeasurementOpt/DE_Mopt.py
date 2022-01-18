@@ -3,7 +3,7 @@ from julia import Main
 import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
 class DE_Mopt(Measurement.MeasurementSystem):
-    def __init__(self, mtype, minput, tspan, rho0, H0, dH=[], decay=[], W=[], popsize=10, \
+    def __init__(self, mtype, minput, tspan, rho0, H0, dH, Hc=[], ctrl=[], decay=[], W=[], popsize=10, \
                 measurement0=[], max_episode=1000, c=1.0, cr=0.5, seed=1234):
 
         Measurement.MeasurementSystem.__init__(self, mtype, minput, tspan, rho0, H0, dH, decay, W, measurement0, seed, accuracy=1e-8)
@@ -41,7 +41,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
         self.max_episode = max_episode
         self.c = c
         self.cr = cr
-        if self.mtype == 'projection':
+        if self.mtype == "projection":
             if measurement0 == []: 
                 ini_measurement = [np.array(self.Measurement)]
             else:

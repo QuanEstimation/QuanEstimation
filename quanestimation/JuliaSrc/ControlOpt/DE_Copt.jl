@@ -173,7 +173,7 @@ function DE_train_Copt(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_le
         #crossover
         ctrl_cross = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
         for cj in 1:ctrl_num
-            cross_int = sample(1:ctrl_length, 1, replace=false)
+            cross_int = sample(1:ctrl_length, 1, replace=false)[1]
             for tj in 1:ctrl_length
                 rand_num = rand()
                 if rand_num <= cr

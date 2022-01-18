@@ -36,7 +36,7 @@ def Holevo_bound(rho, drho, W, accuracy=1e-8):
     """
 
     if type(drho) != list:
-        raise TypeError('Please make sure drho is a list!')
+        raise TypeError("Please make sure drho is a list!")
 
     if len(drho) == 1:
         print("In single parameter scenario, HCRB is equivalent to QFI. This function will return the value of QFI")

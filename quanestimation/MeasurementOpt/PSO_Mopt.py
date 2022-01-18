@@ -3,7 +3,7 @@ from julia import Main
 import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
 class PSO_Mopt(Measurement.MeasurementSystem):
-    def __init__(self, mtype, minput, tspan, rho0, H0, dH=[], decay=[], W=[], particle_num=10, \
+    def __init__(self, mtype, minput, tspan, rho0, H0, dH, Hc=[], ctrl=[], decay=[], W=[], particle_num=10, \
                 measurement0=[], max_episode=[1000, 100], c0=1.0, c1=2.0, c2=2.0, seed=1234):
 
         Measurement.MeasurementSystem.__init__(self, mtype, minput, tspan, rho0, H0, dH, decay, W, measurement0, seed, accuracy=1e-8)
@@ -48,7 +48,7 @@ class PSO_Mopt(Measurement.MeasurementSystem):
         self.c2 = c2
         self.seed = seed
 
-        if self.mtype == 'projection':
+        if self.mtype == "projection":
             if measurement0 == []: 
                 ini_measurement = [np.array(self.Measurement)]
             else:

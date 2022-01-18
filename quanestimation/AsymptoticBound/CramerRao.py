@@ -44,7 +44,7 @@ def CFIM(rho, drho, M=[], accuracy=1e-8):
 
     """
     if type(drho) != list:
-        raise TypeError('Please make sure drho is a list!')
+        raise TypeError("Please make sure drho is a list!")
 
     if M==[]: 
         file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'sic_fiducial_vectors/d%d.txt'%(len(rho0)))
@@ -54,7 +54,7 @@ def CFIM(rho, drho, M=[], accuracy=1e-8):
         M = sic_povm(fiducial)
     else:
         if type(M) != list:
-            raise TypeError('Please make sure Measurement is a list!')
+            raise TypeError("Please make sure Measurement is a list!")
 
     m_num = len(M)
     para_num = len(drho)
@@ -79,7 +79,7 @@ def CFIM(rho, drho, M=[], accuracy=1e-8):
     else:
         return CFIM_res
 
-def SLD(rho, drho, rep='original', accuracy=1e-8):
+def SLD(rho, drho, rep="original", accuracy=1e-8):
     """
     Description: calculation of the symmetric logarithmic derivative (SLD)
                  for a density matrix.
@@ -103,7 +103,7 @@ def SLD(rho, drho, rep='original', accuracy=1e-8):
                        same with the density matrix (rho).
                        rep=eigen means the SLDs are written in the eigenspace of
                        the density matrix (rho).
-        --type: string {'original', 'eigen'}
+        --type: string {"original", "eigen"}
 
     ----------
     Returns
@@ -114,7 +114,7 @@ def SLD(rho, drho, rep='original', accuracy=1e-8):
 
     """
     if type(drho) != list:
-        raise TypeError('Please make sure drho is a list!')
+        raise TypeError("Please make sure drho is a list!")
 
     para_num = len(drho)
     dim = len(rho)
@@ -127,13 +127,13 @@ def SLD(rho, drho, rep='original', accuracy=1e-8):
         for para_i in range(0, para_num):
             SLD_org[para_i] = 2*drho[para_i]
 
-            if rep=='original':
+            if rep=="original":
                 SLD[para_i] = SLD_org[para_i]
-            elif rep=='eigen':
+            elif rep=="eigen":
                 val, vec = np.linalg.eig(rho)
                 SLD[para_i] = np.dot(vec.conj().transpose(),np.dot(SLD_org[para_i],vec))
             else:
-                raise NameError('NameError: rep should be choosen in {original, eigen}')
+                raise NameError("NameError: rep should be choosen in {original, eigen}")
         if para_num == 1:
             return SLD[0]
         else:
@@ -150,19 +150,19 @@ def SLD(rho, drho, rep='original', accuracy=1e-8):
                         np.dot(drho[para_i],vec[:,fj]))/(val[fi]+val[fj])
             SLD_eig[SLD_eig == np.inf] = 0.
 
-            if rep=='original':
+            if rep=="original":
                 SLD[para_i] = np.dot(vec,np.dot(SLD_eig,vec.conj().transpose()))
-            elif rep=='eigen':
+            elif rep=="eigen":
                 SLD[para_i] = SLD_eig
             else:
-                raise NameError('NameError: rep should be choosen in {original, eigen}')
+                raise NameError("NameError: rep should be choosen in {original, eigen}")
 
         if para_num == 1:
             return SLD[0]
         else:
             return SLD
 
-def RLD(rho, drho, rep='original', accuracy=1e-8):
+def RLD(rho, drho, rep="original", accuracy=1e-8):
     """
     Description: calculation of the right logarithmic derivative (RLD)
                  for a density matrix.
@@ -186,7 +186,7 @@ def RLD(rho, drho, rep='original', accuracy=1e-8):
                        same with the density matrix (rho).
                        rep=eigen means the RLDs are written in the eigenspace of
                        the density matrix (rho).
-        --type: string {'original', 'eigen'}
+        --type: string {"original", "eigen"}
 
     ----------
     Returns
@@ -197,7 +197,7 @@ def RLD(rho, drho, rep='original', accuracy=1e-8):
 
     """
     if type(drho) != list:
-        raise TypeError('Please make sure drho is a list!')
+        raise TypeError("Please make sure drho is a list!")
 
     para_num = len(drho)
     dim = len(rho)
@@ -213,9 +213,9 @@ def RLD(rho, drho, rep='original', accuracy=1e-8):
                     RLD_eig[fi][fj] = np.dot(vec[:,fi].conj().transpose(),                                                                  np.dot(drho[para_i],vec[:,fj]))/val[fi]
         RLD_eig[RLD_eig == np.inf] = 0.
 
-        if rep=='original':
+        if rep=="original":
             RLD[para_i] = np.dot(vec,np.dot(RLD_eig,vec.conj().transpose()))
-        elif rep=='eigen':
+        elif rep=="eigen":
             RLD[para_i] = RLD_eig
         else:
             raise NameError('NameError: rep should be choosen in {original, eigen}')
@@ -224,7 +224,7 @@ def RLD(rho, drho, rep='original', accuracy=1e-8):
     else:
         return RLD
 
-def LLD(rho, drho, rep='original', accuracy=1e-8):
+def LLD(rho, drho, rep="original", accuracy=1e-8):
     """
     Description: Calculation of the left logarithmic derivative (LLD)
                 for a density matrix.
@@ -248,7 +248,7 @@ def LLD(rho, drho, rep='original', accuracy=1e-8):
                        same with the density matrix (rho).
                        rep=eigen means the LLDs are written in the eigenspace of
                        the density matrix (rho).
-        --type: string {'original', 'eigen'}
+        --type: string {"original", "eigen"}
 
     ----------
     Returns
@@ -259,7 +259,7 @@ def LLD(rho, drho, rep='original', accuracy=1e-8):
 
     """
     if type(drho) != list:
-        raise TypeError('Please make sure drho is a list!')
+        raise TypeError("Please make sure drho is a list!")
 
     para_num = len(drho)
     dim = len(rho)
@@ -276,9 +276,9 @@ def LLD(rho, drho, rep='original', accuracy=1e-8):
                     LLD_eig[fj][fi] = LLD_eig_tp.conj()
         LLD_eig[LLD_eig == np.inf] = 0.
 
-        if rep=='original':
+        if rep=="original":
             LLD[para_i] = np.dot(vec,np.dot(LLD_eig,vec.conj().transpose()))
-        elif rep=='eigen':
+        elif rep=="eigen":
             LLD[para_i] = LLD_eig
         else:
             raise NameError('NameError: rep should be choosen in {original, eigen}')
@@ -288,7 +288,7 @@ def LLD(rho, drho, rep='original', accuracy=1e-8):
     else:
         return LLD
 
-def QFIM(rho, drho, dtype='SLD', rep='original', exportLD=False, accuracy=1e-8):
+def QFIM(rho, drho, dtype="SLD", rep="original", exportLD=False, accuracy=1e-8):
     """
     Description: Calculation of quantum Fisher information matrix (QFIM)
                 for a density matrix.
@@ -316,7 +316,7 @@ def QFIM(rho, drho, dtype='SLD', rep='original', exportLD=False, accuracy=1e-8):
                        same with the density matrix (rho).
                        rep=eigen means the LDs are written in the eigenspace of
                        the density matrix (rho).
-        --type: string {'original', 'eigen'}
+        --type: string {"original", "eigen"}
 
     exportLD:
         --description: if True, the corresponding value of logarithmic derivatives 
@@ -348,16 +348,16 @@ def QFIM(rho, drho, dtype='SLD', rep='original', exportLD=False, accuracy=1e-8):
 
     # singleparameter estimation
     if para_num == 1:
-        if dtype=='SLD':
+        if dtype=="SLD":
             LD_tp = SLD(rho, drho, rep, accuracy)
             SLD_ac = np.dot(LD_tp,LD_tp)+np.dot(LD_tp,LD_tp)
             QFIM_res = np.real(0.5*np.trace(np.dot(rho,SLD_ac)))
 
-        elif dtype=='RLD':
+        elif dtype=="RLD":
             LD_tp = RLD(rho, drho, rep, accuracy)
             QFIM_res = np.real(np.trace(np.dot(rho,np.dot(LD_tp, LD_tp).conj().transpose())))
 
-        elif dtype=='LLD':
+        elif dtype=="LLD":
             LD_tp = LLD(rho, drho, rep, accuracy)
             QFIM_res = np.real(np.trace(np.dot(rho,np.dot(LD_tp, LD_tp).conj().transpose())))
         else:
@@ -366,7 +366,7 @@ def QFIM(rho, drho, dtype='SLD', rep='original', exportLD=False, accuracy=1e-8):
     # multiparameter estimation
     else:  
         QFIM_res = np.zeros([para_num,para_num])
-        if dtype=='SLD':
+        if dtype=="SLD":
             LD_tp = SLD(rho, drho, rep, accuracy)
             for para_i in range(0, para_num):
                 for para_j in range(para_i, para_num):
@@ -374,21 +374,21 @@ def QFIM(rho, drho, dtype='SLD', rep='original', exportLD=False, accuracy=1e-8):
                     QFIM_res[para_i][para_j] = np.real(0.5*np.trace(np.dot(rho,SLD_ac)))
                     QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
 
-        elif dtype=='RLD':
+        elif dtype=="RLD":
             LD_tp = RLD(rho, drho, rep, accuracy)
             for para_i in range(0, para_num):
                 for para_j in range(para_i, para_num):
                     QFIM_res[para_i][para_j] = np.real(np.trace(np.dot(rho,np.dot(LD_tp[para_i],                                                             LD_tp[para_j]).conj().transpose())))
                     QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
 
-        elif dtype=='LLD':
+        elif dtype=="LLD":
             LD_tp = LLD(rho, drho, rep, accuracy)
             for para_i in range(0, para_num):
                 for para_j in range(para_i, para_num):
                     QFIM_res[para_i][para_j] = np.real(np.trace(np.dot(rho,np.dot(LD_tp[para_i],                                                              LD_tp[para_j]).conj().transpose())))
                     QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
         else:
-            raise NameError('NameError: dtype should be choosen in {SLD, RLD, LLD}')
+            raise NameError("NameError: dtype should be choosen in {SLD, RLD, LLD}")
 
     if exportLD==False:
         return QFIM_res

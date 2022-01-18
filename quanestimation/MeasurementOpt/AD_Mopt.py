@@ -1,9 +1,10 @@
 import numpy as np
 from julia import Main
+import warnings
 import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
 class AD_Mopt(Measurement.MeasurementSystem):
-    def __init__(self, mtype, minput, tspan, rho0, H0, dH=[], decay=[], W=[], Adam=True, \
+    def __init__(self, mtype, minput, tspan, rho0, H0, dH, Hc=[], ctrl=[], decay=[], W=[], Adam=False, \
                  measurement0=[], max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99, seed=1234):
 
         Measurement.MeasurementSystem.__init__(self, mtype, minput, tspan, rho0, H0, dH, decay, W, measurement0, seed, accuracy=1e-8)
@@ -81,5 +82,3 @@ class AD_Mopt(Measurement.MeasurementSystem):
             self.load_save()
         else:
             raise ValueError("{!r} is not a valid value for method, supported values are 'projection' and 'input'.".format(self.mtype))
-
-        

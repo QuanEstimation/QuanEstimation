@@ -20,13 +20,13 @@ from quanestimation.Common import (mat_vec_convert, suN_generator, gramschmidt, 
 from julia import Main
 import os
 
-Main.include('quanestimation/JuliaSrc/QuanEstimation.jl')
+Main.include("quanestimation/JuliaSrc/QuanEstimation.jl")
 Main.pkgpath = os.path.join(os.path.dirname(__file__))
 
-__all__ = ['ControlOpt', 'StateOpt', 'MeasurementOpt',  
-           'CFIM', 'QFIM', 'LLD',  'RLD', 'SLD', 'Holevo_bound', 
-           'Lindblad', 'squeezing_parameter', 'Concurrence', 'Entropy_VN',
-           'GRAPE_Copt', 'DE_Copt', 'PSO_Copt', 'DDPG_Copt',
-           'AD_Mopt', 'PSO_Mopt', 'DE_Mopt',
-           'AD_Sopt', 'DE_Sopt', 'PSO_Sopt', 'DDPG_Sopt', 'NM_Sopt',
-           'mat_vec_convert', 'suN_generator', 'gramschmidt']
+__all__ = ["ControlOpt", "StateOpt", "MeasurementOpt",  
+           "CFIM", "QFIM", "LLD",  "RLD", "SLD", "Holevo_bound", 
+           "Lindblad", "squeezing_parameter", "Concurrence", "Entropy_VN",
+           "GRAPE_Copt", "DE_Copt", "PSO_Copt", "DDPG_Copt",
+           "AD_Mopt", "PSO_Mopt", "DE_Mopt",
+           "AD_Sopt", "DE_Sopt", "PSO_Sopt", "DDPG_Sopt", "NM_Sopt",
+           "mat_vec_convert", "suN_generator", "gramschmidt"]
