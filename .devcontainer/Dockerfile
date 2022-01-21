@@ -12,6 +12,5 @@ RUN pip install numpy sympy matplotlib jill scipy qutip\
     && pip install julia
 # RUN echo 'packs=["PyCall", "Zygote", "DifferentialEquations", "JLD","DelimitedFiles", "StatsBase", "ReinforcementLearning", "Convex", "SCS", "StableRNGs"];for i in packs;using Pkg;Pkg.add(i);end' >> packs.jl \
     # && julia packs.jl
-RUN echo 'using Pkg;Pkg.instantiate()' >>  /home/vscode/instantiate.jl
-RUN julia --project=/workspaces/QuanEstimation/quanestimation/JuliaSrc  /home/vscode/instantiate.jl 
-
+RUN echo "julia --project=/workspaces/QuanEstimation/quanestimation/JuliaSrc -e 'using Pkg;Pkg.instantiate()' " >>  /home/vscode/install.sh
+# RUN bash /home/vscode/install.sh
