@@ -48,6 +48,10 @@ class ControlSystem:
         W:
             --description: weight matrix.
             --type: matrix
+        
+        ctrl0:
+            --description: initial control coefficients.
+            --type: list (of vector)
 
         accuracy:
             --description: calculation accuracy.
@@ -118,11 +122,13 @@ class ControlSystem:
                             set to be 0."%(Hc_num,ctrl_num), DeprecationWarning)
             for i in range(Hc_num-ctrl_num):
                 self.control_coefficients.append(np.zeros(len(self.control_coefficients[0])))
+        else: pass
         
         number = math.ceil((len(self.tspan)-1)/len(self.control_coefficients[0]))
         if len(self.tspan)-1 % len(self.control_coefficients[0]) != 0:
             tnum = number*len(self.control_coefficients[0])
             self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum+1)
+        else: pass
 
 def ControlOpt(*args, method = "auto-GRAPE", **kwargs):
 
@@ -138,3 +144,10 @@ def ControlOpt(*args, method = "auto-GRAPE", **kwargs):
         return ctrl.DDPG_Copt(*args, **kwargs)
     else:
         raise ValueError("{!r} is not a valid value for method, supported values are 'auto-GRAPE', 'GRAPE', 'PSO', 'DE', 'DDPG'.".format(method))
+
+def csv2npy_controls(controls, num):
+    C_save = []
+    for ci in range(controls):
+        C_tp = controls[ci*num:(ci+1)*num]
+        C_save.append(C_tp)
+    np.save("controls", C_save)

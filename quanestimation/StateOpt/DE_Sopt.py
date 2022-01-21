@@ -6,7 +6,7 @@ class DE_Sopt(State.StateSystem):
     def __init__(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], W=[], popsize=10, \
                  psi0=[], max_episode=1000, c=1.0, cr=0.5, seed=1234):
 
-        State.StateSystem.__init__(self, tspan, psi0, H0, dH, decay, W, seed, accuracy=1e-8)
+        State.StateSystem.__init__(self, tspan, psi0, H0, dH, Hc, ctrl, decay, W, seed, accuracy=1e-8)
         
         """
         --------

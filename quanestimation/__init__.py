@@ -2,6 +2,7 @@
 """Top-level package for quanestimation."""
 
 from quanestimation import AsymptoticBound
+from quanestimation.Bayesian import Bayes
 from quanestimation import Dynamics
 from quanestimation import Resources
 from quanestimation import ControlOpt
@@ -10,6 +11,7 @@ from quanestimation import MeasurementOpt
 from quanestimation import Common
 
 from quanestimation.AsymptoticBound import (CFIM, QFIM, LLD, RLD, SLD, Holevo_bound,)
+from quanestimation.Bayesian.Bayes import (BQCRB, OBB, )
 from quanestimation.Dynamics import (Lindblad, )
 from quanestimation.Resources import (squeezing_parameter, Concurrence, Entropy_VN, )
 from quanestimation.ControlOpt import (ControlOpt, GRAPE_Copt, DE_Copt, PSO_Copt, DDPG_Copt, )
@@ -24,7 +26,7 @@ Main.include("quanestimation/JuliaSrc/QuanEstimation.jl")
 Main.pkgpath = os.path.join(os.path.dirname(__file__))
 
 __all__ = ["ControlOpt", "StateOpt", "MeasurementOpt",  
-           "CFIM", "QFIM", "LLD",  "RLD", "SLD", "Holevo_bound", 
+           "CFIM", "QFIM", "LLD",  "RLD", "SLD", "Holevo_bound", "BQCRB", "OBB",
            "Lindblad", "squeezing_parameter", "Concurrence", "Entropy_VN",
            "GRAPE_Copt", "DE_Copt", "PSO_Copt", "DDPG_Copt",
            "AD_Mopt", "PSO_Mopt", "DE_Mopt",

@@ -11,7 +11,7 @@ class Lindblad:
                  -0.5(rho.Ln^{\dagger}.Ln+Ln^{\dagger}.Ln.rho)}.
     """
 
-    def __init__(self, tspan, rho0, H0, dH, decay=[], Hc=[], ctrl0=[]):
+    def __init__(self, tspan, rho0, H0, dH, decay=[], Hc=[], ctrl=[]):
         """
         ----------
         Inputs
@@ -38,7 +38,7 @@ class Lindblad:
                           vector on the first parameter.
            --type: list (of matrix)
            
-        ctrl0: 
+        ctrl: 
            --description: control coefficients.
            --type: list (of array)
            
@@ -67,9 +67,9 @@ class Lindblad:
             dH = [np.zeros((len(self.rho0), len(self.rho0)))]
         self.Hamiltonian_derivative = [np.array(x, dtype=np.complex128) for x in dH]
         
-        if ctrl0 == []:
-            ctrl0 = [np.zeros(len(self.tspan)-1) for i in range(len(self.control_Hamiltonian))]
-        self.control_coefficients = ctrl0
+        if ctrl == []:
+            ctrl = [np.zeros(len(self.tspan)-1) for i in range(len(self.control_Hamiltonian))]
+        self.control_coefficients = ctrl
         
         if decay == []:
             decay_opt = [np.zeros((len(self.rho0), len(self.rho0)))]
@@ -98,3 +98,9 @@ class Lindblad:
         rho, drho = Main.QuanEstimation.expm(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.decay_opt, \
                                  self.gamma, self.control_Hamiltonian, self.control_coefficients, self.tspan)
         return rho, drho
+
+    def secondorder_derivative(self, d2H):
+        d2H = [np.array(x, dtype=np.complex128) for x in d2H]
+        rho, drho, d2rho = Main.QuanEstimation.secondorder_derivative(self.freeHamiltonian, self.Hamiltonian_derivative, d2H, self.rho0, self.decay_opt, \
+                                 self.gamma, self.control_Hamiltonian, self.control_coefficients, self.tspan)
+        return rho, drho, d2rho
