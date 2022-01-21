@@ -35,5 +35,5 @@ AD_paras = {"Adam":True, "measurement0":[], "max_episode":300, "epsilon":0.01, "
 PSO_paras = {"particle_num":10, "measurement0":[], "max_episode":[1000,100], "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
 DE_paras = {"popsize":10, "measurement0":[], "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
 
-Measopt = MeasurementOpt(tspan, rho0, H0, dH0, decay, mtype="projection", minput=[], method="DE", **DE_paras)
+Measopt = MeasurementOpt(tspan, rho0, H0, dH0, decay=decay, mtype="projection", minput=[], method="DE", **DE_paras)
 Measopt.CFIM(save_file=False)

@@ -65,7 +65,7 @@ function gradient_CFIM_Adam!(AD::TimeIndepend_noiseless{T}, Measurement, epsilon
 end
 
 function info_AD_noiseless(Measurement, AD::TimeIndepend_noiseless{T}, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, sym, str1, str2, str3) where {T <: Complex}
-    println("state optimization")
+    println("$str1 state optimization")
     episodes = 1
     dim = length(AD.psi)
     if length(AD.Hamiltonian_derivative) == 1

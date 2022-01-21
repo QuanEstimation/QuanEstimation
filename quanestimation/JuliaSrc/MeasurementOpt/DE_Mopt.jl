@@ -478,7 +478,7 @@ function info_DE_RotateBasis(DE, popsize, c, cr, seed, max_episode, save_file, s
             end
             p_fit, s_all = train_RotateBasis(populations, s_all, POVM_basis, Lambda, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
-            U = rotation_matrix(s_allf[indx], Lambda)
+            U = rotation_matrix(s_all[indx], Lambda)
             Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_meas(f_list, Measurement)
