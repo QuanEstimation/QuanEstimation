@@ -12,6 +12,6 @@ RUN pip install numpy sympy matplotlib jill scipy qutip\
     && pip install julia
 # RUN echo 'packs=["PyCall", "Zygote", "DifferentialEquations", "JLD","DelimitedFiles", "StatsBase", "ReinforcementLearning", "Convex", "SCS", "StableRNGs"];for i in packs;using Pkg;Pkg.add(i);end' >> packs.jl \
     # && julia packs.jl
-RUN echo 'using Pkg;Pkg.instantiate()' >>  instantiate.jl \
-    && julia --project=./quanestimation/JuliaSrc/  instantiate.jl 
+RUN echo 'using Pkg;Pkg.instantiate()' >>  ~/instantiate.jl \
+    && julia --project=./quanestimation/JuliaSrc/  ~/instantiate.jl 
 
