@@ -4,7 +4,7 @@ import quanestimation.MeasurementOpt as Measure
 from quanestimation.Common.common import gramschmidt, sic_povm
 
 class MeasurementSystem:
-    def __init__(self, mtype, minput, tspan, rho0, H0, dH, decay, W, measurement0, seed, accuracy):
+    def __init__(self, mtype, minput, tspan, rho0, H0, dH, Hc, ctrl, decay, W, measurement0, seed, accuracy):
         
         """
         ----------
@@ -27,6 +27,14 @@ class MeasurementSystem:
                           be estimated. For example, dH[0] is the derivative
                           vector on the first parameter.
            --type: list (of matrix)
+
+        Hc: 
+           --description: control Hamiltonian.
+           --type: list (of matrix)
+
+        ctrl:
+            --description: control coefficients.
+            --type: list (of vector)
            
         decay:
            --description: decay operators and the corresponding decay rates.
@@ -55,11 +63,43 @@ class MeasurementSystem:
         self.tspan = tspan
         self.rho0 = np.array(rho0, dtype=np.complex128)
 
-        if type(H0) == np.ndarray:
-            self.freeHamiltonian = np.array(H0, dtype=np.complex128)
+        if Hc==[] or ctrl==[]:
+            if type(H0) == np.ndarray:
+                self.freeHamiltonian = np.array(H0, dtype=np.complex128)
+            else:
+                self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0] 
         else:
-            self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0] 
+            ctrl_num = len(ctrl)
+            Hc_num = len(Hc)
+            if Hc_num < ctrl_num:
+                raise TypeError("There are %d control Hamiltonians but %d coefficients sequences: \
+                                too many coefficients sequences"%(Hc_num,ctrl_num))
+            elif Hc_num > ctrl_num:
+                warnings.warn("Not enough coefficients sequences: there are %d control Hamiltonians \
+                            but %d coefficients sequences. The rest of the control sequences are\
+                            set to be 0."%(Hc_num,ctrl_num), DeprecationWarning)
+                for i in range(Hc_num-ctrl_num):
+                    ctrl.append(np.zeros(len(ctrl[0])))
+            else: pass
+        
+            if len(ctrl[0]) == 1:
+                Htot = H0 + sum([Hc[i]*ctrl[i][0] for i in range(ctrl_num)])
+                self.freeHamiltonian = np.array(Htot, dtype=np.complex128)
+            else:
+                number = math.ceil((len(self.tspan)-1)/len(ctrl[0]))
+                if len(self.tspan)-1 % len(ctrl[0]) != 0:
+                    tnum = number*len(ctrl[0])
+                    self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum+1)
+                else: pass
 
+                Htot = []
+                for i in range(len(ctrl[0])):
+                    H_tp = H0
+                    for j in range(ctrl):
+                        H_tp += Hc[j]*ctrl[j][i]
+                    Htot.append(H_tp)
+                self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in Htot] 
+                
         if type(dH) != list:
             raise TypeError("The derivative of Hamiltonian should be a list!") 
 
@@ -174,3 +214,14 @@ def MeasurementOpt(*args, mtype="projection", minput=[], method="DE", **kwargs):
         return Measure.DE_Mopt(mtype, minput, *args, **kwargs)
     else:
         raise ValueError("{!r} is not a valid value for method, supported values are 'AD', 'PSO' and 'DE'.".format(method))
+
+def csv2npy_Measurements(Measurements, num):
+    n = int(np.sqrt(len(Measurements)))
+    M_save = []
+    for mi in range(Measurements):
+        M_tp = Measurements[mi*num:(mi+1)*num]
+        M = [M_tp[i].reshape(n, n) for i in range(num)]
+        M_save.append(M)
+    np.save("Measurements", M_save)
+
+

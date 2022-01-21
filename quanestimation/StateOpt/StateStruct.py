@@ -3,7 +3,7 @@ import os
 import quanestimation.StateOpt as stateoptimize
 
 class StateSystem:
-    def __init__(self, tspan, psi0, H0, dH, decay, W, seed, accuracy):
+    def __init__(self, tspan, psi0, H0, dH, Hc, ctrl, decay, W, seed, accuracy):
         
         """
         ----------
@@ -26,6 +26,14 @@ class StateSystem:
                           be estimated. For example, dH[0] is the derivative
                           vector on the first parameter.
            --type: list (of matrix)
+        
+        Hc: 
+           --description: control Hamiltonian.
+           --type: list (of matrix)
+
+        ctrl:
+            --description: control coefficients.
+            --type: list (of vector)
            
         decay:
            --description: decay operators and the corresponding decay rates.
@@ -49,12 +57,46 @@ class StateSystem:
         """   
         self.tspan = tspan
 
-        if type(H0) == np.ndarray:
-            self.freeHamiltonian = np.array(H0, dtype=np.complex128)
-            self.dim = len(self.freeHamiltonian)
+        if Hc==[] or ctrl==[]:
+            if type(H0) == np.ndarray:
+                self.freeHamiltonian = np.array(H0, dtype=np.complex128)
+                self.dim = len(self.freeHamiltonian)
+            else:
+                self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0] 
+                self.dim = len(self.freeHamiltonian[0])
         else:
-            self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0]
-            self.dim = len(self.freeHamiltonian[0])
+            ctrl_num = len(ctrl)
+            Hc_num = len(Hc)
+            if Hc_num < ctrl_num:
+                raise TypeError("There are %d control Hamiltonians but %d coefficients sequences: \
+                                too many coefficients sequences"%(Hc_num,ctrl_num))
+            elif Hc_num > ctrl_num:
+                warnings.warn("Not enough coefficients sequences: there are %d control Hamiltonians \
+                            but %d coefficients sequences. The rest of the control sequences are\
+                            set to be 0."%(Hc_num,ctrl_num), DeprecationWarning)
+                for i in range(Hc_num-ctrl_num):
+                    ctrl.append(np.zeros(len(ctrl[0])))
+            else: pass
+        
+            if len(ctrl[0]) == 1:
+                Htot = H0 + sum([Hc[i]*ctrl[i][0] for i in range(ctrl_num)])
+                self.freeHamiltonian = np.array(Htot, dtype=np.complex128)
+                self.dim = len(self.freeHamiltonian)
+            else:
+                number = math.ceil((len(self.tspan)-1)/len(ctrl[0]))
+                if len(self.tspan)-1 % len(ctrl[0]) != 0:
+                    tnum = number*len(ctrl[0])
+                    self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum+1)
+                else: pass
+
+                Htot = []
+                for i in range(len(ctrl[0])):
+                    H_tp = H0
+                    for j in range(ctrl):
+                        H_tp += Hc[j]*ctrl[j][i]
+                    Htot.append(H_tp)
+                self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in Htot] 
+                self.dim = len(self.freeHamiltonian[0])
 
         if psi0 == []:
             np.random.seed(seed)
@@ -115,4 +157,10 @@ def StateOpt(*args, method = "AD", **kwargs):
         return stateoptimize.NM_Sopt(*args, **kwargs)
     else:
         raise ValueError("{!r} is not a valid value for method, supported values are 'AD', 'PSO', 'DE', 'NM', 'DDPG'.".format(method))
-        
+
+def csv2npy_states(states, num=1):
+    S_save = []
+    for si in range(states):
+        S_tp = states[si*num:(si+1)*num]
+        S_save.append(S_tp)
+    np.save("states", S_save)

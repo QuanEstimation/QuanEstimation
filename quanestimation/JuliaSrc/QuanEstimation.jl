@@ -13,9 +13,13 @@ using StatsBase
 using ReinforcementLearning
 using Convex
 using SCS
+using BoundaryValueDiffEq
+using Trapz
+using Interpolations
 
 include("AsymptoticBound/CramerRao.jl")
 include("AsymptoticBound/Holevo.jl")
+include("Bayesian/Bayes.jl")
 include("Common/common.jl")
 include("ControlOpt/GRAPE_Copt.jl")
 include("ControlOpt/DDPG_Copt.jl")
