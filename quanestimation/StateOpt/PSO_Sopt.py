@@ -1,8 +1,9 @@
 from julia import Main
+import warnings
 import quanestimation.StateOpt.StateStruct as State
 
 class PSO_Sopt(State.StateSystem):
-    def __init__(self, tspan, H0, dH=[], decay=[], W=[], particle_num=10, psi0=[], \
+    def __init__(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], W=[], particle_num=10, psi0=[], \
                  max_episode=[1000,100], c0=1.0, c1=2.0, c2=2.0, seed=1234):
 
         State.StateSystem.__init__(self, tspan, psi0, H0, dH, decay, W, seed, accuracy=1e-8)
@@ -118,8 +119,8 @@ class PSO_Sopt(State.StateSystem):
             --type: bool
         """
         if len(self.Hamiltonian_derivative) == 1:
-            warnings.warn('In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function \
-                           for state optimization', DeprecationWarning)
+            warnings.warn("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function \
+                           for state optimization", DeprecationWarning)
         else:
             if any(self.gamma):
                 pso = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
@@ -132,3 +133,4 @@ class PSO_Sopt(State.StateSystem):
                 Main.QuanEstimation.HCRB_PSO_Sopt(pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, \
                                          self.c2, self.v0, self.seed, save_file)
             self.load_save()
+            

@@ -36,13 +36,13 @@ tspan = np.linspace(0.0, T, tnum)
 psi0 = [psi0]
 W = np.array([[1/3,0.0],[0.0,2/3]])
 # #AD algorithm
-AD_paras = {'Adam':False, 'psi0':psi0, 'max_episode':500, 'epsilon':0.01, 'beta1':0.90, 'beta2':0.99}
-PSO_paras = {'particle_num':10, 'psi0':psi0, 'max_episode':[1000,100], 'c0':1.0, 'c1':2.0, 'c2':2.0, 'seed':1234}
-DE_paras = {'popsize':10, 'psi0':psi0, 'max_episode':1000, 'c':1.0, 'cr':0.5, 'seed':1234}
-NM_paras = {'state_num':10, 'psi0':psi0, 'max_episode':1000, 'ar':1.0, 'ae':2.0, 'ac':0.5, 'as0':0.5, 'seed':1234}
-DDPG_paras = {'layer_num':4, 'layer_dim':250, 'max_episode':500, 'seed':1234}
+AD_paras = {"Adam":True, "psi0":psi0, "max_episode":300, "epsilon":0.01, "beta1":0.90, "beta2":0.99}
+PSO_paras = {"particle_num":10, "psi0":psi0, "max_episode":[1000,100], "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
+DE_paras = {"popsize":10, "psi0":psi0, "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
+NM_paras = {"state_num":10, "psi0":psi0, "max_episode":1000, "ar":1.0, "ae":2.0, "ac":0.5, "as0":0.5, "seed":1234}
+DDPG_paras = {"layer_num":4, "layer_dim":250, "max_episode":500, "seed":1234}
 
-state = StateOpt(tspan, H0, dH0, decay, W, method='DDPG', **DDPG_paras)
+state = StateOpt(tspan, H0, dH0, decay, W, method="AD", **AD_paras)
 state.QFIM(save_file=False)
 # state.CFIM(Measurement, save_file=False)
 # state.HCRB(save_file=False)

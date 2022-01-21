@@ -4,7 +4,7 @@ from scipy.linalg import sqrtm
 from numpy.linalg import eigvals
 import numpy as np
 
-def squeezing_parameter(rho, N, option='Xi_S'):
+def squeezing_parameter(rho, N, option="Xi_S"):
     """
     Description: Calculate spin squeezing parameter for a density matrix.
 
@@ -62,9 +62,9 @@ def squeezing_parameter(rho, N, option='Xi_S'):
     if Xi > 1.0:
         Xi=1.0
         
-    if option == 'Xi_S':
+    if option == "Xi_S":
         Xi = Xi
-    elif option == 'Xi_R':
+    elif option == "Xi_R":
         Xi = (N/2)**2*Xi/(Jx_mean**2+Jy_mean**2+Jz_mean**2)
     else:
         raise NameError('NameError: option should be choosen in {Xi_S, Xi_R}')

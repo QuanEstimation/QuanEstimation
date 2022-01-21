@@ -4,7 +4,7 @@ from julia import Main
 import quanestimation.ControlOpt.ControlStruct as Control
 
 class GRAPE_Copt(Control.ControlSystem):
-    def __init__(self, tspan, rho0, H0, Hc=[], dH=[], decay=[], ctrl_bound=[], W=[], \
+    def __init__(self, tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[], W=[], \
                  auto=True, Adam=True, ctrl0=[], max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99):
 
         Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, accuracy=1e-8)
@@ -74,8 +74,8 @@ class GRAPE_Copt(Control.ControlSystem):
             Main.QuanEstimation.QFIM_autoGRAPE_Copt(grape, self.max_episode, self.Adam, save_file)
         else:
             if (len(self.tspan)-1) != len(self.control_coefficients[0]):
-                warnings.warn('GRAPE is not available when the length of each control is not equal to the \
-                               length of time, and is replaced by auto-GRAPE.', DeprecationWarning)
+                warnings.warn("GRAPE is not available when the length of each control is not equal to the \
+                               length of time, and is replaced by auto-GRAPE.", DeprecationWarning)
                 Main.QuanEstimation.QFIM_autoGRAPE_Copt(grape, self.max_episode, self.Adam, save_file)
             else:
                 Main.QuanEstimation.QFIM_GRAPE_Copt(grape, self.max_episode, self.Adam, save_file)
@@ -101,8 +101,8 @@ class GRAPE_Copt(Control.ControlSystem):
             Main.QuanEstimation.CFIM_autoGRAPE_Copt(Measurement, grape, self.max_episode, self.Adam, save_file)
         else:
             if (len(self.tspan)-1) != len(self.control_coefficients[0]):
-                warnings.warn('GRAPE is not available when the length of each control is not equal to the length of time, \
-                               and is replaced by auto-GRAPE.', DeprecationWarning)
+                warnings.warn("GRAPE is not available when the length of each control is not equal to the length of time, \
+                               and is replaced by auto-GRAPE.", DeprecationWarning)
                 Main.QuanEstimation.CFIM_autoGRAPE_Copt(Measurement, grape, self.max_episode, self.Adam, save_file)
             else:
                 Main.QuanEstimation.CFIM_GRAPE_Copt(Measurement, grape, self.max_episode, self.Adam, save_file)

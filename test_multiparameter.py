@@ -26,9 +26,19 @@ H0 = D*np.kron(np.dot(s3, s3), ide2)+gS*(B1*S1+B2*S2+B3*S3)+gI*(B1*I1+B2*I2+B3*I
      + A1*(np.kron(s1, sx)+np.kron(s2, sy)) + A2*np.kron(s3, sz)
 dH1, dH2, dH3 = gS*S1+gI*I1, gS*S2+gI*I2, gS*S3+gI*I3
 dH0 = [dH1, dH2, dH3]
-Hc_ctrl = [S1, S2, S3]
+Hc = [S1, S2, S3]
 #dissipation
 decay = [[S3,2*np.pi/cons]]  
+#measurement
+def get_basis(dim, index):
+    x = np.zeros(dim)
+    x[index] = 1.0
+    return x.reshape(dim,1)
+dim = len(rho0)
+Measurement = []
+for i in range(dim):
+    M_tp = np.dot(get_basis(dim, i), get_basis(dim, i).conj().T)
+    Measurement.append(M_tp)
 
 T = 0.3
 tnum = int(2000*T)
@@ -39,22 +49,22 @@ Hc_coeff = [np.zeros(cnum), np.zeros(cnum), np.zeros(cnum)]
 ctrl0 = [Hc_coeff]
 
 # initial controls for PSO and DE
-ini_1, ini_2, ini_3  = np.zeros((len(Hc_ctrl), cnum)), 0.2*np.ones((len(Hc_ctrl), cnum)), -0.2*np.ones((len(Hc_ctrl), cnum))
-ini_4 = np.array([np.linspace(-0.2,0.2,cnum) for i in range(len(Hc_ctrl))])
-ini_5 = np.array([np.linspace(-0.2,0.0,cnum) for i in range(len(Hc_ctrl))])
-ini_6 = np.array([np.linspace(0,0.2,cnum) for i in range(len(Hc_ctrl))])
-ini_7 = -0.2*np.ones((len(Hc_ctrl), cnum))+0.01*np.random.random((len(Hc_ctrl), cnum))
-ini_8 = -0.2*np.ones((len(Hc_ctrl), cnum))+0.01*np.random.random((len(Hc_ctrl), cnum))
-ini_9 = -0.2*np.ones((len(Hc_ctrl), cnum))+0.05*np.random.random((len(Hc_ctrl), cnum))
-ini_10 = -0.2*np.ones((len(Hc_ctrl), cnum))+0.05*np.random.random((len(Hc_ctrl), cnum))
+ini_1, ini_2, ini_3  = np.zeros((len(Hc), cnum)), 0.2*np.ones((len(Hc), cnum)), -0.2*np.ones((len(Hc), cnum))
+ini_4 = np.array([np.linspace(-0.2,0.2,cnum) for i in range(len(Hc))])
+ini_5 = np.array([np.linspace(-0.2,0.0,cnum) for i in range(len(Hc))])
+ini_6 = np.array([np.linspace(0,0.2,cnum) for i in range(len(Hc))])
+ini_7 = -0.2*np.ones((len(Hc), cnum))+0.01*np.random.random((len(Hc), cnum))
+ini_8 = -0.2*np.ones((len(Hc), cnum))+0.01*np.random.random((len(Hc), cnum))
+ini_9 = -0.2*np.ones((len(Hc), cnum))+0.05*np.random.random((len(Hc), cnum))
+ini_10 = -0.2*np.ones((len(Hc), cnum))+0.05*np.random.random((len(Hc), cnum))
 ini_ctrl = [ini_1, ini_2, ini_3, ini_4, ini_5, ini_6, ini_7, ini_8, ini_9, ini_10]
 
-GRAPE_paras = {'Adam':True, 'ctrl0':ctrl0, 'max_episode':500, 'epsilon':0.001, 'beta1':0.90, 'beta2':0.99}
-PSO_paras = {'particle_num':10, 'ctrl0':ini_ctrl, 'max_episode':[1000,100], 'c0':1.0, 'c1':2.0, 'c2':2.0, 'seed':1234}
-DE_paras = {'popsize':10, 'ctrl0':ini_ctrl, 'max_episode':1000, 'c':1.0, 'cr':0.5, 'seed':1234}
-DDPG_paras = {'layer_num':4, 'layer_dim':250, 'max_episode':500, 'seed':1234}
+GRAPE_paras = {"Adam":True, "ctrl0":ctrl0, "max_episode":300, "epsilon":0.01, "beta1":0.90, "beta2":0.99}
+PSO_paras = {"particle_num":10, "ctrl0":ini_ctrl, "max_episode":[1000,100], "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
+DE_paras = {"popsize":10, "ctrl0":ini_ctrl, "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
+DDPG_paras = {"layer_num":4, "layer_dim":250, "max_episode":500, "seed":1234}
 
-control = ControlOpt(tspan, rho0, H0, Hc_ctrl, dH0, decay, ctrl_bound=[-0.2,0.2], method='DE', **DE_paras)
+control = ControlOpt(tspan, rho0, H0, dH0, Hc, decay, ctrl_bound=[-0.2,0.2], method="auto-GRAPE", **GRAPE_paras)
 control.QFIM(save_file=False)
 # control.CFIM(Measurement, save_file=False)
 # control.HCRB(save_file=True)

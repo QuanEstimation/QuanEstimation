@@ -6,44 +6,32 @@ function CFIM_AD_Mopt(AD::LinearComb_Mopt{T}, mt, vt, epsilon, beta1, beta2, max
     return info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed, sym, str1, str2)
 end
 
-function gradient_CFI!(AD::LinearComb_Mopt{T}, epsilon, Mcoeff, POVM_basis, M_num, basis_num) where {T<:Complex}
-    δI = gradient(x->CFI([sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy), Mcoeff)[1]
-    Mcoeff += epsilon*δI
-    Mcoeff = bound_LC_coeff(Mcoeff)
-    return Mcoeff
+function gradient_CFI!(AD::LinearComb_Mopt{T}, epsilon, B, POVM_basis, M_num, basis_num) where {T<:Complex}
+    δI = gradient(x->CFI([sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy), B)[1]
+    B += epsilon*δI
+    B = bound_LC_coeff(B)
+    return B
 end
 
-function gradient_CFI_Adam!(AD::LinearComb_Mopt{T}, epsilon, mt, vt, beta1, beta2, Mcoeff, POVM_basis, M_num, basis_num) where {T<:Complex}
-    δI = gradient(x->CFI([sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy), Mcoeff)[1]
-    Mcoeff = MOpt_Adam!(Mcoeff, δI, epsilon, mt, vt, beta1, beta2, AD.accuracy)
-    Mcoeff = bound_LC_coeff(Mcoeff)
-    return Mcoeff
+function gradient_CFI_Adam!(AD::LinearComb_Mopt{T}, epsilon, mt, vt, beta1, beta2, B, POVM_basis, M_num, basis_num) where {T<:Complex}
+    δI = gradient(x->CFI([sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy), B)[1]
+    B = MOpt_Adam!(B, δI, epsilon, mt, vt, beta1, beta2, AD.accuracy)
+    B = bound_LC_coeff(B)
+    return B
 end
 
-function gradient_CFIM!(AD::LinearComb_Mopt{T}, epsilon, Mcoeff, POVM_basis, M_num, basis_num) where {T<:Complex}
-    δI = gradient(x->1/(AD.W*(CFIM([sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy) |> pinv) |> tr |>real), Mcoeff) |>sum
-    Mcoeff += epsilon*δI
-    Mcoeff = bound_LC_coeff(Mcoeff)
-    return Mcoeff
+function gradient_CFIM!(AD::LinearComb_Mopt{T}, epsilon, B, POVM_basis, M_num, basis_num) where {T<:Complex}
+    δI = gradient(x->1/(AD.W*pinv(CFIM([sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy), rtol=AD.accuracy) |> tr |>real), B) |>sum
+    B += epsilon*δI
+    B = bound_LC_coeff(B)
+    return B
 end
 
-function gradient_CFIM_Adam!(AD::LinearComb_Mopt{T}, epsilon, mt, vt, beta1, beta2, Mcoeff, POVM_basis, M_num, basis_num) where {T<:Complex}
-    δI = gradient(x->1/(AD.W*(CFIM([sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy) |> pinv) |> tr |>real), Mcoeff) |>sum
-    Mcoeff = MOpt_Adam!(Mcoeff, δI, epsilon, mt, vt, beta1, beta2, AD.accuracy)
-    Mcoeff = bound_LC_coeff(Mcoeff)
-    return Mcoeff
-end
-
-#### update one point ####
-function gradient_CFIM!(AD::LinearComb_Mopt{T}, epsilon, Mcoeff, POVM_basis, M_num, basis_num, update_ind) where {T<:Complex}
-    ind1 = mod(update_ind, M_num)
-    ind2 = mod(update_ind, basis_num)
-    ind1 = (x -> x == 0 ? M_num : x)(ind1)
-    ind2 = (x -> x == 0 ? basis_num : x)(ind2)
-    δI = gradient(x->1/(AD.W*(CFIM([sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy) |> pinv) |> tr |>real), Mcoeff) |>sum
-    Mcoeff[ind1][ind2] += epsilon*δI[ind1][ind2]
-    Mcoeff = bound_LC_coeff(Mcoeff)
-    return Mcoeff
+function gradient_CFIM_Adam!(AD::LinearComb_Mopt{T}, epsilon, mt, vt, beta1, beta2, B, POVM_basis, M_num, basis_num) where {T<:Complex}
+    δI = gradient(x->1/(AD.W*pinv(CFIM([sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy), rtol=AD.accuracy) |> tr |>real), B) |>sum
+    B = MOpt_Adam!(B, δI, epsilon, mt, vt, beta1, beta2, AD.accuracy)
+    B = bound_LC_coeff(B)
+    return B
 end
 
 function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed, sym, str1, str2) where {T<:Complex}
@@ -54,9 +42,10 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
     POVM_basis = AD.povm_basis
     basis_num = length(POVM_basis)
     # initialize 
-    Mcoeff = generate_coeff(M_num, basis_num)
+    B = [rand(basis_num) for i in 1:M_num]
+    B = bound_LC_coeff(B)
 
-    Measurement = [sum([Mcoeff[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+    Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
     f_ini = obj_func(Val{sym}(), AD, Measurement)
     
     f_opt = obj_func(Val{:QFIM_noctrl}(), AD, Measurement)
@@ -72,16 +61,16 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
         f_list = [1.0/f_ini]
 
         if Adam == true
-            Mcoeff = gradient_CFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, Mcoeff, POVM_basis, M_num, basis_num)
+            B = gradient_CFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, B, POVM_basis, M_num, basis_num)
         else
-            Mcoeff = gradient_CFI!(AD, epsilon, Mcoeff, POVM_basis, M_num, basis_num)
+            B = gradient_CFI!(AD, epsilon, B, POVM_basis, M_num, basis_num)
         end
         if save_file == true
-            Measurement = [sum([Mcoeff[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+            Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
             SaveFile_meas(f_ini, Measurement)
             if Adam == true
                 while true
-                    Measurement = [sum([Mcoeff[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+                    Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
                     f_now = obj_func(Val{sym}(), AD, Measurement)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
@@ -95,11 +84,11 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
                         SaveFile_meas(f_now, Measurement)
                         print("current $str1 is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    Mcoeff = gradient_CFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, Mcoeff, POVM_basis, M_num, basis_num)
+                    B = gradient_CFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, B, POVM_basis, M_num, basis_num)
                 end
             else
                 while true
-                    Measurement = [sum([Mcoeff[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+                    Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
                     f_now = obj_func(Val{sym}(), AD, Measurement)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
@@ -113,13 +102,13 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
                         SaveFile_meas(f_now, Measurement)
                         print("current $str1 is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    Mcoeff = gradient_CFI!(AD, epsilon, Mcoeff, POVM_basis, M_num, basis_num)
+                    B = gradient_CFI!(AD, epsilon, B, POVM_basis, M_num, basis_num)
                 end
             end
         else
             if Adam == true
                 while true
-                    Measurement = [sum([Mcoeff[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+                    Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
                     f_now = obj_func(Val{sym}(), AD, Measurement)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
@@ -134,11 +123,11 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
                         append!(f_list, f_now)
                         print("current $str1 is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    Mcoeff = gradient_CFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, Mcoeff, POVM_basis, M_num, basis_num)
+                    B = gradient_CFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, B, POVM_basis, M_num, basis_num)
                 end
             else
                 while true
-                    Measurement = [sum([Mcoeff[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+                    Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
                     f_now = obj_func(Val{sym}(), AD, Measurement)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
@@ -153,7 +142,7 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
                         append!(f_list, f_now)
                         print("current $str1 is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    Mcoeff = gradient_CFI!(AD, epsilon, Mcoeff, POVM_basis, M_num, basis_num)
+                    B = gradient_CFI!(AD, epsilon, B, POVM_basis, M_num, basis_num)
                 end
             end
         end
@@ -166,17 +155,16 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
         f_list = [f_ini]
 
         if Adam == true
-            Mcoeff = gradient_CFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, Mcoeff, POVM_basis, M_num, basis_num)
+            B = gradient_CFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, B, POVM_basis, M_num, basis_num)
         else
-            Mcoeff = gradient_CFIM!(AD, epsilon, Mcoeff, POVM_basis, M_num, basis_num)
-            # Mcoeff = gradient_CFIM!(AD, epsilon, Mcoeff, POVM_basis, M_num, basis_num, episodes)
+            B = gradient_CFIM!(AD, epsilon, B, POVM_basis, M_num, basis_num)
         end
         if save_file == true
-            Measurement = [sum([Mcoeff[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+            Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
             SaveFile_meas(f_ini, Measurement)
             if Adam == true
                 while true
-                    Measurement = [sum([Mcoeff[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+                    Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
                     f_now = obj_func(Val{sym}(), AD, Measurement)
                     if  episodes >= max_episode
                         print("\e[2K")
@@ -189,11 +177,11 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
                         SaveFile_meas(f_now, Measurement)
                         print("current value of $str2 is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    Mcoeff = gradient_CFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, Mcoeff, POVM_basis, M_num, basis_num)
+                    B = gradient_CFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, B, POVM_basis, M_num, basis_num)
                 end
             else
                 while true
-                    Measurement = [sum([Mcoeff[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+                    Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
                     f_now = obj_func(Val{sym}(), AD, Measurement)
                     if  episodes >= max_episode
                         print("\e[2K")
@@ -206,14 +194,13 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
                         SaveFile_meas(f_now, Measurement)
                         print("current value of $str2 is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    Mcoeff = gradient_CFIM!(AD, epsilon, Mcoeff, POVM_basis, M_num, basis_num)
-                    # Mcoeff = gradient_CFIM!(AD, epsilon, Mcoeff, POVM_basis, M_num, basis_num, episodes)
+                    B = gradient_CFIM!(AD, epsilon, B, POVM_basis, M_num, basis_num)
                 end
             end
         else
             if Adam == true
                 while true
-                    Measurement = [sum([Mcoeff[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+                    Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
                     f_now = obj_func(Val{sym}(), AD, Measurement)
                     if  episodes >= max_episode
                         print("\e[2K")
@@ -227,11 +214,11 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
                         append!(f_list, f_now)
                         print("current value of $str2 is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    Mcoeff = gradient_CFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, Mcoeff, POVM_basis, M_num, basis_num)
+                    B = gradient_CFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, B, POVM_basis, M_num, basis_num)
                 end
             else
                 while true
-                    Measurement = [sum([Mcoeff[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+                    Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
                     f_now = obj_func(Val{sym}(), AD, Measurement)
                     if  episodes >= max_episode
                         print("\e[2K")
@@ -245,7 +232,7 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
                         append!(f_list, f_now)
                         print("current value of $str2 is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    Mcoeff = gradient_CFIM!(AD, epsilon, Mcoeff, POVM_basis, M_num, basis_num)
+                    B = gradient_CFIM!(AD, epsilon, B, POVM_basis, M_num, basis_num)
                 end
             end
         end
@@ -260,33 +247,32 @@ function CFIM_AD_Mopt(AD::RotateBasis_Mopt{T}, mt, vt, epsilon, beta1, beta2, ma
     return info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed, sym, str1, str2)
 end
 
-
-function gradient_CFI!(AD::RotateBasis_Mopt{T}, epsilon, Mbasis, Mcoeff, Lambda) where {T<:Complex}
-    δI = gradient(x->CFI_AD(Mbasis, x, Lambda, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy), Mcoeff)[1]
-    Mcoeff += epsilon*δI
-    Mcoeff = bound_rot_coeff(Mcoeff)
-    return Mcoeff
+function gradient_CFI!(AD::RotateBasis_Mopt{T}, epsilon, Mbasis, s, Lambda, M_num, dim) where {T<:Complex}
+    δI = gradient(x->CFI_AD(Mbasis, x, Lambda, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy), s)[1]
+    s += epsilon*δI
+    s = bound_rot_coeff(s)
+    return s
 end
 
-function gradient_CFI_Adam!(AD::RotateBasis_Mopt{T}, epsilon, mt, vt, beta1, beta2, Mbasis, Mcoeff, Lambda, M_num, dim) where {T<:Complex}
-    δI = gradient(x->CFI_AD(Mbasis, x, Lambda, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy), Mcoeff)[1]
-    Mcoeff = MOpt_Adam!(Mcoeff, δI, epsilon, mt, vt, beta1, beta2, AD.accuracy)
-    Mcoeff = bound_rot_coeff(Mcoeff)
-    return Mcoeff
+function gradient_CFI_Adam!(AD::RotateBasis_Mopt{T}, epsilon, mt, vt, beta1, beta2, Mbasis, s, Lambda, M_num, dim) where {T<:Complex}
+    δI = gradient(x->CFI_AD(Mbasis, x, Lambda, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy), s)[1]
+    s = MOpt_Adam!(s, δI, epsilon, mt, vt, beta1, beta2, AD.accuracy)
+    s = bound_rot_coeff(s)
+    return s
 end
 
-function gradient_CFIM!(AD::RotateBasis_Mopt{T}, epsilon, Mbasis, Mcoeff, Lambda, M_num, dim) where {T<:Complex}
-    δI = gradient(x->1/(AD.W*(CFIM_AD(Mbasis, x, Lambda, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy) |> pinv) |> tr |>real), Mcoeff) |>sum
-    Mcoeff += epsilon*δI
-    Mcoeff = bound_rot_coeff(Mcoeff)
-    return Mcoeff
+function gradient_CFIM!(AD::RotateBasis_Mopt{T}, epsilon, Mbasis, s, Lambda, M_num, dim) where {T<:Complex}
+    δI = gradient(x->1/(AD.W*pinv(CFIM_AD(Mbasis, x, Lambda, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy), rtol=AD.accuracy) |> tr |>real), s) |>sum
+    s += epsilon*δI
+    s = bound_rot_coeff(s)
+    return s
 end
 
-function gradient_CFIM_Adam!(AD::RotateBasis_Mopt{T}, epsilon, mt, vt, beta1, beta2, Mbasis, Mcoeff, Lambda, M_num, dim) where {T<:Complex}
-    δI = gradient(x->1/(AD.W*(CFIM_AD(Mbasis, x, Lambda, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy) |> pinv) |> tr |>real), Mcoeff) |>sum
-    Mcoeff = MOpt_Adam!(Mcoeff, δI, epsilon, mt, vt, beta1, beta2, AD.accuracy)
-    Mcoeff = bound_rot_coeff(Mcoeff)
-    return Mcoeff
+function gradient_CFIM_Adam!(AD::RotateBasis_Mopt{T}, epsilon, mt, vt, beta1, beta2, Mbasis, s, Lambda, M_num, dim) where {T<:Complex}
+    δI = gradient(x->1/(AD.W*pinv(CFIM_AD(Mbasis, x, Lambda, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.accuracy), rtol=AD.accuracy) |> tr |>real), s) |>sum
+    s = MOpt_Adam!(s, δI, epsilon, mt, vt, beta1, beta2, AD.accuracy)
+    s = bound_rot_coeff(s)
+    return s
 end
 
 function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed, sym, str1, str2) where {T<:Complex}
@@ -300,8 +286,8 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
     POVM_basis = AD.povm_basis
     M_num = length(POVM_basis)
     # initialize 
-    Mcoeff = rand(dim*dim)
-    U = rotation_matrix(Mcoeff, Lambda)
+    s = rand(dim*dim)
+    U = rotation_matrix(s, Lambda)
     Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
     f_ini = obj_func(Val{sym}(), AD, Measurement)
     f_opt = obj_func(Val{:QFIM_noctrl}(), AD, Measurement)
@@ -316,17 +302,17 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
         f_list = [1.0/f_ini]
 
         if Adam == true
-            Mcoeff = gradient_CFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, POVM_basis, Mcoeff, Lambda, M_num, dim)
+            s = gradient_CFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, POVM_basis, s, Lambda, M_num, dim)
         else
-            Mcoeff = gradient_CFI!(AD, epsilon, POVM_basis, Mcoeff, Lambda, M_num, dim)
+            s = gradient_CFI!(AD, epsilon, POVM_basis, s, Lambda, M_num, dim)
         end
         if save_file == true
-            U = rotation_matrix(Mcoeff, Lambda)
+            U = rotation_matrix(s, Lambda)
             Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
-            SaveFile_meas(f_ini, Measurement)
+            SaveFile_meas(1.0/f_ini, Measurement)
             if Adam == true
                 while true
-                    U = rotation_matrix(Mcoeff, Lambda)
+                    U = rotation_matrix(s, Lambda)
                     Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
                     f_now = obj_func(Val{sym}(), AD, Measurement)
                     f_now = 1.0/f_now
@@ -341,11 +327,11 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
                         SaveFile_meas(f_now, Measurement)
                         print("current $str1 is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    Mcoeff = gradient_CFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, POVM_basis, Mcoeff, Lambda, M_num, dim)
+                    s = gradient_CFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, POVM_basis, s, Lambda, M_num, dim)
                 end
             else
                 while true
-                    U = rotation_matrix(Mcoeff, Lambda)
+                    U = rotation_matrix(s, Lambda)
                     Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
                     f_now = obj_func(Val{sym}(), AD, Measurement)
                     f_now = 1.0/f_now
@@ -360,13 +346,13 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
                         SaveFile_meas(f_now, Measurement)
                         print("current $str1 is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    Mcoeff = gradient_CFI!(AD, epsilon, POVM_basis, Mcoeff, Lambda, M_num, dim)
+                    s = gradient_CFI!(AD, epsilon, POVM_basis, s, Lambda, M_num, dim)
                 end
             end
         else
             if Adam == true
                 while true
-                    U = rotation_matrix(Mcoeff, Lambda)
+                    U = rotation_matrix(s, Lambda)
                     Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
                     f_now = obj_func(Val{sym}(), AD, Measurement)
                     f_now = 1.0/f_now
@@ -382,11 +368,11 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
                         append!(f_list, f_now)
                         print("current $str1 is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    Mcoeff = gradient_CFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, POVM_basis, Mcoeff, Lambda, M_num, dim)
+                    s = gradient_CFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, POVM_basis, s, Lambda, M_num, dim)
                 end
             else
                 while true
-                    U = rotation_matrix(Mcoeff, Lambda)
+                    U = rotation_matrix(s, Lambda)
                     Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
                     f_now = obj_func(Val{sym}(), AD, Measurement)
                     f_now = 1.0/f_now
@@ -402,7 +388,7 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
                         append!(f_list, f_now)
                         print("current $str1 is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    Mcoeff = gradient_CFI!(AD, epsilon, POVM_basis, Mcoeff, Lambda, M_num, dim)
+                    s = gradient_CFI!(AD, epsilon, POVM_basis, s, Lambda, M_num, dim)
                 end
             end
         end
@@ -415,17 +401,17 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
         f_list = [f_ini]
 
         if Adam == true
-            Mcoeff = gradient_CFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, POVM_basis, Mcoeff, Lambda, M_num, dim)
+            s = gradient_CFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, POVM_basis, s, Lambda, M_num, dim)
         else
-            Mcoeff = gradient_CFIM!(AD, epsilon, POVM_basis, Mcoeff, Lambda, M_num, dim)
+            s = gradient_CFIM!(AD, epsilon, POVM_basis, s, Lambda, M_num, dim)
         end
         if save_file == true
-            U = rotation_matrix(Mcoeff, Lambda)
+            U = rotation_matrix(s, Lambda)
             Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
             SaveFile_meas(f_ini, Measurement)
             if Adam == true
                 while true
-                    U = rotation_matrix(Mcoeff, Lambda)
+                    U = rotation_matrix(s, Lambda)
                     Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
                     f_now = obj_func(Val{sym}(), AD, Measurement)
                     if  episodes >= max_episode
@@ -439,11 +425,11 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
                         SaveFile_meas(f_now, Measurement)
                         print("current value of $str2 is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    Mcoeff = gradient_CFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, POVM_basis, Mcoeff, Lambda, M_num, dim)
+                    s = gradient_CFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, POVM_basis, s, Lambda, M_num, dim)
                 end
             else
                 while true
-                    U = rotation_matrix(Mcoeff, Lambda)
+                    U = rotation_matrix(s, Lambda)
                     Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
                     f_now = obj_func(Val{sym}(), AD, Measurement)
                     if  episodes >= max_episode
@@ -457,13 +443,13 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
                         SaveFile_meas(f_now, Measurement)
                         print("current value of $str2 is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    Mcoeff = gradient_CFIM!(AD, epsilon, POVM_basis, Mcoeff, Lambda, M_num, dim)
+                    s = gradient_CFIM!(AD, epsilon, POVM_basis, s, Lambda, M_num, dim)
                 end
             end
         else
             if Adam == true
                 while true
-                    U = rotation_matrix(Mcoeff, Lambda)
+                    U = rotation_matrix(s, Lambda)
                     Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
                     f_now = obj_func(Val{sym}(), AD, Measurement)
                     if  episodes >= max_episode
@@ -478,11 +464,11 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
                         append!(f_list, f_now)
                         print("current value of $str2 is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    Mcoeff = gradient_CFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, POVM_basis, Mcoeff, Lambda, M_num, dim)
+                    s = gradient_CFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, POVM_basis, s, Lambda, M_num, dim)
                 end
             else
                 while true
-                    U = rotation_matrix(Mcoeff, Lambda)
+                    U = rotation_matrix(s, Lambda)
                     Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
                     f_now = obj_func(Val{sym}(), AD, Measurement)
                     if  episodes >= max_episode
@@ -497,7 +483,7 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
                         append!(f_list, f_now)
                         print("current value of $str2 is ", f_now, " ($(episodes) episodes)    \r")
                     end
-                    Mcoeff = gradient_CFIM!(AD, epsilon, POVM_basis, Mcoeff, Lambda, M_num, dim)
+                    s = gradient_CFIM!(AD, epsilon, POVM_basis, s, Lambda, M_num, dim)
                 end
             end
         end

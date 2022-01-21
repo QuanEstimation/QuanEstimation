@@ -5,15 +5,15 @@ mutable struct projection_Mopt{T<:Complex, M <:Real} <:ControlSystem
     tspan::Vector{M}
     decay_opt::Vector{Matrix{T}}
     γ::Vector{M}
-    Measurement::Vector{Vector{T}}
+    C::Vector{Vector{T}}
     W::Matrix{M}
     accuracy::M
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
     projection_Mopt(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, ρ0::Matrix{T}, tspan::Vector{M}, 
-    decay_opt::Vector{Matrix{T}},γ::Vector{M}, Measurement::Vector{Vector{T}}, W::Matrix{M}, accuracy::M, 
+    decay_opt::Vector{Matrix{T}},γ::Vector{M}, C::Vector{Vector{T}}, W::Matrix{M}, accuracy::M, 
     ρ=Vector{Matrix{T}}(undef, 1), ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T<:Complex, M<:Real}=
-    new{T,M}(freeHamiltonian, Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, Measurement, W, accuracy, ρ, ∂ρ_∂x) 
+    new{T,M}(freeHamiltonian, Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, C, W, accuracy, ρ, ∂ρ_∂x) 
 end
 
 mutable struct LinearComb_Mopt{T<:Complex, M <:Real} <:ControlSystem
@@ -55,27 +55,42 @@ end
 
 function bound_LC_coeff(coefficients::Vector{Vector{Float64}})
     M_num = length(coefficients)
-    n = length(coefficients[1])
+    basis_num = length(coefficients[1])
     for ck in 1:M_num
-        for tk in 1:n
-            coefficients[ck][tk] = (x-> x < 0.0 ? 0.001 : x > 1.0 ? 1.0 : x)(coefficients[ck][tk])
+        for tk in 1:basis_num
+            coefficients[ck][tk] = (x-> x < 0.0 ? 0.0 : x > 1.0 ? 1.0 : x)(coefficients[ck][tk])
         end 
     end
 
-    coeff_norm = [zeros(n) for i in 1:M_num]
-    for i in 1:M_num
-        for j in 1:n
-            vec = sum([coefficients[m][j] for m in 1:M_num])
-            coeff_norm[i][j] = coefficients[i][j]/vec
+    Sum_col = [sum([coefficients[m][n] for m in 1:M_num])  for n in 1:basis_num]
+    for si in 1:basis_num
+        if Sum_col[si] == 0.0
+            int_num = sample(1:M_num, 1, replace=false)[1]
+            coefficients[int_num][si] = 1.0
         end
     end
-    coeff_norm
+
+    Sum_row = [sum([coefficients[m][n] for n in 1:basis_num])  for m in 1:M_num]
+    for mi in 1:M_num
+        if Sum_row[mi] == 0.0
+            int_num = sample(1:basis_num, 1, replace=false)[1]
+            coefficients[mi][int_num] = rand()
+        end
+    end 
+
+    Sum_col = [sum([coefficients[m][n] for m in 1:M_num])  for n in 1:basis_num]
+    for i in 1:M_num
+        for j in 1:basis_num
+            coefficients[i][j] = coefficients[i][j]/Sum_col[j]
+        end
+    end
+    coefficients
 end
 
 function bound_rot_coeff(coefficients::Vector{Float64})
     n = length(coefficients)
     for tk in 1:n
-        coefficients[tk] = (x-> x < 0.0 ? 0.001 : x > 2*pi ? 2*pi : x)(coefficients[tk])
+        coefficients[tk] = (x-> x < 0.0 ? 0.0 : x > 2*pi ? 2*pi : x)(coefficients[tk])
     end 
     coefficients
 end
@@ -90,24 +105,24 @@ function MOpt_Adam(gt, t, para, m_t, v_t, ϵ, beta1, beta2, accuracy)
     return para, m_t, v_t
 end
 
-function MOpt_Adam!(Mcoeff::Vector{Float64}, δ, ϵ, mt, vt, beta1, beta2, accuracy)
+function MOpt_Adam!(coefficients::Vector{Float64}, δ, ϵ, mt, vt, beta1, beta2, accuracy)
     for ci in 1:length(δ)
-        Mcoeff[ci], mt, vt = MOpt_Adam(δ[ci], ci, Mcoeff[ci], mt, vt, ϵ, beta1, beta2, accuracy)
+        coefficients[ci], mt, vt = MOpt_Adam(δ[ci], ci, coefficients[ci], mt, vt, ϵ, beta1, beta2, accuracy)
     end
-    Mcoeff
+    coefficients
 end
 
-function MOpt_Adam!(Mcoeff::Vector{Vector{Float64}}, δ, ϵ, mt, vt, beta1, beta2, accuracy)
+function MOpt_Adam!(coefficients::Vector{Vector{Float64}}, δ, ϵ, mt, vt, beta1, beta2, accuracy)
     mt_in = mt
     vt_in = vt
     for ci in 1:length(δ)
         mt = mt_in
         vt = vt_in
         for cj in 1:length(δ[1])
-            Mcoeff[ci][cj], mt, vt = MOpt_Adam(δ[ci][cj], cj, Mcoeff[ci][cj], mt, vt, ϵ, beta1, beta2, accuracy)
+            coefficients[ci][cj], mt, vt = MOpt_Adam(δ[ci][cj], cj, coefficients[ci][cj], mt, vt, ϵ, beta1, beta2, accuracy)
         end
     end
-    Mcoeff
+    coefficients
 end
 
 function MOpt_Adam!(system, δ, ϵ, mt, vt, beta1, beta2, accuracy)
@@ -149,22 +164,11 @@ function gramschmidt(A::Vector{Vector{ComplexF64}})
     Q
 end
 
-function rotation_matrix(Mcoeff, Lambda)
+function rotation_matrix(coefficients, Lambda)
     dim = size(Lambda[1])[1]
     U = Matrix{ComplexF64}(I,dim,dim)
     for i in 1:length(Lambda)
-        U = U*exp(1.0im*Mcoeff[i]*Lambda[i])
+        U = U*exp(1.0im*coefficients[i]*Lambda[i])
     end
     return U
-end
-
-function generate_coeff(M_num, basis_num)
-    coeff_tp = [rand(basis_num) for i in 1:M_num]
-    vec_tp = ones(basis_num)
-    for i in 2:(M_num-1)
-        vec_tp -= [coeff_tp[i-1][m] for m in 1:basis_num]
-        coeff_tp[i] = [coeff_tp[i][n]*vec_tp[n] for n in 1:basis_num]
-    end
-    coeff_tp[end] = [1.0-sum([coeff_tp[i][j] for i in 1:(M_num-1)]) for j in 1:basis_num]
-    return coeff_tp
 end
