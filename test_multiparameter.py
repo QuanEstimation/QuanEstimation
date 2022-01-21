@@ -64,7 +64,7 @@ PSO_paras = {"particle_num":10, "ctrl0":ini_ctrl, "max_episode":[1000,100], "c0"
 DE_paras = {"popsize":10, "ctrl0":ini_ctrl, "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
 DDPG_paras = {"layer_num":4, "layer_dim":250, "max_episode":500, "seed":1234}
 
-control = ControlOpt(tspan, rho0, H0, dH0, Hc, decay, ctrl_bound=[-0.2,0.2], method="auto-GRAPE", **GRAPE_paras)
+control = ControlOpt(tspan, rho0, H0, dH0, Hc, decay=decay, ctrl_bound=[-0.2,0.2], method="auto-GRAPE", **GRAPE_paras)
 control.QFIM(save_file=False)
 # control.CFIM(Measurement, save_file=False)
 # control.HCRB(save_file=True)
