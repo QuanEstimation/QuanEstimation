@@ -4,9 +4,9 @@ import quanestimation.ControlOpt.ControlStruct as Control
 
 class DE_Copt(Control.ControlSystem):
     def __init__(self, tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[], W=[], \
-                popsize=10, ctrl0=[], max_episode=1000, c=1.0, cr=0.5, seed=1234):
+                popsize=10, ctrl0=[], max_episode=1000, c=1.0, cr=0.5, seed=1234, load=False):
 
-        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, accuracy=1e-8)
+        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, accuracy=1e-8)
         
         """
         --------

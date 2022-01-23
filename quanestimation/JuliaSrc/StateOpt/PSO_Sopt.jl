@@ -3,7 +3,7 @@ function QFIM_PSO_Sopt(pso::TimeIndepend_noiseless{T}, max_episode, particle_num
     sym = Symbol("QFIM_TimeIndepend_noiseless")
     str1 = "quantum"
     str2 = "QFI"
-    str3 = "Tr(WF^{-1})"
+    str3 = "tr(WF^{-1})"
     Measurement = [zeros(ComplexF64, size(pso.psi)[1], size(pso.psi)[1])]
     return info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
 end
@@ -200,7 +200,7 @@ function QFIM_PSO_Sopt(pso::TimeIndepend_noise{T}, max_episode, particle_num, in
     sym = Symbol("QFIM_TimeIndepend_noise")
     str1 = "quantum"
     str2 = "QFI"
-    str3 = "Tr(WF^{-1})"
+    str3 = "tr(WF^{-1})"
     Measurement = [zeros(ComplexF64, size(pso.psi)[1], size(pso.psi)[1])]
     return info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
 end
@@ -210,12 +210,7 @@ function CFIM_PSO_Sopt(Measurement, pso::TimeIndepend_noise{T}, max_episode, par
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
-    if length(pso.Hamiltonian_derivative) == 1
-        println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFI as the objection function for state optimization.")
-        return nothing
-    else
-        return info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
-    end
+    return info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
 end
 
 function HCRB_PSO_Sopt(pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file) where {T<:Complex}

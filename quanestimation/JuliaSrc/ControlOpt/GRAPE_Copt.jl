@@ -33,7 +33,7 @@ function QFIM_autoGRAPE_Copt(grape::GRAPE_Copt{T}, max_episode, Adam, save_file)
     str2 = "QFI"
     str3 = "tr(WF^{-1})"
     Measurement = [zeros(ComplexF64, size(grape.ρ0)[1], size(grape.ρ0)[1])]
-    return info_autoGRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+    return info_autoGRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
 end
 
 function CFIM_autoGRAPE_Copt(Measurement, grape::GRAPE_Copt{T}, max_episode, Adam, save_file) where {T<:Complex}
@@ -41,7 +41,7 @@ function CFIM_autoGRAPE_Copt(Measurement, grape::GRAPE_Copt{T}, max_episode, Ada
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
-    return info_autoGRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+    return info_autoGRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
 end
 
 function gradient_QFI!(grape::GRAPE_Copt{T}) where {T<:Complex}
@@ -100,7 +100,7 @@ function gradient_CFIM_Adam!(grape::GRAPE_Copt{T}, Measurement) where {T<:Comple
     return δI
 end
 
-function info_autoGRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+function info_autoGRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
     println("$str1 parameter estimation")
     ctrl_num = length(grape.control_Hamiltonian)
     ctrl_length = length(grape.control_coefficients[1])
@@ -282,16 +282,197 @@ function info_autoGRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, s
     end
 end
 
+function info_autoGRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+    println("$str1 parameter estimation")
+    ctrl_num = length(grape.control_Hamiltonian)
+    ctrl_length = length(grape.control_coefficients[1])
+    episodes = 1
+    if length(grape.Hamiltonian_derivative) == 1
+        println("single parameter scenario")
+        println("control algorithm: auto-GRAPE")
+        f_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
+        f_ini = obj_func(Val{sym}(), grape, Measurement)
+
+        f_list = [1.0/f_ini]
+        println("non-controlled $str2 is $(1.0/f_noctrl)")
+        println("initial $str2 is $(1.0/f_ini)")
+        if save_file == true
+            SaveFile_ctrl(f_ini, grape.control_coefficients)
+            if Adam == true
+                gradient_CFI_Adam!(grape, Measurement)
+                while true
+                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = 1.0/f_now
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        break
+                    else
+                        episodes += 1
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    gradient_CFI_Adam!(grape, Measurement)
+                end
+            else
+                gradient_CFI!(grape, Measurement)
+                while true
+                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = 1.0/f_now
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        break
+                    else
+                        episodes += 1
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    gradient_CFI!(grape, Measurement)
+                end
+            end
+        else
+            if Adam == true
+                gradient_CFI_Adam!(grape, Measurement)
+                while true
+                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = 1.0/f_now
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_list, grape.control_coefficients)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    gradient_CFI_Adam!(grape, Measurement)
+                end
+            else
+                gradient_CFI!(grape, Measurement)
+                while true
+                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = 1.0/f_now
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_list, grape.control_coefficients)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    gradient_CFI!(grape, Measurement)
+                end
+            end
+        end
+    else
+        println("multiparameter scenario")
+        println("control algorithm: auto-GRAPE")
+        f_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
+        f_ini = obj_func(Val{sym}(), grape, Measurement)
+
+        f_list = [f_ini]
+        println("non-controlled value of $str3 is $(f_noctrl)")
+        println("initial value of $str3 is $(f_ini)")
+        if save_file == true
+            SaveFile_ctrl(f_ini, grape.control_coefficients)
+            if Adam == true
+                gradient_CFIM_Adam!(grape, Measurement)
+                while true
+                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        break
+                    else
+                        episodes += 1
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    gradient_CFIM_Adam!(grape, Measurement)
+                end
+            else
+                gradient_CFIM!(grape, Measurement)
+                while true
+                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        break
+                    else
+                        episodes += 1
+                        SaveFile_ctrl(f_now, grape.control_coefficients)
+                        print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    gradient_CFIM!(grape, Measurement)
+                end
+            end
+        else
+            if Adam == true
+                gradient_CFIM_Adam!(grape, Measurement)
+                while true
+                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_list, grape.control_coefficients)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    gradient_CFIM_Adam!(grape, Measurement)
+                end
+            else
+                gradient_CFIM!(grape, Measurement)
+                while true
+                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_list, grape.control_coefficients)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                    gradient_CFIM!(grape, Measurement)
+                end
+            end
+        end
+    end
+end
+
 
 ###################### GRAPE #########################
-
 function QFIM_GRAPE_Copt(grape::GRAPE_Copt{T}, max_episode, Adam, save_file) where {T<:Complex}
     sym = Symbol("QFIM")
     str1 = "quantum"
     str2 = "QFI"
     str3 = "tr(WF^{-1})"
     Measurement = [zeros(ComplexF64, size(grape.ρ0)[1], size(grape.ρ0)[1])]
-    return info_GRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+    return info_GRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
 end
 
 function CFIM_GRAPE_Copt(Measurement, grape::GRAPE_Copt{T}, max_episode, Adam, save_file) where {T<:Complex}
@@ -299,10 +480,10 @@ function CFIM_GRAPE_Copt(Measurement, grape::GRAPE_Copt{T}, max_episode, Adam, s
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
-    return info_GRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+    return info_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
 end
 
-function info_GRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+function info_GRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
     println("$str1 parameter estimation")
     ctrl_num = length(grape.control_Hamiltonian)
     ctrl_length = length(grape.control_coefficients[1])
@@ -462,6 +643,184 @@ function info_GRAPE_Copt(Measurement, grape, max_episode, Adam, save_file, sym, 
                 while true
                     ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
                     grape.control_coefficients, f_now = gradient_QFIM_analy(grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_list, ctrl_pre)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                end
+            end
+        end
+    end
+end
+
+function info_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+    println("$str1 parameter estimation")
+    ctrl_num = length(grape.control_Hamiltonian)
+    ctrl_length = length(grape.control_coefficients[1])
+    episodes = 1
+    if length(grape.Hamiltonian_derivative) == 1
+        println("single parameter scenario")
+        println("control algorithm: GRAPE")
+        f_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
+        println("non-controlled $str2 is $(1.0/f_noctrl)")
+        ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+        if Adam == true
+            grape.control_coefficients, f_ini = gradient_CFIM_analy_Adam(Measurement, grape)
+        else
+            grape.control_coefficients, f_ini = gradient_CFIM_analy(Measurement, grape)
+        end
+        f_list = [f_ini]
+        println("initial $str2 is $(f_ini)")
+        if save_file == true
+            SaveFile_ctrl(f_ini, ctrl_pre)
+            if Adam == true
+                while true
+                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+                    grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(Measurement, grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        SaveFile_ctrl(f_now, ctrl_pre) 
+                        break 
+                    else
+                        episodes += 1
+                        SaveFile_ctrl(f_now, ctrl_pre)
+                        print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end  
+                end 
+            else
+                while true
+                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+                    grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        SaveFile_ctrl(f_now, ctrl_pre) 
+                        break 
+                    else
+                        episodes += 1
+                        SaveFile_ctrl(f_now, ctrl_pre)
+                        print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                end 
+            end                    
+        else
+            if Adam == true
+                while true
+                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+                    grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(Measurement, grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_list, ctrl_pre)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                end
+            else
+                while true
+                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+                    grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_list, ctrl_pre)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                end
+            end
+        end
+    else
+        println("multiparameter scenario")
+        println("control algorithm: GRAPE")
+        f_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
+        println("non-controlled value of $str3 is $(f_noctrl)")
+        ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+        if Adam == true
+            grape.control_coefficients, f_ini = gradient_CFIM_analy_Adam(Measurement, grape)
+        else
+            grape.control_coefficients, f_ini = gradient_CFIM_analy(Measurement, grape)
+        end
+        f_list = [f_ini]
+        println("initial value of $str3 is $(f_ini)")
+        if save_file == true
+            SaveFile_ctrl(f_ini, ctrl_pre)
+            if Adam == true
+                while true
+                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+                    grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(Measurement, grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        SaveFile_ctrl(f_now, ctrl_pre)
+                        break
+                    else
+                        episodes += 1
+                        SaveFile_ctrl(f_now, ctrl_pre)
+                        print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                end
+            else
+                while true
+                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+                    grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        SaveFile_ctrl(f_now, ctrl_pre)
+                        break
+                    else
+                        episodes += 1
+                        SaveFile_ctrl(f_now, ctrl_pre)
+                        print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                end
+            end
+        else
+            if Adam == true
+                while true
+                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+                    grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(Measurement, grape)
+                    if  episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_ctrl(f_list, ctrl_pre)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
+                    end
+                end
+            else
+                while true
+                    ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+                    grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")

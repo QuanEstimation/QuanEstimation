@@ -40,7 +40,7 @@ for i in range(dim):
     M_tp = np.dot(get_basis(dim, i), get_basis(dim, i).conj().T)
     Measurement.append(M_tp)
 
-T = 0.3
+T = 2.0
 tnum = int(2000*T)
 tspan = np.linspace(0.0, T, tnum)
 cnum = tnum

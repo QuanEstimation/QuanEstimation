@@ -4,9 +4,9 @@ import quanestimation.ControlOpt.ControlStruct as Control
 
 class DDPG_Copt(Control.ControlSystem):
     def __init__(self, tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[], W=[], \
-                 ctrl0=[], max_episode=500, layer_num=3, layer_dim=200, seed=1234):
+                 ctrl0=[], max_episode=500, layer_num=3, layer_dim=200, seed=1234, load=False):
 
-        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, accuracy=1e-8)
+        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, accuracy=1e-8)
 
         """                                           
         ----------

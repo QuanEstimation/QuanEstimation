@@ -3,7 +3,7 @@ function QFIM_NM_Sopt(NM::TimeIndepend_noiseless{T}, state_num, ini_state, ar, a
     sym = Symbol("QFIM_TimeIndepend_noiseless")
     str1 = "quantum"
     str2 = "QFI"
-    str3 = "Tr(WF^{-1})"
+    str3 = "tr(WF^{-1})"
     Measurement = [zeros(ComplexF64, size(NM.psi)[1], size(NM.psi)[1])]
     return info_NM_noiseless(Measurement, NM, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file, sym, str1, str2, str3)
 end
@@ -260,16 +260,16 @@ end
 ############# time-independent Hamiltonian (noise) ################
 
 function QFIM_NM_Sopt(NM::TimeIndepend_noise{T}, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file) where {T<:Complex}
-    sym = Symbol("QFIM_TimeIndepend_noiseless")
+    sym = Symbol("QFIM_TimeIndepend_noise")
     str1 = "quantum"
     str2 = "QFI"
-    str3 = "Tr(WF^{-1})"
+    str3 = "tr(WF^{-1})"
     Measurement = [zeros(ComplexF64, size(NM.psi)[1], size(NM.psi)[1])]
     return info_NM_noise(Measurement, NM, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file, sym, str1, str2, str3)
 end
 
 function CFIM_NM_Sopt(Measurement, NM::TimeIndepend_noise{T}, state_num, ini_state, ar, ae, ac, as0, max_episode, seed, save_file) where {T<:Complex}
-    sym = Symbol("CFIM_TimeIndepend_noiseless")
+    sym = Symbol("CFIM_TimeIndepend_noise")
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"

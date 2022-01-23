@@ -3,9 +3,9 @@ import warnings
 import quanestimation.StateOpt.StateStruct as State
 
 class DDPG_Sopt(State.StateSystem):
-    def __init__(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], W=[], psi0=[], max_episode=500, layer_num=3, layer_dim=200, seed=1234):
+    def __init__(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], W=[], psi0=[], max_episode=500, layer_num=3, layer_dim=200, seed=1234, load=False):
 
-        State.StateSystem.__init__(self, tspan, psi0, H0, dH, Hc, ctrl, decay, W, seed, accuracy=1e-8)
+        State.StateSystem.__init__(self, tspan, psi0, H0, dH, Hc, ctrl, decay, W, seed, load, accuracy=1e-8)
 
         """
         ----------
