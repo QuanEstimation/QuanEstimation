@@ -150,8 +150,8 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
         println("multiparameter scenario")
         println("search algorithm: Automatic Differentiation (AD)")
         println("initial value of $str2 is $(f_ini)")
-        println("Tr(WI^{-1}) under the given POVMs is $(f_povm)")
-        println("Tr(WF^{-1}) is $(f_opt)")
+        println("tr(WI^{-1}) under the given POVMs is $(f_povm)")
+        println("tr(WF^{-1}) is $(f_opt)")
         f_list = [f_ini]
 
         if Adam == true
@@ -396,8 +396,8 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
         println("multiparameter scenario")
         println("search algorithm: Automatic Differentiation (AD)")
         println("initial value of $str2 is $(f_ini)")
-        println("Tr(WI^{-1}) under the given POVMs is $(f_povm)")
-        println("Tr(WF^{-1}) is $(f_opt)")
+        println("tr(WI^{-1}) under the given POVMs is $(f_povm)")
+        println("tr(WF^{-1}) is $(f_opt)")
         f_list = [f_ini]
 
         if Adam == true

@@ -5,9 +5,9 @@ import quanestimation.ControlOpt.ControlStruct as Control
 
 class GRAPE_Copt(Control.ControlSystem):
     def __init__(self, tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[], W=[], \
-                 auto=True, Adam=True, ctrl0=[], max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99):
+                 auto=True, Adam=True, ctrl0=[], max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99, load=False):
 
-        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, accuracy=1e-8)
+        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, accuracy=1e-8)
 
         """
         ----------

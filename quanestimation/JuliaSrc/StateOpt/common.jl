@@ -7,7 +7,7 @@ mutable struct TimeIndepend_noiseless{T <: Complex,M <: Real}
     accuracy::M
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
-    TimeIndepend_noiseless(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
+    TimeIndepend_noiseless(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
                  tspan::Vector{M}, W::Matrix{M}, accuracy::M,
                  ρ=Vector{Matrix{T}}(undef, 1), ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1),∂ρ_∂V=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = 
                  new{T,M}(freeHamiltonian, Hamiltonian_derivative, psi, tspan, W, accuracy, ρ, ∂ρ_∂x) 
@@ -24,7 +24,7 @@ mutable struct TimeIndepend_noise{T <: Complex,M <: Real}
     accuracy::M
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
-    TimeIndepend_noise(freeHamiltonian::Matrix{T}, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
+    TimeIndepend_noise(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
                  tspan::Vector{M}, decay_opt::Vector{Matrix{T}},γ::Vector{M}, W::Matrix{M}, accuracy::M,
                  ρ=Vector{Matrix{T}}(undef, 1), ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1),∂ρ_∂V=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = 
                  new{T,M}(freeHamiltonian, Hamiltonian_derivative, psi, tspan, decay_opt, γ, W, accuracy, ρ, ∂ρ_∂x) 

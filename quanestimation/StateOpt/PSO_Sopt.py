@@ -4,9 +4,9 @@ import quanestimation.StateOpt.StateStruct as State
 
 class PSO_Sopt(State.StateSystem):
     def __init__(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], W=[], particle_num=10, psi0=[], \
-                 max_episode=[1000,100], c0=1.0, c1=2.0, c2=2.0, seed=1234):
+                 max_episode=[1000,100], c0=1.0, c1=2.0, c2=2.0, seed=1234, load=False):
 
-        State.StateSystem.__init__(self, tspan, psi0, H0, dH, Hc, ctrl, decay, W, seed, accuracy=1e-8)
+        State.StateSystem.__init__(self, tspan, psi0, H0, dH, Hc, ctrl, decay, W, seed, load, accuracy=1e-8)
         
         """
         --------

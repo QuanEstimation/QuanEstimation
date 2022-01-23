@@ -61,7 +61,7 @@ function DDPGEnv(Measurement, params, episode, SinglePara, save_file, rng, sym, 
     action_space = Space([params.ctrl_bound[1]..params.ctrl_bound[2] for _ in 1:ctrl_num])
     state_space = Space(fill(-1.0e35..1.0e35, length(state))) 
 
-    f_noctrl = F_noctrl(Measurement, params, para_num, cnum, ctrl_num)
+    f_noctrl = F_noctrl(Measurement, params, para_num, cnum, ctrl_num, sym)
 
     ctrl_list = [Vector{Float64}() for _ in 1:ctrl_num]
     f_final = Vector{Float64}()
@@ -73,13 +73,13 @@ function DDPGEnv(Measurement, params, episode, SinglePara, save_file, rng, sym, 
     env
 end
 
-function F_noctrl(Measurement, params, para_num, cnum, ctrl_num)
+function F_noctrl(Measurement, params, para_num, cnum, ctrl_num, sym)
     rho = params.ρ0
     drho = [rho|>zero for _ in 1:para_num]
     f_noctrl = zeros(cnum+1)
     for i in 2:cnum+1
         rho, drho = propagate(rho, drho, params, [0.0 for i in 1:ctrl_num])
-        f_noctrl[i] = 1.0/obj_func(Val{env.sym}(), rho, drho, params.W, Measurement, params.accuracy)
+        f_noctrl[i] = 1.0/obj_func(Val{sym}(), rho, drho, params.W, Measurement, params.accuracy)
     end
     f_noctrl
 end

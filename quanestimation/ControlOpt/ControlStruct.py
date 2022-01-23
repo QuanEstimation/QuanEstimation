@@ -5,7 +5,7 @@ import os
 import quanestimation.ControlOpt as ctrl
 
 class ControlSystem:
-    def __init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, accuracy):
+    def __init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, accuracy):
         
         """
         ----------
@@ -106,10 +106,10 @@ class ControlSystem:
         self.W = W
 
         self.accuracy = accuracy
-        
-        if os.path.exists("controls.csv"):
-            data = np.genfromtxt("controls.csv")[-len(self.control_Hamiltonian):]
-            self.control_coefficients = [data[i] for i in range(len(data))]
+        if load == True:
+            if os.path.exists("controls.csv"):
+                data = np.genfromtxt("controls.csv")[-len(self.control_Hamiltonian):]
+                self.control_coefficients = [data[i] for i in range(len(data))]
             
         ctrl_num = len(self.control_coefficients)
         Hc_num = len(self.control_Hamiltonian)
@@ -121,7 +121,7 @@ class ControlSystem:
                             but %d coefficients sequences. The rest of the control sequences are\
                             set to be 0."%(Hc_num,ctrl_num), DeprecationWarning)
             for i in range(Hc_num-ctrl_num):
-                self.control_coefficients.append(np.zeros(len(self.control_coefficients[0])))
+                self.control_coefficients = np.concatenate((self.control_coefficients, np.zeros(len(self.control_coefficients[0]))))
         else: pass
         
         number = math.ceil((len(self.tspan)-1)/len(self.control_coefficients[0]))
@@ -147,7 +147,8 @@ def ControlOpt(*args, method = "auto-GRAPE", **kwargs):
 
 def csv2npy_controls(controls, num):
     C_save = []
-    for ci in range(controls):
+    N = int(len(controls)/num)
+    for ci in range(N):
         C_tp = controls[ci*num:(ci+1)*num]
         C_save.append(C_tp)
     np.save("controls", C_save)

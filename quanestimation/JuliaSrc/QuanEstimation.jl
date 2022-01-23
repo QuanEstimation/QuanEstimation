@@ -2,8 +2,6 @@ module QuanEstimation
 
 using LinearAlgebra
 using Zygote
-# using DifferentialEquations
-using JLD
 using Random
 using SharedArrays
 using Base.Threads

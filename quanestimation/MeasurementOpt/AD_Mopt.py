@@ -5,9 +5,9 @@ import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
 class AD_Mopt(Measurement.MeasurementSystem):
     def __init__(self, mtype, minput, tspan, rho0, H0, dH, Hc=[], ctrl=[], decay=[], W=[], Adam=False, \
-                 measurement0=[], max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99, seed=1234):
+                 measurement0=[], max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99, seed=1234, load=False):
 
-        Measurement.MeasurementSystem.__init__(self, mtype, minput, tspan, rho0, H0, dH, Hc, ctrl, decay, W, measurement0, seed, accuracy=1e-8)
+        Measurement.MeasurementSystem.__init__(self, mtype, minput, tspan, rho0, H0, dH, Hc, ctrl, decay, W, measurement0, seed, load, accuracy=1e-8)
         
         """
         --------

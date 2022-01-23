@@ -92,7 +92,7 @@ function info_DE_projection(DE, popsize, ini_population, c, cr, seed, max_episod
         println("multiparameter scenario")
         println("search algorithm: Differential Evolution (DE)")
         println("initial value of $str2 is $(1.0/f_ini)")
-        println("Tr(WF^{-1}) is $(1.0/f_opt)")
+        println("tr(WF^{-1}) is $(1.0/f_opt)")
 
         if save_file == true
             indx = findmax(p_fit)[2]
@@ -266,8 +266,8 @@ function info_DE_LinearComb(DE, popsize, c, cr, seed, max_episode, save_file, sy
         println("multiparameter scenario")
         println("search algorithm: Differential Evolution (DE)")
         println("initial value of $str2 is $(1.0/f_ini)")
-        println("Tr(WI^{-1}) under the given POVMs is $(1.0/f_povm)")
-        println("Tr(WF^{-1}) is $(1.0/f_opt)")
+        println("tr(WI^{-1}) under the given POVMs is $(1.0/f_povm)")
+        println("tr(WF^{-1}) is $(1.0/f_opt)")
 
         if save_file == true
             indx = findmax(p_fit)[2]
@@ -444,8 +444,8 @@ function info_DE_RotateBasis(DE, popsize, c, cr, seed, max_episode, save_file, s
         println("multiparameter scenario")
         println("search algorithm: Differential Evolution (DE)")
         println("initial value of $str2 is $(1.0/f_ini)")
-        println("Tr(WI^{-1}) under the given POVMs is $(1.0/f_povm)")
-        println("Tr(WF^{-1}) is $(1.0/f_opt)")
+        println("tr(WI^{-1}) under the given POVMs is $(1.0/f_povm)")
+        println("tr(WF^{-1}) is $(1.0/f_opt)")
 
         if save_file == true
             indx = findmax(p_fit)[2]
