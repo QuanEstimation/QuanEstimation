@@ -437,25 +437,25 @@ function CFIM_AD_Sopt(Measurement, AD::TimeIndepend_noise{T}, mt, vt, epsilon, b
 end
 
 function gradient_QFI!(AD::TimeIndepend_noise{T}, epsilon) where {T <: Complex}
-    δF = gradient(x->QFIM_TimeIndepend_AD(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x*x', AD.decay_opt, AD.γ, AD.tspan), AD.psi)[1]
+    δF = gradient(x->QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x*x', AD.decay_opt, AD.γ, AD.tspan, AD.accuracy), AD.psi)[1]
     AD.psi += epsilon*δF
     AD.psi = AD.psi/norm(AD.psi)
 end
 
 function gradient_QFI_Adam!(AD::TimeIndepend_noise{T}, epsilon, mt, vt, beta1, beta2, accuracy) where {T <: Complex}
-    δF = gradient(x->QFIM_TimeIndepend_AD(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x*x', AD.decay_opt, AD.γ, AD.tspan), AD.psi)[1]
+    δF = gradient(x->QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative[1], x*x', AD.decay_opt, AD.γ, AD.tspan, AD.accuracy), AD.psi)[1]
     StateOpt_Adam!(AD, δF, epsilon, mt, vt, beta1, beta2, accuracy) 
     AD.psi = AD.psi/norm(AD.psi)
 end
 
 function gradient_QFIM!(AD::TimeIndepend_noise{T}, epsilon) where {T <: Complex}
-    δF = gradient(x->1/(AD.W*pinv(QFIM_TimeIndepend_AD(AD.freeHamiltonian, AD.Hamiltonian_derivative, x*x', AD.decay_opt, AD.γ, AD.tspan), rtol=AD.accuracy) |> tr |>real), AD.psi) |>sum
+    δF = gradient(x->1/(AD.W*pinv(QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, x*x', AD.decay_opt, AD.γ, AD.tspan, AD.accuracy), rtol=AD.accuracy) |> tr |>real), AD.psi) |>sum
     AD.psi += epsilon*δF
     AD.psi = AD.psi/norm(AD.psi)
 end
 
 function gradient_QFIM_Adam!(AD::TimeIndepend_noise{T}, epsilon, mt, vt, beta1, beta2, accuracy) where {T <: Complex}
-    δF = gradient(x->1/(AD.W*pinv(QFIM_TimeIndepend_AD(AD.freeHamiltonian, AD.Hamiltonian_derivative, x*x', AD.decay_opt, AD.γ, AD.tspan), rtol=AD.accuracy) |> tr |>real), AD.psi) |>sum
+    δF = gradient(x->1/(AD.W*pinv(QFIM_TimeIndepend(AD.freeHamiltonian, AD.Hamiltonian_derivative, x*x', AD.decay_opt, AD.γ, AD.tspan, AD.accuracy), rtol=AD.accuracy) |> tr |>real), AD.psi) |>sum
     StateOpt_Adam!(AD, δF, epsilon, mt, vt, beta1, beta2, accuracy) 
     AD.psi = AD.psi/norm(AD.psi)
 end
