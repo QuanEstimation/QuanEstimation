@@ -3,7 +3,7 @@ function QFIM_DE_Sopt(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c,
     sym = Symbol("QFIM_TimeIndepend_noiseless")
     str1 = "quantum"
     str2 = "QFI"
-    str3 = "Tr(WF^{-1})"
+    str3 = "tr(WF^{-1})"
     Measurement = [zeros(ComplexF64, size(DE.psi)[1], size(DE.psi)[1])]
     return info_DE_noiseless(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
 end
@@ -174,7 +174,7 @@ function QFIM_DE_Sopt(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr,
     sym = Symbol("QFIM_TimeIndepend_noise")
     str1 = "quantum"
     str2 = "QFI"
-    str3 = "Tr(WF^{-1})"
+    str3 = "tr(WF^{-1})"
     Measurement = [zeros(ComplexF64, size(DE.psi)[1], size(DE.psi)[1])]
     return info_DE_noise(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
 end

@@ -379,7 +379,7 @@ end
 Random.seed!(env::ControlEnv_noise, seed) = Random.seed!(env.rng, seed)
 
 function QFIM_DDPG_Sopt(params::TimeIndepend_noise, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
-    sym = Symbol("HCRB_TimeIndepend_noise")
+    sym = Symbol("QFIM_TimeIndepend_noise")
     str1 = "quantum"
     str2 = "QFI"
     str3 = "tr(WF^{-1})"
@@ -388,7 +388,7 @@ function QFIM_DDPG_Sopt(params::TimeIndepend_noise, layer_num, layer_dim, seed, 
 end
 
 function CFIM_DDPG_Sopt(Measurement, params::TimeIndepend_noise, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
-    sym = Symbol("HCRB_TimeIndepend_noise")
+    sym = Symbol("CFIM_TimeIndepend_noise")
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"

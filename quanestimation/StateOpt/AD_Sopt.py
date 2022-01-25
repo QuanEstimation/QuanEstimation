@@ -4,9 +4,9 @@ import quanestimation.StateOpt.StateStruct as State
 
 class AD_Sopt(State.StateSystem):
     def __init__(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], W=[], Adam=False, psi0=[], \
-                 max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99):
+                 max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99, load=False):
 
-        State.StateSystem.__init__(self, tspan, psi0, H0, dH, Hc, ctrl, decay, W, seed=1234, accuracy=1e-8)
+        State.StateSystem.__init__(self, tspan, psi0, H0, dH, Hc, ctrl, decay, W, seed=1234, load=load, accuracy=1e-8)
 
         """
         ----------

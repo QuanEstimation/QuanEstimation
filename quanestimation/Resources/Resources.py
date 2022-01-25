@@ -1,5 +1,5 @@
 
-from qutip import *
+#from qutip import *
 from scipy.linalg import sqrtm
 from numpy.linalg import eigvals
 import numpy as np

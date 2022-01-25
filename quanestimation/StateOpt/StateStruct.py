@@ -1,9 +1,11 @@
 import numpy as np
 import os
+import math
+import warnings
 import quanestimation.StateOpt as stateoptimize
 
 class StateSystem:
-    def __init__(self, tspan, psi0, H0, dH, Hc, ctrl, decay, W, seed, accuracy):
+    def __init__(self, tspan, psi0, H0, dH, Hc, ctrl, decay, W, seed, load, accuracy):
         
         """
         ----------
@@ -75,10 +77,12 @@ class StateSystem:
                             but %d coefficients sequences. The rest of the control sequences are\
                             set to be 0."%(Hc_num,ctrl_num), DeprecationWarning)
                 for i in range(Hc_num-ctrl_num):
-                    ctrl.append(np.zeros(len(ctrl[0])))
+                    ctrl = np.concatenate((ctrl, np.zeros(len(ctrl[0]))))
             else: pass
         
             if len(ctrl[0]) == 1:
+                H0 = np.array(H0, dtype=np.complex128)
+                Hc = [np.array(x, dtype=np.complex128) for x in Hc]
                 Htot = H0 + sum([Hc[i]*ctrl[i][0] for i in range(ctrl_num)])
                 self.freeHamiltonian = np.array(Htot, dtype=np.complex128)
                 self.dim = len(self.freeHamiltonian)
@@ -89,13 +93,13 @@ class StateSystem:
                     self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum+1)
                 else: pass
 
+                H0 = np.array(H0, dtype=np.complex128)
+                Hc = [np.array(x, dtype=np.complex128) for x in Hc]
                 Htot = []
                 for i in range(len(ctrl[0])):
-                    H_tp = H0
-                    for j in range(ctrl):
-                        H_tp += Hc[j]*ctrl[j][i]
-                    Htot.append(H_tp)
-                self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in Htot] 
+                    S_ctrl = sum([Hc[j]*ctrl[j][i] for j in range(len(ctrl))])
+                    Htot.append(H0+S_ctrl)
+                self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in Htot]
                 self.dim = len(self.freeHamiltonian[0])
 
         if psi0 == []:
@@ -130,8 +134,9 @@ class StateSystem:
         
         self.accuracy = accuracy
 
-        if os.path.exists("states.csv"):
-            self.psi0 = np.genfromtxt("states.csv", dtype=np.complex128)
+        if load == True:
+            if os.path.exists("states.csv"):
+                self.psi0 = np.genfromtxt("states.csv", dtype=np.complex128)
 
     def load_save(self):
         if os.path.exists("states.csv"):
@@ -160,7 +165,7 @@ def StateOpt(*args, method = "AD", **kwargs):
 
 def csv2npy_states(states, num=1):
     S_save = []
-    for si in range(states):
+    for si in range(len(states)):
         S_tp = states[si*num:(si+1)*num]
         S_save.append(S_tp)
     np.save("states", S_save)

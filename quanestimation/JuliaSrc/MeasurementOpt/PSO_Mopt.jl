@@ -109,7 +109,7 @@ function info_PSO_projection(pso, max_episode, particle_num, ini_particle, c0, c
         println("multiparameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
         println("initial value of $str2 is $(1.0/f_ini)")
-        println("Tr(WF^{-1}) is $(1.0/f_opt)")
+        println("tr(WF^{-1}) is $(1.0/f_opt)")
 
         if save_file == true
             for ei in 1:(max_episode[1]-1)
@@ -315,8 +315,8 @@ function info_PSO_LinearComb(pso::LinearComb_Mopt{T}, max_episode, particle_num,
         println("multiparameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
         println("initial value of $str2 is $(1.0/f_ini)")
-        println("Tr(WI^{-1}) under the given POVMs is $(1.0/f_povm)")
-        println("Tr(WF^{-1}) is $(1.0/f_opt)")
+        println("tr(WI^{-1}) under the given POVMs is $(1.0/f_povm)")
+        println("tr(WF^{-1}) is $(1.0/f_opt)")
 
         if save_file == true
             for ei in 1:(max_episode[1]-1)
@@ -531,8 +531,8 @@ function info_PSO_RotateBasis(pso::RotateBasis_Mopt{T}, max_episode, particle_nu
         println("multiparameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
         println("initial value of $str2 is $(1.0/f_ini)")
-        println("Tr(WI^{-1}) under the given POVMs is $(1.0/f_povm)")
-        println("Tr(WF^{-1}) is $(1.0/f_opt)")
+        println("tr(WI^{-1}) under the given POVMs is $(1.0/f_povm)")
+        println("tr(WF^{-1}) is $(1.0/f_opt)")
 
         if save_file == true
             for ei in 1:(max_episode[1]-1)
