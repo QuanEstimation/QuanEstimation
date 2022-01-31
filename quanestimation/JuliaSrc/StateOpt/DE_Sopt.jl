@@ -4,16 +4,16 @@ function QFIM_DE_Sopt(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c,
     str1 = "quantum"
     str2 = "QFI"
     str3 = "tr(WF^{-1})"
-    Measurement = [zeros(ComplexF64, size(DE.psi)[1], size(DE.psi)[1])]
-    return info_DE_noiseless(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
+    M = [zeros(ComplexF64, size(DE.psi)[1], size(DE.psi)[1])]
+    return info_DE_noiseless(M, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
-function CFIM_DE_Sopt(Measurement, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<:Complex}
+function CFIM_DE_Sopt(M, DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<:Complex}
     sym = Symbol("CFIM_TimeIndepend_noiseless")
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
-    return info_DE_noiseless(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
+    return info_DE_noiseless(M, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
 function HCRB_DE_Sopt(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<:Complex}
@@ -21,16 +21,16 @@ function HCRB_DE_Sopt(DE::TimeIndepend_noiseless{T}, popsize, ini_population, c,
     str1 = ""
     str2 = "HCRB"
     str3 = "HCRB"
-    Measurement = [zeros(ComplexF64, size(DE.psi)[1], size(DE.psi)[1])]
+    M = [zeros(ComplexF64, size(DE.psi)[1], size(DE.psi)[1])]
     if length(DE.Hamiltonian_derivative) == 1
         println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for state optimization.")
         return nothing
     else
-        return info_DE_noiseless(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
+        return info_DE_noiseless(M, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
     end
 end
 
-function info_DE_noiseless(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3) where {T<:Complex}
+function info_DE_noiseless(M, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3) where {T<:Complex}
     println("$str1 state optimization")
     Random.seed!(seed)
     dim = length(DE.psi)
@@ -52,10 +52,10 @@ function info_DE_noiseless(Measurement, DE, popsize, ini_population, c, cr, seed
 
     p_fit = [0.0 for i in 1:p_num] 
     for pj in 1:p_num
-        p_fit[pj] = 1.0/obj_func(Val{sym}(), populations[pj], Measurement)
+        p_fit[pj] = 1.0/obj_func(Val{sym}(), populations[pj], M)
     end
 
-    f_ini = obj_func(Val{sym}(), DE, Measurement)
+    f_ini = obj_func(Val{sym}(), DE, M)
 
     if length(DE.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -67,13 +67,13 @@ function info_DE_noiseless(Measurement, DE, popsize, ini_population, c, cr, seed
             indx = findmax(p_fit)[2]
             SaveFile_state(f_list, populations[indx].psi)
             for i in 1:(max_episode-1)
-                p_fit = train_noiseless_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
+                p_fit = train_noiseless_DE(M, populations, c, cr, p_num, dim, p_fit, sym)
                 indx = findmax(p_fit)[2]
                 append!(f_list, maximum(p_fit))
                 SaveFile_state(f_list, populations[indx].psi)
                 print("current $str2 is ", maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit = train_noiseless_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
+            p_fit = train_noiseless_DE(M, populations, c, cr, p_num, dim, p_fit, sym)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
             SaveFile_state(f_list, populations[indx].psi)
@@ -82,11 +82,11 @@ function info_DE_noiseless(Measurement, DE, popsize, ini_population, c, cr, seed
             println("Final $str2 is ", maximum(p_fit))
         else
             for i in 1:(max_episode-1)
-                p_fit = train_noiseless_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
+                p_fit = train_noiseless_DE(M, populations, c, cr, p_num, dim, p_fit, sym)
                 append!(f_list, maximum(p_fit))
                 print("current $str2 is ", maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit = train_noiseless_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
+            p_fit = train_noiseless_DE(M, populations, c, cr, p_num, dim, p_fit, sym)
             indx = findmax(p_fit)[2]
             SaveFile_state(f_list, populations[indx].psi)
             print("\e[2K")
@@ -103,13 +103,13 @@ function info_DE_noiseless(Measurement, DE, popsize, ini_population, c, cr, seed
             indx = findmax(p_fit)[2]
             SaveFile_state(f_list, populations[indx].psi)
             for i in 1:(max_episode-1)
-                p_fit = train_noiseless_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
+                p_fit = train_noiseless_DE(M, populations, c, cr, p_num, dim, p_fit, sym)
                 indx = findmax(p_fit)[2]
                 append!(f_list, 1.0/maximum(p_fit))
                 SaveFile_state(f_list, populations[indx].psi)
                 print("current value of $str3 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit = train_noiseless_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
+            p_fit = train_noiseless_DE(M, populations, c, cr, p_num, dim, p_fit, sym)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_state(f_list, populations[indx].psi)
@@ -118,11 +118,11 @@ function info_DE_noiseless(Measurement, DE, popsize, ini_population, c, cr, seed
             println("Final value of $str3 is ", 1.0/maximum(p_fit))
         else
             for i in 1:(max_episode-1)
-                p_fit = train_noiseless_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
+                p_fit = train_noiseless_DE(M, populations, c, cr, p_num, dim, p_fit, sym)
                 append!(f_list, 1.0/maximum(p_fit))
                 print("current value of $str3 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit = train_noiseless_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
+            p_fit = train_noiseless_DE(M, populations, c, cr, p_num, dim, p_fit, sym)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_state(f_list, populations[indx].psi)
@@ -133,7 +133,7 @@ function info_DE_noiseless(Measurement, DE, popsize, ini_population, c, cr, seed
     end
 end
 
-function train_noiseless_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
+function train_noiseless_DE(M, populations, c, cr, p_num, dim, p_fit, sym)
     for pj in 1:p_num
         #mutations
         mut_num = sample(1:p_num, 3, replace=false)
@@ -156,7 +156,7 @@ function train_noiseless_DE(Measurement, populations, c, cr, p_num, dim, p_fit, 
         psi_cross = ctrl_cross/norm(ctrl_cross)
 
         #selection
-        f_cross = obj_func(Val{sym}(), populations[pj], Measurement, psi_cross)
+        f_cross = obj_func(Val{sym}(), populations[pj], M, psi_cross)
         f_cross = 1.0/f_cross
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
@@ -175,16 +175,16 @@ function QFIM_DE_Sopt(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr,
     str1 = "quantum"
     str2 = "QFI"
     str3 = "tr(WF^{-1})"
-    Measurement = [zeros(ComplexF64, size(DE.psi)[1], size(DE.psi)[1])]
-    return info_DE_noise(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
+    M = [zeros(ComplexF64, size(DE.psi)[1], size(DE.psi)[1])]
+    return info_DE_noise(M, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
-function CFIM_DE_Sopt(Measurement, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<:Complex}
+function CFIM_DE_Sopt(M, DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<:Complex}
     sym = Symbol("CFIM_TimeIndepend_noise")
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
-    return info_DE_noise(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
+    return info_DE_noise(M, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
 function HCRB_DE_Sopt(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<:Complex}
@@ -192,16 +192,16 @@ function HCRB_DE_Sopt(DE::TimeIndepend_noise{T}, popsize, ini_population, c, cr,
     str1 = ""
     str2 = "HCRB"
     str3 = "HCRB"
-    Measurement = [zeros(ComplexF64, size(DE.psi)[1], size(DE.psi)[1])]
+    M = [zeros(ComplexF64, size(DE.psi)[1], size(DE.psi)[1])]
     if length(DE.Hamiltonian_derivative) == 1
         println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for state optimization.")
         return nothing
     else
-        return info_DE_noise(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
+        return info_DE_noise(M, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
     end
 end
 
-function info_DE_noise(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3) where {T<:Complex}
+function info_DE_noise(M, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3) where {T<:Complex}
     println("$str1 state optimization")
     Random.seed!(seed)
     dim = length(DE.psi)
@@ -225,10 +225,10 @@ function info_DE_noise(Measurement, DE, popsize, ini_population, c, cr, seed, ma
 
     p_fit = [0.0 for i in 1:p_num] 
     for pj in 1:p_num
-        p_fit[pj] = 1.0/obj_func(Val{sym}(), populations[pj], Measurement)
+        p_fit[pj] = 1.0/obj_func(Val{sym}(), populations[pj], M)
     end
 
-    f_ini = obj_func(Val{sym}(), DE, Measurement)
+    f_ini = obj_func(Val{sym}(), DE, M)
     f_list = [f_ini]
 
     if length(DE.Hamiltonian_derivative) == 1
@@ -240,13 +240,13 @@ function info_DE_noise(Measurement, DE, popsize, ini_population, c, cr, seed, ma
             indx = findmax(p_fit)[2]
             SaveFile_state(f_list, populations[indx].psi)
             for i in 1:(max_episode-1)
-                p_fit = train_noise_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
+                p_fit = train_noise_DE(M, populations, c, cr, p_num, dim, p_fit, sym)
                 indx = findmax(p_fit)[2]
                 append!(f_list, maximum(p_fit))
                 SaveFile_state(f_list, populations[indx].psi)
                 print("current $str2 is ", maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit = train_noise_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
+            p_fit = train_noise_DE(M, populations, c, cr, p_num, dim, p_fit, sym)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
             SaveFile_state(f_list, populations[indx].psi)
@@ -255,11 +255,11 @@ function info_DE_noise(Measurement, DE, popsize, ini_population, c, cr, seed, ma
             println("Final $str2 is ", maximum(p_fit))
         else
             for i in 1:(max_episode-1)
-                p_fit = train_noise_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
+                p_fit = train_noise_DE(M, populations, c, cr, p_num, dim, p_fit, sym)
                 append!(f_list, maximum(p_fit))
                 print("current $str2 is ", maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit = train_noise_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
+            p_fit = train_noise_DE(M, populations, c, cr, p_num, dim, p_fit, sym)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
             SaveFile_state(f_list, populations[indx].psi)
@@ -276,13 +276,13 @@ function info_DE_noise(Measurement, DE, popsize, ini_population, c, cr, seed, ma
             indx = findmax(p_fit)[2]
             SaveFile_state(f_list, populations[indx].psi)
             for i in 1:(max_episode-1)
-                p_fit = train_noise_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
+                p_fit = train_noise_DE(M, populations, c, cr, p_num, dim, p_fit, sym)
                 indx = findmax(p_fit)[2]
                 append!(f_list, 1.0/maximum(p_fit))
                 SaveFile_state(f_list, populations[indx].psi)
                 print("current value of $str3 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit = train_noise_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
+            p_fit = train_noise_DE(M, populations, c, cr, p_num, dim, p_fit, sym)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_state(f_list, populations[indx].psi)
@@ -291,11 +291,11 @@ function info_DE_noise(Measurement, DE, popsize, ini_population, c, cr, seed, ma
             println("Final value of $str3 is ", 1.0/maximum(p_fit))
         else
             for i in 1:(max_episode-1)
-                p_fit = train_noise_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
+                p_fit = train_noise_DE(M, populations, c, cr, p_num, dim, p_fit, sym)
                 append!(f_list, 1.0/maximum(p_fit))
                 print("current value of $str3 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
-            p_fit = train_noise_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
+            p_fit = train_noise_DE(M, populations, c, cr, p_num, dim, p_fit, sym)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_state(f_list, populations[indx].psi)
@@ -306,7 +306,7 @@ function info_DE_noise(Measurement, DE, popsize, ini_population, c, cr, seed, ma
     end
 end
 
-function train_noise_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
+function train_noise_DE(M, populations, c, cr, p_num, dim, p_fit, sym)
     for pj in 1:p_num
         #mutations
         mut_num = sample(1:p_num, 3, replace=false)
@@ -329,7 +329,7 @@ function train_noise_DE(Measurement, populations, c, cr, p_num, dim, p_fit, sym)
         psi_cross = ctrl_cross/norm(ctrl_cross)
 
         #selection
-        f_cross = obj_func(Val{sym}(), populations[pj], Measurement, psi_cross)
+        f_cross = obj_func(Val{sym}(), populations[pj], M, psi_cross)
         f_cross = 1.0/f_cross
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross

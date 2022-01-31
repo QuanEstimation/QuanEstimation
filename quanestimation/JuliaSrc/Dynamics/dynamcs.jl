@@ -455,6 +455,7 @@ function secondorder_derivative(H0, ∂H_∂x::Vector{Matrix{T}}, ∂2H_∂x::Ve
     ∂2H_L = [liouville_commu(∂2H_∂x[i]) for i in 1:para_num]
 
     Δt = tspan[2] - tspan[1]
+    
     ρt = ρ0 |> vec
     ∂ρt_∂x = [ρt |> zero for i in 1:para_num]
     ∂2ρt_∂x = [ρt |> zero for i in 1:para_num]

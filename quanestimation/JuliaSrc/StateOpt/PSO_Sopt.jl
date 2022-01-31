@@ -4,16 +4,16 @@ function QFIM_PSO_Sopt(pso::TimeIndepend_noiseless{T}, max_episode, particle_num
     str1 = "quantum"
     str2 = "QFI"
     str3 = "tr(WF^{-1})"
-    Measurement = [zeros(ComplexF64, size(pso.psi)[1], size(pso.psi)[1])]
-    return info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
+    M = [zeros(ComplexF64, size(pso.psi)[1], size(pso.psi)[1])]
+    return info_PSO_noiseless(M, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
 end
 
-function CFIM_PSO_Sopt(Measurement, pso::TimeIndepend_noiseless{T}, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file) where {T<:Complex}
+function CFIM_PSO_Sopt(M, pso::TimeIndepend_noiseless{T}, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file) where {T<:Complex}
     sym = Symbol("CFIM_TimeIndepend_noiseless")
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
-    return info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
+    return info_PSO_noiseless(M, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
 end
 
 function HCRB_PSO_Sopt(pso::TimeIndepend_noiseless{T}, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file) where {T<:Complex}
@@ -21,16 +21,16 @@ function HCRB_PSO_Sopt(pso::TimeIndepend_noiseless{T}, max_episode, particle_num
     str1 = ""
     str2 = "HCRB"
     str3 = "HCRB"
-    Measurement = [zeros(ComplexF64, size(pso.psi)[1], size(pso.psi)[1])]
+    M = [zeros(ComplexF64, size(pso.psi)[1], size(pso.psi)[1])]
     if length(pso.Hamiltonian_derivative) == 1
         println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for state optimization.")
         return nothing
     else
-        return info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
+        return info_PSO_noiseless(M, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
     end
 end
 
-function info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3) where {T<: Complex}
+function info_PSO_noiseless(M, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3) where {T<: Complex}
     println("$str1 state optimization")
     Random.seed!(seed)
     dim = length(pso.psi)
@@ -60,7 +60,7 @@ function info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_par
         particles[pj].psi = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
     end
 
-    qfi_ini = obj_func(Val{sym}(), pso, Measurement)
+    qfi_ini = obj_func(Val{sym}(), pso, M)
 
     if length(pso.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -70,7 +70,7 @@ function info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_par
         if save_file==true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                                     dim, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest[i] for i in 1:dim]
@@ -81,7 +81,7 @@ function info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_par
                 print("current $str2 is $fit ($ei episodes)    \r")
                 
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                                 dim, pbest, gbest, velocity_best, velocity, sym)
             append!(f_list, fit)
             SaveFile_state(f_list, gbest)
@@ -91,7 +91,7 @@ function info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_par
         else
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                                     dim, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest[i] for i in 1:dim]
@@ -100,7 +100,7 @@ function info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_par
                 append!(f_list, fit)
                 print("current $str2 is $fit ($ei episodes)    \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                                 dim, pbest, gbest, velocity_best, velocity, sym)
             append!(f_list, fit)
             SaveFile_state(f_list, gbest)
@@ -116,7 +116,7 @@ function info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_par
         if save_file==true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                                     dim, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest[i] for i in 1:dim]
@@ -126,7 +126,7 @@ function info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_par
                 SaveFile_state(f_list, gbest)
                 print("current value of $str3 is $(1.0/fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                                 dim, pbest, gbest, velocity_best, velocity, sym)
             append!(f_list, (1.0/fit))
             SaveFile_state(f_list, gbest)
@@ -136,7 +136,7 @@ function info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_par
         else
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                                     dim, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest[i] for i in 1:dim]
@@ -145,7 +145,7 @@ function info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_par
                 append!(f_list, (1.0/fit))
                 print("current value of $str3 is $(1.0/fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_noiseless_PSO(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                                 dim, pbest, gbest, velocity_best, velocity, sym)
             append!(f_list, (1.0/fit))
             SaveFile_state(f_list, gbest)
@@ -156,9 +156,9 @@ function info_PSO_noiseless(Measurement, pso, max_episode, particle_num, ini_par
     end
 end
 
-function train_noiseless_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, pbest, gbest, velocity_best, velocity, sym)
+function train_noiseless_PSO(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, pbest, gbest, velocity_best, velocity, sym)
     for pj in 1:particle_num
-        f_now = obj_func(Val{sym}(), particles[pj], Measurement) 
+        f_now = obj_func(Val{sym}(), particles[pj], M) 
         f_now = 1.0/f_now
         if f_now > p_fit[pj]
             p_fit[pj] = f_now
@@ -201,16 +201,16 @@ function QFIM_PSO_Sopt(pso::TimeIndepend_noise{T}, max_episode, particle_num, in
     str1 = "quantum"
     str2 = "QFI"
     str3 = "tr(WF^{-1})"
-    Measurement = [zeros(ComplexF64, size(pso.psi)[1], size(pso.psi)[1])]
-    return info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
+    M = [zeros(ComplexF64, size(pso.psi)[1], size(pso.psi)[1])]
+    return info_PSO_noise(M, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
 end
 
-function CFIM_PSO_Sopt(Measurement, pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file) where {T<:Complex}
+function CFIM_PSO_Sopt(M, pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file) where {T<:Complex}
     sym = Symbol("CFIM_TimeIndepend_noise")
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
-    return info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
+    return info_PSO_noise(M, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
 end
 
 function HCRB_PSO_Sopt(pso::TimeIndepend_noise{T}, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file) where {T<:Complex}
@@ -218,16 +218,16 @@ function HCRB_PSO_Sopt(pso::TimeIndepend_noise{T}, max_episode, particle_num, in
     str1 = ""
     str2 = "HCRB"
     str3 = "HCRB"
-    Measurement = [zeros(ComplexF64, size(pso.psi)[1], size(pso.psi)[1])]
+    M = [zeros(ComplexF64, size(pso.psi)[1], size(pso.psi)[1])]
     if length(pso.Hamiltonian_derivative) == 1
         println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for state optimization.")
         return nothing
     else
-        return info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
+        return info_PSO_noise(M, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3)
     end
 end
 
-function info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3) where {T<:Complex}
+function info_PSO_noise(M, pso, max_episode, particle_num, ini_particle, c0, c1, c2, v0, seed, save_file, sym, str1, str2, str3) where {T<:Complex}
     println("$str1 state optimization")
     Random.seed!(seed)
     dim = length(pso.psi)
@@ -257,7 +257,7 @@ function info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particl
         particles[pj].psi = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
     end
 
-    qfi_ini = obj_func(Val{sym}(), pso, Measurement)
+    qfi_ini = obj_func(Val{sym}(), pso, M)
 
     if length(pso.Hamiltonian_derivative) == 1
         println("single parameter scenario")
@@ -267,7 +267,7 @@ function info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particl
         if save_file==true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                                 dim, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest[i] for i in 1:dim]
@@ -278,7 +278,7 @@ function info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particl
                 print("current $str2 is $fit ($ei episodes)    \r")
 
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                             dim, pbest, gbest, velocity_best, velocity, sym)
             append!(f_list, fit)
             SaveFile_state(f_list, gbest)
@@ -288,7 +288,7 @@ function info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particl
         else
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                                 dim, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest[i] for i in 1:dim]
@@ -297,7 +297,7 @@ function info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particl
                 append!(f_list, fit)
                 print("current $str2 is $fit ($ei episodes)    \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                             dim, pbest, gbest, velocity_best, velocity, sym)
             append!(f_list, fit)
             SaveFile_state(f_list, gbest)
@@ -313,7 +313,7 @@ function info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particl
         if save_file==true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                                 dim, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest[i] for i in 1:dim]
@@ -323,7 +323,7 @@ function info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particl
                 SaveFile_state(f_list, gbest)
                 print("current value of $str3 is $(1.0/fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                             dim, pbest, gbest, velocity_best, velocity, sym)
             append!(f_list, (1.0/fit))
             SaveFile_state(f_list, gbest)
@@ -333,7 +333,7 @@ function info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particl
         else
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                                 dim, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest[i] for i in 1:dim]
@@ -342,7 +342,7 @@ function info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particl
                 append!(f_list, (1.0/fit))
                 print("current value of $str3 is $(1.0/fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+            p_fit, fit, pbest, gbest, velocity_best, velocity = train_noise_PSO(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
                                                                             dim, pbest, gbest, velocity_best, velocity, sym)
             append!(f_list, (1.0/fit))
             SaveFile_state(f_list, gbest)
@@ -353,9 +353,9 @@ function info_PSO_noise(Measurement, pso, max_episode, particle_num, ini_particl
     end
 end
 
-function train_noise_PSO(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, pbest, gbest, velocity_best, velocity, sym)
+function train_noise_PSO(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, pbest, gbest, velocity_best, velocity, sym)
     for pj in 1:particle_num
-        f_now = obj_func(Val{sym}(), particles[pj], Measurement)
+        f_now = obj_func(Val{sym}(), particles[pj], M)
         f_now = 1.0/f_now
         if f_now > p_fit[pj]
             p_fit[pj] = f_now

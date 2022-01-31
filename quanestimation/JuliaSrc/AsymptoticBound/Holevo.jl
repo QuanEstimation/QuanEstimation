@@ -97,44 +97,44 @@ function Holevo_bound_tgt(ρ::Matrix{T}, ∂ρ_∂x::Vector{Matrix{T}}, C::Matri
     return evaluate(tr(C*V)), evaluate(X), evaluate(V)
 end
 
-function obj_func(x::Val{:HCRB}, ρt, ∂ρt_∂x, W, Measurement, accuracy)
+function obj_func(x::Val{:HCRB}, ρt, ∂ρt_∂x, W, M, accuracy)
     f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, W, accuracy)  
     return f 
 end
 
-function obj_func(x::Val{:HCRB}, system, Measurement)
+function obj_func(x::Val{:HCRB}, system, M)
     ρt, ∂ρt_∂x = dynamics(system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ, 
                 system.control_Hamiltonian, system.control_coefficients, system.tspan)
     f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, system.W, system.accuracy)  
     return f         
 end
 
-function obj_func(x::Val{:HCRB}, system, Measurement, control_coeff)
+function obj_func(x::Val{:HCRB}, system, M, control_coeff)
     ρt, ∂ρt_∂x = dynamics(system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ, 
                 system.control_Hamiltonian, control_coeff, system.tspan)
     f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, system.W, system.accuracy)   
     return f 
 end
 
-function obj_func(x::Val{:HCRB_TimeIndepend_noiseless}, system, Measurement)
+function obj_func(x::Val{:HCRB_TimeIndepend_noiseless}, system, M)
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(system.freeHamiltonian, system.Hamiltonian_derivative, system.psi, system.tspan)
     f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, system.W, system.accuracy)   
     return f        
 end
 
-function obj_func(x::Val{:HCRB_TimeIndepend_noiseless}, system, Measurement, psi)
+function obj_func(x::Val{:HCRB_TimeIndepend_noiseless}, system, M, psi)
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(system.freeHamiltonian, system.Hamiltonian_derivative, psi, system.tspan)
     f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, system.W, system.accuracy)     
     return f      
 end
 
-function obj_func(x::Val{:HCRB_TimeIndepend_noise}, system, Measurement)
+function obj_func(x::Val{:HCRB_TimeIndepend_noise}, system, M)
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(system.freeHamiltonian, system.Hamiltonian_derivative, system.psi, system.decay_opt, system.γ, system.tspan)
     f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, system.W, system.accuracy)   
     return f 
 end
 
-function obj_func(x::Val{:HCRB_TimeIndepend_noise}, system, Measurement, psi)
+function obj_func(x::Val{:HCRB_TimeIndepend_noise}, system, M, psi)
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(system.freeHamiltonian, system.Hamiltonian_derivative, psi, system.decay_opt, system.γ, system.tspan)
     f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, system.W, system.accuracy)   
     return f 

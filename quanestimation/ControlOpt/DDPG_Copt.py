@@ -53,7 +53,7 @@ class DDPG_Copt(Control.ControlSystem):
                 self.ctrl_bound, self.W, self.ctrl_interval, len(self.rho0), self.accuracy)
         Main.QuanEstimation.QFIM_DDPG_Copt(ddpg, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
     
-    def CFIM(self, Measurement, save_file=False):
+    def CFIM(self, M, save_file=False):
         """
         Description: use DDPG algorithm to update the control coefficients that maximize the 
                      CFI (1/Tr(WF^{-1} with F the CFIM).
@@ -66,11 +66,11 @@ class DDPG_Copt(Control.ControlSystem):
                            False: save the control coefficients for the last episode and all the CFI (Tr(WF^{-1})).
             --type: bool
         """
-        Measurement = [np.array(x, dtype=np.complex128) for x in Measurement]
+        M = [np.array(x, dtype=np.complex128) for x in M]
         ddpg = Main.QuanEstimation.DDPG_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, \
                 self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
                 self.ctrl_bound, self.W, self.ctrl_interval, len(self.rho0), self.accuracy)
-        Main.QuanEstimation.CFIM_DDPG_Copt(Measurement, ddpg, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
+        Main.QuanEstimation.CFIM_DDPG_Copt(M, ddpg, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
 
     def HCRB(self, save_file=False):
         """

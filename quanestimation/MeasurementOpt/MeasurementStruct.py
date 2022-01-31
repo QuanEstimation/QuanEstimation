@@ -135,9 +135,9 @@ class MeasurementSystem:
                     r = r_ini/np.linalg.norm(r_ini)
                     phi = 2*np.pi*np.random.random(len(self.rho0))
                     M[i] = [r[i]*np.exp(1.0j*phi[i]) for i in range(len(self.rho0))]
-                self.Measurement = gramschmidt(np.array(M))
+                self.M = gramschmidt(np.array(M))
             elif len(measurement0) >= 1:
-                self.Measurement = [measurement0[0][i] for i in range(len(self.rho0))]
+                self.M = [measurement0[0][i] for i in range(len(self.rho0))]
 
         elif self.mtype == "input":
             if minput[0] == "LC":
@@ -219,22 +219,22 @@ def MeasurementOpt(*args, mtype="projection", minput=[], method="DE", **kwargs):
     else:
         raise ValueError("{!r} is not a valid value for method, supported values are 'AD', 'PSO' and 'DE'.".format(method))
 
-def csv2npy_measurements(Measurements, num):
-    n = int(np.sqrt(len(Measurements[0])))
-    N = int(len(Measurements)/num)
+def csv2npy_measurements(M, num):
+    n = int(np.sqrt(len(M[0])))
+    N = int(len(M)/num)
     M_save = []
     for mi in range(N):
-        M_tp = Measurements[mi*num:(mi+1)*num]
+        M_tp = M[mi*num:(mi+1)*num]
         M = [M_tp[i].reshape(n, n).T for i in range(num)]
         M_save.append(M)
     np.save("measurements", M_save)
 
-def load_measurements(Measurements, num, indx=-1):
-    n = int(np.sqrt(len(Measurements[0])))
-    N = int(len(Measurements)/num)
+def load_measurements(M, num, indx=-1):
+    n = int(np.sqrt(len(M[0])))
+    N = int(len(M)/num)
     M_save = []
     for mi in range(N):
-        M_tp = Measurements[mi*num:(mi+1)*num]
+        M_tp = M[mi*num:(mi+1)*num]
         M = [M_tp[i].reshape(n, n).T for i in range(num)]
         M_save.append(M)
     return M_save[indx]

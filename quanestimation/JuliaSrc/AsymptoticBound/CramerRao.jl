@@ -31,8 +31,8 @@ end
     L, SLD_pullback
 end 
 
-function SLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}, accuracy; rep="original") where {T<:Complex}
-    (x->SLD(ρ, x, accuracy, rep=rep)).(dρ)
+function SLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}, accuracy) where {T<:Complex}
+    (x->SLD(ρ, x, accuracy)).(dρ)
 end
 
 
@@ -84,8 +84,20 @@ function QFIM_pure(ρ::Matrix{T}, ∂ρ_∂x::Matrix{T}) where {T<:Complex}
 end
 
 #### quantum dynamics and calcalate QFI ####
+function QFI(arr, H0, ∂H_∂x::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, tspan, accuracy) where {T<:Complex,R<:Real}
+    ρ0 = arr[1]*arr[1]'
+    control_coefficients = arr[2]
+    ρt, ∂ρt_∂x = dynamics(H0, ∂H_∂x, ρ0, decay_opt, γ, control_Hamiltonian, control_coefficients, tspan)
+    QFI(ρt, ∂ρt_∂x, accuracy)
+end
 
 function QFI(H0, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, accuracy) where {T<:Complex,R<:Real}
+    ρt, ∂ρt_∂x = dynamics(H0, ∂H_∂x, ρ0, decay_opt, γ, control_Hamiltonian, control_coefficients, tspan)
+    QFI(ρt, ∂ρt_∂x, accuracy)
+end
+
+function QFI(H0, ∂H_∂x::Matrix{T}, psi0::Vector{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, accuracy) where {T<:Complex,R<:Real}
+    ρ0 = psi0*psi0'
     ρt, ∂ρt_∂x = dynamics(H0, ∂H_∂x, ρ0, decay_opt, γ, control_Hamiltonian, control_coefficients, tspan)
     QFI(ρt, ∂ρt_∂x, accuracy)
 end
@@ -126,7 +138,7 @@ end
 
 #==========================================================#
 ####################### calculate QFIM #####################
-function QFIM(ρ, dρ, accuracy)
+function QFIM(ρ, dρ, accuracy=1e-8)
     p_num = length(dρ)
     SLD_tp = SLD(ρ, dρ, accuracy)
     qfim = ([0.5*ρ] .* (kron(SLD_tp, reshape(SLD_tp,1,p_num)) + kron(reshape(SLD_tp,1,p_num), SLD_tp))).|> tr .|>real 
@@ -144,7 +156,7 @@ function QFIM_pure(ρ::Matrix{T}, ∂ρ_∂x::Vector{Matrix{T}}) where {T<:Compl
     qfim = ([0.5*ρ] .* (kron(SLD, reshape(SLD,1,p_num)) + kron(reshape(SLD,1,p_num), SLD))) .|> tr .|>real
 end
 
-function obj_func(x::Val{:QFIM}, ρ, dρ, W, Measurement, accuracy)
+function obj_func(x::Val{:QFIM}, ρ, dρ, W, M, accuracy)
     F = QFIM(ρ, dρ, accuracy)
     return (abs(det(F)) < accuracy ? (1.0/accuracy) : real(tr(W*inv(F))))
 end
@@ -152,6 +164,19 @@ end
 #### quantum dynamics and calcalate QFIM ####
 
 function QFIM(H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, accuracy) where {T<:Complex,R<:Real}
+    ρt, ∂ρt_∂x = dynamics(H0, ∂H_∂x, ρ0, decay_opt, γ, control_Hamiltonian, control_coefficients, tspan)
+    QFIM(ρt, ∂ρt_∂x, accuracy)
+end
+
+function QFIM(H0, ∂H_∂x::Vector{Matrix{T}}, psi0::Vector{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, accuracy) where {T<:Complex,R<:Real}
+    ρ0 = psi0*psi0'
+    ρt, ∂ρt_∂x = dynamics(H0, ∂H_∂x, ρ0, decay_opt, γ, control_Hamiltonian, control_coefficients, tspan)
+    QFIM(ρt, ∂ρt_∂x, accuracy)
+end
+
+function QFIM(arr, H0, ∂H_∂x::Vector{Matrix{T}}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, tspan, accuracy) where {T<:Complex,R<:Real}
+    ρ0 = arr[1]*arr[1]'
+    control_coefficients = arr[2]
     ρt, ∂ρt_∂x = dynamics(H0, ∂H_∂x, ρ0, decay_opt, γ, control_Hamiltonian, control_coefficients, tspan)
     QFIM(ρt, ∂ρt_∂x, accuracy)
 end
@@ -195,41 +220,47 @@ function QFIM_saveall(H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_op
     return F
 end
 
-function obj_func(x::Val{:QFIM}, system, Measurement)
+function obj_func(x::Val{:QFIM}, system, M)
     F = QFIM(system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ, system.control_Hamiltonian, 
                 system.control_coefficients, system.tspan, system.accuracy)
     return (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
 end
 
-function obj_func(x::Val{:QFIM}, system, Measurement, control_coeff)
+function obj_func(x::Val{:QFIM}, system, M, control_coeff)
     F = QFIM(system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ, system.control_Hamiltonian, 
                 control_coeff, system.tspan, system.accuracy)
     return (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
 end
 
-function obj_func(x::Val{:QFIM_TimeIndepend_noiseless}, system, Measurement)
+function obj_func(x::Val{:QFIM_noctrl}, system, M, psi)
+    ρ0 = psi*psi'
+    F =QFIM(system.freeHamiltonian, system.Hamiltonian_derivative, ρ0, system.decay_opt, system.γ, system.tspan, system.accuracy)
+    return  (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
+end
+
+function obj_func(x::Val{:QFIM_TimeIndepend_noiseless}, system, M)
     F = QFIM_TimeIndepend(system.freeHamiltonian, system.Hamiltonian_derivative, system.psi, system.tspan, system.accuracy)
     return (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
 end
 
-function obj_func(x::Val{:QFIM_TimeIndepend_noiseless}, system, Measurement, psi)
+function obj_func(x::Val{:QFIM_TimeIndepend_noiseless}, system, M, psi)
     F = QFIM_TimeIndepend(system.freeHamiltonian, system.Hamiltonian_derivative, psi, system.tspan, system.accuracy)
     return (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
 end
 
-function obj_func(x::Val{:QFIM_TimeIndepend_noise}, system, Measurement)
+function obj_func(x::Val{:QFIM_TimeIndepend_noise}, system, M)
     F = QFIM_TimeIndepend(system.freeHamiltonian, system.Hamiltonian_derivative, system.psi, system.decay_opt, 
                              system.γ, system.tspan, system.accuracy)
     return (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
 end
 
-function obj_func(x::Val{:QFIM_TimeIndepend_noise}, system, Measurement, psi)
+function obj_func(x::Val{:QFIM_TimeIndepend_noise}, system, M, psi)
     F = QFIM_TimeIndepend(system.freeHamiltonian, system.Hamiltonian_derivative, psi, system.decay_opt, 
                              system.γ, system.tspan, system.accuracy)
     return (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
 end
 
-function obj_func(x::Val{:QFIM_noctrl}, system, Measurement)
+function obj_func(x::Val{:QFIM_noctrl}, system, M)
     F = QFIM(system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ, system.tspan, system.accuracy)
     return (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
 end
@@ -284,20 +315,20 @@ function CFI(ρ, dρ, M, accuracy=1e-8)
 end
 
 #### quantum dynamics and calcalate CFI ####
-function CFI(Measurement::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, accuracy) where {T<:Complex,R<:Real}
+function CFI(M::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, accuracy) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics(H0, ∂H_∂x, ρ0, decay_opt, γ, control_Hamiltonian, control_coefficients, tspan)
-    CFI(ρt, ∂ρt_∂x, Measurement, accuracy)
+    CFI(ρt, ∂ρt_∂x, M, accuracy)
 end
 
-function CFI(Measurement::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, accuracy) where {T<:Complex,R<:Real}
+function CFI(M::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, accuracy) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, ρ0, decay_opt, γ, tspan)
-    CFI(ρt, ∂ρt_∂x, Measurement, accuracy)
+    CFI(ρt, ∂ρt_∂x, M, accuracy)
 end
 
 function CFI_AD(Mbasis::Vector{Vector{T}}, Mcoeff::Vector{R}, Lambda, H0::Matrix{T}, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, accuracy) where {T<:Complex,R<:Real}
     dim = size(ρ0)[1]
     U = rotation_matrix(Mcoeff, Lambda)
-    Measurement = [U*Mbasis[i]*Mbasis[i]'*U' for i in 1:length(Mbasis)]
+    M = [U*Mbasis[i]*Mbasis[i]'*U' for i in 1:length(Mbasis)]
 
     Δt = tspan[2] - tspan[1]
     ρt = ρ0 |> vec
@@ -309,13 +340,13 @@ function CFI_AD(Mbasis::Vector{Vector{T}}, Mcoeff::Vector{R}, Lambda, H0::Matrix
         ∂ρt_∂x = -im * Δt * ∂H_L * ρt + expL * ∂ρt_∂x
     end
     ρt = exp(vec(H0)' * zero(ρt)) * ρt
-    CFI(ρt |> vec2mat, ∂ρt_∂x |> vec2mat, Measurement, accuracy)
+    CFI(ρt |> vec2mat, ∂ρt_∂x |> vec2mat, M, accuracy)
 end
 
 function CFI_AD(Mbasis::Vector{Matrix{T}}, Mcoeff::Vector{R}, Lambda, H0::Matrix{T}, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, accuracy) where {T<:Complex,R<:Real}
     dim = size(ρ0)[1]
     U = rotation_matrix(Mcoeff, Lambda)
-    Measurement = [U*Mbasis[i]*U' for i in 1:length(Mbasis)]
+    M = [U*Mbasis[i]*U' for i in 1:length(Mbasis)]
 
     Δt = tspan[2] - tspan[1]
     ρt = ρ0 |> vec
@@ -327,26 +358,26 @@ function CFI_AD(Mbasis::Vector{Matrix{T}}, Mcoeff::Vector{R}, Lambda, H0::Matrix
         ∂ρt_∂x = -im * Δt * ∂H_L * ρt + expL * ∂ρt_∂x
     end
     ρt = exp(vec(H0)' * zero(ρt)) * ρt
-    CFI(ρt |> vec2mat, ∂ρt_∂x |> vec2mat, Measurement, accuracy)
+    CFI(ρt |> vec2mat, ∂ρt_∂x |> vec2mat, M, accuracy)
 end
 
-function CFIM_TimeIndepend(Measurement::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, psi0::Vector{T}, tspan, accuracy) where {T<:Complex,R<:Real}
+function CFIM_TimeIndepend(M::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, psi0::Vector{T}, tspan, accuracy) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, psi0, tspan)
-    CFI(ρt, ∂ρt_∂x, Measurement, accuracy)
+    CFI(ρt, ∂ρt_∂x, M, accuracy)
 end
 
-function CFIM_TimeIndepend(Measurement::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, psi::Vector{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, accuracy) where {T<:Complex,R<:Real}
+function CFIM_TimeIndepend(M::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, psi::Vector{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, accuracy) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, psi, decay_opt, γ, tspan)
-    CFI(ρt, ∂ρt_∂x, Measurement, accuracy)
+    CFI(ρt, ∂ρt_∂x, M, accuracy)
 end
 
-function CFIM_TimeIndepend(Measurement::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, accuracy) where {T<:Complex,R<:Real}
+function CFIM_TimeIndepend(M::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, accuracy) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, ρ0, decay_opt, γ, tspan)
-    CFI(ρt, ∂ρt_∂x, Measurement, accuracy)
+    CFI(ρt, ∂ρt_∂x, M, accuracy)
 end
 
-function CFI(Measurement, system)
-    CFI(Measurement, system.freeHamiltonian, system.Hamiltonian_derivative[1], system.ρ0, system.decay_opt, system.γ, 
+function CFI(M, system)
+    CFI(M, system.freeHamiltonian, system.Hamiltonian_derivative[1], system.ρ0, system.decay_opt, system.γ, 
         system.control_Hamiltonian, system.control_coefficients, system.tspan, system.accuracy)
 end
 
@@ -368,27 +399,27 @@ function CFIM(ρ, dρ, M, accuracy)
     cfim = [real(tr(ρ*M[i])) < accuracy ? zeros(ComplexF64, p_num, p_num) : (kron(tr.(dρ.*[M[i]]),reshape(tr.(dρ.*[M[i]]), 1, p_num))/tr(ρ*M[i])) for i in 1:m_num] |> sum .|>real
 end
 
-function obj_func(x::Val{:CFIM}, ρ, dρ, W, Measurement, accuracy)
-    F = CFIM(ρ, dρ, Measurement, accuracy)
+function obj_func(x::Val{:CFIM}, ρ, dρ, W, M, accuracy)
+    F = CFIM(ρ, dρ, M, accuracy)
     return (abs(det(F)) < accuracy ? (1.0/accuracy) : real(tr(W*inv(F))))
 end
 
 #### quantum dynamics and calcalate CFIM ####
-function CFIM(Measurement::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, accuracy) where {T<:Complex,R<:Real}
+function CFIM(M::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, accuracy) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics(H0, ∂H_∂x, ρ0, decay_opt, γ, control_Hamiltonian, control_coefficients, tspan)
-    CFIM(ρt, ∂ρt_∂x, Measurement, accuracy)
+    CFIM(ρt, ∂ρt_∂x, M, accuracy)
 end
 
-function CFIM(Measurement::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, accuracy) where {T<:Complex,R<:Real}
+function CFIM(M::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, accuracy) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, ρ0, decay_opt, γ, tspan)
-    CFIM(ρt, ∂ρt_∂x, Measurement, accuracy)
+    CFIM(ρt, ∂ρt_∂x, M, accuracy)
 end
 
 function CFIM_AD(Mbasis::Vector{Vector{T}}, Mcoeff::Vector{R}, Lambda, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, accuracy) where {T<:Complex,R<:Real}
     dim = size(ρ0)[1]
     U = Matrix{ComplexF64}(I,dim,dim)
     U = rotation_matrix(Mcoeff, Lambda)
-    Measurement = [U*Mbasis[i]*Mbasis[i]'*U' for i in 1:length(Mbasis)]
+    M = [U*Mbasis[i]*Mbasis[i]'*U' for i in 1:length(Mbasis)]
 
     Δt = tspan[2] - tspan[1]
     para_num = length(∂H_∂x)
@@ -401,14 +432,14 @@ function CFIM_AD(Mbasis::Vector{Vector{T}}, Mcoeff::Vector{R}, Lambda, H0::Matri
         ρt = expL * ρt
         ∂ρt_∂x = [-im * Δt * ∂H_L[i] * ρt for i in 1:para_num] + [expL] .* ∂ρt_∂x
     end
-    CFIM(ρt |> vec2mat, ∂ρt_∂x |> vec2mat, Measurement, accuracy)
+    CFIM(ρt |> vec2mat, ∂ρt_∂x |> vec2mat, M, accuracy)
 end
 
 function CFIM_AD(Mbasis::Vector{Matrix{T}}, Mcoeff::Vector{R}, Lambda, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, accuracy) where {T<:Complex,R<:Real}
     dim = size(ρ0)[1]
     U = Matrix{ComplexF64}(I,dim,dim)
     U = rotation_matrix(Mcoeff, Lambda)
-    Measurement = [U*Mbasis[i]*U' for i in 1:length(Mbasis)]
+    M = [U*Mbasis[i]*U' for i in 1:length(Mbasis)]
 
     Δt = tspan[2] - tspan[1]
     para_num = length(∂H_∂x)
@@ -421,68 +452,91 @@ function CFIM_AD(Mbasis::Vector{Matrix{T}}, Mcoeff::Vector{R}, Lambda, H0::Matri
         ρt = expL * ρt
         ∂ρt_∂x = [-im * Δt * ∂H_L[i] * ρt for i in 1:para_num] + [expL] .* ∂ρt_∂x
     end
-    CFIM(ρt |> vec2mat, ∂ρt_∂x |> vec2mat, Measurement, accuracy)
+    CFIM(ρt |> vec2mat, ∂ρt_∂x |> vec2mat, M, accuracy)
 end
 
-function CFIM_TimeIndepend(Measurement::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, psi::Vector{T}, tspan, accuracy) where {T<:Complex,R<:Real}
+function CFIM_TimeIndepend(M::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, psi::Vector{T}, tspan, accuracy) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, psi, tspan)
-    CFIM(ρt, ∂ρt_∂x, Measurement, accuracy)
+    CFIM(ρt, ∂ρt_∂x, M, accuracy)
 end
 
-function CFIM_TimeIndepend(Measurement::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, psi::Vector{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, accuracy) where {T<:Complex,R<:Real}
+function CFIM_TimeIndepend(M::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, psi::Vector{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, accuracy) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, psi, decay_opt, γ, tspan)
-    CFIM(ρt, ∂ρt_∂x, Measurement, accuracy)
+    CFIM(ρt, ∂ρt_∂x, M, accuracy)
 end
 
-function CFIM_TimeIndepend(Measurement::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, accuracy) where {T<:Complex,R<:Real}
+function CFIM_TimeIndepend(M::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, accuracy) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, ρ0, decay_opt, γ, tspan)
-    CFIM(ρt, ∂ρt_∂x, Measurement, accuracy)
+    CFIM(ρt, ∂ρt_∂x, M, accuracy)
 end
 
-function CFIM_saveall(Measurement, H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, accuracy) where {T<:Complex,R<:Real}
+function CFIM_saveall(M, H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, accuracy) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = expm(H0, ∂H_∂x, ρ0, decay_opt, γ, control_Hamiltonian, control_coefficients, tspan)
     F = [Matrix{Float64}(undef, length(∂H_∂x), length(∂H_∂x)) for i in 1:length(tspan)]
     for t in 2:length(tspan)
-        F[t] = CFIM(ρt, ∂ρt_∂x_all, Measurement, accuracy)
+        F[t] = CFIM(ρt, ∂ρt_∂x_all, M, accuracy)
     end
     return F
 end
 
-function obj_func(x::Val{:CFIM}, system, Measurement)
-    F = CFIM(Measurement, system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ, 
+function obj_func(x::Val{:CFIM}, system, M)
+    F = CFIM(M, system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ, 
             system.control_Hamiltonian, system.control_coefficients, system.tspan, system.accuracy)
     return (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
 end
 
-function obj_func(x::Val{:CFIM}, system, Measurement, control_coeff)
-    F = CFIM(Measurement, system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ,  
+function obj_func(x::Val{:CFIM}, system, M, control_coeff)
+    F = CFIM(M, system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ,  
             system.control_Hamiltonian, control_coeff, system.tspan, system.accuracy)
     return (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
 end
 
-function obj_func(x::Val{:CFIM_TimeIndepend_noiseless}, system, Measurement)
-    F = CFIM_TimeIndepend(Measurement, system.freeHamiltonian, system.Hamiltonian_derivative, system.psi, system.tspan, system.accuracy)
+function obj_func(x::Val{:CFIM_TimeIndepend_noiseless}, system, M)
+    F = CFIM_TimeIndepend(M, system.freeHamiltonian, system.Hamiltonian_derivative, system.psi, system.tspan, system.accuracy)
     return (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
 end
 
-function obj_func(x::Val{:CFIM_TimeIndepend_noiseless}, system, Measurement, psi)
-    F = CFIM_TimeIndepend(Measurement, system.freeHamiltonian, system.Hamiltonian_derivative, psi, system.tspan, system.accuracy)
+function obj_func(x::Val{:CFIM_TimeIndepend_noiseless}, system, M, psi)
+    F = CFIM_TimeIndepend(M, system.freeHamiltonian, system.Hamiltonian_derivative, psi, system.tspan, system.accuracy)
     return (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
 end
 
-function obj_func(x::Val{:CFIM_TimeIndepend_noise}, system, Measurement)
-    F = CFIM_TimeIndepend(Measurement, system.freeHamiltonian, system.Hamiltonian_derivative, system.psi, system.decay_opt, 
+function obj_func(x::Val{:CFIM_TimeIndepend_noise}, system, M)
+    F = CFIM_TimeIndepend(M, system.freeHamiltonian, system.Hamiltonian_derivative, system.psi, system.decay_opt, 
                              system.γ, system.tspan, system.accuracy)
     return (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
 end
 
-function obj_func(x::Val{:CFIM_TimeIndepend_noise}, system, Measurement, psi)
-    F = CFIM_TimeIndepend(Measurement, system.freeHamiltonian, system.Hamiltonian_derivative, psi, system.decay_opt, 
+function obj_func(x::Val{:CFIM_TimeIndepend_noise}, system, M, psi)
+    F = CFIM_TimeIndepend(M, system.freeHamiltonian, system.Hamiltonian_derivative, psi, system.decay_opt, 
                              system.γ, system.tspan, system.accuracy)
     return (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
 end
 
-function obj_func(x::Val{:CFIM_noctrl}, system, Measurement)
-    F = CFIM(Measurement, system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ, system.tspan, system.accuracy)
+function obj_func(x::Val{:CFIM_noctrl}, system, M)
+    F = CFIM(M, system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ, system.tspan, system.accuracy)
+    return  (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
+end
+
+function obj_func(x::Val{:QFIM_SCopt}, system, M, psi, control_coefficients)
+    rho = psi*psi'
+    F = QFIM(system.freeHamiltonian, system.Hamiltonian_derivative, rho, system.decay_opt, system.γ, system.control_Hamiltonian, control_coefficients, system.tspan, system.accuracy)
+    return  (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
+end
+
+function obj_func(x::Val{:CFIM_SCopt}, system, M, psi, control_coefficients)
+    rho = psi*psi'
+    F = CFIM(M, system.freeHamiltonian, system.Hamiltonian_derivative, rho, system.decay_opt, system.γ, system.control_Hamiltonian, control_coefficients, system.tspan, system.accuracy)
+    return  (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
+end
+
+function obj_func(x::Val{:CFIM_SMopt}, system, psi, M)
+    rho = psi*psi'
+    F = CFIM(M, system.freeHamiltonian, system.Hamiltonian_derivative, rho, system.decay_opt, system.γ, system.tspan, system.accuracy)
+    return  (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
+end
+
+function obj_func(x::Val{:CFIM_CMopt}, system, M, rho, control_coefficients)
+    F = CFIM(M, system.freeHamiltonian, system.Hamiltonian_derivative, rho, system.decay_opt, system.γ, system.control_Hamiltonian, control_coefficients, system.tspan, system.accuracy)
     return  (abs(det(F)) < system.accuracy ? (1.0/system.accuracy) : real(tr(system.W*inv(F))))
 end

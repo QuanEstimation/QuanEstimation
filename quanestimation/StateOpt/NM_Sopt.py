@@ -90,7 +90,7 @@ class NM_Sopt(State.StateSystem):
                                         self.max_episode, self.seed, save_file)
         self.load_save()
 
-    def CFIM(self, Measurement, save_file=False):
+    def CFIM(self, M, save_file=False):
         """
         Description: use nelder-mead method to search the optimal initial state that maximize the 
                      CFI (1/Tr(WF^{-1} with F the CFIM).
@@ -106,12 +106,12 @@ class NM_Sopt(State.StateSystem):
         if any(self.gamma):
             neldermead = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
                                                                 self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
-            Main.QuanEstimation.CFIM_NM_Sopt(Measurement, neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, \
+            Main.QuanEstimation.CFIM_NM_Sopt(M, neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, \
                                         self.as0, self.max_episode, self.seed, save_file)
         else:
             neldermead = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
                                                                     self.psi0, self.tspan, self.W, self.accuracy)
-            Main.QuanEstimation.CFIM_NM_Sopt(Measurement, neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, \
+            Main.QuanEstimation.CFIM_NM_Sopt(M, neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, \
                                         self.as0, self.max_episode, self.seed, save_file)
         self.load_save()
             

@@ -18,6 +18,16 @@ function Adam!(system, δ)
         end
     end
 end
+function Adam!(system, δ, ϵ, mt_in, vt_in, beta1, beta2, accuracy)
+    ctrl_length = length(system.control_coefficients[1])
+    for ctrl in 1:length(δ)
+        mt = mt_in
+        vt = vt_in
+        for ti in 1:ctrl_length
+            system.control_coefficients[ctrl][ti], mt, vt = Adam(δ[ctrl][ti], ti, system.control_coefficients[ctrl][ti], mt, vt, ϵ, beta1, beta2, accuracy)
+        end
+    end
+end
 
 function bound!(A::Array, bound)
     for a in A

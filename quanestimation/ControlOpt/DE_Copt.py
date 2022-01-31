@@ -70,7 +70,7 @@ class DE_Copt(Control.ControlSystem):
         Main.QuanEstimation.QFIM_DE_Copt(diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episode, save_file)
 
         
-    def CFIM(self, Measurement, save_file=False):
+    def CFIM(self, M, save_file=False):
         """
         Description: use differential evolution algorithm to update the control coefficients that maximize the 
                      CFI (1/Tr(WF^{-1} with F the CFIM).
@@ -83,10 +83,10 @@ class DE_Copt(Control.ControlSystem):
                            False: save the control coefficients for the last episode and all the CFI (Tr(WF^{-1})).
             --type: bool
         """
-        Measurement = [np.array(x, dtype=np.complex128) for x in Measurement]
+        M = [np.array(x, dtype=np.complex128) for x in M]
         diffevo = Main.QuanEstimation.DE_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, self.decay_opt, \
                             self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
-        Main.QuanEstimation.CFIM_DE_Copt(Measurement, diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episode, save_file)
+        Main.QuanEstimation.CFIM_DE_Copt(M, diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episode, save_file)
 
     def HCRB(self, save_file=False):
         """
