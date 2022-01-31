@@ -21,7 +21,7 @@ struct DDPG_Copt{T<:Complex, M<:Real}
 end
 
 mutable struct ControlEnv{T<:Complex, M<:Real, R<:AbstractRNG} <:AbstractEnv
-    Measurement::Vector{Matrix{T}}
+    M::Vector{Matrix{T}}
     params::DDPG_Copt{T, M}
     action_space::Space
     state_space::Space
@@ -50,7 +50,7 @@ mutable struct ControlEnv{T<:Complex, M<:Real, R<:AbstractRNG} <:AbstractEnv
     str3
 end
 
-function DDPGEnv(Measurement, params, episode, SinglePara, save_file, rng, sym, str2, str3)
+function DDPGEnv(M, params, episode, SinglePara, save_file, rng, sym, str2, str3)
     para_num=params.Hamiltonian_derivative|>length
     ctrl_num=params.control_coefficients|>length
     tnum = params.tspan|>length
@@ -61,25 +61,25 @@ function DDPGEnv(Measurement, params, episode, SinglePara, save_file, rng, sym, 
     action_space = Space([params.ctrl_bound[1]..params.ctrl_bound[2] for _ in 1:ctrl_num])
     state_space = Space(fill(-1.0e35..1.0e35, length(state))) 
 
-    f_noctrl = F_noctrl(Measurement, params, para_num, cnum, ctrl_num, sym)
+    f_noctrl = F_noctrl(M, params, para_num, cnum, ctrl_num, sym)
 
     ctrl_list = [Vector{Float64}() for _ in 1:ctrl_num]
     f_final = Vector{Float64}()
     total_reward_all = Vector{Float64}()
-    env = ControlEnv(Measurement, params, action_space, state_space, state, dstate, true, rng, 0.0, 0.0, 0, params.tspan, tnum, 
+    env = ControlEnv(M, params, action_space, state_space, state, dstate, true, rng, 0.0, 0.0, 0, params.tspan, tnum, 
                      cnum, ctrl_num, para_num, f_noctrl, f_final, ctrl_list, params.ctrl_bound, total_reward_all, episode, 
                      SinglePara, save_file, sym, str2, str3)
     reset!(env)
     env
 end
 
-function F_noctrl(Measurement, params, para_num, cnum, ctrl_num, sym)
+function F_noctrl(M, params, para_num, cnum, ctrl_num, sym)
     rho = params.ρ0
     drho = [rho|>zero for _ in 1:para_num]
     f_noctrl = zeros(cnum+1)
     for i in 2:cnum+1
         rho, drho = propagate(rho, drho, params, [0.0 for i in 1:ctrl_num])
-        f_noctrl[i] = 1.0/obj_func(Val{sym}(), rho, drho, params.W, Measurement, params.accuracy)
+        f_noctrl[i] = 1.0/obj_func(Val{sym}(), rho, drho, params.W, M, params.accuracy)
     end
     f_noctrl
 end
@@ -126,7 +126,7 @@ function _step!(env::ControlEnv, a, ::Val{true}, ::Val{true})
     env.state = ρₜₙ |> state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
-    f_current = 1.0/obj_func(Val{env.sym}(), ρₜₙ, ∂ₓρₜₙ, env.params.W, env.Measurement, env.params.accuracy)
+    f_current = 1.0/obj_func(Val{env.sym}(), ρₜₙ, ∂ₓρₜₙ, env.params.W, env.M, env.params.accuracy)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
@@ -149,7 +149,7 @@ function _step!(env::ControlEnv, a, ::Val{true}, ::Val{false})
     env.state = ρₜₙ|>state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
-    f_current = 1.0/obj_func(Val{env.sym}(), ρₜₙ, ∂ₓρₜₙ, env.params.W, env.Measurement, env.params.accuracy)
+    f_current = 1.0/obj_func(Val{env.sym}(), ρₜₙ, ∂ₓρₜₙ, env.params.W, env.M, env.params.accuracy)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
@@ -171,7 +171,7 @@ function _step!(env::ControlEnv, a, ::Val{false}, ::Val{true})
     env.state = ρₜₙ|>state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
-    f_current = 1.0/obj_func(Val{env.sym}(), ρₜₙ, ∂ₓρₜₙ, env.params.W, env.Measurement, env.params.accuracy)
+    f_current = 1.0/obj_func(Val{env.sym}(), ρₜₙ, ∂ₓρₜₙ, env.params.W, env.M, env.params.accuracy)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
@@ -194,7 +194,7 @@ function _step!(env::ControlEnv, a, ::Val{false}, ::Val{false})
     env.state = ρₜₙ|>state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
-    f_current = 1.0/obj_func(Val{env.sym}(), ρₜₙ, ∂ₓρₜₙ, env.params.W, env.Measurement, env.params.accuracy)
+    f_current = 1.0/obj_func(Val{env.sym}(), ρₜₙ, ∂ₓρₜₙ, env.params.W, env.M, env.params.accuracy)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
@@ -215,16 +215,16 @@ function QFIM_DDPG_Copt(params::DDPG_Copt, layer_num, layer_dim, seed, max_episo
     str1 = "quantum"
     str2 = "QFI"
     str3 = "tr(WF^{-1})"
-    Measurement = [zeros(ComplexF64, size(params.ρ0)[1], size(params.ρ0)[1])]
-    return info_DDPG_Copt(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
+    M = [zeros(ComplexF64, size(params.ρ0)[1], size(params.ρ0)[1])]
+    return info_DDPG_Copt(M, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
-function CFIM_DDPG_Copt(Measurement, params::DDPG_Copt, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
+function CFIM_DDPG_Copt(M, params::DDPG_Copt, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
     sym = Symbol("CFIM")
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
-    return info_DDPG_Copt(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
+    return info_DDPG_Copt(M, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
 function HCRB_DDPG_Copt(params::DDPG_Copt, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
@@ -232,16 +232,16 @@ function HCRB_DDPG_Copt(params::DDPG_Copt, layer_num, layer_dim, seed, max_episo
     str1 = ""
     str2 = "HCRB"
     str3 = "HCRB"
-    Measurement = [zeros(ComplexF64, size(params.ρ0)[1], size(params.ρ0)[1])]
+    M = [zeros(ComplexF64, size(params.ρ0)[1], size(params.ρ0)[1])]
     if length(params.Hamiltonian_derivative) == 1
         println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for control optimization.")
         return nothing
     else
-        return info_DDPG_Copt(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
+        return info_DDPG_Copt(M, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
     end
 end
 
-function info_DDPG_Copt(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
+function info_DDPG_Copt(M, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
     rng = StableRNG(seed)
     episode = 1
     if length(params.Hamiltonian_derivative) == 1
@@ -249,7 +249,7 @@ function info_DDPG_Copt(Measurement, params, layer_num, layer_dim, seed, max_epi
     else
         SinglePara = false
     end
-    env = DDPGEnv(Measurement, params, episode, SinglePara, save_file, rng, sym, str2, str3)
+    env = DDPGEnv(M, params, episode, SinglePara, save_file, rng, sym, str2, str3)
 
     ns = 2*params.dim^2
     na = env.ctrl_num
@@ -274,7 +274,7 @@ function info_DDPG_Copt(Measurement, params, layer_num, layer_dim, seed, max_epi
                   trajectory=CircularArraySARTTrajectory(capacity=400*env.cnum, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na,),),)
 
     println("$str1 parameter estimation")
-    f_ini = obj_func(Val{sym}(), params, Measurement)
+    f_ini = obj_func(Val{sym}(), params, M)
     if length(params.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("control algorithm: Deep Deterministic Policy Gradient algorithm (DDPG)")

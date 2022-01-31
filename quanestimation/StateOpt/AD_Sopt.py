@@ -71,7 +71,7 @@ class AD_Sopt(State.StateSystem):
                                         self.Adam, save_file)
         self.load_save()
             
-    def CFIM(self, Measurement, save_file=False):
+    def CFIM(self, M, save_file=False):
         """
         Description: use autodifferential algorithm to search the optimal initial state that maximize the 
                      CFI (1/Tr(WF^{-1} with F the CFIM).
@@ -88,12 +88,12 @@ class AD_Sopt(State.StateSystem):
         if any(self.gamma):
             AD = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
                                                         self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
-            Main.QuanEstimation.CFIM_AD_Sopt(Measurement, AD, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, \
+            Main.QuanEstimation.CFIM_AD_Sopt(M, AD, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, \
                                         self.max_episode, self.Adam, save_file)
         else:
             AD = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
                                                             self.tspan, self.W, self.accuracy)
-            Main.QuanEstimation.CFIM_AD_Sopt(Measurement, AD, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, \
+            Main.QuanEstimation.CFIM_AD_Sopt(M, AD, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, \
                                         self.max_episode, self.Adam, save_file)
         self.load_save()
 

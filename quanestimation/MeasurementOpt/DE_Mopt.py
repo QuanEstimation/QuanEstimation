@@ -43,10 +43,8 @@ class DE_Mopt(Measurement.MeasurementSystem):
         self.cr = cr
         if self.mtype == "projection":
             if measurement0 == []: 
-                ini_measurement = [np.array(self.Measurement)]
-            else:
-                ini_measurement = measurement0
-            self.ini_measurement = ini_measurement
+                measurement0 = [np.array(self.M)]
+            self.measurement0 = measurement0
         else: pass
 
         
@@ -65,8 +63,8 @@ class DE_Mopt(Measurement.MeasurementSystem):
         """
         if self.mtype=="projection":
             diffevo = Main.QuanEstimation.projection_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
-                                                        self.decay_opt, self.gamma, self.Measurement, self.W, self.accuracy)
-            Main.QuanEstimation.CFIM_DE_Mopt(diffevo, self.popsize, self.ini_measurement, self.c, self.cr, self.seed, self.max_episode, save_file)
+                                                        self.decay_opt, self.gamma, self.M, self.W, self.accuracy)
+            Main.QuanEstimation.CFIM_DE_Mopt(diffevo, self.popsize, self.measurement0, self.c, self.cr, self.seed, self.max_episode, save_file)
             self.load_save()
 
         elif self.mtype=="input":

@@ -9,15 +9,18 @@ from quanestimation import ControlOpt
 from quanestimation import StateOpt
 from quanestimation import MeasurementOpt
 from quanestimation import Common
+from quanestimation import ComprehensiveOpt
 
 from quanestimation.AsymptoticBound import (CFIM, QFIM, LLD, RLD, SLD, Holevo_bound,)
-from quanestimation.Bayesian.Bayes import (BQCRB, OBB, )
+from quanestimation.Bayesian.Bayes import (BQCRB, OBB, Baye_compare)
 from quanestimation.Dynamics import (Lindblad, )
 from quanestimation.Resources import (squeezing_parameter, Concurrence, Entropy_VN, )
 from quanestimation.ControlOpt import (ControlOpt, GRAPE_Copt, DE_Copt, PSO_Copt, DDPG_Copt, csv2npy_controls, )
 from quanestimation.StateOpt import (StateOpt, AD_Sopt, PSO_Sopt, DE_Sopt, NM_Sopt, DDPG_Sopt, csv2npy_states, )
 from quanestimation.MeasurementOpt import (MeasurementOpt, AD_Mopt, PSO_Mopt, DE_Mopt, csv2npy_measurements, )
 from quanestimation.Common import (mat_vec_convert, suN_generator, gramschmidt, )
+from quanestimation.ComprehensiveOpt import (ComprehensiveOpt, AD_Compopt, DE_Compopt, PSO_Compopt, )
+
 
 from julia import Main
 import os
@@ -25,11 +28,12 @@ import os
 Main.include("quanestimation/JuliaSrc/QuanEstimation.jl")
 Main.pkgpath = os.path.join(os.path.dirname(__file__))
 
-__all__ = ["ControlOpt", "StateOpt", "MeasurementOpt",  
+__all__ = ["ControlOpt", "StateOpt", "MeasurementOpt", "ComprehensiveOpt", 
            "CFIM", "QFIM", "LLD",  "RLD", "SLD", "Holevo_bound", "BQCRB", "OBB",
            "Lindblad", "squeezing_parameter", "Concurrence", "Entropy_VN",
            "GRAPE_Copt", "DE_Copt", "PSO_Copt", "DDPG_Copt",
            "AD_Mopt", "PSO_Mopt", "DE_Mopt",
            "AD_Sopt", "DE_Sopt", "PSO_Sopt", "DDPG_Sopt", "NM_Sopt",
            "mat_vec_convert", "suN_generator", "gramschmidt",
-           "csv2npy_controls", "csv2npy_states", "csv2npy_measurements"]
+           "csv2npy_controls", "csv2npy_states", "csv2npy_measurements",
+           "AD_Compopt", "DE_Compopt", "PSO_Compopt", "Baye_compare"]

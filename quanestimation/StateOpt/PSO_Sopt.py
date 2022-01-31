@@ -81,7 +81,7 @@ class PSO_Sopt(State.StateSystem):
                                          self.c2, self.v0, self.seed, save_file)
         self.load_save()
 
-    def CFIM(self, Measurement, save_file=False):
+    def CFIM(self, M, save_file=False):
         """
         Description: use particle swarm optimizaiton algorithm to search the optimal initial state that maximize the 
                      CFI (1/Tr(WF^{-1} with F the CFIM).
@@ -97,12 +97,12 @@ class PSO_Sopt(State.StateSystem):
         if any(self.gamma):
             pso = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
                                                          self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
-            Main.QuanEstimation.CFIM_PSO_Sopt(Measurement, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, \
+            Main.QuanEstimation.CFIM_PSO_Sopt(M, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, \
                                          self.c1, self.c2, self.v0, self.seed, save_file)
         else:
             pso = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
                                                              self.tspan, self.W, self.accuracy)
-            Main.QuanEstimation.CFIM_PSO_Sopt(Measurement, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, \
+            Main.QuanEstimation.CFIM_PSO_Sopt(M, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, \
                                          self.c1, self.c2, self.v0, self.seed, save_file)
         self.load_save()
 

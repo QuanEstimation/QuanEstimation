@@ -50,10 +50,8 @@ class PSO_Mopt(Measurement.MeasurementSystem):
 
         if self.mtype == "projection":
             if measurement0 == []: 
-                ini_measurement = [np.array(self.Measurement)]
-            else:
-                ini_measurement = measurement0
-            self.ini_measurement = ini_measurement
+                measurement0 = [np.array(self.M)]
+            self.measurement0 = measurement0
         else: pass
         
     def CFIM(self, save_file=False):
@@ -71,8 +69,8 @@ class PSO_Mopt(Measurement.MeasurementSystem):
         """
         if self.mtype=="projection":
             pso = Main.QuanEstimation.projection_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
-                                                    self.decay_opt, self.gamma, self.Measurement, self.W, self.accuracy)
-            Main.QuanEstimation.CFIM_PSO_Mopt(pso, self.max_episode, self.particle_num, self.ini_measurement, self.c0, self.c1, \
+                                                    self.decay_opt, self.gamma, self.M, self.W, self.accuracy)
+            Main.QuanEstimation.CFIM_PSO_Mopt(pso, self.max_episode, self.particle_num, self.measurement0, self.c0, self.c1, \
                                             self.c2, self.seed, save_file)
             self.load_save()
 

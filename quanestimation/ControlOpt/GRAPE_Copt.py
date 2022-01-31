@@ -80,7 +80,7 @@ class GRAPE_Copt(Control.ControlSystem):
             else:
                 Main.QuanEstimation.QFIM_GRAPE_Copt(grape, self.max_episode, self.Adam, save_file)
 
-    def CFIM(self, Measurement, save_file=False):
+    def CFIM(self, M, save_file=False):
         """
         Description: use auto-GRAPE (GRAPE) algorithm to update the control coefficients that maximize the
                      CFI (1/Tr(WF^{-1} with F the CFIM).
@@ -93,19 +93,19 @@ class GRAPE_Copt(Control.ControlSystem):
             --type: bool
 
         """
-        Measurement = [np.array(x, dtype=np.complex128) for x in Measurement]
+        M = [np.array(x, dtype=np.complex128) for x in M]
         grape = Main.QuanEstimation.GRAPE_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, \
                 self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
                 self.ctrl_bound, self.W, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.accuracy)
         if self.auto == True:
-            Main.QuanEstimation.CFIM_autoGRAPE_Copt(Measurement, grape, self.max_episode, self.Adam, save_file)
+            Main.QuanEstimation.CFIM_autoGRAPE_Copt(M, grape, self.max_episode, self.Adam, save_file)
         else:
             if (len(self.tspan)-1) != len(self.control_coefficients[0]):
                 warnings.warn("GRAPE is not available when the length of each control is not equal to the length of time, \
                                and is replaced by auto-GRAPE.", DeprecationWarning)
-                Main.QuanEstimation.CFIM_autoGRAPE_Copt(Measurement, grape, self.max_episode, self.Adam, save_file)
+                Main.QuanEstimation.CFIM_autoGRAPE_Copt(M, grape, self.max_episode, self.Adam, save_file)
             else:
-                Main.QuanEstimation.CFIM_GRAPE_Copt(Measurement, grape, self.max_episode, self.Adam, save_file)
+                Main.QuanEstimation.CFIM_GRAPE_Copt(M, grape, self.max_episode, self.Adam, save_file)
 
     def HCRB(self, save_file=False):
         warnings.warn("GRAPE is not available when the objective function is HCRB. Supported methods are 'PSO', 'DE' and 'DDPG'.", DeprecationWarning)

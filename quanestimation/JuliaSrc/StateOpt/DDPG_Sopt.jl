@@ -15,7 +15,7 @@ to_psi(s) = complex.(rsplit_half(s)...)
 
 ############# time-independent Hamiltonian (noiseless) ################
 mutable struct ControlEnv_noiseless{T<:Complex, M<:Real, R<:AbstractRNG} <: AbstractEnv
-    Measurement::Vector{Matrix{T}}
+    M::Vector{Matrix{T}}
     params::TimeIndepend_noiseless{T, M}
     action_space::Space
     state_space::Space
@@ -38,7 +38,7 @@ mutable struct ControlEnv_noiseless{T<:Complex, M<:Real, R<:AbstractRNG} <: Abst
     str3
 end
 
-function DDPGEnv_noiseless(Measurement, params, episode, SinglePara, save_file, rng, sym, str2, str3)
+function DDPGEnv_noiseless(M, params, episode, SinglePara, save_file, rng, sym, str2, str3)
     para_num=params.Hamiltonian_derivative|>length
     state = params.psi
     state = state |> state_flatten
@@ -46,11 +46,11 @@ function DDPGEnv_noiseless(Measurement, params, episode, SinglePara, save_file, 
     action_space = Space(fill(-1.0e35..1.0e35, length(state)))
     state_space = Space(fill(-1.0e35..1.0e35, length(state))) 
 
-    f_ini = obj_func(Val{sym}(), params, Measurement)
+    f_ini = obj_func(Val{sym}(), params, M)
 
     f_list = Vector{Float64}()
     reward_all = Vector{Float64}()
-    env = ControlEnv_noiseless(Measurement, params, action_space, state_space, state, true, rng, 0.0, 0.0, params.tspan, ctrl_num, 
+    env = ControlEnv_noiseless(M, params, action_space, state_space, state, true, rng, 0.0, 0.0, params.tspan, ctrl_num, 
                                para_num, f_ini, f_list, reward_all, episode, SinglePara, save_file, sym, str2, str3)
     reset!(env)
     env
@@ -80,7 +80,7 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{true}
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.Measurement)
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.M)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -98,7 +98,7 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{false
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.Measurement)
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.M)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -115,7 +115,7 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{true
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.Measurement)
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.M)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -133,7 +133,7 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{false}, ::Val{fals
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.Measurement)
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.M)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -153,16 +153,16 @@ function QFIM_DDPG_Sopt(params::TimeIndepend_noiseless, layer_num, layer_dim, se
     str1 = "quantum"
     str2 = "QFI"
     str3 = "tr(WF^{-1})"
-    Measurement = [zeros(ComplexF64, size(params.psi)[1], size(params.psi)[1])]
-    return info_DDPG_noiseless(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
+    M = [zeros(ComplexF64, size(params.psi)[1], size(params.psi)[1])]
+    return info_DDPG_noiseless(M, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
-function CFIM_DDPG_Sopt(Measurement, params::TimeIndepend_noiseless, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
+function CFIM_DDPG_Sopt(M, params::TimeIndepend_noiseless, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
     sym = Symbol("CFIM_TimeIndepend_noiseless")
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
-    return info_DDPG_noiseless(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
+    return info_DDPG_noiseless(M, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
 function HCRB_DDPG_Sopt(params::TimeIndepend_noiseless, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
@@ -170,16 +170,16 @@ function HCRB_DDPG_Sopt(params::TimeIndepend_noiseless, layer_num, layer_dim, se
     str1 = ""
     str2 = "HCRB"
     str3 = "HCRB"
-    Measurement = [zeros(ComplexF64, size(params.psi)[1], size(params.psi)[1])]
+    M = [zeros(ComplexF64, size(params.psi)[1], size(params.psi)[1])]
     if length(params.Hamiltonian_derivative) == 1
         println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for state optimization.")
         return nothing
     else
-        return info_DDPG_noiseless(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
+        return info_DDPG_noiseless(M, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
     end
 end
 
-function info_DDPG_noiseless(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
+function info_DDPG_noiseless(M, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
     rng = StableRNG(seed)
     episode = 1
     if length(params.Hamiltonian_derivative) == 1
@@ -187,7 +187,7 @@ function info_DDPG_noiseless(Measurement, params, layer_num, layer_dim, seed, ma
     else
         SinglePara = false
     end
-    env = DDPGEnv_noiseless(Measurement, params, episode, SinglePara, save_file, rng, sym, str1, str2)
+    env = DDPGEnv_noiseless(M, params, episode, SinglePara, save_file, rng, sym, str1, str2)
     ns = 2*length(params.psi)
     na = env.ctrl_num
     init = glorot_uniform(rng)
@@ -245,7 +245,7 @@ end
 
 ############# time-independent Hamiltonian (noise) ################
 mutable struct ControlEnv_noise{T<:Complex, M<:Real, R<:AbstractRNG} <: AbstractEnv
-    Measurement::Vector{Matrix{T}}
+    M::Vector{Matrix{T}}
     params::TimeIndepend_noise{T, M}
     action_space::Space
     state_space::Space
@@ -268,7 +268,7 @@ mutable struct ControlEnv_noise{T<:Complex, M<:Real, R<:AbstractRNG} <: Abstract
     str3
 end
 
-function DDPGEnv_noise(Measurement, params, episode, SinglePara, save_file, rng, sym, str2, str3)
+function DDPGEnv_noise(M, params, episode, SinglePara, save_file, rng, sym, str2, str3)
     para_num=params.Hamiltonian_derivative|>length
     state = params.psi
     state = state |> state_flatten
@@ -276,11 +276,11 @@ function DDPGEnv_noise(Measurement, params, episode, SinglePara, save_file, rng,
     action_space = Space(fill(-1.0e35..1.0e35, length(state)))
     state_space = Space(fill(-1.0e35..1.0e35, length(state))) 
 
-    f_ini = obj_func(Val{sym}(), params, Measurement)
+    f_ini = obj_func(Val{sym}(), params, M)
 
     f_list = Vector{Float64}()
     reward_all = Vector{Float64}()
-    env = ControlEnv_noise(Measurement, params, action_space, state_space, state, true, rng, 0.0, 0.0, params.tspan, ctrl_num, 
+    env = ControlEnv_noise(M, params, action_space, state_space, state, true, rng, 0.0, 0.0, params.tspan, ctrl_num, 
                            para_num, f_ini, f_list, reward_all, episode, SinglePara, save_file, sym, str2, str3)
     reset!(env)
     env
@@ -310,7 +310,7 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{true})
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.Measurement)
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.M)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -328,7 +328,7 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{false})
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.Measurement)
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.M)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -345,7 +345,7 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{false}, ::Val{true})
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.Measurement)
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.M)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -363,7 +363,7 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{false}, ::Val{false})
     state_new = (env.state + a) |> to_psi
     env.params.psi = state_new/norm(state_new)
 
-    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.Measurement)
+    f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.M)
     env.reward = -log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -383,16 +383,16 @@ function QFIM_DDPG_Sopt(params::TimeIndepend_noise, layer_num, layer_dim, seed, 
     str1 = "quantum"
     str2 = "QFI"
     str3 = "tr(WF^{-1})"
-    Measurement = [zeros(ComplexF64, size(params.psi)[1], size(params.psi)[1])]
-    return info_DDPG_noise(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
+    M = [zeros(ComplexF64, size(params.psi)[1], size(params.psi)[1])]
+    return info_DDPG_noise(M, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
-function CFIM_DDPG_Sopt(Measurement, params::TimeIndepend_noise, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
+function CFIM_DDPG_Sopt(M, params::TimeIndepend_noise, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
     sym = Symbol("CFIM_TimeIndepend_noise")
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
-    return info_DDPG_noise(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
+    return info_DDPG_noise(M, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
 function HCRB_DDPG_Sopt(params::TimeIndepend_noise, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
@@ -400,16 +400,16 @@ function HCRB_DDPG_Sopt(params::TimeIndepend_noise, layer_num, layer_dim, seed, 
     str1 = ""
     str2 = "HCRB"
     str3 = "HCRB"
-    Measurement = [zeros(ComplexF64, size(params.psi)[1], size(params.psi)[1])]
+    M = [zeros(ComplexF64, size(params.psi)[1], size(params.psi)[1])]
     if length(params.Hamiltonian_derivative) == 1
         println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for state optimization.")
         return nothing
     else
-        return info_DDPG_noise(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
+        return info_DDPG_noise(M, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
     end
 end
 
-function info_DDPG_noise(Measurement, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
+function info_DDPG_noise(M, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
     rng = StableRNG(seed)
     episode = 1
     if length(params.Hamiltonian_derivative) == 1
@@ -417,7 +417,7 @@ function info_DDPG_noise(Measurement, params, layer_num, layer_dim, seed, max_ep
     else
         SinglePara = false
     end
-    env = DDPGEnv_noise(Measurement, params, episode, SinglePara, save_file, rng, sym, str2, str3)
+    env = DDPGEnv_noise(M, params, episode, SinglePara, save_file, rng, sym, str2, str3)
     ns = 2*length(params.psi)
     na = env.ctrl_num
     init = glorot_uniform(rng)

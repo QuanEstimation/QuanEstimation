@@ -45,10 +45,10 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
     B = [rand(basis_num) for i in 1:M_num]
     B = bound_LC_coeff(B)
 
-    Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
-    f_ini = obj_func(Val{sym}(), AD, Measurement)
+    M = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+    f_ini = obj_func(Val{sym}(), AD, M)
     
-    f_opt = obj_func(Val{:QFIM_noctrl}(), AD, Measurement)
+    f_opt = obj_func(Val{:QFIM_noctrl}(), AD, M)
     f_povm = obj_func(Val{sym}(), AD, POVM_basis)
 
     episodes = 1
@@ -66,40 +66,40 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
             B = gradient_CFI!(AD, epsilon, B, POVM_basis, M_num, basis_num)
         end
         if save_file == true
-            Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
-            SaveFile_meas(f_ini, Measurement)
+            M = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+            SaveFile_meas(f_ini, M)
             if Adam == true
                 while true
-                    Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
-                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    M = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+                    f_now = obj_func(Val{sym}(), AD, M)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final $str1 is ", f_now)
-                        SaveFile_meas(f_now, Measurement)
+                        SaveFile_meas(f_now, M)
                         break
                     else
                         episodes += 1
-                        SaveFile_meas(f_now, Measurement)
+                        SaveFile_meas(f_now, M)
                         print("current $str1 is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     B = gradient_CFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, B, POVM_basis, M_num, basis_num)
                 end
             else
                 while true
-                    Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
-                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    M = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+                    f_now = obj_func(Val{sym}(), AD, M)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final $str1 is ", f_now)
-                        SaveFile_meas(f_now, Measurement)
+                        SaveFile_meas(f_now, M)
                         break
                     else
                         episodes += 1
-                        SaveFile_meas(f_now, Measurement)
+                        SaveFile_meas(f_now, M)
                         print("current $str1 is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     B = gradient_CFI!(AD, epsilon, B, POVM_basis, M_num, basis_num)
@@ -108,15 +108,15 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
         else
             if Adam == true
                 while true
-                    Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
-                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    M = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+                    f_now = obj_func(Val{sym}(), AD, M)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final $str1 is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_meas(f_list, Measurement)
+                        SaveFile_meas(f_list, M)
                         break
                     else
                         episodes += 1
@@ -127,15 +127,15 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
                 end
             else
                 while true
-                    Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
-                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    M = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+                    f_now = obj_func(Val{sym}(), AD, M)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final $str1 is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_meas(f_list, Measurement)
+                        SaveFile_meas(f_list, M)
                         break
                     else
                         episodes += 1
@@ -160,38 +160,38 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
             B = gradient_CFIM!(AD, epsilon, B, POVM_basis, M_num, basis_num)
         end
         if save_file == true
-            Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
-            SaveFile_meas(f_ini, Measurement)
+            M = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+            SaveFile_meas(f_ini, M)
             if Adam == true
                 while true
-                    Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
-                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    M = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+                    f_now = obj_func(Val{sym}(), AD, M)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of $str2 is ", f_now)
-                        SaveFile_meas(f_now, Measurement)
+                        SaveFile_meas(f_now, M)
                         break
                     else
                         episodes += 1
-                        SaveFile_meas(f_now, Measurement)
+                        SaveFile_meas(f_now, M)
                         print("current value of $str2 is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     B = gradient_CFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, B, POVM_basis, M_num, basis_num)
                 end
             else
                 while true
-                    Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
-                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    M = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+                    f_now = obj_func(Val{sym}(), AD, M)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of $str2 is ", f_now)
-                        SaveFile_meas(f_now, Measurement)
+                        SaveFile_meas(f_now, M)
                         break
                     else
                         episodes += 1
-                        SaveFile_meas(f_now, Measurement)
+                        SaveFile_meas(f_now, M)
                         print("current value of $str2 is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     B = gradient_CFIM!(AD, epsilon, B, POVM_basis, M_num, basis_num)
@@ -200,14 +200,14 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
         else
             if Adam == true
                 while true
-                    Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
-                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    M = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+                    f_now = obj_func(Val{sym}(), AD, M)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of $str2 is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_meas(f_list, Measurement)
+                        SaveFile_meas(f_list, M)
                         break
                     else
                         episodes += 1
@@ -218,14 +218,14 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
                 end
             else
                 while true
-                    Measurement = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
-                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    M = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+                    f_now = obj_func(Val{sym}(), AD, M)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of $str2 is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_meas(f_list, Measurement)
+                        SaveFile_meas(f_list, M)
                         break
                     else
                         episodes += 1
@@ -288,9 +288,9 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
     # initialize 
     s = rand(dim*dim)
     U = rotation_matrix(s, Lambda)
-    Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
-    f_ini = obj_func(Val{sym}(), AD, Measurement)
-    f_opt = obj_func(Val{:QFIM_noctrl}(), AD, Measurement)
+    M = [U*POVM_basis[i]*U' for i in 1:M_num]
+    f_ini = obj_func(Val{sym}(), AD, M)
+    f_opt = obj_func(Val{:QFIM_noctrl}(), AD, M)
     f_povm = obj_func(Val{sym}(), AD, POVM_basis)
     episodes = 1
     if length(AD.Hamiltonian_derivative) == 1
@@ -308,23 +308,23 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
         end
         if save_file == true
             U = rotation_matrix(s, Lambda)
-            Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
-            SaveFile_meas(1.0/f_ini, Measurement)
+            M = [U*POVM_basis[i]*U' for i in 1:M_num]
+            SaveFile_meas(1.0/f_ini, M)
             if Adam == true
                 while true
                     U = rotation_matrix(s, Lambda)
-                    Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
-                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    M = [U*POVM_basis[i]*U' for i in 1:M_num]
+                    f_now = obj_func(Val{sym}(), AD, M)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final $str1 is ", f_now)
-                        SaveFile_meas(f_now, Measurement)
+                        SaveFile_meas(f_now, M)
                         break
                     else
                         episodes += 1
-                        SaveFile_meas(f_now, Measurement)
+                        SaveFile_meas(f_now, M)
                         print("current $str1 is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     s = gradient_CFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, POVM_basis, s, Lambda, M_num, dim)
@@ -332,18 +332,18 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
             else
                 while true
                     U = rotation_matrix(s, Lambda)
-                    Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
-                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    M = [U*POVM_basis[i]*U' for i in 1:M_num]
+                    f_now = obj_func(Val{sym}(), AD, M)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final $str1 is ", f_now)
-                        SaveFile_meas(f_now, Measurement)
+                        SaveFile_meas(f_now, M)
                         break
                     else
                         episodes += 1
-                        SaveFile_meas(f_now, Measurement)
+                        SaveFile_meas(f_now, M)
                         print("current $str1 is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     s = gradient_CFI!(AD, epsilon, POVM_basis, s, Lambda, M_num, dim)
@@ -353,15 +353,15 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
             if Adam == true
                 while true
                     U = rotation_matrix(s, Lambda)
-                    Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
-                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    M = [U*POVM_basis[i]*U' for i in 1:M_num]
+                    f_now = obj_func(Val{sym}(), AD, M)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final $str1 is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_meas(f_list, Measurement)
+                        SaveFile_meas(f_list, M)
                         break
                     else
                         episodes += 1
@@ -373,15 +373,15 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
             else
                 while true
                     U = rotation_matrix(s, Lambda)
-                    Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
-                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    M = [U*POVM_basis[i]*U' for i in 1:M_num]
+                    f_now = obj_func(Val{sym}(), AD, M)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final $str1 is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_meas(f_list, Measurement)
+                        SaveFile_meas(f_list, M)
                         break
                     else
                         episodes += 1
@@ -407,22 +407,22 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
         end
         if save_file == true
             U = rotation_matrix(s, Lambda)
-            Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
-            SaveFile_meas(f_ini, Measurement)
+            M = [U*POVM_basis[i]*U' for i in 1:M_num]
+            SaveFile_meas(f_ini, M)
             if Adam == true
                 while true
                     U = rotation_matrix(s, Lambda)
-                    Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
-                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    M = [U*POVM_basis[i]*U' for i in 1:M_num]
+                    f_now = obj_func(Val{sym}(), AD, M)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of $str2 is ", f_now)
-                        SaveFile_meas(f_now, Measurement)
+                        SaveFile_meas(f_now, M)
                         break
                     else
                         episodes += 1
-                        SaveFile_meas(f_now, Measurement)
+                        SaveFile_meas(f_now, M)
                         print("current value of $str2 is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     s = gradient_CFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, POVM_basis, s, Lambda, M_num, dim)
@@ -430,17 +430,17 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
             else
                 while true
                     U = rotation_matrix(s, Lambda)
-                    Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
-                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    M = [U*POVM_basis[i]*U' for i in 1:M_num]
+                    f_now = obj_func(Val{sym}(), AD, M)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of $str2 is ", f_now)
-                        SaveFile_meas(f_now, Measurement)
+                        SaveFile_meas(f_now, M)
                         break
                     else
                         episodes += 1
-                        SaveFile_meas(f_now, Measurement)
+                        SaveFile_meas(f_now, M)
                         print("current value of $str2 is ", f_now, " ($(episodes) episodes)    \r")
                     end
                     s = gradient_CFIM!(AD, epsilon, POVM_basis, s, Lambda, M_num, dim)
@@ -450,14 +450,14 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
             if Adam == true
                 while true
                     U = rotation_matrix(s, Lambda)
-                    Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
-                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    M = [U*POVM_basis[i]*U' for i in 1:M_num]
+                    f_now = obj_func(Val{sym}(), AD, M)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of $str2 is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_meas(f_list, Measurement)
+                        SaveFile_meas(f_list, M)
                         break
                     else
                         episodes += 1
@@ -469,14 +469,14 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
             else
                 while true
                     U = rotation_matrix(s, Lambda)
-                    Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
-                    f_now = obj_func(Val{sym}(), AD, Measurement)
+                    M = [U*POVM_basis[i]*U' for i in 1:M_num]
+                    f_now = obj_func(Val{sym}(), AD, M)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
                         println("Final value of $str2 is ", f_now)
                         append!(f_list, f_now)
-                        SaveFile_meas(f_list, Measurement)
+                        SaveFile_meas(f_list, M)
                         break
                     else
                         episodes += 1

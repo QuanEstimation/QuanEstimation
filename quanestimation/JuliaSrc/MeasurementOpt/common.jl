@@ -127,25 +127,25 @@ end
 
 function MOpt_Adam!(system, δ, ϵ, mt, vt, beta1, beta2, accuracy)
     for cj in 1:length(δ[1])
-        system.Measurement[1][cj], mt, vt = MOpt_Adam(δ[1][cj], cj, system.Measurement[1][cj], mt, vt, ϵ, beta1, beta2, accuracy)
+        system.M[1][cj], mt, vt = MOpt_Adam(δ[1][cj], cj, system.M[1][cj], mt, vt, ϵ, beta1, beta2, accuracy)
     end
 end
 
-function SaveFile_meas(f_now::Float64, Measurement)
+function SaveFile_meas(f_now::Float64, M)
     open("f.csv","a") do f
         writedlm(f, [f_now])
     end
     open("measurements.csv","a") do g
-        writedlm(g, Measurement)
+        writedlm(g, M)
     end
 end
 
-function SaveFile_meas(f_now::Vector{Float64}, Measurement)
+function SaveFile_meas(f_now::Vector{Float64}, M)
     open("f.csv","w") do f
         writedlm(f, f_now)
     end
     open("measurements.csv","w") do g
-        writedlm(g, Measurement)
+        writedlm(g, M)
     end
 end
 

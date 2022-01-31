@@ -73,7 +73,7 @@ class PSO_Copt(Control.ControlSystem):
         Main.QuanEstimation.QFIM_PSO_Copt(pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, \
                                          self.seed, save_file)
 
-    def CFIM(self, Measurement, save_file=False):
+    def CFIM(self, M, save_file=False):
         """
         Description: use particle swarm optimization algorithm to update the control coefficients  
                      that maximize the CFI (1/Tr(WF^{-1} with F the CFIM).
@@ -86,10 +86,10 @@ class PSO_Copt(Control.ControlSystem):
                            False: save the control coefficients for the last episode and all the CFI (Tr(WF^{-1})).
             --type: bool
         """
-        Measurement = [np.array(x, dtype=np.complex128) for x in Measurement]
+        M = [np.array(x, dtype=np.complex128) for x in M]
         pso = Main.QuanEstimation.PSO_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, self.decay_opt, \
                          self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
-        Main.QuanEstimation.CFIM_PSO_Copt(Measurement, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, \
+        Main.QuanEstimation.CFIM_PSO_Copt(M, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, \
                                           self.c2, self.seed, save_file)
 
     def HCRB(self, save_file=False):

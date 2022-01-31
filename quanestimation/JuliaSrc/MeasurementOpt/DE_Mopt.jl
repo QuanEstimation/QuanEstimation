@@ -36,8 +36,8 @@ function info_DE_projection(DE, popsize, ini_population, c, cr, seed, max_episod
 
     p_fit = [0.0 for i in 1:p_num] 
     for pj in 1:p_num
-        Measurement = [populations[pj].C[i]*(populations[pj].C[i])' for i in 1:M_num]
-        p_fit[pj] = 1.0/obj_func(Val{sym}(), DE, Measurement)
+        M = [populations[pj].C[i]*(populations[pj].C[i])' for i in 1:M_num]
+        p_fit[pj] = 1.0/obj_func(Val{sym}(), DE, M)
     end
 
     f_ini= p_fit[1]
@@ -54,21 +54,21 @@ function info_DE_projection(DE, popsize, ini_population, c, cr, seed, max_episod
         
         if save_file == true
             indx = findmax(p_fit)[2]
-            Measurement = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
-            SaveFile_meas(f_list, Measurement)
+            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+            SaveFile_meas(f_list, M)
             for i in 1:(max_episode-1)
                 p_fit = train_projection(populations, c, cr, p_num, dim, M_num, p_fit, sym)
                 indx = findmax(p_fit)[2]
-                Measurement = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+                M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
                 append!(f_list, maximum(p_fit))
-                SaveFile_meas(f_list, Measurement)
+                SaveFile_meas(f_list, M)
                 print("current $str1 is ", maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_projection(populations, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
-            Measurement = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
             append!(f_list, maximum(p_fit))
-            SaveFile_meas(f_list, Measurement)
+            SaveFile_meas(f_list, M)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final $str1 is ", maximum(p_fit))
@@ -80,9 +80,9 @@ function info_DE_projection(DE, popsize, ini_population, c, cr, seed, max_episod
             end
             p_fit = train_projection(populations, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
-            Measurement = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
             append!(f_list, maximum(p_fit))
-            SaveFile_meas(f_list, Measurement)
+            SaveFile_meas(f_list, M)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final $str1 is ", maximum(p_fit))
@@ -96,21 +96,21 @@ function info_DE_projection(DE, popsize, ini_population, c, cr, seed, max_episod
 
         if save_file == true
             indx = findmax(p_fit)[2]
-            Measurement = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
-            SaveFile_meas(f_list, Measurement)
+            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+            SaveFile_meas(f_list, M)
             for i in 1:(max_episode-1)
                 p_fit = train_projection(populations, c, cr, p_num, dim, M_num, p_fit, sym)
                 indx = findmax(p_fit)[2]
-                Measurement = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+                M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
                 append!(f_list, 1.0/maximum(p_fit))
-                SaveFile_meas(f_list, Measurement)
+                SaveFile_meas(f_list, M)
                 print("current value of $str2 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_projection(populations, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
-            Measurement = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile_meas(f_list, Measurement)
+            SaveFile_meas(f_list, M)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final value of $str2 is ", 1.0/maximum(p_fit))
@@ -122,9 +122,9 @@ function info_DE_projection(DE, popsize, ini_population, c, cr, seed, max_episod
             end
             p_fit = train_projection(populations, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
-            Measurement = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile_meas(f_list, Measurement)
+            SaveFile_meas(f_list, M)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final value of $str2 is ", 1.0/maximum(p_fit))
@@ -161,10 +161,10 @@ function train_projection(populations, c, cr, p_num, dim, M_num, p_fit, sym)
         # orthogonality and normalization 
         M_cross = gramschmidt(M_cross)
 
-        Measurement = [M_cross[i]*(M_cross[i])' for i in 1:M_num]
+        M = [M_cross[i]*(M_cross[i])' for i in 1:M_num]
 
         #selection
-        f_cross = obj_func(Val{sym}(), populations[pj], Measurement)
+        f_cross = obj_func(Val{sym}(), populations[pj], M)
         f_cross = 1.0/f_cross
 
         if f_cross > p_fit[pj]
@@ -206,8 +206,8 @@ function info_DE_LinearComb(DE, popsize, c, cr, seed, max_episode, save_file, sy
 
     p_fit = [0.0 for i in 1:p_num] 
     for pj in 1:p_num
-        Measurement = [sum([B_all[pj][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
-        p_fit[pj] = 1.0/obj_func(Val{sym}(), DE, Measurement)
+        M = [sum([B_all[pj][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+        p_fit[pj] = 1.0/obj_func(Val{sym}(), DE, M)
     end
 
     f_ini= p_fit[1]
@@ -228,21 +228,21 @@ function info_DE_LinearComb(DE, popsize, c, cr, seed, max_episode, save_file, sy
         
         if save_file == true
             indx = findmax(p_fit)[2]
-            Measurement = [sum([B_all[indx][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
-            SaveFile_meas(f_list, Measurement)
+            M = [sum([B_all[indx][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+            SaveFile_meas(f_list, M)
             for i in 1:(max_episode-1)
                 p_fit, B_all = train_LinearComb(populations, B_all, POVM_basis, c, cr, p_num, basis_num, M_num, p_fit, sym)
                 indx = findmax(p_fit)[2]
-                Measurement = [sum([B_all[indx][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+                M = [sum([B_all[indx][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
                 append!(f_list, maximum(p_fit))
-                SaveFile_meas(f_list, Measurement)
+                SaveFile_meas(f_list, M)
                 print("current $str1 is ", maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit, B_all = train_LinearComb(populations, B_all, POVM_basis, c, cr, p_num, basis_num, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
-            Measurement = [sum([B_all[indx][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+            M = [sum([B_all[indx][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
             append!(f_list, maximum(p_fit))
-            SaveFile_meas(f_list, Measurement)
+            SaveFile_meas(f_list, M)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final $str1 is ", maximum(p_fit))
@@ -254,9 +254,9 @@ function info_DE_LinearComb(DE, popsize, c, cr, seed, max_episode, save_file, sy
             end
             p_fit, B_all = train_LinearComb(populations, B_all, POVM_basis, c, cr, p_num, basis_num, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
-            Measurement = [sum([B_all[indx][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+            M = [sum([B_all[indx][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
             append!(f_list, maximum(p_fit))
-            SaveFile_meas(f_list, Measurement)
+            SaveFile_meas(f_list, M)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final $str1 is ", maximum(p_fit))
@@ -271,21 +271,21 @@ function info_DE_LinearComb(DE, popsize, c, cr, seed, max_episode, save_file, sy
 
         if save_file == true
             indx = findmax(p_fit)[2]
-            Measurement = [sum([B_all[indx][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
-            SaveFile_meas(f_list, Measurement)
+            M = [sum([B_all[indx][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+            SaveFile_meas(f_list, M)
             for i in 1:(max_episode-1)
                 p_fit, B_all = train_LinearComb(populations, B_all, POVM_basis, c, cr, p_num, basis_num, M_num, p_fit, sym)
                 indx = findmax(p_fit)[2]
-                Measurement = [sum([B_all[indx][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+                M = [sum([B_all[indx][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
                 append!(f_list, 1.0/maximum(p_fit))
-                SaveFile_meas(f_list, Measurement)
+                SaveFile_meas(f_list, M)
                 print("current value of $str2 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit, B_all = train_LinearComb(populations, B_all, POVM_basis, c, cr, p_num, basis_num, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
-            Measurement = [sum([B_all[indx][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+            M = [sum([B_all[indx][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile_meas(f_list, Measurement)
+            SaveFile_meas(f_list, M)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final value of $str2 is ", 1.0/maximum(p_fit))
@@ -297,9 +297,9 @@ function info_DE_LinearComb(DE, popsize, c, cr, seed, max_episode, save_file, sy
             end
             p_fit, B_all = train_LinearComb(populations, B_all, POVM_basis, c, cr, p_num, basis_num, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
-            Measurement = [sum([B_all[indx][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+            M = [sum([B_all[indx][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile_meas(f_list, Measurement)
+            SaveFile_meas(f_list, M)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final value of $str2 is ", 1.0/maximum(p_fit))
@@ -334,10 +334,10 @@ function train_LinearComb(populations, B_all, POVM_basis, c, cr, p_num, basis_nu
 
         # normalize the coefficients 
         M_cross = bound_LC_coeff(M_cross)
-        Measurement = [sum([M_cross[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
+        M = [sum([M_cross[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
 
         #selection
-        f_cross = obj_func(Val{sym}(), populations[pj], Measurement)
+        f_cross = obj_func(Val{sym}(), populations[pj], M)
         f_cross = 1.0/f_cross
         
         if f_cross > p_fit[pj]
@@ -380,8 +380,8 @@ function info_DE_RotateBasis(DE, popsize, c, cr, seed, max_episode, save_file, s
         # generate a rotation matrix randomly
         s_all[pj] = rand(dim*dim)
         U = rotation_matrix(s_all[pj], Lambda)
-        Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
-        p_fit[pj] = 1.0/obj_func(Val{sym}(), DE, Measurement)
+        M = [U*POVM_basis[i]*U' for i in 1:M_num]
+        p_fit[pj] = 1.0/obj_func(Val{sym}(), DE, M)
     end
 
     f_ini= p_fit[1]
@@ -403,23 +403,23 @@ function info_DE_RotateBasis(DE, popsize, c, cr, seed, max_episode, save_file, s
         if save_file == true
             indx = findmax(p_fit)[2]
             U = rotation_matrix(s_all[indx], Lambda)
-            Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
-            SaveFile_meas(f_list, Measurement)
+            M = [U*POVM_basis[i]*U' for i in 1:M_num]
+            SaveFile_meas(f_list, M)
             for i in 1:(max_episode-1)
                 p_fit, s_all = train_RotateBasis(populations, s_all, POVM_basis, Lambda, c, cr, p_num, dim, M_num, p_fit, sym)
                 indx = findmax(p_fit)[2]
                 U = rotation_matrix(s_all[indx], Lambda)
-                Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
+                M = [U*POVM_basis[i]*U' for i in 1:M_num]
                 append!(f_list, maximum(p_fit))
-                SaveFile_meas(f_list, Measurement)
+                SaveFile_meas(f_list, M)
                 print("current $str1 is ", maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit, s_all = train_RotateBasis(populations, s_all, POVM_basis, Lambda, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
             U = rotation_matrix(s_all[indx], Lambda)
-            Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
+            M = [U*POVM_basis[i]*U' for i in 1:M_num]
             append!(f_list, maximum(p_fit))
-            SaveFile_meas(f_list, Measurement)
+            SaveFile_meas(f_list, M)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final $str1 is ", maximum(p_fit))
@@ -432,9 +432,9 @@ function info_DE_RotateBasis(DE, popsize, c, cr, seed, max_episode, save_file, s
             p_fit, s_all = train_RotateBasis(populations, s_all, POVM_basis, Lambda, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
             U = rotation_matrix(s_all[indx], Lambda)
-            Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
+            M = [U*POVM_basis[i]*U' for i in 1:M_num]
             append!(f_list, maximum(p_fit))
-            SaveFile_meas(f_list, Measurement)
+            SaveFile_meas(f_list, M)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final $str1 is ", maximum(p_fit))
@@ -450,23 +450,23 @@ function info_DE_RotateBasis(DE, popsize, c, cr, seed, max_episode, save_file, s
         if save_file == true
             indx = findmax(p_fit)[2]
             U = rotation_matrix(s_all[indx], Lambda)
-            Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
-            SaveFile_meas(f_list, Measurement)
+            M = [U*POVM_basis[i]*U' for i in 1:M_num]
+            SaveFile_meas(f_list, M)
             for i in 1:(max_episode-1)
                 p_fit, s_all = train_RotateBasis(populations, s_all, POVM_basis, Lambda, c, cr, p_num, dim, M_num, p_fit, sym)
                 indx = findmax(p_fit)[2]
                 U = rotation_matrix(s_all[indx], Lambda)
-                Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
+                M = [U*POVM_basis[i]*U' for i in 1:M_num]
                 append!(f_list, 1.0/maximum(p_fit))
-                SaveFile_meas(f_list, Measurement)
+                SaveFile_meas(f_list, M)
                 print("current value of $str2 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit, s_all = train_RotateBasis(populations, s_all, POVM_basis, Lambda, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
             U = rotation_matrix(s_all[indx], Lambda)
-            Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
+            M = [U*POVM_basis[i]*U' for i in 1:M_num]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile_meas(f_list, Measurement)
+            SaveFile_meas(f_list, M)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final value of $str2 is ", 1.0/maximum(p_fit))
@@ -479,9 +479,9 @@ function info_DE_RotateBasis(DE, popsize, c, cr, seed, max_episode, save_file, s
             p_fit, s_all = train_RotateBasis(populations, s_all, POVM_basis, Lambda, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
             U = rotation_matrix(s_all[indx], Lambda)
-            Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
+            M = [U*POVM_basis[i]*U' for i in 1:M_num]
             append!(f_list, 1.0/maximum(p_fit))
-            SaveFile_meas(f_list, Measurement)
+            SaveFile_meas(f_list, M)
             print("\e[2K")
             println("Iteration over, data saved.")
             println("Final value of $str2 is ", 1.0/maximum(p_fit))
@@ -514,10 +514,10 @@ function train_RotateBasis(populations, s_all, POVM_basis, Lambda, c, cr, p_num,
         # normalize the coefficients 
         M_cross = bound_rot_coeff(M_cross)
         U = rotation_matrix(M_cross, Lambda)
-        Measurement = [U*POVM_basis[i]*U' for i in 1:M_num]
+        M = [U*POVM_basis[i]*U' for i in 1:M_num]
         
         #selection
-        f_cross = obj_func(Val{sym}(), populations[pj], Measurement)
+        f_cross = obj_func(Val{sym}(), populations[pj], M)
         f_cross = 1.0/f_cross
         
         if f_cross > p_fit[pj]

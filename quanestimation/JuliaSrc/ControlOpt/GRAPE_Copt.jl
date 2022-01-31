@@ -32,16 +32,16 @@ function QFIM_autoGRAPE_Copt(grape::GRAPE_Copt{T}, max_episode, Adam, save_file)
     str1 = "quantum"
     str2 = "QFI"
     str3 = "tr(WF^{-1})"
-    Measurement = [zeros(ComplexF64, size(grape.ρ0)[1], size(grape.ρ0)[1])]
-    return info_autoGRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+    M = [zeros(ComplexF64, size(grape.ρ0)[1], size(grape.ρ0)[1])]
+    return info_autoGRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
 end
 
-function CFIM_autoGRAPE_Copt(Measurement, grape::GRAPE_Copt{T}, max_episode, Adam, save_file) where {T<:Complex}
+function CFIM_autoGRAPE_Copt(M, grape::GRAPE_Copt{T}, max_episode, Adam, save_file) where {T<:Complex}
     sym = Symbol("CFIM")
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
-    return info_autoGRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+    return info_autoGRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
 end
 
 function gradient_QFI!(grape::GRAPE_Copt{T}) where {T<:Complex}
@@ -72,35 +72,35 @@ function gradient_QFIM_Adam!(grape::GRAPE_Copt{T}) where {T<:Complex}
     return δF
 end
 
-function gradient_CFI!(grape::GRAPE_Copt{T}, Measurement) where {T<:Complex}
-    δI = gradient(x->CFI(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), grape.control_coefficients)[1].|>real
+function gradient_CFI!(grape::GRAPE_Copt{T}, M) where {T<:Complex}
+    δI = gradient(x->CFI(M, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), grape.control_coefficients)[1].|>real
     grape.control_coefficients += grape.ϵ*δI
     bound!(grape.control_coefficients, grape.ctrl_bound)
     return δI
 end
 
-function gradient_CFI_Adam!(grape::GRAPE_Copt{T}, Measurement) where {T<:Complex}
-    δI = gradient(x->CFI(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), grape.control_coefficients)[1].|>real
+function gradient_CFI_Adam!(grape::GRAPE_Copt{T}, M) where {T<:Complex}
+    δI = gradient(x->CFI(M, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), grape.control_coefficients)[1].|>real
     Adam!(grape, δI)
     bound!(grape.control_coefficients, grape.ctrl_bound)
     return δI
 end
 
-function gradient_CFIM!(grape::GRAPE_Copt{T}, Measurement) where {T<:Complex}
-    δI = gradient(x->1/(grape.W*pinv(CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), rtol=grape.accuracy) |> tr |>real), grape.control_coefficients).|>real |>sum
+function gradient_CFIM!(grape::GRAPE_Copt{T}, M) where {T<:Complex}
+    δI = gradient(x->1/(grape.W*pinv(CFIM(M, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), rtol=grape.accuracy) |> tr |>real), grape.control_coefficients).|>real |>sum
     grape.control_coefficients += grape.ϵ*δI
     bound!(grape.control_coefficients, grape.ctrl_bound)
     return δI
 end
 
-function gradient_CFIM_Adam!(grape::GRAPE_Copt{T}, Measurement) where {T<:Complex}
-    δI = gradient(x->1/(grape.W*pinv(CFIM(Measurement, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), rtol=grape.accuracy) |> tr |>real), grape.control_coefficients).|>real |>sum
+function gradient_CFIM_Adam!(grape::GRAPE_Copt{T}, M) where {T<:Complex}
+    δI = gradient(x->1/(grape.W*pinv(CFIM(M, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), rtol=grape.accuracy) |> tr |>real), grape.control_coefficients).|>real |>sum
     Adam!(grape, δI)
     bound!(grape.control_coefficients, grape.ctrl_bound)
     return δI
 end
 
-function info_autoGRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+function info_autoGRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
     println("$str1 parameter estimation")
     ctrl_num = length(grape.control_Hamiltonian)
     ctrl_length = length(grape.control_coefficients[1])
@@ -108,18 +108,18 @@ function info_autoGRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, s
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("control algorithm: auto-GRAPE")
-        f_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
-        f_ini = obj_func(Val{sym}(), grape, Measurement)
+        f_noctrl = obj_func(Val{sym}(), grape, M, [zeros(ctrl_length) for i in 1:ctrl_num])
+        f_ini = obj_func(Val{sym}(), grape, M)
 
         f_list = [1.0/f_ini]
         println("non-controlled $str2 is $(1.0/f_noctrl)")
         println("initial $str2 is $(1.0/f_ini)")
         if save_file == true
-            SaveFile_ctrl(f_ini, grape.control_coefficients)
+            SaveFile_ctrl(1.0/f_ini, grape.control_coefficients)
             if Adam == true
                 gradient_QFI_Adam!(grape)
                 while true
-                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = obj_func(Val{sym}(), grape, M)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
@@ -137,7 +137,7 @@ function info_autoGRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, s
             else
                 gradient_QFI!(grape)
                 while true
-                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = obj_func(Val{sym}(), grape, M)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
@@ -157,7 +157,7 @@ function info_autoGRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, s
             if Adam == true
                 gradient_QFI_Adam!(grape)
                 while true
-                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = obj_func(Val{sym}(), grape, M)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
@@ -176,7 +176,7 @@ function info_autoGRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, s
             else
                 gradient_QFI!(grape)
                 while true
-                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = obj_func(Val{sym}(), grape, M)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
@@ -197,8 +197,8 @@ function info_autoGRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, s
     else
         println("multiparameter scenario")
         println("control algorithm: auto-GRAPE")
-        f_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
-        f_ini = obj_func(Val{sym}(), grape, Measurement)
+        f_noctrl = obj_func(Val{sym}(), grape, M, [zeros(ctrl_length) for i in 1:ctrl_num])
+        f_ini = obj_func(Val{sym}(), grape, M)
 
         f_list = [f_ini]
         println("non-controlled value of $str3 is $(f_noctrl)")
@@ -208,7 +208,7 @@ function info_autoGRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, s
             if Adam == true
                 gradient_QFIM_Adam!(grape)
                 while true
-                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = obj_func(Val{sym}(), grape, M)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -225,7 +225,7 @@ function info_autoGRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, s
             else
                 gradient_QFIM!(grape)
                 while true
-                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = obj_func(Val{sym}(), grape, M)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -244,7 +244,7 @@ function info_autoGRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, s
             if Adam == true
                 gradient_QFIM_Adam!(grape)
                 while true
-                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = obj_func(Val{sym}(), grape, M)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -262,7 +262,7 @@ function info_autoGRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, s
             else
                 gradient_QFIM!(grape)
                 while true
-                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = obj_func(Val{sym}(), grape, M)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -282,7 +282,7 @@ function info_autoGRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, s
     end
 end
 
-function info_autoGRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+function info_autoGRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
     println("$str1 parameter estimation")
     ctrl_num = length(grape.control_Hamiltonian)
     ctrl_length = length(grape.control_coefficients[1])
@@ -290,8 +290,8 @@ function info_autoGRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, s
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("control algorithm: auto-GRAPE")
-        f_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
-        f_ini = obj_func(Val{sym}(), grape, Measurement)
+        f_noctrl = obj_func(Val{sym}(), grape, M, [zeros(ctrl_length) for i in 1:ctrl_num])
+        f_ini = obj_func(Val{sym}(), grape, M)
 
         f_list = [1.0/f_ini]
         println("non-controlled $str2 is $(1.0/f_noctrl)")
@@ -299,9 +299,9 @@ function info_autoGRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, s
         if save_file == true
             SaveFile_ctrl(f_ini, grape.control_coefficients)
             if Adam == true
-                gradient_CFI_Adam!(grape, Measurement)
+                gradient_CFI_Adam!(grape, M)
                 while true
-                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = obj_func(Val{sym}(), grape, M)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
@@ -314,12 +314,12 @@ function info_autoGRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, s
                         SaveFile_ctrl(f_now, grape.control_coefficients)
                         print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
-                    gradient_CFI_Adam!(grape, Measurement)
+                    gradient_CFI_Adam!(grape, M)
                 end
             else
-                gradient_CFI!(grape, Measurement)
+                gradient_CFI!(grape, M)
                 while true
-                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = obj_func(Val{sym}(), grape, M)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
@@ -332,14 +332,14 @@ function info_autoGRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, s
                         SaveFile_ctrl(f_now, grape.control_coefficients)
                         print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
-                    gradient_CFI!(grape, Measurement)
+                    gradient_CFI!(grape, M)
                 end
             end
         else
             if Adam == true
-                gradient_CFI_Adam!(grape, Measurement)
+                gradient_CFI_Adam!(grape, M)
                 while true
-                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = obj_func(Val{sym}(), grape, M)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
@@ -353,12 +353,12 @@ function info_autoGRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, s
                         append!(f_list, f_now)
                         print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
-                    gradient_CFI_Adam!(grape, Measurement)
+                    gradient_CFI_Adam!(grape, M)
                 end
             else
-                gradient_CFI!(grape, Measurement)
+                gradient_CFI!(grape, M)
                 while true
-                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = obj_func(Val{sym}(), grape, M)
                     f_now = 1.0/f_now
                     if  episodes >= max_episode
                         print("\e[2K")
@@ -372,15 +372,15 @@ function info_autoGRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, s
                         append!(f_list, f_now)
                         print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
-                    gradient_CFI!(grape, Measurement)
+                    gradient_CFI!(grape, M)
                 end
             end
         end
     else
         println("multiparameter scenario")
         println("control algorithm: auto-GRAPE")
-        f_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
-        f_ini = obj_func(Val{sym}(), grape, Measurement)
+        f_noctrl = obj_func(Val{sym}(), grape, M, [zeros(ctrl_length) for i in 1:ctrl_num])
+        f_ini = obj_func(Val{sym}(), grape, M)
 
         f_list = [f_ini]
         println("non-controlled value of $str3 is $(f_noctrl)")
@@ -388,9 +388,9 @@ function info_autoGRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, s
         if save_file == true
             SaveFile_ctrl(f_ini, grape.control_coefficients)
             if Adam == true
-                gradient_CFIM_Adam!(grape, Measurement)
+                gradient_CFIM_Adam!(grape, M)
                 while true
-                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = obj_func(Val{sym}(), grape, M)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -402,12 +402,12 @@ function info_autoGRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, s
                         SaveFile_ctrl(f_now, grape.control_coefficients)
                         print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
-                    gradient_CFIM_Adam!(grape, Measurement)
+                    gradient_CFIM_Adam!(grape, M)
                 end
             else
-                gradient_CFIM!(grape, Measurement)
+                gradient_CFIM!(grape, M)
                 while true
-                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = obj_func(Val{sym}(), grape, M)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -419,14 +419,14 @@ function info_autoGRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, s
                         SaveFile_ctrl(f_now, grape.control_coefficients)
                         print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
-                    gradient_CFIM!(grape, Measurement)
+                    gradient_CFIM!(grape, M)
                 end
             end
         else
             if Adam == true
-                gradient_CFIM_Adam!(grape, Measurement)
+                gradient_CFIM_Adam!(grape, M)
                 while true
-                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = obj_func(Val{sym}(), grape, M)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -439,12 +439,12 @@ function info_autoGRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, s
                         append!(f_list, f_now)
                         print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
-                    gradient_CFIM_Adam!(grape, Measurement)
+                    gradient_CFIM_Adam!(grape, M)
                 end
             else
-                gradient_CFIM!(grape, Measurement)
+                gradient_CFIM!(grape, M)
                 while true
-                    f_now = obj_func(Val{sym}(), grape, Measurement)
+                    f_now = obj_func(Val{sym}(), grape, M)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -457,7 +457,7 @@ function info_autoGRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, s
                         append!(f_list, f_now)
                         print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
-                    gradient_CFIM!(grape, Measurement)
+                    gradient_CFIM!(grape, M)
                 end
             end
         end
@@ -471,19 +471,19 @@ function QFIM_GRAPE_Copt(grape::GRAPE_Copt{T}, max_episode, Adam, save_file) whe
     str1 = "quantum"
     str2 = "QFI"
     str3 = "tr(WF^{-1})"
-    Measurement = [zeros(ComplexF64, size(grape.ρ0)[1], size(grape.ρ0)[1])]
-    return info_GRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+    M = [zeros(ComplexF64, size(grape.ρ0)[1], size(grape.ρ0)[1])]
+    return info_GRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
 end
 
-function CFIM_GRAPE_Copt(Measurement, grape::GRAPE_Copt{T}, max_episode, Adam, save_file) where {T<:Complex}
+function CFIM_GRAPE_Copt(M, grape::GRAPE_Copt{T}, max_episode, Adam, save_file) where {T<:Complex}
     sym = Symbol("CFIM")
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
-    return info_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+    return info_GRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
 end
 
-function info_GRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+function info_GRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
     println("$str1 parameter estimation")
     ctrl_num = length(grape.control_Hamiltonian)
     ctrl_length = length(grape.control_coefficients[1])
@@ -491,7 +491,7 @@ function info_GRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, sym, 
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("control algorithm: GRAPE")
-        f_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
+        f_noctrl = obj_func(Val{sym}(), grape, M, [zeros(ctrl_length) for i in 1:ctrl_num])
         println("non-controlled $str2 is $(1.0/f_noctrl)")
         ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
         if Adam == true
@@ -576,7 +576,7 @@ function info_GRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, sym, 
     else
         println("multiparameter scenario")
         println("control algorithm: GRAPE")
-        f_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
+        f_noctrl = obj_func(Val{sym}(), grape, M, [zeros(ctrl_length) for i in 1:ctrl_num])
         println("non-controlled value of $str3 is $(f_noctrl)")
         ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
         if Adam == true
@@ -661,7 +661,7 @@ function info_GRAPE_QFIM(Measurement, grape, max_episode, Adam, save_file, sym, 
     end
 end
 
-function info_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
+function info_GRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
     println("$str1 parameter estimation")
     ctrl_num = length(grape.control_Hamiltonian)
     ctrl_length = length(grape.control_coefficients[1])
@@ -669,13 +669,13 @@ function info_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, sym, 
     if length(grape.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("control algorithm: GRAPE")
-        f_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
+        f_noctrl = obj_func(Val{sym}(), grape, M, [zeros(ctrl_length) for i in 1:ctrl_num])
         println("non-controlled $str2 is $(1.0/f_noctrl)")
         ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
         if Adam == true
-            grape.control_coefficients, f_ini = gradient_CFIM_analy_Adam(Measurement, grape)
+            grape.control_coefficients, f_ini = gradient_CFIM_analy_Adam(M, grape)
         else
-            grape.control_coefficients, f_ini = gradient_CFIM_analy(Measurement, grape)
+            grape.control_coefficients, f_ini = gradient_CFIM_analy(M, grape)
         end
         f_list = [f_ini]
         println("initial $str2 is $(f_ini)")
@@ -684,7 +684,7 @@ function info_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, sym, 
             if Adam == true
                 while true
                     ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(Measurement, grape)
+                    grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(M, grape)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -700,7 +700,7 @@ function info_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, sym, 
             else
                 while true
                     ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape)
+                    grape.control_coefficients, f_now = gradient_CFIM_analy(M, grape)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -718,7 +718,7 @@ function info_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, sym, 
             if Adam == true
                 while true
                     ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(Measurement, grape)
+                    grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(M, grape)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -735,7 +735,7 @@ function info_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, sym, 
             else
                 while true
                     ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape)
+                    grape.control_coefficients, f_now = gradient_CFIM_analy(M, grape)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -754,13 +754,13 @@ function info_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, sym, 
     else
         println("multiparameter scenario")
         println("control algorithm: GRAPE")
-        f_noctrl = obj_func(Val{sym}(), grape, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
+        f_noctrl = obj_func(Val{sym}(), grape, M, [zeros(ctrl_length) for i in 1:ctrl_num])
         println("non-controlled value of $str3 is $(f_noctrl)")
         ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
         if Adam == true
-            grape.control_coefficients, f_ini = gradient_CFIM_analy_Adam(Measurement, grape)
+            grape.control_coefficients, f_ini = gradient_CFIM_analy_Adam(M, grape)
         else
-            grape.control_coefficients, f_ini = gradient_CFIM_analy(Measurement, grape)
+            grape.control_coefficients, f_ini = gradient_CFIM_analy(M, grape)
         end
         f_list = [f_ini]
         println("initial value of $str3 is $(f_ini)")
@@ -769,7 +769,7 @@ function info_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, sym, 
             if Adam == true
                 while true
                     ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(Measurement, grape)
+                    grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(M, grape)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -785,7 +785,7 @@ function info_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, sym, 
             else
                 while true
                     ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape)
+                    grape.control_coefficients, f_now = gradient_CFIM_analy(M, grape)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -803,7 +803,7 @@ function info_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, sym, 
             if Adam == true
                 while true
                     ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(Measurement, grape)
+                    grape.control_coefficients, f_now = gradient_CFIM_analy_Adam(M, grape)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -820,7 +820,7 @@ function info_GRAPE_CFIM(Measurement, grape, max_episode, Adam, save_file, sym, 
             else
                 while true
                     ctrl_pre = [[grape.control_coefficients[i][j] for j in 1:ctrl_length] for i in 1:ctrl_num]
-                    grape.control_coefficients, f_now = gradient_CFIM_analy(Measurement, grape)
+                    grape.control_coefficients, f_now = gradient_CFIM_analy(M, grape)
                     if  episodes >= max_episode
                         print("\e[2K")
                         println("Iteration over, data saved.")
@@ -1062,7 +1062,7 @@ function gradient_QFIM_analy(grape::GRAPE_Copt{T}) where {T<:Complex}
     grape.control_coefficients, cost_function
 end
 
-function gradient_CFIM_analy_Adam(Measurement::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) where {T<:Complex}
+function gradient_CFIM_analy_Adam(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) where {T<:Complex}
     dim = size(grape.ρ0)[1]
     tnum = length(grape.tspan)
     para_num = length(grape.Hamiltonian_derivative)
@@ -1071,17 +1071,17 @@ function gradient_CFIM_analy_Adam(Measurement::Vector{Matrix{T}}, grape::GRAPE_C
     ρt_T, ∂ρt_T, δρt_δV, ∂xδρt_δV = dynamics_analy(grape, dim, tnum, para_num, ctrl_num)
 
     if para_num == 1
-        F_T = CFI(ρt_T, ∂ρt_T[1], Measurement, grape.accuracy)
+        F_T = CFI(ρt_T, ∂ρt_T[1], M, grape.accuracy)
         cost_function = F_T
         L1_tidle = zeros(ComplexF64, dim, dim)
         L2_tidle = zeros(ComplexF64, dim, dim)
 
         for mi in 1:dim
-            p = (tr(ρt_T*Measurement[mi]) |> real)
-            dp = (tr(∂ρt_T[1]*Measurement[mi]) |> real)
+            p = (tr(ρt_T*M[mi]) |> real)
+            dp = (tr(∂ρt_T[1]*M[mi]) |> real)
             if p > grape.accuracy
-                L1_tidle = L1_tidle + dp*Measurement[mi]/p
-                L2_tidle = L2_tidle + dp*dp*Measurement[mi]/p^2
+                L1_tidle = L1_tidle + dp*M[mi]/p
+                L2_tidle = L2_tidle + dp*dp*M[mi]/p^2
             end
         end
 
@@ -1100,28 +1100,28 @@ function gradient_CFIM_analy_Adam(Measurement::Vector{Matrix{T}}, grape::GRAPE_C
         bound!(grape.control_coefficients, grape.ctrl_bound)
 
     elseif para_num == 2
-        F_T = CFIM(ρt_T, ∂ρt_T, Measurement, grape.accuracy)
+        F_T = CFIM(ρt_T, ∂ρt_T, M, grape.accuracy)
         L1_tidle = [zeros(ComplexF64, dim, dim) for i in 1:para_num]
         L2_tidle = [[zeros(ComplexF64, dim, dim) for i in 1:para_num] for j in 1:para_num]
     
         for para_i in 1:para_num
             for mi in 1:dim
-                p = (tr(ρt_T*Measurement[mi]) |> real)
-                dp = (tr(∂ρt_T[para_i]*Measurement[mi]) |> real)
+                p = (tr(ρt_T*M[mi]) |> real)
+                dp = (tr(∂ρt_T[para_i]*M[mi]) |> real)
                 if p > grape.accuracy
-                    L1_tidle[para_i] = L1_tidle[para_i] + dp*Measurement[mi]/p
+                    L1_tidle[para_i] = L1_tidle[para_i] + dp*M[mi]/p
                 end
             end
         end
     
         for para_i in 1:para_num
-            dp_a = (tr(∂ρt_T[para_i]*Measurement[mi]) |> real)
+            dp_a = (tr(∂ρt_T[para_i]*M[mi]) |> real)
             for para_j in 1:para_num
-                dp_b = (tr(∂ρt_T[para_j]*Measurement[mi]) |> real)
+                dp_b = (tr(∂ρt_T[para_j]*M[mi]) |> real)
                 for mi in 1:dim
-                    p = (tr(ρt_T*Measurement[mi]) |> real)
+                    p = (tr(ρt_T*M[mi]) |> real)
                     if p > grape.accuracy
-                        L2_tidle[para_i][para_j] = L2_tidle[para_i][para_j] + dp_a*dp_b*Measurement[mi]/p^2
+                        L2_tidle[para_i][para_j] = L2_tidle[para_i][para_j] + dp_a*dp_b*M[mi]/p^2
                     end
                 end
             end
@@ -1154,17 +1154,17 @@ function gradient_CFIM_analy_Adam(Measurement::Vector{Matrix{T}}, grape::GRAPE_C
         bound!(grape.control_coefficients, grape.ctrl_bound)
 
     else
-        F_T = CFIM(ρt_T, ∂ρt_T, Measurement, grape.accuracy)
+        F_T = CFIM(ρt_T, ∂ρt_T, M, grape.accuracy)
         L1_tidle = [zeros(ComplexF64, dim, dim) for i in 1:para_num]
         L2_tidle = [zeros(ComplexF64, dim, dim) for i in 1:para_num]
     
         for para_i in 1:para_num
             for mi in 1:dim
-                p = (tr(ρt_T*Measurement[mi]) |> real)
-                dp = (tr(∂ρt_T[para_i]*Measurement[mi]) |> real)
+                p = (tr(ρt_T*M[mi]) |> real)
+                dp = (tr(∂ρt_T[para_i]*M[mi]) |> real)
                 if p > grape.accuracy
-                    L1_tidle[para_i] = L1_tidle[para_i] + dp*Measurement[mi]/p
-                    L2_tidle[para_i] = L2_tidle[para_i] + dp*dp*Measurement[mi]/p^2
+                    L1_tidle[para_i] = L1_tidle[para_i] + dp*M[mi]/p
+                    L2_tidle[para_i] = L2_tidle[para_i] + dp*dp*M[mi]/p^2
                 end
             end
         end
@@ -1193,7 +1193,7 @@ function gradient_CFIM_analy_Adam(Measurement::Vector{Matrix{T}}, grape::GRAPE_C
     grape.control_coefficients, cost_function
 end
 
-function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) where {T<:Complex}
+function gradient_CFIM_analy(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) where {T<:Complex}
     dim = size(grape.ρ0)[1]
     tnum = length(grape.tspan)
     para_num = length(grape.Hamiltonian_derivative)
@@ -1202,17 +1202,17 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, grape::GRAPE_Copt{T
     ρt_T, ∂ρt_T, δρt_δV, ∂xδρt_δV = dynamics_analy(grape, dim, tnum, para_num, ctrl_num)
 
     if para_num == 1
-        F_T = CFI(ρt_T, ∂ρt_T[1], Measurement, grape.accuracy)
+        F_T = CFI(ρt_T, ∂ρt_T[1], M, grape.accuracy)
         cost_function = F_T
         L1_tidle = zeros(ComplexF64, dim, dim)
         L2_tidle = zeros(ComplexF64, dim, dim)
 
         for mi in 1:dim
-            p = (tr(ρt_T*Measurement[mi]) |> real)
-            dp = (tr(∂ρt_T[1]*Measurement[mi]) |> real)
+            p = (tr(ρt_T*M[mi]) |> real)
+            dp = (tr(∂ρt_T[1]*M[mi]) |> real)
             if p > grape.accuracy
-                L1_tidle = L1_tidle + dp*Measurement[mi]/p
-                L2_tidle = L2_tidle + dp*dp*Measurement[mi]/p^2
+                L1_tidle = L1_tidle + dp*M[mi]/p
+                L2_tidle = L2_tidle + dp*dp*M[mi]/p^2
             end
         end
 
@@ -1229,28 +1229,28 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, grape::GRAPE_Copt{T
         bound!(grape.control_coefficients, grape.ctrl_bound)
 
     elseif para_num == 2
-        F_T = CFIM(ρt_T, ∂ρt_T, Measurement, grape.accuracy)
+        F_T = CFIM(ρt_T, ∂ρt_T, M, grape.accuracy)
         L1_tidle = [zeros(ComplexF64, dim, dim) for i in 1:para_num]
         L2_tidle = [[zeros(ComplexF64, dim, dim) for i in 1:para_num] for j in 1:para_num]
     
         for para_i in 1:para_num
             for mi in 1:dim
-                p = (tr(ρt_T*Measurement[mi]) |> real)
-                dp = (tr(∂ρt_T[para_i]*Measurement[mi]) |> real)
+                p = (tr(ρt_T*M[mi]) |> real)
+                dp = (tr(∂ρt_T[para_i]*M[mi]) |> real)
                 if p > grape.accuracy
-                    L1_tidle[para_i] = L1_tidle[para_i] + dp*Measurement[mi]/p
+                    L1_tidle[para_i] = L1_tidle[para_i] + dp*M[mi]/p
                 end
             end
         end
     
         for para_i in 1:para_num
-            dp_a = (tr(∂ρt_T[para_i]*Measurement[mi]) |> real)
+            dp_a = (tr(∂ρt_T[para_i]*M[mi]) |> real)
             for para_j in 1:para_num
-                dp_b = (tr(∂ρt_T[para_j]*Measurement[mi]) |> real)
+                dp_b = (tr(∂ρt_T[para_j]*M[mi]) |> real)
                 for mi in 1:dim
-                    p = (tr(ρt_T*Measurement[mi]) |> real)
+                    p = (tr(ρt_T*M[mi]) |> real)
                     if p > grape.accuracy
-                        L2_tidle[para_i][para_j] = L2_tidle[para_i][para_j] + dp_a*dp_b*Measurement[mi]/p^2
+                        L2_tidle[para_i][para_j] = L2_tidle[para_i][para_j] + dp_a*dp_b*M[mi]/p^2
                     end
                 end
             end
@@ -1281,17 +1281,17 @@ function gradient_CFIM_analy(Measurement::Vector{Matrix{T}}, grape::GRAPE_Copt{T
         bound!(grape.control_coefficients, grape.ctrl_bound)
 
     else
-        F_T = CFIM(ρt_T, ∂ρt_T, Measurement, grape.accuracy)
+        F_T = CFIM(ρt_T, ∂ρt_T, M, grape.accuracy)
         L1_tidle = [zeros(ComplexF64, dim, dim) for i in 1:para_num]
         L2_tidle = [zeros(ComplexF64, dim, dim) for i in 1:para_num]
     
         for para_i in 1:para_num
             for mi in 1:dim
-                p = (tr(ρt_T*Measurement[mi]) |> real)
-                dp = (tr(∂ρt_T[para_i]*Measurement[mi]) |> real)
+                p = (tr(ρt_T*M[mi]) |> real)
+                dp = (tr(∂ρt_T[para_i]*M[mi]) |> real)
                 if p > grape.accuracy
-                    L1_tidle[para_i] = L1_tidle[para_i] + dp*Measurement[mi]/p
-                    L2_tidle[para_i] = L2_tidle[para_i] + dp*dp*Measurement[mi]/p^2
+                    L1_tidle[para_i] = L1_tidle[para_i] + dp*M[mi]/p
+                    L2_tidle[para_i] = L2_tidle[para_i] + dp*dp*M[mi]/p^2
                 end
             end
         end

@@ -18,22 +18,22 @@ mutable struct DE_Copt{T <: Complex,M <: Real} <: ControlSystem
              ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 
                 Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, control_Hamiltonian, control_coefficients, ctrl_bound, W, accuracy, ρ, ∂ρ_∂x) 
 end
-
+ 
 function QFIM_DE_Copt(DE::DE_Copt{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<:Complex}
     sym = Symbol("QFIM")
     str1 = "quantum"
     str2 = "QFI"
     str3 = "tr(WF^{-1})"
-    Measurement = [zeros(ComplexF64, size(DE.ρ0)[1], size(DE.ρ0)[1])]
-    return info_DE_Copt(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
+    M = [zeros(ComplexF64, size(DE.ρ0)[1], size(DE.ρ0)[1])]
+    return info_DE_Copt(M, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
-function CFIM_DE_Copt(Measurement, DE::DE_Copt{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<:Complex}
+function CFIM_DE_Copt(M, DE::DE_Copt{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<:Complex}
     sym = Symbol("CFIM")
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
-    return info_DE_Copt(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
+    return info_DE_Copt(M, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
 function HCRB_DE_Copt(DE::DE_Copt{T}, popsize, ini_population, c, cr, seed, max_episode, save_file) where {T<:Complex}
@@ -41,16 +41,16 @@ function HCRB_DE_Copt(DE::DE_Copt{T}, popsize, ini_population, c, cr, seed, max_
     str1 = ""
     str2 = "HCRB"
     str3 = "HCRB"
-    Measurement = [zeros(ComplexF64, size(DE.ρ0)[1], size(DE.ρ0)[1])]
+    M = [zeros(ComplexF64, size(DE.ρ0)[1], size(DE.ρ0)[1])]
     if length(DE.Hamiltonian_derivative) == 1
         println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for control optimization.")
         return nothing
     else
-        return info_DE_Copt(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
+        return info_DE_Copt(M, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3)
     end
 end
 
-function info_DE_Copt(Measurement, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3) where {T<:Complex}
+function info_DE_Copt(M, DE, popsize, ini_population, c, cr, seed, max_episode, save_file, sym, str1, str2, str3) where {T<:Complex}
     println("$str1 parameter estimation")
     Random.seed!(seed)
     ctrl_num = length(DE.control_Hamiltonian)
@@ -77,8 +77,8 @@ function info_DE_Copt(Measurement, DE, popsize, ini_population, c, cr, seed, max
         end
     end
 
-    p_fit = [1.0/obj_func(Val{sym}(), populations[i], Measurement) for i in 1:p_num]
-    f_noctrl = obj_func(Val{sym}(), DE, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
+    p_fit = [1.0/obj_func(Val{sym}(), populations[i], M) for i in 1:p_num]
+    f_noctrl = obj_func(Val{sym}(), DE, M, [zeros(ctrl_length) for i in 1:ctrl_num])
     f_noctrl = 1.0/f_noctrl
 
     f_ini = p_fit[1]
@@ -89,16 +89,16 @@ function info_DE_Copt(Measurement, DE, popsize, ini_population, c, cr, seed, max
         println("non-controlled $str2 is $(f_noctrl)")
         println("initial $str2 is $(f_ini)")
     
-        f_list = [1.0/f_ini]
+        f_list = [f_ini]
         if save_file == true
             for i in 1:(max_episode-1)
-                p_fit = DE_train_Copt(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)
+                p_fit = DE_train_Copt(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)
                 indx = findmax(p_fit)[2]
                 append!(f_list, maximum(p_fit))
                 print("current $str2 is ", maximum(p_fit), " ($i episodes)    \r")
                 SaveFile_ctrl(f_list, populations[indx].control_coefficients)
             end
-            p_fit = DE_train_Copt(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)
+            p_fit = DE_train_Copt(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
@@ -107,11 +107,11 @@ function info_DE_Copt(Measurement, DE, popsize, ini_population, c, cr, seed, max
             println("Final $str2 is ", maximum(p_fit))
         else
             for i in 1:(max_episode-1)
-                p_fit = DE_train_Copt(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)
+                p_fit = DE_train_Copt(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)
                 print("current $str2 is ", maximum(p_fit), " ($i episodes)    \r")
                 append!(f_list, maximum(p_fit))
             end
-            p_fit = DE_train_Copt(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)
+            p_fit = DE_train_Copt(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
@@ -128,13 +128,13 @@ function info_DE_Copt(Measurement, DE, popsize, ini_population, c, cr, seed, max
         f_list = [1.0/f_ini]
         if save_file == true
             for i in 1:(max_episode-1)
-                p_fit = DE_train_Copt(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)
+                p_fit = DE_train_Copt(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)
                 indx = findmax(p_fit)[2]
                 append!(f_list, 1.0/maximum(p_fit))
                 SaveFile_ctrl(f_list, populations[indx].control_coefficients)
                 print("current value of $str3 is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             end
-            p_fit = DE_train_Copt(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)
+            p_fit = DE_train_Copt(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
@@ -143,11 +143,11 @@ function info_DE_Copt(Measurement, DE, popsize, ini_population, c, cr, seed, max
             println("Final value of $str3 is ", 1.0/maximum(p_fit))
         else
             for i in 1:(max_episode-1)
-                p_fit = DE_train_Copt(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)
+                p_fit = DE_train_Copt(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)
                 append!(f_list, 1.0/maximum(p_fit))
                 print("current value of $str3 is ", 1.0/maximum(p_fit), " ($i episodes)    \r")
             end
-            p_fit = DE_train_Copt(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)
+            p_fit = DE_train_Copt(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)
             indx = findmax(p_fit)[2]
             append!(f_list, 1.0/maximum(p_fit))
             SaveFile_ctrl(f_list, populations[indx].control_coefficients)
@@ -158,7 +158,7 @@ function info_DE_Copt(Measurement, DE, popsize, ini_population, c, cr, seed, max
     end
 end
 
-function DE_train_Copt(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)
+function DE_train_Copt(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)
     for pj in 1:p_num
         #mutations
         mut_num = sample(1:p_num, 3, replace=false)
@@ -187,7 +187,7 @@ function DE_train_Copt(Measurement, populations, c, cr, p_num, ctrl_num, ctrl_le
         #selection
         bound!(ctrl_cross, populations[pj].ctrl_bound)
 
-        f_cross = obj_func(Val{sym}(), populations[pj], Measurement, ctrl_cross)
+        f_cross = obj_func(Val{sym}(), populations[pj], M, ctrl_cross)
         f_cross = 1.0/f_cross
 
         if f_cross > p_fit[pj]

@@ -24,16 +24,16 @@ function QFIM_PSO_Copt(pso::PSO_Copt{T}, max_episode, particle_num, ini_particle
     str1 = "quantum"
     str2 = "QFI"
     str3 = "tr(WF^{-1})"
-    Measurement = [zeros(ComplexF64, size(pso.ρ0)[1], size(pso.ρ0)[1])]
-    return info_PSO_Copt(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file, sym, str1, str2, str3)
+    M = [zeros(ComplexF64, size(pso.ρ0)[1], size(pso.ρ0)[1])]
+    return info_PSO_Copt(M, pso, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file, sym, str1, str2, str3)
 end
 
-function CFIM_PSO_Copt(Measurement, pso::PSO_Copt{T}, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file) where {T<: Complex}
+function CFIM_PSO_Copt(M, pso::PSO_Copt{T}, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file) where {T<: Complex}
     sym = Symbol(CFIM)
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
-    return info_PSO_Copt(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file, sym, str1, str2, str3)
+    return info_PSO_Copt(M, pso, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file, sym, str1, str2, str3)
 end
 
 function HCRB_PSO_Copt(pso::PSO_Copt{T}, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file) where {T<: Complex}
@@ -41,16 +41,16 @@ function HCRB_PSO_Copt(pso::PSO_Copt{T}, max_episode, particle_num, ini_particle
     str1 = ""
     str2 = "HCRB"
     str3 = "HCRB"
-    Measurement = [zeros(ComplexF64, size(pso.ρ0)[1], size(pso.ρ0)[1])]
+    M = [zeros(ComplexF64, size(pso.ρ0)[1], size(pso.ρ0)[1])]
     if length(pso.Hamiltonian_derivative) == 1
         println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for control optimization.")
         return nothing
     else
-        return info_PSO_Copt(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file, sym, str1, str2, str3)
+        return info_PSO_Copt(M, pso, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file, sym, str1, str2, str3)
     end
 end
 
-function info_PSO_Copt(Measurement, pso, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file, sym, str1, str2, str3) where {T<:Complex}
+function info_PSO_Copt(M, pso, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file, sym, str1, str2, str3) where {T<:Complex}
     println("$str1 parameter estimation")
     Random.seed!(seed)
     ctrl_length = length(pso.control_coefficients[1])
@@ -67,8 +67,8 @@ function info_PSO_Copt(Measurement, pso, max_episode, particle_num, ini_particle
     gbest = zeros(ctrl_num, ctrl_length)
     velocity_best = zeros(ctrl_num,ctrl_length)
     p_fit = zeros(particle_num)
-    f_noctrl = obj_func(Val{sym}(), pso, Measurement, [zeros(ctrl_length) for i in 1:ctrl_num])
-    f_ini = obj_func(Val{sym}(), pso, Measurement)
+    f_noctrl = obj_func(Val{sym}(), pso, M, [zeros(ctrl_length) for i in 1:ctrl_num])
+    f_ini = obj_func(Val{sym}(), pso, M)
 
     if typeof(max_episode) == Int
         max_episode = [max_episode, max_episode]
@@ -102,7 +102,7 @@ function info_PSO_Copt(Measurement, pso, max_episode, particle_num, ini_particle
         f_list = [1.0/f_ini]
         if save_file == true
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_Copt(Measurement, particles, p_fit, fit, max_episode, 
+                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_Copt(M, particles, p_fit, fit, max_episode, 
                                         c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
@@ -112,7 +112,7 @@ function info_PSO_Copt(Measurement, pso, max_episode, particle_num, ini_particle
                 SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
                 print("current $str2 is $(fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_Copt(Measurement, particles, p_fit, fit, max_episode, 
+            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_Copt(M, particles, p_fit, fit, max_episode, 
                                     c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, gbest, velocity_best, velocity, sym)
             append!(f_list, fit)
             SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
@@ -121,7 +121,7 @@ function info_PSO_Copt(Measurement, pso, max_episode, particle_num, ini_particle
             println("Final $str2 is $(fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_Copt(Measurement, particles, p_fit, fit, max_episode, 
+                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_Copt(M, particles, p_fit, fit, max_episode, 
                                         c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
@@ -130,7 +130,7 @@ function info_PSO_Copt(Measurement, pso, max_episode, particle_num, ini_particle
                 append!(f_list, fit)
                 print("current $str2 is $(fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_Copt(Measurement, particles, p_fit, fit, max_episode, 
+            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_Copt(M, particles, p_fit, fit, max_episode, 
                                     c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, gbest, velocity_best, velocity, sym)
             append!(f_list, fit)
             SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
@@ -146,7 +146,7 @@ function info_PSO_Copt(Measurement, pso, max_episode, particle_num, ini_particle
         f_list = [f_ini]
         if save_file == true
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_Copt(Measurement, particles, p_fit, fit, max_episode, 
+                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_Copt(M, particles, p_fit, fit, max_episode, 
                                         c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
@@ -156,7 +156,7 @@ function info_PSO_Copt(Measurement, pso, max_episode, particle_num, ini_particle
                 SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
                 print("current value of $str3 is $(1.0/fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_Copt(Measurement, particles, p_fit, fit, max_episode, 
+            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_Copt(M, particles, p_fit, fit, max_episode, 
                                     c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, gbest, velocity_best, velocity, sym)
             append!(f_list, 1.0/fit)
             SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
@@ -165,7 +165,7 @@ function info_PSO_Copt(Measurement, pso, max_episode, particle_num, ini_particle
             println("Final value of $str3 is $(1.0/fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_Copt(Measurement, particles, p_fit, fit, max_episode,
+                p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_Copt(M, particles, p_fit, fit, max_episode,
                                         c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, gbest, velocity_best, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.control_coefficients = [gbest[k, :] for k in 1:ctrl_num]
@@ -174,7 +174,7 @@ function info_PSO_Copt(Measurement, pso, max_episode, particle_num, ini_particle
                 append!(f_list, 1.0/fit)
                 print("current value of $str3 is $(1.0/fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_Copt(Measurement, particles, p_fit, fit, max_episode, 
+            p_fit, fit, pbest, gbest, velocity_best, velocity = PSO_train_Copt(M, particles, p_fit, fit, max_episode, 
                                     c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, gbest, velocity_best, velocity, sym)
             append!(f_list, 1.0/fit)
             SaveFile_ctrl(f_list, [gbest[k, :] for k in 1:ctrl_num])
@@ -185,9 +185,9 @@ function info_PSO_Copt(Measurement, pso, max_episode, particle_num, ini_particle
     end
 end
 
-function PSO_train_Copt(Measurement, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, gbest, velocity_best, velocity, sym)
+function PSO_train_Copt(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, gbest, velocity_best, velocity, sym)
     for pj in 1:particle_num
-        f_tp = obj_func(Val{sym}(), particles[pj], Measurement)
+        f_tp = obj_func(Val{sym}(), particles[pj], M)
         f_now = 1.0/f_tp
         if f_now > p_fit[pj]
             p_fit[pj] = f_now
