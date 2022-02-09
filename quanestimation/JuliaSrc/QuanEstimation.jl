@@ -18,6 +18,7 @@ using Interpolations
 include("AsymptoticBound/CramerRao.jl")
 include("AsymptoticBound/Holevo.jl")
 include("BayesianBound/BayesianCramerRao.jl")
+include("BayesianBound/ZivZakai.jl")
 include("Common/common.jl")
 include("ControlOpt/GRAPE_Copt.jl")
 include("ControlOpt/DDPG_Copt.jl")
