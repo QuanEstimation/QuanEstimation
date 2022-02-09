@@ -165,7 +165,8 @@ def StateOpt(*args, method = "AD", **kwargs):
 
 def csv2npy_states(states, num=1):
     S_save = []
-    for si in range(len(states)):
+    N = int(len(states)/num)
+    for si in range(N):
         S_tp = states[si*num:(si+1)*num]
         S_save.append(S_tp)
     np.save("states", S_save)

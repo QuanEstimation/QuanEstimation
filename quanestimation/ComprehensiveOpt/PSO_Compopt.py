@@ -56,7 +56,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             measurement = [np.array(self.M)]
         else:
             measurement = measurement0
-        self.measurement = measurement
+        self.measurement0 = [np.array(x, dtype=np.complex128) for x in measurement0]
 
         self.particle_num = particle_num
         self.max_episode = max_episode
@@ -67,16 +67,16 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         self.option = option
 
     def SC(self, target="QFIM", M=[], save_file=False):
-        pso = Main.QuanEstimation.Compopt_SCopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi, \
+        pso = Main.QuanEstimation.SC_Compopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi, \
                     self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
                     self.ctrl_bound, self.W, self.accuracy)
         if target == "QFIM":
-            Main.QuanEstimation.PSO_Compopt_SCopt(pso, self.max_episode, self.particle_num, self.psi0, self.ctrl0, self.c0, self.c1, self.c2, \
+            Main.QuanEstimation.SC_PSO_Compopt(pso, self.max_episode, self.particle_num, self.psi0, self.ctrl0, self.c0, self.c1, self.c2, \
                                          self.seed, save_file)
             self.load_save_state()
         elif target == "CFIM":
             M = [np.array(x, dtype=np.complex128) for x in M]
-            Main.QuanEstimation.PSO_Compopt_SCopt(M, pso, self.max_episode, self.particle_num, self.psi0, self.ctrl0, self.c0, self.c1, self.c2, \
+            Main.QuanEstimation.SC_PSO_Compopt(M, pso, self.max_episode, self.particle_num, self.psi0, self.ctrl0, self.c0, self.c1, self.c2, \
                                          self.seed, save_file)
             self.load_save_state()
         else:
@@ -84,10 +84,10 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
     
     def CM(self, rho0, save_file=False):
         rho0 = np.array(rho0,dtype=np.complex128)
-        pso = Main.QuanEstimation.Compopt_CMopt(self.freeHamiltonian, self.Hamiltonian_derivative, \
+        pso = Main.QuanEstimation.CM_Compopt(self.freeHamiltonian, self.Hamiltonian_derivative, \
                     self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
                     self.ctrl_bound, self.M, self.W, self.accuracy)
-        Main.QuanEstimation.PSO_Compopt_CMopt(rho0, pso, self.max_episode, self.particle_num, self.psi0, self.ctrl0, self.measurement, self.c0, self.c1, self.c2, \
+        Main.QuanEstimation.CM_PSO_Compopt(rho0, pso, self.max_episode, self.particle_num, self.psi0, self.ctrl0, self.measurement, self.c0, self.c1, self.c2, \
                                          self.seed, save_file)
         self.load_save_meas()
 
@@ -106,17 +106,17 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
                 Htot.append(H0+S_ctrl)
             freeHamiltonian = [np.array(x, dtype=np.complex128) for x in Htot] 
 
-        pso = Main.QuanEstimation.Compopt_SMopt(freeHamiltonian, self.Hamiltonian_derivative, self.psi, \
+        pso = Main.QuanEstimation.SM_Compopt(freeHamiltonian, self.Hamiltonian_derivative, self.psi, \
                     self.tspan, self.decay_opt, self.gamma, self.M, self.W, self.accuracy)
-        Main.QuanEstimation.PSO_Compopt_SMopt(pso, self.max_episode, self.particle_num, self.psi0, self.measurement, \
+        Main.QuanEstimation.SM_PSO_Compopt(pso, self.max_episode, self.particle_num, self.psi0, self.measurement, \
                 self.c0, self.c1, self.c2, self.seed, save_file)
         self.load_save_meas()
         
     def SCM(self, save_file=False):
-        pso = Main.QuanEstimation.Compopt_SCMopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi, \
+        pso = Main.QuanEstimation.SCM_Compopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi, \
                     self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
                     self.ctrl_bound, self.M, self.W, self.accuracy)
-        Main.QuanEstimation.PSO_Compopt_SCMopt(pso, self.max_episode, self.particle_num, self.psi0, self.ctrl0, self.measurement, self.c0, self.c1, self.c2, \
+        Main.QuanEstimation.SCM_PSO_Compopt(pso, self.max_episode, self.particle_num, self.psi0, self.ctrl0, self.measurement, self.c0, self.c1, self.c2, \
                                          self.seed, save_file)
         self.load_save_state()
         self.load_save_meas()

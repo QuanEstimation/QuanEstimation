@@ -1,4 +1,4 @@
-mutable struct  Compopt_SCopt{T <: Complex,M <: Real} <: ControlSystem
+mutable struct  SC_Compopt{T <: Complex,M <: Real} <: ControlSystem
     freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
     psi::Vector{T}
@@ -12,14 +12,14 @@ mutable struct  Compopt_SCopt{T <: Complex,M <: Real} <: ControlSystem
     accuracy::M 
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
-    Compopt_SCopt(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
+    SC_Compopt(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
              tspan::Vector{M}, decay_opt::Vector{Matrix{T}},γ::Vector{M}, control_Hamiltonian::Vector{Matrix{T}},
              control_coefficients::Vector{Vector{M}}, ctrl_bound::Vector{M}, W::Matrix{M}, accuracy::M, ρ=Vector{Matrix{T}}(undef, 1), 
              ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 
                 Hamiltonian_derivative, psi, tspan, decay_opt, γ, control_Hamiltonian, control_coefficients, ctrl_bound, W, accuracy, ρ, ∂ρ_∂x) 
 end
 
-mutable struct  Compopt_SMopt{T <: Complex,M <: Real} <: ControlSystem
+mutable struct  SM_Compopt{T <: Complex,M <: Real} <: ControlSystem
     freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
     psi::Vector{T}
@@ -31,14 +31,14 @@ mutable struct  Compopt_SMopt{T <: Complex,M <: Real} <: ControlSystem
     accuracy::M 
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
-    Compopt_SMopt(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
+    SM_Compopt(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
              tspan::Vector{M}, decay_opt::Vector{Matrix{T}},γ::Vector{M}, 
              C::Vector{Vector{T}}, W::Matrix{M}, accuracy::M, ρ=Vector{Matrix{T}}(undef, 1), 
              ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 
             Hamiltonian_derivative, psi, tspan, decay_opt, γ, C, W, accuracy, ρ, ∂ρ_∂x) 
 end
 
-mutable struct  Compopt_CMopt{T <: Complex,M <: Real} <: ControlSystem
+mutable struct  CM_Compopt{T <: Complex,M <: Real} <: ControlSystem
     freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
     tspan::Vector{M}
@@ -52,14 +52,14 @@ mutable struct  Compopt_CMopt{T <: Complex,M <: Real} <: ControlSystem
     accuracy::M 
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
-    Compopt_CMopt(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, 
+    CM_Compopt(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, 
              tspan::Vector{M}, decay_opt::Vector{Matrix{T}},γ::Vector{M}, control_Hamiltonian::Vector{Matrix{T}},
              control_coefficients::Vector{Vector{M}}, ctrl_bound::Vector{M}, C::Vector{Vector{T}}, W::Matrix{M}, accuracy::M, ρ=Vector{Matrix{T}}(undef, 1), 
              ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 
                 Hamiltonian_derivative, tspan, decay_opt, γ, control_Hamiltonian, control_coefficients, ctrl_bound, C, W, accuracy, ρ, ∂ρ_∂x) 
 end
 
-mutable struct  Compopt_SCMopt{T <: Complex,M <: Real} <: ControlSystem
+mutable struct  SCM_Compopt{T <: Complex,M <: Real} <: ControlSystem
     freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
     psi::Vector{T}
@@ -74,7 +74,7 @@ mutable struct  Compopt_SCMopt{T <: Complex,M <: Real} <: ControlSystem
     accuracy::M 
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
-    Compopt_SCMopt(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
+    SCM_Compopt(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, psi::Vector{T},
              tspan::Vector{M}, decay_opt::Vector{Matrix{T}},γ::Vector{M}, control_Hamiltonian::Vector{Matrix{T}},
              control_coefficients::Vector{Vector{M}}, ctrl_bound::Vector{M}, C::Vector{Vector{T}}, W::Matrix{M}, accuracy::M, ρ=Vector{Matrix{T}}(undef, 1), 
              ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 

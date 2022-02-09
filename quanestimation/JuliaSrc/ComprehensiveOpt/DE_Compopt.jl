@@ -1,5 +1,5 @@
 ################ state and control optimization ###############
-function DE_Compopt_SCopt(DE::Compopt_SCopt{T}, popsize, psi0, ctrl0, c, cr, seed, max_episode, save_file) where {T<:Complex}
+function SC_DE_Compopt(DE::SC_Compopt{T}, popsize, psi0, ctrl0, c, cr, seed, max_episode, save_file) where {T<:Complex}
     sym = Symbol("QFIM_SCopt")
     str1 = "QFI"
     str2 = "tr(WF^{-1})"
@@ -7,7 +7,7 @@ function DE_Compopt_SCopt(DE::Compopt_SCopt{T}, popsize, psi0, ctrl0, c, cr, see
     return info_DE_SCopt(M, DE, popsize, psi0, ctrl0, c, cr, seed, max_episode, save_file, sym, str1, str2)
 end
 
-function DE_Compopt_SCopt(M, DE::Compopt_SCopt{T}, popsize, psi0, ctrl0, c, cr, seed, max_episode, save_file) where {T<:Complex}
+function SC_DE_Compopt(M, DE::SC_Compopt{T}, popsize, psi0, ctrl0, c, cr, seed, max_episode, save_file) where {T<:Complex}
     sym = Symbol("CFIM_SCopt")
     str1 = "CFI"
     str2 = "tr(WI^{-1})"
@@ -209,7 +209,7 @@ end
 
 
 ################ state and measurement optimization ###############
-function DE_Compopt_SMopt(DE::Compopt_SMopt{T}, popsize, psi0, measurement0, c, cr, seed, max_episode, save_file) where {T<:Complex}
+function SM_DE_Compopt(DE::SM_Compopt{T}, popsize, psi0, measurement0, c, cr, seed, max_episode, save_file) where {T<:Complex}
     sym = Symbol("CFIM_SMopt")
     str1 = "CFI"
     str2 = "tr(WI^{-1})"
@@ -422,7 +422,7 @@ end
 
 
 ################ control and measurement optimization ###############
-function DE_Compopt_CMopt(rho0, DE::Compopt_CMopt{T}, popsize, ctrl0, measurement0, c, cr, seed, max_episode, save_file) where {T<:Complex}
+function CM_DE_Compopt(rho0, DE::CM_Compopt{T}, popsize, ctrl0, measurement0, c, cr, seed, max_episode, save_file) where {T<:Complex}
     sym = Symbol("CFIM_CMopt")
     str1 = "CFI"
     str2 = "tr(WI^{-1})"
@@ -654,7 +654,7 @@ end
 
 
 ################ state, control and measurement optimization ###############
-function DE_Compopt_SCMopt(DE::Compopt_SCMopt{T}, popsize, psi0, ctrl0, measurement0, c, cr, seed, max_episode, save_file) where {T<:Complex}
+function SCM_DE_Compopt(DE::SCM_Compopt{T}, popsize, psi0, ctrl0, measurement0, c, cr, seed, max_episode, save_file) where {T<:Complex}
     sym = Symbol("CFIM_SCopt")
     str1 = "CFI"
     str2 = "tr(WI^{-1})"
