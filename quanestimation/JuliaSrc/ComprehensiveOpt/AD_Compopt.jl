@@ -1,5 +1,5 @@
 ################ state and control optimization ###############
-function AD_Compopt_SCopt(AD::Compopt_SCopt{T}, max_episode, epsilon, mt, vt, beta1, beta2, accuracy, Adam, save_file) where {T<:Complex}
+function SC_AD_Compopt(AD::SC_Compopt{T}, max_episode, epsilon, mt, vt, beta1, beta2, accuracy, Adam, save_file) where {T<:Complex}
     sym = Symbol("QFIM_SCopt")
     str1 = "quantum"
     str2 = "QFI"
@@ -8,7 +8,7 @@ function AD_Compopt_SCopt(AD::Compopt_SCopt{T}, max_episode, epsilon, mt, vt, be
     return info_AD_SCopt(M, AD, max_episode, epsilon, mt, vt, beta1, beta2, accuracy, Adam, save_file, sym, str1, str2, str3)
 end
  
-function gradient_QFI!(AD::Compopt_SCopt{T}, epsilon) where {T<:Complex}
+function gradient_QFI!(AD::SC_Compopt{T}, epsilon) where {T<:Complex}
     arr = [AD.psi, AD.control_coefficients]
     δF = gradient(x->QFI(x, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.decay_opt, AD.γ, AD.control_Hamiltonian, AD.tspan, AD.accuracy), arr)[1]
     δF1 = δF[1]
@@ -20,7 +20,7 @@ function gradient_QFI!(AD::Compopt_SCopt{T}, epsilon) where {T<:Complex}
     bound!(AD.control_coefficients, AD.ctrl_bound)
 end
 
-function gradient_QFI_Adam!(AD::Compopt_SCopt{T}, epsilon, mt, vt, beta1, beta2, accuracy) where {T<:Complex}
+function gradient_QFI_Adam!(AD::SC_Compopt{T}, epsilon, mt, vt, beta1, beta2, accuracy) where {T<:Complex}
     arr = [AD.psi, AD.control_coefficients]
 
     δF = gradient(x->QFI(x, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.decay_opt, AD.γ, AD.control_Hamiltonian, AD.tspan, AD.accuracy), arr)[1]
@@ -33,7 +33,7 @@ function gradient_QFI_Adam!(AD::Compopt_SCopt{T}, epsilon, mt, vt, beta1, beta2,
     bound!(AD.control_coefficients, AD.ctrl_bound)
 end
 
-function gradient_QFIM!(AD::Compopt_SCopt{T}, epsilon) where {T<:Complex}
+function gradient_QFIM!(AD::SC_Compopt{T}, epsilon) where {T<:Complex}
     arr = [AD.psi, AD.control_coefficients]
     δF = gradient(x->1/(AD.W*pinv(QFIM(x, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.decay_opt, AD.γ, AD.control_Hamiltonian, AD.tspan, AD.accuracy), rtol=AD.accuracy) |> tr |>real), arr) |>sum
     δF1 = δF[1]
@@ -46,7 +46,7 @@ function gradient_QFIM!(AD::Compopt_SCopt{T}, epsilon) where {T<:Complex}
     bound!(AD.control_coefficients, AD.ctrl_bound)
 end
 
-function gradient_QFIM_Adam!(AD::Compopt_SCopt{T}, epsilon, mt, vt, beta1, beta2, accuracy) where {T<:Complex}
+function gradient_QFIM_Adam!(AD::SC_Compopt{T}, epsilon, mt, vt, beta1, beta2, accuracy) where {T<:Complex}
     arr = [AD.psi, AD.control_coefficients]
     δF = gradient(x->1/(AD.W*pinv(QFIM(x, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.decay_opt, AD.γ, AD.control_Hamiltonian, AD.tspan, AD.accuracy), rtol=AD.accuracy) |> tr |>real), arr) |>sum
     δF1 = δF[1]

@@ -70,7 +70,7 @@ class AD_Compopt(Comp.ComprehensiveSystem):
                 self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
                 self.ctrl_bound, self.W, self.accuracy)
         if target == "QFIM":
-            Main.QuanEstimation.AD_Compopt_SCopt(AD, self.max_episode, self.epsilon, self.mt, self.vt, self.beta1, self.beta2, self.accuracy, self.Adam, save_file)
+            Main.QuanEstimation.SC_AD_Compopt(AD, self.max_episode, self.epsilon, self.mt, self.vt, self.beta1, self.beta2, self.accuracy, self.Adam, save_file)
             self.load_save_state()
         elif target == "CFIM":
             warnings.warn("AD is not available when target='CFIM'. Supported methods are 'PSO' and 'DE'.", DeprecationWarning)

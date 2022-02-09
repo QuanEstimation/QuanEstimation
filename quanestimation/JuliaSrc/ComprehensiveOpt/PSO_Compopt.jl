@@ -1,5 +1,5 @@
 ################ state and control optimization ###############
-function PSO_Compopt_SCopt(pso::Compopt_SCopt{T}, max_episode, particle_num, psi0, ctrl0, c0, c1, c2, seed, save_file) where {T<: Complex}
+function SC_PSO_Compopt(pso::SC_Compopt{T}, max_episode, particle_num, psi0, ctrl0, c0, c1, c2, seed, save_file) where {T<: Complex}
     sym = Symbol("QFIM_SCopt")
     str1 = "quantum"
     str2 = "QFI"
@@ -8,7 +8,7 @@ function PSO_Compopt_SCopt(pso::Compopt_SCopt{T}, max_episode, particle_num, psi
     return info_PSO_SCopt(M, pso, max_episode, particle_num, psi0, ctrl0, c0, c1, c2, seed, save_file, sym, str1, str2, str3)
 end
 
-function PSO_Compopt_SCopt(M, pso::Compopt_SCopt{T}, max_episode, particle_num, psi0, ctrl0, c0, c1, c2, seed, save_file) where {T<: Complex}
+function SC_PSO_Compopt(M, pso::SC_Compopt{T}, max_episode, particle_num, psi0, ctrl0, c0, c1, c2, seed, save_file) where {T<: Complex}
     sym = Symbol("CFIM_SCopt")
     str1 = "classical"
     str2 = "CFI"
@@ -253,7 +253,7 @@ end
 
 
 ################ state and measurement optimization ###############
-function PSO_Compopt_SMopt(pso::Compopt_SMopt{T}, max_episode, particle_num, psi0, measurement0, c0, c1, c2, seed, save_file) where {T<: Complex}
+function SM_PSO_Compopt(pso::SM_Compopt{T}, max_episode, particle_num, psi0, measurement0, c0, c1, c2, seed, save_file) where {T<: Complex}
     sym = Symbol("CFIM_SMopt")
     str1 = "classical"
     str2 = "CFI"
@@ -502,7 +502,7 @@ end
 
 
 ################ control and measurement optimization ###############
-function PSO_Compopt_CMopt(rho0, pso::Compopt_CMopt{T}, max_episode, particle_num, psi0, ctrl0, measurement0, c0, c1, c2, seed, save_file) where {T<: Complex}
+function CM_PSO_Compopt(rho0, pso::CM_Compopt{T}, max_episode, particle_num, psi0, ctrl0, measurement0, c0, c1, c2, seed, save_file) where {T<: Complex}
     sym = Symbol("CFIM_CMopt")
     str1 = "classical"
     str2 = "CFI"
@@ -774,7 +774,7 @@ end
 
 
 ################ state, control and measurement optimization ###############
-function PSO_Compopt_SCMopt(pso::Compopt_SCMopt{T}, max_episode, particle_num, psi0, ctrl0, measurement0, c0, c1, c2, seed, save_file) where {T<: Complex}
+function SCM_PSO_Compopt(pso::SCM_Compopt{T}, max_episode, particle_num, psi0, ctrl0, measurement0, c0, c1, c2, seed, save_file) where {T<: Complex}
     sym = Symbol("CFIM_SCopt")
     str1 = "classical"
     str2 = "CFI"

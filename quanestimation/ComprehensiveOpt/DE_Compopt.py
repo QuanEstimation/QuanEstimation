@@ -48,11 +48,11 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         else:
             self.ctrl0 = ctrl0
 
-        if measurement0 == []: 
+        if measurement0 == []:  
             measurement0 = [np.array(self.M)]
         else:
             measurement0 = measurement0
-        self.measurement0 = measurement0
+        self.measurement0 = [np.array(x, dtype=np.complex128) for x in measurement0]
 
         self.popsize =  popsize
         self.max_episode = max_episode
@@ -62,25 +62,25 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         self.option = option
 
     def SC(self, target="QFIM", M=[], save_file=False):
-        diffevo = Main.QuanEstimation.Compopt_SCopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi, \
+        diffevo = Main.QuanEstimation.SC_Compopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi, \
                     self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
                     self.ctrl_bound, self.W, self.accuracy)
         if target == "QFIM":
-            Main.QuanEstimation.DE_Compopt_SCopt(diffevo, self.popsize, self.psi0, self.ctrl0, self.c, self.cr, self.seed, self.max_episode, save_file)
+            Main.QuanEstimation.SC_DE_Compopt(diffevo, self.popsize, self.psi0, self.ctrl0, self.c, self.cr, self.seed, self.max_episode, save_file)
             self.load_save_state()
         elif target == "CFIM":
             M = [np.array(x, dtype=np.complex128) for x in M]
-            Main.QuanEstimation.DE_Compopt_SCopt(M, diffevo, self.popsize, self.psi0, self.ctrl0, self.c, self.cr, self.seed, self.max_episode, save_file)
+            Main.QuanEstimation.SC_DE_Compopt(M, diffevo, self.popsize, self.psi0, self.ctrl0, self.c, self.cr, self.seed, self.max_episode, save_file)
             self.load_save_state()
         else:
             raise ValueError("{!r} is not a valid value for target, supported values are 'QFIM', 'CFIM'.".format(self.option))
     
     def CM(self, rho0, save_file=False):
         rho0 = np.array(rho0,dtype=np.complex128)
-        diffevo = Main.QuanEstimation.Compopt_CMopt(self.freeHamiltonian, self.Hamiltonian_derivative, \
+        diffevo = Main.QuanEstimation.CM_Compopt(self.freeHamiltonian, self.Hamiltonian_derivative, \
                     self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
                     self.ctrl_bound, self.M, self.W, self.accuracy)
-        Main.QuanEstimation.DE_Compopt_CMopt(rho0, diffevo, self.popsize, self.ctrl0, self.measurement0, self.c, self.cr, self.seed, self.max_episode, save_file)
+        Main.QuanEstimation.CM_DE_Compopt(rho0, diffevo, self.popsize, self.ctrl0, self.measurement0, self.c, self.cr, self.seed, self.max_episode, save_file)
         self.load_save_meas()
 
     def SM(self, save_file=False):
@@ -98,16 +98,16 @@ class DE_Compopt(Comp.ComprehensiveSystem):
                 Htot.append(H0+S_ctrl)
             freeHamiltonian = [np.array(x, dtype=np.complex128) for x in Htot] 
 
-        diffevo = Main.QuanEstimation.Compopt_SMopt(freeHamiltonian, self.Hamiltonian_derivative, self.psi, \
+        diffevo = Main.QuanEstimation.SM_Compopt(freeHamiltonian, self.Hamiltonian_derivative, self.psi, \
                     self.tspan, self.decay_opt, self.gamma, self.M, self.W, self.accuracy)
-        Main.QuanEstimation.DE_Compopt_SMopt(diffevo, self.popsize, self.psi0, self.measurement0, self.c, self.cr, self.seed, self.max_episode, save_file)
+        Main.QuanEstimation.SM_DE_Compopt(diffevo, self.popsize, self.psi0, self.measurement0, self.c, self.cr, self.seed, self.max_episode, save_file)
         self.load_save_meas()
         
     def SCM(self, save_file=False):
-        diffevo = Main.QuanEstimation.Compopt_SCMopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi, \
+        diffevo = Main.QuanEstimation.SCM_Compopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi, \
                     self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
                     self.ctrl_bound, self.M, self.W, self.accuracy)
-        Main.QuanEstimation.DE_Compopt_SCMopt(diffevo, self.popsize, self.psi0, self.ctrl0, self.measurement0, self.c, self.cr, self.seed, self.max_episode, save_file)
+        Main.QuanEstimation.SCM_DE_Compopt(diffevo, self.popsize, self.psi0, self.ctrl0, self.measurement0, self.c, self.cr, self.seed, self.max_episode, save_file)
         self.load_save_state()
         self.load_save_meas()
         

@@ -394,3 +394,63 @@ def QFIM(rho, drho, dtype="SLD", rep="original", exportLD=False, accuracy=1e-8):
         return QFIM_res
     else:
         return QFIM_res, LD_tp
+
+def QFIM_Bloch(self, r, dr):
+    """
+    Description: Calculation of quantum Fisher information matrix (QFIM)
+                in Bloch representation.
+                     
+    ----------
+    Inputs
+    ----------
+    r:
+        --description: parameterized Bloch vector.
+        --type: vector
+
+    dr:
+        --description: derivatives of Bloch vector on all parameters to
+                        be estimated. For example, dr[0] is the derivative
+                        vector on the first parameter.
+        --type: list (of vector)
+    """
+    if type(dr) != list:
+        raise TypeError('Please make sure dr is a list')
+
+    para_num = len(dr)
+    QFIM_res = np.zeros([para_num,para_num])
+        
+    dim = int(np.sqrt(len(r)+1))
+    Lambda = suN_generator(dim)
+
+    if dim==2:
+        r_norm = np.linalg.norm(r)**2
+        for para_i in range(0, para_num):
+            for para_j in range(para_i, para_num): 
+                QFIM_res[para_i][para_j] = np.inner(dr[para_i], dr[para_j])+np.inner(r, dr[para_i])\
+                                      *np.inner(r, dr[para_j])/(1-r_norm)
+                QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
+
+    else:
+            
+        rho = (np.qeye(dim)+np.sqrt(dim*(dim+1)/2)*np.inner(r,Lambda))/dim
+        
+        G = np.zeros([dim**2-1, dim**2-1])
+        for row_i in range(dim**2-1):
+            for col_j in range(dim**2-1):
+                anti_commu = np.dot(Lambda[row_i], Lambda[col_j])\
+                             +np.dot(Lambda[col_j], Lambda[row_i])
+                G[row_i][col_j] = 0.5*np.trace(np.dot(rho, anti_commu))
+        
+        mat_tp = G*dim/(2*(dim-1))-np.dot(r,r.T)
+        mat_inv = np.linalg.inv(mat_tp) 
+        
+        for para_i in range(0, para_num):
+            for para_j in range(para_i, para_num): 
+                QFIM_res[para_i][para_j] = np.dot(dr[para_j].T,np.dot(mat_inv, dr[para_i]))
+                QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
+                
+    if para_num == 1:
+        return QFIM_res[0][0]
+    else:
+        return QFIM_res
+        
