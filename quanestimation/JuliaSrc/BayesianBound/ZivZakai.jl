@@ -23,10 +23,14 @@ end
 prior_uniform(W=1., μ=0.) = x -> abs(x-μ)>abs(W/2) ? 0 : 1/W
 
 function QZZB(
-    para::AbstractVector,
-    prior::AbstractVector,
     ρₓ::AbstractVecOrMat,
+    prior::AbstractVector,
+    x::AbstractVector,
+    accuracy=1e-8;
     ν::Number=1)
+
+    x1, x2 = x[1], x[end]
+    para = range(x1, stop=x2, length=length(p))
 
     τ = para .- para[1]
     N = length(para)
@@ -38,16 +42,19 @@ function QZZB(
 end  # Quantum Ziv-Zakai bound for equally likely hypotheses without valley-filling
 
 function QZZB(
-    para::AbstractVector,
+    ρₓ::AbstractVecOrMat,
     prior::AbstractVector,
-    ρₓ::AbstractVecOrMat,    
+    x::AbstractVector,
     ::Type{Val{:opt}},
+    accuracy=1e-8;
     ν::Number=1)
 
+    x1, x2 = x[1], x[end]
+    para = range(x1, stop=x2, length=length(p))
     τ = para .- para[1]
     N = length(para)
     I = trapz(τ, [τ[i]*trapz(para[1:N-i],
-        [max([2*min(prior[j],prior[j+k])*helstrom_bound(ρₓ[j],ρₓ[j+k], ν) for k in 1:N-j]...)
+        [max([2*min(prior[j],prior[j+k])*helstrom_bound(ρₓ[j],ρₓ[j+k],ν) for k in 1:N-j]...)
         for j in 1:N-i]) for i in 1:N])
         
     return I

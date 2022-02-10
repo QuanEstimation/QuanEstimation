@@ -13,7 +13,7 @@ function BQCRB(rho, drho, p, x; accuracy=1e-8)
     return trapz(xrange, value)
 end
 
-function TWS(ρ, dρ, p, dp, x, accuracy=1e-8)
+function TWC(ρ, dρ, p, dp, x; accuracy=1e-8)
     x1, x2 = x[1], x[end]
     xrange = range(x1, stop=x2, length=length(p))
     para_num = length(dp)
@@ -85,10 +85,10 @@ function OBB(rho, drho, d2rho, p, dp, x; accuracy=1e-8)
 
     prob = BVProblem(OBB_func, boundary_condition, [0.0, 0.0], (x1, x2), (F, J, xrange))
     sol = solve(prob, GeneralMIRK4(), dt=delta)
-    # println(sol.retcode)
+
     bias = [sol.u[i][1] for i in 1:length(p)] 
     dbias = [sol.u[i][2] for i in 1:length(p)]
-    # println(sol.u)
+
     value = [p[i]*((1+dbias[i])^2/F[i] + bias[i]^2) for i in 1:(length(p))]
     return trapz(xrange, value)
 end

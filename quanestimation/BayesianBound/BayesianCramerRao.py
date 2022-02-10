@@ -16,7 +16,7 @@ def BQCRB(rho, drho, p, x, accuracy=1e-8):
     F = integrate.simps(arr3, xspan)
     return F
 
-def TWC(rho, drho, p, dp, x):
+def TWC(rho, drho, p, dp, x, accuracy=1e-8):
     x1, x2 = x[0], x[-1]
     xspan = np.linspace(x1, x2, len(p))
     para_num = len(drho[0])
@@ -28,9 +28,7 @@ def TWC(rho, drho, p, dp, x):
         
         F_tp = np.zeros(len(p))
         for i in range(len(p)):
-            LD = SLD(rho[i], drho[i])  
-            SLD_ac = np.dot(LD,LD)+np.dot(LD,LD)
-            F_tp[i] = np.real(0.5*np.trace(np.dot(rho[i],SLD_ac)))
+            F_tp[i] = QFIM(rho[i], drho[i], accuracy=accuracy)
 
         arr2 = [F_tp[j]*p[j] for j in range(len(p))]
         F = integrate.simps(arr2, xspan)
