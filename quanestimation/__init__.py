@@ -12,7 +12,7 @@ from quanestimation import Common
 from quanestimation import ComprehensiveOpt
 
 from quanestimation.AsymptoticBound import (CFIM, QFIM, LLD, RLD, SLD, Holevo_bound,)
-from quanestimation.BayesianBound.BayesianCramerRao import (BQCRB, OBB, TWC)
+from quanestimation.BayesianBound.BayesianCramerRao import (BQCRB, OBB, TWCB)
 from quanestimation.BayesianBound.ZivZakai import (QZZB,)
 from quanestimation.Dynamics import (Lindblad, )
 from quanestimation.Resources import (squeezing_parameter, Concurrence, Entropy_VN, )
@@ -37,4 +37,4 @@ __all__ = ["ControlOpt", "StateOpt", "MeasurementOpt", "ComprehensiveOpt",
            "AD_Sopt", "DE_Sopt", "PSO_Sopt", "DDPG_Sopt", "NM_Sopt",
            "mat_vec_convert", "suN_generator", "gramschmidt",
            "csv2npy_controls", "csv2npy_states", "csv2npy_measurements",
-           "AD_Compopt", "DE_Compopt", "PSO_Compopt", "TWC", "QZZB"]
+           "AD_Compopt", "DE_Compopt", "PSO_Compopt", "TWCB", "QZZB"]

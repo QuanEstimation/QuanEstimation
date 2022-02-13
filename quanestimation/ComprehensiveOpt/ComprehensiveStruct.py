@@ -176,13 +176,13 @@ class ComprehensiveSystem:
             file_save.close()
         else: pass
 
-def ComprehensiveOpt(*args, option = "SCM",  method = "AD", **kwargs):
+def ComprehensiveOpt(*args, method = "AD", **kwargs):
 
     if method == "AD":
-        return compopt.AD_Compopt(option, *args, **kwargs)
+        return compopt.AD_Compopt(*args, **kwargs)
     elif method == "PSO":
-        return compopt.PSO_Compopt(option, *args, **kwargs)
+        return compopt.PSO_Compopt(*args, **kwargs)
     elif method == "DE":
-        return compopt.DE_Compopt(option, *args, **kwargs)
+        return compopt.DE_Compopt(*args, **kwargs)
     else:
         raise ValueError("{!r} is not a valid value for method, supported values are 'AD', 'PSO', 'DE'.".format(method))

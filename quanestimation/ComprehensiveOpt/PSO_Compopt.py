@@ -3,7 +3,7 @@ from julia import Main
 import quanestimation.ComprehensiveOpt.ComprehensiveStruct as Comp
 
 class PSO_Compopt(Comp.ComprehensiveSystem):
-    def __init__(self, option, tspan, H0, dH, Hc, decay=[], ctrl_bound=[], W=[], psi0=[], measurement0=[], \
+    def __init__(self, tspan, H0, dH, Hc, decay=[], ctrl_bound=[], W=[], psi0=[], measurement0=[], \
                  particle_num=10, ctrl0=[], max_episode=[1000, 100], c0=1.0, c1=2.0, c2=2.0, seed=1234):
 
         Comp.ComprehensiveSystem.__init__(self, tspan, psi0, measurement0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, seed, accuracy=1e-8)
@@ -64,7 +64,6 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         self.c1 = c1
         self.c2 = c2
         self.seed = seed
-        self.option = option
 
     def SC(self, target="QFIM", M=[], save_file=False):
         pso = Main.QuanEstimation.SC_Compopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi, \
@@ -75,12 +74,15 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
                                          self.seed, save_file)
             self.load_save_state()
         elif target == "CFIM":
-            M = [np.array(x, dtype=np.complex128) for x in M]
-            Main.QuanEstimation.SC_PSO_Compopt(M, pso, self.max_episode, self.particle_num, self.psi0, self.ctrl0, self.c0, self.c1, self.c2, \
+            if M==[]:
+                raise ValueError("M should not be empty.")
+            else: 
+                M = [np.array(x, dtype=np.complex128) for x in M]
+                Main.QuanEstimation.SC_PSO_Compopt(M, pso, self.max_episode, self.particle_num, self.psi0, self.ctrl0, self.c0, self.c1, self.c2, \
                                          self.seed, save_file)
-            self.load_save_state()
+                self.load_save_state()
         else:
-            raise ValueError("{!r} is not a valid value for target, supported values are 'QFIM', 'CFIM'.".format(self.option))
+            raise ValueError("{!r} is not a valid value for target, supported values are 'QFIM', 'CFIM'.".format(target))
     
     def CM(self, rho0, save_file=False):
         rho0 = np.array(rho0,dtype=np.complex128)
