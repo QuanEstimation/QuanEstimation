@@ -4,7 +4,7 @@ import warnings
 import quanestimation.ComprehensiveOpt.ComprehensiveStruct as Comp
 
 class AD_Compopt(Comp.ComprehensiveSystem):
-    def __init__(self, option, tspan, H0, dH, Hc, decay=[], ctrl_bound=[], W=[], psi0=[], measurement0=[],\
+    def __init__(self, tspan, H0, dH, Hc, decay=[], ctrl_bound=[], W=[], psi0=[], measurement0=[],\
                 Adam=True, ctrl0=[], max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99, seed=1234):
 
         Comp.ComprehensiveSystem.__init__(self, tspan, psi0, measurement0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, seed, accuracy=1e-8)
@@ -13,10 +13,6 @@ class AD_Compopt(Comp.ComprehensiveSystem):
         ----------
         Inputs
         ----------
-        auto:
-            --description: True: use autodifferential to calculate the gradient.
-                                  False: calculate the gradient with analytical method.
-            --type: bool (True or False)
 
         Adam:
             --description: whether to use Adam to update the controls.

@@ -24,7 +24,7 @@ def helstrom_dm(rho, sigma, accuracy, P0=0.5):
 def helstrom_vec(psi, phi, n=1):
     return np.real((1-np.sqrt(1-fidelity_vec(psi, phi)**n))/2)
 
-def QZZB(rho, p, x, accuracy=1e-8):
+def QZZB(x, p, rho, accuracy=1e-8):
     x1, x2 = x[0], x[-1]
     xspan = np.linspace(x1, x2, len(p))
     tau = [x - xspan[0] for x in xspan]

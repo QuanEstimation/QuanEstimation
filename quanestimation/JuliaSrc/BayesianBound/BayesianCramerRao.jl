@@ -1,6 +1,6 @@
 
 ########## Bayesian quantum Cramer-Rao bound ##########
-function BQCRB(rho, drho, p, x; accuracy=1e-8)
+function BQCRB(x, p, rho, drho; accuracy=1e-8)
     x1, x2 = x[1], x[end]
     xrange = Vector(range(x1, stop=x2, length=length(p)))
 
@@ -13,7 +13,7 @@ function BQCRB(rho, drho, p, x; accuracy=1e-8)
     return trapz(xrange, value)
 end
 
-function TWC(ρ, dρ, p, dp, x; accuracy=1e-8)
+function TWCB(x, p, dp, ρ, dρ; accuracy=1e-8)
     x1, x2 = x[1], x[end]
     xrange = range(x1, stop=x2, length=length(p))
     para_num = length(dp)
@@ -70,7 +70,7 @@ function interp1(xspan, yspan, x)
     return y
 end
 
-function OBB(rho, drho, d2rho, p, dp, x; accuracy=1e-8)
+function OBB(x, p, dp, rho, drho, d2rho; accuracy=1e-8)
     x1, x2 = x[1], x[end]
     xrange = Vector(range(x1, stop=x2, length=length(p)))
     delta = xrange[2] - xrange[1] 

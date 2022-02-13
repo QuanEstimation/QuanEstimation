@@ -80,9 +80,9 @@ for i in 1:length(xspan)
     end
 end
 
-f1 = BQCRB(rho_all, drho_all, p, [x1, x2], accuracy=1e-8)
-f2 = TWC(rho_all, drho_all, p, [dp], [x1, x2], accuracy=1e-8)
-f3 = OBB(rho_all, drho_all, d2rho_all, p, [dp], [x1, x2], accuracy=1e-8)
-f4 = QZZB(rho_all, p, [x1,x2])
+f1 = BQCRB(xspan, p, rho_all, drho_all, accuracy=1e-8)
+f2 = TWCB(xspan, p, [dp], rho_all, drho_all, accuracy=1e-8)
+f3 = OBB(xspan, p, [dp], rho_all, drho_all, d2rho_all, accuracy=1e-8)
+f4 = QZZB(xspan, p, rho_all)
 println(f1, f2, f3, f4)
 

@@ -3,7 +3,7 @@ import numpy as np
 from scipy import integrate, interpolate
 from quanestimation.AsymptoticBound.CramerRao import QFIM, SLD
 
-def BQCRB(rho, drho, p, x, accuracy=1e-8):
+def BQCRB(x, p, rho, drho, accuracy=1e-8):
     x1, x2 = x[0], x[-1]
     xspan = np.linspace(x1, x2, len(p))
 
@@ -16,7 +16,7 @@ def BQCRB(rho, drho, p, x, accuracy=1e-8):
     F = integrate.simps(arr3, xspan)
     return F
 
-def TWC(rho, drho, p, dp, x, accuracy=1e-8):
+def TWCB(x, p, dp, rho, drho, accuracy=1e-8):
     x1, x2 = x[0], x[-1]
     xspan = np.linspace(x1, x2, len(p))
     para_num = len(drho[0])
@@ -65,7 +65,7 @@ def OBB_func(x, y, t, J, F):
 def boundary_condition(ya, yb):
     return np.array([ya[1]+1.0, yb[1]+1.0])
 
-def OBB(rho, drho, d2rho, p, dp, x, accuracy=1e-8):
+def OBB(x, p, dp, rho, drho, d2rho, accuracy=1e-8):
     x1, x2 = x[0], x[-1]
     xspan = np.linspace(x1, x2, len(p))
     F, J = np.zeros(len(p)), np.zeros(len(p))

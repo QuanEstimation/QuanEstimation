@@ -39,12 +39,12 @@ function update_distribution(rho, drho, p_in, dp_in, M)
     return p_now, dp_now
 end
 
-function adaptive_Mopt(ada, p_in, dp_in, x, u, delta)
-    phase = delta + (-1)^u*ada.phase
-    phase_shift = exp(-1.0im*phase*ada.Jy)
-    rho = phase_shift*ada.ρ0*phase_shift'
-    drho = -1.0im*ada.Jy*rho+1.0im*rho*ada.Jy
+function adaptive_Mopt(adaptive, p_in, dp_in, x, u, delta)
+    phase = adaptive.phase + (-1)^u*delta
+    phase_shift = exp(-1.0im*phase*adaptive.Jy)
+    rho = phase_shift*adaptive.ρ0*phase_shift'
+    drho = -1.0im*adaptive.Jy*rho+1.0im*rho*adaptive.Jy
     f = BQCRB(rho, drho, p_in, dp_in, x)
-    p_in, dp_in = update_distribution(rho, drho, p_in, dp_in, ada.Meas) 
+    p_in, dp_in = update_distribution(rho, drho, p_in, dp_in, adaptive.Meas) 
     return f, p_in, dp_in
 end
