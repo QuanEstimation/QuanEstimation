@@ -6,7 +6,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
     def __init__(self, mtype, minput, tspan, rho0, H0, dH, Hc=[], ctrl=[], decay=[], W=[], popsize=10, \
                 measurement0=[], max_episode=1000, c=1.0, cr=0.5, seed=1234, load=False):
 
-        Measurement.MeasurementSystem.__init__(self, mtype, minput, tspan, rho0, H0, dH, Hc, ctrl, decay, W, measurement0, seed, load, accuracy=1e-8)
+        Measurement.MeasurementSystem.__init__(self, mtype, minput, tspan, rho0, H0, dH, Hc, ctrl, decay, W, measurement0, seed, load, eps=1e-8)
         
         """
         --------
@@ -63,19 +63,19 @@ class DE_Mopt(Measurement.MeasurementSystem):
         """
         if self.mtype=="projection":
             diffevo = Main.QuanEstimation.projection_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
-                                                        self.decay_opt, self.gamma, self.M, self.W, self.accuracy)
+                                                        self.decay_opt, self.gamma, self.M, self.W, self.eps)
             Main.QuanEstimation.CFIM_DE_Mopt(diffevo, self.popsize, self.measurement0, self.c, self.cr, self.seed, self.max_episode, save_file)
             self.load_save()
 
         elif self.mtype=="input":
             diffevo = Main.QuanEstimation.LinearComb_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
-                                                            self.decay_opt, self.gamma, self.povm_basis, self.M_num, self.W, self.accuracy)
+                                                            self.decay_opt, self.gamma, self.povm_basis, self.M_num, self.W, self.eps)
             Main.QuanEstimation.CFIM_DE_Mopt(diffevo, self.popsize, self.c, self.cr, self.seed, self.max_episode, save_file)
             self.load_save()
 
         elif self.mtype=="rotation":
             diffevo = Main.QuanEstimation.RotateBasis_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
-                                                            self.decay_opt, self.gamma, self.povm_basis, self.W, self.accuracy)
+                                                            self.decay_opt, self.gamma, self.povm_basis, self.W, self.eps)
             Main.QuanEstimation.CFIM_DE_Mopt(diffevo, self.popsize, self.c, self.cr, self.seed, self.max_episode, save_file)
             self.load_save()
         else:

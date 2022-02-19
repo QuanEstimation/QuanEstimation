@@ -7,7 +7,7 @@ class AD_Mopt(Measurement.MeasurementSystem):
     def __init__(self, mtype, minput, tspan, rho0, H0, dH, Hc=[], ctrl=[], decay=[], W=[], Adam=False, \
                  measurement0=[], max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99, seed=1234, load=False):
 
-        Measurement.MeasurementSystem.__init__(self, mtype, minput, tspan, rho0, H0, dH, Hc, ctrl, decay, W, measurement0, seed, load, accuracy=1e-8)
+        Measurement.MeasurementSystem.__init__(self, mtype, minput, tspan, rho0, H0, dH, Hc, ctrl, decay, W, measurement0, seed, load, eps=1e-8)
         
         """
         --------
@@ -37,8 +37,8 @@ class AD_Mopt(Measurement.MeasurementSystem):
             --description: the exponential decay rate for the second moment estimates .
             --type: float
 
-        accuracy:
-            --description: calculation accuracy.
+        eps:
+            --description: calculation eps.
             --type: float
         
         """
@@ -71,13 +71,13 @@ class AD_Mopt(Measurement.MeasurementSystem):
 
         elif self.mtype=="input":
             ad = Main.QuanEstimation.LinearComb_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
-                                                    self.decay_opt, self.gamma, self.povm_basis, self.M_num, self.W, self.accuracy)
+                                                    self.decay_opt, self.gamma, self.povm_basis, self.M_num, self.W, self.eps)
             Main.QuanEstimation.CFIM_AD_Mopt(ad, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, self.Adam, save_file, self.seed)
             self.load_save()
 
         elif self.mtype=="rotation":
             ad = Main.QuanEstimation.RotateBasis_Mopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan,\
-                                                    self.decay_opt, self.gamma, self.povm_basis, self.W, self.accuracy)
+                                                    self.decay_opt, self.gamma, self.povm_basis, self.W, self.eps)
             Main.QuanEstimation.CFIM_AD_Mopt(ad, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, self.Adam, save_file, self.seed)
             self.load_save()
         else:

@@ -5,7 +5,7 @@ import cvxpy as cp
 from quanestimation.Common import suN_generator
 from quanestimation.AsymptoticBound.CramerRao import QFIM
 
-def Holevo_bound(rho, drho, W, accuracy=1e-8):
+def Holevo_bound(rho, drho, W, eps=1e-8):
     """
     Description: solve Holevo Cramer-Rao bound via the semidefinite program (SDP).
                  
@@ -40,7 +40,7 @@ def Holevo_bound(rho, drho, W, accuracy=1e-8):
 
     if len(drho) == 1:
         print("In single parameter scenario, HCRB is equivalent to QFI. This function will return the value of QFI")
-        f = QFIM(rho, drho, accuracy=accuracy)
+        f = QFIM(rho, drho, eps=eps)
         return f
     else:
         dim = len(rho)
@@ -59,7 +59,7 @@ def Holevo_bound(rho, drho, W, accuracy=1e-8):
             for b in range(num):
                 S[a][b] = np.trace(np.dot(Lambda[a], np.dot(Lambda[b], rho)))
 
-        accu = len(str(int(1/accuracy)))-1
+        accu = len(str(int(1/eps)))-1
         lu, d, perm = sp.linalg.ldl(S.round(accu))
         R = np.dot(lu, sp.linalg.sqrtm(d)).conj().T
         #============optimization variables================

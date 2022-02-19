@@ -15,15 +15,15 @@ mutable struct GRAPE_Copt{T<:Complex,M <: Real} <: ControlSystem
     ϵ::M
     beta1::M
     beta2::M
-    accuracy::M
+    eps::M
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
     GRAPE_Copt(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, ρ0::Matrix{T}, tspan::Vector{M}, decay_opt::Vector{Matrix{T}}, 
              γ::Vector{M}, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{M}}, ctrl_bound::Vector{M}, 
-             W::Matrix{M}, mt::M, vt::M, ϵ::M, beta1::M, beta2::M, accuracy::M, ρ=Vector{Matrix{T}}(undef, 1), 
+             W::Matrix{M}, mt::M, vt::M, ϵ::M, beta1::M, beta2::M, eps::M, ρ=Vector{Matrix{T}}(undef, 1), 
              ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1), ∂ρ_∂V=Vector{Vector{Matrix{T}}}(undef, 1)) where {T<:Complex,M <: Real}= 
              new{T,M}(freeHamiltonian, Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, control_Hamiltonian, control_coefficients,
-                      ctrl_bound, W, mt, vt, ϵ, beta1, beta2, accuracy, ρ, ∂ρ_∂x) 
+                      ctrl_bound, W, mt, vt, ϵ, beta1, beta2, eps, ρ, ∂ρ_∂x) 
 end
 
 ###################### auto-GRAPE #########################
@@ -45,56 +45,56 @@ function CFIM_autoGRAPE_Copt(M, grape::GRAPE_Copt{T}, max_episode, Adam, save_fi
 end
 
 function gradient_QFI!(grape::GRAPE_Copt{T}) where {T<:Complex}
-    δF = gradient(x->QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), grape.control_coefficients)[1].|>real
+    δF = gradient(x->QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.eps), grape.control_coefficients)[1].|>real
     grape.control_coefficients += grape.ϵ*δF
     bound!(grape.control_coefficients, grape.ctrl_bound)
     return δF
 end
 
 function gradient_QFI_Adam!(grape::GRAPE_Copt{T}) where {T<:Complex}
-    δF = gradient(x->QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), grape.control_coefficients)[1].|>real
+    δF = gradient(x->QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.eps), grape.control_coefficients)[1].|>real
     Adam!(grape, δF)
     bound!(grape.control_coefficients, grape.ctrl_bound)
     return δF
 end
 
 function gradient_QFIM!(grape::GRAPE_Copt{T}) where {T<:Complex}
-    δF = gradient(x->1/(grape.W*pinv(QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), rtol=grape.accuracy) |> tr |>real), grape.control_coefficients).|>real |>sum
+    δF = gradient(x->1/(grape.W*pinv(QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.eps), rtol=grape.eps) |> tr |>real), grape.control_coefficients).|>real |>sum
     grape.control_coefficients += grape.ϵ*δF
     bound!(grape.control_coefficients, grape.ctrl_bound)
     return δF
 end
 
 function gradient_QFIM_Adam!(grape::GRAPE_Copt{T}) where {T<:Complex}
-    δF = gradient(x->1/(grape.W*pinv(QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), rtol=grape.accuracy) |> tr |>real), grape.control_coefficients).|>real |>sum
+    δF = gradient(x->1/(grape.W*pinv(QFIM(grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.eps), rtol=grape.eps) |> tr |>real), grape.control_coefficients).|>real |>sum
     Adam!(grape, δF)
     bound!(grape.control_coefficients, grape.ctrl_bound)
     return δF
 end
 
 function gradient_CFI!(grape::GRAPE_Copt{T}, M) where {T<:Complex}
-    δI = gradient(x->CFI(M, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), grape.control_coefficients)[1].|>real
+    δI = gradient(x->CFI(M, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.eps), grape.control_coefficients)[1].|>real
     grape.control_coefficients += grape.ϵ*δI
     bound!(grape.control_coefficients, grape.ctrl_bound)
     return δI
 end
 
 function gradient_CFI_Adam!(grape::GRAPE_Copt{T}, M) where {T<:Complex}
-    δI = gradient(x->CFI(M, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), grape.control_coefficients)[1].|>real
+    δI = gradient(x->CFI(M, grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.eps), grape.control_coefficients)[1].|>real
     Adam!(grape, δI)
     bound!(grape.control_coefficients, grape.ctrl_bound)
     return δI
 end
 
 function gradient_CFIM!(grape::GRAPE_Copt{T}, M) where {T<:Complex}
-    δI = gradient(x->1/(grape.W*pinv(CFIM(M, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), rtol=grape.accuracy) |> tr |>real), grape.control_coefficients).|>real |>sum
+    δI = gradient(x->1/(grape.W*pinv(CFIM(M, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.eps), rtol=grape.eps) |> tr |>real), grape.control_coefficients).|>real |>sum
     grape.control_coefficients += grape.ϵ*δI
     bound!(grape.control_coefficients, grape.ctrl_bound)
     return δI
 end
 
 function gradient_CFIM_Adam!(grape::GRAPE_Copt{T}, M) where {T<:Complex}
-    δI = gradient(x->1/(grape.W*pinv(CFIM(M, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.accuracy), rtol=grape.accuracy) |> tr |>real), grape.control_coefficients).|>real |>sum
+    δI = gradient(x->1/(grape.W*pinv(CFIM(M, grape.freeHamiltonian, grape.Hamiltonian_derivative, grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.eps), rtol=grape.eps) |> tr |>real), grape.control_coefficients).|>real |>sum
     Adam!(grape, δI)
     bound!(grape.control_coefficients, grape.ctrl_bound)
     return δI
@@ -907,7 +907,7 @@ function gradient_QFIM_analy_Adam(grape::GRAPE_Copt{T}) where {T<:Complex}
     ρt_T, ∂ρt_T, δρt_δV, ∂xδρt_δV = dynamics_analy(grape, dim, tnum, para_num, ctrl_num)
 
     Lx = SLD(ρt_T, ∂ρt_T)
-    F_T = QFIM(ρt_T, ∂ρt_T, grape.accuracy)
+    F_T = QFIM(ρt_T, ∂ρt_T, grape.eps)
 
     if para_num == 1
         cost_function = F_T[1]
@@ -921,7 +921,7 @@ function gradient_QFIM_analy_Adam(grape::GRAPE_Copt{T}) where {T<:Complex}
                 term1 = tr(∂xδρt_T_δV*Lx[1])
                 term2 = tr(∂ρt_T_δV*anti_commu)
                 δF = ((2*term1-0.5*term2) |> real)
-                grape.control_coefficients[cm][tm], mt, vt = Adam(δF, tm, grape.control_coefficients[cm][tm], mt, vt, grape.ϵ, grape.beta1, grape.beta2, grape.accuracy)
+                grape.control_coefficients[cm][tm], mt, vt = Adam(δF, tm, grape.control_coefficients[cm][tm], mt, vt, grape.ϵ, grape.beta1, grape.beta2, grape.eps)
             end
         end
         bound!(grape.control_coefficients, grape.ctrl_bound)
@@ -929,7 +929,7 @@ function gradient_QFIM_analy_Adam(grape::GRAPE_Copt{T}) where {T<:Complex}
     elseif para_num == 2
         coeff1 = real(det(F))
         coeff2 = grape.W[1,1]*F_T[2,2]+grape.W[2,2]*F_T[1,1]-grape.W[1,2]*F_T[2,1]-grape.W[2,1]*F_T[1,2]
-        cost_function = (abs(det(F_T)) < grape.accuracy ? (1.0/grape.accuracy) : real(tr(grape.W*inv(F_T))))
+        cost_function = (abs(det(F_T)) < grape.eps ? (1.0/grape.eps) : real(tr(grape.W*inv(F_T))))
         for cm in 1:ctrl_num
             mt = grape.mt
             vt = grape.vt
@@ -951,12 +951,12 @@ function gradient_QFIM_analy_Adam(grape::GRAPE_Copt{T}) where {T<:Complex}
                 item1 = -coeff2*(F_T[2,2]*δF_all[1][1]+F_T[1,1]*δF_all[2][2]-F_T[2,1]*δF_all[1][2]-F_T[1,2]*δF_all[2][1])/coeff1^2
                 item2 = (grape.W[1,1]*δF_all[2][2]+grape.W[2,2]*δF_all[1][1]-grape.W[1,2]*δF_all[2][1]-grape.W[2,1]*δF_all[1][2])/coeff1
                 δF = -(item1+item2)*cost_function^2
-                grape.control_coefficients[cm][tm], mt, vt = Adam(δF, tm, grape.control_coefficients[cm][tm], mt, vt, grape.ϵ, grape.beta1, grape.beta2, grape.accuracy)
+                grape.control_coefficients[cm][tm], mt, vt = Adam(δF, tm, grape.control_coefficients[cm][tm], mt, vt, grape.ϵ, grape.beta1, grape.beta2, grape.eps)
             end
         end
         bound!(grape.control_coefficients, grape.ctrl_bound)
     else       
-        cost_function = (abs(det(F_T)) < grape.accuracy ? (1.0/grape.accuracy) : real(tr(grape.W*inv(F_T))))
+        cost_function = (abs(det(F_T)) < grape.eps ? (1.0/grape.eps) : real(tr(grape.W*inv(F_T))))
         coeff = [grape.W[para,para]/F_T[para,para] for para in 1:para_num] |>sum
         coeff = coeff^(-2)
         for cm in 1:ctrl_num
@@ -973,7 +973,7 @@ function gradient_QFIM_analy_Adam(grape::GRAPE_Copt{T}) where {T<:Complex}
                     δF = δF + grape.W[pm,pm]*(1.0/F_T[pm,pm]/F_T[pm,pm])*((2*term1-0.5*term2) |> real)
                 end
                 δF = δF*coeff
-                grape.control_coefficients[cm][tm], mt, vt = Adam(δF, tm, grape.control_coefficients[cm][tm], mt, vt, grape.ϵ, grape.beta1, grape.beta2, grape.accuracy)
+                grape.control_coefficients[cm][tm], mt, vt = Adam(δF, tm, grape.control_coefficients[cm][tm], mt, vt, grape.ϵ, grape.beta1, grape.beta2, grape.eps)
             end
         end
         bound!(grape.control_coefficients, grape.ctrl_bound)
@@ -990,7 +990,7 @@ function gradient_QFIM_analy(grape::GRAPE_Copt{T}) where {T<:Complex}
     ρt_T, ∂ρt_T, δρt_δV, ∂xδρt_δV = dynamics_analy(grape, dim, tnum, para_num, ctrl_num)
 
     Lx = SLD(ρt_T, ∂ρt_T)
-    F_T = QFIM(ρt_T, ∂ρt_T, grape.accuracy)
+    F_T = QFIM(ρt_T, ∂ρt_T, grape.eps)
 
     cost_function = F_T[1]
     
@@ -1013,7 +1013,7 @@ function gradient_QFIM_analy(grape::GRAPE_Copt{T}) where {T<:Complex}
     elseif para_num == 2
         coeff1 = real(det(F))
         coeff2 = grape.W[1,1]*F_T[2,2]+grape.W[2,2]*F_T[1,1]-grape.W[1,2]*F_T[2,1]-grape.W[2,1]*F_T[1,2]
-        cost_function = (abs(det(F_T)) < grape.accuracy ? (1.0/grape.accuracy) : real(tr(grape.W*inv(F_T))))
+        cost_function = (abs(det(F_T)) < grape.eps ? (1.0/grape.eps) : real(tr(grape.W*inv(F_T))))
         for cm in 1:ctrl_num
             for tm in 1:(tnum-1)
                 δF_all = [[0.0 for i in 1:para_num] for j in 1:para_num]
@@ -1039,7 +1039,7 @@ function gradient_QFIM_analy(grape::GRAPE_Copt{T}) where {T<:Complex}
         bound!(grape.control_coefficients, grape.ctrl_bound)
 
     else
-        cost_function = (abs(det(F_T)) < grape.accuracy ? (1.0/grape.accuracy) : real(tr(grape.W*inv(F_T))))
+        cost_function = (abs(det(F_T)) < grape.eps ? (1.0/grape.eps) : real(tr(grape.W*inv(F_T))))
         coeff = [grape.W[para,para]/F_T[para,para] for para in 1:para_num] |>sum
         coeff = coeff^(-2)
         for cm in 1:ctrl_num
@@ -1071,7 +1071,7 @@ function gradient_CFIM_analy_Adam(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) wh
     ρt_T, ∂ρt_T, δρt_δV, ∂xδρt_δV = dynamics_analy(grape, dim, tnum, para_num, ctrl_num)
 
     if para_num == 1
-        F_T = CFI(ρt_T, ∂ρt_T[1], M, grape.accuracy)
+        F_T = CFI(ρt_T, ∂ρt_T[1], M, grape.eps)
         cost_function = F_T
         L1_tidle = zeros(ComplexF64, dim, dim)
         L2_tidle = zeros(ComplexF64, dim, dim)
@@ -1079,7 +1079,7 @@ function gradient_CFIM_analy_Adam(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) wh
         for mi in 1:dim
             p = (tr(ρt_T*M[mi]) |> real)
             dp = (tr(∂ρt_T[1]*M[mi]) |> real)
-            if p > grape.accuracy
+            if p > grape.eps
                 L1_tidle = L1_tidle + dp*M[mi]/p
                 L2_tidle = L2_tidle + dp*dp*M[mi]/p^2
             end
@@ -1094,13 +1094,13 @@ function gradient_CFIM_analy_Adam(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) wh
                 term1 = tr(∂xδρt_T_δV*L1_tidle)
                 term2 = tr(∂ρt_T_δV*L2_tidle)
                 δF = ((2*term1-term2) |> real)
-                grape.control_coefficients[cm][tm], mt, vt = Adam(δF, tm, grape.control_coefficients[cm][tm], mt, vt, grape.ϵ, grape.beta1, grape.beta2, grape.accuracy)
+                grape.control_coefficients[cm][tm], mt, vt = Adam(δF, tm, grape.control_coefficients[cm][tm], mt, vt, grape.ϵ, grape.beta1, grape.beta2, grape.eps)
             end
         end
         bound!(grape.control_coefficients, grape.ctrl_bound)
 
     elseif para_num == 2
-        F_T = CFIM(ρt_T, ∂ρt_T, M, grape.accuracy)
+        F_T = CFIM(ρt_T, ∂ρt_T, M, grape.eps)
         L1_tidle = [zeros(ComplexF64, dim, dim) for i in 1:para_num]
         L2_tidle = [[zeros(ComplexF64, dim, dim) for i in 1:para_num] for j in 1:para_num]
     
@@ -1108,7 +1108,7 @@ function gradient_CFIM_analy_Adam(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) wh
             for mi in 1:dim
                 p = (tr(ρt_T*M[mi]) |> real)
                 dp = (tr(∂ρt_T[para_i]*M[mi]) |> real)
-                if p > grape.accuracy
+                if p > grape.eps
                     L1_tidle[para_i] = L1_tidle[para_i] + dp*M[mi]/p
                 end
             end
@@ -1120,7 +1120,7 @@ function gradient_CFIM_analy_Adam(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) wh
                 dp_b = (tr(∂ρt_T[para_j]*M[mi]) |> real)
                 for mi in 1:dim
                     p = (tr(ρt_T*M[mi]) |> real)
-                    if p > grape.accuracy
+                    if p > grape.eps
                         L2_tidle[para_i][para_j] = L2_tidle[para_i][para_j] + dp_a*dp_b*M[mi]/p^2
                     end
                 end
@@ -1128,7 +1128,7 @@ function gradient_CFIM_analy_Adam(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) wh
         end
         coeff1 = real(det(F))
         coeff2 = grape.W[1,1]*F_T[2,2]+grape.W[2,2]*F_T[1,1]-grape.W[1,2]*F_T[2,1]-grape.W[2,1]*F_T[1,2]
-        cost_function = (abs(det(F_T)) < grape.accuracy ? (1.0/grape.accuracy) : real(tr(grape.W*inv(F_T))))
+        cost_function = (abs(det(F_T)) < grape.eps ? (1.0/grape.eps) : real(tr(grape.W*inv(F_T))))
         for cm in 1:ctrl_num
             mt = grape.mt
             vt = grape.vt
@@ -1148,13 +1148,13 @@ function gradient_CFIM_analy_Adam(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) wh
                 item1 = -coeff2*(F_T[2,2]*δF_all[1][1]+F_T[1,1]*δF_all[2][2]-F_T[2,1]*δF_all[1][2]-F_T[1,2]*δF_all[2][1])/coeff1^2
                 item2 = (grape.W[1,1]*δF_all[2][2]+grape.W[2,2]*δF_all[1][1]-grape.W[1,2]*δF_all[2][1]-grape.W[2,1]*δF_all[1][2])/coeff1
                 δF = -(item1+item2)*cost_function^2
-                grape.control_coefficients[cm][tm], mt, vt = Adam(δF, tm, grape.control_coefficients[cm][tm], mt, vt, grape.ϵ, grape.beta1, grape.beta2, grape.accuracy)
+                grape.control_coefficients[cm][tm], mt, vt = Adam(δF, tm, grape.control_coefficients[cm][tm], mt, vt, grape.ϵ, grape.beta1, grape.beta2, grape.eps)
             end
         end
         bound!(grape.control_coefficients, grape.ctrl_bound)
 
     else
-        F_T = CFIM(ρt_T, ∂ρt_T, M, grape.accuracy)
+        F_T = CFIM(ρt_T, ∂ρt_T, M, grape.eps)
         L1_tidle = [zeros(ComplexF64, dim, dim) for i in 1:para_num]
         L2_tidle = [zeros(ComplexF64, dim, dim) for i in 1:para_num]
     
@@ -1162,14 +1162,14 @@ function gradient_CFIM_analy_Adam(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) wh
             for mi in 1:dim
                 p = (tr(ρt_T*M[mi]) |> real)
                 dp = (tr(∂ρt_T[para_i]*M[mi]) |> real)
-                if p > grape.accuracy
+                if p > grape.eps
                     L1_tidle[para_i] = L1_tidle[para_i] + dp*M[mi]/p
                     L2_tidle[para_i] = L2_tidle[para_i] + dp*dp*M[mi]/p^2
                 end
             end
         end
 
-        cost_function = (abs(det(F_T)) < grape.accuracy ? (1.0/grape.accuracy) : real(tr(grape.W*inv(F_T))))
+        cost_function = (abs(det(F_T)) < grape.eps ? (1.0/grape.eps) : real(tr(grape.W*inv(F_T))))
         coeff = [grape.W[para,para]/F_T[para,para] for para in 1:para_num] |>sum
         coeff = coeff^(-2)
         for cm in 1:ctrl_num
@@ -1185,7 +1185,7 @@ function gradient_CFIM_analy_Adam(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) wh
                     δF = δF + grape.W[pm,pm]*(1.0/F_T[pm,pm]/F_T[pm,pm])*((2*term1-term2) |> real)
                 end
                 δF = δF*coeff
-                grape.control_coefficients[cm][tm], mt, vt = Adam(δF, tm, grape.control_coefficients[cm][tm], mt, vt, grape.ϵ, grape.beta1, grape.beta2, grape.accuracy)
+                grape.control_coefficients[cm][tm], mt, vt = Adam(δF, tm, grape.control_coefficients[cm][tm], mt, vt, grape.ϵ, grape.beta1, grape.beta2, grape.eps)
             end
         end
         bound!(grape.control_coefficients, grape.ctrl_bound)
@@ -1202,7 +1202,7 @@ function gradient_CFIM_analy(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) where {
     ρt_T, ∂ρt_T, δρt_δV, ∂xδρt_δV = dynamics_analy(grape, dim, tnum, para_num, ctrl_num)
 
     if para_num == 1
-        F_T = CFI(ρt_T, ∂ρt_T[1], M, grape.accuracy)
+        F_T = CFI(ρt_T, ∂ρt_T[1], M, grape.eps)
         cost_function = F_T
         L1_tidle = zeros(ComplexF64, dim, dim)
         L2_tidle = zeros(ComplexF64, dim, dim)
@@ -1210,7 +1210,7 @@ function gradient_CFIM_analy(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) where {
         for mi in 1:dim
             p = (tr(ρt_T*M[mi]) |> real)
             dp = (tr(∂ρt_T[1]*M[mi]) |> real)
-            if p > grape.accuracy
+            if p > grape.eps
                 L1_tidle = L1_tidle + dp*M[mi]/p
                 L2_tidle = L2_tidle + dp*dp*M[mi]/p^2
             end
@@ -1229,7 +1229,7 @@ function gradient_CFIM_analy(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) where {
         bound!(grape.control_coefficients, grape.ctrl_bound)
 
     elseif para_num == 2
-        F_T = CFIM(ρt_T, ∂ρt_T, M, grape.accuracy)
+        F_T = CFIM(ρt_T, ∂ρt_T, M, grape.eps)
         L1_tidle = [zeros(ComplexF64, dim, dim) for i in 1:para_num]
         L2_tidle = [[zeros(ComplexF64, dim, dim) for i in 1:para_num] for j in 1:para_num]
     
@@ -1237,7 +1237,7 @@ function gradient_CFIM_analy(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) where {
             for mi in 1:dim
                 p = (tr(ρt_T*M[mi]) |> real)
                 dp = (tr(∂ρt_T[para_i]*M[mi]) |> real)
-                if p > grape.accuracy
+                if p > grape.eps
                     L1_tidle[para_i] = L1_tidle[para_i] + dp*M[mi]/p
                 end
             end
@@ -1249,7 +1249,7 @@ function gradient_CFIM_analy(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) where {
                 dp_b = (tr(∂ρt_T[para_j]*M[mi]) |> real)
                 for mi in 1:dim
                     p = (tr(ρt_T*M[mi]) |> real)
-                    if p > grape.accuracy
+                    if p > grape.eps
                         L2_tidle[para_i][para_j] = L2_tidle[para_i][para_j] + dp_a*dp_b*M[mi]/p^2
                     end
                 end
@@ -1257,7 +1257,7 @@ function gradient_CFIM_analy(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) where {
         end
         coeff1 = real(det(F))
         coeff2 = grape.W[1,1]*F_T[2,2]+grape.W[2,2]*F_T[1,1]-grape.W[1,2]*F_T[2,1]-grape.W[2,1]*F_T[1,2]
-        cost_function = (abs(det(F_T)) < grape.accuracy ? (1.0/grape.accuracy) : real(tr(grape.W*inv(F_T))))
+        cost_function = (abs(det(F_T)) < grape.eps ? (1.0/grape.eps) : real(tr(grape.W*inv(F_T))))
         for cm in 1:ctrl_num
             for tm in 1:(tnum-1)
                 δF_all = [[0.0 for i in 1:para_num] for j in 1:para_num]
@@ -1281,7 +1281,7 @@ function gradient_CFIM_analy(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) where {
         bound!(grape.control_coefficients, grape.ctrl_bound)
 
     else
-        F_T = CFIM(ρt_T, ∂ρt_T, M, grape.accuracy)
+        F_T = CFIM(ρt_T, ∂ρt_T, M, grape.eps)
         L1_tidle = [zeros(ComplexF64, dim, dim) for i in 1:para_num]
         L2_tidle = [zeros(ComplexF64, dim, dim) for i in 1:para_num]
     
@@ -1289,14 +1289,14 @@ function gradient_CFIM_analy(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) where {
             for mi in 1:dim
                 p = (tr(ρt_T*M[mi]) |> real)
                 dp = (tr(∂ρt_T[para_i]*M[mi]) |> real)
-                if p > grape.accuracy
+                if p > grape.eps
                     L1_tidle[para_i] = L1_tidle[para_i] + dp*M[mi]/p
                     L2_tidle[para_i] = L2_tidle[para_i] + dp*dp*M[mi]/p^2
                 end
             end
         end
 
-        cost_function = (abs(det(F_T)) < grape.accuracy ? (1.0/grape.accuracy) : real(tr(grape.W*inv(F_T))))
+        cost_function = (abs(det(F_T)) < grape.eps ? (1.0/grape.eps) : real(tr(grape.W*inv(F_T))))
         coeff = [grape.W[para,para]/F_T[para,para] for para in 1:para_num] |>sum
         coeff = coeff^(-2)
         for cm in 1:ctrl_num

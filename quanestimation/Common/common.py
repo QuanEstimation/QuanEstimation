@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import os
 from scipy.sparse import csc_matrix
 from sympy import Matrix, GramSchmidt
         
@@ -86,3 +87,19 @@ def sic_povm(fiducial):
             basis_res = np.dot(res_tp, res_tp.conj().transpose())/d
             res.append(basis_res)
     return res
+
+def load_M(dim):
+    file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),'sic_fiducial_vectors/d%d.txt'%(dim))
+    data = np.loadtxt(file_path)
+    fiducial = data[:,0] + data[:,1]*1.0j
+    fiducial = np.array(fiducial).reshape(len(fiducial),1) 
+    M = sic_povm(fiducial)
+    return M
+
+def extract_ele(element, n):
+    if n:
+        for x in element: 
+            yield from extract_ele(x,n-1)
+    else: 
+        yield element
+        

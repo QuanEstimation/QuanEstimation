@@ -6,7 +6,7 @@ class DDPG_Copt(Control.ControlSystem):
     def __init__(self, tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[], W=[], \
                  ctrl0=[], max_episode=500, layer_num=3, layer_dim=200, seed=1234, load=False):
 
-        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, accuracy=1e-8)
+        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, eps=1e-8)
 
         """                                           
         ----------
@@ -50,7 +50,7 @@ class DDPG_Copt(Control.ControlSystem):
         """
         ddpg = Main.QuanEstimation.DDPG_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, \
                 self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
-                self.ctrl_bound, self.W, self.ctrl_interval, len(self.rho0), self.accuracy)
+                self.ctrl_bound, self.W, self.ctrl_interval, len(self.rho0), self.eps)
         Main.QuanEstimation.QFIM_DDPG_Copt(ddpg, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
     
     def CFIM(self, M, save_file=False):
@@ -69,7 +69,7 @@ class DDPG_Copt(Control.ControlSystem):
         M = [np.array(x, dtype=np.complex128) for x in M]
         ddpg = Main.QuanEstimation.DDPG_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, \
                 self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
-                self.ctrl_bound, self.W, self.ctrl_interval, len(self.rho0), self.accuracy)
+                self.ctrl_bound, self.W, self.ctrl_interval, len(self.rho0), self.eps)
         Main.QuanEstimation.CFIM_DDPG_Copt(M, ddpg, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
 
     def HCRB(self, save_file=False):
@@ -91,5 +91,5 @@ class DDPG_Copt(Control.ControlSystem):
         else:
             ddpg = Main.QuanEstimation.DDPG_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, \
                     self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
-                    self.ctrl_bound, self.W, self.ctrl_interval, len(self.rho0), self.accuracy)
+                    self.ctrl_bound, self.W, self.ctrl_interval, len(self.rho0), self.eps)
             Main.QuanEstimation.HCRB_DDPG_Copt(ddpg, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)

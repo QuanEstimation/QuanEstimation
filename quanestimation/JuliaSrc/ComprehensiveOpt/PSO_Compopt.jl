@@ -27,7 +27,6 @@ function info_PSO_SCopt(M, pso, max_episode, particle_num, psi0, ctrl0, c0, c1, 
     velocity_state = 0.1.*rand(ComplexF64, dim, particle_num)
     pbest_state = zeros(ComplexF64, dim, particle_num)
     gbest_state = zeros(ComplexF64, dim)
-    velocity_best_state = zeros(ComplexF64, dim)
 
     if pso.ctrl_bound[1] == -Inf || pso.ctrl_bound[2] == Inf
         velocity_ctrl = 0.1*(2.0*rand(ctrl_num, ctrl_length, particle_num)-ones(ctrl_num, ctrl_length, particle_num))
@@ -38,7 +37,6 @@ function info_PSO_SCopt(M, pso, max_episode, particle_num, psi0, ctrl0, c0, c1, 
     end
     pbest_ctrl = zeros(ctrl_num, ctrl_length, particle_num)
     gbest_ctrl = zeros(ctrl_num, ctrl_length)
-    velocity_best_ctrl = zeros(ctrl_num,ctrl_length)
 
     if typeof(max_episode) == Int
         max_episode = [max_episode, max_episode]
@@ -89,9 +87,9 @@ function info_PSO_SCopt(M, pso, max_episode, particle_num, psi0, ctrl0, c0, c1, 
         f_list = [1.0/f_ini]
         if save_file == true
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_best_state, velocity_best_ctrl, velocity_state, velocity_ctrl = train_PSO_SCopt(M, 
+                p_fit, fit, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_state, velocity_ctrl = train_PSO_SCopt(M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, ctrl_num, ctrl_length, 
-                pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_best_state, velocity_best_ctrl, velocity_state, velocity_ctrl, sym)
+                pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_state, velocity_ctrl, sym)
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest_state[i] for i in 1:dim]
                     pso.control_coefficients = [gbest_ctrl[k, :] for k in 1:ctrl_num]
@@ -101,9 +99,9 @@ function info_PSO_SCopt(M, pso, max_episode, particle_num, psi0, ctrl0, c0, c1, 
                 SaveFile_SC(f_list, gbest_state, [gbest_ctrl[k, :] for k in 1:ctrl_num])
                 print("current $str2 is $(fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_best_state, velocity_best_ctrl, velocity_state, velocity_ctrl = train_PSO_SCopt(M, 
+            p_fit, fit, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_state, velocity_ctrl = train_PSO_SCopt(M, 
             particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, ctrl_num, ctrl_length, 
-            pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_best_state, velocity_best_ctrl, velocity_state, velocity_ctrl, sym)         
+            pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_state, velocity_ctrl, sym)         
             append!(f_list, fit)
             SaveFile_SC(f_list, gbest_state, [gbest_ctrl[k, :] for k in 1:ctrl_num])
             print("\e[2K")
@@ -111,9 +109,9 @@ function info_PSO_SCopt(M, pso, max_episode, particle_num, psi0, ctrl0, c0, c1, 
             println("Final $str2 is $(fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_best_state, velocity_best_ctrl, velocity_state, velocity_ctrl = train_PSO_SCopt(M, 
+                p_fit, fit, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_state, velocity_ctrl = train_PSO_SCopt(M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, ctrl_num, ctrl_length, 
-                pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_best_state, velocity_best_ctrl, velocity_state, velocity_ctrl, sym)               
+                pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_state, velocity_ctrl, sym)               
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest_state[i] for i in 1:dim]
                     pso.control_coefficients = [gbest_ctrl[k, :] for k in 1:ctrl_num]
@@ -122,9 +120,9 @@ function info_PSO_SCopt(M, pso, max_episode, particle_num, psi0, ctrl0, c0, c1, 
                 append!(f_list, fit)
                 print("current $str2 is $(fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_best_state, velocity_best_ctrl, velocity_state, velocity_ctrl = train_PSO_SCopt(M, 
+            p_fit, fit, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_state, velocity_ctrl = train_PSO_SCopt(M, 
             particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, ctrl_num, ctrl_length, 
-            pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_best_state, velocity_best_ctrl, velocity_state, velocity_ctrl, sym)         
+            pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_state, velocity_ctrl, sym)         
             append!(f_list, fit)
             SaveFile_SC(f_list, gbest_state, [gbest_ctrl[k, :] for k in 1:ctrl_num])
             print("\e[2K")
@@ -138,9 +136,9 @@ function info_PSO_SCopt(M, pso, max_episode, particle_num, psi0, ctrl0, c0, c1, 
         f_list = [f_ini]
         if save_file == true
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_best_state, velocity_best_ctrl, velocity_state, velocity_ctrl = train_PSO_SCopt(M, 
+                p_fit, fit, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_state, velocity_ctrl = train_PSO_SCopt(M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, ctrl_num, ctrl_length, 
-                pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_best_state, velocity_best_ctrl, velocity_state, velocity_ctrl, sym)               
+                pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_state, velocity_ctrl, sym)               
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest_state[i] for i in 1:dim]
                     pso.control_coefficients = [gbest_ctrl[k, :] for k in 1:ctrl_num]
@@ -150,9 +148,9 @@ function info_PSO_SCopt(M, pso, max_episode, particle_num, psi0, ctrl0, c0, c1, 
                 SaveFile_SC(f_list, gbest_state, [gbest_ctrl[k, :] for k in 1:ctrl_num])
                 print("current value of $str3 is $(1.0/fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_best_state, velocity_best_ctrl, velocity_state, velocity_ctrl = train_PSO_SCopt(M, 
+            p_fit, fit, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_state, velocity_ctrl = train_PSO_SCopt(M, 
             particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, ctrl_num, ctrl_length, 
-            pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_best_state, velocity_best_ctrl, velocity_state, velocity_ctrl, sym)           
+            pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_state, velocity_ctrl, sym)           
             append!(f_list, 1.0/fit)
             SaveFile_SC(f_list, gbest_state, [gbest_ctrl[k, :] for k in 1:ctrl_num])
             print("\e[2K")
@@ -160,9 +158,9 @@ function info_PSO_SCopt(M, pso, max_episode, particle_num, psi0, ctrl0, c0, c1, 
             println("Final value of $str3 is $(1.0/fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_best_state, velocity_best_ctrl, velocity_state, velocity_ctrl = train_PSO_SCopt(M, 
+                p_fit, fit, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_state, velocity_ctrl = train_PSO_SCopt(M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, ctrl_num, ctrl_length, 
-                pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_best_state, velocity_best_ctrl, velocity_state, velocity_ctrl, sym)               
+                pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_state, velocity_ctrl, sym)               
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest_state[i] for i in 1:dim]
                     pso.control_coefficients = [gbest_ctrl[k, :] for k in 1:ctrl_num]
@@ -171,9 +169,9 @@ function info_PSO_SCopt(M, pso, max_episode, particle_num, psi0, ctrl0, c0, c1, 
                 append!(f_list, 1.0/fit)
                 print("current value of $str3 is $(1.0/fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_best_state, velocity_best_ctrl, velocity_state, velocity_ctrl = train_PSO_SCopt(M, 
+            p_fit, fit, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_state, velocity_ctrl = train_PSO_SCopt(M, 
             particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, ctrl_num, ctrl_length, 
-            pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_best_state, velocity_best_ctrl, velocity_state, velocity_ctrl, sym)            
+            pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_state, velocity_ctrl, sym)            
             append!(f_list, 1.0/fit)
             SaveFile_SC(f_list, gbest_state, [gbest_ctrl[k, :] for k in 1:ctrl_num])
             print("\e[2K")
@@ -183,7 +181,7 @@ function info_PSO_SCopt(M, pso, max_episode, particle_num, psi0, ctrl0, c0, c1, 
     end
 end
 
-function train_PSO_SCopt(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, ctrl_num, ctrl_length, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_best_state, velocity_best_ctrl, velocity_state, velocity_ctrl, sym)
+function train_PSO_SCopt(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, ctrl_num, ctrl_length, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_state, velocity_ctrl, sym)
     for pj in 1:particle_num
         f_tp = obj_func(Val{sym}(), particles[pj], M, particles[pj].psi, particles[pj].control_coefficients)
         f_now = 1.0/f_tp
@@ -205,14 +203,12 @@ function train_PSO_SCopt(M, particles, p_fit, fit, max_episode, c0, c1, c2, part
         if p_fit[pj] > fit
             fit = p_fit[pj]
             for dj in 1:dim
-                gbest_state[dj] = particles[pj].psi[dj]
-                velocity_best_state[dj] = velocity_state[dj, pj]
+                gbest_state[dj] = pbest_state[dj,pj]
             end
 
             for dj in 1:ctrl_num
                 for nj in 1:ctrl_length
-                    gbest_ctrl[dj, nj] = particles[pj].control_coefficients[dj][nj]
-                    velocity_best_ctrl[dj, nj] = velocity_ctrl[dj, nj, pj]
+                    gbest_ctrl[dj, nj] = pbest_ctrl[dj,nj,pj]
                 end
             end
         end
@@ -248,7 +244,7 @@ function train_PSO_SCopt(M, particles, p_fit, fit, max_episode, c0, c1, c2, part
             end
         end
     end
-    return p_fit, fit, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_best_state, velocity_best_ctrl, velocity_state, velocity_ctrl
+    return p_fit, fit, pbest_state, pbest_ctrl, gbest_state, gbest_ctrl, velocity_state, velocity_ctrl
 end
 
 
@@ -272,12 +268,10 @@ function info_PSO_SMopt(M, pso, max_episode, particle_num, psi0, measurement0, c
     velocity_state = 0.1.*rand(ComplexF64, dim, particle_num)
     pbest_state = zeros(ComplexF64, dim, particle_num)
     gbest_state = zeros(ComplexF64, dim)
-    velocity_best_state = zeros(ComplexF64, dim)
 
     velocity_meas = 0.1*rand(ComplexF64, M_num, dim, particle_num)
     pbest_meas = zeros(ComplexF64, M_num, dim, particle_num)
     gbest_meas = zeros(ComplexF64, M_num, dim)
-    velocity_best_meas = zeros(ComplexF64, M_num, dim)
 
     if typeof(max_episode) == Int
         max_episode = [max_episode, max_episode]
@@ -330,9 +324,9 @@ function info_PSO_SMopt(M, pso, max_episode, particle_num, psi0, measurement0, c
         f_list = [1.0/f_ini]
         if save_file == true
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_best_state, velocity_best_meas, velocity_state, velocity_meas = train_PSO_SMopt(M, 
+                p_fit, fit, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_state, velocity_meas = train_PSO_SMopt(M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, 
-                pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_best_state, velocity_best_meas, velocity_state, velocity_meas, sym)
+                pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_state, velocity_meas, sym)
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest_state[i] for i in 1:dim]
                     pso.C = [gbest_meas[k, :] for k in 1:M_num]
@@ -343,9 +337,9 @@ function info_PSO_SMopt(M, pso, max_episode, particle_num, psi0, measurement0, c
                 SaveFile_SM(f_list, gbest_state, M)
                 print("current $str2 is $(fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_best_state, velocity_best_meas, velocity_state, velocity_meas = train_PSO_SMopt(M, 
+            p_fit, fit, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_state, velocity_meas = train_PSO_SMopt(M, 
             particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, 
-            pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_best_state, velocity_best_meas, velocity_state, velocity_meas, sym)         
+            pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_state, velocity_meas, sym)         
             M = [gbest_meas[i]*gbest_meas[i]' for i in 1:M_num]
             append!(f_list, fit)
             SaveFile_SM(f_list, gbest_state, M)
@@ -354,9 +348,9 @@ function info_PSO_SMopt(M, pso, max_episode, particle_num, psi0, measurement0, c
             println("Final $str2 is $(fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_best_state, velocity_best_meas, velocity_state, velocity_meas = train_PSO_SMopt(M, 
+                p_fit, fit, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_state, velocity_meas = train_PSO_SMopt(M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num,
-                pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_best_state, velocity_best_meas, velocity_state, velocity_meas, sym)               
+                pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_state, velocity_meas, sym)               
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest_state[i] for i in 1:dim]
                     pso.C = [gbest_meas[k, :] for k in 1:M_num]
@@ -365,9 +359,9 @@ function info_PSO_SMopt(M, pso, max_episode, particle_num, psi0, measurement0, c
                 append!(f_list, fit)
                 print("current $str2 is $(fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_best_state, velocity_best_meas, velocity_state, velocity_meas = train_PSO_SMopt(M, 
+            p_fit, fit, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_state, velocity_meas = train_PSO_SMopt(M, 
             particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num,
-            pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_best_state, velocity_best_meas, velocity_state, velocity_meas, sym)         
+            pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_state, velocity_meas, sym)         
             M = [gbest_meas[i]*gbest_meas[i]' for i in 1:M_num]
             append!(f_list, fit)
             SaveFile_SM(f_list, gbest_state, M)
@@ -382,9 +376,9 @@ function info_PSO_SMopt(M, pso, max_episode, particle_num, psi0, measurement0, c
         f_list = [f_ini]
         if save_file == true
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_best_state, velocity_best_meas, velocity_state, velocity_meas = train_PSO_SMopt(M, 
+                p_fit, fit, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_state, velocity_meas = train_PSO_SMopt(M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num,
-                pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_best_state, velocity_best_meas, velocity_state, velocity_meas, sym)               
+                pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_state, velocity_meas, sym)               
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest_state[i] for i in 1:dim]
                     pso.C = [gbest_meas[k, :] for k in 1:M_num]
@@ -395,9 +389,9 @@ function info_PSO_SMopt(M, pso, max_episode, particle_num, psi0, measurement0, c
                 SaveFile_SM(f_list, gbest_state, M)
                 print("current value of $str3 is $(1.0/fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_best_state, velocity_best_meas, velocity_state, velocity_meas = train_PSO_SMopt(M, 
+            p_fit, fit, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_state, velocity_meas = train_PSO_SMopt(M, 
             particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num,
-            pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_best_state, velocity_best_meas, velocity_state, velocity_meas, sym)           
+            pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_state, velocity_meas, sym)           
             M = [gbest_meas[i]*gbest_meas[i]' for i in 1:M_num]
             append!(f_list, 1.0/fit)
             SaveFile_SM(f_list, gbest_state, M)
@@ -406,9 +400,9 @@ function info_PSO_SMopt(M, pso, max_episode, particle_num, psi0, measurement0, c
             println("Final value of $str3 is $(1.0/fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_best_state, velocity_best_meas, velocity_state, velocity_meas = train_PSO_SMopt(M, 
+                p_fit, fit, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_state, velocity_meas = train_PSO_SMopt(M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num,
-                pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_best_state, velocity_best_meas, velocity_state, velocity_meas, sym)               
+                pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_state, velocity_meas, sym)               
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest_state[i] for i in 1:dim]
                     pso.C = [gbest_meas[k, :] for k in 1:M_num]
@@ -417,9 +411,9 @@ function info_PSO_SMopt(M, pso, max_episode, particle_num, psi0, measurement0, c
                 append!(f_list, 1.0/fit)
                 print("current value of $str3 is $(1.0/fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_best_state, velocity_best_meas, velocity_state, velocity_meas = train_PSO_SMopt(M, 
+            p_fit, fit, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_state, velocity_meas = train_PSO_SMopt(M, 
             particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num,
-            pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_best_state, velocity_best_meas, velocity_state, velocity_meas, sym)            
+            pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_state, velocity_meas, sym)            
             M = [gbest_meas[i]*gbest_meas[i]' for i in 1:M_num]
             append!(f_list, 1.0/fit)
             SaveFile_SM(f_list, gbest_state, M)
@@ -430,7 +424,7 @@ function info_PSO_SMopt(M, pso, max_episode, particle_num, psi0, measurement0, c
     end
 end
 
-function train_PSO_SMopt(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_best_state, velocity_best_meas, velocity_state, velocity_meas, sym)
+function train_PSO_SMopt(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_state, velocity_meas, sym)
     for pj in 1:particle_num
         M = [particles[pj].C[i]*(particles[pj].C[i])' for i in 1:M_num]
         f_tp = obj_func(Val{sym}(), particles[pj], particles[pj].psi, M)
@@ -453,14 +447,12 @@ function train_PSO_SMopt(M, particles, p_fit, fit, max_episode, c0, c1, c2, part
         if p_fit[pj] > fit
             fit = p_fit[pj]
             for dj in 1:dim
-                gbest_state[dj] = particles[pj].psi[dj]
-                velocity_best_state[dj] = velocity_state[dj, pj]
+                gbest_state[dj] = pbest_state[dj,pj]
             end
 
             for dj in 1:M_num
                 for nj in 1:dim
-                    gbest_meas[dj, nj] = particles[pj].C[dj][nj]
-                    velocity_best_meas[dj, nj] = velocity_meas[dj, nj, pj]
+                    gbest_meas[dj, nj] = pbest_meas[dj,nj,pj]
                 end
             end
         end
@@ -497,7 +489,7 @@ function train_PSO_SMopt(M, particles, p_fit, fit, max_episode, c0, c1, c2, part
             end
         end
     end
-    return p_fit, fit, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_best_state, velocity_best_meas, velocity_state, velocity_meas
+    return p_fit, fit, pbest_state, pbest_meas, gbest_state, gbest_meas, velocity_state, velocity_meas
 end
 
 
@@ -523,7 +515,6 @@ function info_PSO_CMopt(rho0, M, pso, max_episode, particle_num, psi0, ctrl0, me
     velocity_meas = 0.1*rand(ComplexF64, M_num, dim, particle_num)
     pbest_meas = zeros(ComplexF64, M_num, dim, particle_num)
     gbest_meas = zeros(ComplexF64, M_num, dim)
-    velocity_best_meas = zeros(ComplexF64, M_num, dim)
 
     if pso.ctrl_bound[1] == -Inf || pso.ctrl_bound[2] == Inf
         velocity_ctrl = 0.1*(2.0*rand(ctrl_num, ctrl_length, particle_num)-ones(ctrl_num, ctrl_length, particle_num))
@@ -534,7 +525,6 @@ function info_PSO_CMopt(rho0, M, pso, max_episode, particle_num, psi0, ctrl0, me
     end
     pbest_ctrl = zeros(ctrl_num, ctrl_length, particle_num)
     gbest_ctrl = zeros(ctrl_num, ctrl_length)
-    velocity_best_ctrl = zeros(ctrl_num,ctrl_length)
 
     if typeof(max_episode) == Int
         max_episode = [max_episode, max_episode]
@@ -595,9 +585,9 @@ function info_PSO_CMopt(rho0, M, pso, max_episode, particle_num, psi0, ctrl0, me
         f_list = [1.0/f_ini]
         if save_file == true
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_best_ctrl, velocity_best_meas, velocity_ctrl, velocity_meas = train_PSO_CMopt(rho0, M, 
+                p_fit, fit, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_ctrl, velocity_meas = train_PSO_CMopt(rho0, M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length,
-                pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_best_ctrl, velocity_best_meas, velocity_ctrl, velocity_meas, sym)
+                pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_ctrl, velocity_meas, sym)
                 if ei%max_episode[2] == 0
                     pso.control_coefficients = [gbest_ctrl[k, :] for k in 1:ctrl_num]
                     pso.C = [gbest_meas[k, :] for k in 1:M_num]
@@ -608,9 +598,9 @@ function info_PSO_CMopt(rho0, M, pso, max_episode, particle_num, psi0, ctrl0, me
                 SaveFile_CM(f_list, [gbest_ctrl[k, :] for k in 1:ctrl_num], M)
                 print("current $str2 is $(fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_best_ctrl, velocity_best_meas, velocity_ctrl, velocity_meas = train_PSO_CMopt(rho0, M, 
+            p_fit, fit, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_ctrl, velocity_meas = train_PSO_CMopt(rho0, M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length,
-                pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_best_ctrl, velocity_best_meas, velocity_ctrl, velocity_meas, sym)
+                pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_ctrl, velocity_meas, sym)
             M = [gbest_meas[i]*gbest_meas[i]' for i in 1:M_num]
             append!(f_list, fit)
             SaveFile_CM(f_list, [gbest_ctrl[k, :] for k in 1:ctrl_num], M)
@@ -619,9 +609,9 @@ function info_PSO_CMopt(rho0, M, pso, max_episode, particle_num, psi0, ctrl0, me
             println("Final $str2 is $(fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_best_ctrl, velocity_best_meas, velocity_ctrl, velocity_meas = train_PSO_CMopt(rho0, M, 
+                p_fit, fit, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_ctrl, velocity_meas = train_PSO_CMopt(rho0, M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length,
-                pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_best_ctrl, velocity_best_meas, velocity_ctrl, velocity_meas, sym)
+                pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_ctrl, velocity_meas, sym)
                 if ei%max_episode[2] == 0
                     pso.control_coefficients = [gbest_ctrl[k, :] for k in 1:ctrl_num]
                     pso.C = [gbest_meas[k, :] for k in 1:M_num]
@@ -630,9 +620,9 @@ function info_PSO_CMopt(rho0, M, pso, max_episode, particle_num, psi0, ctrl0, me
                 append!(f_list, fit)
                 print("current $str2 is $(fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_best_ctrl, velocity_best_meas, velocity_ctrl, velocity_meas = train_PSO_CMopt(rho0, M, 
+            p_fit, fit, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_ctrl, velocity_meas = train_PSO_CMopt(rho0, M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length,
-                pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_best_ctrl, velocity_best_meas, velocity_ctrl, velocity_meas, sym)
+                pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_ctrl, velocity_meas, sym)
             M = [gbest_meas[i]*gbest_meas[i]' for i in 1:M_num]
             append!(f_list, fit)
             SaveFile_CM(f_list, [gbest_ctrl[k, :] for k in 1:ctrl_num], M)
@@ -647,9 +637,9 @@ function info_PSO_CMopt(rho0, M, pso, max_episode, particle_num, psi0, ctrl0, me
         f_list = [f_ini]
         if save_file == true
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_best_ctrl, velocity_best_meas, velocity_ctrl, velocity_meas = train_PSO_CMopt(rho0, M, 
+                p_fit, fit, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_ctrl, velocity_meas = train_PSO_CMopt(rho0, M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length,
-                pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_best_ctrl, velocity_best_meas, velocity_ctrl, velocity_meas, sym)
+                pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_ctrl, velocity_meas, sym)
                 if ei%max_episode[2] == 0
                     pso.control_coefficients = [gbest_ctrl[k, :] for k in 1:ctrl_num]
                     pso.C = [gbest_meas[k, :] for k in 1:M_num]
@@ -660,9 +650,9 @@ function info_PSO_CMopt(rho0, M, pso, max_episode, particle_num, psi0, ctrl0, me
                 SaveFile_CM(f_list, [gbest_ctrl[k, :] for k in 1:ctrl_num], M)
                 print("current value of $str3 is $(1.0/fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_best_ctrl, velocity_best_meas, velocity_ctrl, velocity_meas = train_PSO_CMopt(rho0, M, 
+            p_fit, fit, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_ctrl, velocity_meas = train_PSO_CMopt(rho0, M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length,
-                pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_best_ctrl, velocity_best_meas, velocity_ctrl, velocity_meas, sym)
+                pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_ctrl, velocity_meas, sym)
             M = [gbest_meas[i]*gbest_meas[i]' for i in 1:M_num]
             append!(f_list, 1.0/fit)
             SaveFile_CM(f_list, [gbest_ctrl[k, :] for k in 1:ctrl_num], M)
@@ -671,9 +661,9 @@ function info_PSO_CMopt(rho0, M, pso, max_episode, particle_num, psi0, ctrl0, me
             println("Final value of $str3 is $(1.0/fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_best_ctrl, velocity_best_meas, velocity_ctrl, velocity_meas = train_PSO_CMopt(rho0, M, 
+                p_fit, fit, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_ctrl, velocity_meas = train_PSO_CMopt(rho0, M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length,
-                pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_best_ctrl, velocity_best_meas, velocity_ctrl, velocity_meas, sym)
+                pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_ctrl, velocity_meas, sym)
                 if ei%max_episode[2] == 0
                     pso.control_coefficients = [gbest_ctrl[k, :] for k in 1:ctrl_num]
                     pso.C = [gbest_meas[k, :] for k in 1:M_num]
@@ -682,9 +672,9 @@ function info_PSO_CMopt(rho0, M, pso, max_episode, particle_num, psi0, ctrl0, me
                 append!(f_list, 1.0/fit)
                 print("current value of $str3 is $(1.0/fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_best_ctrl, velocity_best_meas, velocity_ctrl, velocity_meas = train_PSO_CMopt(rho0, M, 
+            p_fit, fit, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_ctrl, velocity_meas = train_PSO_CMopt(rho0, M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length,
-                pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_best_ctrl, velocity_best_meas, velocity_ctrl, velocity_meas, sym)
+                pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_ctrl, velocity_meas, sym)
             M = [gbest_meas[i]*gbest_meas[i]' for i in 1:M_num]
             append!(f_list, 1.0/fit)
             SaveFile_CM(f_list, [gbest_ctrl[k, :] for k in 1:ctrl_num], M)
@@ -695,7 +685,7 @@ function info_PSO_CMopt(rho0, M, pso, max_episode, particle_num, psi0, ctrl0, me
     end
 end
 
-function train_PSO_CMopt(rho0, M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_best_ctrl, velocity_best_meas, velocity_ctrl, velocity_meas, sym)
+function train_PSO_CMopt(rho0, M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_ctrl, velocity_meas, sym)
     for pj in 1:particle_num
         M = [particles[pj].C[i]*(particles[pj].C[i])' for i in 1:M_num]
         f_tp = obj_func(Val{sym}(), particles[pj], M, rho0, particles[pj].control_coefficients)
@@ -720,14 +710,12 @@ function train_PSO_CMopt(rho0, M, particles, p_fit, fit, max_episode, c0, c1, c2
             fit = p_fit[pj]
             for dj in 1:ctrl_num
                 for nj in 1:ctrl_length
-                    gbest_ctrl[dj, nj] = particles[pj].control_coefficients[dj][nj]
-                    velocity_best_ctrl[dj, nj] = velocity_ctrl[dj, nj, pj]
+                    gbest_ctrl[dj, nj] = pbest_ctrl[dj,nj,pj]
                 end
             end
             for dj in 1:M_num
                 for nj in 1:dim
-                    gbest_meas[dj, nj] = particles[pj].C[dj][nj]
-                    velocity_best_meas[dj, nj] = velocity_meas[dj, nj, pj]
+                    gbest_meas[dj, nj] = pbest_meas[dj,nj,pj]
                 end
             end
         end
@@ -769,7 +757,7 @@ function train_PSO_CMopt(rho0, M, particles, p_fit, fit, max_episode, c0, c1, c2
             end
         end
     end
-    return p_fit, fit, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_best_ctrl, velocity_best_meas, velocity_ctrl, velocity_meas
+    return p_fit, fit, pbest_ctrl, pbest_meas, gbest_ctrl, gbest_meas, velocity_ctrl, velocity_meas
 end
 
 
@@ -795,12 +783,10 @@ function info_PSO_SCMopt(M, pso, max_episode, particle_num, psi0, ctrl0, measure
     velocity_state = 0.1.*rand(ComplexF64, dim, particle_num)
     pbest_state = zeros(ComplexF64, dim, particle_num)
     gbest_state = zeros(ComplexF64, dim)
-    velocity_best_state = zeros(ComplexF64, dim)
 
     velocity_meas = 0.1*rand(ComplexF64, M_num, dim, particle_num)
     pbest_meas = zeros(ComplexF64, M_num, dim, particle_num)
     gbest_meas = zeros(ComplexF64, M_num, dim)
-    velocity_best_meas = zeros(ComplexF64, M_num, dim)
 
     if pso.ctrl_bound[1] == -Inf || pso.ctrl_bound[2] == Inf
         velocity_ctrl = 0.1*(2.0*rand(ctrl_num, ctrl_length, particle_num)-ones(ctrl_num, ctrl_length, particle_num))
@@ -811,7 +797,6 @@ function info_PSO_SCMopt(M, pso, max_episode, particle_num, psi0, ctrl0, measure
     end
     pbest_ctrl = zeros(ctrl_num, ctrl_length, particle_num)
     gbest_ctrl = zeros(ctrl_num, ctrl_length)
-    velocity_best_ctrl = zeros(ctrl_num,ctrl_length)
 
     if typeof(max_episode) == Int
         max_episode = [max_episode, max_episode]
@@ -882,9 +867,9 @@ function info_PSO_SCMopt(M, pso, max_episode, particle_num, psi0, ctrl0, measure
         f_list = [1.0/f_ini]
         if save_file == true
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_best_state, velocity_best_ctrl, velocity_best_meas, velocity_state, velocity_ctrl, velocity_meas = train_PSO_SCMopt(M, 
+                p_fit, fit, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_state, velocity_ctrl, velocity_meas = train_PSO_SCMopt(M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length,
-                pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_best_state, velocity_best_ctrl, velocity_best_meas, velocity_state, velocity_ctrl, velocity_meas, sym)
+                pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_state, velocity_ctrl, velocity_meas, sym)
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest_state[i] for i in 1:dim]
                     pso.control_coefficients = [gbest_ctrl[k, :] for k in 1:ctrl_num]
@@ -896,9 +881,9 @@ function info_PSO_SCMopt(M, pso, max_episode, particle_num, psi0, ctrl0, measure
                 SaveFile_SCM(f_list, gbest_state, [gbest_ctrl[k, :] for k in 1:ctrl_num], M)
                 print("current $str2 is $(fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_best_state, velocity_best_ctrl, velocity_best_meas, velocity_state, velocity_ctrl, velocity_meas = train_PSO_SCMopt(M, 
+            p_fit, fit, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_state, velocity_ctrl, velocity_meas = train_PSO_SCMopt(M, 
             particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length,
-            pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_best_state, velocity_best_ctrl, velocity_best_meas, velocity_state, velocity_ctrl, velocity_meas, sym)
+            pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_state, velocity_ctrl, velocity_meas, sym)
             M = [gbest_meas[i]*gbest_meas[i]' for i in 1:M_num]
             append!(f_list, fit)
             SaveFile_SCM(f_list, gbest_state, [gbest_ctrl[k, :] for k in 1:ctrl_num], M)
@@ -907,9 +892,9 @@ function info_PSO_SCMopt(M, pso, max_episode, particle_num, psi0, ctrl0, measure
             println("Final $str2 is $(fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_best_state, velocity_best_ctrl, velocity_best_meas, velocity_state, velocity_ctrl, velocity_meas = train_PSO_SCMopt(M, 
+                p_fit, fit, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_state, velocity_ctrl, velocity_meas = train_PSO_SCMopt(M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length,
-                pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_best_state, velocity_best_ctrl, velocity_best_meas, velocity_state, velocity_ctrl, velocity_meas, sym)
+                pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_state, velocity_ctrl, velocity_meas, sym)
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest_state[i] for i in 1:dim]
                     pso.control_coefficients = [gbest_ctrl[k, :] for k in 1:ctrl_num]
@@ -919,9 +904,9 @@ function info_PSO_SCMopt(M, pso, max_episode, particle_num, psi0, ctrl0, measure
                 append!(f_list, fit)
                 print("current $str2 is $(fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_best_state, velocity_best_ctrl, velocity_best_meas, velocity_state, velocity_ctrl, velocity_meas = train_PSO_SCMopt(M, 
+            p_fit, fit, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_state, velocity_ctrl, velocity_meas = train_PSO_SCMopt(M, 
             particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length,
-            pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_best_state, velocity_best_ctrl, velocity_best_meas, velocity_state, velocity_ctrl, velocity_meas, sym)
+            pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_state, velocity_ctrl, velocity_meas, sym)
             M = [gbest_meas[i]*gbest_meas[i]' for i in 1:M_num]
             append!(f_list, fit)
             SaveFile_SCM(f_list, gbest_state, [gbest_ctrl[k, :] for k in 1:ctrl_num], M)
@@ -936,9 +921,9 @@ function info_PSO_SCMopt(M, pso, max_episode, particle_num, psi0, ctrl0, measure
         f_list = [f_ini]
         if save_file == true
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_best_state, velocity_best_ctrl, velocity_best_meas, velocity_state, velocity_ctrl, velocity_meas = train_PSO_SCMopt(M, 
+                p_fit, fit, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_state, velocity_ctrl, velocity_meas = train_PSO_SCMopt(M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length,
-                pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_best_state, velocity_best_ctrl, velocity_best_meas, velocity_state, velocity_ctrl, velocity_meas, sym)
+                pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_state, velocity_ctrl, velocity_meas, sym)
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest_state[i] for i in 1:dim]
                     pso.control_coefficients = [gbest_ctrl[k, :] for k in 1:ctrl_num]
@@ -950,9 +935,9 @@ function info_PSO_SCMopt(M, pso, max_episode, particle_num, psi0, ctrl0, measure
                 SaveFile_SCM(f_list, gbest_state, [gbest_ctrl[k, :] for k in 1:ctrl_num], M)
                 print("current value of $str3 is $(1.0/fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_best_state, velocity_best_ctrl, velocity_best_meas, velocity_state, velocity_ctrl, velocity_meas = train_PSO_SCMopt(M, 
+            p_fit, fit, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_state, velocity_ctrl, velocity_meas = train_PSO_SCMopt(M, 
             particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length,
-            pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_best_state, velocity_best_ctrl, velocity_best_meas, velocity_state, velocity_ctrl, velocity_meas, sym)
+            pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_state, velocity_ctrl, velocity_meas, sym)
             M = [gbest_meas[i]*gbest_meas[i]' for i in 1:M_num]
             append!(f_list, 1.0/fit)
             SaveFile_SCM(f_list, gbest_state, [gbest_ctrl[k, :] for k in 1:ctrl_num], M)
@@ -961,9 +946,9 @@ function info_PSO_SCMopt(M, pso, max_episode, particle_num, psi0, ctrl0, measure
             println("Final value of $str3 is $(1.0/fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_best_state, velocity_best_ctrl, velocity_best_meas, velocity_state, velocity_ctrl, velocity_meas = train_PSO_SCMopt(M, 
+                p_fit, fit, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_state, velocity_ctrl, velocity_meas = train_PSO_SCMopt(M, 
                 particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length,
-                pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_best_state, velocity_best_ctrl, velocity_best_meas, velocity_state, velocity_ctrl, velocity_meas, sym)
+                pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_state, velocity_ctrl, velocity_meas, sym)
                 if ei%max_episode[2] == 0
                     pso.psi = [gbest_state[i] for i in 1:dim]
                     pso.control_coefficients = [gbest_ctrl[k, :] for k in 1:ctrl_num]
@@ -973,9 +958,9 @@ function info_PSO_SCMopt(M, pso, max_episode, particle_num, psi0, ctrl0, measure
                 append!(f_list, 1.0/fit)
                 print("current value of $str3 is $(1.0/fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_best_state, velocity_best_ctrl, velocity_best_meas, velocity_state, velocity_ctrl, velocity_meas = train_PSO_SCMopt(M, 
+            p_fit, fit, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_state, velocity_ctrl, velocity_meas = train_PSO_SCMopt(M, 
             particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length,
-            pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_best_state, velocity_best_ctrl, velocity_best_meas, velocity_state, velocity_ctrl, velocity_meas, sym)
+            pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_state, velocity_ctrl, velocity_meas, sym)
             M = [gbest_meas[i]*gbest_meas[i]' for i in 1:M_num]
             append!(f_list, 1.0/fit)
             SaveFile_SCM(f_list, gbest_state, [gbest_ctrl[k, :] for k in 1:ctrl_num], M)
@@ -986,7 +971,7 @@ function info_PSO_SCMopt(M, pso, max_episode, particle_num, psi0, ctrl0, measure
     end
 end
 
-function train_PSO_SCMopt(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_best_state, velocity_best_ctrl, velocity_best_meas, velocity_state, velocity_ctrl, velocity_meas, sym)
+function train_PSO_SCMopt(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, dim, M_num, ctrl_num, ctrl_length, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_state, velocity_ctrl, velocity_meas, sym)
     for pj in 1:particle_num
         M = [particles[pj].C[i]*(particles[pj].C[i])' for i in 1:M_num]
         f_tp = obj_func(Val{sym}(), particles[pj], M, particles[pj].psi, particles[pj].control_coefficients)
@@ -1013,19 +998,16 @@ function train_PSO_SCMopt(M, particles, p_fit, fit, max_episode, c0, c1, c2, par
         if p_fit[pj] > fit
             fit = p_fit[pj]
             for dj in 1:dim
-                gbest_state[dj] = particles[pj].psi[dj]
-                velocity_best_state[dj] = velocity_state[dj, pj]
+                gbest_state[dj] = pbest_state[dj,pj]
             end
             for dj in 1:ctrl_num
                 for nj in 1:ctrl_length
-                    gbest_ctrl[dj, nj] = particles[pj].control_coefficients[dj][nj]
-                    velocity_best_ctrl[dj, nj] = velocity_ctrl[dj, nj, pj]
+                    gbest_ctrl[dj, nj] = pbest_ctrl[dj,nj,pj]
                 end
             end
             for dj in 1:M_num
                 for nj in 1:dim
-                    gbest_meas[dj, nj] = particles[pj].C[dj][nj]
-                    velocity_best_meas[dj, nj] = velocity_meas[dj, nj, pj]
+                    gbest_meas[dj, nj] = pbest_meas[dj,nj,pj]
                 end
             end
         end
@@ -1079,5 +1061,5 @@ function train_PSO_SCMopt(M, particles, p_fit, fit, max_episode, c0, c1, c2, par
             end
         end
     end
-    return p_fit, fit, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_best_state, velocity_best_ctrl, velocity_best_meas, velocity_state, velocity_ctrl, velocity_meas
+    return p_fit, fit, pbest_state, pbest_ctrl, pbest_meas, gbest_state, gbest_ctrl, gbest_meas, velocity_state, velocity_ctrl, velocity_meas
 end

@@ -6,7 +6,7 @@ import quanestimation.MeasurementOpt as Measure
 from quanestimation.Common.common import gramschmidt, sic_povm
 
 class MeasurementSystem:
-    def __init__(self, mtype, minput, tspan, rho0, H0, dH, Hc, ctrl, decay, W, measurement0, seed, load, accuracy):
+    def __init__(self, mtype, minput, tspan, rho0, H0, dH, Hc, ctrl, decay, W, measurement0, seed, load, eps):
         
         """
         ----------
@@ -52,8 +52,8 @@ class MeasurementSystem:
             --description: weight matrix.
             --type: matrix
 
-        accuracy:
-            --description: calculation accuracy.
+        eps:
+            --description: calculation eps.
             --type: float
 
         notes: the Weyl-Heisenberg covariant SIC-POVM fiducial state of dimension $d$ 
@@ -123,7 +123,7 @@ class MeasurementSystem:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
 
-        self.accuracy = accuracy
+        self.eps = eps
         self.seed = seed
 
         if self.mtype == "projection":
@@ -154,7 +154,7 @@ class MeasurementSystem:
                     if type(minput[1]) != list:
                         raise TypeError("The given POVMs should be a list!") 
                     else:
-                        accu = len(str(int(1/self.accuracy)))-1
+                        accu = len(str(int(1/self.eps)))-1
                         for i in range(len(minput[1])):
                             val, vec = np.linalg.eig(minput[1])
                             if np.all(val.round(accu) >= 0):
@@ -177,7 +177,7 @@ class MeasurementSystem:
                 else:
                     if minput[1] == []:
                         raise TypeError("The initial POVM should not be empty!") 
-                    accu = len(str(int(1/self.accuracy)))-1
+                    accu = len(str(int(1/self.eps)))-1
                     for i in range(len(minput[1])):
                         val, vec = np.linalg.eig(minput[1])
                         if np.all(val.round(accu) >= 0):

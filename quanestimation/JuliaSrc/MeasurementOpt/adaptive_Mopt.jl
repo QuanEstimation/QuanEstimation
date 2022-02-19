@@ -4,13 +4,13 @@ mutable struct adaptive{T<:Complex, M <:Real}
     ρ0::Matrix{T}
     Meas::Vector{Matrix{T}}
     W::Matrix{M}
-    accuracy::M
+    eps::M
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
     adaptive(phase::M, beam_splitter::Matrix{T}, phaseShift_Mat::Matrix{T}, ρ0::Matrix{T}, 
-    Meas::Vector{Matrix{T}}, W::Matrix{M}, accuracy::M, 
+    Meas::Vector{Matrix{T}}, W::Matrix{M}, eps::M, 
     ρ=Vector{Matrix{T}}(undef, 1), ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T<:Complex, M<:Real}=
-    new{T,M}(phase, beam_splitter, phaseShift_Mat, ρ0, Meas, W, accuracy, ρ, ∂ρ_∂x) 
+    new{T,M}(phase, beam_splitter, phaseShift_Mat, ρ0, Meas, W, eps, ρ, ∂ρ_∂x) 
 end
 
 function update_distribution(rho, drho, p_in, dp_in, M)

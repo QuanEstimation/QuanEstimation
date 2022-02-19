@@ -9,13 +9,12 @@ end
 function info_PSO_projection(pso, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file, sym, str1, str2) where {T<:Complex}
     println("measurement optimization")
     Random.seed!(seed)
-    dim = size(pso.ρ0)[1]
+    dim = size(pso.ρ0)[1] 
     M_num = length(pso.C)
     particles = repeat(pso, particle_num)
     velocity = 0.1*rand(ComplexF64, M_num, dim, particle_num)
     pbest = zeros(ComplexF64, M_num, dim, particle_num)
     gbest = zeros(ComplexF64, M_num, dim)
-    velocity_best = zeros(ComplexF64, M_num, dim)
     p_fit = zeros(particle_num)
     fit = 0.0
 
@@ -64,8 +63,8 @@ function info_PSO_projection(pso, max_episode, particle_num, ini_particle, c0, c
         if save_file == true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, pbest, gbest, velocity_best, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
-                                                                               M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+                p_fit, fit, pbest, gbest, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                                                                               M_num, dim, pbest, gbest, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.C = [gbest[k, :] for k in 1:M_num]
                     particles = repeat(pso, particle_num)
@@ -75,8 +74,8 @@ function info_PSO_projection(pso, max_episode, particle_num, ini_particle, c0, c
                 SaveFile_meas(f_list, M)
                 print("current $str1 is $fit ($ei episodes)    \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
-                                                                           M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            p_fit, fit, pbest, gbest, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                                                                           M_num, dim, pbest, gbest, velocity, sym)
             M = [gbest[i]*gbest[i]' for i in 1:M_num]
             append!(f_list, fit)
             SaveFile_meas(f_list, M)
@@ -85,8 +84,8 @@ function info_PSO_projection(pso, max_episode, particle_num, ini_particle, c0, c
             println("Final $str1 is $fit")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest, gbest, velocity_best, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
-                                                                               M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+                p_fit, fit, pbest, gbest, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                                                                               M_num, dim, pbest, gbest, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.C = [gbest[k, :] for k in 1:M_num]
                     particles = repeat(pso, particle_num)
@@ -95,8 +94,8 @@ function info_PSO_projection(pso, max_episode, particle_num, ini_particle, c0, c
                 print("current $str1 is $fit ($ei episodes)    \r")
                 
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
-                                                                           M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            p_fit, fit, pbest, gbest, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                                                                           M_num, dim, pbest, gbest, velocity, sym)
             M = [gbest[i]*gbest[i]' for i in 1:M_num]
             append!(f_list, fit)
             SaveFile_meas(f_list, M)
@@ -114,8 +113,8 @@ function info_PSO_projection(pso, max_episode, particle_num, ini_particle, c0, c
         if save_file == true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, pbest, gbest, velocity_best, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
-                                                                               M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+                p_fit, fit, pbest, gbest, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                                                                               M_num, dim, pbest, gbest, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.C = [gbest[k, :] for k in 1:M_num]
                     particles = repeat(pso, particle_num)
@@ -125,8 +124,8 @@ function info_PSO_projection(pso, max_episode, particle_num, ini_particle, c0, c
                 SaveFile_meas(f_list, M)
                 print("current value of $str2 is $(1.0/fit) ($ei episodes)    \r")
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
-                                                                           M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            p_fit, fit, pbest, gbest, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                                                                           M_num, dim, pbest, gbest, velocity, sym)
             M = [gbest[i]*gbest[i]' for i in 1:M_num]
             append!(f_list, 1.0/fit)
             SaveFile_meas(f_list, M)
@@ -135,8 +134,8 @@ function info_PSO_projection(pso, max_episode, particle_num, ini_particle, c0, c
             println("Final value of $str2 is $(1.0/fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, pbest, gbest, velocity_best, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
-                                                                           M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+                p_fit, fit, pbest, gbest, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                                                                           M_num, dim, pbest, gbest, velocity, sym)
                 if ei%max_episode[2] == 0
                     pso.C = [gbest[k, :] for k in 1:M_num]
                     particles = repeat(pso, particle_num)
@@ -145,8 +144,8 @@ function info_PSO_projection(pso, max_episode, particle_num, ini_particle, c0, c
                 print("current value of $str2 is $(1.0/fit) ($ei episodes)    \r")
                 
             end
-            p_fit, fit, pbest, gbest, velocity_best, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
-                                                                           M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            p_fit, fit, pbest, gbest, velocity = train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, 
+                                                                           M_num, dim, pbest, gbest, velocity, sym)
             M = [gbest[i]*gbest[i]' for i in 1:M_num]
             append!(f_list, 1.0/fit)
             SaveFile_meas(f_list, M)
@@ -157,7 +156,7 @@ function info_PSO_projection(pso, max_episode, particle_num, ini_particle, c0, c
     end
 end
 
-function train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+function train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity, sym)
     for pj in 1:particle_num
         M = [particles[pj].C[i]*(particles[pj].C[i])' for i in 1:M_num]
         f_now = obj_func(Val{sym}(), particles[pj], M)
@@ -178,8 +177,7 @@ function train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, partic
             fit = p_fit[pj]
             for dj in 1:M_num
                 for nj in 1:dim
-                    gbest[dj, nj] = particles[pj].C[dj][nj]
-                    velocity_best[dj, nj] = velocity[dj, nj, pj]
+                    gbest[dj, nj] = pbest[dj,nj,pj]
                 end
             end
         end
@@ -204,7 +202,7 @@ function train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, partic
             end
         end
     end
-    return p_fit, fit, pbest, gbest, velocity_best, velocity
+    return p_fit, fit, pbest, gbest, velocity
 end
 
 ################## update the coefficients according to the given basis ############
@@ -226,7 +224,6 @@ function info_PSO_LinearComb(pso::LinearComb_Mopt{T}, max_episode, particle_num,
     velocity = 0.1*rand(Float64, M_num, basis_num, particle_num)
     pbest = zeros(Float64, M_num, basis_num, particle_num)
     gbest = zeros(Float64, M_num, basis_num)
-    velocity_best = zeros(Float64, M_num, basis_num)
     p_fit = zeros(particle_num)
     fit = 0.0
 
@@ -266,8 +263,8 @@ function info_PSO_LinearComb(pso::LinearComb_Mopt{T}, max_episode, particle_num,
         if save_file == true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, B_all, pbest, gbest, velocity_best, velocity = train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, max_episode, c0, c1, c2, particle_num, 
-                                                                               M_num, basis_num, pbest, gbest, velocity_best, velocity, sym)
+                p_fit, fit, B_all, pbest, gbest, velocity = train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, max_episode, c0, c1, c2, particle_num, 
+                                                                               M_num, basis_num, pbest, gbest, velocity, sym)
                 if ei%max_episode[2] == 0
                     particles = repeat(pso, particle_num)
                     for i in 1:particle_num
@@ -279,8 +276,8 @@ function info_PSO_LinearComb(pso::LinearComb_Mopt{T}, max_episode, particle_num,
                 SaveFile_meas(f_list, M)
                 print("current $str1 is $fit ($ei episodes)    \r")
             end
-            p_fit, fit, B_all, pbest, gbest, velocity_best, velocity = train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, 
-                                             max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity_best, velocity, sym)
+            p_fit, fit, B_all, pbest, gbest, velocity = train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, 
+                                    max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity, sym)
             M = [sum([gbest[i,j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
             append!(f_list, fit)
             SaveFile_meas(f_list, M)
@@ -289,8 +286,8 @@ function info_PSO_LinearComb(pso::LinearComb_Mopt{T}, max_episode, particle_num,
             println("Final $str1 is $fit")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, B_all, pbest, gbest, velocity_best, velocity = train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, 
-                                                 max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity_best, velocity, sym)
+                p_fit, fit, B_all, pbest, gbest, velocity = train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, 
+                                    max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity, sym)
                 if ei%max_episode[2] == 0
                     particles = repeat(pso, particle_num)
                     for i in 1:particle_num
@@ -301,8 +298,8 @@ function info_PSO_LinearComb(pso::LinearComb_Mopt{T}, max_episode, particle_num,
                 print("current $str1 is $fit ($ei episodes)    \r")
                 
             end
-            p_fit, fit, B_all, pbest, gbest, velocity_best, velocity = train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, 
-                                              max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity_best, velocity, sym)
+            p_fit, fit, B_all, pbest, gbest, velocity = train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, 
+                                max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity, sym)
             M = [sum([gbest[i,j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
             append!(f_list, fit)
             SaveFile_meas(f_list, M)
@@ -321,8 +318,8 @@ function info_PSO_LinearComb(pso::LinearComb_Mopt{T}, max_episode, particle_num,
         if save_file == true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, B_all, pbest, gbest, velocity_best, velocity = train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, 
-                                                 max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity_best, velocity, sym)
+                p_fit, fit, B_all, pbest, gbest, velocity = train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, 
+                                max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity, sym)
                 if ei%max_episode[2] == 0
                     particles = repeat(pso, particle_num)
                     for i in 1:particle_num
@@ -334,8 +331,8 @@ function info_PSO_LinearComb(pso::LinearComb_Mopt{T}, max_episode, particle_num,
                 SaveFile_meas(f_list, M)
                 print("current value of $str2 is $(1.0/fit) ($ei episodes)    \r")
             end
-            p_fit, fit, B_all, pbest, gbest, velocity_best, velocity = train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, 
-                                              max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity_best, velocity, sym)
+            p_fit, fit, B_all, pbest, gbest, velocity = train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, 
+                                max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity, sym)
             M = [sum([gbest[i,j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
             append!(f_list, 1.0/fit)
             SaveFile_meas(f_list, M)
@@ -344,8 +341,8 @@ function info_PSO_LinearComb(pso::LinearComb_Mopt{T}, max_episode, particle_num,
             println("Final value of $str2 is $(1.0/fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, B_all, pbest, gbest, velocity_best, velocity = train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, 
-                                                 max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity_best, velocity, sym)
+                p_fit, fit, B_all, pbest, gbest, velocity = train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, 
+                                    max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity, sym)
                 if ei%max_episode[2] == 0
                     particles = repeat(pso, particle_num)
                     for i in 1:particle_num
@@ -356,8 +353,8 @@ function info_PSO_LinearComb(pso::LinearComb_Mopt{T}, max_episode, particle_num,
                 print("current value of $str2 is $(1.0/fit) ($ei episodes)    \r")
                 
             end
-            p_fit, fit, B_all, pbest, gbest, velocity_best, velocity = train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, 
-                                             max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity_best, velocity, sym)
+            p_fit, fit, B_all, pbest, gbest, velocity = train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, 
+                                max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity, sym)
             M = [sum([gbest[i,j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
             append!(f_list, 1.0/fit)
             SaveFile_meas(f_list, M)
@@ -368,7 +365,7 @@ function info_PSO_LinearComb(pso::LinearComb_Mopt{T}, max_episode, particle_num,
     end
 end
 
-function train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity_best, velocity, sym)
+function train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity, sym)
     for pj in 1:particle_num
         M = [sum([B_all[pj][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
         f_now = 1.0/obj_func(Val{sym}(), particles[pj], M)
@@ -388,8 +385,7 @@ function train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, max_episode,
             fit = p_fit[pj]
             for dj in 1:M_num
                 for nj in 1:basis_num
-                    gbest[dj, nj] = B_all[pj][dj][nj]
-                    velocity_best[dj, nj] = velocity[dj, nj, pj]
+                    gbest[dj, nj] = pbest[dj,nj,pj]
                 end
             end
         end
@@ -415,7 +411,7 @@ function train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, max_episode,
             end
         end
     end
-    return p_fit, fit, B_all, pbest, gbest, velocity_best, velocity
+    return p_fit, fit, B_all, pbest, gbest, velocity
 end
 
 
@@ -441,7 +437,6 @@ function info_PSO_RotateBasis(pso::RotateBasis_Mopt{T}, max_episode, particle_nu
     velocity = 0.1*rand(Float64, dim^2, particle_num)
     pbest = zeros(Float64, dim^2, particle_num)
     gbest = zeros(Float64, dim^2)
-    velocity_best = zeros(Float64, dim^2)
     s_all = [zeros(dim*dim) for i in 1:particle_num]
     p_fit = zeros(particle_num)
     fit = 0.0
@@ -479,8 +474,8 @@ function info_PSO_RotateBasis(pso::RotateBasis_Mopt{T}, max_episode, particle_nu
         if save_file == true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, s_all, pbest, gbest, velocity_best, velocity = train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, 
-                                                    max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+                p_fit, fit, s_all, pbest, gbest, velocity = train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, 
+                                            max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity, sym)
                 if ei%max_episode[2] == 0
                     particles = repeat(pso, particle_num)
                     for pj in 1:particle_num
@@ -493,8 +488,8 @@ function info_PSO_RotateBasis(pso::RotateBasis_Mopt{T}, max_episode, particle_nu
                 SaveFile_meas(f_list, M)
                 print("current $str1 is $fit ($ei episodes)    \r")
             end
-            p_fit, fit, s_all, pbest, gbest, velocity_best, velocity = train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, 
-                                             max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            p_fit, fit, s_all, pbest, gbest, velocity = train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, 
+                                            max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity, sym)
             U = rotation_matrix(gbest, Lambda)
             M = [U*POVM_basis[i]*U' for i in 1:M_num]
             append!(f_list, fit)
@@ -504,8 +499,8 @@ function info_PSO_RotateBasis(pso::RotateBasis_Mopt{T}, max_episode, particle_nu
             println("Final $str1 is $fit")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, s_all, pbest, gbest, velocity_best, velocity = train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, 
-                                                 max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+                p_fit, fit, s_all, pbest, gbest, velocity = train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, 
+                                            max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity, sym)
                 if ei%max_episode[2] == 0
                     particles = repeat(pso, particle_num)
                     for pj in 1:particle_num
@@ -516,8 +511,8 @@ function info_PSO_RotateBasis(pso::RotateBasis_Mopt{T}, max_episode, particle_nu
                 print("current $str1 is $fit ($ei episodes)    \r")
                 
             end
-            p_fit, fit, s_all, pbest, gbest, velocity_best, velocity = train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, 
-                                              max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            p_fit, fit, s_all, pbest, gbest, velocity = train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, 
+                                            max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity, sym)
             U = rotation_matrix(gbest, Lambda)
             M = [U*POVM_basis[i]*U' for i in 1:M_num]
             append!(f_list, fit)
@@ -537,8 +532,8 @@ function info_PSO_RotateBasis(pso::RotateBasis_Mopt{T}, max_episode, particle_nu
         if save_file == true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
-                p_fit, fit, s_all, pbest, gbest, velocity_best, velocity = train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, 
-                                                 max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+                p_fit, fit, s_all, pbest, gbest, velocity = train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, 
+                                                 max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity, sym)
                 if ei%max_episode[2] == 0
                     particles = repeat(pso, particle_num)
                     for pj in 1:particle_num
@@ -551,8 +546,8 @@ function info_PSO_RotateBasis(pso::RotateBasis_Mopt{T}, max_episode, particle_nu
                 SaveFile_meas(f_list, M)
                 print("current value of $str2 is $(1.0/fit) ($ei episodes)    \r")
             end
-            p_fit, fit, s_all, pbest, gbest, velocity_best, velocity = train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, 
-                                              max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            p_fit, fit, s_all, pbest, gbest, velocity = train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, 
+                                              max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity, sym)
             U = rotation_matrix(gbest, Lambda)
             M = [U*POVM_basis[i]*U' for i in 1:M_num]
             append!(f_list, 1.0/fit)
@@ -562,8 +557,8 @@ function info_PSO_RotateBasis(pso::RotateBasis_Mopt{T}, max_episode, particle_nu
             println("Final value of $str2 is $(1.0/fit)")
         else
             for ei in 1:(max_episode[1]-1)
-                p_fit, fit, s_all, pbest, gbest, velocity_best, velocity = train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, 
-                                                 max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+                p_fit, fit, s_all, pbest, gbest, velocity = train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, 
+                                                 max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity, sym)
                 if ei%max_episode[2] == 0
                     particles = repeat(pso, particle_num)
                     for pj in 1:particle_num
@@ -574,8 +569,8 @@ function info_PSO_RotateBasis(pso::RotateBasis_Mopt{T}, max_episode, particle_nu
                 print("current value of $str2 is $(1.0/fit) ($ei episodes)    \r")
                 
             end
-            p_fit, fit, s_all, pbest, gbest, velocity_best, velocity = train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, 
-                                             max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+            p_fit, fit, s_all, pbest, gbest, velocity = train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, 
+                                             max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity, sym)
             U = rotation_matrix(gbest, Lambda)
             M = [U*POVM_basis[i]*U' for i in 1:M_num]
             append!(f_list, 1.0/fit)
@@ -587,7 +582,7 @@ function info_PSO_RotateBasis(pso::RotateBasis_Mopt{T}, max_episode, particle_nu
     end
 end
 
-function train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity_best, velocity, sym)
+function train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity, sym)
     for pj in 1:particle_num
         U = rotation_matrix(s_all[pj], Lambda)
         M = [U*POVM_basis[i]*U' for i in 1:M_num]
@@ -605,8 +600,7 @@ function train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, max
         if p_fit[pj] > fit
             fit = p_fit[pj]
             for nj in 1:dim^2
-                gbest[nj] = s_all[pj][nj]
-                velocity_best[nj] = velocity[nj, pj]
+                gbest[nj] = pbest[nj,pj]
             end
         end
     end  
@@ -629,5 +623,5 @@ function train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, max
             velocity[cm, pk] = s_all[pk][cm] - meas_pre[cm]
         end
     end
-    return p_fit, fit, s_all, pbest, gbest, velocity_best, velocity
+    return p_fit, fit, s_all, pbest, gbest, velocity
 end

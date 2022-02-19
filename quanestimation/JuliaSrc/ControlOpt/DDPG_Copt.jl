@@ -17,7 +17,7 @@ struct DDPG_Copt{T<:Complex, M<:Real}
     W::Matrix{M}
     ctrl_interval::Int
     dim::Int
-    accuracy::M
+    eps::M
 end
 
 mutable struct ControlEnv{T<:Complex, M<:Real, R<:AbstractRNG} <:AbstractEnv
@@ -79,7 +79,7 @@ function F_noctrl(M, params, para_num, cnum, ctrl_num, sym)
     f_noctrl = zeros(cnum+1)
     for i in 2:cnum+1
         rho, drho = propagate(rho, drho, params, [0.0 for i in 1:ctrl_num])
-        f_noctrl[i] = 1.0/obj_func(Val{sym}(), rho, drho, params.W, M, params.accuracy)
+        f_noctrl[i] = 1.0/obj_func(Val{sym}(), rho, drho, params.W, M, params.eps)
     end
     f_noctrl
 end
@@ -126,7 +126,7 @@ function _step!(env::ControlEnv, a, ::Val{true}, ::Val{true})
     env.state = ρₜₙ |> state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
-    f_current = 1.0/obj_func(Val{env.sym}(), ρₜₙ, ∂ₓρₜₙ, env.params.W, env.M, env.params.accuracy)
+    f_current = 1.0/obj_func(Val{env.sym}(), ρₜₙ, ∂ₓρₜₙ, env.params.W, env.M, env.params.eps)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
@@ -149,7 +149,7 @@ function _step!(env::ControlEnv, a, ::Val{true}, ::Val{false})
     env.state = ρₜₙ|>state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
-    f_current = 1.0/obj_func(Val{env.sym}(), ρₜₙ, ∂ₓρₜₙ, env.params.W, env.M, env.params.accuracy)
+    f_current = 1.0/obj_func(Val{env.sym}(), ρₜₙ, ∂ₓρₜₙ, env.params.W, env.M, env.params.eps)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
@@ -171,7 +171,7 @@ function _step!(env::ControlEnv, a, ::Val{false}, ::Val{true})
     env.state = ρₜₙ|>state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
-    f_current = 1.0/obj_func(Val{env.sym}(), ρₜₙ, ∂ₓρₜₙ, env.params.W, env.M, env.params.accuracy)
+    f_current = 1.0/obj_func(Val{env.sym}(), ρₜₙ, ∂ₓρₜₙ, env.params.W, env.M, env.params.eps)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
@@ -194,7 +194,7 @@ function _step!(env::ControlEnv, a, ::Val{false}, ::Val{false})
     env.state = ρₜₙ|>state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
-    f_current = 1.0/obj_func(Val{env.sym}(), ρₜₙ, ∂ₓρₜₙ, env.params.W, env.M, env.params.accuracy)
+    f_current = 1.0/obj_func(Val{env.sym}(), ρₜₙ, ∂ₓρₜₙ, env.params.W, env.M, env.params.eps)
     reward_current = log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current

@@ -6,10 +6,10 @@ class PSO_Copt(Control.ControlSystem):
     def __init__(self, tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[], W=[],  \
                  particle_num=10, ctrl0=[], max_episode=[1000, 100], c0=1.0, c1=2.0, c2=2.0, seed=1234, load=False):
 
-        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, accuracy=1e-8)
+        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, eps=1e-8)
         
         """
-        --------
+        -------- 
         inputs
         --------
         particle_num:
@@ -69,7 +69,7 @@ class PSO_Copt(Control.ControlSystem):
             --type: bool
         """
         pso = Main.QuanEstimation.PSO_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, self.decay_opt, \
-                          self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
+                          self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.eps)
         Main.QuanEstimation.QFIM_PSO_Copt(pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, self.c2, \
                                          self.seed, save_file)
 
@@ -88,7 +88,7 @@ class PSO_Copt(Control.ControlSystem):
         """
         M = [np.array(x, dtype=np.complex128) for x in M]
         pso = Main.QuanEstimation.PSO_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, self.decay_opt, \
-                         self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
+                         self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.eps)
         Main.QuanEstimation.CFIM_PSO_Copt(M, pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, \
                                           self.c2, self.seed, save_file)
 
@@ -110,7 +110,7 @@ class PSO_Copt(Control.ControlSystem):
                            for control optimization", DeprecationWarning)
         else:
             pso = Main.QuanEstimation.PSO_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, self.decay_opt, \
-                         self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
+                         self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.eps)
             Main.QuanEstimation.HCRB_PSO_Copt(pso, self.max_episode, self.particle_num, self.ini_particle, self.c0, self.c1, \
                                           self.c2, self.seed, save_file)
                                          

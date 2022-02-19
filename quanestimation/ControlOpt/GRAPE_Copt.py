@@ -7,7 +7,7 @@ class GRAPE_Copt(Control.ControlSystem):
     def __init__(self, tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[], W=[], \
                  auto=True, Adam=True, ctrl0=[], max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99, load=False):
 
-        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, accuracy=1e-8)
+        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, eps=1e-8)
 
         """
         ----------
@@ -69,7 +69,7 @@ class GRAPE_Copt(Control.ControlSystem):
         """
         grape = Main.QuanEstimation.GRAPE_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, \
                 self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
-                self.ctrl_bound, self.W, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.accuracy)
+                self.ctrl_bound, self.W, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.eps)
         if self.auto == True:
             Main.QuanEstimation.QFIM_autoGRAPE_Copt(grape, self.max_episode, self.Adam, save_file)
         else:
@@ -96,7 +96,7 @@ class GRAPE_Copt(Control.ControlSystem):
         M = [np.array(x, dtype=np.complex128) for x in M]
         grape = Main.QuanEstimation.GRAPE_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, \
                 self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
-                self.ctrl_bound, self.W, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.accuracy)
+                self.ctrl_bound, self.W, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.eps)
         if self.auto == True:
             Main.QuanEstimation.CFIM_autoGRAPE_Copt(M, grape, self.max_episode, self.Adam, save_file)
         else:

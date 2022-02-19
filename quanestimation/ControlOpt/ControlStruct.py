@@ -5,7 +5,7 @@ import os
 import quanestimation.ControlOpt as ctrl
 
 class ControlSystem:
-    def __init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, accuracy):
+    def __init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, eps):
         
         """
         ----------
@@ -53,8 +53,8 @@ class ControlSystem:
             --description: initial control coefficients.
             --type: list (of vector)
 
-        accuracy:
-            --description: calculation accuracy.
+        eps:
+            --description: calculation eps.
             --type: float
         
         """   
@@ -105,7 +105,7 @@ class ControlSystem:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
 
-        self.accuracy = accuracy
+        self.eps = eps
         if load == True:
             if os.path.exists("controls.csv"):
                 data = np.genfromtxt("controls.csv")[-len(self.control_Hamiltonian):]

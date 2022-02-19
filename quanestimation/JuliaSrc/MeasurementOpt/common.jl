@@ -7,13 +7,13 @@ mutable struct projection_Mopt{T<:Complex, M <:Real} <:ControlSystem
     γ::Vector{M}
     C::Vector{Vector{T}}
     W::Matrix{M}
-    accuracy::M
+    eps::M
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
     projection_Mopt(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, ρ0::Matrix{T}, tspan::Vector{M}, 
-    decay_opt::Vector{Matrix{T}},γ::Vector{M}, C::Vector{Vector{T}}, W::Matrix{M}, accuracy::M, 
+    decay_opt::Vector{Matrix{T}},γ::Vector{M}, C::Vector{Vector{T}}, W::Matrix{M}, eps::M, 
     ρ=Vector{Matrix{T}}(undef, 1), ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T<:Complex, M<:Real}=
-    new{T,M}(freeHamiltonian, Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, C, W, accuracy, ρ, ∂ρ_∂x) 
+    new{T,M}(freeHamiltonian, Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, C, W, eps, ρ, ∂ρ_∂x) 
 end
 
 mutable struct LinearComb_Mopt{T<:Complex, M <:Real} <:ControlSystem
@@ -26,13 +26,13 @@ mutable struct LinearComb_Mopt{T<:Complex, M <:Real} <:ControlSystem
     povm_basis::Vector{Matrix{T}}
     M_num::Int64
     W::Matrix{M}
-    accuracy::M
+    eps::M
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
     LinearComb_Mopt(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, ρ0::Matrix{T}, tspan::Vector{M}, 
-    decay_opt::Vector{Matrix{T}},γ::Vector{M}, povm_basis::Vector{Matrix{T}}, M_num::Int64, W::Matrix{M}, accuracy::M, 
+    decay_opt::Vector{Matrix{T}},γ::Vector{M}, povm_basis::Vector{Matrix{T}}, M_num::Int64, W::Matrix{M}, eps::M, 
     ρ=Vector{Matrix{T}}(undef, 1), ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T<:Complex, M<:Real}=
-    new{T,M}(freeHamiltonian, Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, povm_basis, M_num, W, accuracy, ρ, ∂ρ_∂x) 
+    new{T,M}(freeHamiltonian, Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, povm_basis, M_num, W, eps, ρ, ∂ρ_∂x) 
 end
 
 mutable struct RotateBasis_Mopt{T<:Complex, M <:Real} <:ControlSystem
@@ -44,13 +44,13 @@ mutable struct RotateBasis_Mopt{T<:Complex, M <:Real} <:ControlSystem
     γ::Vector{M}
     povm_basis::Vector{Matrix{T}}
     W::Matrix{M}
-    accuracy::M
+    eps::M
     ρ::Vector{Matrix{T}}
     ∂ρ_∂x::Vector{Vector{Matrix{T}}}
     RotateBasis_Mopt(freeHamiltonian, Hamiltonian_derivative::Vector{Matrix{T}}, ρ0::Matrix{T}, tspan::Vector{M}, 
-    decay_opt::Vector{Matrix{T}},γ::Vector{M}, povm_basis::Vector{Matrix{T}}, W::Matrix{M}, accuracy::M, 
+    decay_opt::Vector{Matrix{T}},γ::Vector{M}, povm_basis::Vector{Matrix{T}}, W::Matrix{M}, eps::M, 
     ρ=Vector{Matrix{T}}(undef, 1), ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T<:Complex, M<:Real}=
-    new{T,M}(freeHamiltonian, Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, povm_basis, W, accuracy, ρ, ∂ρ_∂x) 
+    new{T,M}(freeHamiltonian, Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, povm_basis, W, eps, ρ, ∂ρ_∂x) 
 end
 
 function bound_LC_coeff(coefficients::Vector{Vector{Float64}})
@@ -95,39 +95,39 @@ function bound_rot_coeff(coefficients::Vector{Float64})
     coefficients
 end
 
-function MOpt_Adam(gt, t, para, m_t, v_t, ϵ, beta1, beta2, accuracy)
+function MOpt_Adam(gt, t, para, m_t, v_t, ϵ, beta1, beta2, eps)
     t = t+1
     m_t = beta1*m_t + (1-beta1)*gt
     v_t = beta2*v_t + (1-beta2)*(gt*gt)
     m_cap = m_t/(1-(beta1^t))
     v_cap = v_t/(1-(beta2^t))
-    para = para+(ϵ*m_cap)/(sqrt(v_cap)+accuracy)
+    para = para+(ϵ*m_cap)/(sqrt(v_cap)+eps)
     return para, m_t, v_t
 end
 
-function MOpt_Adam!(coefficients::Vector{Float64}, δ, ϵ, mt, vt, beta1, beta2, accuracy)
+function MOpt_Adam!(coefficients::Vector{Float64}, δ, ϵ, mt, vt, beta1, beta2, eps)
     for ci in 1:length(δ)
-        coefficients[ci], mt, vt = MOpt_Adam(δ[ci], ci, coefficients[ci], mt, vt, ϵ, beta1, beta2, accuracy)
+        coefficients[ci], mt, vt = MOpt_Adam(δ[ci], ci, coefficients[ci], mt, vt, ϵ, beta1, beta2, eps)
     end
     coefficients
 end
 
-function MOpt_Adam!(coefficients::Vector{Vector{Float64}}, δ, ϵ, mt, vt, beta1, beta2, accuracy)
+function MOpt_Adam!(coefficients::Vector{Vector{Float64}}, δ, ϵ, mt, vt, beta1, beta2, eps)
     mt_in = mt
     vt_in = vt
     for ci in 1:length(δ)
         mt = mt_in
         vt = vt_in
         for cj in 1:length(δ[1])
-            coefficients[ci][cj], mt, vt = MOpt_Adam(δ[ci][cj], cj, coefficients[ci][cj], mt, vt, ϵ, beta1, beta2, accuracy)
+            coefficients[ci][cj], mt, vt = MOpt_Adam(δ[ci][cj], cj, coefficients[ci][cj], mt, vt, ϵ, beta1, beta2, eps)
         end
     end
     coefficients
 end
 
-function MOpt_Adam!(system, δ, ϵ, mt, vt, beta1, beta2, accuracy)
+function MOpt_Adam!(system, δ, ϵ, mt, vt, beta1, beta2, eps)
     for cj in 1:length(δ[1])
-        system.M[1][cj], mt, vt = MOpt_Adam(δ[1][cj], cj, system.M[1][cj], mt, vt, ϵ, beta1, beta2, accuracy)
+        system.M[1][cj], mt, vt = MOpt_Adam(δ[1][cj], cj, system.M[1][cj], mt, vt, ϵ, beta1, beta2, eps)
     end
 end
 

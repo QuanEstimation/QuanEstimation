@@ -6,7 +6,7 @@ import quanestimation.ComprehensiveOpt as compopt
 from quanestimation.Common.common import gramschmidt
 
 class ComprehensiveSystem:
-    def __init__(self, tspan, psi, measurement0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, seed, accuracy):
+    def __init__(self, tspan, psi, measurement0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, seed, eps):
         
         """
         ----------
@@ -58,8 +58,8 @@ class ComprehensiveSystem:
             --description: initial control coefficients.
             --type: list (of vector)
 
-        accuracy:
-            --description: calculation accuracy.
+        eps:
+            --description: calculation eps.
             --type: float
         
         """   
@@ -135,7 +135,7 @@ class ComprehensiveSystem:
             self.M = [measurement0[0][i] for i in range(self.dim)]
             self.M = [np.array(x, dtype=np.complex128) for x in self.M]
 
-        self.accuracy = accuracy
+        self.eps = eps
                 
         ctrl_num = len(self.control_coefficients)
         Hc_num = len(self.control_Hamiltonian)
