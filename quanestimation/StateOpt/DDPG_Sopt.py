@@ -5,7 +5,7 @@ import quanestimation.StateOpt.StateStruct as State
 class DDPG_Sopt(State.StateSystem):
     def __init__(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], W=[], psi0=[], max_episode=500, layer_num=3, layer_dim=200, seed=1234, load=False):
 
-        State.StateSystem.__init__(self, tspan, psi0, H0, dH, Hc, ctrl, decay, W, seed, load, accuracy=1e-8)
+        State.StateSystem.__init__(self, tspan, psi0, H0, dH, Hc, ctrl, decay, W, seed, load, eps=1e-8)
 
         """
         ----------
@@ -44,11 +44,11 @@ class DDPG_Sopt(State.StateSystem):
         """
         if any(self.gamma):
             DDPG = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                          self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+                                                          self.tspan, self.decay_opt, self.gamma, self.W, self.eps)
             Main.QuanEstimation.QFIM_DDPG_Sopt(DDPG, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
         else:
             DDPG = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                              self.tspan, self.W, self.accuracy)
+                                                              self.tspan, self.W, self.eps)
             Main.QuanEstimation.QFIM_DDPG_Sopt(DDPG, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
         self.load_save()
             
@@ -68,11 +68,11 @@ class DDPG_Sopt(State.StateSystem):
 
         if any(self.gamma):
             DDPG = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                          self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+                                                          self.tspan, self.decay_opt, self.gamma, self.W, self.eps)
             Main.QuanEstimation.CFIM_DDPG_Sopt(M, DDPG, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
         else:
             DDPG = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                              self.tspan, self.W, self.accuracy)
+                                                              self.tspan, self.W, self.eps)
             Main.QuanEstimation.CFIM_DDPG_Sopt(M, DDPG, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
         self.load_save()
 
@@ -95,11 +95,11 @@ class DDPG_Sopt(State.StateSystem):
         else:
             if any(self.gamma):
                 DDPG = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                          self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+                                                          self.tspan, self.decay_opt, self.gamma, self.W, self.eps)
                 Main.QuanEstimation.HCRB_DDPG_Sopt(DDPG, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
             else:
                 DDPG = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                              self.tspan, self.W, self.accuracy)
+                                                              self.tspan, self.W, self.eps)
                 Main.QuanEstimation.HCRB_DDPG_Sopt(DDPG, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
             self.load_save()
             

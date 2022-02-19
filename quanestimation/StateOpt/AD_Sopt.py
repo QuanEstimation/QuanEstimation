@@ -6,7 +6,7 @@ class AD_Sopt(State.StateSystem):
     def __init__(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], W=[], Adam=False, psi0=[], \
                  max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99, load=False):
 
-        State.StateSystem.__init__(self, tspan, psi0, H0, dH, Hc, ctrl, decay, W, seed=1234, load=load, accuracy=1e-8)
+        State.StateSystem.__init__(self, tspan, psi0, H0, dH, Hc, ctrl, decay, W, seed=1234, load=load, eps=1e-8)
 
         """
         ----------
@@ -32,8 +32,8 @@ class AD_Sopt(State.StateSystem):
             --description: the exponential decay rate for the second moment estimates .
             --type: float
 
-        accuracy:
-            --description: calculation accuracy.
+        eps:
+            --description: calculation eps.
             --type: float
 
         """
@@ -61,12 +61,12 @@ class AD_Sopt(State.StateSystem):
         """
         if any(self.gamma):
             AD = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                        self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+                                                        self.tspan, self.decay_opt, self.gamma, self.W, self.eps)
             Main.QuanEstimation.QFIM_AD_Sopt(AD, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, \
                                         self.Adam, save_file)
         else:
             AD = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                            self.tspan, self.W, self.accuracy)
+                                                            self.tspan, self.W, self.eps)
             Main.QuanEstimation.QFIM_AD_Sopt(AD, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, \
                                         self.Adam, save_file)
         self.load_save()
@@ -87,15 +87,16 @@ class AD_Sopt(State.StateSystem):
 
         if any(self.gamma):
             AD = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                        self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+                                                        self.tspan, self.decay_opt, self.gamma, self.W, self.eps)
             Main.QuanEstimation.CFIM_AD_Sopt(M, AD, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, \
                                         self.max_episode, self.Adam, save_file)
         else:
             AD = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                            self.tspan, self.W, self.accuracy)
+                                                            self.tspan, self.W, self.eps)
             Main.QuanEstimation.CFIM_AD_Sopt(M, AD, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, \
                                         self.max_episode, self.Adam, save_file)
         self.load_save()
 
     def HCRB(self, save_file=False):
         warnings.warn("AD is not available when the objective function is HCRB. Supported methods are 'PSO', 'DE', 'NM' and 'DDPG'.", DeprecationWarning)
+        

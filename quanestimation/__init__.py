@@ -11,8 +11,8 @@ from quanestimation import MeasurementOpt
 from quanestimation import Common
 from quanestimation import ComprehensiveOpt
 
-from quanestimation.AsymptoticBound import (CFIM, QFIM, LLD, RLD, SLD, Holevo_bound,)
-from quanestimation.BayesianBound.BayesianCramerRao import (BQCRB, OBB, TWCB)
+from quanestimation.AsymptoticBound import (CFIM, QFIM, BCFIM, BQFIM, LLD, RLD, SLD, Holevo_bound,)
+from quanestimation.BayesianBound.BayesianCramerRao import (BCRB, BQCRB, QVTB, VTB, OBB, )
 from quanestimation.BayesianBound.ZivZakai import (QZZB,)
 from quanestimation.Dynamics import (Lindblad, )
 from quanestimation.Resources import (squeezing_parameter, Concurrence, Entropy_VN, )
@@ -30,11 +30,12 @@ Main.include("quanestimation/JuliaSrc/QuanEstimation.jl")
 Main.pkgpath = os.path.join(os.path.dirname(__file__))
 
 __all__ = ["ControlOpt", "StateOpt", "MeasurementOpt", "ComprehensiveOpt", 
-           "CFIM", "QFIM", "LLD",  "RLD", "SLD", "Holevo_bound", "BQCRB", "OBB",
+           "CFIM", "QFIM", "BCFIM", "BQFIM", "LLD",  "RLD", "SLD", "Holevo_bound", 
+           "BCRB","BQCRB", "OBB", "QVTB", "VTB","QZZB",
            "Lindblad", "squeezing_parameter", "Concurrence", "Entropy_VN",
            "GRAPE_Copt", "DE_Copt", "PSO_Copt", "DDPG_Copt",
            "AD_Mopt", "PSO_Mopt", "DE_Mopt",
            "AD_Sopt", "DE_Sopt", "PSO_Sopt", "DDPG_Sopt", "NM_Sopt",
            "mat_vec_convert", "suN_generator", "gramschmidt",
            "csv2npy_controls", "csv2npy_states", "csv2npy_measurements",
-           "AD_Compopt", "DE_Compopt", "PSO_Compopt", "TWCB", "QZZB"]
+           "AD_Compopt", "DE_Compopt", "PSO_Compopt", ]

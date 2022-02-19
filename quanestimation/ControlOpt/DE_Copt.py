@@ -6,7 +6,7 @@ class DE_Copt(Control.ControlSystem):
     def __init__(self, tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[], W=[], \
                 popsize=10, ctrl0=[], max_episode=1000, c=1.0, cr=0.5, seed=1234, load=False):
 
-        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, accuracy=1e-8)
+        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, eps=1e-8)
         
         """
         --------
@@ -66,7 +66,7 @@ class DE_Copt(Control.ControlSystem):
         """
 
         diffevo = Main.QuanEstimation.DE_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, self.decay_opt, \
-                            self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
+                            self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.eps)
         Main.QuanEstimation.QFIM_DE_Copt(diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episode, save_file)
 
         
@@ -85,7 +85,7 @@ class DE_Copt(Control.ControlSystem):
         """
         M = [np.array(x, dtype=np.complex128) for x in M]
         diffevo = Main.QuanEstimation.DE_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, self.decay_opt, \
-                            self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
+                            self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.eps)
         Main.QuanEstimation.CFIM_DE_Copt(M, diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episode, save_file)
 
     def HCRB(self, save_file=False):
@@ -106,5 +106,5 @@ class DE_Copt(Control.ControlSystem):
                            for control optimization", DeprecationWarning)
         else:
             diffevo = Main.QuanEstimation.DE_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.tspan, self.decay_opt, \
-                            self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.accuracy)
+                            self.gamma, self.control_Hamiltonian, self.control_coefficients, self.ctrl_bound, self.W, self.eps)
             Main.QuanEstimation.HCRB_DE_Copt(diffevo, self.popsize, self.ini_population, self.c, self.cr, self.seed, self.max_episode, save_file)

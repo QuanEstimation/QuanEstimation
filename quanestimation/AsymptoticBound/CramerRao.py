@@ -1,8 +1,8 @@
 
 import numpy as np
 import numpy.linalg as LA
-import os
-from quanestimation.Common.common import sic_povm
+from scipy.integrate import simps
+from quanestimation.Common.common import load_M, extract_ele
 #===============================================================================
 #Subclass: metrology
 #===============================================================================
@@ -11,7 +11,7 @@ calculation of classical Fisher information matrix and quantum
 Fisher information matrix.
 """
        
-def CFIM(rho, drho, M=[], accuracy=1e-8):
+def CFIM(rho, drho, M=[], eps=1e-8):
     """
     Description: Calculation classical Fisher information matrix (CFIM)
                  for a density matrix.
@@ -47,23 +47,19 @@ def CFIM(rho, drho, M=[], accuracy=1e-8):
         raise TypeError("Please make sure drho is a list!")
 
     if M==[]: 
-        file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'sic_fiducial_vectors/d%d.txt'%(len(rho0)))
-        data = np.loadtxt(file_path)
-        fiducial = data[:,0] + data[:,1]*1.0j
-        fiducial = np.array(fiducial).reshape(len(fiducial),1) 
-        M = sic_povm(fiducial)
+        M = load_M(len(rho[0]))
     else:
         if type(M) != list:
-            raise TypeError("Please make sure Measurement is a list!")
+            raise TypeError("Please make sure M is a list!")
 
     m_num = len(M)
     para_num = len(drho)
     CFIM_res = np.zeros([para_num,para_num])
     for pi in range(0,m_num):
         Mp = M[pi]
-        p = np.real(np.trace(np.dot(rho,Mp)))
+        p = np.real(np.trace(np.dot(rho, Mp)))
         Cadd = np.zeros([para_num,para_num])
-        if p > accuracy:
+        if p > eps:
             for para_i in range(0,para_num):
                 drho_i = drho[para_i]
                 dp_i = np.real(np.trace(np.dot(drho_i,Mp)))
@@ -79,7 +75,7 @@ def CFIM(rho, drho, M=[], accuracy=1e-8):
     else:
         return CFIM_res
 
-def SLD(rho, drho, rep="original", accuracy=1e-8):
+def SLD(rho, drho, rep="original", eps=1e-8):
     """
     Description: calculation of the symmetric logarithmic derivative (SLD)
                  for a density matrix.
@@ -122,7 +118,7 @@ def SLD(rho, drho, rep="original", accuracy=1e-8):
         
     purity = np.trace(np.dot(rho, rho))
 
-    if np.abs(1-purity) < accuracy:
+    if np.abs(1-purity) < eps:
         SLD_org = [[] for i in range(0, para_num)]
         for para_i in range(0, para_num):
             SLD_org[para_i] = 2*drho[para_i]
@@ -133,7 +129,7 @@ def SLD(rho, drho, rep="original", accuracy=1e-8):
                 val, vec = np.linalg.eig(rho)
                 SLD[para_i] = np.dot(vec.conj().transpose(),np.dot(SLD_org[para_i],vec))
             else:
-                raise NameError("NameError: rep should be choosen in {original, eigen}")
+                raise NameError("NameError: rep should be choosen in {'original', 'eigen'}")
         if para_num == 1:
             return SLD[0]
         else:
@@ -145,7 +141,7 @@ def SLD(rho, drho, rep="original", accuracy=1e-8):
             SLD_eig = np.array([[0.+0.*1.j for i in range(0,dim)] for i in range(0,dim)])
             for fi in range (0, dim):
                 for fj in range (0, dim):
-                    if np.abs(val[fi]+val[fj]) > accuracy:
+                    if np.abs(val[fi]+val[fj]) > eps:
                         SLD_eig[fi][fj] = 2*np.dot(vec[:,fi].conj().transpose(),                                                                 
                         np.dot(drho[para_i],vec[:,fj]))/(val[fi]+val[fj])
             SLD_eig[SLD_eig == np.inf] = 0.
@@ -155,14 +151,14 @@ def SLD(rho, drho, rep="original", accuracy=1e-8):
             elif rep=="eigen":
                 SLD[para_i] = SLD_eig
             else:
-                raise NameError("NameError: rep should be choosen in {original, eigen}")
+                raise NameError("NameError: rep should be choosen in {'original', 'eigen'}")
 
         if para_num == 1:
             return SLD[0]
         else:
             return SLD
 
-def RLD(rho, drho, rep="original", accuracy=1e-8):
+def RLD(rho, drho, rep="original", eps=1e-8):
     """
     Description: calculation of the right logarithmic derivative (RLD)
                  for a density matrix.
@@ -209,7 +205,7 @@ def RLD(rho, drho, rep="original", accuracy=1e-8):
         RLD_eig = np.array([[0.+0.*1.j for i in range(0,dim)] for i in range(0,dim)])
         for fi in range (0, dim):
             for fj in range (0, dim):
-                if np.abs(val[fi]) > accuracy:
+                if np.abs(val[fi]) > eps:
                     RLD_eig[fi][fj] = np.dot(vec[:,fi].conj().transpose(),                                                                  np.dot(drho[para_i],vec[:,fj]))/val[fi]
         RLD_eig[RLD_eig == np.inf] = 0.
 
@@ -218,13 +214,13 @@ def RLD(rho, drho, rep="original", accuracy=1e-8):
         elif rep=="eigen":
             RLD[para_i] = RLD_eig
         else:
-            raise NameError('NameError: rep should be choosen in {original, eigen}')
+            raise NameError("NameError: rep should be choosen in {'original', 'eigen'}")
     if para_num == 1:
         return RLD[0]
     else:
         return RLD
 
-def LLD(rho, drho, rep="original", accuracy=1e-8):
+def LLD(rho, drho, rep="original", eps=1e-8):
     """
     Description: Calculation of the left logarithmic derivative (LLD)
                 for a density matrix.
@@ -271,7 +267,7 @@ def LLD(rho, drho, rep="original", accuracy=1e-8):
         LLD_eig = np.array([[0.+0.*1.j for i in range(0,dim)] for i in range(0,dim)])
         for fi in range (0, dim):
             for fj in range (0, dim):
-                if np.abs(val[fj]) > accuracy:
+                if np.abs(val[fj]) > eps:
                     LLD_eig_tp = np.dot(vec[:,fi].conj().transpose(),                                                                  np.dot(drho[para_i],vec[:,fj]))/val[fj]
                     LLD_eig[fj][fi] = LLD_eig_tp.conj()
         LLD_eig[LLD_eig == np.inf] = 0.
@@ -281,14 +277,14 @@ def LLD(rho, drho, rep="original", accuracy=1e-8):
         elif rep=="eigen":
             LLD[para_i] = LLD_eig
         else:
-            raise NameError('NameError: rep should be choosen in {original, eigen}')
+            raise NameError("NameError: rep should be choosen in {'original', 'eigen'}")
 
     if para_num == 1:
         return LLD[0]
     else:
         return LLD
 
-def QFIM(rho, drho, dtype="SLD", rep="original", exportLD=False, accuracy=1e-8):
+def QFIM(rho, drho, dtype="SLD", exportLD=False, eps=1e-8):
     """
     Description: Calculation of quantum Fisher information matrix (QFIM)
                 for a density matrix.
@@ -310,14 +306,6 @@ def QFIM(rho, drho, dtype="SLD", rep="original", exportLD=False, accuracy=1e-8):
         --description: the type of logarithmic derivatives.
         --type: string {'SLD', 'RLD', 'LLD'}
 
-    rep:
-        --description: the basis for the logarithmic derivatives (LD). 
-                       rep=original means the basis for obtained LDs is the 
-                       same with the density matrix (rho).
-                       rep=eigen means the LDs are written in the eigenspace of
-                       the density matrix (rho).
-        --type: string {"original", "eigen"}
-
     exportLD:
         --description: if True, the corresponding value of logarithmic derivatives 
                        will be exported.
@@ -332,13 +320,6 @@ def QFIM(rho, drho, dtype="SLD", rep="original", exportLD=False, accuracy=1e-8):
                        otherwise it returns a matrix (QFIM).
         --type: float number (QFI) or matrix (QFIM)
 
-    ----------
-    notes
-    ----------
-    If the desity matrix that you input is in the original space, then the
-    same with logarithmic derivatives, otherwise the logarithmic derivatives
-    be calculated in the eigenspace of the desity matrix.
-
     """
 
     if type(drho) != list:
@@ -349,25 +330,25 @@ def QFIM(rho, drho, dtype="SLD", rep="original", exportLD=False, accuracy=1e-8):
     # singleparameter estimation
     if para_num == 1:
         if dtype=="SLD":
-            LD_tp = SLD(rho, drho, rep, accuracy)
+            LD_tp = SLD(rho, drho, eps=eps)
             SLD_ac = np.dot(LD_tp,LD_tp)+np.dot(LD_tp,LD_tp)
             QFIM_res = np.real(0.5*np.trace(np.dot(rho,SLD_ac)))
 
         elif dtype=="RLD":
-            LD_tp = RLD(rho, drho, rep, accuracy)
+            LD_tp = RLD(rho, drho, eps=eps)
             QFIM_res = np.real(np.trace(np.dot(rho,np.dot(LD_tp, LD_tp).conj().transpose())))
 
         elif dtype=="LLD":
-            LD_tp = LLD(rho, drho, rep, accuracy)
+            LD_tp = LLD(rho, drho, eps=eps)
             QFIM_res = np.real(np.trace(np.dot(rho,np.dot(LD_tp, LD_tp).conj().transpose())))
         else:
-            raise NameError('NameError: dtype should be choosen in {SLD, RLD, LLD}')
+            raise NameError("NameError: dtype should be choosen in {'SLD', 'RLD', 'LLD'}")
 
     # multiparameter estimation
     else:  
         QFIM_res = np.zeros([para_num,para_num])
         if dtype=="SLD":
-            LD_tp = SLD(rho, drho, rep, accuracy)
+            LD_tp = SLD(rho, drho, eps=eps)
             for para_i in range(0, para_num):
                 for para_j in range(para_i, para_num):
                     SLD_ac = np.dot(LD_tp[para_i],LD_tp[para_j])+np.dot(LD_tp[para_j],LD_tp[para_i])
@@ -375,25 +356,204 @@ def QFIM(rho, drho, dtype="SLD", rep="original", exportLD=False, accuracy=1e-8):
                     QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
 
         elif dtype=="RLD":
-            LD_tp = RLD(rho, drho, rep, accuracy)
+            LD_tp = RLD(rho, drho, eps=eps)
             for para_i in range(0, para_num):
                 for para_j in range(para_i, para_num):
                     QFIM_res[para_i][para_j] = np.real(np.trace(np.dot(rho,np.dot(LD_tp[para_i],                                                             LD_tp[para_j]).conj().transpose())))
                     QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
 
         elif dtype=="LLD":
-            LD_tp = LLD(rho, drho, rep, accuracy)
+            LD_tp = LLD(rho, drho, eps=eps)
             for para_i in range(0, para_num):
                 for para_j in range(para_i, para_num):
                     QFIM_res[para_i][para_j] = np.real(np.trace(np.dot(rho,np.dot(LD_tp[para_i],                                                              LD_tp[para_j]).conj().transpose())))
                     QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
         else:
-            raise NameError("NameError: dtype should be choosen in {SLD, RLD, LLD}")
+            raise NameError("NameError: dtype should be choosen in {'SLD', 'RLD', 'LLD'}")
 
     if exportLD==False:
         return QFIM_res
     else:
         return QFIM_res, LD_tp
+
+def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
+    """
+    Description: Calculation Bayesian version of classical Fisher information 
+                 matrix (CFIM) for a density matrix.
+
+    ---------
+    Inputs
+    ---------
+    x:
+        --description: the regimes of x for the integral.
+        --type: list of arrays
+
+    p:
+        --description: the prior distribution.
+        --type: multidimensional array
+
+    rho:
+        --description: parameterized density matrix.
+        --type: multidimensional lists
+
+    drho:
+        --description: derivatives of density matrix (rho) on all parameters  
+                       to be estimated. 
+        --type: multidimensional lists
+
+    M:
+       --description: a set of POVM. It takes the form [M1, M2, ...].
+       --type: list (of matrix)
+
+    ----------
+    Returns
+    ----------
+    BCFIM:
+        --description: Bayesian version of classical Fisher information matrix. 
+                       If the length of x is one, the output is a float number (BCFI),
+                       otherwise it returns a matrix (BCFIM).
+        --type: float number (BCFI) or matrix (BCFIM)
+
+    """
+    para_num = len(x)
+    if para_num == 1: 
+        #### singleparameter senario ####
+        if M==[]: 
+            M = load_M(len(rho[0]))
+        else:
+            if type(M) != list:
+                raise TypeError("Please make sure M is a list!")
+
+        p_num = len(p)
+        if type(drho[0]) == list:
+            drho = [drho[i][0] for i in range(p_num)]
+        p_num = len(p)
+        F_tp = np.zeros(p_num)
+        for m in range(p_num):
+            F_tp[m] = CFIM(rho[m], [drho[m]], M=M, eps=eps)
+
+        arr = [p[i]*F_tp[i] for i in range(p_num)]
+        return simps(arr, x[0])
+    else:
+        #### multiparameter senario ####
+        p_shape = np.shape(p)
+        p_ext = extract_ele(p, para_num)
+        rho_ext = extract_ele(rho, para_num)
+        drho_ext = extract_ele(drho, para_num)
+
+        p_list, rho_list, drho_list = [], [], []
+        for p_ele, rho_ele, drho_ele in zip(p_ext, rho_ext, drho_ext):
+            p_list.append(p_ele)
+            rho_list.append(rho_ele)
+            drho_list.append(drho_ele)
+   
+        dim = len(rho_list[0])
+        if M==[]: 
+            M = load_M(dim)
+        else:
+            if type(M) != list:
+                raise TypeError("Please make sure M is a list!")
+
+        F_list = [[[0.0 for i in range(len(p_list))] for j in range(para_num)] for k in range(para_num)]
+        for i in range(len(p_list)):
+            F_tp = CFIM(rho_list[i], drho_list[i], M=M, eps=eps)
+            for pj in range(para_num):
+                for pk in range(para_num):
+                    F_list[pj][pk][i] = F_tp[pj][pk]
+
+        BCFIM_res = np.zeros([para_num,para_num])
+        for para_i in range(0, para_num):
+            for para_j in range(para_i, para_num):
+                F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
+                arr = p*F_ij
+                for si in range(para_num):
+                    arr = simps(arr, x[si])
+                BCFIM_res[para_i][para_j] = arr
+                BCFIM_res[para_j][para_i] = arr
+        return BCFIM_res
+    
+def BQFIM(x, p, rho, drho, dtype="SLD", eps=1e-8):
+    """
+    Description: Calculation of Bayesian version of quantum Fisher information 
+                 matrix (QFIM) for a density matrix.
+
+    ----------
+    Inputs
+    ----------
+    x:
+        --description: the regimes of x for the integral.
+        --type: list of arrays
+
+    p:
+        --description: the prior distribution.
+        --type: multidimensional array
+
+    rho:
+        --description: parameterized density matrix.
+        --type: multidimensional lists
+
+    drho:
+        --description: derivatives of density matrix (rho) on all parameters  
+                       to be estimated. For example, 
+        --type: multidimensional lists
+
+    dtype:
+        --description: the type of logarithmic derivatives.
+        --type: string {'SLD', 'RLD', 'LLD'}
+           
+    ----------
+    Returns
+    ----------
+    BQFIM:
+        --description: Bayesian version of quantum Fisher information matrix. 
+                       If the length of x is 1, the output is a float number (BQFI),
+                       otherwise it returns a matrix (BQFIM).
+        --type: float number (BQFI) or matrix (BQFIM)
+
+    """
+
+    para_num = len(x)
+    if para_num == 1: 
+        #### singleparameter senario ####
+        p_num = len(p)
+        if type(drho[0]) == list:
+            drho = [drho[i][0] for i in range(p_num)]
+        
+        F_tp = np.zeros(p_num)
+        for m in range(p_num):
+            F_tp[m] = QFIM(rho[m], [drho[m]], dtype=dtype, eps=eps)
+        arr = [p[i]*F_tp[i] for i in range(p_num)]
+        return simps(arr, x[0])
+    else:
+        #### multiparameter senario ####
+        p_shape = np.shape(p)
+        p_ext = extract_ele(p, para_num)
+        rho_ext = extract_ele(rho, para_num)
+        drho_ext = extract_ele(drho, para_num)
+
+        p_list, rho_list, drho_list = [], [], []
+        for p_ele, rho_ele, drho_ele in zip(p_ext, rho_ext, drho_ext):
+            p_list.append(p_ele)
+            rho_list.append(rho_ele)
+            drho_list.append(drho_ele)
+
+        F_list = [[[0.0 for i in range(len(p_list))] for j in range(para_num)] for k in range(para_num)]
+        for i in range(len(p_list)):
+            F_tp = QFIM(rho_list[i], drho_list[i], dtype=dtype, eps=eps)
+            for pj in range(para_num):
+                for pk in range(para_num):
+                    F_list[pj][pk][i] = F_tp[pj][pk]
+
+        BQFIM_res = np.zeros([para_num,para_num])
+        for para_i in range(0, para_num):
+            for para_j in range(para_i, para_num):
+                F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
+                arr = p*F_ij
+                for si in range(para_num):
+                    arr = simps(arr, x[si])
+                BQFIM_res[para_i][para_j] = arr
+                BQFIM_res[para_j][para_i] = arr
+        return BQFIM_res
 
 def QFIM_Bloch(self, r, dr):
     """
@@ -453,4 +613,4 @@ def QFIM_Bloch(self, r, dr):
         return QFIM_res[0][0]
     else:
         return QFIM_res
-        
+

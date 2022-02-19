@@ -6,7 +6,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
     def __init__(self, tspan, H0, dH, Hc, decay=[], ctrl_bound=[], W=[], psi0=[], measurement0=[], \
                  particle_num=10, ctrl0=[], max_episode=[1000, 100], c0=1.0, c1=2.0, c2=2.0, seed=1234):
 
-        Comp.ComprehensiveSystem.__init__(self, tspan, psi0, measurement0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, seed, accuracy=1e-8)
+        Comp.ComprehensiveSystem.__init__(self, tspan, psi0, measurement0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, seed, eps=1e-8)
         
         """
         --------
@@ -68,7 +68,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
     def SC(self, target="QFIM", M=[], save_file=False):
         pso = Main.QuanEstimation.SC_Compopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi, \
                     self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
-                    self.ctrl_bound, self.W, self.accuracy)
+                    self.ctrl_bound, self.W, self.eps)
         if target == "QFIM":
             Main.QuanEstimation.SC_PSO_Compopt(pso, self.max_episode, self.particle_num, self.psi0, self.ctrl0, self.c0, self.c1, self.c2, \
                                          self.seed, save_file)
@@ -88,7 +88,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         rho0 = np.array(rho0,dtype=np.complex128)
         pso = Main.QuanEstimation.CM_Compopt(self.freeHamiltonian, self.Hamiltonian_derivative, \
                     self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
-                    self.ctrl_bound, self.M, self.W, self.accuracy)
+                    self.ctrl_bound, self.M, self.W, self.eps)
         Main.QuanEstimation.CM_PSO_Compopt(rho0, pso, self.max_episode, self.particle_num, self.psi0, self.ctrl0, self.measurement, self.c0, self.c1, self.c2, \
                                          self.seed, save_file)
         self.load_save_meas()
@@ -109,7 +109,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             freeHamiltonian = [np.array(x, dtype=np.complex128) for x in Htot] 
 
         pso = Main.QuanEstimation.SM_Compopt(freeHamiltonian, self.Hamiltonian_derivative, self.psi, \
-                    self.tspan, self.decay_opt, self.gamma, self.M, self.W, self.accuracy)
+                    self.tspan, self.decay_opt, self.gamma, self.M, self.W, self.eps)
         Main.QuanEstimation.SM_PSO_Compopt(pso, self.max_episode, self.particle_num, self.psi0, self.measurement, \
                 self.c0, self.c1, self.c2, self.seed, save_file)
         self.load_save_meas()
@@ -117,7 +117,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
     def SCM(self, save_file=False):
         pso = Main.QuanEstimation.SCM_Compopt(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi, \
                     self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
-                    self.ctrl_bound, self.M, self.W, self.accuracy)
+                    self.ctrl_bound, self.M, self.W, self.eps)
         Main.QuanEstimation.SCM_PSO_Compopt(pso, self.max_episode, self.particle_num, self.psi0, self.ctrl0, self.measurement, self.c0, self.c1, self.c2, \
                                          self.seed, save_file)
         self.load_save_state()

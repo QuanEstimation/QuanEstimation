@@ -4,10 +4,10 @@ function decomposition(A)
     return R
 end
 
-function Holevo_bound(ρ::Matrix{T}, ∂ρ_∂x::Vector{Matrix{T}}, C::Matrix{Float64}, accuracy=1e-6) where {T<:Complex}
+function Holevo_bound(ρ::Matrix{T}, ∂ρ_∂x::Vector{Matrix{T}}, C::Matrix{Float64}, eps=1e-6) where {T<:Complex}
     if length(∂ρ_∂x) == 1
         println("In single parameter scenario, HCRB is equivalent to QFI. This function will return the value of QFI")
-        f = QFI(ρ, ∂ρ_∂x[1], accuracy)
+        f = QFI(ρ, ∂ρ_∂x[1], eps)
         return f
     else
         dim = size(ρ)[1]
@@ -30,7 +30,7 @@ function Holevo_bound(ρ::Matrix{T}, ∂ρ_∂x::Vector{Matrix{T}}, C::Matrix{Fl
             end
         end
 
-        accu = length(string(Int(ceil(1/accuracy))))-1
+        accu = length(string(Int(ceil(1/eps))))-1
         R = decomposition(round.(digits=accu, S))
 
         #=========optimization variables===========#
@@ -53,7 +53,7 @@ function Holevo_bound(ρ::Matrix{T}, ∂ρ_∂x::Vector{Matrix{T}}, C::Matrix{Fl
     end
 end
 
-function Holevo_bound_tgt(ρ::Matrix{T}, ∂ρ_∂x::Vector{Matrix{T}}, C::Matrix{Float64}, accuracy=1e-6) where {T<:Complex}
+function Holevo_bound_tgt(ρ::Matrix{T}, ∂ρ_∂x::Vector{Matrix{T}}, C::Matrix{Float64}, eps=1e-6) where {T<:Complex}
 
     dim = size(ρ)[1]
     num = dim*dim
@@ -75,7 +75,7 @@ function Holevo_bound_tgt(ρ::Matrix{T}, ∂ρ_∂x::Vector{Matrix{T}}, C::Matri
         end
     end
 
-    accu = length(string(Int(ceil(1/accuracy))))-1
+    accu = length(string(Int(ceil(1/eps))))-1
     R = decomposition(round.(digits=accu, S))
 
     #=========optimization variables===========#
@@ -97,45 +97,45 @@ function Holevo_bound_tgt(ρ::Matrix{T}, ∂ρ_∂x::Vector{Matrix{T}}, C::Matri
     return evaluate(tr(C*V)), evaluate(X), evaluate(V)
 end
 
-function obj_func(x::Val{:HCRB}, ρt, ∂ρt_∂x, W, M, accuracy)
-    f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, W, accuracy)  
+function obj_func(x::Val{:HCRB}, ρt, ∂ρt_∂x, W, M, eps)
+    f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, W, eps)  
     return f 
 end
 
 function obj_func(x::Val{:HCRB}, system, M)
     ρt, ∂ρt_∂x = dynamics(system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ, 
                 system.control_Hamiltonian, system.control_coefficients, system.tspan)
-    f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, system.W, system.accuracy)  
+    f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, system.W, system.eps)  
     return f         
 end
 
 function obj_func(x::Val{:HCRB}, system, M, control_coeff)
     ρt, ∂ρt_∂x = dynamics(system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ, 
                 system.control_Hamiltonian, control_coeff, system.tspan)
-    f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, system.W, system.accuracy)   
+    f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, system.W, system.eps)   
     return f 
 end
 
 function obj_func(x::Val{:HCRB_TimeIndepend_noiseless}, system, M)
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(system.freeHamiltonian, system.Hamiltonian_derivative, system.psi, system.tspan)
-    f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, system.W, system.accuracy)   
+    f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, system.W, system.eps)   
     return f        
 end
 
 function obj_func(x::Val{:HCRB_TimeIndepend_noiseless}, system, M, psi)
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(system.freeHamiltonian, system.Hamiltonian_derivative, psi, system.tspan)
-    f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, system.W, system.accuracy)     
+    f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, system.W, system.eps)     
     return f      
 end
 
 function obj_func(x::Val{:HCRB_TimeIndepend_noise}, system, M)
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(system.freeHamiltonian, system.Hamiltonian_derivative, system.psi, system.decay_opt, system.γ, system.tspan)
-    f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, system.W, system.accuracy)   
+    f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, system.W, system.eps)   
     return f 
 end
 
 function obj_func(x::Val{:HCRB_TimeIndepend_noise}, system, M, psi)
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(system.freeHamiltonian, system.Hamiltonian_derivative, psi, system.decay_opt, system.γ, system.tspan)
-    f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, system.W, system.accuracy)   
+    f, X, V = Holevo_bound_tgt(ρt, ∂ρt_∂x, system.W, system.eps)   
     return f 
 end

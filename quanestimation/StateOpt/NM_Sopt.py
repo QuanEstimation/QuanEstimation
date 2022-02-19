@@ -6,7 +6,7 @@ class NM_Sopt(State.StateSystem):
     def __init__(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], W=[], state_num=10, psi0=[], \
                  max_episode=1000, ar=1.0, ae=2.0, ac=0.5, as0=0.5, seed=1234, load=False):
 
-        State.StateSystem.__init__(self, tspan, psi0, H0, dH, Hc, ctrl, decay, W, seed, load, accuracy=1e-8)
+        State.StateSystem.__init__(self, tspan, psi0, H0, dH, Hc, ctrl, decay, W, seed, load, eps=1e-8)
 
         """
         --------
@@ -44,8 +44,8 @@ class NM_Sopt(State.StateSystem):
             --description: random seed.
             --type: int
 
-        accuracy:
-            --description: calculation accuracy.
+        eps:
+            --description: calculation eps.
             --type: float
         
         """
@@ -80,12 +80,12 @@ class NM_Sopt(State.StateSystem):
 
         if any(self.gamma):
             neldermead = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                                self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+                                                                self.tspan, self.decay_opt, self.gamma, self.W, self.eps)
             Main.QuanEstimation.QFIM_NM_Sopt(neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, self.as0, \
                                         self.max_episode, self.seed, save_file)
         else:
             neldermead = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                                                                    self.psi0, self.tspan, self.W, self.accuracy)
+                                                                    self.psi0, self.tspan, self.W, self.eps)
             Main.QuanEstimation.QFIM_NM_Sopt(neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, self.as0, \
                                         self.max_episode, self.seed, save_file)
         self.load_save()
@@ -105,12 +105,12 @@ class NM_Sopt(State.StateSystem):
         """
         if any(self.gamma):
             neldermead = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                                self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+                                                                self.tspan, self.decay_opt, self.gamma, self.W, self.eps)
             Main.QuanEstimation.CFIM_NM_Sopt(M, neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, \
                                         self.as0, self.max_episode, self.seed, save_file)
         else:
             neldermead = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                                                                    self.psi0, self.tspan, self.W, self.accuracy)
+                                                                    self.psi0, self.tspan, self.W, self.eps)
             Main.QuanEstimation.CFIM_NM_Sopt(M, neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, \
                                         self.as0, self.max_episode, self.seed, save_file)
         self.load_save()
@@ -133,12 +133,12 @@ class NM_Sopt(State.StateSystem):
         else:
             if any(self.gamma):
                 neldermead = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                                self.tspan, self.decay_opt, self.gamma, self.W, self.accuracy)
+                                                                self.tspan, self.decay_opt, self.gamma, self.W, self.eps)
                 Main.QuanEstimation.HCRB_NM_Sopt(neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, self.as0, \
                                         self.max_episode, self.seed, save_file)
             else:
                 neldermead = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, \
-                                                                    self.psi0, self.tspan, self.W, self.accuracy)
+                                                                    self.psi0, self.tspan, self.W, self.eps)
                 Main.QuanEstimation.HCRB_NM_Sopt(neldermead, self.state_num, self.ini_state, self.ar, self.ae, self.ac, self.as0, \
                                         self.max_episode, self.seed, save_file)
             self.load_save()

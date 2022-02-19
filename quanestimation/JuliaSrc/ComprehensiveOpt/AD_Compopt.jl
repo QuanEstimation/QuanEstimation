@@ -1,16 +1,16 @@
 ################ state and control optimization ###############
-function SC_AD_Compopt(AD::SC_Compopt{T}, max_episode, epsilon, mt, vt, beta1, beta2, accuracy, Adam, save_file) where {T<:Complex}
+function SC_AD_Compopt(AD::SC_Compopt{T}, max_episode, epsilon, mt, vt, beta1, beta2, eps, Adam, save_file) where {T<:Complex}
     sym = Symbol("QFIM_SCopt")
     str1 = "quantum"
     str2 = "QFI"
     str3 = "tr(WF^{-1})"
     M = [zeros(ComplexF64, size(AD.psi)[1], size(AD.psi)[1])]
-    return info_AD_SCopt(M, AD, max_episode, epsilon, mt, vt, beta1, beta2, accuracy, Adam, save_file, sym, str1, str2, str3)
+    return info_AD_SCopt(M, AD, max_episode, epsilon, mt, vt, beta1, beta2, eps, Adam, save_file, sym, str1, str2, str3)
 end
  
 function gradient_QFI!(AD::SC_Compopt{T}, epsilon) where {T<:Complex}
     arr = [AD.psi, AD.control_coefficients]
-    δF = gradient(x->QFI(x, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.decay_opt, AD.γ, AD.control_Hamiltonian, AD.tspan, AD.accuracy), arr)[1]
+    δF = gradient(x->QFI(x, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.decay_opt, AD.γ, AD.control_Hamiltonian, AD.tspan, AD.eps), arr)[1]
     δF1 = δF[1]
     δF2 = δF[2]
     AD.psi += epsilon*δF1
@@ -20,22 +20,22 @@ function gradient_QFI!(AD::SC_Compopt{T}, epsilon) where {T<:Complex}
     bound!(AD.control_coefficients, AD.ctrl_bound)
 end
 
-function gradient_QFI_Adam!(AD::SC_Compopt{T}, epsilon, mt, vt, beta1, beta2, accuracy) where {T<:Complex}
+function gradient_QFI_Adam!(AD::SC_Compopt{T}, epsilon, mt, vt, beta1, beta2, eps) where {T<:Complex}
     arr = [AD.psi, AD.control_coefficients]
 
-    δF = gradient(x->QFI(x, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.decay_opt, AD.γ, AD.control_Hamiltonian, AD.tspan, AD.accuracy), arr)[1]
+    δF = gradient(x->QFI(x, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.decay_opt, AD.γ, AD.control_Hamiltonian, AD.tspan, AD.eps), arr)[1]
     δF1 = δF[1]
     δF2 = δF[2]
-    StateOpt_Adam!(AD, δF1, epsilon, mt, vt, beta1, beta2, accuracy) 
+    StateOpt_Adam!(AD, δF1, epsilon, mt, vt, beta1, beta2, eps) 
     AD.psi = AD.psi/norm(AD.psi)
 
-    Adam!(AD, real(δF2), epsilon, mt, vt, beta1, beta2, accuracy)
+    Adam!(AD, real(δF2), epsilon, mt, vt, beta1, beta2, eps)
     bound!(AD.control_coefficients, AD.ctrl_bound)
 end
 
 function gradient_QFIM!(AD::SC_Compopt{T}, epsilon) where {T<:Complex}
     arr = [AD.psi, AD.control_coefficients]
-    δF = gradient(x->1/(AD.W*pinv(QFIM(x, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.decay_opt, AD.γ, AD.control_Hamiltonian, AD.tspan, AD.accuracy), rtol=AD.accuracy) |> tr |>real), arr) |>sum
+    δF = gradient(x->1/(AD.W*pinv(QFIM(x, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.decay_opt, AD.γ, AD.control_Hamiltonian, AD.tspan, AD.eps), rtol=AD.eps) |> tr |>real), arr) |>sum
     δF1 = δF[1]
     δF2 = δF[2]
 
@@ -46,19 +46,19 @@ function gradient_QFIM!(AD::SC_Compopt{T}, epsilon) where {T<:Complex}
     bound!(AD.control_coefficients, AD.ctrl_bound)
 end
 
-function gradient_QFIM_Adam!(AD::SC_Compopt{T}, epsilon, mt, vt, beta1, beta2, accuracy) where {T<:Complex}
+function gradient_QFIM_Adam!(AD::SC_Compopt{T}, epsilon, mt, vt, beta1, beta2, eps) where {T<:Complex}
     arr = [AD.psi, AD.control_coefficients]
-    δF = gradient(x->1/(AD.W*pinv(QFIM(x, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.decay_opt, AD.γ, AD.control_Hamiltonian, AD.tspan, AD.accuracy), rtol=AD.accuracy) |> tr |>real), arr) |>sum
+    δF = gradient(x->1/(AD.W*pinv(QFIM(x, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.decay_opt, AD.γ, AD.control_Hamiltonian, AD.tspan, AD.eps), rtol=AD.eps) |> tr |>real), arr) |>sum
     δF1 = δF[1]
     δF2 = δF[2]
-    StateOpt_Adam!(AD, δF1, epsilon, mt, vt, beta1, beta2, accuracy) 
+    StateOpt_Adam!(AD, δF1, epsilon, mt, vt, beta1, beta2, eps) 
     AD.psi = AD.psi/norm(AD.psi)
 
-    Adam!(AD, real(δF2), epsilon, mt, vt, beta1, beta2, accuracy)
+    Adam!(AD, real(δF2), epsilon, mt, vt, beta1, beta2, eps)
     bound!(AD.control_coefficients, AD.ctrl_bound)
 end
 
-function info_AD_SCopt(M, AD, max_episode, epsilon, mt, vt, beta1, beta2, accuracy, Adam, save_file, sym, str1, str2, str3)
+function info_AD_SCopt(M, AD, max_episode, epsilon, mt, vt, beta1, beta2, eps, Adam, save_file, sym, str1, str2, str3)
     println("comprehensive optimization")
     ctrl_num = length(AD.control_Hamiltonian)
     ctrl_length = length(AD.control_coefficients[1])
@@ -75,7 +75,7 @@ function info_AD_SCopt(M, AD, max_episode, epsilon, mt, vt, beta1, beta2, accura
         if save_file == true
             SaveFile_SC(1.0/f_ini, AD.psi, AD.control_coefficients)
             if Adam == true
-                gradient_QFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, accuracy)
+                gradient_QFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, eps)
                 while true
                     f_now = obj_func(Val{sym}(), AD, M, AD.psi, AD.control_coefficients)
                     f_now = 1.0/f_now
@@ -90,7 +90,7 @@ function info_AD_SCopt(M, AD, max_episode, epsilon, mt, vt, beta1, beta2, accura
                         SaveFile_SC(f_now, AD.psi, AD.control_coefficients)
                         print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
-                    gradient_QFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, accuracy)
+                    gradient_QFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, eps)
                 end
             else
                 gradient_QFI!(AD, epsilon)
@@ -113,7 +113,7 @@ function info_AD_SCopt(M, AD, max_episode, epsilon, mt, vt, beta1, beta2, accura
             end
         else
             if Adam == true
-                gradient_QFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, accuracy)
+                gradient_QFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, eps)
                 while true
                     f_now = obj_func(Val{sym}(), AD, M, AD.psi, AD.control_coefficients)
                     f_now = 1.0/f_now
@@ -129,7 +129,7 @@ function info_AD_SCopt(M, AD, max_episode, epsilon, mt, vt, beta1, beta2, accura
                         append!(f_list, f_now)
                         print("current $str2 is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
-                    gradient_QFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, accuracy)
+                    gradient_QFI_Adam!(AD, epsilon, mt, vt, beta1, beta2, eps)
                 end
             else
                 gradient_QFI!(AD, epsilon)
@@ -164,7 +164,7 @@ function info_AD_SCopt(M, AD, max_episode, epsilon, mt, vt, beta1, beta2, accura
         if save_file == true
             SaveFile_SC(f_ini, AD.psi, AD.control_coefficients)
             if Adam == true
-                gradient_QFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, accuracy)
+                gradient_QFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, eps)
                 while true
                     f_now = obj_func(Val{sym}(), AD, M, AD.psi, AD.control_coefficients)
                     if  episodes >= max_episode
@@ -178,7 +178,7 @@ function info_AD_SCopt(M, AD, max_episode, epsilon, mt, vt, beta1, beta2, accura
                         SaveFile_SC(f_now, AD.psi, AD.control_coefficients)
                         print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
-                    gradient_QFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, accuracy)
+                    gradient_QFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, eps)
                 end
             else
                 gradient_QFIM!(AD, epsilon)
@@ -200,7 +200,7 @@ function info_AD_SCopt(M, AD, max_episode, epsilon, mt, vt, beta1, beta2, accura
             end
         else
             if Adam == true
-                gradient_QFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, accuracy)
+                gradient_QFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, eps)
                 while true
                     f_now = obj_func(Val{sym}(), AD, M, AD.psi, AD.control_coefficients)
                     if  episodes >= max_episode
@@ -215,7 +215,7 @@ function info_AD_SCopt(M, AD, max_episode, epsilon, mt, vt, beta1, beta2, accura
                         append!(f_list, f_now)
                         print("current value of $str3 is ", f_now, " ($(episodes-1) episodes)    \r")
                     end
-                    gradient_QFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, accuracy)
+                    gradient_QFIM_Adam!(AD, epsilon, mt, vt, beta1, beta2, eps)
                 end
             else
                 gradient_QFIM!(AD, epsilon)
