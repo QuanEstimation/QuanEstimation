@@ -184,7 +184,7 @@ function QVTB(x, p, dp, rho, drho; dtype="SLD", btype=1, eps=1e-8)
             I = trapzm(x, integrands, xnum^2) |> I->reshape(I,xnum,xnum)
 
         elseif btype == 2
-            Iprs = [Ip(p,dp)|>vec for (p,dp) in zip(p,dp)]
+            Iprs = [p*Ip(p,dp)|>vec for (p,dp) in zip(p,dp)]
             Ipr = trapzm(x, Iprs, xnum^2)|> I->reshape(I,xnum,xnum)
 
             Fs = [p*QFIM(rho,drho,eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
@@ -242,7 +242,7 @@ function VTB(x, p, dp, rho, drho; M=[], btype=1, eps=1e-8)
             I = trapzm(x, integrands, xnum^2) |> I->reshape(I,xnum,xnum)
 
         elseif btype == 2
-            Iprs = [Ip(p,dp)|>vec for (p,dp) in zip(p,dp)]
+            Iprs = [p*Ip(p,dp)|>vec for (p,dp) in zip(p,dp)]
             Ipr = trapzm(x, Iprs, xnum^2)|> I->reshape(I,xnum,xnum)
 
             Fs = [p*CFIM(rho,drho,M,eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
