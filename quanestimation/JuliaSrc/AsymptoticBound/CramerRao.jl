@@ -146,7 +146,7 @@ end
 function QFIM(ρ, dρ, eps=1e-8)
     p_num = length(dρ)
     LD_tp = SLD(ρ, dρ, eps)
-    qfim = ([0.5*ρ] .* (kron(SLD_tp, reshape(SLD_tp,1,p_num)) + kron(reshape(SLD_tp,1,p_num), SLD_tp))).|> tr .|>real 
+    qfim = ([0.5*ρ] .* (kron(LD_tp, reshape(LD_tp,1,p_num)) + kron(reshape(LD_tp,1,p_num), LD_tp))).|> tr .|>real 
 end
 
 function QFIM_RLD(ρ, dρ, eps=1e-8)
@@ -158,15 +158,15 @@ end
 
 function QFIM_LLD(ρ, dρ, eps=1e-8)
     p_num = length(dρ)
-    SLD_tp = LLD(ρ, dρ, eps)
+    LD_tp = LLD(ρ, dρ, eps)
     LD_dag = [LD_tp[i]' for i in 1:p_num]
     qfim = ([ρ] .* (kron(LD_tp, reshape(LD_dag,1,p_num)))).|> tr .|>real 
 end
 
 function QFIM_liouville(ρ, dρ)
     p_num = length(dρ)
-    SLD_tp = SLD_liouville(ρ, dρ)
-    qfim = ([0.5*ρ] .* (kron(SLD_tp, reshape(SLD_tp,1,p_num)) + kron(reshape(SLD_tp,1,p_num), SLD_tp))).|> tr .|>real 
+    LD_tp = SLD_liouville(ρ, dρ)
+    qfim = ([0.5*ρ] .* (kron(LD_tp, reshape(LD_tp,1,p_num)) + kron(reshape(LD_tp,1,p_num), LD_tp))).|> tr .|>real 
 end
 
 function QFIM_pure(ρ::Matrix{T}, ∂ρ_∂x::Vector{Matrix{T}}) where {T<:Complex}

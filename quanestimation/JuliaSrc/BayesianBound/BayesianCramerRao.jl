@@ -1,7 +1,6 @@
 
 ########## Bayesian quantum Cramer-Rao bound ##########
 function BQCRB(x, p, rho, drho; b=[], db=[], btype=1, eps=1e-8)
-        
     para_num = length(x)
 
     if b==[]
@@ -11,7 +10,6 @@ function BQCRB(x, p, rho, drho; b=[], db=[], btype=1, eps=1e-8)
     if b!=[] && db==[] 
         db = [zero(x) for x in x]
     end
-
     
     if para_num == 1    
         p_num = length(p)
@@ -19,10 +17,10 @@ function BQCRB(x, p, rho, drho; b=[], db=[], btype=1, eps=1e-8)
         if typeof(drho[1]) == Vector{Matrix{ComplexF64}}
             drho = [drho[i][1] for i in 1:p_num]
         end
-        if typeof(b) == Vector{Float64} || typeof(b) == Vector{Int64}
+        if typeof(b[1]) == Vector{Float64} || typeof(b[1]) == Vector{Int64}
             b = b[1]
         end
-        if typeof(db) == Vector{Float64} || typeof(db) == Vector{Int64}
+        if typeof(db[1]) == Vector{Float64} || typeof(db[1]) == Vector{Int64}
             db = db[1]
         end
         F_tp = zeros(p_num)
@@ -32,12 +30,16 @@ function BQCRB(x, p, rho, drho; b=[], db=[], btype=1, eps=1e-8)
         end
         F = 0.0
         if btype == 1
-            arr = [p[i]*((1+db)^2/F_tp[i]+b^2) for i in 1:p_num]
+            arr = [p[i]*((1+db[i])^2/F_tp[i]+b[i]^2) for i in 1:p_num]
             F = trapz(x[1], arr)
         elseif btype == 2
             arr = [p[i]*F_tp[i] for i in 1:p_num]
             F1 = trapz(x[1], arr)
-            F = (1+db)^2*(1.0/F1)+b^2
+            arr2 = [p[j]*(1+db[j]) for j in 1:p_num]
+            B = trapz(x[1], arr2)
+            arr3 = [p[k]*b[k]^2 for k in 1:p_num]
+            bb = trapz(x[1], arr3)
+            F = B^2/F1+bb
         end
         return F
     else
@@ -45,34 +47,26 @@ function BQCRB(x, p, rho, drho; b=[], db=[], btype=1, eps=1e-8)
         xnum = length(x)
         bs  =  Iterators.product(b...)
         dbs =  Iterators.product(db...)
-
         trapzm(x, integrands, slice_dim) =  [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
 
         if btype == 1 
             integrand(p,rho,drho,b,db)=p*diagm(1 .+db)*pinv(QFIM(rho,drho,eps))*diagm(1 .+db)+b*b'
-
             integrands = [integrand(p,rho,drho,[b...],[db...])|>vec for (p,rho,drho,b,db) in zip(p,rho,drho,bs,dbs)]
-
             I = trapzm(x, integrands, xnum^2) |> I->reshape(I,xnum,xnum)
-
         elseif btype == 2
             Bs = [p*(1 .+[db...]) for (p,db) in zip(p,dbs)]
             B = trapzm(x, Bs, xnum)|> diagm
-
             Fs = [p*QFIM(rho,drho,eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
             F = trapzm(x, Fs, xnum^2) |> I->reshape(I,xnum,xnum)
-
             bbts = [p*[b...]*[b...]'|>vec for (p,b) in zip(p,bs)]
             I = B*pinv(F)*B + (trapzm(x, bbts, xnum^2) |> I->reshape(I,xnum,xnum))
         end
         return I
     end
-
 end
 
 function BCRB(x, p, rho, drho; M=[], b=[], db=[], btype=1, eps=1e-8)
     para_num = length(x)
-
     
     if b==[]
         b =  [zero(x) for x in x]
@@ -82,17 +76,16 @@ function BCRB(x, p, rho, drho; M=[], b=[], db=[], btype=1, eps=1e-8)
         db = [zero(x) for x in x]
     end
 
-    
     if para_num == 1
         p_num = length(p)
         #### singleparameter senario ####
         if typeof(drho[1]) == Vector{Matrix{ComplexF64}}
             drho = [drho[i][1] for i in 1:p_num]
         end
-        if typeof(b) == Vector{Float64} || typeof(b) == Vector{Int64}
+        if typeof(b[1]) == Vector{Float64} || typeof(b[1]) == Vector{Int64}
             b = b[1]
         end
-        if typeof(db) == Vector{Float64} || typeof(db) == Vector{Int64}
+        if typeof(db[1]) == Vector{Float64} || typeof(db[1]) == Vector{Int64}
             db = db[1]
         end
         F_tp = zeros(p_num)
@@ -102,12 +95,16 @@ function BCRB(x, p, rho, drho; M=[], b=[], db=[], btype=1, eps=1e-8)
         end
         F = 0.0
         if btype == 1
-            arr = [p[i]*((1+db)^2/F_tp[i]+b^2) for i in 1:p_num]
+            arr = [p[i]*((1+db[i])^2/F_tp[i]+b[i]^2) for i in 1:p_num]
             F = trapz(x[1], arr)
         elseif btype == 2
             arr = [p[i]*F_tp[i] for i in 1:p_num]
             F1 = trapz(x[1], arr)
-            F = (1+db)^2*(1.0/F1)+b^2
+            arr2 = [p[j]*(1+db[j]) for j in 1:p_num]
+            B = trapz(x[1], arr2)
+            arr3 = [p[k]*b[k]^2 for k in 1:p_num]
+            bb = trapz(x[1], arr3)
+            F = B^2/F1+bb
         end
         return F
     else
@@ -115,29 +112,22 @@ function BCRB(x, p, rho, drho; M=[], b=[], db=[], btype=1, eps=1e-8)
         xnum = length(x)
         bs  =  Iterators.product(b...)
         dbs =  Iterators.product(db...)
-
         trapzm(x, integrands, slice_dim) =  [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
 
         if btype == 1 
             integrand(p,rho,drho,b,db)=p*diagm(1 .+db)*pinv(CFIM(rho,drho,M,eps))*diagm(1 .+db)+b*b'
-
             integrands = [integrand(p,rho,drho,[b...],[db...])|>vec for (p,rho,drho,b,db) in zip(p,rho,drho,bs,dbs)]
-
             I = trapzm(x, integrands, xnum^2) |> I->reshape(I,xnum,xnum)
-
         elseif btype == 2
             Bs = [p*(1 .+[db...]) for (p,db) in zip(p,dbs)]
             B = trapzm(x, Bs, xnum)|> diagm
-
             Fs = [p*CFIM(rho,drho,M,eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
             F = trapzm(x, Fs, xnum^2) |> I->reshape(I,xnum,xnum)
-
             bbts = [p*[b...]*[b...]'|>vec for (p,b) in zip(p,bs)]
             I = B*pinv(F)*B + (trapzm(x, bbts, xnum^2) |> I->reshape(I,xnum,xnum))
         end    
         return I
     end
-
 end
 
 function QVTB(x, p, dp, rho, drho; dtype="SLD", btype=1, eps=1e-8)
@@ -172,24 +162,18 @@ function QVTB(x, p, dp, rho, drho; dtype="SLD", btype=1, eps=1e-8)
     else
         #### multiparameter senario ####
         xnum = length(x)
-
         trapzm(x, integrands, slice_dim) =  [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
-
         Ip(p,dp) = dp*dp'/p^2
 
         if btype == 1 
             integrand(p,dp,rho,drho)=p*pinv(Ip(p,dp)+QFIM(rho,drho,eps))
             integrands = [integrand(p,dp,rho,drho)|>vec for (p,dp,rho,drho) in zip(p,dp,rho,drho)]
-
             I = trapzm(x, integrands, xnum^2) |> I->reshape(I,xnum,xnum)
-
         elseif btype == 2
             Iprs = [p*Ip(p,dp)|>vec for (p,dp) in zip(p,dp)]
             Ipr = trapzm(x, Iprs, xnum^2)|> I->reshape(I,xnum,xnum)
-
             Fs = [p*QFIM(rho,drho,eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
             F = trapzm(x, Fs, xnum^2) |> I->reshape(I,xnum,xnum)
-
             I = pinv(Ipr+F)
         end
         return I
@@ -230,24 +214,17 @@ function VTB(x, p, dp, rho, drho; M=[], btype=1, eps=1e-8)
     else
         #### multiparameter senario #### # TODO: load_M for multi-
         xnum = length(x)
-
         trapzm(x, integrands, slice_dim) =  [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
-
         Ip(p,dp) = dp*dp'/p^2
-
         if btype == 1 
             integrand(p,dp,rho,drho)=p*pinv(Ip(p,dp)+CFIM(rho,drho,M,eps))
             integrands = [integrand(p,dp,rho,drho)|>vec for (p,dp,rho,drho) in zip(p,dp,rho,drho)]
-
             I = trapzm(x, integrands, xnum^2) |> I->reshape(I,xnum,xnum)
-
         elseif btype == 2
             Iprs = [p*Ip(p,dp)|>vec for (p,dp) in zip(p,dp)]
             Ipr = trapzm(x, Iprs, xnum^2)|> I->reshape(I,xnum,xnum)
-
             Fs = [p*CFIM(rho,drho,M,eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
             F = trapzm(x, Fs, xnum^2) |> I->reshape(I,xnum,xnum)
-
             I = pinv(Ipr+F)
         end
         return I
