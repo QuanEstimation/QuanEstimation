@@ -30,7 +30,6 @@ function secondorder(H0, ∂H_∂x::Vector{Matrix{T}}, ∂2H_∂x::Vector{Matrix
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat, ∂2ρt_∂x |> vec2mat
 end
 
-
 #initial state
 rho0 = 0.5*[1.0 1.0+0.0im; 1.0 1.0]
 #Hamiltonian
@@ -50,9 +49,11 @@ function d2H_res(x)
 end
 
 #measurement
-M1 = 0.5*[1.0 1.0; 1.0 1.0+0.0im]
-M2 = 0.5*[1.0 -1.0; -1.0 1.0+0.0im]
-Measurement = [M1, M2]
+# M1 = 0.5*[1.0 1.0; 1.0 1.0+0.0im]
+# M2 = 0.5*[1.0 -1.0; -1.0 1.0+0.0im]
+# Measurement = [M1, M2]
+Measurement = sic_povm([0.37637620719571985+2.7760878126176896im,1.1538819157681195+0.87835540934078105im])
+
 
 tspan = range(0.0, stop=1.0, length=1000)
 
@@ -80,9 +81,11 @@ for i in 1:length(xspan)
     end
 end
 
-f1 = BQCRB(xspan, p, rho_all, drho_all, accuracy=1e-8)
-f2 = TWCB(xspan, p, [dp], rho_all, drho_all, accuracy=1e-8)
-f3 = OBB(xspan, p, [dp], rho_all, drho_all, d2rho_all, accuracy=1e-8)
-f4 = QZZB(xspan, p, rho_all)
-println(f1, f2, f3, f4)
-
+f2_1 = VTB([xspan], p, dp, rho_all, drho_all, M=Measurement, btype=1, eps=1e-8)
+f2_2 = VTB([xspan], p, dp, rho_all, drho_all, M=Measurement, btype=2, eps=1e-8)
+f3_1 = QVTB([xspan], p, dp, rho_all, drho_all, btype=1, eps=1e-8)
+f3_2 = QVTB([xspan], p, dp, rho_all, drho_all, btype=2, eps=1e-8)
+f2_1 = VTB([xspan], p, dp, rho_all, drho_all, M=Measurement, btype=1, eps=1e-8)
+f2_2 = VTB([xspan], p, dp, rho_all, drho_all, M=Measurement, btype=2, eps=1e-8)
+f3_1 = QVTB([xspan], p, dp, rho_all, drho_all, btype=1, eps=1e-8)
+f3_2 = QVTB([xspan], p, dp, rho_all, drho_all, btype=2, eps=1e-8)

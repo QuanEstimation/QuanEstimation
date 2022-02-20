@@ -367,7 +367,7 @@ def VTB(x, p, dp, rho, drho, M=[], btype=1, eps=1e-8):
                 for pj in range(para_num):
                     for pk in range(para_num):
                         F_list[pj][pk][i] = F_tp[pj][pk]
-                        I_list[pj][pk][i] = dp_list[i][pm]*dp_list[i][pn]/p_list[i]**2
+                        I_list[pj][pk][i] = dp_list[i][pj]*dp_list[i][pk]/p_list[i]**2
 
             F_res = np.zeros([para_num,para_num])
             I_res = np.zeros([para_num,para_num])
