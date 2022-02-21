@@ -2,7 +2,7 @@
 import numpy as np
 import numpy.linalg as LA
 from scipy.integrate import simps
-from quanestimation.Common.common import load_M, extract_ele
+from quanestimation.Common.common import load_M, extract_ele, suN_generator
 #===============================================================================
 #Subclass: metrology
 #===============================================================================
@@ -555,7 +555,7 @@ def BQFIM(x, p, rho, drho, dtype="SLD", eps=1e-8):
                 BQFIM_res[para_j][para_i] = arr
         return BQFIM_res
 
-def QFIM_Bloch(self, r, dr):
+def QFIM_Bloch(r, dr, eps=1e-8):
     """
     Description: Calculation of quantum Fisher information matrix (QFIM)
                 in Bloch representation.
@@ -582,35 +582,43 @@ def QFIM_Bloch(self, r, dr):
     dim = int(np.sqrt(len(r)+1))
     Lambda = suN_generator(dim)
 
-    if dim==2:
+    if dim == 2:
+        #### single-qubit system ####
         r_norm = np.linalg.norm(r)**2
-        for para_i in range(0, para_num):
-            for para_j in range(para_i, para_num): 
-                QFIM_res[para_i][para_j] = np.inner(dr[para_i], dr[para_j])+np.inner(r, dr[para_i])\
-                                      *np.inner(r, dr[para_j])/(1-r_norm)
-                QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
-
+        if np.abs(r_norm-1.0) < eps:
+            for para_i in range(0, para_num):
+                for para_j in range(para_i, para_num): 
+                    QFIM_res[para_i][para_j] = np.real(np.inner(dr[para_i], dr[para_j]))
+                    QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
+        else:
+            for para_i in range(0, para_num):
+                for para_j in range(para_i, para_num): 
+                    QFIM_res[para_i][para_j] = np.real(np.inner(dr[para_i], dr[para_j])\
+                            +np.inner(r, dr[para_i])*np.inner(r, dr[para_j])/(1-r_norm))
+                    QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
     else:
-            
-        rho = (np.qeye(dim)+np.sqrt(dim*(dim+1)/2)*np.inner(r,Lambda))/dim
+        rho = np.identity(dim, dtype=np.complex128)/dim
+        for di in range(dim**2-1):
+            rho += np.sqrt(dim*(dim-1)/2)*r[di]*Lambda[di]/dim
         
-        G = np.zeros([dim**2-1, dim**2-1])
+        G = np.zeros((dim**2-1, dim**2-1), dtype=np.complex128)
         for row_i in range(dim**2-1):
-            for col_j in range(dim**2-1):
+            for col_j in range(row_i, dim**2-1):
                 anti_commu = np.dot(Lambda[row_i], Lambda[col_j])\
                              +np.dot(Lambda[col_j], Lambda[row_i])
                 G[row_i][col_j] = 0.5*np.trace(np.dot(rho, anti_commu))
+                G[col_j][row_i] = G[row_i][col_j]
         
-        mat_tp = G*dim/(2*(dim-1))-np.dot(r,r.T)
-        mat_inv = np.linalg.inv(mat_tp) 
+        mat_tp = G*dim/(2*(dim-1))-np.dot(np.array(r).reshape(len(r), 1), np.array(r).reshape(1, len(r)))
+        mat_inv = np.linalg.pinv(mat_tp) 
         
-        for para_i in range(0, para_num):
-            for para_j in range(para_i, para_num): 
-                QFIM_res[para_i][para_j] = np.dot(dr[para_j].T,np.dot(mat_inv, dr[para_i]))
-                QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
+        for para_m in range(0, para_num):
+            for para_n in range(para_m, para_num): 
+                QFIM_res[para_m][para_n] = np.real(np.dot(np.array(dr[para_n]).reshape(1, len(r)),\
+                                           np.dot(mat_inv, np.array(dr[para_m]).reshape(len(r), 1)))[0][0])
+                QFIM_res[para_n][para_m] = QFIM_res[para_m][para_n]
                 
     if para_num == 1:
         return QFIM_res[0][0]
     else:
         return QFIM_res
-

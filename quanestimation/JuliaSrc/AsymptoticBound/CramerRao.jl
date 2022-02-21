@@ -631,3 +631,55 @@ function QFIM(ρ, dρ::Vector{Matrix{T}}; dtype="SLD", exportLD=false, eps=1e-8)
         end
     end
 end
+
+function QFIM_Bloch(r, dr; eps=1e-8)
+    para_num = length(dr)
+    QFIM_res = zeros(para_num, para_num)
+        
+    dim = Int(sqrt(length(r)+1))
+    Lambda = suN_generator(dim)
+    if dim == 2
+        r_norm = norm(r)^2
+        if abs(r_norm-1.0) < eps
+            for para_i in 1:para_num
+                for para_j in para_i:para_num
+                    QFIM_res[para_i, para_j] = dr[para_i]'*dr[para_j]
+                    QFIM_res[para_j, para_i] = QFIM_res[para_i, para_j]
+                end
+            end
+        else
+            for para_i in 1:para_num
+                for para_j in para_i:para_num
+                    QFIM_res[para_i, para_j] = dr[para_i]'*dr[para_j]+(r'*dr[para_i])*(r'*dr[para_j])/(1-r_norm)
+                    QFIM_res[para_j, para_i] = QFIM_res[para_i, para_j]
+                end
+            end
+        end
+    else
+        rho = (Matrix(I,dim,dim)+sqrt(dim*(dim-1)/2)*r'*Lambda)/dim
+        G = zeros(ComplexF64, dim^2-1, dim^2-1)
+        for row_i in 1:dim^2-1
+            for col_j in row_i:dim^2-1
+                anti_commu = Lambda[row_i]*Lambda[col_j]+Lambda[col_j]*Lambda[row_i]
+                G[row_i, col_j] = 0.5*tr(rho*anti_commu)
+                G[col_j, row_i] = G[row_i, col_j]
+            end
+        end
+
+        mat_tp = G*dim/(2*(dim-1))-r*r'
+        mat_inv = pinv(mat_tp) 
+
+        for para_m in 1:para_num
+            for para_n in para_m:para_num
+                # println(dr[para_n]*mat_inv*dr[para_m]')
+                QFIM_res[para_m, para_n] = dr[para_n]'*mat_inv*dr[para_m]
+                QFIM_res[para_n, para_m] = QFIM_res[para_m, para_n]
+            end
+        end
+    end
+    if para_num == 1
+        return QFIM_res[1,1]
+    else
+        return QFIM_res
+    end
+end
