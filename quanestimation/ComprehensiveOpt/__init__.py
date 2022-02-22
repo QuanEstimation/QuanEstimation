@@ -1,7 +1,3 @@
-from quanestimation.ComprehensiveOpt import AD_Compopt
-from quanestimation.ComprehensiveOpt import PSO_Compopt
-from quanestimation.ComprehensiveOpt import DE_Compopt
-
 from quanestimation.ComprehensiveOpt.ComprehensiveStruct import (ComprehensiveSystem, ComprehensiveOpt, )
 from quanestimation.ComprehensiveOpt.AD_Compopt import (AD_Compopt,)
 from quanestimation.ComprehensiveOpt.DE_Compopt import (DE_Compopt,)

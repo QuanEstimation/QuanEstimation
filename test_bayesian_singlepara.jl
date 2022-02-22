@@ -6,6 +6,7 @@ include("quanestimation/JuliaSrc/Dynamics/dynamics.jl")
 include("quanestimation/JuliaSrc/AsymptoticBound/CramerRao.jl")
 include("quanestimation/JuliaSrc/BayesianBound/BayesianCramerRao.jl")
 include("quanestimation/JuliaSrc/BayesianBound/ZivZakai.jl")
+include("quanestimation/JuliaSrc/BayesianBound/BayesEstimation.jl")
 
 #initial state
 rho0 = 0.5*[1.0 1.0+0.0im; 1.0 1.0]
@@ -26,7 +27,6 @@ end
 Measurement = sic_povm([0.37637620719571985+2.7760878126176896im,1.1538819157681195+0.87835540934078105im])
 
 tspan = range(0.0, stop=1.0, length=1000)
-
 dim = 2
 para_num = 2
 
@@ -107,3 +107,17 @@ np.save("QVTB1.npy",QVTB1)
 np.save("QVTB2.npy",QVTB2)
 np.save("VTB1.npy",VTB1)
 np.save("VTB2.npy",VTB2)
+
+#### test bayes and MLE ####
+Random.seed!(1234)
+res_input = [0 for i in 1:500]
+res_rand = sample(1:length(res_input), 125, replace=false)
+for i in 1:length(res_rand)
+    res_input[res_rand[i]] = 1
+end
+M1 = 0.5*[1.0+0.0im  1.0; 1.0  1.0]
+M2 = 0.5*[1.0+0.0im -1.0; -1.0  1.0]
+M = [M1, M2]
+# p_out, x_out = Bayes([xspan], p, rho_all, M, res_input; save_file=true)
+L_out, x_out = MLE([xspan], rho_all, M, res_input; save_file=true)
+println(x_out)

@@ -1,7 +1,3 @@
-
-from quanestimation.AsymptoticBound import CramerRao
-from quanestimation.AsymptoticBound import Holevo
-
 from quanestimation.AsymptoticBound.CramerRao import (CFIM, QFIM, QFIM_Bloch, BCFIM, BQFIM, LLD, RLD, SLD,)
 from quanestimation.AsymptoticBound.Holevo import (Holevo_bound,)
 
