@@ -1,3 +1,10 @@
+const σ_x = [0.0 1.0; 1.0 0.0im]
+const σ_y = [0.0 -1.0im; 1.0im 0.0]
+const σ_z = [1.0 0.0im; 0.0 -1.0]
+
+destroy(N) = diagm(1 => [1/sqrt(n) for n in 1:N-1])
+
+bases(dim; T=ComplexF64) = [e for e in I(dim).|>T|>eachrow]
 
 function vec2mat(x::Vector{T}) where {T <: Number}
     reshape(x, x |> length |> sqrt |> Int, :)  
@@ -25,6 +32,10 @@ function filterZeros!(x::Matrix{T}) where {T <: Complex}
 end
 function filterZeros!(x) 
     filterZeros!.(x)
+end
+
+function filterZeros(x::AbstractVecOrMat{T}) where T<:Number
+    [x+1≈1 ? zero(T) : x for x in x]
 end
 
 function t2Num(t0, dt, t)
