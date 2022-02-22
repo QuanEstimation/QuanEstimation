@@ -2,12 +2,16 @@ using LinearAlgebra
 using BoundaryValueDiffEq
 using Trapz
 using Interpolations
+using Random
+using StatsBase
+using DelimitedFiles
 
 include("quanestimation/JuliaSrc/Common/common.jl")
 include("quanestimation/JuliaSrc/Dynamics/dynamics.jl")
 include("quanestimation/JuliaSrc/AsymptoticBound/CramerRao.jl")
 include("quanestimation/JuliaSrc/BayesianBound/BayesianCramerRao.jl")
 include("quanestimation/JuliaSrc/BayesianBound/ZivZakai.jl")
+include("quanestimation/JuliaSrc/BayesianBound/BayesEstimation.jl")
 
 function secondorder(H0, ∂H_∂x::Vector{Matrix{T}}, ∂2H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, tspan) where {T<:Complex,R<:Real}
 
@@ -54,9 +58,7 @@ end
 # Measurement = [M1, M2]
 Measurement = sic_povm([0.37637620719571985+2.7760878126176896im,1.1538819157681195+0.87835540934078105im])
 
-
 tspan = range(0.0, stop=1.0, length=1000)
-
 dim = 2
 para_num = 1
 
@@ -81,11 +83,25 @@ for i in 1:length(xspan)
     end
 end
 
-f2_1 = VTB([xspan], p, dp, rho_all, drho_all, M=Measurement, btype=1, eps=1e-8)
-f2_2 = VTB([xspan], p, dp, rho_all, drho_all, M=Measurement, btype=2, eps=1e-8)
-f3_1 = QVTB([xspan], p, dp, rho_all, drho_all, btype=1, eps=1e-8)
-f3_2 = QVTB([xspan], p, dp, rho_all, drho_all, btype=2, eps=1e-8)
-f2_1 = VTB([xspan], p, dp, rho_all, drho_all, M=Measurement, btype=1, eps=1e-8)
-f2_2 = VTB([xspan], p, dp, rho_all, drho_all, M=Measurement, btype=2, eps=1e-8)
-f3_1 = QVTB([xspan], p, dp, rho_all, drho_all, btype=1, eps=1e-8)
-f3_2 = QVTB([xspan], p, dp, rho_all, drho_all, btype=2, eps=1e-8)
+# f2_1 = VTB([xspan], p, dp, rho_all, drho_all, M=Measurement, btype=1, eps=1e-8)
+# f2_2 = VTB([xspan], p, dp, rho_all, drho_all, M=Measurement, btype=2, eps=1e-8)
+# f3_1 = QVTB([xspan], p, dp, rho_all, drho_all, btype=1, eps=1e-8)
+# f3_2 = QVTB([xspan], p, dp, rho_all, drho_all, btype=2, eps=1e-8)
+# f2_1 = VTB([xspan], p, dp, rho_all, drho_all, M=Measurement, btype=1, eps=1e-8)
+# f2_2 = VTB([xspan], p, dp, rho_all, drho_all, M=Measurement, btype=2, eps=1e-8)
+# f3_1 = QVTB([xspan], p, dp, rho_all, drho_all, btype=1, eps=1e-8)
+# f3_2 = QVTB([xspan], p, dp, rho_all, drho_all, btype=2, eps=1e-8)
+
+#### test bayes and MLE ####
+Random.seed!(1234)
+res_input = [0 for i in 1:500]
+res_rand = sample(1:length(res_input), 125, replace=false)
+for i in 1:length(res_rand)
+    res_input[res_rand[i]] = 1
+end
+M1 = 0.5*[1.0+0.0im  1.0; 1.0  1.0]
+M2 = 0.5*[1.0+0.0im -1.0; -1.0  1.0]
+M = [M1, M2]
+# p_out, x_out = Bayes([xspan], p, rho_all, M, res_input; save_file=true)
+L_out, x_out = MLE([xspan], rho_all, M, res_input; save_file=true)
+println(x_out)
