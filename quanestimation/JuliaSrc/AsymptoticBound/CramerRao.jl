@@ -683,3 +683,57 @@ function QFIM_Bloch(r, dr; eps=1e-8)
         return QFIM_res
     end
 end
+
+#======================================================#
+################# Gaussian States QFIM #################
+function Williamson_form(A::AbstractMatrix)
+    n = size(A)[1]//2 |>Int
+    J = zeros(n,n)|>x->[x one(x); -one(x) x]
+    A_sqrt = sqrt(A)
+    B = A_sqrt*J*A_sqrt
+    P = one(A)|>x->[x[:,1:2:2n-1] x[:,2:2:2n]]
+    t, Q, vals = schur(B)
+    c = vals[1:2:2n-1].|>imag
+    D = c|>diagm|>x->x^(-0.5)
+    S = (J*A_sqrt*Q*P*[zeros(n,n) -D; D zeros(n,n)]|>transpose|>inv)*transpose(P)
+    return S, c
+end
+
+const a_Gauss = [im*σ_y,σ_z,σ_x|>one, σ_x]
+
+function A_Gauss(m::Int)
+    e = bases(m)
+    s = e.*e'
+    a_Gauss .|> x -> [kron(s, x)/sqrt(2) for s in s]
+end
+
+function G_Gauss(S::M, dC::VM, c::V) where {M<:AbstractMatrix, V,VM<:AbstractVector}
+    para_num = length(dC)
+    m = size(S)[1]//2 |>Int
+    As = A_Gauss(m)
+    gs =  [[[inv(S)*∂ₓC*inv(transpose(S))*a'|>tr for a in A] for A in As] for ∂ₓC in dC]
+    #[[inv(S)*∂ₓC*inv(transpose(S))*As[l][j,k]|>tr for j in 1:m, k in 1:m] for l in 1:4]
+    G = [zero(S) for _ in 1:para_num]
+    
+    for i in 1:para_num
+        for j in 1:m
+            for k in 1:m 
+                for l in 1:4
+                    G[i]+=gs[i][l][j,k]/(4*c[j]c[k]+(-1)^l)*inv(transpose(S))*As[l][j,k]*inv(S)
+                end
+            end 
+        end
+    end
+    G
+end
+
+function QFIM_Gauss(R̄::V, dR̄::VV, D::M, dD::VM) where {V,VV,M,VM <:AbstractVecOrMat}
+    para_num = length(dR̄)
+    quad_num = length(R̄)
+    C = [(D[i,j] + D[j,i])/2 - R̄[i]R̄[j] for i in 1:quad_num, j in 1:quad_num]
+    dC = [[(dD[k][i,j] + dD[k][j,i])/2 - dR̄[k][i]R̄[j] - R̄[i]dR̄[k][j] for i in 1:quad_num, j in 1:quad_num] for k in 1:para_num]
+    S, cs = Williamson_form(C)
+    Gs = G_Gauss(S, dC, cs)    
+    F = [tr(Gs[i]*dC[j])+transpose(dR̄[i])*inv(C)*dR̄[j] for i in 1:para_num, j in 1:para_num]
+    F|>real
+end

@@ -1,8 +1,10 @@
 
 import numpy as np
 import numpy.linalg as LA
+from numpy.linalg import inv
 from scipy.integrate import simps
-from quanestimation.Common.common import load_M, extract_ele, suN_generator
+from scipy.linalg import sqrtm, schur, eigvals
+from quanestimation.Common.common import load_M, extract_ele
 #===============================================================================
 #Subclass: metrology
 #===============================================================================
@@ -610,7 +612,7 @@ def QFIM_Bloch(r, dr, eps=1e-8):
                 G[col_j][row_i] = G[row_i][col_j]
         
         mat_tp = G*dim/(2*(dim-1))-np.dot(np.array(r).reshape(len(r), 1), np.array(r).reshape(1, len(r)))
-        mat_inv = np.linalg.pinv(mat_tp) 
+        mat_inv = inv(mat_tp) 
         
         for para_m in range(0, para_num):
             for para_n in range(para_m, para_num): 
@@ -622,3 +624,65 @@ def QFIM_Bloch(r, dr, eps=1e-8):
         return QFIM_res[0][0]
     else:
         return QFIM_res
+
+def QFIM_Gauss(R, dR, D, dD):
+    """
+    Description: Calculation of quantum Fisher information matrix (QFIM)
+                for Gaussian states representation.
+                     
+    ----------
+    Inputs
+    ----------
+    R:
+    
+    dR:
+    
+    D:
+    
+    dD:
+    
+    
+    """
+
+    para_num = len(dR)    
+    m = int(len(R)/2)
+    QFIM_res = np.zeros([para_num,para_num])
+    
+    C = np.array([[(D[i][j]+D[i][j])/2-R[i]*R[j] for j in range(2*m)] for i in range(2*m)])
+    dC = [np.array([[(dD[k][i][j]+dD[k][i][j])/2 - dR[k][i]*R[j] - R[i]*dR[k][j] for j in range(2*m)] for i in range(2*m)]) for k in range(para_num)]
+    
+    C_sqrt = sqrtm(C)
+    J = np.kron([[0,1],[-1,0]], np.eye(m))
+    B = C_sqrt@J@C_sqrt
+    P = np.eye(2*m)
+    P = np.vstack([P[:][::2], P[:][1::2]])
+    T, Q = schur(B)
+    vals = eigvals(B)
+    c = vals[::2].imag
+    D = np.diagflat(c**-0.5)
+    S = inv(J@C_sqrt@Q@P@np.kron([[0,1],[-1,0]], -D)).T@P.T
+    
+    sx = np.array([[0., 1.],[1., 0.]])
+    sy = np.array([[0., -1.j],[1.j, 0.]]) 
+    sz = np.array([[1., 0.],[0., -1.]])
+    a_Gauss = [1j*sy, sz, np.eye(2), sx]
+    
+    es = [[np.eye(1,m**2,m*i+j).reshape(m,m) for j in range(m)] for i in range(m)]
+    
+    As = [[np.kron(s,a_Gauss[i])/np.sqrt(2) for s in es ] for i in range(4)]
+    gs = [[[[np.trace(inv(S)@dC@inv(S.T)@aa.T) for aa in a] for a in A] for A in As] for dC in dC]
+    G = [ np.zeros((2*m,2*m)).astype(np.longdouble) for _ in range(para_num)]
+    
+    for i in range(para_num):
+        for j in range(m):
+            for k in range(m):
+                for l in range(4):
+                    G[i] += np.real(gs[i][l][j][k]/(4*c[j]*c[k]+(-1)**(l+1))*inv(S.T)@As[l][j][k]@inv(S))
+    
+    QFIM_res += np.real([[np.trace(G[i]@dC[j])+dR[i]@inv(C)@dR[j] for j in range(para_num)] for i in range(para_num)])
+    
+    if para_num == 1:
+        return QFIM_res[0][0]
+    else:
+        return QFIM_res
+
