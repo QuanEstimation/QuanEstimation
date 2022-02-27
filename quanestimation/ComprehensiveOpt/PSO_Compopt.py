@@ -6,6 +6,8 @@ import quanestimation.ComprehensiveOpt.ComprehensiveStruct as Comp
 class PSO_Compopt(Comp.ComprehensiveSystem):
     def __init__(
         self,
+        psi0=[],
+        ctrl0=[],
         measurement0=[],
         particle_num=10,
         max_episode=[1000, 100],
@@ -17,6 +19,8 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
 
         Comp.ComprehensiveSystem.__init__(
             self,
+            psi0,
+            ctrl0,
             measurement0,
             seed,
             eps=1e-8,

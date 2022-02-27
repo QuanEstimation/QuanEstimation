@@ -5,10 +5,17 @@ import quanestimation.StateOpt.StateStruct as State
 
 class DE_Sopt(State.StateSystem):
     def __init__(
-        self, popsize=10, max_episode=1000, c=1.0, cr=0.5, seed=1234, load=False
+        self,
+        psi0=[],
+        popsize=10,
+        max_episode=1000,
+        c=1.0,
+        cr=0.5,
+        seed=1234,
+        load=False,
     ):
 
-        State.StateSystem.__init__(self, seed, load, eps=1e-8)
+        State.StateSystem.__init__(self, psi0, seed, load, eps=1e-8)
 
         """
         --------

@@ -6,6 +6,7 @@ import quanestimation.StateOpt.StateStruct as State
 class AD_Sopt(State.StateSystem):
     def __init__(
         self,
+        psi0=[],
         Adam=False,
         max_episode=300,
         seed=1234,
@@ -15,7 +16,7 @@ class AD_Sopt(State.StateSystem):
         load=False,
     ):
 
-        State.StateSystem.__init__(self, seed=seed, load=load, eps=1e-8)
+        State.StateSystem.__init__(self, psi0, seed=seed, load=load, eps=1e-8)
 
         """
         ----------

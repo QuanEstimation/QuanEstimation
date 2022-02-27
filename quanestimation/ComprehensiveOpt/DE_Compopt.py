@@ -7,6 +7,8 @@ import quanestimation.ComprehensiveOpt.ComprehensiveStruct as Comp
 class DE_Compopt(Comp.ComprehensiveSystem):
     def __init__(
         self,
+        psi0=[],
+        ctrl0=[],
         measurement0=[],
         popsize=10,
         max_episode=1000,
@@ -17,6 +19,8 @@ class DE_Compopt(Comp.ComprehensiveSystem):
 
         Comp.ComprehensiveSystem.__init__(
             self,
+            psi0,
+            ctrl0,
             measurement0,
             seed,
             eps=1e-8,

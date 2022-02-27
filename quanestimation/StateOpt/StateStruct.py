@@ -6,7 +6,7 @@ import quanestimation.StateOpt as stateoptimize
 
 
 class StateSystem:
-    def __init__(self, seed, load, eps):
+    def __init__(self, psi0, seed, load, eps):
 
         """
         ----------
@@ -20,6 +20,16 @@ class StateSystem:
             --description: machine eps.
             --type: float
         """
+        if psi0 == []:
+            np.random.seed(seed)
+            for i in range(self.dim):
+                r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
+                r = r_ini / np.linalg.norm(r_ini)
+                phi = 2 * np.pi * np.random.random(self.dim)
+                psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
+            self.psi0 = np.array(psi0)
+        else:
+            self.psi0 = np.array(psi0[0], dtype=np.complex128)
 
         self.eps = eps
         self.seed = seed
@@ -39,7 +49,7 @@ class StateSystem:
         else:
             pass
 
-    def dynamics(self, tspan, H0, dH, Hc=[], ctrl=[], psi0=[], decay=[]):
+    def dynamics(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[]):
 
         """
         ----------
@@ -137,17 +147,6 @@ class StateSystem:
                 self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in Htot]
                 self.dim = len(self.freeHamiltonian[0])
 
-        if psi0 == []:
-            np.random.seed(seed)
-            for i in range(self.dim):
-                r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
-                r = r_ini / np.linalg.norm(r_ini)
-                phi = 2 * np.pi * np.random.random(self.dim)
-                psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
-            self.psi0 = np.array(psi0)
-        else:
-            self.psi0 = np.array(psi0[0], dtype=np.complex128)
-
         if type(dH) != list:
             raise TypeError("The derivative of Hamiltonian should be a list!")
 
@@ -165,25 +164,10 @@ class StateSystem:
 
         self.dynamics_type = "dynamics"
 
-    def kraus(K, dK, psi0=[]):
-
+    def kraus(K, dK):
+        # TODO: initialize K, dK
         self.K = K
         self.dK = dK
-
-        if psi0 == []:
-            np.random.seed(seed)
-            for i in range(self.dim):
-                r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
-                r = r_ini / np.linalg.norm(r_ini)
-                phi = 2 * np.pi * np.random.random(self.dim)
-                psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
-            self.psi0 = np.array(psi0)
-        else:
-            self.psi0 = np.array(psi0[0], dtype=np.complex128)
-
-        if W == []:
-            W = np.eye(len(self.Hamiltonian_derivative))
-        self.W = W
 
         self.dynamics_type = "kraus"
 

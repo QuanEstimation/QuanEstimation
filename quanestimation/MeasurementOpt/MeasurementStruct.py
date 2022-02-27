@@ -65,6 +65,7 @@ class MeasurementSystem:
         self.minput = minput
         self.eps = eps
         self.seed = seed
+        self.load = load
 
         if self.mtype == "projection":
             if measurement0 == []:
@@ -218,6 +219,7 @@ class MeasurementSystem:
                           ctrl_bound[1] represent the upper bound of the control coefficients.
            --type: list
         """
+        self.tspan = tspan
         self.rho0 = np.array(rho0, dtype=np.complex128)
 
         if Hc == [] or ctrl == []:

@@ -7,9 +7,10 @@ import quanestimation.ComprehensiveOpt.ComprehensiveStruct as Comp
 class AD_Compopt(Comp.ComprehensiveSystem):
     def __init__(
         self,
+        psi0=[],
+        ctrl0=[],
         measurement0=[],
         Adam=True,
-        ctrl0=[],
         max_episode=300,
         epsilon=0.01,
         beta1=0.90,
@@ -19,6 +20,8 @@ class AD_Compopt(Comp.ComprehensiveSystem):
 
         Comp.ComprehensiveSystem.__init__(
             self,
+            psi0,
+            ctrl0,
             measurement0,
             seed,
             eps=1e-8,
@@ -83,7 +86,7 @@ class AD_Compopt(Comp.ComprehensiveSystem):
                     self.mtype
                 )
             )
-            
+
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W

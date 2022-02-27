@@ -7,7 +7,7 @@ from quanestimation.Common.common import gramschmidt
 
 
 class ComprehensiveSystem:
-    def __init__(self, measurement0, seed, eps):
+    def __init__(self, psi0, ctrl0, measurement0, seed, eps):
 
         """
         ----------
@@ -64,43 +64,6 @@ class ComprehensiveSystem:
             --type: float
 
         """
-        if measurement0 == []:
-            np.random.seed(seed)
-            M = [[] for i in range(self.dim)]
-            for i in range(self.dim):
-                r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
-                r = r_ini / np.linalg.norm(r_ini)
-                phi = 2 * np.pi * np.random.random(self.dim)
-                M[i] = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
-            self.M = gramschmidt(np.array(M))
-        elif len(measurement0) >= 1:
-            self.M = [measurement0[0][i] for i in range(self.dim)]
-            self.M = [np.array(x, dtype=np.complex128) for x in self.M]
-
-        self.eps = eps
-        self.seed = seed
-
-    def dynamics(self, tspan, H0, dH, Hc=[], ctrl0=[], psi0=[], decay=[]):
-        self.tspan = tspan
-
-        if type(H0) == np.ndarray:
-            self.freeHamiltonian = np.array(H0, dtype=np.complex128)
-            self.dim = len(self.freeHamiltonian)
-        else:
-            self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0]
-            self.dim = len(self.freeHamiltonian[0])
-
-        if Hc == []:
-            Hc = [np.zeros((len(self.dim), len(self.dim)))]
-        self.control_Hamiltonian = [np.array(x, dtype=np.complex128) for x in Hc]
-
-        if type(dH) != list:
-            raise TypeError("The derivative of Hamiltonian should be a list!")
-
-        if dH == []:
-            dH = [np.zeros((len(self.dim), len(self.dim)))]
-        self.Hamiltonian_derivative = [np.array(x, dtype=np.complex128) for x in dH]
-
         if psi0 == []:
             np.random.seed(seed)
             for i in range(self.dim):
@@ -132,6 +95,43 @@ class ComprehensiveSystem:
             self.control_coefficients = [
                 ctrl0[0][i] for i in range(len(self.control_Hamiltonian))
             ]
+
+        if measurement0 == []:
+            np.random.seed(seed)
+            M = [[] for i in range(self.dim)]
+            for i in range(self.dim):
+                r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
+                r = r_ini / np.linalg.norm(r_ini)
+                phi = 2 * np.pi * np.random.random(self.dim)
+                M[i] = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
+            self.M = gramschmidt(np.array(M))
+        elif len(measurement0) >= 1:
+            self.M = [measurement0[0][i] for i in range(self.dim)]
+            self.M = [np.array(x, dtype=np.complex128) for x in self.M]
+
+        self.eps = eps
+        self.seed = seed
+
+    def dynamics(self, tspan, H0, dH, Hc=[], decay=[]):
+        self.tspan = tspan
+
+        if type(H0) == np.ndarray:
+            self.freeHamiltonian = np.array(H0, dtype=np.complex128)
+            self.dim = len(self.freeHamiltonian)
+        else:
+            self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0]
+            self.dim = len(self.freeHamiltonian[0])
+
+        if Hc == []:
+            Hc = [np.zeros((len(self.dim), len(self.dim)))]
+        self.control_Hamiltonian = [np.array(x, dtype=np.complex128) for x in Hc]
+
+        if type(dH) != list:
+            raise TypeError("The derivative of Hamiltonian should be a list!")
+
+        if dH == []:
+            dH = [np.zeros((len(self.dim), len(self.dim)))]
+        self.Hamiltonian_derivative = [np.array(x, dtype=np.complex128) for x in dH]
 
         if decay == []:
             decay_opt = [np.zeros((len(self.dim), len(self.dim)))]
@@ -179,21 +179,10 @@ class ComprehensiveSystem:
         else:
             pass
 
-    def kraus(K, dK, psi0=[]):
-
+    def kraus(K, dK):
+        # TODO: initialize K, dK
         self.K = K
         self.dK = dK
-
-        if psi0 == []:
-            np.random.seed(seed)
-            for i in range(self.dim):
-                r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
-                r = r_ini / np.linalg.norm(r_ini)
-                phi = 2 * np.pi * np.random.random(self.dim)
-                psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
-            self.psi0 = np.array(psi0)
-        else:
-            self.psi0 = np.array(psi0[0], dtype=np.complex128)
 
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))

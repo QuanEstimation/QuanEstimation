@@ -5,10 +5,16 @@ import quanestimation.StateOpt.StateStruct as State
 
 class DDPG_Sopt(State.StateSystem):
     def __init__(
-        self, max_episode=500, layer_num=3, layer_dim=200, seed=1234, load=False
+        self,
+        psi0=[],
+        max_episode=500,
+        layer_num=3,
+        layer_dim=200,
+        seed=1234,
+        load=False,
     ):
 
-        State.StateSystem.__init__(self, seed, load, eps=1e-8)
+        State.StateSystem.__init__(self, psi0, seed, load, eps=1e-8)
         """
         ----------
         Inputs
@@ -25,7 +31,6 @@ class DDPG_Sopt(State.StateSystem):
             --description: random seed.
             --type: int
         """
-
         self.layer_num = layer_num
         self.layer_dim = layer_dim
         self.max_episode = max_episode
