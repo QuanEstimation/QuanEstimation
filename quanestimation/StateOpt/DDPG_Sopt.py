@@ -2,11 +2,13 @@ from julia import Main
 import warnings
 import quanestimation.StateOpt.StateStruct as State
 
+
 class DDPG_Sopt(State.StateSystem):
-    def __init__(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], W=[], psi0=[], max_episode=500, layer_num=3, layer_dim=200, seed=1234, load=False):
+    def __init__(
+        self, max_episode=500, layer_num=3, layer_dim=200, seed=1234, load=False
+    ):
 
-        State.StateSystem.__init__(self, tspan, psi0, H0, dH, Hc, ctrl, decay, W, seed, load, eps=1e-8)
-
+        State.StateSystem.__init__(self, seed, load, eps=1e-8)
         """
         ----------
         Inputs
@@ -16,7 +18,7 @@ class DDPG_Sopt(State.StateSystem):
             --type: int
 
         layer_dim:
-            --description: the number of neurons in the hidden layer.
+            --description: the number ofP neurons in the hidden layer.
             --type: int
         
         seed:
@@ -29,9 +31,9 @@ class DDPG_Sopt(State.StateSystem):
         self.max_episode = max_episode
         self.seed = seed
 
-    def QFIM(self, save_file=False):
+    def QFIM(self, W=[], save_file=False):
         """
-        Description: use DDPG algorithm to search the optimal initial state that maximize the 
+        Description: use DDPG algorithm to search the optimal initial state that maximize the
                      QFI (1/Tr(WF^{-1} with F the QFIM).
 
         ---------
@@ -42,19 +44,71 @@ class DDPG_Sopt(State.StateSystem):
                            False: save the initial states for the last episode and all the QFI (Tr(WF^{-1})).
             --type: bool
         """
-        if any(self.gamma):
-            DDPG = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                          self.tspan, self.decay_opt, self.gamma, self.W, self.eps)
-            Main.QuanEstimation.QFIM_DDPG_Sopt(DDPG, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
-        else:
-            DDPG = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                              self.tspan, self.W, self.eps)
-            Main.QuanEstimation.QFIM_DDPG_Sopt(DDPG, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
+
+        if self.dynamics_type == "dynamics":
+            if W == []:
+                W = np.eye(len(self.Hamiltonian_derivative))
+            self.W = W
+
+            if any(self.gamma):
+                DDPG = Main.QuanEstimation.TimeIndepend_noise(
+                    self.freeHamiltonian,
+                    self.Hamiltonian_derivative,
+                    self.psi0,
+                    self.tspan,
+                    self.decay_opt,
+                    self.gamma,
+                    self.W,
+                    self.eps,
+                )
+                Main.QuanEstimation.QFIM_DDPG_Sopt(
+                    DDPG,
+                    self.layer_num,
+                    self.layer_dim,
+                    self.seed,
+                    self.max_episode,
+                    save_file,
+                )
+            else:
+                DDPG = Main.QuanEstimation.TimeIndepend_noiseless(
+                    self.freeHamiltonian,
+                    self.Hamiltonian_derivative,
+                    self.psi0,
+                    self.tspan,
+                    self.W,
+                    self.eps,
+                )
+                Main.QuanEstimation.QFIM_DDPG_Sopt(
+                    DDPG,
+                    self.layer_num,
+                    self.layer_dim,
+                    self.seed,
+                    self.max_episode,
+                    save_file,
+                )
+
+        elif self.dynamics_type == "kraus":
+            if W == []:
+                W = np.eye(len(self.dK))
+            self.W = W
+
+            DDPG = Main.QuanEstimation.TimeIndepend_Kraus(
+                self.K, self.dK, self.psi0, self.W, self.eps
+            )
+            Main.QuanEstimation.QFIM_DDPG_Sopt(
+                DDPG,
+                self.layer_num,
+                self.layer_dim,
+                self.seed,
+                self.max_episode,
+                save_file,
+            )
+
         self.load_save()
-            
-    def CFIM(self, M, save_file=False):
+
+    def CFIM(self, M, W=[], save_file=False):
         """
-        Description: use DDPG algorithm to search the optimal initial state that maximize the 
+        Description: use DDPG algorithm to search the optimal initial state that maximize the
                      CFI (1/Tr(WF^{-1} with F the CFIM).
 
         ---------
@@ -65,20 +119,73 @@ class DDPG_Sopt(State.StateSystem):
                            False: save the initial states for the last episode and all the CFI (Tr(WF^{-1})).
             --type: bool
         """
+        if self.dynamics_type == "dynamics":
+            if W == []:
+                W = np.eye(len(self.Hamiltonian_derivative))
+            self.W = W
 
-        if any(self.gamma):
-            DDPG = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                          self.tspan, self.decay_opt, self.gamma, self.W, self.eps)
-            Main.QuanEstimation.CFIM_DDPG_Sopt(M, DDPG, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
-        else:
-            DDPG = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                              self.tspan, self.W, self.eps)
-            Main.QuanEstimation.CFIM_DDPG_Sopt(M, DDPG, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
+            if any(self.gamma):
+                DDPG = Main.QuanEstimation.TimeIndepend_noise(
+                    self.freeHamiltonian,
+                    self.Hamiltonian_derivative,
+                    self.psi0,
+                    self.tspan,
+                    self.decay_opt,
+                    self.gamma,
+                    self.W,
+                    self.eps,
+                )
+                Main.QuanEstimation.CFIM_DDPG_Sopt(
+                    M,
+                    DDPG,
+                    self.layer_num,
+                    self.layer_dim,
+                    self.seed,
+                    self.max_episode,
+                    save_file,
+                )
+            else:
+                DDPG = Main.QuanEstimation.TimeIndepend_noiseless(
+                    self.freeHamiltonian,
+                    self.Hamiltonian_derivative,
+                    self.psi0,
+                    self.tspan,
+                    self.W,
+                    self.eps,
+                )
+                Main.QuanEstimation.CFIM_DDPG_Sopt(
+                    M,
+                    DDPG,
+                    self.layer_num,
+                    self.layer_dim,
+                    self.seed,
+                    self.max_episode,
+                    save_file,
+                )
+
+        elif self.dynamics_type == "kraus":
+            if W == []:
+                W = np.eye(len(self.dK))
+            self.W = W
+
+            DDPG = Main.QuanEstimation.TimeIndepend_Kraus(
+                self.K, self.dK, self.psi0, self.W, self.eps
+            )
+            Main.QuanEstimation.CFIM_DDPG_Sopt(
+                M,
+                DDPG,
+                self.layer_num,
+                self.layer_dim,
+                self.seed,
+                self.max_episode,
+                save_file,
+            )
+
         self.load_save()
 
     def HCRB(self, save_file=False):
         """
-        Description: use DDPG algorithm to search the optimal initial state that maximize the 
+        Description: use DDPG algorithm to search the optimal initial state that maximize the
                      HCRB.
 
         ---------
@@ -89,17 +196,70 @@ class DDPG_Sopt(State.StateSystem):
                            False: save the initial states for the last episode and all the HCRB.
             --type: bool
         """
-        if len(self.Hamiltonian_derivative) == 1:
-            warnings.warn("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function \
-                           for state optimization", DeprecationWarning)
-        else:
-            if any(self.gamma):
-                DDPG = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                          self.tspan, self.decay_opt, self.gamma, self.W, self.eps)
-                Main.QuanEstimation.HCRB_DDPG_Sopt(DDPG, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
+        if self.dynamics_type == "dynamics":
+            if W == []:
+                W = np.eye(len(self.Hamiltonian_derivative))
+            self.W = W
+
+            if len(self.Hamiltonian_derivative) == 1:
+                warnings.warn(
+                    "In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function \
+                            for state optimization",
+                    DeprecationWarning,
+                )
             else:
-                DDPG = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                              self.tspan, self.W, self.eps)
-                Main.QuanEstimation.HCRB_DDPG_Sopt(DDPG, self.layer_num, self.layer_dim, self.seed, self.max_episode, save_file)
-            self.load_save()
-            
+                if any(self.gamma):
+                    DDPG = Main.QuanEstimation.TimeIndepend_noise(
+                        self.freeHamiltonian,
+                        self.Hamiltonian_derivative,
+                        self.psi0,
+                        self.tspan,
+                        self.decay_opt,
+                        self.gamma,
+                        self.W,
+                        self.eps,
+                    )
+                    Main.QuanEstimation.HCRB_DDPG_Sopt(
+                        DDPG,
+                        self.layer_num,
+                        self.layer_dim,
+                        self.seed,
+                        self.max_episode,
+                        save_file,
+                    )
+                else:
+                    DDPG = Main.QuanEstimation.TimeIndepend_noiseless(
+                        self.freeHamiltonian,
+                        self.Hamiltonian_derivative,
+                        self.psi0,
+                        self.tspan,
+                        self.W,
+                        self.eps,
+                    )
+                    Main.QuanEstimation.HCRB_DDPG_Sopt(
+                        DDPG,
+                        self.layer_num,
+                        self.layer_dim,
+                        self.seed,
+                        self.max_episode,
+                        save_file,
+                    )
+
+        elif self.dynamics_type == "kraus":
+            if W == []:
+                W = np.eye(len(self.dK))
+            self.W = W
+
+            DDPG = Main.QuanEstimation.TimeIndepend_Kraus(
+                self.K, self.dK, self.psi0, self.W, self.eps
+            )
+            Main.QuanEstimation.HCRB_DDPG_Sopt(
+                DDPG,
+                self.layer_num,
+                self.layer_dim,
+                self.seed,
+                self.max_episode,
+                save_file,
+            )
+
+        self.load_save()

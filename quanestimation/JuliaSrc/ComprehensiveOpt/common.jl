@@ -1,4 +1,4 @@
-mutable struct  SC_Compopt{T <: Complex,M <: Real} <: ControlSystem
+mutable struct  SC_Compopt{T <: Complex,M <: Real}
     freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
     psi::Vector{T}
@@ -19,7 +19,7 @@ mutable struct  SC_Compopt{T <: Complex,M <: Real} <: ControlSystem
                 Hamiltonian_derivative, psi, tspan, decay_opt, γ, control_Hamiltonian, control_coefficients, ctrl_bound, W, eps, ρ, ∂ρ_∂x) 
 end
 
-mutable struct  SM_Compopt{T <: Complex,M <: Real} <: ControlSystem
+mutable struct  SM_Compopt{T <: Complex,M <: Real}
     freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
     psi::Vector{T}
@@ -38,7 +38,7 @@ mutable struct  SM_Compopt{T <: Complex,M <: Real} <: ControlSystem
             Hamiltonian_derivative, psi, tspan, decay_opt, γ, C, W, eps, ρ, ∂ρ_∂x) 
 end
 
-mutable struct  CM_Compopt{T <: Complex,M <: Real} <: ControlSystem
+mutable struct  CM_Compopt{T <: Complex,M <: Real}
     freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
     tspan::Vector{M}
@@ -59,7 +59,7 @@ mutable struct  CM_Compopt{T <: Complex,M <: Real} <: ControlSystem
                 Hamiltonian_derivative, tspan, decay_opt, γ, control_Hamiltonian, control_coefficients, ctrl_bound, C, W, eps, ρ, ∂ρ_∂x) 
 end
 
-mutable struct  SCM_Compopt{T <: Complex,M <: Real} <: ControlSystem
+mutable struct  SCM_Compopt{T <: Complex,M <: Real} 
     freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
     psi::Vector{T}
@@ -79,6 +79,27 @@ mutable struct  SCM_Compopt{T <: Complex,M <: Real} <: ControlSystem
              control_coefficients::Vector{Vector{M}}, ctrl_bound::Vector{M}, C::Vector{Vector{T}}, W::Matrix{M}, eps::M, ρ=Vector{Matrix{T}}(undef, 1), 
              ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)) where {T <: Complex,M <: Real} = new{T,M}(freeHamiltonian, 
                 Hamiltonian_derivative, psi, tspan, decay_opt, γ, control_Hamiltonian, control_coefficients, ctrl_bound, C, W, eps, ρ, ∂ρ_∂x) 
+end
+
+mutable struct  SM_Compopt_Kraus{T <: Complex,M <: Real}
+    K::AbstractMatrix
+    dK::AbstractMatrix
+    psi::Vector{T}
+    C::Vector{Vector{T}}
+    W::Matrix{M}
+    eps::M 
+    ρ::Vector{Matrix{T}}
+    ∂ρ_∂x::Vector{Vector{Matrix{T}}}
+    SCM_Compopt(K, 
+        dK, 
+        psi::Vector{T},
+        C::Vector{Vector{T}}, 
+        W::Matrix{M}, 
+        eps::M, 
+        ρ=Vector{Matrix{T}}(undef, 1), 
+        ∂ρ_∂x=Vector{Vector{Matrix{T}}}(undef, 1)
+        ) where {T <: Complex,M <: Real} = 
+        new{T,M}(K, dK, psi, C, W, eps, ρ, ∂ρ_∂x) 
 end
 
 function SaveFile_SC(f_now::Float64, state, control)

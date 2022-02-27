@@ -213,7 +213,7 @@ function CFIM_PSO_Mopt(pso::LinearComb_Mopt{T}, max_episode, particle_num, c0, c
     return info_PSO_LinearComb(pso, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2)
 end
 
-function info_PSO_LinearComb(pso::LinearComb_Mopt{T}, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2) where {T<:Complex}
+function info_PSO_LinearComb(pso, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2) where {T<:Complex}
     println("measurement optimization")
     Random.seed!(seed)
     dim = size(pso.ρ0)[1]
@@ -423,7 +423,7 @@ function CFIM_PSO_Mopt(pso::RotateBasis_Mopt{T}, max_episode, particle_num, c0, 
     return info_PSO_RotateBasis(pso, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2)
 end
 
-function info_PSO_RotateBasis(pso::RotateBasis_Mopt{T}, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2) where {T<:Complex}
+function info_PSO_RotateBasis(pso, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2) where {T<:Complex}
     println("measurement optimization")
     Random.seed!(seed)
     dim = size(pso.ρ0)[1]

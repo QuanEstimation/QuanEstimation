@@ -1,5 +1,5 @@
 ################ update the coefficients according to the given basis ###############
-function CFIM_AD_Mopt(AD::LinearComb_Mopt{T}, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed) where {T<:Complex}
+function CFIM_AD_Mopt(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed) where {T<:Complex}
     sym = Symbol("CFIM_noctrl")
     str1 = "CFI"
     str2 = "tr(WI^{-1})"
@@ -240,7 +240,7 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
 end
 
 ################ update the coefficients of the unitary matrix ###############
-function CFIM_AD_Mopt(AD::RotateBasis_Mopt{T}, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed) where {T<:Complex}
+function CFIM_AD_Mopt(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed) where {T<:Complex}
     sym = Symbol("CFIM_noctrl")
     str1 = "CFI"
     str2 = "tr(WI^{-1})"

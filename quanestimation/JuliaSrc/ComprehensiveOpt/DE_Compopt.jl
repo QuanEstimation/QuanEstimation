@@ -34,33 +34,33 @@ function info_DE_SCopt(M, DE, popsize, psi0, ctrl0, c, cr, seed, max_episode, sa
         populations[pj].psi = [psi0[pj][i] for i in 1:dim]
     end
     for pj in 1:length(ctrl0)
-        populations[pj].control_coefficients = [[ctrl0[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+        populations[pj].control_coefficients = [[ctrl0[pj][i, j] for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
     for pj in (length(psi0)+1):p_num
-        r_ini = 2*rand(dim)-ones(dim)
-        r = r_ini/norm(r_ini)
-        phi = 2*pi*rand(dim)
-        populations[pj].psi = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
+        r_ini = 2 * rand(dim) - ones(dim)
+        r = r_ini / norm(r_ini)
+        phi = 2 * pi * rand(dim)
+        populations[pj].psi = [r[i] * exp(1.0im * phi[i]) for i in 1:dim]
     end
 
     if DE.ctrl_bound[1] == -Inf || DE.ctrl_bound[2] == Inf
         for pj in (length(ctrl0)+1):p_num
-            populations[pj].control_coefficients = [[2*rand()-1.0 for j in 1:ctrl_length] for i in 1:ctrl_num]
+            populations[pj].control_coefficients = [[2 * rand() - 1.0 for j in 1:ctrl_length] for i in 1:ctrl_num]
         end
     else
         a = DE.ctrl_bound[1]
         b = DE.ctrl_bound[2]
         for pj in (length(ctrl0)+1):p_num
-            populations[pj].control_coefficients = [[(b-a)*rand()+a for j in 1:ctrl_length] for i in 1:ctrl_num]
+            populations[pj].control_coefficients = [[(b - a) * rand() + a for j in 1:ctrl_length] for i in 1:ctrl_num]
         end
     end
 
-    p_fit = [0.0 for i in 1:p_num] 
+    p_fit = [0.0 for i in 1:p_num]
     for pj in 1:p_num
-        p_fit[pj] = 1.0/obj_func(Val{sym}(), populations[pj], M, populations[pj].psi, populations[pj].control_coefficients)
+        p_fit[pj] = 1.0 / obj_func(Val{sym}(), populations[pj], M, populations[pj].psi, populations[pj].control_coefficients)
     end
 
-    f_ini= p_fit[1]
+    f_ini = p_fit[1]
 
     if length(DE.Hamiltonian_derivative) == 1
         f_list = [f_ini]
@@ -68,7 +68,7 @@ function info_DE_SCopt(M, DE, popsize, psi0, ctrl0, c, cr, seed, max_episode, sa
         println("single parameter scenario")
         println("algorithm: Differential Evolution (DE)")
         println("initial $str1 is $(f_ini)")
-        
+
         if save_file == true
             indx = findmax(p_fit)[2]
             SaveFile_SC(f_list, populations[indx].psi, populations[indx].control_coefficients)
@@ -90,7 +90,7 @@ function info_DE_SCopt(M, DE, popsize, psi0, ctrl0, c, cr, seed, max_episode, sa
             for i in 1:(max_episode-1)
                 p_fit = train_DE_SCopt(populations, M, c, cr, p_num, dim, ctrl_num, ctrl_length, p_fit, sym)
                 append!(f_list, maximum(p_fit))
-                print("current $str1 is ", maximum(p_fit), " ($i eposides)    \r")   
+                print("current $str1 is ", maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_DE_SCopt(populations, M, c, cr, p_num, dim, ctrl_num, ctrl_length, p_fit, sym)
             indx = findmax(p_fit)[2]
@@ -101,7 +101,7 @@ function info_DE_SCopt(M, DE, popsize, psi0, ctrl0, c, cr, seed, max_episode, sa
             println("Final $str1 is ", maximum(p_fit))
         end
     else
-        f_list = [1.0/f_ini]
+        f_list = [1.0 / f_ini]
         println("multiparameter scenario")
         println("algorithm: Differential Evolution (DE)")
         println("initial value of $str2 is $(1.0/f_ini)")
@@ -112,30 +112,30 @@ function info_DE_SCopt(M, DE, popsize, psi0, ctrl0, c, cr, seed, max_episode, sa
             for i in 1:(max_episode-1)
                 p_fit = train_DE_SCopt(populations, M, c, cr, p_num, dim, ctrl_num, ctrl_length, p_fit, sym)
                 indx = findmax(p_fit)[2]
-                append!(f_list, 1.0/maximum(p_fit))
+                append!(f_list, 1.0 / maximum(p_fit))
                 SaveFile_SC(f_list, populations[indx].psi, populations[indx].control_coefficients)
-                print("current value of $str2 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+                print("current value of $str2 is ", 1.0 / maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_DE_SCopt(populations, M, c, cr, p_num, dim, ctrl_num, ctrl_length, p_fit, sym)
             indx = findmax(p_fit)[2]
-            append!(f_list, 1.0/maximum(p_fit))
+            append!(f_list, 1.0 / maximum(p_fit))
             SaveFile_SC(f_list, populations[indx].psi, populations[indx].control_coefficients)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of $str2 is ", 1.0/maximum(p_fit))
+            println("Final value of $str2 is ", 1.0 / maximum(p_fit))
         else
             for i in 1:(max_episode-1)
                 p_fit = train_DE_SCopt(populations, M, c, cr, p_num, dim, ctrl_num, ctrl_length, p_fit, sym)
-                append!(f_list, 1.0/maximum(p_fit))
-                print("current value of $str2 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+                append!(f_list, 1.0 / maximum(p_fit))
+                print("current value of $str2 is ", 1.0 / maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_DE_SCopt(populations, M, c, cr, p_num, dim, ctrl_num, ctrl_length, p_fit, sym)
             indx = findmax(p_fit)[2]
-            append!(f_list, 1.0/maximum(p_fit))
+            append!(f_list, 1.0 / maximum(p_fit))
             SaveFile_SC(f_list, populations[indx].psi, populations[indx].control_coefficients)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of $str2 is ", 1.0/maximum(p_fit))
+            println("Final value of $str2 is ", 1.0 / maximum(p_fit))
         end
     end
 end
@@ -143,24 +143,24 @@ end
 function train_DE_SCopt(populations, M, c, cr, p_num, dim, ctrl_num, ctrl_length, p_fit, sym)
     for pj in 1:p_num
         #mutations
-        mut_num = sample(1:p_num, 3, replace=false)
+        mut_num = sample(1:p_num, 3, replace = false)
         state_mut = zeros(ComplexF64, dim)
         for ci in 1:dim
-            state_mut[ci] = populations[mut_num[1]].psi[ci]+c*(populations[mut_num[2]].psi[ci]-populations[mut_num[3]].psi[ci])
+            state_mut[ci] = populations[mut_num[1]].psi[ci] + c * (populations[mut_num[2]].psi[ci] - populations[mut_num[3]].psi[ci])
         end
 
         ctrl_mut = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
         for ci in 1:ctrl_num
             for ti in 1:ctrl_length
-                ctrl_mut[ci][ti] = populations[mut_num[1]].control_coefficients[ci][ti]+
-                                   c*(populations[mut_num[2]].control_coefficients[ci][ti]-
-                                   populations[mut_num[3]].control_coefficients[ci][ti])
+                ctrl_mut[ci][ti] = populations[mut_num[1]].control_coefficients[ci][ti] +
+                                   c * (populations[mut_num[2]].control_coefficients[ci][ti] -
+                                        populations[mut_num[3]].control_coefficients[ci][ti])
             end
         end
 
         #crossover
         state_cross = zeros(ComplexF64, dim)
-        cross_int1 = sample(1:dim, 1, replace=false)[1]
+        cross_int1 = sample(1:dim, 1, replace = false)[1]
         for cj in 1:dim
             rand_num = rand()
             if rand_num <= cr
@@ -170,11 +170,11 @@ function train_DE_SCopt(populations, M, c, cr, p_num, dim, ctrl_num, ctrl_length
             end
             state_cross[cross_int1] = state_mut[cross_int1]
         end
-        psi_cross = state_cross/norm(state_cross)
-        
+        psi_cross = state_cross / norm(state_cross)
+
         ctrl_cross = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
         for cj in 1:ctrl_num
-            cross_int2 = sample(1:ctrl_length, 1, replace=false)[1]
+            cross_int2 = sample(1:ctrl_length, 1, replace = false)[1]
             for tj in 1:ctrl_length
                 rand_num = rand()
                 if rand_num <= cr
@@ -189,7 +189,7 @@ function train_DE_SCopt(populations, M, c, cr, p_num, dim, ctrl_num, ctrl_length
 
         #selection
         f_cross = obj_func(Val{sym}(), populations[pj], M, psi_cross, ctrl_cross)
-        f_cross = 1.0/f_cross
+        f_cross = 1.0 / f_cross
 
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
@@ -236,35 +236,35 @@ function info_DE_SMopt(M, DE, popsize, psi0, measurement0, c, cr, seed, max_epis
         populations[pj].psi = [psi0[pj][i] for i in 1:dim]
     end
     for pj in 1:length(measurement0)
-        populations[pj].C = [[measurement0[pj][i,j] for j in 1:dim] for i in 1:M_num]
+        populations[pj].C = [[measurement0[pj][i, j] for j in 1:dim] for i in 1:M_num]
     end
     for pj in (length(psi0)+1):p_num
-        r_ini = 2*rand(dim)-ones(dim)
-        r = r_ini/norm(r_ini)
-        phi = 2*pi*rand(dim)
-        populations[pj].psi = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
+        r_ini = 2 * rand(dim) - ones(dim)
+        r = r_ini / norm(r_ini)
+        phi = 2 * pi * rand(dim)
+        populations[pj].psi = [r[i] * exp(1.0im * phi[i]) for i in 1:dim]
     end
 
     for pj in (length(measurement0)+1):p_num
         M_tp = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
         for mi in 1:M_num
-            r_ini = 2*rand(dim)-ones(dim)
-            r = r_ini/norm(r_ini)
-            phi = 2*pi*rand(dim)
-            M_tp[mi] = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
+            r_ini = 2 * rand(dim) - ones(dim)
+            r = r_ini / norm(r_ini)
+            phi = 2 * pi * rand(dim)
+            M_tp[mi] = [r[i] * exp(1.0im * phi[i]) for i in 1:dim]
         end
         populations[pj].C = [[M_tp[i][j] for j in 1:dim] for i in 1:M_num]
         # orthogonality and normalization 
         populations[pj].C = gramschmidt(populations[pj].C)
     end
 
-    p_fit = [0.0 for i in 1:p_num] 
+    p_fit = [0.0 for i in 1:p_num]
     for pj in 1:p_num
-        M = [populations[pj].C[i]*(populations[pj].C[i])' for i in 1:M_num]
-        p_fit[pj] = 1.0/obj_func(Val{sym}(), populations[pj], populations[pj].psi, M)
+        M = [populations[pj].C[i] * (populations[pj].C[i])' for i in 1:M_num]
+        p_fit[pj] = 1.0 / obj_func(Val{sym}(), populations[pj], populations[pj].psi, M)
     end
 
-    f_ini= p_fit[1]
+    f_ini = p_fit[1]
 
     if length(DE.Hamiltonian_derivative) == 1
         f_list = [f_ini]
@@ -272,22 +272,22 @@ function info_DE_SMopt(M, DE, popsize, psi0, measurement0, c, cr, seed, max_epis
         println("single parameter scenario")
         println("algorithm: Differential Evolution (DE)")
         println("initial $str1 is $(f_ini)")
-        
+
         if save_file == true
             indx = findmax(p_fit)[2]
-            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+            M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
             SaveFile_SM(f_list, populations[indx].psi, M)
             for i in 1:(max_episode-1)
                 p_fit = train_DE_SMopt(populations, M, c, cr, p_num, dim, M_num, p_fit, sym)
                 indx = findmax(p_fit)[2]
-                M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+                M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
                 append!(f_list, maximum(p_fit))
                 SaveFile_SM(f_list, populations[indx].psi, M)
                 print("current $str1 is ", maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_DE_SMopt(populations, M, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
-            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+            M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
             append!(f_list, maximum(p_fit))
             SaveFile_SM(f_list, populations[indx].psi, M)
             print("\e[2K")
@@ -297,11 +297,11 @@ function info_DE_SMopt(M, DE, popsize, psi0, measurement0, c, cr, seed, max_epis
             for i in 1:(max_episode-1)
                 p_fit = train_DE_SMopt(populations, M, c, cr, p_num, dim, M_num, p_fit, sym)
                 append!(f_list, maximum(p_fit))
-                print("current $str1 is ", maximum(p_fit), " ($i eposides)    \r")   
+                print("current $str1 is ", maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_DE_SMopt(populations, M, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
-            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+            M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
             append!(f_list, maximum(p_fit))
             SaveFile_SM(f_list, populations[indx].psi, M)
             print("\e[2K")
@@ -309,45 +309,45 @@ function info_DE_SMopt(M, DE, popsize, psi0, measurement0, c, cr, seed, max_epis
             println("Final $str1 is ", maximum(p_fit))
         end
     else
-        f_list = [1.0/f_ini]
+        f_list = [1.0 / f_ini]
         println("multiparameter scenario")
         println("algorithm: Differential Evolution (DE)")
         println("initial value of $str2 is $(1.0/f_ini)")
 
         if save_file == true
             indx = findmax(p_fit)[2]
-            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+            M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
             SaveFile_SM(f_list, populations[indx].psi, M)
             for i in 1:(max_episode-1)
                 p_fit = train_DE_SMopt(populations, M, c, cr, p_num, dim, M_num, p_fit, sym)
                 indx = findmax(p_fit)[2]
-                M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
-                append!(f_list, 1.0/maximum(p_fit))
+                M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
+                append!(f_list, 1.0 / maximum(p_fit))
                 SaveFile_SM(f_list, populations[indx].psi, M)
-                print("current value of $str2 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+                print("current value of $str2 is ", 1.0 / maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_DE_SMopt(populations, M, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
-            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
-            append!(f_list, 1.0/maximum(p_fit))
+            M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
+            append!(f_list, 1.0 / maximum(p_fit))
             SaveFile_SM(f_list, populations[indx].psi, M)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of $str2 is ", 1.0/maximum(p_fit))
+            println("Final value of $str2 is ", 1.0 / maximum(p_fit))
         else
             for i in 1:(max_episode-1)
                 p_fit = train_DE_SMopt(populations, M, c, cr, p_num, dim, M_num, p_fit, sym)
-                append!(f_list, 1.0/maximum(p_fit))
-                print("current value of $str2 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+                append!(f_list, 1.0 / maximum(p_fit))
+                print("current value of $str2 is ", 1.0 / maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_DE_SMopt(populations, M, c, cr, p_num, dim, M_num, p_fit, sym)
             indx = findmax(p_fit)[2]
-            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
-            append!(f_list, 1.0/maximum(p_fit))
+            M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
+            append!(f_list, 1.0 / maximum(p_fit))
             SaveFile_SM(f_list, populations[indx].psi, M)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of $str2 is ", 1.0/maximum(p_fit))
+            println("Final value of $str2 is ", 1.0 / maximum(p_fit))
         end
     end
 end
@@ -355,23 +355,23 @@ end
 function train_DE_SMopt(populations, M, c, cr, p_num, dim, M_num, p_fit, sym)
     for pj in 1:p_num
         #mutations
-        mut_num = sample(1:p_num, 3, replace=false)
+        mut_num = sample(1:p_num, 3, replace = false)
         state_mut = zeros(ComplexF64, dim)
         for ci in 1:dim
-            state_mut[ci] = populations[mut_num[1]].psi[ci]+c*(populations[mut_num[2]].psi[ci]-populations[mut_num[3]].psi[ci])
+            state_mut[ci] = populations[mut_num[1]].psi[ci] + c * (populations[mut_num[2]].psi[ci] - populations[mut_num[3]].psi[ci])
         end
 
         M_mut = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
         for ci in 1:M_num
             for ti in 1:dim
-                M_mut[ci][ti] = populations[mut_num[1]].C[ci][ti] + c*(populations[mut_num[2]].C[ci][ti]-
-                                populations[mut_num[3]].C[ci][ti])
+                M_mut[ci][ti] = populations[mut_num[1]].C[ci][ti] + c * (populations[mut_num[2]].C[ci][ti] -
+                                                                         populations[mut_num[3]].C[ci][ti])
             end
         end
 
         #crossover
         state_cross = zeros(ComplexF64, dim)
-        cross_int1 = sample(1:dim, 1, replace=false)[1]
+        cross_int1 = sample(1:dim, 1, replace = false)[1]
         for cj in 1:dim
             rand_num = rand()
             if rand_num <= cr
@@ -381,11 +381,11 @@ function train_DE_SMopt(populations, M, c, cr, p_num, dim, M_num, p_fit, sym)
             end
             state_cross[cross_int1] = state_mut[cross_int1]
         end
-        psi_cross = state_cross/norm(state_cross)
-        
+        psi_cross = state_cross / norm(state_cross)
+
         M_cross = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
         for cj in 1:M_num
-            cross_int = sample(1:dim, 1, replace=false)[1]
+            cross_int = sample(1:dim, 1, replace = false)[1]
             for tj in 1:dim
                 rand_num = rand()
                 if rand_num <= cr
@@ -398,11 +398,11 @@ function train_DE_SMopt(populations, M, c, cr, p_num, dim, M_num, p_fit, sym)
         end
         # orthogonality and normalization 
         M_cross = gramschmidt(M_cross)
-        M = [M_cross[i]*(M_cross[i])' for i in 1:M_num]
+        M = [M_cross[i] * (M_cross[i])' for i in 1:M_num]
 
         #selection
         f_cross = obj_func(Val{sym}(), populations[pj], psi_cross, M)
-        f_cross = 1.0/f_cross
+        f_cross = 1.0 / f_cross
 
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
@@ -449,21 +449,21 @@ function info_DE_CMopt(rho0, M, DE, popsize, ctrl0, measurement0, c, cr, seed, m
     end
 
     for pj in 1:length(ctrl0)
-        populations[pj].control_coefficients = [[ctrl0[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+        populations[pj].control_coefficients = [[ctrl0[pj][i, j] for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
     for pj in 1:length(measurement0)
-        populations[pj].C = [[measurement0[pj][i,j] for j in 1:dim] for i in 1:M_num]
+        populations[pj].C = [[measurement0[pj][i, j] for j in 1:dim] for i in 1:M_num]
     end
 
     if DE.ctrl_bound[1] == -Inf || DE.ctrl_bound[2] == Inf
         for pj in (length(ctrl0)+1):p_num
-            populations[pj].control_coefficients = [[2*rand()-1.0 for j in 1:ctrl_length] for i in 1:ctrl_num]
+            populations[pj].control_coefficients = [[2 * rand() - 1.0 for j in 1:ctrl_length] for i in 1:ctrl_num]
         end
     else
         a = DE.ctrl_bound[1]
         b = DE.ctrl_bound[2]
         for pj in (length(ctrl0)+1):p_num
-            populations[pj].control_coefficients = [[(b-a)*rand()+a for j in 1:ctrl_length] for i in 1:ctrl_num]
+            populations[pj].control_coefficients = [[(b - a) * rand() + a for j in 1:ctrl_length] for i in 1:ctrl_num]
         end
     end
 
@@ -471,23 +471,23 @@ function info_DE_CMopt(rho0, M, DE, popsize, ctrl0, measurement0, c, cr, seed, m
     for pj in (length(measurement0)+1):p_num
         M_tp = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
         for mi in 1:M_num
-            r_ini = 2*rand(dim)-ones(dim)
-            r = r_ini/norm(r_ini)
-            phi = 2*pi*rand(dim)
-            M_tp[mi] = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
+            r_ini = 2 * rand(dim) - ones(dim)
+            r = r_ini / norm(r_ini)
+            phi = 2 * pi * rand(dim)
+            M_tp[mi] = [r[i] * exp(1.0im * phi[i]) for i in 1:dim]
         end
         populations[pj].C = [[M_tp[i][j] for j in 1:dim] for i in 1:M_num]
         # orthogonality and normalization 
         populations[pj].C = gramschmidt(populations[pj].C)
     end
 
-    p_fit = [0.0 for i in 1:p_num] 
+    p_fit = [0.0 for i in 1:p_num]
     for pj in 1:p_num
-        M = [populations[pj].C[i]*(populations[pj].C[i])' for i in 1:M_num]
-        p_fit[pj] = 1.0/obj_func(Val{sym}(), populations[pj], M, rho0, populations[pj].control_coefficients)
+        M = [populations[pj].C[i] * (populations[pj].C[i])' for i in 1:M_num]
+        p_fit[pj] = 1.0 / obj_func(Val{sym}(), populations[pj], M, rho0, populations[pj].control_coefficients)
     end
 
-    f_ini= p_fit[1]
+    f_ini = p_fit[1]
 
     if length(DE.Hamiltonian_derivative) == 1
         f_list = [f_ini]
@@ -495,15 +495,15 @@ function info_DE_CMopt(rho0, M, DE, popsize, ctrl0, measurement0, c, cr, seed, m
         println("single parameter scenario")
         println("algorithm: Differential Evolution (DE)")
         println("initial $str1 is $(f_ini)")
-        
+
         if save_file == true
             indx = findmax(p_fit)[2]
-            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+            M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
             SaveFile_CM(f_list, populations[indx].control_coefficients, M)
             for i in 1:(max_episode-1)
                 p_fit = train_DE_CMopt(populations, rho0, M, c, cr, p_num, dim, M_num, ctrl_num, ctrl_length, p_fit, sym)
                 indx = findmax(p_fit)[2]
-                M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+                M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
                 append!(f_list, maximum(p_fit))
                 SaveFile_CM(f_list, populations[indx].control_coefficients, M)
                 print("current $str1 is ", maximum(p_fit), " ($i eposides)    \r")
@@ -511,7 +511,7 @@ function info_DE_CMopt(rho0, M, DE, popsize, ctrl0, measurement0, c, cr, seed, m
             p_fit = train_DE_CMopt(populations, rho0, M, c, cr, p_num, dim, M_num, ctrl_num, ctrl_length, p_fit, sym)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
-            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+            M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
             SaveFile_CM(f_list, populations[indx].control_coefficients, M)
             print("\e[2K")
             println("Iteration over, data saved.")
@@ -520,11 +520,11 @@ function info_DE_CMopt(rho0, M, DE, popsize, ctrl0, measurement0, c, cr, seed, m
             for i in 1:(max_episode-1)
                 p_fit = train_DE_CMopt(populations, rho0, M, c, cr, p_num, dim, M_num, ctrl_num, ctrl_length, p_fit, sym)
                 append!(f_list, maximum(p_fit))
-                print("current $str1 is ", maximum(p_fit), " ($i eposides)    \r")   
+                print("current $str1 is ", maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_DE_CMopt(populations, rho0, M, c, cr, p_num, dim, M_num, ctrl_num, ctrl_length, p_fit, sym)
             indx = findmax(p_fit)[2]
-            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+            M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
             append!(f_list, maximum(p_fit))
             SaveFile_CM(f_list, populations[indx].control_coefficients, M)
             print("\e[2K")
@@ -532,45 +532,45 @@ function info_DE_CMopt(rho0, M, DE, popsize, ctrl0, measurement0, c, cr, seed, m
             println("Final $str1 is ", maximum(p_fit))
         end
     else
-        f_list = [1.0/f_ini]
+        f_list = [1.0 / f_ini]
         println("multiparameter scenario")
         println("algorithm: Differential Evolution (DE)")
         println("initial value of $str2 is $(1.0/f_ini)")
 
         if save_file == true
             indx = findmax(p_fit)[2]
-            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+            M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
             SaveFile_CM(f_list, populations[indx].control_coefficients, M)
             for i in 1:(max_episode-1)
                 p_fit = train_DE_CMopt(populations, rho0, M, c, cr, p_num, dim, M_num, ctrl_num, ctrl_length, p_fit, sym)
                 indx = findmax(p_fit)[2]
-                M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
-                append!(f_list, 1.0/maximum(p_fit))
+                M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
+                append!(f_list, 1.0 / maximum(p_fit))
                 SaveFile_CM(f_list, populations[indx].control_coefficients, M)
-                print("current value of $str2 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+                print("current value of $str2 is ", 1.0 / maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_DE_CMopt(populations, rho0, M, c, cr, p_num, dim, M_num, ctrl_num, ctrl_length, p_fit, sym)
             indx = findmax(p_fit)[2]
-            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
-            append!(f_list, 1.0/maximum(p_fit))
+            M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
+            append!(f_list, 1.0 / maximum(p_fit))
             SaveFile_CM(f_list, populations[indx].control_coefficients, M)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of $str2 is ", 1.0/maximum(p_fit))
+            println("Final value of $str2 is ", 1.0 / maximum(p_fit))
         else
             for i in 1:(max_episode-1)
                 p_fit = train_DE_CMopt(populations, rho0, M, c, cr, p_num, dim, M_num, ctrl_num, ctrl_length, p_fit, sym)
-                append!(f_list, 1.0/maximum(p_fit))
-                print("current value of $str2 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+                append!(f_list, 1.0 / maximum(p_fit))
+                print("current value of $str2 is ", 1.0 / maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_DE_CMopt(populations, rho0, M, c, cr, p_num, dim, M_num, ctrl_num, ctrl_length, p_fit, sym)
             indx = findmax(p_fit)[2]
-            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
-            append!(f_list, 1.0/maximum(p_fit))
+            M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
+            append!(f_list, 1.0 / maximum(p_fit))
             SaveFile_CM(f_list, populations[indx].control_coefficients, M)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of $str2 is ", 1.0/maximum(p_fit))
+            println("Final value of $str2 is ", 1.0 / maximum(p_fit))
         end
     end
 end
@@ -578,28 +578,28 @@ end
 function train_DE_CMopt(populations, rho0, M, c, cr, p_num, dim, M_num, ctrl_num, ctrl_length, p_fit, sym)
     for pj in 1:p_num
         #mutations
-        mut_num = sample(1:p_num, 3, replace=false)
+        mut_num = sample(1:p_num, 3, replace = false)
         ctrl_mut = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
         for ci in 1:ctrl_num
             for ti in 1:ctrl_length
-                ctrl_mut[ci][ti] = populations[mut_num[1]].control_coefficients[ci][ti]+
-                                   c*(populations[mut_num[2]].control_coefficients[ci][ti]-
-                                   populations[mut_num[3]].control_coefficients[ci][ti])
+                ctrl_mut[ci][ti] = populations[mut_num[1]].control_coefficients[ci][ti] +
+                                   c * (populations[mut_num[2]].control_coefficients[ci][ti] -
+                                        populations[mut_num[3]].control_coefficients[ci][ti])
             end
         end
 
         M_mut = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
         for ci in 1:M_num
             for ti in 1:dim
-                M_mut[ci][ti] = populations[mut_num[1]].C[ci][ti] + c*(populations[mut_num[2]].C[ci][ti]-
-                                populations[mut_num[3]].C[ci][ti])
+                M_mut[ci][ti] = populations[mut_num[1]].C[ci][ti] + c * (populations[mut_num[2]].C[ci][ti] -
+                                                                         populations[mut_num[3]].C[ci][ti])
             end
         end
 
         #crossover   
         ctrl_cross = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
         for cj in 1:ctrl_num
-            cross_int2 = sample(1:ctrl_length, 1, replace=false)[1]
+            cross_int2 = sample(1:ctrl_length, 1, replace = false)[1]
             for tj in 1:ctrl_length
                 rand_num = rand()
                 if rand_num <= cr
@@ -614,7 +614,7 @@ function train_DE_CMopt(populations, rho0, M, c, cr, p_num, dim, M_num, ctrl_num
 
         M_cross = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
         for cj in 1:M_num
-            cross_int = sample(1:dim, 1, replace=false)[1]
+            cross_int = sample(1:dim, 1, replace = false)[1]
             for tj in 1:dim
                 rand_num = rand()
                 if rand_num <= cr
@@ -627,11 +627,11 @@ function train_DE_CMopt(populations, rho0, M, c, cr, p_num, dim, M_num, ctrl_num
         end
         # orthogonality and normalization 
         M_cross = gramschmidt(M_cross)
-        M = [M_cross[i]*(M_cross[i])' for i in 1:M_num]
+        M = [M_cross[i] * (M_cross[i])' for i in 1:M_num]
 
         #selection
         f_cross = obj_func(Val{sym}(), populations[pj], M, rho0, ctrl_cross)
-        f_cross = 1.0/f_cross
+        f_cross = 1.0 / f_cross
 
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
@@ -687,28 +687,28 @@ function info_DE_SCMopt(M, DE, popsize, psi0, ctrl0, measurement0, c, cr, seed, 
         populations[pj].psi = [psi0[pj][i] for i in 1:dim]
     end
     for pj in 1:length(ctrl0)
-        populations[pj].control_coefficients = [[ctrl0[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+        populations[pj].control_coefficients = [[ctrl0[pj][i, j] for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
     for pj in 1:length(measurement0)
-        populations[pj].C = [[measurement0[pj][i,j] for j in 1:dim] for i in 1:M_num]
+        populations[pj].C = [[measurement0[pj][i, j] for j in 1:dim] for i in 1:M_num]
     end
 
     for pj in (length(psi0)+1):p_num
-        r_ini = 2*rand(dim)-ones(dim)
-        r = r_ini/norm(r_ini)
-        phi = 2*pi*rand(dim)
-        populations[pj].psi = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
+        r_ini = 2 * rand(dim) - ones(dim)
+        r = r_ini / norm(r_ini)
+        phi = 2 * pi * rand(dim)
+        populations[pj].psi = [r[i] * exp(1.0im * phi[i]) for i in 1:dim]
     end
 
     if DE.ctrl_bound[1] == -Inf || DE.ctrl_bound[2] == Inf
         for pj in (length(ctrl0)+1):p_num
-            populations[pj].control_coefficients = [[2*rand()-1.0 for j in 1:ctrl_length] for i in 1:ctrl_num]
+            populations[pj].control_coefficients = [[2 * rand() - 1.0 for j in 1:ctrl_length] for i in 1:ctrl_num]
         end
     else
         a = DE.ctrl_bound[1]
         b = DE.ctrl_bound[2]
         for pj in (length(ctrl0)+1):p_num
-            populations[pj].control_coefficients = [[(b-a)*rand()+a for j in 1:ctrl_length] for i in 1:ctrl_num]
+            populations[pj].control_coefficients = [[(b - a) * rand() + a for j in 1:ctrl_length] for i in 1:ctrl_num]
         end
     end
 
@@ -716,23 +716,23 @@ function info_DE_SCMopt(M, DE, popsize, psi0, ctrl0, measurement0, c, cr, seed, 
     for pj in (length(measurement0)+1):p_num
         M_tp = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
         for mi in 1:M_num
-            r_ini = 2*rand(dim)-ones(dim)
-            r = r_ini/norm(r_ini)
-            phi = 2*pi*rand(dim)
-            M_tp[mi] = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
+            r_ini = 2 * rand(dim) - ones(dim)
+            r = r_ini / norm(r_ini)
+            phi = 2 * pi * rand(dim)
+            M_tp[mi] = [r[i] * exp(1.0im * phi[i]) for i in 1:dim]
         end
         populations[pj].C = [[M_tp[i][j] for j in 1:dim] for i in 1:M_num]
         # orthogonality and normalization 
         populations[pj].C = gramschmidt(populations[pj].C)
     end
 
-    p_fit = [0.0 for i in 1:p_num] 
+    p_fit = [0.0 for i in 1:p_num]
     for pj in 1:p_num
-        M = [populations[pj].C[i]*(populations[pj].C[i])' for i in 1:M_num]
-        p_fit[pj] = 1.0/obj_func(Val{sym}(), populations[pj], M, populations[pj].psi, populations[pj].control_coefficients)
+        M = [populations[pj].C[i] * (populations[pj].C[i])' for i in 1:M_num]
+        p_fit[pj] = 1.0 / obj_func(Val{sym}(), populations[pj], M, populations[pj].psi, populations[pj].control_coefficients)
     end
 
-    f_ini= p_fit[1]
+    f_ini = p_fit[1]
 
     if length(DE.Hamiltonian_derivative) == 1
         f_list = [f_ini]
@@ -740,15 +740,15 @@ function info_DE_SCMopt(M, DE, popsize, psi0, ctrl0, measurement0, c, cr, seed, 
         println("single parameter scenario")
         println("algorithm: Differential Evolution (DE)")
         println("initial $str1 is $(f_ini)")
-        
+
         if save_file == true
             indx = findmax(p_fit)[2]
-            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+            M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
             SaveFile_SCM(f_list, populations[indx].psi, populations[indx].control_coefficients, M)
             for i in 1:(max_episode-1)
                 p_fit = train_DE_SCMopt(populations, M, c, cr, p_num, dim, M_num, ctrl_num, ctrl_length, p_fit, sym)
                 indx = findmax(p_fit)[2]
-                M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+                M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
                 append!(f_list, maximum(p_fit))
                 SaveFile_SCM(f_list, populations[indx].psi, populations[indx].control_coefficients, M)
                 print("current $str1 is ", maximum(p_fit), " ($i eposides)    \r")
@@ -756,7 +756,7 @@ function info_DE_SCMopt(M, DE, popsize, psi0, ctrl0, measurement0, c, cr, seed, 
             p_fit = train_DE_SCMopt(populations, M, c, cr, p_num, dim, M_num, ctrl_num, ctrl_length, p_fit, sym)
             indx = findmax(p_fit)[2]
             append!(f_list, maximum(p_fit))
-            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+            M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
             SaveFile_SCM(f_list, populations[indx].psi, populations[indx].control_coefficients, M)
             print("\e[2K")
             println("Iteration over, data saved.")
@@ -765,11 +765,11 @@ function info_DE_SCMopt(M, DE, popsize, psi0, ctrl0, measurement0, c, cr, seed, 
             for i in 1:(max_episode-1)
                 p_fit = train_DE_SCMopt(populations, M, c, cr, p_num, dim, M_num, ctrl_num, ctrl_length, p_fit, sym)
                 append!(f_list, maximum(p_fit))
-                print("current $str1 is ", maximum(p_fit), " ($i eposides)    \r")   
+                print("current $str1 is ", maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_DE_SCMopt(populations, M, c, cr, p_num, dim, M_num, ctrl_num, ctrl_length, p_fit, sym)
             indx = findmax(p_fit)[2]
-            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+            M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
             append!(f_list, maximum(p_fit))
             SaveFile_SCM(f_list, populations[indx].psi, populations[indx].control_coefficients, M)
             print("\e[2K")
@@ -777,45 +777,45 @@ function info_DE_SCMopt(M, DE, popsize, psi0, ctrl0, measurement0, c, cr, seed, 
             println("Final $str1 is ", maximum(p_fit))
         end
     else
-        f_list = [1.0/f_ini]
+        f_list = [1.0 / f_ini]
         println("multiparameter scenario")
         println("algorithm: Differential Evolution (DE)")
         println("initial value of $str2 is $(1.0/f_ini)")
 
         if save_file == true
             indx = findmax(p_fit)[2]
-            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
+            M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
             SaveFile_SCM(f_list, populations[indx].psi, populations[indx].control_coefficients, M)
             for i in 1:(max_episode-1)
                 p_fit = train_DE_SCMopt(populations, M, c, cr, p_num, dim, M_num, ctrl_num, ctrl_length, p_fit, sym)
                 indx = findmax(p_fit)[2]
-                M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
-                append!(f_list, 1.0/maximum(p_fit))
+                M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
+                append!(f_list, 1.0 / maximum(p_fit))
                 SaveFile_SCM(f_list, populations[indx].psi, populations[indx].control_coefficients, M)
-                print("current value of $str2 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+                print("current value of $str2 is ", 1.0 / maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_DE_SCMopt(populations, M, c, cr, p_num, dim, M_num, ctrl_num, ctrl_length, p_fit, sym)
             indx = findmax(p_fit)[2]
-            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
-            append!(f_list, 1.0/maximum(p_fit))
+            M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
+            append!(f_list, 1.0 / maximum(p_fit))
             SaveFile_SCM(f_list, populations[indx].psi, populations[indx].control_coefficients, M)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of $str2 is ", 1.0/maximum(p_fit))
+            println("Final value of $str2 is ", 1.0 / maximum(p_fit))
         else
             for i in 1:(max_episode-1)
                 p_fit = train_DE_SCMopt(populations, M, c, cr, p_num, dim, M_num, ctrl_num, ctrl_length, p_fit, sym)
-                append!(f_list, 1.0/maximum(p_fit))
-                print("current value of $str2 is ", 1.0/maximum(p_fit), " ($i eposides)    \r")
+                append!(f_list, 1.0 / maximum(p_fit))
+                print("current value of $str2 is ", 1.0 / maximum(p_fit), " ($i eposides)    \r")
             end
             p_fit = train_DE_SCMopt(populations, M, c, cr, p_num, dim, M_num, ctrl_num, ctrl_length, p_fit, sym)
             indx = findmax(p_fit)[2]
-            M = [populations[indx].C[i]*(populations[indx].C[i])' for i in 1:M_num]
-            append!(f_list, 1.0/maximum(p_fit))
+            M = [populations[indx].C[i] * (populations[indx].C[i])' for i in 1:M_num]
+            append!(f_list, 1.0 / maximum(p_fit))
             SaveFile_SCM(f_list, populations[indx].psi, populations[indx].control_coefficients, M)
             print("\e[2K")
             println("Iteration over, data saved.")
-            println("Final value of $str2 is ", 1.0/maximum(p_fit))
+            println("Final value of $str2 is ", 1.0 / maximum(p_fit))
         end
     end
 end
@@ -823,32 +823,32 @@ end
 function train_DE_SCMopt(populations, M, c, cr, p_num, dim, M_num, ctrl_num, ctrl_length, p_fit, sym)
     for pj in 1:p_num
         #mutations
-        mut_num = sample(1:p_num, 3, replace=false)
+        mut_num = sample(1:p_num, 3, replace = false)
         state_mut = zeros(ComplexF64, dim)
         for ci in 1:dim
-            state_mut[ci] = populations[mut_num[1]].psi[ci]+c*(populations[mut_num[2]].psi[ci]-populations[mut_num[3]].psi[ci])
+            state_mut[ci] = populations[mut_num[1]].psi[ci] + c * (populations[mut_num[2]].psi[ci] - populations[mut_num[3]].psi[ci])
         end
 
         ctrl_mut = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
         for ci in 1:ctrl_num
             for ti in 1:ctrl_length
-                ctrl_mut[ci][ti] = populations[mut_num[1]].control_coefficients[ci][ti]+
-                                   c*(populations[mut_num[2]].control_coefficients[ci][ti]-
-                                   populations[mut_num[3]].control_coefficients[ci][ti])
+                ctrl_mut[ci][ti] = populations[mut_num[1]].control_coefficients[ci][ti] +
+                                   c * (populations[mut_num[2]].control_coefficients[ci][ti] -
+                                        populations[mut_num[3]].control_coefficients[ci][ti])
             end
         end
 
         M_mut = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
         for ci in 1:M_num
             for ti in 1:dim
-                M_mut[ci][ti] = populations[mut_num[1]].C[ci][ti] + c*(populations[mut_num[2]].C[ci][ti]-
-                                populations[mut_num[3]].C[ci][ti])
+                M_mut[ci][ti] = populations[mut_num[1]].C[ci][ti] + c * (populations[mut_num[2]].C[ci][ti] -
+                                                                         populations[mut_num[3]].C[ci][ti])
             end
         end
 
         #crossover
         state_cross = zeros(ComplexF64, dim)
-        cross_int1 = sample(1:dim, 1, replace=false)[1]
+        cross_int1 = sample(1:dim, 1, replace = false)[1]
         for cj in 1:dim
             rand_num = rand()
             if rand_num <= cr
@@ -858,11 +858,11 @@ function train_DE_SCMopt(populations, M, c, cr, p_num, dim, M_num, ctrl_num, ctr
             end
             state_cross[cross_int1] = state_mut[cross_int1]
         end
-        psi_cross = state_cross/norm(state_cross)
-        
+        psi_cross = state_cross / norm(state_cross)
+
         ctrl_cross = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
         for cj in 1:ctrl_num
-            cross_int2 = sample(1:ctrl_length, 1, replace=false)[1]
+            cross_int2 = sample(1:ctrl_length, 1, replace = false)[1]
             for tj in 1:ctrl_length
                 rand_num = rand()
                 if rand_num <= cr
@@ -877,7 +877,7 @@ function train_DE_SCMopt(populations, M, c, cr, p_num, dim, M_num, ctrl_num, ctr
 
         M_cross = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
         for cj in 1:M_num
-            cross_int = sample(1:dim, 1, replace=false)[1]
+            cross_int = sample(1:dim, 1, replace = false)[1]
             for tj in 1:dim
                 rand_num = rand()
                 if rand_num <= cr
@@ -890,11 +890,11 @@ function train_DE_SCMopt(populations, M, c, cr, p_num, dim, M_num, ctrl_num, ctr
         end
         # orthogonality and normalization 
         M_cross = gramschmidt(M_cross)
-        M = [M_cross[i]*(M_cross[i])' for i in 1:M_num]
+        M = [M_cross[i] * (M_cross[i])' for i in 1:M_num]
 
         #selection
         f_cross = obj_func(Val{sym}(), populations[pj], M, psi_cross, ctrl_cross)
-        f_cross = 1.0/f_cross
+        f_cross = 1.0 / f_cross
 
         if f_cross > p_fit[pj]
             p_fit[pj] = f_cross
