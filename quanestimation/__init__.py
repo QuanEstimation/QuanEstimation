@@ -9,7 +9,7 @@ from quanestimation.BayesianBound.BayesianCramerRao import (BCRB, BQCRB, QVTB, V
 from quanestimation.BayesianBound.ZivZakai import (QZZB,)
 from quanestimation.BayesianBound.BayesEstimation import (Bayes, MLE,)
 
-from quanestimation.Common.common import (mat_vec_convert, suN_generator, gramschmidt,)
+from quanestimation.Common.common import (mat_vec_convert, suN_generator, gramschmidt, SIC, )
 
 from quanestimation.ComprehensiveOpt.ComprehensiveStruct import (ComprehensiveSystem, ComprehensiveOpt, )
 from quanestimation.ComprehensiveOpt.AD_Compopt import (AD_Compopt,)
@@ -38,6 +38,9 @@ from quanestimation.StateOpt.PSO_Sopt import (PSO_Sopt,)
 from quanestimation.StateOpt.DDPG_Sopt import (DDPG_Sopt,)
 from quanestimation.StateOpt.NM_Sopt import (NM_Sopt,)
 
+from quanestimation.Adaptive.adaptive import (adaptive)
+
+
 Main.include("quanestimation/JuliaSrc/QuanEstimation.jl")
 Main.pkgpath = os.path.join(os.path.dirname(__file__))
 
@@ -48,6 +51,6 @@ __all__ = ["ControlOpt", "StateOpt", "MeasurementOpt", "ComprehensiveOpt",
            "GRAPE_Copt", "DE_Copt", "PSO_Copt", "DDPG_Copt",
            "AD_Mopt", "PSO_Mopt", "DE_Mopt",
            "AD_Sopt", "DE_Sopt", "PSO_Sopt", "DDPG_Sopt", "NM_Sopt",
-           "mat_vec_convert", "suN_generator", "gramschmidt",
+           "mat_vec_convert", "suN_generator", "gramschmidt", "SIC", 
            "csv2npy_controls", "csv2npy_states", "csv2npy_measurements",
-           "AD_Compopt", "DE_Compopt", "PSO_Compopt", ]
+           "AD_Compopt", "DE_Compopt", "PSO_Compopt", "adaptive", ]

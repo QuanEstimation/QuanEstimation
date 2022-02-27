@@ -36,8 +36,8 @@ def Bayes(x, p, rho, M, y, save_file=False):
                 indx = np.where(p == max(p))[0][0] 
                 p_out.append(p)
                 x_out.append(x[0][indx])   
-            np.save("p_out", p_out)
-            np.save("x_out", x_out)
+            np.save("pout", p_out)
+            np.save("xout", x_out)
             return p, x_out[-1]
     else:
         #### multiparameter senario ####
@@ -86,8 +86,8 @@ def Bayes(x, p, rho, M, y, save_file=False):
                 indx = np.where(np.array(p) == np.max(np.array(p))) 
                 p_out.append(p)
                 x_out.append([x[i][indx[i][0]] for i in range(para_num)])
-            np.save("p_out", p_out)
-            np.save("x_out", x_out)
+            np.save("pout", p_out)
+            np.save("xout", x_out)
             return p, x_out[-1]
 
 def MLE(x, rho, M, y, save_file=False):
@@ -116,8 +116,8 @@ def MLE(x, rho, M, y, save_file=False):
                 L_out.append(L_tp)
                 x_out.append(x[0][indx])
             
-            np.save("L_out", L_out)
-            np.save("x_out", x_out)
+            np.save("Lout", L_out)
+            np.save("xout", x_out)
             return L_tp, x_out[-1]
     else:
         #### multiparameter senario ####
@@ -154,6 +154,6 @@ def MLE(x, rho, M, y, save_file=False):
                 L_out.append(L_tp)
                 x_out.append([x[i][indx[i][0]] for i in range(para_num)])
             
-            np.save("L_out", L_out)
-            np.save("x_out", x_out)
+            np.save("Lout", L_out)
+            np.save("xout", x_out)
             return L_tp, x_out[-1]
