@@ -403,7 +403,7 @@ end
 #======================================================#
 #################### calculate CFIM ####################
 function CFIM(ρ, dρ, eps)
-    M = load_M(size(ρ)[1])
+    M = SIC(size(ρ)[1])
     m_num = length(M)
     p_num = length(dρ)
     cfim = [real(tr(ρ*M[i])) < eps ? zeros(ComplexF64, p_num, p_num) : (kron(tr.(dρ.*[M[i]]),reshape(tr.(dρ.*[M[i]]), 1, p_num))/tr(ρ*M[i])) for i in 1:m_num] |> sum .|>real
@@ -699,7 +699,7 @@ function Williamson_form(A::AbstractMatrix)
     return S, c
 end
 
-const a_Gauss = [im*σ_y,σ_z,σ_x|>one, σ_x]
+# const a_Gauss = [im*σ_y,σ_z,σ_x|>one, σ_x]
 
 function A_Gauss(m::Int)
     e = bases(m)

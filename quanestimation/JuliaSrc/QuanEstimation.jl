@@ -3,8 +3,8 @@ module QuanEstimation
 using LinearAlgebra
 using Zygote
 using Random
-using SharedArrays
-using Base.Threads
+# using SharedArrays
+# using Base.Threads
 using SparseArrays
 using DelimitedFiles
 using StatsBase
@@ -37,11 +37,11 @@ include("MeasurementOpt/common.jl")
 include("MeasurementOpt/AD_Mopt.jl")
 include("MeasurementOpt/PSO_Mopt.jl")
 include("MeasurementOpt/DE_Mopt.jl")
-include("MeasurementOpt/adaptive_Mopt.jl")
 include("ComprehensiveOpt/common.jl")
 include("ComprehensiveOpt/DE_Compopt.jl")
 include("ComprehensiveOpt/AD_Compopt.jl")
 include("ComprehensiveOpt/PSO_Compopt.jl")
+include("Adaptive/adaptive.jl")
 
 # include("QuanResources/")
 export QFI, QFIM, CFI, CFIM

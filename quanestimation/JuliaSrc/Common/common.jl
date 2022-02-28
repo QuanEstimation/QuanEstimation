@@ -137,7 +137,7 @@ function sic_povm(fiducial)
     return res
 end
 
-function load_M(dim)
+function SIC(dim)
     data = readdlm("$(Main.pkgpath)/sic_fiducial_vectors/d$(dim).txt", '\t', Float64, '\n')
     fiducial = data[:,1]+1.0im*data[:,2]
     M = sic_povm(fiducial)

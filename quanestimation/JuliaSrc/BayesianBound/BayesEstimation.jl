@@ -37,15 +37,15 @@ function Bayes(x, p, rho, M, y; save_file=false)
                 append!(x_out, x[1][indx])
             end
             
-            open("p_out.csv","w") do f
+            open("pout.csv","w") do f
                 writedlm(f, p_out)
             end
-            open("x_out.csv","w") do m
+            open("xout.csv","w") do m
                 writedlm(m, x_out)
             end
             return p, x_out[end]
         end
-    else
+    else 
         #### multiparameter senario ####
         if save_file == false
             for mi in 1:max_episode
@@ -75,10 +75,10 @@ function Bayes(x, p, rho, M, y; save_file=false)
                 append!(x_out, [[x[i][indx[i]] for i in 1:para_num]])
             end
             
-            open("p_out.csv","w") do f
+            open("pout.csv","w") do f
                 writedlm(f, p_out)
             end
-            open("x_out.csv","w") do m
+            open("xout.csv","w") do m
                 writedlm(m, x_out)
             end
             return p, x_out[end]
@@ -117,10 +117,10 @@ function MLE(x, rho, M, y; save_file=false)
                 append!(x_out, x[1][indx])
             end
             
-            open("L_out.csv","w") do f
+            open("Lout.csv","w") do f
                 writedlm(f, L_out)
             end
-            open("x_out.csv","w") do m
+            open("xout.csv","w") do m
                 writedlm(m, x_out)
             end
             return L_tp, x_out[end]
@@ -154,10 +154,10 @@ function MLE(x, rho, M, y; save_file=false)
                 append!(x_out, [[x[i][indx[i]] for i in 1:para_num]])
             end
 
-            open("L_out.csv","w") do f
+            open("Lout.csv","w") do f
                 writedlm(f, L_out)
             end
-            open("x_out.csv","w") do m
+            open("xout.csv","w") do m
                 writedlm(m, x_out)
             end
             return L_tp, x_out[end]
