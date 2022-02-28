@@ -61,6 +61,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         """
 
         self.particle_num = particle_num
+        self.ini_particle = self.psi
         self.max_episode = max_episode
         self.c0 = c0
         self.c1 = c1
@@ -97,7 +98,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
                 pso,
                 self.max_episode,
                 self.particle_num,
-                self.psi0,
+                self.ini_particle,
                 self.ctrl0,
                 self.c0,
                 self.c1,
@@ -116,7 +117,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
                     pso,
                     self.max_episode,
                     self.particle_num,
-                    self.psi0,
+                    self.ini_particle,
                     self.ctrl0,
                     self.c0,
                     self.c1,
@@ -163,7 +164,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             pso,
             self.max_episode,
             self.particle_num,
-            self.psi0,
+            self.ini_particle,
             self.ctrl0,
             self.measurement0,
             self.c0,
@@ -223,7 +224,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
                 pso,
                 self.max_episode,
                 self.particle_num,
-                self.psi0,
+                self.ini_particle,
                 self.measurement0,
                 self.c0,
                 self.c1,
@@ -248,7 +249,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
                 pso,
                 self.max_episode,
                 self.particle_num,
-                self.psi0,
+                self.ini_particle,
                 self.measurement0,
                 self.c0,
                 self.c1,
@@ -288,7 +289,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             pso,
             self.max_episode,
             self.particle_num,
-            self.psi0,
+            self.ini_particle,
             self.ctrl0,
             self.measurement0,
             self.c0,

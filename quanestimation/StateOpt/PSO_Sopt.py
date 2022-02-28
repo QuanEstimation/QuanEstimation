@@ -53,7 +53,7 @@ class PSO_Sopt(State.StateSystem):
 
         """
         self.particle_num = particle_num
-        self.ini_particle = [self.psi0]
+        self.ini_particle = self.psi
         self.max_episode = max_episode
         self.c0 = c0
         self.c1 = c1

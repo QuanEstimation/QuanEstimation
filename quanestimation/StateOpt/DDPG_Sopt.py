@@ -32,6 +32,7 @@ class DDPG_Sopt(State.StateSystem):
             --description: random seed.
             --type: int
         """
+        
         self.layer_num = layer_num
         self.layer_dim = layer_dim
         self.max_episode = max_episode

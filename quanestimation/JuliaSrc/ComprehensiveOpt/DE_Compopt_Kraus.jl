@@ -24,7 +24,7 @@ function info_DE_SMopt_Kraus(M, DE, popsize, psi0, measurement0, c, cr, seed, ma
         measurement0 = [measurement0[i] for i in 1:popsize]
     end
     for pj in 1:length(psi0)
-        populations[pj].psi = [psi0[i] for i in 1:dim]
+        populations[pj].psi = [psi0[pj][i] for i in 1:dim]
     end
     for pj in 1:length(measurement0)
         populations[pj].C = [[measurement0[pj][i, j] for j in 1:dim] for i in 1:M_num]

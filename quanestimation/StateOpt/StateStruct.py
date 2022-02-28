@@ -22,6 +22,7 @@ class StateSystem:
         """
 
         self.psi0 = psi0
+        self.psi = psi0
         self.eps = eps
         self.seed = seed
 
@@ -146,6 +147,11 @@ class StateSystem:
                 phi = 2 * np.pi * np.random.random(self.dim)
                 psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
             self.psi0 = np.array(psi0)
+        else:
+            self.psi0 = np.array(self.psi0[0],dtype=np.complex128)
+            
+        if self.psi == []: 
+            self.psi = [self.psi0]
 
         if type(dH) != list:
             raise TypeError("The derivative of Hamiltonian should be a list!")
@@ -179,6 +185,11 @@ class StateSystem:
                 phi = 2 * np.pi * np.random.random(self.dim)
                 psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
             self.psi0 = np.array(psi0)
+        else:
+            self.psi0 = np.array(self.psi0[0],dtype=np.complex128)
+            
+        if self.psi == []: 
+            self.psi = [self.psi0]
 
         self.dynamics_type = "kraus"
 

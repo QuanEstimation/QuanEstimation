@@ -49,7 +49,7 @@ class DE_Sopt(State.StateSystem):
         """
 
         self.popsize = popsize
-        self.ini_population = [self.psi0]
+        self.ini_population = self.psi
         self.c = c
         self.cr = cr
         self.seed = seed

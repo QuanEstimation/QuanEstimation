@@ -63,7 +63,7 @@ class NM_Sopt(State.StateSystem):
         """
 
         self.state_num = state_num
-        self.ini_state = [self.psi0]
+        self.ini_state = self.psi
         self.max_episode = max_episode
         self.ar = ar
         self.ae = ae

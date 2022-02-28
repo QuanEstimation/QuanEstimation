@@ -55,15 +55,10 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             --type: int
         
         """
-        # if psi0 == []:
-        #     self.psi0 = [self.psi0]
-        # else:
-        #     self.psi0 = psi0
-
-        # if ctrl0 == []:
-        #     self.ctrl0 = [np.array(self.control_coefficients)]
-        # else:
-        # self.ctrl0 = ctrl0
+        self.ini_population = self.psi
+        
+        if ctrl0 == []:
+            self.ctrl0 = [np.array(self.control_coefficients)]
 
         self.popsize = popsize
         self.max_episode = max_episode
@@ -100,7 +95,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             Main.QuanEstimation.SC_DE_Compopt(
                 diffevo,
                 self.popsize,
-                self.psi0,
+                self.ini_population,
                 self.ctrl0,
                 self.c,
                 self.cr,
@@ -118,7 +113,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
                     M,
                     diffevo,
                     self.popsize,
-                    self.psi0,
+                    self.ini_population,
                     self.ctrl0,
                     self.c,
                     self.cr,
@@ -160,7 +155,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             rho0,
             diffevo,
             self.popsize,
-            self.ctrl0,
+            self.ini_population,
             self.measurement0,
             self.c,
             self.cr,
@@ -218,7 +213,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             Main.QuanEstimation.SM_DE_Compopt(
                 diffevo,
                 self.popsize,
-                self.psi0,
+                self.ini_population,
                 self.measurement0,
                 self.c,
                 self.cr,
@@ -242,7 +237,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             Main.QuanEstimation.SM_DE_Compopt(
                 diffevo,
                 self.popsize,
-                self.psi0,
+                self.ini_population,
                 self.measurement0,
                 self.c,
                 self.cr,
@@ -278,7 +273,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         Main.QuanEstimation.SCM_DE_Compopt(
             diffevo,
             self.popsize,
-            self.psi0,
+            self.ini_population,
             self.ctrl0,
             self.measurement0,
             self.c,

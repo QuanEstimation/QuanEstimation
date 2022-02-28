@@ -20,7 +20,7 @@ RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requ
     
 RUN sh -c '/bin/echo -e "Y" | jill install'
 RUN echo 'packs=["Zygote", "BoundaryValueDiffEq", "DelimitedFiles", "IntervalSets", "PyCall",\
-                 "StatsBase", "ReinforcementLearning", "Convex", "SCS", "StableRNGs",\
+                 "StatsBase", "ReinforcementLearning", "Convex", "SCS@0.8.1", "Convex@0.14.18", "StableRNGs",\
                  "Flux", "Trapz", "Interpolations"];\
                  for i in packs;using Pkg;Pkg.add(i);end' >> /home/vscode/pack.jl 
 
