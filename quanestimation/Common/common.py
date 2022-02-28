@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import numpy as np
 import os
 from scipy.sparse import csc_matrix
@@ -123,7 +121,7 @@ def sic_povm(fiducial):
             res.append(basis_res)
     return res
 
-def load_M(dim):
+def SIC(dim):
     file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),'sic_fiducial_vectors/d%d.txt'%(dim))
     data = np.loadtxt(file_path)
     fiducial = data[:,0] + data[:,1]*1.0j

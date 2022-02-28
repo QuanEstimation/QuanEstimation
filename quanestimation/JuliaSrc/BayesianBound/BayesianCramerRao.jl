@@ -108,7 +108,7 @@ function BCRB(x, p, rho, drho; M=[], b=[], db=[], btype=1, eps=1e-8)
         end
         return F
     else
-        #### multiparameter senario #### # TODO: load_M for multi-
+        #### multiparameter senario #### # TODO: SIC for multi-
         xnum = length(x)
         bs  =  Iterators.product(b...)
         dbs =  Iterators.product(db...)
@@ -186,7 +186,7 @@ function VTB(x, p, dp, rho, drho; M=[], btype=1, eps=1e-8)
         #### singleparameter senario ####
         p_num = length(p)
         if M==[]
-            M = load_M(size(rho[1])[1])
+            M = SIC(size(rho[1])[1])
         end
         if typeof(drho[1]) == Vector{Matrix{ComplexF64}}
             drho = [drho[i][1] for i in 1:p_num]
@@ -212,7 +212,7 @@ function VTB(x, p, dp, rho, drho; M=[], btype=1, eps=1e-8)
         end
         return res
     else
-        #### multiparameter senario #### # TODO: load_M for multi-
+        #### multiparameter senario #### # TODO: M for multi-
         xnum = length(x)
         trapzm(x, integrands, slice_dim) =  [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
         Ip(p,dp) = dp*dp'/p^2

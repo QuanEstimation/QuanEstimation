@@ -5,7 +5,7 @@ from scipy import interpolate
 from scipy.integrate import simps, solve_bvp
 from itertools import product
 from quanestimation.AsymptoticBound.CramerRao import CFIM, QFIM, SLD
-from quanestimation.Common.common import load_M, extract_ele
+from quanestimation.Common.common import SIC, extract_ele
 
 def BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
     para_num = len(x)
@@ -19,7 +19,7 @@ def BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
             db = np.zeros(p_num)
 
         if M==[]: 
-            M = load_M(len(rho[0]))
+            M = SIC(len(rho[0]))
         else:
             if type(M) != list:
                 raise TypeError("Please make sure M is a list!")
@@ -82,7 +82,7 @@ def BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
 
         dim = len(rho_list[0])
         if M==[]: 
-            M = load_M(dim)
+            M = SIC(dim)
         else:
             if type(M) != list:
                 raise TypeError("Please make sure M is a list!")
@@ -288,7 +288,7 @@ def VTB(x, p, dp, rho, drho, M=[], btype=1, eps=1e-8):
     if para_num == 1:
         #### singleparameter senario ####
         if M==[]: 
-            M = load_M(len(rho[0]))
+            M = SIC(len(rho[0]))
         else:
             if type(M) != list:
                 raise TypeError("Please make sure M is a list!")
@@ -331,7 +331,7 @@ def VTB(x, p, dp, rho, drho, M=[], btype=1, eps=1e-8):
    
         dim = len(rho_list[0])
         if M==[]: 
-            M = load_M(dim)
+            M = SIC(dim)
         else:
             if type(M) != list:
                 raise TypeError("Please make sure M is a list!")

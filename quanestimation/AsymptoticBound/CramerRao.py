@@ -1,10 +1,9 @@
-
 import numpy as np
 import numpy.linalg as LA
 from numpy.linalg import inv
 from scipy.integrate import simps
 from scipy.linalg import sqrtm, schur, eigvals
-from quanestimation.Common.common import load_M, extract_ele
+from quanestimation.Common.common import SIC, extract_ele
 #===============================================================================
 #Subclass: metrology
 #===============================================================================
@@ -49,7 +48,7 @@ def CFIM(rho, drho, M=[], eps=1e-8):
         raise TypeError("Please make sure drho is a list!")
 
     if M==[]: 
-        M = load_M(len(rho[0]))
+        M = SIC(len(rho[0]))
     else:
         if type(M) != list:
             raise TypeError("Please make sure M is a list!")
@@ -421,7 +420,7 @@ def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
     if para_num == 1: 
         #### singleparameter senario ####
         if M==[]: 
-            M = load_M(len(rho[0]))
+            M = SIC(len(rho[0]))
         else:
             if type(M) != list:
                 raise TypeError("Please make sure M is a list!")
@@ -451,7 +450,7 @@ def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
    
         dim = len(rho_list[0])
         if M==[]: 
-            M = load_M(dim)
+            M = SIC(dim)
         else:
             if type(M) != list:
                 raise TypeError("Please make sure M is a list!")
