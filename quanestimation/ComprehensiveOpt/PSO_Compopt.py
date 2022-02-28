@@ -60,12 +60,6 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         
         """
 
-        # if measurement0 == []:
-        #     measurement = [np.array(self.M)]
-        # else:
-        #     measurement = measurement0
-        # self.measurement0 = [np.array(x, dtype=np.complex128) for x in measurement]
-
         self.particle_num = particle_num
         self.max_episode = max_episode
         self.c0 = c0
@@ -77,7 +71,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         if self.dynamics_type != "dynamics":
             raise ValueError(
                 "{!r} is not a valid type for dynamics, supported type is 'Lindblad dynamics'.".format(
-                    self.mtype
+                    self.dynamics_type
                 )
             )
 
@@ -88,7 +82,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         pso = Main.QuanEstimation.SC_Compopt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
-            self.psi,
+            self.psi0,
             self.tspan,
             self.decay_opt,
             self.gamma,
@@ -142,7 +136,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         if self.dynamics_type != "dynamics":
             raise ValueError(
                 "{!r} is not a valid type for dynamics, supported type is 'Lindblad dynamics'.".format(
-                    self.mtype
+                    self.dynamics_type
                 )
             )
 
@@ -171,7 +165,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             self.particle_num,
             self.psi0,
             self.ctrl0,
-            self.measurement,
+            self.measurement0,
             self.c0,
             self.c1,
             self.c2,
@@ -217,7 +211,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             pso = Main.QuanEstimation.SM_Compopt(
                 freeHamiltonian,
                 self.Hamiltonian_derivative,
-                self.psi,
+                self.psi0,
                 self.tspan,
                 self.decay_opt,
                 self.gamma,
@@ -230,7 +224,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
                 self.max_episode,
                 self.particle_num,
                 self.psi0,
-                self.measurement,
+                self.measurement0,
                 self.c0,
                 self.c1,
                 self.c2,
@@ -245,7 +239,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             pso = Main.QuanEstimation.SM_Compopt_Kraus(
                 self.K,
                 self.dK,
-                self.psi,
+                self.psi0,
                 self.M,
                 self.W,
                 self.eps,
@@ -255,7 +249,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
                 self.max_episode,
                 self.particle_num,
                 self.psi0,
-                self.measurement,
+                self.measurement0,
                 self.c0,
                 self.c1,
                 self.c2,
@@ -268,7 +262,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         if self.dynamics_type != "dynamics":
             raise ValueError(
                 "{!r} is not a valid type for dynamics, supported type is 'Lindblad dynamics'.".format(
-                    self.mtype
+                    self.dynamics_type
                 )
             )
 
@@ -279,7 +273,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         pso = Main.QuanEstimation.SCM_Compopt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
-            self.psi,
+            self.psi0,
             self.tspan,
             self.decay_opt,
             self.gamma,
@@ -296,7 +290,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             self.particle_num,
             self.psi0,
             self.ctrl0,
-            self.measurement,
+            self.measurement0,
             self.c0,
             self.c1,
             self.c2,

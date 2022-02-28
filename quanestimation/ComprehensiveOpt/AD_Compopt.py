@@ -83,7 +83,7 @@ class AD_Compopt(Comp.ComprehensiveSystem):
         if self.dynamics_type != "dynamics":
             raise ValueError(
                 "{!r} is not a valid type for dynamics, supported type is 'Lindblad dynamics'.".format(
-                    self.mtype
+                    self.dynamics_type
                 )
             )
 
@@ -94,7 +94,7 @@ class AD_Compopt(Comp.ComprehensiveSystem):
         AD = Main.QuanEstimation.Compopt_SCopt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
-            self.psi,
+            self.psi0,
             self.tspan,
             self.decay_opt,
             self.gamma,

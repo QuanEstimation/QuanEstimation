@@ -61,7 +61,7 @@ function info_PSO_noiseless(M, pso, max_episode, particle_num, ini_particle, c0,
 
     qfi_ini = obj_func(Val{sym}(), pso, M)
 
-    if length(pso.Hamiltonian_derivative) == 1
+    if length(typeof(pso)==TimeIndepend_noiseless ? pso.Hamiltonian_derivative : pso.dK) == 1
         println("single parameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
         println("initial $str2 is $(1.0/qfi_ini)")      

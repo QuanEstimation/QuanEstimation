@@ -23,7 +23,7 @@ function HCRB_NM_Sopt(NM::TimeIndepend_Kraus{T}, state_num, ini_state, ar, ae, a
     str2 = "HCRB"
     str3 = "HCRB"
     M = [zeros(ComplexF64, size(NM.psi)[1], size(NM.psi)[1])]
-    if length(NM.Hamiltonian_derivative) == 1
+    if length(NM.dK) == 1
         println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for state optimization.")
         return nothing
     else

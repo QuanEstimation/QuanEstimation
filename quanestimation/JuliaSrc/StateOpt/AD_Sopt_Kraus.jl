@@ -1,7 +1,7 @@
 
 ############# time-independent Hamiltonian (noiseless Kraus rep.) ################
 function QFIM_AD_Sopt(AD::TimeIndepend_Kraus{T}, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file) where {T<:Complex}
-    sym = Symbol("QFIM_TimeIndepend_noiseless")
+    sym = Symbol("QFIM_TimeIndepend_Kraus")
     str1 = "quantum"
     str2 = "QFI"
     str3 = "tr(WF^{-1})"
@@ -10,7 +10,7 @@ function QFIM_AD_Sopt(AD::TimeIndepend_Kraus{T}, mt, vt, epsilon, beta1, beta2, 
 end
 
 function CFIM_AD_Sopt(M, AD::TimeIndepend_Kraus{T}, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file) where {T<:Complex}
-    sym = Symbol("CFIM_TimeIndepend_noiseless")
+    sym = Symbol("CFIM_TimeIndepend_Kraus")
     str1 = "classical"
     str2 = "CFI"
     str3 = "tr(WI^{-1})"
@@ -69,7 +69,7 @@ function info_AD_noiseless_QFIM(M, AD::TimeIndepend_Kraus{T}, mt, vt, epsilon, b
     println("$str1 state optimization")
     episodes = 1
     dim = length(AD.psi)
-    if length(AD.Hamiltonian_derivative) == 1
+    if length(AD.dK) == 1
         println("single parameter scenario")
         println("search algorithm: Automatic Differentiation (AD)")
         f_ini = obj_func(Val{sym}(), AD, M)
@@ -242,13 +242,180 @@ function info_AD_noiseless_QFIM(M, AD::TimeIndepend_Kraus{T}, mt, vt, epsilon, b
     end
 end
 
-
-function QFIM_AD(AD::TimeIndepend_noise{T}, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file) where {T<:Complex}
-    sym = Symbol("QFIM_TimeIndepend_noise")
-    str1 = "quantum"
-    str2 = "QFI"
-    str3 = "tr(WF^{-1})"
-    M = [zeros(ComplexF64, length(AD.psi), length(AD.psi))]
-    return info_AD_noise_QFIM(M, AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, sym, str1, str2, str3)
+function info_AD_noiseless_CFIM(M, AD::TimeIndepend_Kraus{T}, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, sym, str1, str2, str3) where {T <: Complex}
+    println("$str1 state optimization")
+    episodes = 1
+    dim = length(AD.psi)
+    if length(AD.dK) == 1
+        println("single parameter scenario")
+        println("search algorithm: Automatic Differentiation (AD)")
+        f_ini = obj_func(Val{sym}(), AD, M)
+        f_list = [1.0 / f_ini]
+        println("initial $str2 is $(1.0/f_ini)")
+        if Adam == true
+            gradient_CFI_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.eps)
+        else
+            gradient_CFI!(AD, M, epsilon)
+        end
+        if save_file == true
+            SaveFile_state(f_ini, AD.psi)
+            if Adam == true
+                while true
+                    f_now = obj_func(Val{sym}(), AD, M)
+                    f_now = 1.0 / f_now
+                    if episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        SaveFile_state(f_now, AD.psi)
+                        break
+                    else
+                        episodes += 1
+                        SaveFile_state(f_now, AD.psi)
+                        print("current $str2 is ", f_now, " ($(episodes) episodes)    \r")
+                    end
+                    gradient_CFI_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.eps)
+                end
+            else
+                while true
+                    f_now = obj_func(Val{sym}(), AD, M)
+                    f_now = 1.0 / f_now
+                    if episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        SaveFile_state(f_now, AD.psi)
+                        break
+                    else
+                        episodes += 1
+                        SaveFile_state(f_now, AD.psi)
+                        print("current $str2 is ", f_now, " ($(episodes) episodes)    \r")
+                    end
+                    gradient_CFI!(AD, M, epsilon)
+                end
+            end
+        else
+            if Adam == true
+                while true
+                    f_now = obj_func(Val{sym}(), AD, M)
+                    f_now = 1.0 / f_now
+                    if episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_state(f_list, AD.psi)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current $str2 is ", f_now, " ($(episodes) episodes)    \r")
+                    end
+                    gradient_CFI_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.eps)
+                end
+            else
+                while true
+                    f_now = obj_func(Val{sym}(), AD, M)
+                    f_now = 1.0 / f_now
+                    if episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final $str2 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_state(f_list, AD.psi)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current $str2 is ", f_now, " ($(episodes) episodes)    \r")
+                    end
+                    gradient_CFI!(AD, M, epsilon)
+                end
+            end
+        end
+    else
+        println("multiparameter scenario")
+        println("search algorithm: Automatic Differentiation (AD)")
+        f_ini = obj_func(Val{sym}(), AD, M)
+        f_list = [f_ini]
+        println("initial value of $str3 is $(f_ini)")
+        if Adam == true
+            gradient_CFIM_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.eps)
+        else
+            gradient_CFIM!(AD, M, epsilon)
+        end
+        if save_file == true
+            SaveFile_state(f_ini, AD.psi)
+            if Adam == true
+                while true
+                    f_now = obj_func(Val{sym}(), AD, M)
+                    if episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        SaveFile_state(f_now, AD.psi)
+                        break
+                    else
+                        episodes += 1
+                        SaveFile_state(f_now, AD.psi)
+                        print("current value of $str3 is ", f_now, " ($(episodes) episodes)    \r")
+                    end
+                    gradient_CFIM_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.eps)
+                end
+            else
+                while true
+                    f_now = obj_func(Val{sym}(), AD, M)
+                    if episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        SaveFile_state(f_now, AD.psi)
+                        break
+                    else
+                        episodes += 1
+                        SaveFile_state(f_now, AD.psi)
+                        print("current value of $str3 is ", f_now, " ($(episodes) episodes)    \r")
+                    end
+                    gradient_CFIM!(AD, M, epsilon)
+                end
+            end
+        else
+            if Adam == true
+                while true
+                    f_now = obj_func(Val{sym}(), AD, M)
+                    if episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_state(f_list, AD.psi)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current value of $str3 is ", f_now, " ($(episodes) episodes)    \r")
+                    end
+                    gradient_CFIM_Adam!(AD, M, epsilon, mt, vt, beta1, beta2, AD.eps)
+                end
+            else
+                while true
+                    f_now = obj_func(Val{sym}(), AD, M)
+                    if episodes >= max_episode
+                        print("\e[2K")
+                        println("Iteration over, data saved.")
+                        println("Final value of $str3 is ", f_now)
+                        append!(f_list, f_now)
+                        SaveFile_state(f_list, AD.psi)
+                        break
+                    else
+                        episodes += 1
+                        append!(f_list, f_now)
+                        print("current value of $str3 is ", f_now, " ($(episodes) episodes)    \r")
+                    end
+                    gradient_CFIM!(AD, M, epsilon)
+                end
+            end
+        end
+    end
 end
 

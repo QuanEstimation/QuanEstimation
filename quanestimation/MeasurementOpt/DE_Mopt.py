@@ -54,14 +54,8 @@ class DE_Mopt(Measurement.MeasurementSystem):
         self.max_episode = max_episode
         self.c = c
         self.cr = cr
-        if self.mtype == "projection":
-            if measurement0 == []:
-                measurement0 = [np.array(self.M)]
-            self.measurement0 = measurement0
-        else:
-            pass
 
-    def CFIM(self, save_file=False):
+    def CFIM(self, W=[], save_file=False):
         """
         Description: use differential evolution algorithm to update the measurements that maximize the
                      CFI (1/Tr(WF^{-1} with F the CFIM).
@@ -164,7 +158,8 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.K,
                     self.dK,
                     self.rho0,
-                    self.M,
+                    self.povm_basis,
+                    self.M_num,
                     self.W,
                     self.eps,
                 )
@@ -215,7 +210,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.K,
                     self.dK,
                     self.rho0,
-                    self.M,
+                    self.povm_basis,
                     self.W,
                     self.eps,
                 )

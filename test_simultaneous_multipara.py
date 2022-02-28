@@ -65,9 +65,10 @@ AD_paras = {"Adam":False, "psi0":psi0, "ctrl0":ctrl0, "measurement0":[], "max_ep
 PSO_paras = {"particle_num":10, "psi0":psi0, "ctrl0":ctrl0, "measurement0":[], "max_episode":[1000,100], "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
 DE_paras = {"popsize":10, "psi0":psi0, "ctrl0":ctrl0, "measurement0":M0, "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
 
-com = ComprehensiveOpt(tspan, H0, dH, Hc, decay=decay, ctrl_bound=[-0.2, 0.2], method="DE", **DE_paras)
-com.SC(target="QFIM", save_file=False)
+com = ComprehensiveOpt(method="DE", **DE_paras)
+com.dynamics(tspan, H0, dH, Hc, decay=decay, ctrl_bound=[-0.2, 0.2])
+# com.SC(target="QFIM", save_file=False)
 # com.SC(target="CFIM", M=Measurement, save_file=False)
 # com.CM(rho0, save_file=False)
-# com.SM(save_file=False)
+com.SM(save_file=False)
 # com.SCM(save_file=False)

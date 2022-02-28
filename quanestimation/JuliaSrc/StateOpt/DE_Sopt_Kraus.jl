@@ -23,7 +23,7 @@ function HCRB_DE_Sopt(DE::TimeIndepend_Kraus{T}, popsize, ini_population, c, cr,
     str2 = "HCRB"
     str3 = "HCRB"
     M = [zeros(ComplexF64, size(DE.psi)[1], size(DE.psi)[1])]
-    if length(DE.Hamiltonian_derivative) == 1
+    if length(DE.dK) == 1
         println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for state optimization.")
         return nothing
     else

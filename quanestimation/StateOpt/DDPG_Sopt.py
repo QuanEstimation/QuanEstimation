@@ -1,5 +1,6 @@
 from julia import Main
 import warnings
+import numpy as np
 import quanestimation.StateOpt.StateStruct as State
 
 
@@ -188,7 +189,7 @@ class DDPG_Sopt(State.StateSystem):
 
         self.load_save()
 
-    def HCRB(self, save_file=False):
+    def HCRB(self, W=[], save_file=False):
         """
         Description: use DDPG algorithm to search the optimal initial state that maximize the
                      HCRB.

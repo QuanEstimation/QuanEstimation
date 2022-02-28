@@ -62,14 +62,7 @@ class PSO_Mopt(Measurement.MeasurementSystem):
         self.c2 = c2
         self.seed = seed
 
-        if self.mtype == "projection":
-            if measurement0 == []:
-                measurement0 = [np.array(self.M)]
-            self.measurement0 = measurement0
-        else:
-            pass
-
-    def CFIM(self, save_file=False):
+    def CFIM(self, W=[], save_file=False):
         """
         Description: use particle swarm optimization algorithm to update the measurements that maximize the
                      CFI (1/Tr(WF^{-1} with F the CFIM).
@@ -172,13 +165,12 @@ class PSO_Mopt(Measurement.MeasurementSystem):
                 self.W = W
 
                 pso = Main.QuanEstimation.LinearComb_Mopt_Kraus(
-                    self.K, self.dK, self.rho0, self.M, self.W, self.eps
+                    self.K, self.dK, self.rho0, self.povm_basis, self.M_num, self.W, self.eps
                 )
                 Main.QuanEstimation.CFIM_PSO_Mopt(
                     pso,
                     self.max_episode,
                     self.particle_num,
-                    self.measurement0,
                     self.c0,
                     self.c1,
                     self.c2,
@@ -225,7 +217,7 @@ class PSO_Mopt(Measurement.MeasurementSystem):
                     self.K,
                     self.dK,
                     self.rho0,
-                    self.M,
+                    self.povm_basis,
                     self.W,
                     self.eps,
                 )
@@ -233,7 +225,6 @@ class PSO_Mopt(Measurement.MeasurementSystem):
                     pso,
                     self.max_episode,
                     self.particle_num,
-                    self.measurement0,
                     self.c0,
                     self.c1,
                     self.c2,

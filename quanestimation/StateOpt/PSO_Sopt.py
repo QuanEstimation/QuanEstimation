@@ -1,6 +1,7 @@
 from julia import Main
 import warnings
 import quanestimation.StateOpt.StateStruct as State
+import numpy as np
 
 
 class PSO_Sopt(State.StateSystem):
@@ -52,6 +53,7 @@ class PSO_Sopt(State.StateSystem):
 
         """
         self.particle_num = particle_num
+        self.ini_particle = [self.psi0]
         self.max_episode = max_episode
         self.c0 = c0
         self.c1 = c1

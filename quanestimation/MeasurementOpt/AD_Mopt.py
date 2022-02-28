@@ -80,10 +80,6 @@ class AD_Mopt(Measurement.MeasurementSystem):
             --type: bool
         """
 
-        if W == []:
-            W = np.eye(len(self.Hamiltonian_derivative))
-        self.W = W
-
         if self.mtype == "projection":
             warnings.warn(
                 "AD is not available when mtype is projection. Supported methods are 'PSO' and 'DE'.",
@@ -130,7 +126,8 @@ class AD_Mopt(Measurement.MeasurementSystem):
                     self.K,
                     self.dK,
                     self.rho0,
-                    self.M,
+                    self.povm_basis,
+                    self.M_num,
                     self.W,
                     self.eps,
                 )
@@ -188,11 +185,11 @@ class AD_Mopt(Measurement.MeasurementSystem):
                     self.K,
                     self.dK,
                     self.rho0,
-                    self.M,
+                    self.povm_basis,
                     self.W,
                     self.eps,
                 )
-                Main.QuanEstimation.CFIM_NM_Sopt(
+                Main.QuanEstimation.CFIM_AD_Mopt(
                     AD,
                     self.mt,
                     self.vt,

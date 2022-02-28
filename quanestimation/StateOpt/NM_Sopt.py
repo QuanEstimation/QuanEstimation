@@ -1,5 +1,6 @@
 from julia import Main
 import warnings
+import numpy as np
 import quanestimation.StateOpt.StateStruct as State
 
 
@@ -62,6 +63,7 @@ class NM_Sopt(State.StateSystem):
         """
 
         self.state_num = state_num
+        self.ini_state = [self.psi0]
         self.max_episode = max_episode
         self.ar = ar
         self.ae = ae
@@ -83,7 +85,7 @@ class NM_Sopt(State.StateSystem):
             --type: bool
         """
         if W == []:
-            W = np.eye(len(self.Hamiltonian_derivative))
+            W = np.eye(len(self.dK))
         self.W = W
 
         if self.dynamics_type == "dynamics":
@@ -165,7 +167,7 @@ class NM_Sopt(State.StateSystem):
         """
 
         if W == []:
-            W = np.eye(len(self.Hamiltonian_derivative))
+            W = np.eye(len(self.dK))
         self.W = W
 
         if self.dynamics_type == "dynamics":
@@ -249,7 +251,7 @@ class NM_Sopt(State.StateSystem):
             --type: bool
         """
         if W == []:
-            W = np.eye(len(self.Hamiltonian_derivative))
+            W = np.eye(len(self.dK))
         self.W = W
         if self.dynamics_type == "dynamics":
             if len(self.Hamiltonian_derivative) == 1:
@@ -308,7 +310,7 @@ class NM_Sopt(State.StateSystem):
             neldermead = Main.QuanEstimation.TimeIndepend_Kraus(
                 self.K, self.dK, self.psi0, self.W, self.eps
             )
-            Main.QuanEstimation.HCRB_DDPG_Sopt(
+            Main.QuanEstimation.HCRB_NM_Sopt(
                 neldermead,
                 self.state_num,
                 self.ini_state,

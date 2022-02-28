@@ -64,55 +64,14 @@ class ComprehensiveSystem:
             --type: float
 
         """
-        if psi0 == []:
-            np.random.seed(seed)
-            for i in range(self.dim):
-                r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
-                r = r_ini / np.linalg.norm(r_ini)
-                phi = 2 * np.pi * np.random.random(self.dim)
-                psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
-            self.psi0 = np.array(psi0)
-        else:
-            self.psi0 = np.array(psi0[0], dtype=np.complex128)
 
-        if ctrl0 == []:
-            if ctrl_bound == []:
-                ctrl0 = [
-                    2 * np.random.random(len(self.tspan) - 1)
-                    - np.ones(len(self.tspan) - 1)
-                    for i in range(len(self.control_Hamiltonian))
-                ]
-            else:
-                a = ctrl_bound[0]
-                b = ctrl_bound[1]
-                ctrl0 = [
-                    (b - a) * np.random.random(len(self.tspan) - 1)
-                    + a * np.ones(len(self.tspan) - 1)
-                    for i in range(len(self.control_Hamiltonian))
-                ]
-            self.control_coefficients = ctrl0
-        elif len(ctrl0) >= 1:
-            self.control_coefficients = [
-                ctrl0[0][i] for i in range(len(self.control_Hamiltonian))
-            ]
-
-        if measurement0 == []:
-            np.random.seed(seed)
-            M = [[] for i in range(self.dim)]
-            for i in range(self.dim):
-                r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
-                r = r_ini / np.linalg.norm(r_ini)
-                phi = 2 * np.pi * np.random.random(self.dim)
-                M[i] = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
-            self.M = gramschmidt(np.array(M))
-        elif len(measurement0) >= 1:
-            self.M = [measurement0[0][i] for i in range(self.dim)]
-            self.M = [np.array(x, dtype=np.complex128) for x in self.M]
-
+        self.ctrl0 = ctrl0
+        self.psi0 = psi0
         self.eps = eps
         self.seed = seed
+        self.measurement0 = measurement0
 
-    def dynamics(self, tspan, H0, dH, Hc=[], decay=[]):
+    def dynamics(self, tspan, H0, dH, Hc=[], decay=[], ctrl_bound=[]):
         self.tspan = tspan
 
         if type(H0) == np.ndarray:
@@ -121,6 +80,17 @@ class ComprehensiveSystem:
         else:
             self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0]
             self.dim = len(self.freeHamiltonian[0])
+
+        if self.psi0 == []:
+            np.random.seed(self.seed)
+            for i in range(self.dim):
+                r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
+                r = r_ini / np.linalg.norm(r_ini)
+                phi = 2 * np.pi * np.random.random(self.dim)
+                psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
+            self.psi0 = np.array(psi0)
+        else:
+            self.psi0 = np.array(self.psi0[0], dtype=np.complex128)
 
         if Hc == []:
             Hc = [np.zeros((len(self.dim), len(self.dim)))]
@@ -145,6 +115,27 @@ class ComprehensiveSystem:
         if ctrl_bound == []:
             ctrl_bound = [-np.inf, np.inf]
         self.ctrl_bound = ctrl_bound
+
+        if self.ctrl0 == []:
+            if ctrl_bound == []:
+                self.ctrl0 = [
+                    2 * np.random.random(len(self.tspan) - 1)
+                    - np.ones(len(self.tspan) - 1)
+                    for i in range(len(self.control_Hamiltonian))
+                ]
+            else:
+                a = ctrl_bound[0]
+                b = ctrl_bound[1]
+                self.ctrl0 = [
+                    (b - a) * np.random.random(len(self.tspan) - 1)
+                    + a * np.ones(len(self.tspan) - 1)
+                    for i in range(len(self.control_Hamiltonian))
+                ]
+            self.control_coefficients = self.ctrl0
+        elif len(self.ctrl0) >= 1:
+            self.control_coefficients = [
+                self.ctrl0[0][i] for i in range(len(self.control_Hamiltonian))
+            ]
 
         ctrl_num = len(self.control_coefficients)
         Hc_num = len(self.control_Hamiltonian)
@@ -172,6 +163,19 @@ class ComprehensiveSystem:
         else:
             pass
 
+        if self.measurement0 == []:
+            np.random.seed(self.seed)
+            M = [[] for i in range(self.dim)]
+            for i in range(self.dim):
+                r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
+                r = r_ini / np.linalg.norm(r_ini)
+                phi = 2 * np.pi * np.random.random(self.dim)
+                M[i] = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
+            self.M = gramschmidt(np.array(M))
+        elif len(self.measurement0) >= 1:
+            self.M = [self.measurement0[0][i] for i in range(self.dim)]
+            self.M = [np.array(x, dtype=np.complex128) for x in self.M]
+
         number = math.ceil((len(self.tspan) - 1) / len(self.control_coefficients[0]))
         if len(self.tspan) - 1 % len(self.control_coefficients[0]) != 0:
             tnum = number * len(self.control_coefficients[0])
@@ -179,14 +183,36 @@ class ComprehensiveSystem:
         else:
             pass
 
-    def kraus(K, dK):
+        self.dynamics_type = "dynamics"
+
+    def kraus(self, K, dK):
         # TODO: initialize K, dK
         self.K = K
         self.dK = dK
+        self.dim = len(K)
+        if self.psi0 == []:
+            np.random.seed(self.seed)
+            for i in range(self.dim):
+                r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
+                r = r_ini / np.linalg.norm(r_ini)
+                phi = 2 * np.pi * np.random.random(self.dim)
+                psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
+            self.psi0 = np.array(psi0)
+        else:
+            self.psi0 = np.array(self.psi0[0], dtype=np.complex128)
 
-        if W == []:
-            W = np.eye(len(self.Hamiltonian_derivative))
-        self.W = W
+        if self.measurement0 == []:
+            np.random.seed(self.seed)
+            M = [[] for i in range(self.dim)]
+            for i in range(self.dim):
+                r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
+                r = r_ini / np.linalg.norm(r_ini)
+                phi = 2 * np.pi * np.random.random(self.dim)
+                M[i] = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
+            self.M = gramschmidt(np.array(M))
+        elif len(self.measurement0) >= 1:
+            self.M = [self.measurement0[0][i] for i in range(self.dim)]
+            self.M = [np.array(x, dtype=np.complex128) for x in self.M]
 
         self.dynamics_type = "kraus"
 
@@ -216,11 +242,11 @@ class ComprehensiveSystem:
 def ComprehensiveOpt(method="AD", **kwargs):
 
     if method == "AD":
-        return compopt.AD_Compopt(*args, **kwargs)
+        return compopt.AD_Compopt(**kwargs)
     elif method == "PSO":
-        return compopt.PSO_Compopt(*args, **kwargs)
+        return compopt.PSO_Compopt(**kwargs)
     elif method == "DE":
-        return compopt.DE_Compopt(*args, **kwargs)
+        return compopt.DE_Compopt(**kwargs)
     else:
         raise ValueError(
             "{!r} is not a valid value for method, supported values are 'AD', 'PSO', 'DE'.".format(

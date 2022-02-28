@@ -65,12 +65,6 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         # else:
         # self.ctrl0 = ctrl0
 
-        if measurement0 == []:
-            measurement0 = [np.array(self.M)]
-        else:
-            measurement0 = measurement0
-        self.measurement0 = [np.array(x, dtype=np.complex128) for x in measurement0]
-
         self.popsize = popsize
         self.max_episode = max_episode
         self.c = c
@@ -81,7 +75,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         if self.dynamics_type != "dynamics":
             raise ValueError(
                 "{!r} is not a valid type for dynamics, supported type is 'Lindblad dynamics'.".format(
-                    self.mtype
+                    self.dynamics_type
                 )
             )
 
@@ -92,7 +86,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         diffevo = Main.QuanEstimation.SC_Compopt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
-            self.psi,
+            self.psi0,
             self.tspan,
             self.decay_opt,
             self.gamma,
@@ -144,7 +138,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         if self.dynamics_type != "dynamics":
             raise ValueError(
                 "{!r} is not a valid type for dynamics, supported type is 'Lindblad dynamics'.".format(
-                    self.mtype
+                    self.dynamics_type
                 )
             )
 
@@ -213,7 +207,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             diffevo = Main.QuanEstimation.SM_Compopt(
                 freeHamiltonian,
                 self.Hamiltonian_derivative,
-                self.psi,
+                self.psi0,
                 self.tspan,
                 self.decay_opt,
                 self.gamma,
@@ -240,10 +234,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             diffevo = Main.QuanEstimation.SM_Compopt_Kraus(
                 self.K,
                 self.dK,
-                self.psi,
-                self.tspan,
-                self.decay_opt,
-                self.gamma,
+                self.psi0,
                 self.M,
                 self.W,
                 self.eps,
@@ -266,14 +257,14 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         if self.dynamics_type != "dynamics":
             raise ValueError(
                 "{!r} is not a valid type for dynamics, supported type is 'Lindblad dynamics'.".format(
-                    self.mtype
+                    self.dynamics_type
                 )
             )
 
         diffevo = Main.QuanEstimation.SCM_Compopt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
-            self.psi,
+            self.psi0,
             self.tspan,
             self.decay_opt,
             self.gamma,

@@ -66,103 +66,7 @@ class MeasurementSystem:
         self.eps = eps
         self.seed = seed
         self.load = load
-
-        if self.mtype == "projection":
-            if measurement0 == []:
-                np.random.seed(self.seed)
-                M = [[] for i in range(len(self.rho0))]
-                for i in range(len(self.rho0)):
-                    r_ini = 2 * np.random.random(len(self.rho0)) - np.ones(
-                        len(self.rho0)
-                    )
-                    r = r_ini / np.linalg.norm(r_ini)
-                    phi = 2 * np.pi * np.random.random(len(self.rho0))
-                    M[i] = [r[i] * np.exp(1.0j * phi[i]) for i in range(len(self.rho0))]
-                self.M = gramschmidt(np.array(M))
-            elif len(measurement0) >= 1:
-                self.M = [measurement0[0][i] for i in range(len(self.rho0))]
-
-        elif self.mtype == "input":
-            if minput[0] == "LC":
-                ## optimize the combination of a set of SIC-POVM
-                if minput[1] == []:
-                    file_path = os.path.join(
-                        os.path.dirname(os.path.dirname(__file__)),
-                        "sic_fiducial_vectors/d%d.txt" % (len(self.rho0)),
-                    )
-                    data = np.loadtxt(file_path)
-                    fiducial = data[:, 0] + data[:, 1] * 1.0j
-                    fiducial = np.array(fiducial).reshape(len(fiducial), 1)
-                    self.povm_basis = sic_povm(fiducial)
-                    self.M_num = minput[2]
-                else:
-                    ## optimize the combination of a set of given POVMs
-                    if type(minput[1]) != list:
-                        raise TypeError("The given POVMs should be a list!")
-                    else:
-                        accu = len(str(int(1 / self.eps))) - 1
-                        for i in range(len(minput[1])):
-                            val, vec = np.linalg.eig(minput[1])
-                            if np.all(val.round(accu) >= 0):
-                                pass
-                            else:
-                                raise TypeError(
-                                    "The given POVMs should be semidefinite!"
-                                )
-                        M = np.zeros(
-                            (len(self.rho0), len(self.rho0)), dtype=np.complex128
-                        )
-                        for i in range(len(minput[1])):
-                            M += minput[1][i]
-                        if np.all(M.round(accu) - np.identity(len(self.rho0)) == 0):
-                            pass
-                        else:
-                            raise TypeError(
-                                "The sum of the given POVMs should be identity matrix!"
-                            )
-                        self.povm_basis = [
-                            np.array(x, dtype=np.complex128) for x in minput[1]
-                        ]
-                        self.M_num = minput[2]
-            elif minput[0] == "rotation":
-                ## optimize the coefficients of the rotation matrix
-                if type(minput[1]) != list:
-                    raise TypeError("The given POVMs should be a list!")
-                else:
-                    if minput[1] == []:
-                        raise TypeError("The initial POVM should not be empty!")
-                    accu = len(str(int(1 / self.eps))) - 1
-                    for i in range(len(minput[1])):
-                        val, vec = np.linalg.eig(minput[1])
-                        if np.all(val.round(accu) >= 0):
-                            pass
-                        else:
-                            raise TypeError("The given POVMs should be semidefinite!")
-                    M = np.zeros((len(self.rho0), len(self.rho0)), dtype=np.complex128)
-                    for i in range(len(minput[1])):
-                        M += minput[1][i]
-                    if np.all(M.round(accu) - np.identity(len(self.rho0)) == 0):
-                        pass
-                    else:
-                        raise TypeError(
-                            "The sum of the given POVMs should be identity matrix!"
-                        )
-                    self.povm_basis = [
-                        np.array(x, dtype=np.complex128) for x in minput[1]
-                    ]
-                    self.mtype = "rotation"
-            else:
-                raise ValueError(
-                    "{!r} is not a valid value for the first input of minput, supported values are 'LC' and 'rotation'.".format(
-                        self.minput[0]
-                    )
-                )
-        else:
-            raise ValueError(
-                "{!r} is not a valid value for mtype, supported values are 'projection' and 'input'.".format(
-                    self.mtype
-                )
-            )
+        self.measurement0 = measurement0
 
     def load_save(self):
         if os.path.exists("measurements.csv"):
@@ -222,6 +126,102 @@ class MeasurementSystem:
         self.tspan = tspan
         self.rho0 = np.array(rho0, dtype=np.complex128)
 
+        if self.mtype == "projection":
+            if self.measurement0 == []:
+                np.random.seed(self.seed)
+                M = [[] for i in range(len(self.rho0))]
+                for i in range(len(self.rho0)):
+                    r_ini = 2 * np.random.random(len(self.rho0)) - np.ones(
+                        len(self.rho0)
+                    )
+                    r = r_ini / np.linalg.norm(r_ini)
+                    phi = 2 * np.pi * np.random.random(len(self.rho0))
+                    M[i] = [r[i] * np.exp(1.0j * phi[i]) for i in range(len(self.rho0))]
+                self.M = gramschmidt(np.array(M))
+            elif len(self.measurement0) >= 1:
+                self.M = [self.measurement0[0][i] for i in range(len(self.rho0))]
+
+        elif self.mtype == "input":
+            if self.minput[0] == "LC":
+                ## optimize the combination of a set of SIC-POVM
+                if self.minput[1] == []:
+                    file_path = os.path.join(
+                        os.path.dirname(os.path.dirname(__file__)),
+                        "sic_fiducial_vectors/d%d.txt" % (len(self.rho0)),
+                    )
+                    data = np.loadtxt(file_path)
+                    fiducial = data[:, 0] + data[:, 1] * 1.0j
+                    fiducial = np.array(fiducial).reshape(len(fiducial), 1)
+                    self.povm_basis = sic_povm(fiducial)
+                    self.M_num = self.minput[2]
+                else:
+                    ## optimize the combination of a set of given POVMs
+                    if type(self.minput[1]) != list:
+                        raise TypeError("The given POVMs should be a list!")
+                    else:
+                        accu = len(str(int(1 / self.eps))) - 1
+                        for i in range(len(self.minput[1])):
+                            val, vec = np.linalg.eig(self.minput[1])
+                            if np.all(val.round(accu) >= 0):
+                                pass
+                            else:
+                                raise TypeError(
+                                    "The given POVMs should be semidefinite!"
+                                )
+                        M = np.zeros(
+                            (len(self.rho0), len(self.rho0)), dtype=np.complex128
+                        )
+                        for i in range(len(self.minput[1])):
+                            M += self.minput[1][i]
+                        if np.all(M.round(accu) - np.identity(len(self.rho0)) == 0):
+                            pass
+                        else:
+                            raise TypeError(
+                                "The sum of the given POVMs should be identity matrix!"
+                            )
+                        self.povm_basis = [
+                            np.array(x, dtype=np.complex128) for x in self.minput[1]
+                        ]
+                        self.M_num = self.minput[2]
+            elif self.minput[0] == "rotation":
+                ## optimize the coefficients of the rotation matrix
+                if type(self.minput[1]) != list:
+                    raise TypeError("The given POVMs should be a list!")
+                else:
+                    if self.minput[1] == []:
+                        raise TypeError("The initial POVM should not be empty!")
+                    accu = len(str(int(1 / self.eps))) - 1
+                    for i in range(len(self.minput[1])):
+                        val, vec = np.linalg.eig(self.minput[1])
+                        if np.all(val.round(accu) >= 0):
+                            pass
+                        else:
+                            raise TypeError("The given POVMs should be semidefinite!")
+                    M = np.zeros((len(self.rho0), len(self.rho0)), dtype=np.complex128)
+                    for i in range(len(self.minput[1])):
+                        M += self.minput[1][i]
+                    if np.all(M.round(accu) - np.identity(len(self.rho0)) == 0):
+                        pass
+                    else:
+                        raise TypeError(
+                            "The sum of the given POVMs should be identity matrix!"
+                        )
+                    self.povm_basis = [
+                        np.array(x, dtype=np.complex128) for x in self.minput[1]
+                    ]
+                    self.mtype = "rotation"
+            else:
+                raise ValueError(
+                    "{!r} is not a valid value for the first input of minput, supported values are 'LC' and 'rotation'.".format(
+                        self.minput[0]
+                    )
+                )
+        else:
+            raise ValueError(
+                "{!r} is not a valid value for mtype, supported values are 'projection' and 'input'.".format(
+                    self.mtype
+                )
+            )
         if Hc == [] or ctrl == []:
             if type(H0) == np.ndarray:
                 self.freeHamiltonian = np.array(H0, dtype=np.complex128)
@@ -287,10 +287,107 @@ class MeasurementSystem:
 
         self.dynamics_type = "dynamics"
 
-    def kraus(rho0, K, dK):
+    def kraus(self, rho0, K, dK):
         self.rho0 = np.array(rho0, dtype=np.complex128)
         self.K = K
         self.dK = dK
+
+        if self.mtype == "projection":
+            if self.measurement0 == []:
+                np.random.seed(self.seed)
+                M = [[] for i in range(len(self.rho0))]
+                for i in range(len(self.rho0)):
+                    r_ini = 2 * np.random.random(len(self.rho0)) - np.ones(
+                        len(self.rho0)
+                    )
+                    r = r_ini / np.linalg.norm(r_ini)
+                    phi = 2 * np.pi * np.random.random(len(self.rho0))
+                    M[i] = [r[i] * np.exp(1.0j * phi[i]) for i in range(len(self.rho0))]
+                self.M = gramschmidt(np.array(M))
+            elif len(self.measurement0) >= 1:
+                self.M = [self.measurement0[0][i] for i in range(len(self.rho0))]
+
+        elif self.mtype == "input":
+            if self.minput[0] == "LC":
+                ## optimize the combination of a set of SIC-POVM
+                if self.minput[1] == []:
+                    file_path = os.path.join(
+                        os.path.dirname(os.path.dirname(__file__)),
+                        "sic_fiducial_vectors/d%d.txt" % (len(self.rho0)),
+                    )
+                    data = np.loadtxt(file_path)
+                    fiducial = data[:, 0] + data[:, 1] * 1.0j
+                    fiducial = np.array(fiducial).reshape(len(fiducial), 1)
+                    self.povm_basis = sic_povm(fiducial)
+                    self.M_num = self.minput[2]
+                else:
+                    ## optimize the combination of a set of given POVMs
+                    if type(self.minput[1]) != list:
+                        raise TypeError("The given POVMs should be a list!")
+                    else:
+                        accu = len(str(int(1 / self.eps))) - 1
+                        for i in range(len(self.minput[1])):
+                            val, vec = np.linalg.eig(self.minput[1])
+                            if np.all(val.round(accu) >= 0):
+                                pass
+                            else:
+                                raise TypeError(
+                                    "The given POVMs should be semidefinite!"
+                                )
+                        M = np.zeros(
+                            (len(self.rho0), len(self.rho0)), dtype=np.complex128
+                        )
+                        for i in range(len(self.minput[1])):
+                            M += self.minput[1][i]
+                        if np.all(M.round(accu) - np.identity(len(self.rho0)) == 0):
+                            pass
+                        else:
+                            raise TypeError(
+                                "The sum of the given POVMs should be identity matrix!"
+                            )
+                        self.povm_basis = [
+                            np.array(x, dtype=np.complex128) for x in self.minput[1]
+                        ]
+                        self.M_num = self.minput[2]
+            elif self.minput[0] == "rotation":
+                ## optimize the coefficients of the rotation matrix
+                if type(self.minput[1]) != list:
+                    raise TypeError("The given POVMs should be a list!")
+                else:
+                    if self.minput[1] == []:
+                        raise TypeError("The initial POVM should not be empty!")
+                    accu = len(str(int(1 / self.eps))) - 1
+                    for i in range(len(self.minput[1])):
+                        val, vec = np.linalg.eig(self.minput[1])
+                        if np.all(val.round(accu) >= 0):
+                            pass
+                        else:
+                            raise TypeError("The given POVMs should be semidefinite!")
+                    M = np.zeros((len(self.rho0), len(self.rho0)), dtype=np.complex128)
+                    for i in range(len(self.minput[1])):
+                        M += self.minput[1][i]
+                    if np.all(M.round(accu) - np.identity(len(self.rho0)) == 0):
+                        pass
+                    else:
+                        raise TypeError(
+                            "The sum of the given POVMs should be identity matrix!"
+                        )
+                    self.povm_basis = [
+                        np.array(x, dtype=np.complex128) for x in self.minput[1]
+                    ]
+                    self.mtype = "rotation"
+            else:
+                raise ValueError(
+                    "{!r} is not a valid value for the first input of minput, supported values are 'LC' and 'rotation'.".format(
+                        self.minput[0]
+                    )
+                )
+        else:
+            raise ValueError(
+                "{!r} is not a valid value for mtype, supported values are 'projection' and 'input'.".format(
+                    self.mtype
+                )
+            )
 
         self.dynamics_type = "kraus"
 

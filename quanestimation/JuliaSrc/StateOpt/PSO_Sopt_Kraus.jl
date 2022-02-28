@@ -23,7 +23,7 @@ function HCRB_PSO_Sopt(pso::TimeIndepend_Kraus{T}, max_episode, particle_num, in
     str2 = "HCRB"
     str3 = "HCRB"
     M = [zeros(ComplexF64, size(pso.psi)[1], size(pso.psi)[1])]
-    if length(pso.Hamiltonian_derivative) == 1
+    if length(pso.dK) == 1
         println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for state optimization.")
         return nothing
     else

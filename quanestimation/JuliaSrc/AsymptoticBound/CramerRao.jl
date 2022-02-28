@@ -1,4 +1,8 @@
 using Zygote: @adjoint
+const σ_x = [0.0 1.0; 1.0 0.0im]
+const σ_y = [0.0 -1.0im; 1.0im 0.0]
+const σ_z = [1.0 0.0im; 0.0 -1.0]
+
 
 ############## logarrithmic derivative ###############
 function SLD(ρ::Matrix{T}, dρ::Matrix{T}, eps; rep="original") where {T<:Complex}

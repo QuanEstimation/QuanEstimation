@@ -1,5 +1,6 @@
 from julia import Main
 import warnings
+import numpy as np
 import quanestimation.StateOpt.StateStruct as State
 
 
@@ -48,7 +49,7 @@ class DE_Sopt(State.StateSystem):
         """
 
         self.popsize = popsize
-        self.ini_population = ini_population
+        self.ini_population = [self.psi0]
         self.c = c
         self.cr = cr
         self.seed = seed
@@ -115,7 +116,7 @@ class DE_Sopt(State.StateSystem):
                 )
         elif self.dynamics_type == "kraus":
             if W == []:
-                W = np.eye(len(self.Hamiltonian_derivative))
+                W = np.eye(len(self.dK))
             self.W = W
 
             diffevo = Main.QuanEstimation.TimeIndepend_Kraus(
@@ -196,7 +197,7 @@ class DE_Sopt(State.StateSystem):
                 )
         elif self.dynamics_type == "kraus":
             if W == []:
-                W = np.eye(len(self.Hamiltonian_derivative))
+                W = np.eye(len(self.dK))
             self.W = W
 
             diffevo = Main.QuanEstimation.TimeIndepend_Kraus(
@@ -283,7 +284,7 @@ class DE_Sopt(State.StateSystem):
 
         elif self.dynamics_type == "kraus":
             if W == []:
-                W = np.eye(len(self.Hamiltonian_derivative))
+                W = np.eye(len(self.dK))
             self.W = W
 
             diffevo = Main.QuanEstimation.TimeIndepend_Kraus(

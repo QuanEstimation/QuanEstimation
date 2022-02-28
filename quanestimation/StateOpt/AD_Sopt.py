@@ -1,5 +1,6 @@
 from julia import Main
 import warnings
+import numpy as np
 import quanestimation.StateOpt.StateStruct as State
 
 
@@ -211,6 +212,7 @@ class AD_Sopt(State.StateSystem):
                 self.K, self.dK, self.psi0, self.W, self.eps
             )
             Main.QuanEstimation.CFIM_AD_Sopt(
+                M,
                 AD,
                 self.mt,
                 self.vt,
