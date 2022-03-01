@@ -176,7 +176,7 @@ mutable struct SCM_Compopt{T<:Complex,M<:Real}
 end
 
 mutable struct SM_Compopt_Kraus{T<:Complex}
-    K::AbstractMatrix
+    K::AbstractVector
     dK::AbstractVector
     psi::Vector{T}
     C::Vector{Vector{T}}

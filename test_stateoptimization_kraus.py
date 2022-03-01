@@ -16,8 +16,9 @@ Jx, Jy, Jz = Jx.full(), Jy.full(), Jz.full()
 H0 = -Lambda * (np.dot(Jx, Jx) + g * np.dot(Jy, Jy)) / N - h * Jz
 dH0 = [-Lambda * np.dot(Jy, Jy) / N, -Jz]
 
-K = scipy.linalg.expm(-1.0j * H0)
-dK = [K @ dH0[0], K @ dH0[1]]
+K = [scipy.linalg.expm(-1.0j * H0)]
+dK = [[K @ dH0[0] for K in K], [K @ dH0[1] for K in K], [K @ dH0[2] for K in K]]
+
 
 # measurement
 M_num = len(psi0)

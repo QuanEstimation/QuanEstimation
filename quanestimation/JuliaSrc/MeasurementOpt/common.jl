@@ -54,7 +54,7 @@ mutable struct RotateBasis_Mopt{T<:Complex, M <:Number}
 end
 
 mutable struct projection_Mopt_Kraus{T<:Complex, M <:Number} 
-    K::AbstractMatrix
+    K::AbstractVector
     dK::AbstractVector
     ρ0::Matrix{T}
     C::Vector{Vector{T}}
@@ -71,15 +71,13 @@ mutable struct projection_Mopt_Kraus{T<:Complex, M <:Number}
 end
 
 mutable struct LinearComb_Mopt_Kraus{T<:Complex, M <:Number}
-    K::AbstractMatrix
+    K::AbstractVector
     dK::AbstractVector
     ρ0::Matrix{T}
     povm_basis::Vector{Matrix{T}}
     M_num::Int64
     W::Matrix{M}
     eps::M
-    ρ::Vector{Matrix{T}}
-    ∂ρ_∂x::Vector{Vector{Matrix{T}}}
     LinearComb_Mopt_Kraus(K, 
         dK, 
         ρ0::Matrix{T}, 
@@ -93,7 +91,7 @@ end
 
 
 mutable struct RotateBasis_Mopt_Kraus{T<:Complex, M <:Number}
-    K::AbstractMatrix
+    K::AbstractVector
     dK::AbstractVector
     ρ0::Matrix{T}
     povm_basis::Vector{Matrix{T}}

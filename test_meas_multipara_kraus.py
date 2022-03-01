@@ -34,8 +34,8 @@ dH1, dH2, dH3 = gS * S1 + gI * I1, gS * S2 + gI * I2, gS * S3 + gI * I3
 dH0 = [dH1, dH2, dH3]
 Hc_ctrl = [S1, S2, S3]
 
-K = scipy.linalg.expm(-1.0j * H0)
-dK = [K @ dH0[0], K @ dH0[1], K @ dH0[2]]
+K = [scipy.linalg.expm(-1.0j * H0)]
+dK = [[K @ dH0[0] for K in K], [K @ dH0[1] for K in K], [K @ dH0[2] for K in K]]
 
 # measurement
 def get_basis(dim, index):

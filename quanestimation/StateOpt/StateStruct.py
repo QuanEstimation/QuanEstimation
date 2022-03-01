@@ -175,7 +175,7 @@ class StateSystem:
 
         self.K = K
         self.dK = dK
-        self.dim = len(self.K)
+        self.dim = len(self.K[0])
 
         if self.psi0 == []:
             np.random.seed(self.seed)

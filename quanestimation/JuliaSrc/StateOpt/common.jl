@@ -20,12 +20,12 @@ mutable struct TimeIndepend_noiseless{T<:Complex,M<:Real}
 end
 
 mutable struct TimeIndepend_Kraus{T<:Complex}
-    K::Matrix{T}
+    K::AbstractVector{Matrix{T}}
     dK::AbstractVector
     psi::AbstractVector
     W::AbstractMatrix
     eps::Number
-    TimeIndepend_Kraus(K::Matrix{T}, dK, psi, W, eps) where {T<:Complex} = 
+    TimeIndepend_Kraus(K::AbstractVector{Matrix{T}}, dK, psi, W, eps) where {T<:Complex} = 
         new{T}(K, dK, psi, W, eps)
 end
 

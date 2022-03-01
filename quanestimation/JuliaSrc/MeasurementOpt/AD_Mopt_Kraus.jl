@@ -6,7 +6,9 @@ function CFIM_AD_Mopt(AD::LinearComb_Mopt_Kraus{T}, mt, vt, epsilon, beta1, beta
     return info_LinearComb_AD_Kraus(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed, sym, str1, str2)
 end
 function gradient_CFI!(AD::LinearComb_Mopt_Kraus{T}, epsilon, B, POVM_basis, M_num, basis_num) where {T<:Complex}
-    δI = gradient(x->CFI(AD.K, AD.dK, AD.ρ0,[sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], eps=AD.eps), B)[1]
+    K, dK, ρ0 = AD.K, AD.dK, AD.ρ0
+    ρt, ∂ρt_∂x = sum([K*ρ0*K' for K in K]), [sum([dK*ρ0*K' + K*ρ0*dK' for K in K]) for dK in dK]
+    δI = gradient(x->CFI(ρt, ∂ρt_∂x, [sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], eps=AD.eps), B)[1]
     B += epsilon*δI
     B = bound_LC_coeff(B)
     return B
@@ -14,7 +16,7 @@ end
 
 function gradient_CFI_Adam!(AD::LinearComb_Mopt_Kraus{T}, epsilon, B, POVM_basis, M_num, basis_num) where {T<:Complex}
     K, dK, ρ0 = AD.K, AD.dK, AD.ρ0
-    ρt, ∂ρt_∂x = K*ρ0*K', dK*ρ0*K' + K*ρ0*dK'
+    ρt, ∂ρt_∂x = sum([K*ρ0*K' for K in K]), [sum([dK*ρ0*K' + K*ρ0*dK' for K in K]) for dK in dK]
     δI = gradient(x->CFI(ρt, ∂ρt_∂x, [sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], eps=AD.eps), B)[1]
     B = MOpt_Adam!(B, δI, epsilon, mt, vt, beta1, beta2, AD.eps)
     B = bound_LC_coeff(B)
@@ -23,7 +25,7 @@ end
 
 function gradient_CFIM!(AD::LinearComb_Mopt_Kraus{T}, epsilon, B, POVM_basis, M_num, basis_num) where {T<:Complex}
     K, dK, ρ0 = AD.K, AD.dK, AD.ρ0
-    ρt, ∂ρt_∂x = K*ρ0*K', [dK*ρ0*K' + K*ρ0*dK' for dK in dK]
+    ρt, ∂ρt_∂x = sum([K*ρ0*K' for K in K]), [sum([dK*ρ0*K' + K*ρ0*dK' for K in K]) for dK in dK]
     δI = gradient(x->1/(AD.W*pinv(CFIM(ρt, ∂ρt_∂x, [sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], AD.eps), rtol=AD.eps) |> tr |>real), B) |>sum
     B += epsilon*δI
     B = bound_LC_coeff(B)
@@ -32,7 +34,7 @@ end
 
 function gradient_CFIM_Adam!(AD::LinearComb_Mopt_Kraus{T}, epsilon, B, POVM_basis, M_num, basis_num) where {T<:Complex}
     K, dK, ρ0 = AD.K, AD.dK, AD.ρ0
-    ρt, ∂ρt_∂x = K*ρ0*K', [dK*ρ0*K' + K*ρ0*dK' for dK in dK]
+    ρt, ∂ρt_∂x = sum([K*ρ0*K' for K in K]), [sum([dK*ρ0*K' + K*ρ0*dK' for K in K]) for dK in dK]
     δI = gradient(x->1/(AD.W*pinv(CFIM(ρt, ∂ρt_∂x, [sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], AD.eps), rtol=AD.eps) |> tr |>real), B) |>sum
     B = MOpt_Adam!(B, δI, epsilon, mt, vt, beta1, beta2, AD.eps)
     B = bound_LC_coeff(B)

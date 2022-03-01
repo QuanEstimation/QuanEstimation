@@ -123,8 +123,8 @@ class AD_Mopt(Measurement.MeasurementSystem):
                 self.W = W
 
                 AD = Main.QuanEstimation.LinearComb_Mopt_Kraus(
-                    self.K,
-                    self.dK,
+                    Main.vec(self.K),
+                    Main.vec(self.dK),
                     self.rho0,
                     self.povm_basis,
                     self.M_num,
@@ -182,8 +182,8 @@ class AD_Mopt(Measurement.MeasurementSystem):
                 self.W = W
 
                 AD = Main.QuanEstimation.RotateBasis_Mopt_Kraus(
-                    self.K,
-                    self.dK,
+                    Main.vec(self.K),
+                    Main.vec(self.dK),
                     self.rho0,
                     self.povm_basis,
                     self.W,
