@@ -3,11 +3,31 @@ import warnings
 from julia import Main
 import quanestimation.ControlOpt.ControlStruct as Control
 
-class GRAPE_Copt(Control.ControlSystem):
-    def __init__(self, tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[], W=[], \
-                 auto=True, Adam=True, ctrl0=[], max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99, load=False):
 
-        Control.ControlSystem.__init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, eps=1e-8)
+class GRAPE_Copt(Control.ControlSystem):
+    def __init__(
+        self,
+        tspan,
+        rho0,
+        H0,
+        dH,
+        Hc,
+        decay=[],
+        ctrl_bound=[],
+        W=[],
+        auto=True,
+        Adam=True,
+        ctrl0=[],
+        max_episode=300,
+        epsilon=0.01,
+        beta1=0.90,
+        beta2=0.99,
+        load=False,
+    ):
+
+        Control.ControlSystem.__init__(
+            self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, eps=1e-8
+        )
 
         """
         ----------
@@ -67,18 +87,42 @@ class GRAPE_Copt(Control.ControlSystem):
             --type: bool
 
         """
-        grape = Main.QuanEstimation.GRAPE_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, \
-                self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
-                self.ctrl_bound, self.W, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.eps)
+        grape = Main.QuanEstimation.GRAPE_Copt(
+            self.freeHamiltonian,
+            self.Hamiltonian_derivative,
+            self.rho0,
+            self.tspan,
+            self.decay_opt,
+            self.gamma,
+            self.control_Hamiltonian,
+            self.control_coefficients,
+            self.ctrl_bound,
+            self.W,
+            self.mt,
+            self.vt,
+            self.epsilon,
+            self.beta1,
+            self.beta2,
+            self.eps,
+        )
         if self.auto == True:
-            Main.QuanEstimation.QFIM_autoGRAPE_Copt(grape, self.max_episode, self.Adam, save_file)
+            Main.QuanEstimation.QFIM_autoGRAPE_Copt(
+                grape, self.max_episode, self.Adam, save_file
+            )
         else:
-            if (len(self.tspan)-1) != len(self.control_coefficients[0]):
-                warnings.warn("GRAPE is not available when the length of each control is not equal to the \
-                               length of time, and is replaced by auto-GRAPE.", DeprecationWarning)
-                Main.QuanEstimation.QFIM_autoGRAPE_Copt(grape, self.max_episode, self.Adam, save_file)
+            if (len(self.tspan) - 1) != len(self.control_coefficients[0]):
+                warnings.warn(
+                    "GRAPE is not available when the length of each control is not equal to the \
+                               length of time, and is replaced by auto-GRAPE.",
+                    DeprecationWarning,
+                )
+                Main.QuanEstimation.QFIM_autoGRAPE_Copt(
+                    grape, self.max_episode, self.Adam, save_file
+                )
             else:
-                Main.QuanEstimation.QFIM_GRAPE_Copt(grape, self.max_episode, self.Adam, save_file)
+                Main.QuanEstimation.QFIM_GRAPE_Copt(
+                    grape, self.max_episode, self.Adam, save_file
+                )
 
     def CFIM(self, M, save_file=False):
         """
@@ -94,18 +138,109 @@ class GRAPE_Copt(Control.ControlSystem):
 
         """
         M = [np.array(x, dtype=np.complex128) for x in M]
-        grape = Main.QuanEstimation.GRAPE_Copt(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, \
-                self.tspan, self.decay_opt, self.gamma, self.control_Hamiltonian, self.control_coefficients, \
-                self.ctrl_bound, self.W, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.eps)
+        grape = Main.QuanEstimation.GRAPE_Copt(
+            self.freeHamiltonian,
+            self.Hamiltonian_derivative,
+            self.rho0,
+            self.tspan,
+            self.decay_opt,
+            self.gamma,
+            self.control_Hamiltonian,
+            self.control_coefficients,
+            self.ctrl_bound,
+            self.W,
+            self.mt,
+            self.vt,
+            self.epsilon,
+            self.beta1,
+            self.beta2,
+            self.eps,
+        )
         if self.auto == True:
-            Main.QuanEstimation.CFIM_autoGRAPE_Copt(M, grape, self.max_episode, self.Adam, save_file)
+            Main.QuanEstimation.CFIM_autoGRAPE_Copt(
+                M, grape, self.max_episode, self.Adam, save_file
+            )
         else:
-            if (len(self.tspan)-1) != len(self.control_coefficients[0]):
-                warnings.warn("GRAPE is not available when the length of each control is not equal to the length of time, \
-                               and is replaced by auto-GRAPE.", DeprecationWarning)
-                Main.QuanEstimation.CFIM_autoGRAPE_Copt(M, grape, self.max_episode, self.Adam, save_file)
+            if (len(self.tspan) - 1) != len(self.control_coefficients[0]):
+                warnings.warn(
+                    "GRAPE is not available when the length of each control is not equal to the length of time, \
+                               and is replaced by auto-GRAPE.",
+                    DeprecationWarning,
+                )
+                Main.QuanEstimation.CFIM_autoGRAPE_Copt(
+                    M, grape, self.max_episode, self.Adam, save_file
+                )
             else:
-                Main.QuanEstimation.CFIM_GRAPE_Copt(M, grape, self.max_episode, self.Adam, save_file)
+                Main.QuanEstimation.CFIM_GRAPE_Copt(
+                    M, grape, self.max_episode, self.Adam, save_file
+                )
 
     def HCRB(self, save_file=False):
-        warnings.warn("GRAPE is not available when the objective function is HCRB. Supported methods are 'PSO', 'DE' and 'DDPG'.", DeprecationWarning)
+        warnings.warn(
+            "GRAPE is not available when the objective function is HCRB. Supported methods are 'PSO', 'DE' and 'DDPG'.",
+            DeprecationWarning,
+        )
+
+    def mintime(self, f, target="QFIM", W=[], M=[]):
+        M = [np.array(x, dtype=np.complex128) for x in M]
+        grape = Main.QuanEstimation.GRAPE_Copt(
+            self.freeHamiltonian,
+            self.Hamiltonian_derivative,
+            self.rho0,
+            self.tspan,
+            self.decay_opt,
+            self.gamma,
+            self.control_Hamiltonian,
+            self.control_coefficients,
+            self.ctrl_bound,
+            self.W,
+            self.mt,
+            self.vt,
+            self.epsilon,
+            self.beta1,
+            self.beta2,
+            self.eps,
+        )
+        if target == "QFIM":
+            if self.auto:
+                Main.QuanEstimation.mintime_binary(
+                    "QFIM_autoGRAPE_Copt",
+                    grape,
+                    f,
+                    self.max_episode,
+                    self.Adam,
+                )
+            else:
+                Main.QuanEstimation.mintime_binary(
+                    "QFIM_GRAPE_Copt",
+                    grape,
+                    f,
+                    self.max_episode,
+                    self.Adam,
+                )
+        elif target == "CFIM":
+            if self.auto:
+                Main.QuanEstimation.mintime_binary(
+                    "CFIM_autoGRAPE_Copt",
+                    grape,
+                    f,
+                    M,
+                    self.max_episode,
+                    self.Adam,
+                )
+            else:
+                Main.QuanEstimation.mintime_binary(
+                    "CFIM_GRAPE_Copt",
+                    grape,
+                    f,
+                    M,
+                    self.max_episode,
+                    self.Adam,
+                )
+        else:
+            warnings.warn(
+                "GRAPE is not available with the objective function {!r}. Supported methods are 'PSO', 'DE' and 'DDPG'.".format(
+                    target
+                ),
+                DeprecationWarning,
+            )

@@ -300,7 +300,7 @@ end
 
 #==========================================================#
 ####################### calculate CFI ######################
-function CFI(ρ::Matrix{T}, dρ::Matrix{T}; eps=1e-8) where {T<:Complex}
+function CFI(ρ::Matrix{T}, dρ::Matrix{T}, eps=1e-8) where {T<:Complex}
     data = readdlm("$(Main.pkgpath)/sic_fiducial_vectors/d$(size(ρ)[1]).txt", '\t', Float64, '\n')
     fiducial = data[:,1]+1.0im*data[:,2]
     M = sic_povm(fiducial)
@@ -320,7 +320,7 @@ function CFI(ρ::Matrix{T}, dρ::Matrix{T}; eps=1e-8) where {T<:Complex}
     real(F)
 end
 
-function CFI(ρ::Matrix{T}, dρ::Matrix{T}, M::Vector{Matrix{T}}; eps=1e-8) where {T<:Complex}
+function CFI(ρ::Matrix{T}, dρ::Matrix{T}, M::Vector{Matrix{T}}, eps=1e-8) where {T<:Complex}
     m_num = length(M)
     F = 0.
     for i in 1:m_num
@@ -407,8 +407,6 @@ end
 #======================================================#
 #################### calculate CFIM ####################
 function CFIM(ρ, dρ, eps::Number)
-    M = load_M(size(ρ)[1])
-function CFIM(ρ, dρ, eps)
     M = SIC(size(ρ)[1])
     m_num = length(M)
     p_num = length(dρ)

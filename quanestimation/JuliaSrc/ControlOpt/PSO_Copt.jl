@@ -137,6 +137,7 @@ function info_PSO_Copt(M, pso, max_episode, particle_num, ini_particle, c0, c1, 
             println("Iteration over, data saved.")
             println("Final $str2 is $(fit)")
         end
+        return fit, [gbest[k, :] for k in 1:ctrl_num]
     else
         println("multiparameter scenario")
         println("control algorithm: Particle Swarm Optimization (PSO)")
@@ -181,7 +182,9 @@ function info_PSO_Copt(M, pso, max_episode, particle_num, ini_particle, c0, c1, 
             println("Iteration over, data saved.")
             println("Final value of $str3 is $(1.0/fit)")
         end
+        return 1/fit, [gbest[k, :] for k in 1:ctrl_num]
     end
+   
 end
 
 function PSO_train_Copt(M, particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, ctrl_num, ctrl_length, pbest, gbest, velocity, sym)

@@ -119,6 +119,7 @@ function info_DE_Copt(M, DE, popsize, ini_population, c, cr, seed, max_episode, 
             println("Iteration over, data saved.")
             println("Final $str2 is ", maximum(p_fit))
         end
+        return f_list[end], populations[indx].control_coefficients
     else
         println("multiparameter scenario")
         println("control algorithm: Differential Evolution (DE)")
@@ -155,7 +156,9 @@ function info_DE_Copt(M, DE, popsize, ini_population, c, cr, seed, max_episode, 
             println("Iteration over, data saved.")
             println("Final value of $str3 is ", 1.0/maximum(p_fit))
         end
+        return 1/f_list[end], populations[indx].control_coefficients
     end
+    
 end
 
 function DE_train_Copt(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)

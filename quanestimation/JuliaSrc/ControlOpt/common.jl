@@ -95,3 +95,36 @@ function SaveFile_ddpg(f_now::Vector{Float64}, reward::Vector{Float64}, control)
         writedlm(g, control)
     end
 end
+
+###################### mintime opt #############################
+function mintime_binary(opt::String, system, f, args...)
+    tspan = system.tspan
+    ctrl = system.control_coefficients
+    low, high = 1, length(tspan)
+    mid = 0
+    Opt = Symbol(opt)
+    f_mid = 0.0
+
+    while low <= high 
+        mid = fld1(low + high, 2)
+        system.tspan = tspan[1:mid]
+        system.control_coefficients = [c[1:mid-1] for c in ctrl] 
+       
+        f_mid, system.control_coefficients=@eval $(Opt)($system, $args..., false) 
+
+        if abs(f-f_mid) < system.eps
+            break
+        elseif f_mid < f
+            low = mid + 1
+        else
+            high = mid - 1
+        end
+    end
+    open("mtspan.csv","w") do t
+        writedlm(t, system.tspan)
+    end
+    open("controls.csv","w") do c
+        writedlm(c, system.control_coefficients)
+    end
+    print("Minimum time to reach target is ", system.tspan[end],", data saved.")
+end
