@@ -1,12 +1,23 @@
 from julia import Main
 import warnings
+import numpy as np
 import quanestimation.StateOpt.StateStruct as State
 
-class AD_Sopt(State.StateSystem):
-    def __init__(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], W=[], Adam=False, psi0=[], \
-                 max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99, load=False):
 
-        State.StateSystem.__init__(self, tspan, psi0, H0, dH, Hc, ctrl, decay, W, seed=1234, load=load, eps=1e-8)
+class AD_Sopt(State.StateSystem):
+    def __init__(
+        self,
+        psi0=[],
+        Adam=False,
+        max_episode=300,
+        seed=1234,
+        epsilon=0.01,
+        beta1=0.90,
+        beta2=0.99,
+        load=False,
+    ):
+
+        State.StateSystem.__init__(self, psi0, seed=seed, load=load, eps=1e-8)
 
         """
         ----------
@@ -44,11 +55,11 @@ class AD_Sopt(State.StateSystem):
         self.beta1 = beta1
         self.beta2 = beta2
         self.mt = 0.0
-        self.vt = 0.0 
+        self.vt = 0.0
 
-    def QFIM(self, save_file=False):
+    def QFIM(self, W=[], save_file=False):
         """
-        Description: use autodifferential algorithm to search the optimal initial state that maximize the 
+        Description: use autodifferential algorithm to search the optimal initial state that maximize the
                      QFI (1/Tr(WF^{-1} with F the QFIM).
 
         ---------
@@ -59,21 +70,79 @@ class AD_Sopt(State.StateSystem):
                            False: save the initial states for the last episode and all the QFI (Tr(WF^{-1})).
             --type: bool
         """
-        if any(self.gamma):
-            AD = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                        self.tspan, self.decay_opt, self.gamma, self.W, self.eps)
-            Main.QuanEstimation.QFIM_AD_Sopt(AD, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, \
-                                        self.Adam, save_file)
-        else:
-            AD = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                            self.tspan, self.W, self.eps)
-            Main.QuanEstimation.QFIM_AD_Sopt(AD, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, self.max_episode, \
-                                        self.Adam, save_file)
+
+        if self.dynamics_type == "dynamics":
+            if W == []:
+                W = np.eye(len(self.Hamiltonian_derivative))
+            self.W = W
+
+            if any(self.gamma):
+                AD = Main.QuanEstimation.TimeIndepend_noise(
+                    self.freeHamiltonian,
+                    self.Hamiltonian_derivative,
+                    self.psi0,
+                    self.tspan,
+                    self.decay_opt,
+                    self.gamma,
+                    self.W,
+                    self.eps,
+                )
+                Main.QuanEstimation.QFIM_AD_Sopt(
+                    AD,
+                    self.mt,
+                    self.vt,
+                    self.epsilon,
+                    self.beta1,
+                    self.beta2,
+                    self.max_episode,
+                    self.Adam,
+                    save_file,
+                )
+            else:
+                AD = Main.QuanEstimation.TimeIndepend_noiseless(
+                    self.freeHamiltonian,
+                    self.Hamiltonian_derivative,
+                    self.psi0,
+                    self.tspan,
+                    self.W,
+                    self.eps,
+                )
+                Main.QuanEstimation.QFIM_AD_Sopt(
+                    AD,
+                    self.mt,
+                    self.vt,
+                    self.epsilon,
+                    self.beta1,
+                    self.beta2,
+                    self.max_episode,
+                    self.Adam,
+                    save_file,
+                )
+        elif self.dynamics_type == "kraus":
+            if W == []:
+                W = np.eye(len(self.dK))
+            self.W = W
+
+            AD = Main.QuanEstimation.TimeIndepend_Kraus(
+                self.K, self.dK, self.psi0, self.W, self.eps
+            )
+            Main.QuanEstimation.QFIM_AD_Sopt(
+                AD,
+                self.mt,
+                self.vt,
+                self.epsilon,
+                self.beta1,
+                self.beta2,
+                self.max_episode,
+                self.Adam,
+                save_file,
+            )
+
         self.load_save()
-            
-    def CFIM(self, M, save_file=False):
+
+    def CFIM(self, M, W=[], save_file=False):
         """
-        Description: use autodifferential algorithm to search the optimal initial state that maximize the 
+        Description: use autodifferential algorithm to search the optimal initial state that maximize the
                      CFI (1/Tr(WF^{-1} with F the CFIM).
 
         ---------
@@ -85,18 +154,80 @@ class AD_Sopt(State.StateSystem):
             --type: bool
         """
 
-        if any(self.gamma):
-            AD = Main.QuanEstimation.TimeIndepend_noise(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                        self.tspan, self.decay_opt, self.gamma, self.W, self.eps)
-            Main.QuanEstimation.CFIM_AD_Sopt(M, AD, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, \
-                                        self.max_episode, self.Adam, save_file)
-        else:
-            AD = Main.QuanEstimation.TimeIndepend_noiseless(self.freeHamiltonian, self.Hamiltonian_derivative, self.psi0, \
-                                                            self.tspan, self.W, self.eps)
-            Main.QuanEstimation.CFIM_AD_Sopt(M, AD, self.mt, self.vt, self.epsilon, self.beta1, self.beta2, \
-                                        self.max_episode, self.Adam, save_file)
+        if self.dynamics_type == "dynamics":
+            if W == []:
+                W = np.eye(len(self.Hamiltonian_derivative))
+            self.W = W
+
+            if any(self.gamma):
+                AD = Main.QuanEstimation.TimeIndepend_noise(
+                    self.freeHamiltonian,
+                    self.Hamiltonian_derivative,
+                    self.psi0,
+                    self.tspan,
+                    self.decay_opt,
+                    self.gamma,
+                    self.W,
+                    self.eps,
+                )
+                Main.QuanEstimation.CFIM_AD_Sopt(
+                    M,
+                    AD,
+                    self.mt,
+                    self.vt,
+                    self.epsilon,
+                    self.beta1,
+                    self.beta2,
+                    self.max_episode,
+                    self.Adam,
+                    save_file,
+                )
+            else:
+                AD = Main.QuanEstimation.TimeIndepend_noiseless(
+                    self.freeHamiltonian,
+                    self.Hamiltonian_derivative,
+                    self.psi0,
+                    self.tspan,
+                    self.W,
+                    self.eps,
+                )
+                Main.QuanEstimation.CFIM_AD_Sopt(
+                    M,
+                    AD,
+                    self.mt,
+                    self.vt,
+                    self.epsilon,
+                    self.beta1,
+                    self.beta2,
+                    self.max_episode,
+                    self.Adam,
+                    save_file,
+                )
+        elif self.dynamics_type == "kraus":
+            if W == []:
+                W = np.eye(len(self.dK))
+            self.W = W
+
+            AD = Main.QuanEstimation.TimeIndepend_Kraus(
+                self.K, self.dK, self.psi0, self.W, self.eps
+            )
+            Main.QuanEstimation.CFIM_AD_Sopt(
+                M,
+                AD,
+                self.mt,
+                self.vt,
+                self.epsilon,
+                self.beta1,
+                self.beta2,
+                self.max_episode,
+                self.Adam,
+                save_file,
+            )
+
         self.load_save()
 
-    def HCRB(self, save_file=False):
-        warnings.warn("AD is not available when the objective function is HCRB. Supported methods are 'PSO', 'DE', 'NM' and 'DDPG'.", DeprecationWarning)
-        
+    def HCRB(self, W=[], save_file=False):
+        warnings.warn(
+            "AD is not available when the objective function is HCRB. Supported methods are 'PSO', 'DE', 'NM' and 'DDPG'.",
+            DeprecationWarning,
+        )

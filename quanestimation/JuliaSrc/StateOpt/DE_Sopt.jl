@@ -57,7 +57,7 @@ function info_DE_noiseless(M, DE, popsize, ini_population, c, cr, seed, max_epis
 
     f_ini = obj_func(Val{sym}(), DE, M)
 
-    if length(DE.Hamiltonian_derivative) == 1
+    if length(typeof(DE)==TimeIndepend_noiseless ? DE.Hamiltonian_derivative : DE.dK) == 1
         println("single parameter scenario")
         println("search algorithm: Differential Evolution (DE)")
         println("initial $str2 is $(1.0/f_ini)")

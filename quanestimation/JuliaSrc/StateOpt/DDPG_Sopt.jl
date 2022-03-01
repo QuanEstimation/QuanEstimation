@@ -16,7 +16,7 @@ to_psi(s) = complex.(rsplit_half(s)...)
 ############# time-independent Hamiltonian (noiseless) ################
 mutable struct ControlEnv_noiseless{T<:Complex, M<:Real, R<:AbstractRNG} <: AbstractEnv
     M::Vector{Matrix{T}}
-    params::TimeIndepend_noiseless{T, M}
+    params
     action_space::Space
     state_space::Space
     state::Vector{M}
@@ -24,7 +24,6 @@ mutable struct ControlEnv_noiseless{T<:Complex, M<:Real, R<:AbstractRNG} <: Abst
     rng::R
     reward::Float64
     total_reward::Float64
-    tspan::Vector{M}
     ctrl_num::Int
     para_num::Int
     f_ini::Float64
@@ -39,7 +38,7 @@ mutable struct ControlEnv_noiseless{T<:Complex, M<:Real, R<:AbstractRNG} <: Abst
 end
 
 function DDPGEnv_noiseless(M, params, episode, SinglePara, save_file, rng, sym, str2, str3)
-    para_num=params.Hamiltonian_derivative|>length
+    para_num=(typeof(params)==TimeIndepend_noiseless ? params.Hamiltonian_derivative : params.dK)|>length
     state = params.psi
     state = state |> state_flatten
     ctrl_num = length(state)
@@ -50,7 +49,7 @@ function DDPGEnv_noiseless(M, params, episode, SinglePara, save_file, rng, sym, 
 
     f_list = Vector{Float64}()
     reward_all = Vector{Float64}()
-    env = ControlEnv_noiseless(M, params, action_space, state_space, state, true, rng, 0.0, 0.0, params.tspan, ctrl_num, 
+    env = ControlEnv_noiseless(M, params, action_space, state_space, state, true, rng, 0.0, 0.0, ctrl_num, 
                                para_num, f_ini, f_list, reward_all, episode, SinglePara, save_file, sym, str2, str3)
     reset!(env)
     env
@@ -182,7 +181,7 @@ end
 function info_DDPG_noiseless(M, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
     rng = StableRNG(seed)
     episode = 1
-    if length(params.Hamiltonian_derivative) == 1
+    if length(typeof(params)==TimeIndepend_noiseless ? params.Hamiltonian_derivative : params.dK) == 1
         SinglePara = true
     else
         SinglePara = false
@@ -211,7 +210,7 @@ function info_DDPG_noiseless(M, params, layer_num, layer_dim, seed, max_episode,
                   trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na,),),)
 
     println("$str1 state optimization")
-    if length(params.Hamiltonian_derivative) == 1
+    if length(typeof(params)==TimeIndepend_noiseless ? params.Hamiltonian_derivative : params.dK) == 1
         println("single parameter scenario")
         println("search algorithm: deep deterministic policy gradient algorithm (DDPG)")
         println("initial $str2 is $(1.0/env.f_ini)")
@@ -254,7 +253,6 @@ mutable struct ControlEnv_noise{T<:Complex, M<:Real, R<:AbstractRNG} <: Abstract
     rng::R
     reward::Float64
     total_reward::Float64
-    tspan::Vector{M}
     ctrl_num::Int
     para_num::Int
     f_ini::Float64
@@ -280,7 +278,7 @@ function DDPGEnv_noise(M, params, episode, SinglePara, save_file, rng, sym, str2
 
     f_list = Vector{Float64}()
     reward_all = Vector{Float64}()
-    env = ControlEnv_noise(M, params, action_space, state_space, state, true, rng, 0.0, 0.0, params.tspan, ctrl_num, 
+    env = ControlEnv_noise(M, params, action_space, state_space, state, true, rng, 0.0, 0.0, ctrl_num, 
                            para_num, f_ini, f_list, reward_all, episode, SinglePara, save_file, sym, str2, str3)
     reset!(env)
     env

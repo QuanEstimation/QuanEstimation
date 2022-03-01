@@ -48,7 +48,7 @@ function Holevo_bound(ρ::Matrix{T}, ∂ρ_∂x::Vector{Matrix{T}}, C::Matrix{Fl
             end
         end
         problem = minimize(tr(C*V), constraints)
-        solve!(problem, SCS.Optimizer(verbose=false))
+        Convex.solve!(problem, SCS.Optimizer(verbose=false))
         return evaluate(tr(C*V)), evaluate(X), evaluate(V)
     end
 end
@@ -93,7 +93,7 @@ function Holevo_bound_tgt(ρ::Matrix{T}, ∂ρ_∂x::Vector{Matrix{T}}, C::Matri
         end
     end
     problem = minimize(tr(C*V), constraints)
-    solve!(problem, SCS.Optimizer(verbose=false))
+    Convex.solve!(problem, SCS.Optimizer(verbose=false))
     return evaluate(tr(C*V)), evaluate(X), evaluate(V)
 end
 

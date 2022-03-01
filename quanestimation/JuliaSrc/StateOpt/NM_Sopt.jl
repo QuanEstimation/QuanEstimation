@@ -59,7 +59,7 @@ function info_NM_noiseless(M, NM, state_num, ini_state, ar, ae, ac, as0, max_epi
 
     f_ini = obj_func(Val{sym}(), NM, M)
 
-    if length(NM.Hamiltonian_derivative) == 1
+    if length(typeof(NM)==TimeIndepend_noiseless ? NM.Hamiltonian_derivative : NM.dK) == 1
         println("single parameter scenario")
         println("search algorithm: Nelder-Mead method (NM)")
         println("initial $str2 is $(1.0/f_ini)")

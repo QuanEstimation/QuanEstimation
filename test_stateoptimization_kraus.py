@@ -1,4 +1,5 @@
 import numpy as np
+import scipy
 from quanestimation import *
 from qutip import *
 
@@ -6,7 +7,7 @@ N = 8
 # initial state
 psi0 = spin_coherent(0.5 * N, 0.5 * np.pi, 0.5 * np.pi, type="ket")
 psi0 = psi0.full().reshape(1, len(psi0.full()))[0]
-# Hamiltonian
+# dynamics
 Lambda = 1.0
 g = 0.5
 h = 0.1
@@ -14,8 +15,10 @@ Jx, Jy, Jz = jmat(0.5 * N)
 Jx, Jy, Jz = Jx.full(), Jy.full(), Jz.full()
 H0 = -Lambda * (np.dot(Jx, Jx) + g * np.dot(Jy, Jy)) / N - h * Jz
 dH0 = [-Lambda * np.dot(Jy, Jy) / N, -Jz]
-# dissipation
-decay = [[Jz, 0.1]]
+
+K = scipy.linalg.expm(-1.0j * H0)
+dK = [K @ dH0[0], K @ dH0[1]]
+
 # measurement
 M_num = len(psi0)
 np.random.seed(1234)
@@ -30,10 +33,6 @@ Measurement = [
     np.dot(M_tp[i].reshape(len(psi0), 1), M_tp[i].reshape(1, len(psi0)).conj())
     for i in range(M_num)
 ]
-
-T = 10.0
-tnum = int(250 * T)
-tspan = np.linspace(0.0, T, tnum)
 
 # initial psi0 for DE, PSO and NM
 psi0 = [psi0]
@@ -77,11 +76,13 @@ NM_paras = {
 DDPG_paras = {"layer_num": 4, "layer_dim": 250, "max_episode": 500, "seed": 1234}
 
 # state = StateOpt(method="AD", **AD_paras)
-state = StateOpt(method="DE", **DE_paras)
 # state = StateOpt(method="PSO", **PSO_paras)
+# state = StateOpt(method="DE", **DE_paras)
 # state = StateOpt(method="NM", **NM_paras)
-# state = StateOpt(method="DDPG", **DDPG_paras)
-state.dynamics(tspan, H0, dH0, decay=decay)
-# state.QFIM(W=W,save_file=False)
-state.CFIM(Measurement, W=W, save_file=False)
-# state.HCRB(W=W, save_file=False)
+state = StateOpt(method="DDPG", **DDPG_paras)
+
+state.kraus(K, dK)
+
+# state.QFIM(W=W, save_file=False)
+# state.CFIM(Measurement, W=W, save_file=False)
+state.HCRB(W=W, save_file=False)

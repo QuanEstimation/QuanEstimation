@@ -1,4 +1,4 @@
-mutable struct projection_Mopt{T<:Complex, M <:Real} <:ControlSystem
+mutable struct projection_Mopt{T<:Complex, M <:Number}
     freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
     ρ0::Matrix{T}
@@ -16,7 +16,7 @@ mutable struct projection_Mopt{T<:Complex, M <:Real} <:ControlSystem
     new{T,M}(freeHamiltonian, Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, C, W, eps, ρ, ∂ρ_∂x) 
 end
 
-mutable struct LinearComb_Mopt{T<:Complex, M <:Real} <:ControlSystem
+mutable struct LinearComb_Mopt{T<:Complex, M <:Number} 
     freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
     ρ0::Matrix{T}
@@ -35,7 +35,7 @@ mutable struct LinearComb_Mopt{T<:Complex, M <:Real} <:ControlSystem
     new{T,M}(freeHamiltonian, Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, povm_basis, M_num, W, eps, ρ, ∂ρ_∂x) 
 end
 
-mutable struct RotateBasis_Mopt{T<:Complex, M <:Real} <:ControlSystem
+mutable struct RotateBasis_Mopt{T<:Complex, M <:Number} 
     freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
     ρ0::Matrix{T}
@@ -53,20 +53,68 @@ mutable struct RotateBasis_Mopt{T<:Complex, M <:Real} <:ControlSystem
     new{T,M}(freeHamiltonian, Hamiltonian_derivative, ρ0, tspan, decay_opt, γ, povm_basis, W, eps, ρ, ∂ρ_∂x) 
 end
 
+mutable struct projection_Mopt_Kraus{T<:Complex, M <:Number} 
+    K::AbstractMatrix
+    dK::AbstractVector
+    ρ0::Matrix{T}
+    C::Vector{Vector{T}}
+    W::Matrix{M}
+    eps::M
+    projection_Mopt_Kraus(K, 
+        dK, 
+        ρ0::Matrix{T}, 
+        C::Vector{Vector{T}},
+        W::Matrix{M}, 
+        eps::M,
+        ) where {T<:Complex, M<:Real}=
+        new{T,M}(K, dK, ρ0, C, W, eps) 
+end
+
+mutable struct LinearComb_Mopt_Kraus{T<:Complex, M <:Number}
+    K::AbstractMatrix
+    dK::AbstractVector
+    ρ0::Matrix{T}
+    povm_basis::Vector{Matrix{T}}
+    M_num::Int64
+    W::Matrix{M}
+    eps::M
+    ρ::Vector{Matrix{T}}
+    ∂ρ_∂x::Vector{Vector{Matrix{T}}}
+    LinearComb_Mopt_Kraus(K, 
+        dK, 
+        ρ0::Matrix{T}, 
+        povm_basis::Vector{Matrix{T}}, 
+        M_num::Int64, 
+        W::Matrix{M}, 
+        eps::M,
+        ) where {T<:Complex, M<:Real}=
+        new{T,M}(K, dK, ρ0, povm_basis, M_num, W, eps) 
+end
+
+
+mutable struct RotateBasis_Mopt_Kraus{T<:Complex, M <:Number}
+    K::AbstractMatrix
+    dK::AbstractVector
+    ρ0::Matrix{T}
+    povm_basis::Vector{Matrix{T}}
+    W::Matrix{M}
+    eps::M
+    RotateBasis_Mopt_Kraus(K, 
+        dK, 
+        ρ0::Matrix{T}, 
+        povm_basis::Vector{Matrix{T}}, 
+        W::Matrix{M}, 
+        eps::M, 
+        ) where {T<:Complex, M<:Real}=
+        new{T,M}(K, dK, ρ0, povm_basis, W, eps) 
+end
+
 function bound_LC_coeff(coefficients::Vector{Vector{Float64}})
     M_num = length(coefficients)
     basis_num = length(coefficients[1])
     for ck in 1:M_num
         for tk in 1:basis_num
             coefficients[ck][tk] = (x-> x < 0.0 ? 0.0 : x > 1.0 ? 1.0 : x)(coefficients[ck][tk])
-        end 
-    end
-
-    Sum_col = [sum([coefficients[m][n] for m in 1:M_num])  for n in 1:basis_num]
-    for si in 1:basis_num
-        if Sum_col[si] == 0.0
-            int_num = sample(1:M_num, 1, replace=false)[1]
-            coefficients[int_num][si] = 1.0
         end
     end
 

@@ -1,7 +1,3 @@
-const σ_x = [0.0 1.0; 1.0 0.0im]
-const σ_y = [0.0 -1.0im; 1.0im 0.0]
-const σ_z = [1.0 0.0im; 0.0 -1.0]
-
 destroy(N) = diagm(1 => [1/sqrt(n) for n in 1:N-1])
 
 bases(dim; T=ComplexF64) = [e for e in I(dim).|>T|>eachrow]

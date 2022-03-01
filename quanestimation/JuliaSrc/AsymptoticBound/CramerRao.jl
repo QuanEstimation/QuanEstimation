@@ -1,4 +1,8 @@
 using Zygote: @adjoint
+const σ_x = [0.0 1.0; 1.0 0.0im]
+const σ_y = [0.0 -1.0im; 1.0im 0.0]
+const σ_z = [1.0 0.0im; 0.0 -1.0]
+
 
 ############## logarrithmic derivative ###############
 function SLD(ρ::Matrix{T}, dρ::Matrix{T}, eps; rep="original") where {T<:Complex}
@@ -215,22 +219,22 @@ function QFIM_TimeIndepend(H0, ∂H_∂x::Vector{Matrix{T}}, psi0::Vector{T}, ts
     QFIM_pure(ρt, ∂ρt_∂x)
 end
 
-function QFIM_TimeIndepend(H0, ∂H_∂x::Vector{Matrix{T}}, psi0::Vector{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps) where {T<:Complex,R<:Real}
+function QFIM_TimeIndepend(H0, ∂H_∂x::Vector{Matrix{T}}, psi0::Vector{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps::Number) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, psi0, decay_opt, γ, tspan)
     QFIM(ρt, ∂ρt_∂x, eps)
 end
 
-function QFIM_TimeIndepend(H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps) where {T<:Complex,R<:Real}
+function QFIM_TimeIndepend(H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps::Number) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, ρ0, decay_opt, γ, tspan)
     QFIM(ρt, ∂ρt_∂x, eps)
 end
 
-function QFIM_TimeIndepend_liouville(H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps) where {T<:Complex,R<:Real}
+function QFIM_TimeIndepend_liouville(H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps::Number) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, ρ0, decay_opt, γ, tspan)
     QFIM_liouville(ρt, ∂ρt_∂x)
 end
 
-function QFIM_saveall(H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, eps) where {T<:Complex,R<:Real}
+function QFIM_saveall(H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, eps::Number) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = expm(H0, ∂H_∂x, ρ0, decay_opt, γ, control_Hamiltonian, control_coefficients, tspan)
     F = [Matrix{Float64}(undef, length(∂H_∂x), length(∂H_∂x)) for i in 1:length(tspan)] 
     for t in 2:length(tspan)
@@ -333,17 +337,17 @@ function CFI(ρ::Matrix{T}, dρ::Matrix{T}, M::Vector{Matrix{T}}; eps=1e-8) wher
 end
 
 #### quantum dynamics and calcalate CFI ####
-function CFI(M::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, eps) where {T<:Complex,R<:Real}
+function CFI(M::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, eps::Number) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics(H0, ∂H_∂x, ρ0, decay_opt, γ, control_Hamiltonian, control_coefficients, tspan)
     CFI(ρt, ∂ρt_∂x, M, eps)
 end
 
-function CFI(M::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps) where {T<:Complex,R<:Real}
+function CFI(M::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps::Number) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, ρ0, decay_opt, γ, tspan)
     CFI(ρt, ∂ρt_∂x, M, eps)
 end
 
-function CFI_AD(Mbasis::Vector{Vector{T}}, Mcoeff::Vector{R}, Lambda, H0::Matrix{T}, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps) where {T<:Complex,R<:Real}
+function CFI_AD(Mbasis::Vector{Vector{T}}, Mcoeff::Vector{R}, Lambda, H0::Matrix{T}, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps::Number) where {T<:Complex,R<:Real}
     dim = size(ρ0)[1]
     U = rotation_matrix(Mcoeff, Lambda)
     M = [U*Mbasis[i]*Mbasis[i]'*U' for i in 1:length(Mbasis)]
@@ -361,7 +365,7 @@ function CFI_AD(Mbasis::Vector{Vector{T}}, Mcoeff::Vector{R}, Lambda, H0::Matrix
     CFI(ρt |> vec2mat, ∂ρt_∂x |> vec2mat, M, eps)
 end
 
-function CFI_AD(Mbasis::Vector{Matrix{T}}, Mcoeff::Vector{R}, Lambda, H0::Matrix{T}, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps) where {T<:Complex,R<:Real}
+function CFI_AD(Mbasis::Vector{Matrix{T}}, Mcoeff::Vector{R}, Lambda, H0::Matrix{T}, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps::Number) where {T<:Complex,R<:Real}
     dim = size(ρ0)[1]
     U = rotation_matrix(Mcoeff, Lambda)
     M = [U*Mbasis[i]*U' for i in 1:length(Mbasis)]
@@ -379,17 +383,17 @@ function CFI_AD(Mbasis::Vector{Matrix{T}}, Mcoeff::Vector{R}, Lambda, H0::Matrix
     CFI(ρt |> vec2mat, ∂ρt_∂x |> vec2mat, M, eps)
 end
 
-function CFIM_TimeIndepend(M::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, psi0::Vector{T}, tspan, eps) where {T<:Complex,R<:Real}
+function CFIM_TimeIndepend(M::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, psi0::Vector{T}, tspan, eps::Number) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, psi0, tspan)
     CFI(ρt, ∂ρt_∂x, M, eps)
 end
 
-function CFIM_TimeIndepend(M::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, psi::Vector{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps) where {T<:Complex,R<:Real}
+function CFIM_TimeIndepend(M::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, psi::Vector{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps::Number) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, psi, decay_opt, γ, tspan)
     CFI(ρt, ∂ρt_∂x, M, eps)
 end
 
-function CFIM_TimeIndepend(M::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps) where {T<:Complex,R<:Real}
+function CFIM_TimeIndepend(M::Vector{Matrix{T}}, H0, ∂H_∂x::Matrix{T}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps::Number) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, ρ0, decay_opt, γ, tspan)
     CFI(ρt, ∂ρt_∂x, M, eps)
 end
@@ -402,6 +406,8 @@ end
 
 #======================================================#
 #################### calculate CFIM ####################
+function CFIM(ρ, dρ, eps::Number)
+    M = load_M(size(ρ)[1])
 function CFIM(ρ, dρ, eps)
     M = SIC(size(ρ)[1])
     m_num = length(M)
@@ -409,29 +415,29 @@ function CFIM(ρ, dρ, eps)
     cfim = [real(tr(ρ*M[i])) < eps ? zeros(ComplexF64, p_num, p_num) : (kron(tr.(dρ.*[M[i]]),reshape(tr.(dρ.*[M[i]]), 1, p_num))/tr(ρ*M[i])) for i in 1:m_num] |> sum .|>real
 end
 
-function CFIM(ρ, dρ, M, eps)
+function CFIM(ρ, dρ, M, eps::Number)
     m_num = length(M)
     p_num = length(dρ)
     cfim = [real(tr(ρ*M[i])) < eps ? zeros(ComplexF64, p_num, p_num) : (kron(tr.(dρ.*[M[i]]),reshape(tr.(dρ.*[M[i]]), 1, p_num))/tr(ρ*M[i])) for i in 1:m_num] |> sum .|>real
 end
 
-function obj_func(x::Val{:CFIM}, ρ, dρ, W, M, eps)
+function obj_func(x::Val{:CFIM}, ρ, dρ, W, M, eps::Number)
     F = CFIM(ρ, dρ, M, eps)
     return (abs(det(F)) < eps ? (1.0/eps) : real(tr(W*inv(F))))
 end
 
 #### quantum dynamics and calcalate CFIM ####
-function CFIM(M::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, eps) where {T<:Complex,R<:Real}
+function CFIM(M::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, eps::Number) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics(H0, ∂H_∂x, ρ0, decay_opt, γ, control_Hamiltonian, control_coefficients, tspan)
     CFIM(ρt, ∂ρt_∂x, M, eps)
 end
 
-function CFIM(M::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps) where {T<:Complex,R<:Real}
+function CFIM(M::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps::Number) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, ρ0, decay_opt, γ, tspan)
     CFIM(ρt, ∂ρt_∂x, M, eps)
 end
 
-function CFIM_AD(Mbasis::Vector{Vector{T}}, Mcoeff::Vector{R}, Lambda, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps) where {T<:Complex,R<:Real}
+function CFIM_AD(Mbasis::Vector{Vector{T}}, Mcoeff::Vector{R}, Lambda, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps::Number) where {T<:Complex,R<:Real}
     dim = size(ρ0)[1]
     U = Matrix{ComplexF64}(I,dim,dim)
     U = rotation_matrix(Mcoeff, Lambda)
@@ -451,7 +457,7 @@ function CFIM_AD(Mbasis::Vector{Vector{T}}, Mcoeff::Vector{R}, Lambda, H0::Matri
     CFIM(ρt |> vec2mat, ∂ρt_∂x |> vec2mat, M, eps)
 end
 
-function CFIM_AD(Mbasis::Vector{Matrix{T}}, Mcoeff::Vector{R}, Lambda, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps) where {T<:Complex,R<:Real}
+function CFIM_AD(Mbasis::Vector{Matrix{T}}, Mcoeff::Vector{R}, Lambda, H0::Matrix{T}, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps::Number) where {T<:Complex,R<:Real}
     dim = size(ρ0)[1]
     U = Matrix{ComplexF64}(I,dim,dim)
     U = rotation_matrix(Mcoeff, Lambda)
@@ -471,22 +477,23 @@ function CFIM_AD(Mbasis::Vector{Matrix{T}}, Mcoeff::Vector{R}, Lambda, H0::Matri
     CFIM(ρt |> vec2mat, ∂ρt_∂x |> vec2mat, M, eps)
 end
 
-function CFIM_TimeIndepend(M::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, psi::Vector{T}, tspan, eps) where {T<:Complex,R<:Real}
+function CFIM_TimeIndepend(M::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, psi::Vector{T}, tspan, eps::Number) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, psi, tspan)
     CFIM(ρt, ∂ρt_∂x, M, eps)
 end
 
-function CFIM_TimeIndepend(M::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, psi::Vector{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps) where {T<:Complex,R<:Real}
+# CFIM for pure state with kraus rep.
+function CFIM_TimeIndepend(M::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, psi::Vector{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps::Number) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, psi, decay_opt, γ, tspan)
     CFIM(ρt, ∂ρt_∂x, M, eps)
 end
 
-function CFIM_TimeIndepend(M::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps) where {T<:Complex,R<:Real}
+function CFIM_TimeIndepend(M::Vector{Matrix{T}}, H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, tspan, eps::Number) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = dynamics_TimeIndepend(H0, ∂H_∂x, ρ0, decay_opt, γ, tspan)
     CFIM(ρt, ∂ρt_∂x, M, eps)
 end
 
-function CFIM_saveall(M, H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, eps) where {T<:Complex,R<:Real}
+function CFIM_saveall(M, H0, ∂H_∂x::Vector{Matrix{T}}, ρ0::Matrix{T}, decay_opt::Vector{Matrix{T}}, γ, control_Hamiltonian::Vector{Matrix{T}}, control_coefficients::Vector{Vector{R}}, tspan, eps::Number) where {T<:Complex,R<:Real}
     ρt, ∂ρt_∂x = expm(H0, ∂H_∂x, ρ0, decay_opt, γ, control_Hamiltonian, control_coefficients, tspan)
     F = [Matrix{Float64}(undef, length(∂H_∂x), length(∂H_∂x)) for i in 1:length(tspan)]
     for t in 2:length(tspan)

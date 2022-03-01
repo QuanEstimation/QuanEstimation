@@ -1,40 +1,80 @@
-################ update the coefficients according to the given basis ###############
-function CFIM_AD_Mopt(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed) where {T<:Complex}
-    sym = Symbol("CFIM_noctrl")
+############# update the coefficients according to the given basis(kraus rep.)##########
+function CFIM_AD_Mopt(AD::LinearComb_Mopt_Kraus{T}, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed) where {T<:Complex}
+    sym = Symbol("CFIM_noctrl_Kraus")
     str1 = "CFI"
     str2 = "tr(WI^{-1})"
-    return info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed, sym, str1, str2)
+    return info_LinearComb_AD_Kraus(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed, sym, str1, str2)
 end
-
-function gradient_CFI!(AD::LinearComb_Mopt{T}, epsilon, B, POVM_basis, M_num, basis_num) where {T<:Complex}
-    δI = gradient(x->CFI([sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.eps), B)[1]
+function gradient_CFI!(AD::LinearComb_Mopt_Kraus{T}, epsilon, B, POVM_basis, M_num, basis_num) where {T<:Complex}
+    δI = gradient(x->CFI(AD.K, AD.dK, AD.ρ0,[sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], eps=AD.eps), B)[1]
     B += epsilon*δI
     B = bound_LC_coeff(B)
     return B
 end
 
-function gradient_CFI_Adam!(AD::LinearComb_Mopt{T}, epsilon, mt, vt, beta1, beta2, B, POVM_basis, M_num, basis_num) where {T<:Complex}
-    δI = gradient(x->CFI([sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.eps), B)[1]
+function gradient_CFI_Adam!(AD::LinearComb_Mopt_Kraus{T}, epsilon, B, POVM_basis, M_num, basis_num) where {T<:Complex}
+    K, dK, ρ0 = AD.K, AD.dK, AD.ρ0
+    ρt, ∂ρt_∂x = K*ρ0*K', dK*ρ0*K' + K*ρ0*dK'
+    δI = gradient(x->CFI(ρt, ∂ρt_∂x, [sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], eps=AD.eps), B)[1]
     B = MOpt_Adam!(B, δI, epsilon, mt, vt, beta1, beta2, AD.eps)
     B = bound_LC_coeff(B)
     return B
 end
 
-function gradient_CFIM!(AD::LinearComb_Mopt{T}, epsilon, B, POVM_basis, M_num, basis_num) where {T<:Complex}
-    δI = gradient(x->1/(AD.W*pinv(CFIM([sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.eps), rtol=AD.eps) |> tr |>real), B) |>sum
+function gradient_CFIM!(AD::LinearComb_Mopt_Kraus{T}, epsilon, B, POVM_basis, M_num, basis_num) where {T<:Complex}
+    K, dK, ρ0 = AD.K, AD.dK, AD.ρ0
+    ρt, ∂ρt_∂x = K*ρ0*K', [dK*ρ0*K' + K*ρ0*dK' for dK in dK]
+    δI = gradient(x->1/(AD.W*pinv(CFIM(ρt, ∂ρt_∂x, [sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], AD.eps), rtol=AD.eps) |> tr |>real), B) |>sum
     B += epsilon*δI
     B = bound_LC_coeff(B)
     return B
 end
 
-function gradient_CFIM_Adam!(AD::LinearComb_Mopt{T}, epsilon, mt, vt, beta1, beta2, B, POVM_basis, M_num, basis_num) where {T<:Complex}
-    δI = gradient(x->1/(AD.W*pinv(CFIM([sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.eps), rtol=AD.eps) |> tr |>real), B) |>sum
+function gradient_CFIM_Adam!(AD::LinearComb_Mopt_Kraus{T}, epsilon, B, POVM_basis, M_num, basis_num) where {T<:Complex}
+    K, dK, ρ0 = AD.K, AD.dK, AD.ρ0
+    ρt, ∂ρt_∂x = K*ρ0*K', [dK*ρ0*K' + K*ρ0*dK' for dK in dK]
+    δI = gradient(x->1/(AD.W*pinv(CFIM(ρt, ∂ρt_∂x, [sum([x[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num], AD.eps), rtol=AD.eps) |> tr |>real), B) |>sum
     B = MOpt_Adam!(B, δI, epsilon, mt, vt, beta1, beta2, AD.eps)
     B = bound_LC_coeff(B)
     return B
 end
 
-function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed, sym, str1, str2) where {T<:Complex}
+function CFIM_AD_Mopt(AD::RotateBasis_Mopt_Kraus{T}, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed) where {T<:Complex}
+    sym = Symbol("CFIM_noctrl_Kraus")
+    str1 = "CFI"
+    str2 = "tr(WI^{-1})"
+    return info_givenpovm_AD_Kraus(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed, sym, str1, str2)
+end
+
+function gradient_CFI!(AD::RotateBasis_Mopt_Kraus{T}, epsilon, Mbasis, s, Lambda, M_num, dim) where {T<:Complex}
+    δI = gradient(x->CFI_AD_Kraus(Mbasis, x, Lambda, AD.K, AD.dK[1], AD.ρ0, AD.eps), s)[1]
+    s += epsilon*δI
+    s = bound_rot_coeff(s)
+    return s
+end
+
+function gradient_CFI_Adam!(AD::RotateBasis_Mopt_Kraus{T}, epsilon, mt, vt, beta1, beta2, Mbasis, s, Lambda, M_num, dim) where {T<:Complex}
+    δI = gradient(x->CFI_AD_Kraus(Mbasis, x, Lambda, AD.K, AD.dK[1], AD.ρ0, AD.eps), s)[1]
+    s = MOpt_Adam!(s, δI, epsilon, mt, vt, beta1, beta2, AD.eps)
+    s = bound_rot_coeff(s)
+    return s
+end
+
+function gradient_CFIM!(AD::RotateBasis_Mopt_Kraus{T}, epsilon, Mbasis, s, Lambda, M_num, dim) where {T<:Complex}
+    δI = gradient(x->1/(AD.W*pinv(CFIM_AD_Kraus(Mbasis, x, Lambda, AD.K, AD.dK, AD.ρ0, AD.eps), rtol=AD.eps) |> tr |>real), s) |>sum
+    s += epsilon*δI
+    s = bound_rot_coeff(s)
+    return s
+end
+
+function gradient_CFIM_Adam!(AD::RotateBasis_Mopt_Kraus{T}, epsilon, mt, vt, beta1, beta2, Mbasis, s, Lambda, M_num, dim) where {T<:Complex}
+    δI = gradient(x->1/(AD.W*pinv(CFIM_AD_Kraus(Mbasis, x, Lambda, AD.K, AD.dK, AD.ρ0, AD.eps), rtol=AD.eps) |> tr |>real), s) |>sum
+    s = MOpt_Adam!(s, δI, epsilon, mt, vt, beta1, beta2, AD.eps)
+    s = bound_rot_coeff(s)
+    return s
+end
+
+function info_LinearComb_AD_Kraus(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed, sym, str1, str2) where {T<:Complex}
     println("measurement optimization")
     Random.seed!(seed)
     dim = size(AD.ρ0)[1]
@@ -48,11 +88,11 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
     M = [sum([B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
     f_ini = obj_func(Val{sym}(), AD, M)
     
-    f_opt = obj_func(Val{:QFIM_noctrl}(), AD, M)
+    f_opt = obj_func(Val{:QFIM_noctrl_Kraus}(), AD, M)
     f_povm = obj_func(Val{sym}(), AD, POVM_basis)
 
     episodes = 1
-    if length(AD.Hamiltonian_derivative) == 1
+    if length(AD.dK) == 1
         println("single parameter scenario")
         println("search algorithm: Automatic Differentiation (AD)")
         println("initial $str1 is $(1.0/f_ini)")
@@ -239,43 +279,7 @@ function info_LinearComb_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam
     end
 end
 
-################ update the coefficients of the unitary matrix ###############
-function CFIM_AD_Mopt(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed) where {T<:Complex}
-    sym = Symbol("CFIM_noctrl")
-    str1 = "CFI"
-    str2 = "tr(WI^{-1})"
-    return info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed, sym, str1, str2)
-end
-
-function gradient_CFI!(AD::RotateBasis_Mopt{T}, epsilon, Mbasis, s, Lambda, M_num, dim) where {T<:Complex}
-    δI = gradient(x->CFI_AD(Mbasis, x, Lambda, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.eps), s)[1]
-    s += epsilon*δI
-    s = bound_rot_coeff(s)
-    return s
-end
-
-function gradient_CFI_Adam!(AD::RotateBasis_Mopt{T}, epsilon, mt, vt, beta1, beta2, Mbasis, s, Lambda, M_num, dim) where {T<:Complex}
-    δI = gradient(x->CFI_AD(Mbasis, x, Lambda, AD.freeHamiltonian, AD.Hamiltonian_derivative[1], AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.eps), s)[1]
-    s = MOpt_Adam!(s, δI, epsilon, mt, vt, beta1, beta2, AD.eps)
-    s = bound_rot_coeff(s)
-    return s
-end
-
-function gradient_CFIM!(AD::RotateBasis_Mopt{T}, epsilon, Mbasis, s, Lambda, M_num, dim) where {T<:Complex}
-    δI = gradient(x->1/(AD.W*pinv(CFIM_AD(Mbasis, x, Lambda, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.eps), rtol=AD.eps) |> tr |>real), s) |>sum
-    s += epsilon*δI
-    s = bound_rot_coeff(s)
-    return s
-end
-
-function gradient_CFIM_Adam!(AD::RotateBasis_Mopt{T}, epsilon, mt, vt, beta1, beta2, Mbasis, s, Lambda, M_num, dim) where {T<:Complex}
-    δI = gradient(x->1/(AD.W*pinv(CFIM_AD(Mbasis, x, Lambda, AD.freeHamiltonian, AD.Hamiltonian_derivative, AD.ρ0, AD.decay_opt, AD.γ, AD.tspan, AD.eps), rtol=AD.eps) |> tr |>real), s) |>sum
-    s = MOpt_Adam!(s, δI, epsilon, mt, vt, beta1, beta2, AD.eps)
-    s = bound_rot_coeff(s)
-    return s
-end
-
-function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed, sym, str1, str2) where {T<:Complex}
+function info_givenpovm_AD_Kraus(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam, save_file, seed, sym, str1, str2) where {T<:Complex}
     println("measurement optimization")
     Random.seed!(seed)
     dim = size(AD.ρ0)[1]
@@ -290,10 +294,10 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
     U = rotation_matrix(s, Lambda)
     M = [U*POVM_basis[i]*U' for i in 1:M_num]
     f_ini = obj_func(Val{sym}(), AD, M)
-    f_opt = obj_func(Val{:QFIM_noctrl}(), AD, M)
+    f_opt = obj_func(Val{:QFIM_noctrl_Kraus}(), AD, M)
     f_povm = obj_func(Val{sym}(), AD, POVM_basis)
     episodes = 1
-    if length(AD.Hamiltonian_derivative) == 1
+    if length(AD.dK) == 1
         println("single parameter scenario")
         println("search algorithm: Automatic Differentiation (AD)")
         println("initial $str1 is $(1.0/f_ini)")
@@ -489,3 +493,5 @@ function info_givenpovm_AD(AD, mt, vt, epsilon, beta1, beta2, max_episode, Adam,
         end
     end
 end
+
+

@@ -1,12 +1,27 @@
-################ projection measurement ###############
-function CFIM_PSO_Mopt(pso::projection_Mopt{T}, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file) where {T<:Complex}
-    sym = Symbol("CFIM_noctrl")
+
+function CFIM_PSO_Mopt(pso::projection_Mopt_Kraus{T}, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file) where {T<:Complex}
+    sym = Symbol("CFIM_noctrl_Kraus")
     str1 = "CFI"
     str2 = "tr(WI^{-1})"
-    return info_PSO_projection(pso, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file, sym, str1, str2)
+    return info_PSO_projection_Kraus(pso, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file, sym, str1, str2)
 end
 
-function info_PSO_projection(pso, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file, sym, str1, str2) where {T<:Complex}
+function CFIM_PSO_Mopt(pso::LinearComb_Mopt_Kraus{T}, max_episode, particle_num, c0, c1, c2, seed, save_file) where {T<:Complex}
+    sym = Symbol("CFIM_noctrl_Kraus")
+    str1 = "CFI"
+    str2 = "tr(WI^{-1})"
+    return info_PSO_LinearComb_Kraus(pso, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2)
+end
+
+
+function CFIM_PSO_Mopt(pso::RotateBasis_Mopt_Kraus{T}, max_episode, particle_num, c0, c1, c2, seed, save_file) where {T<:Complex}
+    sym = Symbol("CFIM_noctrl_Kraus")
+    str1 = "CFI"
+    str2 = "tr(WI^{-1})"
+    return info_PSO_RotateBasis_Kraus(pso, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2)
+end
+
+function info_PSO_projection_Kraus(pso, max_episode, particle_num, ini_particle, c0, c1, c2, seed, save_file, sym, str1, str2) where {T<:Complex}
     println("measurement optimization")
     Random.seed!(seed)
     dim = size(pso.ρ0)[1] 
@@ -49,10 +64,10 @@ function info_PSO_projection(pso, max_episode, particle_num, ini_particle, c0, c
     end
 
     f_ini= p_fit[1]
-    f_opt = obj_func(Val{:QFIM_noctrl}(), pso, pso.C)
+    f_opt = obj_func(Val{:QFIM_noctrl_Kraus}(), pso, pso.C)
     f_opt= 1.0/f_opt
 
-    if length(pso.Hamiltonian_derivative) == 1
+    if length(pso.dK) == 1
         f_list = [f_ini]
 
         println("single parameter scenario")
@@ -156,64 +171,7 @@ function info_PSO_projection(pso, max_episode, particle_num, ini_particle, c0, c
     end
 end
 
-function train_projection(particles, p_fit, fit, max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity, sym)
-    for pj in 1:particle_num
-        M = [particles[pj].C[i]*(particles[pj].C[i])' for i in 1:M_num]
-        f_now = obj_func(Val{sym}(), particles[pj], M)
-        f_now = 1.0/f_now
-
-        if f_now > p_fit[pj]
-            p_fit[pj] = f_now
-            for di in 1:M_num
-                for ni in 1:dim
-                    pbest[di,ni,pj] = particles[pj].C[di][ni]
-                end
-            end
-        end
-    end
-
-    for pj in 1:particle_num
-        if p_fit[pj] > fit
-            fit = p_fit[pj]
-            for dj in 1:M_num
-                for nj in 1:dim
-                    gbest[dj, nj] = pbest[dj,nj,pj]
-                end
-            end
-        end
-    end  
-
-    for pk in 1:particle_num
-        meas_pre = [zeros(ComplexF64, dim) for i in 1:M_num]
-        for dk in 1:M_num
-            for ck in 1:dim
-                meas_pre[dk][ck] = particles[pk].C[dk][ck]
-    
-                velocity[dk, ck, pk] = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - particles[pk].C[dk][ck]) 
-                                           + c2*rand()*(gbest[dk, ck] - particles[pk].C[dk][ck])
-                particles[pk].C[dk][ck] += velocity[dk, ck, pk]
-            end
-        end
-        particles[pk].C = gramschmidt(particles[pk].C)
-
-        for dm in 1:M_num
-            for cm in 1:dim
-                velocity[dm, cm, pk] = particles[pk].C[dm][cm] - meas_pre[dm][cm]
-            end
-        end
-    end
-    return p_fit, fit, pbest, gbest, velocity
-end
-
-################## update the coefficients according to the given basis ############
-function CFIM_PSO_Mopt(pso::LinearComb_Mopt{T}, max_episode, particle_num, c0, c1, c2, seed, save_file) where {T<:Complex}
-    sym = Symbol("CFIM_noctrl")
-    str1 = "CFI"
-    str2 = "tr(WI^{-1})"
-    return info_PSO_LinearComb(pso, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2)
-end
-
-function info_PSO_LinearComb(pso, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2) where {T<:Complex}
+function info_PSO_LinearComb_Kraus(pso, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2) where {T<:Complex}
     println("measurement optimization")
     Random.seed!(seed)
     dim = size(pso.ρ0)[1]
@@ -245,13 +203,13 @@ function info_PSO_LinearComb(pso, max_episode, particle_num, c0, c1, c2, seed, s
     end
 
     f_ini = p_fit[1]
-    f_opt = obj_func(Val{:QFIM_noctrl}(), pso, POVM_basis)
+    f_opt = obj_func(Val{:QFIM_noctrl_Kraus}(), pso, POVM_basis)
     f_opt = 1.0/f_opt
 
     f_povm = obj_func(Val{sym}(), pso, POVM_basis)
     f_povm = 1.0/f_povm
 
-    if length(pso.Hamiltonian_derivative) == 1
+    if length(pso.dK) == 1
         f_list = [f_ini]
 
         println("single parameter scenario")
@@ -365,65 +323,7 @@ function info_PSO_LinearComb(pso, max_episode, particle_num, c0, c1, c2, seed, s
     end
 end
 
-function train_LinearComb(particles, p_fit, fit, B_all, POVM_basis, max_episode, c0, c1, c2, particle_num, M_num, basis_num, pbest, gbest, velocity, sym)
-    for pj in 1:particle_num
-        M = [sum([B_all[pj][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
-        f_now = 1.0/obj_func(Val{sym}(), particles[pj], M)
-
-        if f_now > p_fit[pj]
-            p_fit[pj] = f_now
-            for di in 1:M_num
-                for ni in 1:basis_num
-                    pbest[di,ni,pj] = B_all[pj][di][ni]
-                end
-            end
-        end
-    end
-
-    for pj in 1:particle_num
-        if p_fit[pj] > fit
-            fit = p_fit[pj]
-            for dj in 1:M_num
-                for nj in 1:basis_num
-                    gbest[dj, nj] = pbest[dj,nj,pj]
-                end
-            end
-        end
-    end  
-
-    for pk in 1:particle_num
-        meas_pre = [zeros(Float64, basis_num) for i in 1:M_num]
-        for dk in 1:M_num
-            for ck in 1:basis_num
-                meas_pre[dk][ck] = B_all[pk][dk][ck]
-    
-                velocity[dk, ck, pk] = c0*velocity[dk, ck, pk] + c1*rand()*(pbest[dk, ck, pk] - B_all[pk][dk][ck]) 
-                                           + c2*rand()*(gbest[dk, ck] - B_all[pk][dk][ck])
-                B_all[pk][dk][ck] += velocity[dk, ck, pk]
-            end
-        end
-        B_all[pk] = bound_LC_coeff(B_all[pk])
-        M = [sum([B_all[pk][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
-
-        for dm in 1:M_num
-            for cm in 1:basis_num
-                velocity[dm, cm, pk] = B_all[pk][dm][cm] - meas_pre[dm][cm]
-            end
-        end
-    end
-    return p_fit, fit, B_all, pbest, gbest, velocity
-end
-
-
-################## update the coefficients of the unitary matrix ############
-function CFIM_PSO_Mopt(pso::RotateBasis_Mopt{T}, max_episode, particle_num, c0, c1, c2, seed, save_file) where {T<:Complex}
-    sym = Symbol("CFIM_noctrl")
-    str1 = "CFI"
-    str2 = "tr(WI^{-1})"
-    return info_PSO_RotateBasis(pso, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2)
-end
-
-function info_PSO_RotateBasis(pso, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2) where {T<:Complex}
+function info_PSO_RotateBasis_Kraus(pso, max_episode, particle_num, c0, c1, c2, seed, save_file, sym, str1, str2) where {T<:Complex}
     println("measurement optimization")
     Random.seed!(seed)
     dim = size(pso.ρ0)[1]
@@ -456,13 +356,13 @@ function info_PSO_RotateBasis(pso, max_episode, particle_num, c0, c1, c2, seed, 
     end
 
     f_ini = p_fit[1]
-    f_opt = obj_func(Val{:QFIM_noctrl}(), pso, POVM_basis)
+    f_opt = obj_func(Val{:QFIM_noctrl_Kraus}(), pso, POVM_basis)
     f_opt = 1.0/f_opt
 
     f_povm = obj_func(Val{sym}(), pso, POVM_basis)
     f_povm = 1.0/f_povm
 
-    if length(pso.Hamiltonian_derivative) == 1
+    if length(pso.dK) == 1
         f_list = [f_ini]
 
         println("single parameter scenario")
@@ -580,48 +480,4 @@ function info_PSO_RotateBasis(pso, max_episode, particle_num, c0, c1, c2, seed, 
             println("Final value of $str2 is $(1.0/fit)")
         end
     end
-end
-
-function train_RotateBasis(particles, s_all, Lambda, p_fit, fit, POVM_basis, max_episode, c0, c1, c2, particle_num, M_num, dim, pbest, gbest, velocity, sym)
-    for pj in 1:particle_num
-        U = rotation_matrix(s_all[pj], Lambda)
-        M = [U*POVM_basis[i]*U' for i in 1:M_num]
-        f_now = 1.0/obj_func(Val{sym}(), particles[pj], M)
-
-        if f_now > p_fit[pj]
-            p_fit[pj] = f_now
-            for ni in 1:dim^2
-                pbest[ni,pj] = s_all[pj][ni]
-            end
-        end
-    end
-
-    for pj in 1:particle_num
-        if p_fit[pj] > fit
-            fit = p_fit[pj]
-            for nj in 1:dim^2
-                gbest[nj] = pbest[nj,pj]
-            end
-        end
-    end  
-
-    for pk in 1:particle_num
-        meas_pre = zeros(Float64, dim^2)
-
-        for ck in 1:dim^2
-            meas_pre[ck] = s_all[pk][ck]
-    
-            velocity[ck, pk] = c0*velocity[ck, pk] + c1*rand()*(pbest[ck, pk] - s_all[pk][ck]) + c2*rand()*(gbest[ck] - s_all[pk][ck])
-            s_all[pk][ck] += velocity[ck, pk]
-        end
-
-        s_all[pk] = bound_rot_coeff(s_all[pk])
-        U = rotation_matrix(s_all[pk], Lambda)
-        M = [U*POVM_basis[i]*U' for i in 1:M_num]
-
-        for cm in 1:dim^2
-            velocity[cm, pk] = s_all[pk][cm] - meas_pre[cm]
-        end
-    end
-    return p_fit, fit, s_all, pbest, gbest, velocity
 end
