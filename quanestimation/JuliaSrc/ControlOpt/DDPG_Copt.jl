@@ -4,7 +4,7 @@ using Flux
 using Flux.Losses
 using IntervalSets
 
-struct DDPG_Copt{T<:Complex, M<:Real}
+mutable struct DDPG_Copt{T<:Complex, M<:Real}
     freeHamiltonian
     Hamiltonian_derivative::Vector{Matrix{T}}
     ρ0::Matrix{T}
@@ -227,6 +227,8 @@ function CFIM_DDPG_Copt(M, params::DDPG_Copt, layer_num, layer_dim, seed, max_ep
     return info_DDPG_Copt(M, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
 end
 
+CFIM_DDPG_Copt(params::DDPG_Copt, M, layer_num, layer_dim, seed, max_episode, save_file)= CFIM_DDPG_Copt(M, params, layer_num, layer_dim, seed, max_episode, save_file)
+
 function HCRB_DDPG_Copt(params::DDPG_Copt, layer_num, layer_dim, seed, max_episode, save_file) where {T<:Complex}
     sym = Symbol("HCRB")
     str1 = ""
@@ -234,8 +236,8 @@ function HCRB_DDPG_Copt(params::DDPG_Copt, layer_num, layer_dim, seed, max_episo
     str3 = "HCRB"
     M = [zeros(ComplexF64, size(params.ρ0)[1], size(params.ρ0)[1])]
     if length(params.Hamiltonian_derivative) == 1
-        println("In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for control optimization.")
-        return nothing
+        @warn "In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function for control optimization."
+        exit()
     else
         return info_DDPG_Copt(M, params, layer_num, layer_dim, seed, max_episode, save_file, sym, str1, str2, str3)
     end
@@ -304,7 +306,10 @@ function info_DDPG_Copt(M, params, layer_num, layer_dim, seed, max_episode, save
     println("Iteration over, data saved.")
     if length(params.Hamiltonian_derivative) == 1
         println("Final $str2 is ", env.f_final[end])
+        return env.f_final[end], env.ctrl_list
     else
         println("Final value of $str3 is ", env.f_final[end])
+        return 1/env.f_final[end], env.ctrl_list
     end
+    
 end
