@@ -102,8 +102,8 @@ class DE_Mopt(Measurement.MeasurementSystem):
                 self.W = W
 
                 diffevo = Main.QuanEstimation.projection_Mopt_Kraus(
-                    Main.vec(self.K),
-                    Main.vec(self.dK),
+                    self.K,
+                    self.dK,
                     self.rho0,
                     self.M,
                     self.W,
@@ -155,8 +155,8 @@ class DE_Mopt(Measurement.MeasurementSystem):
                 self.W = W
 
                 diffevo = Main.QuanEstimation.LinearComb_Mopt_Kraus(
-                    Main.vec(self.K),
-                    Main.vec(self.dK),
+                    self.K,
+                    self.dK,
                     self.rho0,
                     self.povm_basis,
                     self.M_num,
@@ -207,8 +207,8 @@ class DE_Mopt(Measurement.MeasurementSystem):
                 self.W = W
 
                 diffevo = Main.QuanEstimation.RotateBasis_Mopt_Kraus(
-                    Main.vec(self.K),
-                    Main.vec(self.dK),
+                    self.K,
+                    self.dK,
                     self.rho0,
                     self.povm_basis,
                     self.W,

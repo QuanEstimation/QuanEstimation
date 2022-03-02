@@ -189,7 +189,7 @@ mutable struct SM_Compopt_Kraus{T<:Complex}
         C::Vector{Vector{T}},
         W::AbstractMatrix,
         eps::Number,
-    ) where {T<:Complex} = new{T}(K, dK, psi, C, W, eps)
+    ) where {T<:Complex} = new{T}(K, [dK for dK in eachrow(dK)], psi, C, W, eps)
 end
 
 function SaveFile_SC(f_now::Float64, state, control)

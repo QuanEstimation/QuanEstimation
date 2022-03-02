@@ -26,7 +26,7 @@ mutable struct TimeIndepend_Kraus{T<:Complex}
     W::AbstractMatrix
     eps::Number
     TimeIndepend_Kraus(K::AbstractVector{Matrix{T}}, dK, psi, W, eps) where {T<:Complex} = 
-        new{T}(K, dK, psi, W, eps)
+        new{T}(K, [dK for dK in eachrow(dK)], psi, W, eps)
 end
 
 mutable struct TimeIndepend_noise{T<:Complex,M<:Real}

@@ -246,46 +246,46 @@ end
 function obj_func(x::Val{:QFIM}, system, M)
     F = QFIM(system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ, system.control_Hamiltonian, 
                 system.control_coefficients, system.tspan, system.eps)
-    return (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function obj_func(x::Val{:QFIM}, system, M, control_coeff)
     F = QFIM(system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ, system.control_Hamiltonian, 
                 control_coeff, system.tspan, system.eps)
-    return (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function obj_func(x::Val{:QFIM_noctrl}, system, M, psi)
     ρ0 = psi*psi'
     F = QFIM(system.freeHamiltonian, system.Hamiltonian_derivative, ρ0, system.decay_opt, system.γ, system.tspan, system.eps)
-    return  (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return  (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function obj_func(x::Val{:QFIM_TimeIndepend_noiseless}, system, M)
     F = QFIM_TimeIndepend(system.freeHamiltonian, system.Hamiltonian_derivative, system.psi, system.tspan, system.eps)
-    return (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function obj_func(x::Val{:QFIM_TimeIndepend_noiseless}, system, M, psi)
     F = QFIM_TimeIndepend(system.freeHamiltonian, system.Hamiltonian_derivative, psi, system.tspan, system.eps)
-    return (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function obj_func(x::Val{:QFIM_TimeIndepend_noise}, system, M)
     F = QFIM_TimeIndepend(system.freeHamiltonian, system.Hamiltonian_derivative, system.psi, system.decay_opt, 
                              system.γ, system.tspan, system.eps)
-    return (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function obj_func(x::Val{:QFIM_TimeIndepend_noise}, system, M, psi)
     F = QFIM_TimeIndepend(system.freeHamiltonian, system.Hamiltonian_derivative, psi, system.decay_opt, 
                              system.γ, system.tspan, system.eps)
-    return (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function obj_func(x::Val{:QFIM_noctrl}, system, M)
     F = QFIM(system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ, system.tspan, system.eps)
-    return (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function QFIM_liouville(system)
@@ -503,63 +503,63 @@ end
 function obj_func(x::Val{:CFIM}, system, M)
     F = CFIM(M, system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ, 
             system.control_Hamiltonian, system.control_coefficients, system.tspan, system.eps)
-    return (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function obj_func(x::Val{:CFIM}, system, M, control_coeff)
     F = CFIM(M, system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ,  
             system.control_Hamiltonian, control_coeff, system.tspan, system.eps)
-    return (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function obj_func(x::Val{:CFIM_TimeIndepend_noiseless}, system, M)
     F = CFIM_TimeIndepend(M, system.freeHamiltonian, system.Hamiltonian_derivative, system.psi, system.tspan, system.eps)
-    return (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function obj_func(x::Val{:CFIM_TimeIndepend_noiseless}, system, M, psi)
     F = CFIM_TimeIndepend(M, system.freeHamiltonian, system.Hamiltonian_derivative, psi, system.tspan, system.eps)
-    return (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function obj_func(x::Val{:CFIM_TimeIndepend_noise}, system, M)
     F = CFIM_TimeIndepend(M, system.freeHamiltonian, system.Hamiltonian_derivative, system.psi, system.decay_opt, 
                              system.γ, system.tspan, system.eps)
-    return (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function obj_func(x::Val{:CFIM_TimeIndepend_noise}, system, M, psi)
     F = CFIM_TimeIndepend(M, system.freeHamiltonian, system.Hamiltonian_derivative, psi, system.decay_opt, 
                              system.γ, system.tspan, system.eps)
-    return (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function obj_func(x::Val{:CFIM_noctrl}, system, M)
     F = CFIM(M, system.freeHamiltonian, system.Hamiltonian_derivative, system.ρ0, system.decay_opt, system.γ, system.tspan, system.eps)
-    return  (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return  (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function obj_func(x::Val{:QFIM_SCopt}, system, M, psi, control_coefficients)
     rho = psi*psi'
     F = QFIM(system.freeHamiltonian, system.Hamiltonian_derivative, rho, system.decay_opt, system.γ, system.control_Hamiltonian, control_coefficients, system.tspan, system.eps)
-    return  (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return  (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function obj_func(x::Val{:CFIM_SCopt}, system, M, psi, control_coefficients)
     rho = psi*psi'
     F = CFIM(M, system.freeHamiltonian, system.Hamiltonian_derivative, rho, system.decay_opt, system.γ, system.control_Hamiltonian, control_coefficients, system.tspan, system.eps)
-    return  (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return  (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function obj_func(x::Val{:CFIM_SMopt}, system, psi, M)
     rho = psi*psi'
     F = CFIM(M, system.freeHamiltonian, system.Hamiltonian_derivative, rho, system.decay_opt, system.γ, system.tspan, system.eps)
-    return  (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return  (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function obj_func(x::Val{:CFIM_CMopt}, system, M, rho, control_coefficients)
     F = CFIM(M, system.freeHamiltonian, system.Hamiltonian_derivative, rho, system.decay_opt, system.γ, system.control_Hamiltonian, control_coefficients, system.tspan, system.eps)
-    return  (abs(det(F)) < system.eps ? (1.0/system.eps) : real(tr(system.W*inv(F))))
+    return  (abs(det(F)) < system.eps ? Inf : real(tr(system.W*inv(F))))
 end
 
 function QFIM(ρ, dρ::Matrix{T}; dtype="SLD", exportLD=false, eps=1e-8) where {T<:Complex}

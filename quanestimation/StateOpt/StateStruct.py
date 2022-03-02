@@ -148,9 +148,9 @@ class StateSystem:
                 psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
             self.psi0 = np.array(psi0)
         else:
-            self.psi0 = np.array(self.psi0[0],dtype=np.complex128)
-            
-        if self.psi == []: 
+            self.psi0 = np.array(self.psi0[0], dtype=np.complex128)
+
+        if self.psi == []:
             self.psi = [self.psi0]
 
         if type(dH) != list:
@@ -186,9 +186,9 @@ class StateSystem:
                 psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
             self.psi0 = np.array(psi0)
         else:
-            self.psi0 = np.array(self.psi0[0],dtype=np.complex128)
-            
-        if self.psi == []: 
+            self.psi0 = np.array(self.psi0[0], dtype=np.complex128)
+
+        if self.psi == []:
             self.psi = [self.psi0]
 
         self.dynamics_type = "kraus"

@@ -65,7 +65,11 @@ tspan = np.linspace(0.0, T, tnum)
 cnum = tnum
 
 K = [scipy.linalg.expm(-1.0j * H0 * T)]
-dK = [[-1.0j*T*K @ dH0[0] for K in K], [-1.0j*T*K @ dH0[1] for K in K], [-1.0j*T*K @ dH0[2] for K in K]]
+dK = [
+    [-1.0j * T * K @ dH0[0] for K in K],
+    [-1.0j * T * K @ dH0[1] for K in K],
+    [-1.0j * T * K @ dH0[2] for K in K],
+]
 
 # initial control coefficients
 Hc_coeff = [np.zeros(cnum), np.zeros(cnum), np.zeros(cnum)]

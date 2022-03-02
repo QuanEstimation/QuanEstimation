@@ -17,8 +17,9 @@ H0 = -Lambda * (np.dot(Jx, Jx) + g * np.dot(Jy, Jy)) / N - h * Jz
 dH0 = [-Lambda * np.dot(Jy, Jy) / N, -Jz]
 
 T = 10.0
+
 K = [scipy.linalg.expm(-1.0j * H0 * T)]
-dK = [[-1.0j*T*K @ dH0[0] for K in K], [-1.0j*T*K @ dH0[1] for K in K], [-1.0j*T*K @ dH0[2] for K in K]]
+dK = [[-1.0j * T * K @ dH0[0] for K in K], [-1.0j * T * K @ dH0[1] for K in K]]
 
 
 # measurement
@@ -79,9 +80,9 @@ DDPG_paras = {"layer_num": 4, "layer_dim": 250, "max_episode": 500, "seed": 1234
 
 # state = StateOpt(method="AD", **AD_paras)
 # state = StateOpt(method="PSO", **PSO_paras)
-# state = StateOpt(method="DE", **DE_paras)
+state = StateOpt(method="DE", **DE_paras)
 # state = StateOpt(method="NM", **NM_paras)
-state = StateOpt(method="DDPG", **DDPG_paras)
+# state = StateOpt(method="DDPG", **DDPG_paras)
 
 state.kraus(K, dK)
 

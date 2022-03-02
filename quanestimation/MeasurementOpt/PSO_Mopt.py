@@ -109,8 +109,8 @@ class PSO_Mopt(Measurement.MeasurementSystem):
                 self.W = W
 
                 pso = Main.QuanEstimation.projection_Mopt_Kraus(
-                    Main.vec(self.K),
-                    Main.vec(self.dK),
+                    self.K,
+                    self.dK,
                     self.rho0,
                     self.M,
                     self.W,
@@ -165,8 +165,8 @@ class PSO_Mopt(Measurement.MeasurementSystem):
                 self.W = W
 
                 pso = Main.QuanEstimation.LinearComb_Mopt_Kraus(
-                    Main.vec(self.K),
-                    Main.vec(self.dK),
+                    self.K,
+                    self.dK,
                     self.rho0,
                     self.povm_basis,
                     self.M_num,
@@ -220,8 +220,8 @@ class PSO_Mopt(Measurement.MeasurementSystem):
                 self.W = W
 
                 pso = Main.QuanEstimation.RotateBasis_Mopt_Kraus(
-                    Main.vec(self.K),
-                    Main.vec(self.dK),
+                    self.K,
+                    self.dK,
                     self.rho0,
                     self.povm_basis,
                     self.W,
