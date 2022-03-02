@@ -34,9 +34,6 @@ dH1, dH2, dH3 = gS * S1 + gI * I1, gS * S2 + gI * I2, gS * S3 + gI * I3
 dH0 = [dH1, dH2, dH3]
 Hc_ctrl = [S1, S2, S3]
 
-K = [scipy.linalg.expm(-1.0j * H0)]
-dK = [[K @ dH0[0] for K in K], [K @ dH0[1] for K in K], [K @ dH0[2] for K in K]]
-
 # measurement
 def get_basis(dim, index):
     x = np.zeros(dim)
@@ -53,6 +50,9 @@ for i in range(dim):
 T = 2.0
 tnum = int(2000 * T)
 tspan = np.linspace(0.0, T, tnum)
+
+K = [scipy.linalg.expm(-1.0j * H0 * T)]
+dK = [[-1.0j*T*K @ dH0[0] for K in K], [-1.0j*T*K @ dH0[1] for K in K], [-1.0j*T*K @ dH0[2] for K in K]]
 
 AD_paras = {
     "Adam": False,
@@ -82,10 +82,10 @@ DE_paras = {
 }
 
 Measopt = MeasurementOpt(
-    # mtype="projection",minput=[],
-    mtype="input",
+    mtype="projection",minput=[],
+    # mtype="input",
     # minput=["LC", povm_basis, 4],
-    minput=["rotation", povm_basis, 4],    
+    # minput=["rotation", povm_basis, 4],    
     # method="AD",**AD_paras,
     # method="PSO",**PSO_paras,
     method="DE",**DE_paras,

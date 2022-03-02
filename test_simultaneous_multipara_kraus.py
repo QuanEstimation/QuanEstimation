@@ -44,10 +44,6 @@ dH1, dH2, dH3 = gS * S1 + gI * I1, gS * S2 + gI * I2, gS * S3 + gI * I3
 dH0 = [dH1, dH2, dH3]
 Hc = [S1, S2, S3]
 
-K = [scipy.linalg.expm(-1.0j * H0)]
-dK = [[K @ dH0[0] for K in K], [K @ dH0[1] for K in K], [K @ dH0[2] for K in K]]
-
-
 # measurement
 def get_basis(dim, index):
     x = np.zeros(dim)
@@ -67,6 +63,10 @@ T = 2.0
 tnum = int(2000 * T)
 tspan = np.linspace(0.0, T, tnum)
 cnum = tnum
+
+K = [scipy.linalg.expm(-1.0j * H0 * T)]
+dK = [[-1.0j*T*K @ dH0[0] for K in K], [-1.0j*T*K @ dH0[1] for K in K], [-1.0j*T*K @ dH0[2] for K in K]]
+
 # initial control coefficients
 Hc_coeff = [np.zeros(cnum), np.zeros(cnum), np.zeros(cnum)]
 ctrl0 = [np.array(Hc_coeff)]
