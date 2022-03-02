@@ -181,7 +181,9 @@ class GRAPE_Copt(Control.ControlSystem):
             DeprecationWarning,
         )
 
-    def mintime(self, f, target="QFIM", W=[], M=[]):
+    def mintime(self, f, target="QFIM", W=[], M=[], method="binary"):
+        if len(self.Hamiltonian_derivative) > 1:
+                f = 1 / f
         M = [np.array(x, dtype=np.complex128) for x in M]
         grape = Main.QuanEstimation.GRAPE_Copt(
             self.freeHamiltonian,
@@ -201,9 +203,17 @@ class GRAPE_Copt(Control.ControlSystem):
             self.beta2,
             self.eps,
         )
+
+        if not (method == "binary" or method == "forward"):
+            warnings.warn(
+                "Method {!r} is currently not surppoted.".format(method),
+                DeprecationWarning,
+            )
+
         if target == "QFIM":
             if self.auto:
-                Main.QuanEstimation.mintime_binary(
+                Main.QuanEstimation.mintime(
+                    Main.eval("Val{:" + method + "}()"),
                     "QFIM_autoGRAPE_Copt",
                     grape,
                     f,
@@ -211,7 +221,8 @@ class GRAPE_Copt(Control.ControlSystem):
                     self.Adam,
                 )
             else:
-                Main.QuanEstimation.mintime_binary(
+                Main.QuanEstimation.mintime(
+                    Main.eval("Val{:" + method + "}()"),
                     "QFIM_GRAPE_Copt",
                     grape,
                     f,
@@ -220,7 +231,8 @@ class GRAPE_Copt(Control.ControlSystem):
                 )
         elif target == "CFIM":
             if self.auto:
-                Main.QuanEstimation.mintime_binary(
+                Main.QuanEstimation.mintime(
+                    Main.eval("Val{:" + method + "}()"),
                     "CFIM_autoGRAPE_Copt",
                     grape,
                     f,
@@ -229,7 +241,8 @@ class GRAPE_Copt(Control.ControlSystem):
                     self.Adam,
                 )
             else:
-                Main.QuanEstimation.mintime_binary(
+                Main.QuanEstimation.mintime(
+                    Main.eval("Val{:" + method + "}()"),
                     "CFIM_GRAPE_Copt",
                     grape,
                     f,

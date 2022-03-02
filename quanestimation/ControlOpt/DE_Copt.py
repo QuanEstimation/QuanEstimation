@@ -191,7 +191,9 @@ class DE_Copt(Control.ControlSystem):
                 save_file,
             )
 
-    def mintime(self, f, target="QFIM", W=[], M=[]):
+    def mintime(self, f, target="QFIM", W=[], M=[], method="binary"):
+        if len(self.Hamiltonian_derivative) > 1:
+            f = 1 / f
         M = [np.array(x, dtype=np.complex128) for x in M]
         diffevo = Main.QuanEstimation.DE_Copt(
             self.freeHamiltonian,
@@ -206,8 +208,16 @@ class DE_Copt(Control.ControlSystem):
             self.W,
             self.eps,
         )
+
+        if not (method == "binary" or method == "forward"):
+            warnings.warn(
+                "Method {!r} is currently not surppoted.".format(method),
+                DeprecationWarning,
+            )
+
         if target == "QFIM":
-            Main.QuanEstimation.mintime_binary(
+            Main.QuanEstimation.mintime(
+                Main.eval("Val{:" + method + "}()"),
                 "QFIM_DE_Copt",
                 diffevo,
                 f,
@@ -219,7 +229,8 @@ class DE_Copt(Control.ControlSystem):
                 self.max_episode,
             )
         elif target == "CFIM":
-            Main.QuanEstimation.mintime_binary(
+            Main.QuanEstimation.mintime(
+                Main.eval("Val{:" + method + "}()"),
                 "CFIM_DE_Copt",
                 diffevo,
                 f,
@@ -232,7 +243,8 @@ class DE_Copt(Control.ControlSystem):
                 self.max_episode,
             )
         elif target == "HCRB":
-            Main.QuanEstimation.mintime_binary(
+            Main.QuanEstimation.mintime(
+                Main.eval("Val{:" + method + "}()"),
                 "HCRB_DE_Copt",
                 diffevo,
                 f,
