@@ -227,8 +227,8 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             self.W = W
 
             diffevo = Main.QuanEstimation.SM_Compopt_Kraus(
-                self.K,
-                self.dK,
+                Main.vec(self.K),
+                Main.vec(self.dK),
                 self.psi0,
                 self.M,
                 self.W,
