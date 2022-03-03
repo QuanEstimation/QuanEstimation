@@ -126,7 +126,7 @@ function mintime(::Val{:binary}, opt::String, system, f, args...)
     open("controls.csv","w") do c
         writedlm(c, system.control_coefficients)
     end
-    println("Minimum time to reach target is ", system.tspan[end],", data saved.")
+    println("The minimum time to reach target is ", system.tspan[end],", data saved.")
 end
 
 function mintime(::Val{:forward}, opt::String, system, f, args...)
@@ -149,5 +149,5 @@ function mintime(::Val{:forward}, opt::String, system, f, args...)
     open("controls.csv","w") do c
         writedlm(c, system.control_coefficients)
     end
-    println("Minimum time to reach target is ", system.tspan[end],", data saved.")
+    println("The minimum time to reach target is ", system.tspan[end],", data saved.")
 end
