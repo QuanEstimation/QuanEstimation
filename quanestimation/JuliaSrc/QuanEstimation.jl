@@ -47,7 +47,6 @@ include("MeasurementOpt/PSO_Mopt.jl")
 include("MeasurementOpt/PSO_Mopt_Kraus.jl")
 include("MeasurementOpt/DE_Mopt.jl")
 include("MeasurementOpt/DE_Mopt_Kraus.jl")
-include("MeasurementOpt/adaptive_Mopt.jl")
 include("ComprehensiveOpt/common.jl")
 include("ComprehensiveOpt/DE_Compopt.jl")
 include("ComprehensiveOpt/DE_Compopt_Kraus.jl")
@@ -55,6 +54,9 @@ include("ComprehensiveOpt/AD_Compopt.jl")
 include("ComprehensiveOpt/PSO_Compopt.jl")
 include("ComprehensiveOpt/PSO_Compopt_Kraus.jl")
 include("Adaptive/adaptive.jl")
+include("Adaptive/adaptive_Kraus.jl")
+include("Adaptive/adaptMZI.jl")
+
 # include("QuanResources/")
 export QFI, QFIM, CFI, CFIM
 export suN_generator, expm

@@ -406,8 +406,6 @@ end
 
 #======================================================#
 #################### calculate CFIM ####################
-function CFIM(ρ, dρ, eps::Number)
-    M = load_M(size(ρ)[1])
 function CFIM(ρ, dρ, eps)
     M = SIC(size(ρ)[1])
     m_num = length(M)
