@@ -190,7 +190,7 @@ class ComprehensiveSystem:
         # TODO: initialize K, dK
         self.K = K
         self.dK = dK
-        self.dim = len(K)
+        self.dim = len(K[0])
         if self.psi0 == []:
             np.random.seed(self.seed)
             for i in range(self.dim):
@@ -201,10 +201,10 @@ class ComprehensiveSystem:
             self.psi0 = np.array(psi0)
         else:
             self.psi0 = np.array(self.psi0[0], dtype=np.complex128)
-            
-        if self.psi == []: 
+
+        if self.psi == []:
             self.psi = [self.psi0]
-            
+
         if self.measurement0 == []:
             np.random.seed(self.seed)
             M = [[] for i in range(self.dim)]

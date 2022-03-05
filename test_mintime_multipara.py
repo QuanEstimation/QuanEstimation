@@ -1,6 +1,5 @@
 import numpy as np
 from quanestimation import *
-import scipy
 
 # initial state
 rho0 = np.zeros((6, 6), dtype=np.complex128)
@@ -32,8 +31,9 @@ H0 = (
 )
 dH1, dH2, dH3 = gS * S1 + gI * I1, gS * S2 + gI * I2, gS * S3 + gI * I3
 dH0 = [dH1, dH2, dH3]
-Hc_ctrl = [S1, S2, S3]
-
+Hc = [S1, S2, S3]
+# dissipation
+decay = [[S3, 2 * np.pi / cons]]
 # measurement
 def get_basis(dim, index):
     x = np.zeros(dim)
@@ -42,30 +42,45 @@ def get_basis(dim, index):
 
 
 dim = len(rho0)
-povm_basis = []
+Measurement = []
 for i in range(dim):
     M_tp = np.dot(get_basis(dim, i), get_basis(dim, i).conj().T)
-    povm_basis.append(M_tp)
+    Measurement.append(M_tp)
 
 T = 2.0
-tnum = int(2000 * T)
+tnum = int(20 * T)
 tspan = np.linspace(0.0, T, tnum)
+cnum = tnum
+# initial control coefficients
+Hc_coeff = [np.zeros(cnum), np.zeros(cnum), np.zeros(cnum)]
+ctrl0 = [Hc_coeff]
 
-K = [scipy.linalg.expm(-1.0j * H0 * T)]
-dK = [[-1.0j*T*K @ dH0[0] for K in K], [-1.0j*T*K @ dH0[1] for K in K], [-1.0j*T*K @ dH0[2] for K in K]]
+# initial controls for PSO and DE
+ini_1, ini_2, ini_3 = (
+    np.zeros((len(Hc), cnum)),
+    0.2 * np.ones((len(Hc), cnum)),
+    -0.2 * np.ones((len(Hc), cnum)),
+)
+ini_4 = np.array([np.linspace(-0.2, 0.2, cnum) for i in range(len(Hc))])
+ini_5 = np.array([np.linspace(-0.2, 0.0, cnum) for i in range(len(Hc))])
+ini_6 = np.array([np.linspace(0, 0.2, cnum) for i in range(len(Hc))])
+ini_7 = -0.2 * np.ones((len(Hc), cnum)) + 0.01 * np.random.random((len(Hc), cnum))
+ini_8 = -0.2 * np.ones((len(Hc), cnum)) + 0.01 * np.random.random((len(Hc), cnum))
+ini_9 = -0.2 * np.ones((len(Hc), cnum)) + 0.05 * np.random.random((len(Hc), cnum))
+ini_10 = -0.2 * np.ones((len(Hc), cnum)) + 0.05 * np.random.random((len(Hc), cnum))
+ini_ctrl = [ini_1, ini_2, ini_3, ini_4, ini_5, ini_6, ini_7, ini_8, ini_9, ini_10]
 
-AD_paras = {
-    "Adam": False,
-    "measurement0": [],
+GRAPE_paras = {
+    "Adam": True,
+    "ctrl0": ctrl0,
     "max_episode": 300,
-    "epsilon": 0.001,
+    "epsilon": 0.01,
     "beta1": 0.90,
     "beta2": 0.99,
-    "seed": 1234,
 }
 PSO_paras = {
     "particle_num": 10,
-    "measurement0": [],
+    "ctrl0": ini_ctrl,
     "max_episode": [1000, 100],
     "c0": 1.0,
     "c1": 2.0,
@@ -74,22 +89,27 @@ PSO_paras = {
 }
 DE_paras = {
     "popsize": 10,
-    "measurement0": [],
+    "ctrl0": ini_ctrl,
     "max_episode": 1000,
     "c": 1.0,
     "cr": 0.5,
     "seed": 1234,
 }
+DDPG_paras = {"layer_num": 4, "layer_dim": 250, "max_episode": 500, "seed": 1234}
 
-Measopt = MeasurementOpt(
-    mtype="projection",minput=[],
-    # mtype="input",
-    # minput=["LC", povm_basis, 4],
-    # minput=["rotation", povm_basis, 4],    
-    # method="AD",**AD_paras,
-    # method="PSO",**PSO_paras,
-    method="DE",**DE_paras,
+control = ControlOpt(
+    tspan,
+    rho0,
+    H0,
+    dH0,
+    Hc,
+    decay=decay,
+    ctrl_bound=[-0.2, 0.2],
+    # method="auto-GRAPE", **GRAPE_paras
+    method="PSO",
+    **PSO_paras
+    # method="DE", **DE_paras
+    # method="DDPG, **DDPG_paras
 )
 
-Measopt.kraus(rho0, K, dK)
-Measopt.CFIM(save_file=False)
+control.mintime(0.001)

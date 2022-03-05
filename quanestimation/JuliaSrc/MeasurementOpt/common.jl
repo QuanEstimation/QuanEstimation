@@ -54,7 +54,7 @@ mutable struct RotateBasis_Mopt{T<:Complex, M <:Number}
 end
 
 mutable struct projection_Mopt_Kraus{T<:Complex, M <:Number} 
-    K::AbstractMatrix
+    K::AbstractVector
     dK::AbstractVector
     ρ0::Matrix{T}
     C::Vector{Vector{T}}
@@ -67,19 +67,17 @@ mutable struct projection_Mopt_Kraus{T<:Complex, M <:Number}
         W::Matrix{M}, 
         eps::M,
         ) where {T<:Complex, M<:Real}=
-        new{T,M}(K, dK, ρ0, C, W, eps) 
+        new{T,M}(K, [dK for dK in eachrow(dK)], ρ0, C, W, eps) 
 end
 
 mutable struct LinearComb_Mopt_Kraus{T<:Complex, M <:Number}
-    K::AbstractMatrix
+    K::AbstractVector
     dK::AbstractVector
     ρ0::Matrix{T}
     povm_basis::Vector{Matrix{T}}
     M_num::Int64
     W::Matrix{M}
     eps::M
-    ρ::Vector{Matrix{T}}
-    ∂ρ_∂x::Vector{Vector{Matrix{T}}}
     LinearComb_Mopt_Kraus(K, 
         dK, 
         ρ0::Matrix{T}, 
@@ -88,12 +86,12 @@ mutable struct LinearComb_Mopt_Kraus{T<:Complex, M <:Number}
         W::Matrix{M}, 
         eps::M,
         ) where {T<:Complex, M<:Real}=
-        new{T,M}(K, dK, ρ0, povm_basis, M_num, W, eps) 
+        new{T,M}(K, [dK for dK in eachrow(dK)], ρ0, povm_basis, M_num, W, eps) 
 end
 
 
 mutable struct RotateBasis_Mopt_Kraus{T<:Complex, M <:Number}
-    K::AbstractMatrix
+    K::AbstractVector
     dK::AbstractVector
     ρ0::Matrix{T}
     povm_basis::Vector{Matrix{T}}
@@ -106,7 +104,7 @@ mutable struct RotateBasis_Mopt_Kraus{T<:Complex, M <:Number}
         W::Matrix{M}, 
         eps::M, 
         ) where {T<:Complex, M<:Real}=
-        new{T,M}(K, dK, ρ0, povm_basis, W, eps) 
+        new{T,M}(K, [dK for dK in eachrow(dK)], ρ0, povm_basis, W, eps) 
 end
 
 function bound_LC_coeff(coefficients::Vector{Vector{Float64}})

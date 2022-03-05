@@ -44,6 +44,8 @@ function CFIM_autoGRAPE_Copt(M, grape::GRAPE_Copt{T}, max_episode, Adam, save_fi
     return info_autoGRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
 end
 
+CFIM_autoGRAPE_Copt(grape::GRAPE_Copt, M, max_episode, Adam, save_file) = CFIM_autoGRAPE_Copt(M, grape, max_episode, Adam, save_file) 
+
 function gradient_QFI!(grape::GRAPE_Copt{T}) where {T<:Complex}
     δF = gradient(x->QFI(grape.freeHamiltonian, grape.Hamiltonian_derivative[1], grape.ρ0, grape.decay_opt, grape.γ, grape.control_Hamiltonian, x, grape.tspan, grape.eps), grape.control_coefficients)[1].|>real
     grape.control_coefficients += grape.ϵ*δF
@@ -126,7 +128,7 @@ function info_autoGRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, 
                         println("Iteration over, data saved.")
                         println("Final $str2 is ", f_now)
                         SaveFile_ctrl(f_now, grape.control_coefficients)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, grape.control_coefficients)
@@ -144,7 +146,7 @@ function info_autoGRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, 
                         println("Iteration over, data saved.")
                         println("Final $str2 is ", f_now)
                         SaveFile_ctrl(f_now, grape.control_coefficients)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, grape.control_coefficients)
@@ -165,7 +167,7 @@ function info_autoGRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, 
                         println("Final $str2 is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, grape.control_coefficients)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         append!(f_list, f_now)
@@ -184,7 +186,7 @@ function info_autoGRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, 
                         println("Final $str2 is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, grape.control_coefficients)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         append!(f_list, f_now)
@@ -214,7 +216,7 @@ function info_autoGRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, 
                         println("Iteration over, data saved.")
                         println("Final value of $str3 is ", f_now)
                         SaveFile_ctrl(f_now, grape.control_coefficients)
-                        break
+                        return 1/f_now, grape.control_coefficients
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, grape.control_coefficients)
@@ -231,7 +233,7 @@ function info_autoGRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, 
                         println("Iteration over, data saved.")
                         println("Final value of $str3 is ", f_now)
                         SaveFile_ctrl(f_now, grape.control_coefficients)
-                        break
+                        return 1/f_now, grape.control_coefficients
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, grape.control_coefficients)
@@ -251,7 +253,7 @@ function info_autoGRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, 
                         println("Final value of $str3 is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, grape.control_coefficients)
-                        break
+                        return 1/f_now, grape.control_coefficients
                     else
                         episodes += 1
                         append!(f_list, f_now)
@@ -269,7 +271,7 @@ function info_autoGRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, 
                         println("Final value of $str3 is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, grape.control_coefficients)
-                        break
+                        return 1/f_now, grape.control_coefficients
                     else
                         episodes += 1
                         append!(f_list, f_now)
@@ -308,7 +310,7 @@ function info_autoGRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, 
                         println("Iteration over, data saved.")
                         println("Final $str2 is ", f_now)
                         SaveFile_ctrl(f_now, grape.control_coefficients)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, grape.control_coefficients)
@@ -326,7 +328,7 @@ function info_autoGRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, 
                         println("Iteration over, data saved.")
                         println("Final $str2 is ", f_now)
                         SaveFile_ctrl(f_now, grape.control_coefficients)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, grape.control_coefficients)
@@ -347,7 +349,7 @@ function info_autoGRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, 
                         println("Final $str2 is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, grape.control_coefficients)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         append!(f_list, f_now)
@@ -366,7 +368,7 @@ function info_autoGRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, 
                         println("Final $str2 is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, grape.control_coefficients)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         append!(f_list, f_now)
@@ -396,7 +398,7 @@ function info_autoGRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, 
                         println("Iteration over, data saved.")
                         println("Final value of $str3 is ", f_now)
                         SaveFile_ctrl(f_now, grape.control_coefficients)
-                        break
+                        return 1/f_now, grape.control_coefficients
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, grape.control_coefficients)
@@ -413,7 +415,7 @@ function info_autoGRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, 
                         println("Iteration over, data saved.")
                         println("Final value of $str3 is ", f_now)
                         SaveFile_ctrl(f_now, grape.control_coefficients)
-                        break
+                        return 1/f_now, grape.control_coefficients
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, grape.control_coefficients)
@@ -433,7 +435,7 @@ function info_autoGRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, 
                         println("Final value of $str3 is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, grape.control_coefficients)
-                        break
+                        return 1/f_now, grape.control_coefficients
                     else
                         episodes += 1
                         append!(f_list, f_now)
@@ -451,7 +453,7 @@ function info_autoGRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, 
                         println("Final value of $str3 is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, grape.control_coefficients)
-                        break
+                        return 1/f_now, grape.control_coefficients
                     else
                         episodes += 1
                         append!(f_list, f_now)
@@ -462,6 +464,7 @@ function info_autoGRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, 
             end
         end
     end
+    return f_now, grape.control_coefficients
 end
 
 
@@ -482,6 +485,8 @@ function CFIM_GRAPE_Copt(M, grape::GRAPE_Copt{T}, max_episode, Adam, save_file) 
     str3 = "tr(WI^{-1})"
     return info_GRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
 end
+
+CFIM_GRAPE_Copt(grape::GRAPE_Copt, M, max_episode, Adam, save_file) = CFIM_GRAPE_Copt(M, grape, max_episode, Adam, save_file) 
 
 function info_GRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
     println("$str1 parameter estimation")
@@ -512,7 +517,7 @@ function info_GRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2
                         println("Iteration over, data saved.")
                         println("Final $str2 is ", f_now)
                         SaveFile_ctrl(f_now, ctrl_pre) 
-                        break 
+                        return f_now, grape.control_coefficients 
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, ctrl_pre)
@@ -528,7 +533,7 @@ function info_GRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2
                         println("Iteration over, data saved.")
                         println("Final $str2 is ", f_now)
                         SaveFile_ctrl(f_now, ctrl_pre) 
-                        break 
+                        return f_now, grape.control_coefficients 
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, ctrl_pre)
@@ -547,7 +552,7 @@ function info_GRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2
                         println("Final $str2 is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, ctrl_pre)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         append!(f_list, f_now)
@@ -564,7 +569,7 @@ function info_GRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2
                         println("Final $str2 is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, ctrl_pre)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         append!(f_list, f_now)
@@ -597,7 +602,7 @@ function info_GRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2
                         println("Iteration over, data saved.")
                         println("Final value of $str3 is ", f_now)
                         SaveFile_ctrl(f_now, ctrl_pre)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, ctrl_pre)
@@ -613,7 +618,7 @@ function info_GRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2
                         println("Iteration over, data saved.")
                         println("Final value of $str3 is ", f_now)
                         SaveFile_ctrl(f_now, ctrl_pre)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, ctrl_pre)
@@ -632,7 +637,7 @@ function info_GRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2
                         println("Final value of $str3 is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, ctrl_pre)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         append!(f_list, f_now)
@@ -649,7 +654,7 @@ function info_GRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2
                         println("Final value of $str3 is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, ctrl_pre)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         append!(f_list, f_now)
@@ -659,6 +664,7 @@ function info_GRAPE_QFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2
             end
         end
     end
+    return f_now, grape.control_coefficients
 end
 
 function info_GRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2, str3)
@@ -690,7 +696,7 @@ function info_GRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2
                         println("Iteration over, data saved.")
                         println("Final $str2 is ", f_now)
                         SaveFile_ctrl(f_now, ctrl_pre) 
-                        break 
+                        return f_now, grape.control_coefficients 
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, ctrl_pre)
@@ -706,7 +712,7 @@ function info_GRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2
                         println("Iteration over, data saved.")
                         println("Final $str2 is ", f_now)
                         SaveFile_ctrl(f_now, ctrl_pre) 
-                        break 
+                        return f_now, grape.control_coefficients 
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, ctrl_pre)
@@ -725,7 +731,7 @@ function info_GRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2
                         println("Final $str2 is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, ctrl_pre)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         append!(f_list, f_now)
@@ -742,7 +748,7 @@ function info_GRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2
                         println("Final $str2 is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, ctrl_pre)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         append!(f_list, f_now)
@@ -775,7 +781,7 @@ function info_GRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2
                         println("Iteration over, data saved.")
                         println("Final value of $str3 is ", f_now)
                         SaveFile_ctrl(f_now, ctrl_pre)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, ctrl_pre)
@@ -791,7 +797,7 @@ function info_GRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2
                         println("Iteration over, data saved.")
                         println("Final value of $str3 is ", f_now)
                         SaveFile_ctrl(f_now, ctrl_pre)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         SaveFile_ctrl(f_now, ctrl_pre)
@@ -810,7 +816,7 @@ function info_GRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2
                         println("Final value of $str3 is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, ctrl_pre)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         append!(f_list, f_now)
@@ -827,7 +833,7 @@ function info_GRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2
                         println("Final value of $str3 is ", f_now)
                         append!(f_list, f_now)
                         SaveFile_ctrl(f_list, ctrl_pre)
-                        break
+                        return f_now, grape.control_coefficients
                     else
                         episodes += 1
                         append!(f_list, f_now)
@@ -837,6 +843,7 @@ function info_GRAPE_CFIM(M, grape, max_episode, Adam, save_file, sym, str1, str2
             end
         end
     end
+    return f_now, grape.control_coefficients
 end
 
 function dynamics_analy(grape::GRAPE_Copt{T}, dim, tnum, para_num, ctrl_num) where {T<:Complex}
@@ -1317,3 +1324,5 @@ function gradient_CFIM_analy(M::Vector{Matrix{T}}, grape::GRAPE_Copt{T}) where {
     end
     grape.control_coefficients, cost_function
 end
+
+
