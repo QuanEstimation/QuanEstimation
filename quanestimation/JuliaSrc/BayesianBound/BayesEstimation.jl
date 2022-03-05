@@ -7,12 +7,8 @@ function Bayes(x, p, rho, M, y; save_file=false)
         if save_file == false
             for mi in 1:max_episode
                 res_exp = y[mi]
-                pyx = zeros(length(x[1]))
-                for xi in 1:length(x[1])
-                    pyx[xi] = real(tr(rho[xi]*M[res_exp]))
-                end
-                arr = [pyx[m]*p[m] for m in 1:length(x[1])]
-                py = trapz(x[1], arr)
+                pyx = real.(tr.(rho.*M[res_exp]))
+                py = trapz(x[1], pyx.*p)
                 p_update = pyx.*p/py
                 p = p_update
             end
@@ -23,12 +19,8 @@ function Bayes(x, p, rho, M, y; save_file=false)
             p_out, x_out = [], []
             for mi in 1:max_episode
                 res_exp = y[mi]
-                pyx = zeros(length(x[1]))
-                for xi in 1:length(x[1])
-                    pyx[xi] = real(tr(rho[xi]*M[res_exp]))
-                end
-                arr = [pyx[m]*p[m] for m in 1:length(x[1])]
-                py = trapz(x[1], arr)
+                pyx = real.(tr.(rho.*M[res_exp]))
+                py = trapz(x[1], pyx.*p)
                 p_update = pyx.*p/py
                 p = p_update
                 
@@ -95,10 +87,8 @@ function MLE(x, rho, M, y; save_file=false)
             L_out = ones(length(x[1]))
             for mi in 1:max_episode
                 res_exp = y[mi]
-                for xi in 1:length(x[1])
-                    p_tp = real(tr(rho[xi]*M[res_exp]))
-                    L_out[xi] = L_out[xi]*p_tp
-                end
+                p_tp = real.(tr.(rho.*[M[res_exp]]))
+                L_out = L_out.*p_tp
             end
             indx = findmax(L_out)[2]
             x_out = x[1][indx] 
@@ -108,10 +98,9 @@ function MLE(x, rho, M, y; save_file=false)
             L_tp = ones(length(x[1]))
             for mi in 1:max_episode
                 res_exp = y[mi]
-                for xi in 1:length(x[1])
-                    p_tp = real(tr(rho[xi]*M[res_exp]))
-                    L_tp[xi] = L_tp[xi]*p_tp
-                end
+                p_tp = real.(tr.(rho.*[M[res_exp]]))
+                L_tp = L_tp.*p_tp
+
                 indx = findmax(L_tp)[2]
                 append!(L_out, [L_tp])
                 append!(x_out, x[1][indx])

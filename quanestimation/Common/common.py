@@ -1,8 +1,10 @@
 import numpy as np
 import os
+import copy
 from scipy.sparse import csc_matrix
 from sympy import Matrix, GramSchmidt
-        
+from itertools import product
+
 def mat_vec_convert(A):
     if A.shape[1] == 1:
         dim = int(np.sqrt(len(A)))
@@ -135,4 +137,42 @@ def extract_ele(element, n):
             yield from extract_ele(x,n-1)
     else: 
         yield element
+
+def brgd(n):
+    if n==1:
+        return ["0","1"]
+    L0 = brgd(n-1)
+    L1 = copy.deepcopy(L0)
+    L1.reverse()
+    L0 = ["0" + i for i in L0]
+    L1 = ["1" + j for j in L1]
+    res = L0 + L1
+    return res
+
+def AdaptiveInput(x, func, dfunc, channel="dynamics"):
+    para_num = len(x)
+    size = [len(x[i]) for i in range(len(x))]
+    x_all = product(*x) 
+    if channel == "dynamics":
+        dim = len(func([0 for i in range(para_num)]))
+        H_list, dH_list = [], []
+        for xi in x_all:
+            H_list.append(func([i for i in xi]))
+            dH_list.append(dfunc([i for i in xi]))
+        H_res = np.reshape(H_list, [*size,*[dim,dim]])
+        dH_res = np.reshape(dH_list, [*size,*[para_num,dim,dim]])
+        return H_res, dH_res
+    elif channel == "kraus":
+        k_num = len(func([0 for i in range(para_num)]))
+        dim = len(func([0 for i in range(para_num)])[0])
+        K_list, dK_list = [], []
+        for xi in x_all:
+            K_list.append(func([i for i in xi]))
+            dK_list.append(dfunc([i for i in xi]))
+        K_res = np.reshape(K_list, [*size,*[k_num,dim,dim]])
+        dK_res = np.reshape(dK_list, [*size,*[para_num,k_num,dim,dim]])
+        return K_res, dK_res
+    else:
+        raise ValueError("{!r} is not a valid value for channel, supported values are 'dynamics' and 'kraus'.".format(channel))
+        
         
