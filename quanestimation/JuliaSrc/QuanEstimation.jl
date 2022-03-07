@@ -54,7 +54,7 @@ include("ComprehensiveOpt/AD_Compopt.jl")
 include("ComprehensiveOpt/PSO_Compopt.jl")
 include("ComprehensiveOpt/PSO_Compopt_Kraus.jl")
 include("Adaptive/adaptive.jl")
-# include("QuanResources/")
+include("Resources/Resources.jl")
 export QFI, QFIM, CFI, CFIM
 export suN_generator, expm
 ######## control optimization ########
