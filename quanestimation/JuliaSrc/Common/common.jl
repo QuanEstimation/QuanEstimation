@@ -140,3 +140,20 @@ function SIC(dim)
     fiducial = data[:,1]+1.0im*data[:,2]
     M = sic_povm(fiducial)
 end
+
+function AdaptiveInput(x, func, dfunc; channel="dynamics")
+    para_num = length(x)
+    x_size = [x[i] for i in 1:para_num]
+    x_list  =  Iterators.product(x...)
+    if channel == "dynamics"
+        H = [func(xi) for xi in x_list]
+        dH = [dfunc(xi) for xi in x_list]
+        return H, dH
+    elseif channel == "kraus"
+        K = [func(xi) for xi in x_list]
+        dK = [dfunc(xi) for xi in x_list]
+        return K, dK
+    else
+        throw("Supported values for channel are 'dynamics' and 'kraus'")
+    end
+end

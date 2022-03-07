@@ -55,21 +55,13 @@ class Lindblad:
             self.freeHamiltonian = np.array(H0, dtype=np.complex128)
         else:
             self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0] 
-        
-        if Hc == []:
-            Hc = [np.zeros((len(self.rho0), len(self.rho0)))]
-        self.control_Hamiltonian = [np.array(x, dtype=np.complex128) for x in Hc]
 
-        if type(dH) != list:
+        if type(dH[0]) != np.ndarray:
             raise TypeError("The derivative of Hamiltonian should be a list!") 
 
         if dH == []:
             dH = [np.zeros((len(self.rho0), len(self.rho0)))]
         self.Hamiltonian_derivative = [np.array(x, dtype=np.complex128) for x in dH]
-        
-        if ctrl == []:
-            ctrl = [np.zeros(len(self.tspan)-1) for i in range(len(self.control_Hamiltonian))]
-        self.control_coefficients = ctrl
         
         if decay == []:
             decay_opt = [np.zeros((len(self.rho0), len(self.rho0)))]
@@ -79,20 +71,32 @@ class Lindblad:
             self.gamma = [decay[i][1] for i in range(len(decay))]
         self.decay_opt = [np.array(x, dtype=np.complex128) for x in decay_opt]
 
-        ctrl_length = len(self.control_coefficients)
-        ctrlnum = len(self.control_Hamiltonian)
-        if ctrlnum < ctrl_length:
-            raise TypeError("There are %d control Hamiltonians but %d coefficients sequences: \
+        if Hc == []:
+            Hc = [np.zeros((len(self.rho0), len(self.rho0)))]
+            ctrl = [np.zeros(len(self.tspan)-1)]
+            self.control_Hamiltonian = [np.array(x, dtype=np.complex128) for x in Hc]
+            self.control_coefficients = ctrl
+        elif ctrl == []:
+            ctrl = [np.zeros(len(self.tspan)-1) for j in range(len(Hc))]
+            self.control_Hamiltonian = Hc
+            self.control_coefficients = ctrl
+        else:
+            ctrl_length = len(ctrl)
+            ctrlnum = len(Hc)
+            if ctrlnum < ctrl_length:
+                raise TypeError("There are %d control Hamiltonians but %d coefficients sequences: \
                                 too many coefficients sequences"%(ctrlnum,ctrl_length))
-        elif ctrlnum > ctrl_length:
-            warnings.warn("Not enough coefficients sequences: there are %d control Hamiltonians \
+            elif ctrlnum > ctrl_length:
+                warnings.warn("Not enough coefficients sequences: there are %d control Hamiltonians \
                             but %d coefficients sequences. The rest of the control sequences are\
                             set to be 0."%(ctrlnum,ctrl_length), DeprecationWarning)
         
-        number = math.ceil((len(self.tspan)-1)/len(self.control_coefficients[0]))
-        if len(self.tspan)-1 % len(self.control_coefficients[0]) != 0:
-            tnum = number*len(self.control_coefficients[0])
-            self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum+1)
+            number = math.ceil((len(self.tspan)-1)/len(ctrl[0]))
+            if len(self.tspan)-1 % len(ctrl[0]) != 0:
+                tnum = number*len(ctrl[0])
+                self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum+1)
+            self.control_Hamiltonian = Hc
+            self.control_coefficients = ctrl
 
     def expm(self):
         rho, drho = Main.QuanEstimation.expm(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.decay_opt, \
