@@ -29,7 +29,7 @@ from quanestimation.MeasurementOpt.AD_Mopt import (AD_Mopt,)
 from quanestimation.MeasurementOpt.PSO_Mopt import (PSO_Mopt,)
 from quanestimation.MeasurementOpt.DE_Mopt import (DE_Mopt,)
 
-from quanestimation.Resources.Resources import (squeezing_parameter, Concurrence, Entropy_VN, )
+from quanestimation.Resources.Resources import (SpinSqueezing, TargetTime )
 
 from quanestimation.StateOpt.StateStruct import (StateSystem, StateOpt,csv2npy_states, )
 from quanestimation.StateOpt.AD_Sopt import (AD_Sopt,)
@@ -48,7 +48,7 @@ Main.pkgpath = os.path.join(os.path.dirname(__file__))
 __all__ = ["ControlOpt", "StateOpt", "MeasurementOpt", "ComprehensiveOpt", 
            "CFIM", "QFIM","QFIM_Bloch", "BCFIM", "BQFIM", "LLD",  "RLD", "SLD", "Holevo_bound", 
            "BCRB","BQCRB", "OBB", "QVTB", "VTB","QZZB", "Bayes", "MLE",
-           "Lindblad", "squeezing_parameter", "Concurrence", "Entropy_VN",
+           "Lindblad", "SpinSqueezing", "TargetTime", 
            "GRAPE_Copt", "DE_Copt", "PSO_Copt", "DDPG_Copt",
            "AD_Mopt", "PSO_Mopt", "DE_Mopt",
            "AD_Sopt", "DE_Sopt", "PSO_Sopt", "DDPG_Sopt", "NM_Sopt",

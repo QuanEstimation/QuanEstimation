@@ -1,10 +1,10 @@
-
-#from qutip import *
+from functools import wraps
 from scipy.linalg import sqrtm
 from numpy.linalg import eigvals
 import numpy as np
+from more_itertools import zip_broadcast
 
-def squeezing_parameter(rho, N, option="Xi_S"):
+def SpinSqueezing(rho, basis="Dicke",output="KU"):
     """
     Description: Calculate spin squeezing parameter for a density matrix.
 
@@ -18,11 +18,11 @@ def squeezing_parameter(rho, N, option="Xi_S"):
        --description: density matrix.
        --type: matrix
        
-    option:
-       --description: if option=='Xi_S',the output of the squeezing parameter is defined by  
-                      Kitagawa and Ueda. if option=='Xi_R',the output of the squeezing 
+    output:
+       --description: if output=='KU',the output of the squeezing parameter is defined by  
+                      Kitagawa and Ueda. if output=='WBIMH',the output of the squeezing 
                       parameter is defined by Wineland et al.
-       --type: string {'Xi_S', 'Xi_R'}
+       --type: string {'KU', 'WBIMH'}
 
     ----------
     Returns
@@ -32,13 +32,15 @@ def squeezing_parameter(rho, N, option="Xi_S"):
        --type: float
 
     """
-    if type(rho) != Qobj:
-        rho = Qobj(rho)
+    N = len(rho)-1
         
     coef = 4./float(N)
-    Jx = jmat(N/2,'x')
-    Jy = jmat(N/2,'y')
-    Jz = jmat(N/2,'z')
+    j = N/2
+    offdiag = [np.sqrt(float(j*(j+1)-m*(m+1))) for m in np.arange(j, -j-1, -1)][1:]
+    Jp = np.matrix(np.diag(offdiag,1))
+    Jx = 0.5*(Jp + Jp.H)
+    Jy = -0.5*1j*(Jp - Jp.H)
+    Jz = np.diag(np.arange(j,-j-1,-1))
     Jx_mean = np.trace(rho*Jx)
     Jy_mean = np.trace(rho*Jy)
     Jz_mean = np.trace(rho*Jz)
@@ -46,7 +48,7 @@ def squeezing_parameter(rho, N, option="Xi_S"):
     costheta = Jz_mean/np.sqrt(Jx_mean**2+Jy_mean**2+Jz_mean**2)
     sintheta = np.sin(np.arccos(costheta))
     cosphi = Jx_mean/np.sqrt(Jx_mean**2+Jy_mean**2)
-    if np.trace(rho*Jy) > 0:
+    if Jy_mean > 0:
         sinphi = np.sin(np.arccos(cosphi))
     else:
         sinphi = np.sin(2*np.pi - np.arccos(cosphi))
@@ -62,59 +64,25 @@ def squeezing_parameter(rho, N, option="Xi_S"):
     if Xi > 1.0:
         Xi=1.0
         
-    if option == "Xi_S":
+    if output == "KU":
         Xi = Xi
-    elif option == "Xi_R":
+    elif output == "WBIMH":
         Xi = (N/2)**2*Xi/(Jx_mean**2+Jy_mean**2+Jz_mean**2)
     else:
-        raise NameError('NameError: option should be choosen in {Xi_S, Xi_R}')
+        raise NameError('NameError: output should be choosen in {KU, WBIMH}')
         
     return Xi
- 
-def Concurrence(rho):
-    """
-    Description: Calculate the concurrence entanglement measure for a two-qubit state.
-    ---------
-    Inputs
-    ---------
-    rho : 
-       --description: density matrix.
-       --type: matrix
 
-    ----------
-    Returns
-    ----------
-    concurrence : 
-       --description: concurrence.
-       --type: float
+def TargetTime(f, tspan, func, *args, **kwargs):
+    args = list(zip_broadcast(*args))
+
+    f_last = func(*(args[0]), **kwargs)
+    idx = 1
+    f_now = func(*(args[1]), **kwargs)
     
-    """
-    if type(rho) != Qobj:
-        rho = Qobj(rho)
-
-    return concurrence(rho)
-
-def Entropy_VN(rho):    
-    """
-    Description: Calculate the degree of quantum entanglement between two subsystems.
-    ---------
-    Inputs
-    ---------
-    rho : 
-       --description: reduced density matrix.
-       --type: matrix
-
-    ----------
-    Returns
-    ----------
-    Von Neumann entropy: 
-       --description: Von Neumann entropy of the reduced density matrix.
-       --type: float
+    while (f_now-f)*(f_last-f) > 0 and idx<(len(tspan)-1):
+        f_last = f_now
+        idx += 1
+        f_now = func(*(args[idx]), **kwargs)
     
-    """
-    eig_val = eigvals(rho)
-    S = 0
-    for i in range(len(eig_val)):
-        if eig_val[i] !=0:
-            S += -eig_val[i]*np.log(eig_val[i])
-    return np.real(S)
+    return tspan[idx]
