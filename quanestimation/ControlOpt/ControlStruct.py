@@ -5,7 +5,7 @@ import os
 import quanestimation.ControlOpt as ctrl
 
 class ControlSystem:
-    def __init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, eps):
+    def __init__(self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, ctrl0, load, eps):
         
         """
         ----------
@@ -44,10 +44,6 @@ class ControlSystem:
                           ctrl_bound[0] represent the lower bound of the control coefficients and
                           ctrl_bound[1] represent the upper bound of the control coefficients.
            --type: list 
-
-        W:
-            --description: weight matrix.
-            --type: matrix
         
         ctrl0:
             --description: initial control coefficients.
@@ -100,10 +96,6 @@ class ControlSystem:
         if ctrl_bound == []:
             ctrl_bound = [-np.inf, np.inf]
         self.ctrl_bound = ctrl_bound
-        
-        if W == []:
-            W = np.eye(len(self.Hamiltonian_derivative))
-        self.W = W
 
         self.eps = eps
         if load == True:

@@ -13,7 +13,6 @@ class DE_Copt(Control.ControlSystem):
         Hc,
         decay=[],
         ctrl_bound=[],
-        W=[],
         popsize=10,
         ctrl0=[],
         max_episode=1000,
@@ -24,7 +23,7 @@ class DE_Copt(Control.ControlSystem):
     ):
 
         Control.ControlSystem.__init__(
-            self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, eps=1e-8
+            self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, ctrl0, load, eps=1e-8
         )
 
         """
@@ -69,7 +68,7 @@ class DE_Copt(Control.ControlSystem):
         self.cr = cr
         self.seed = seed
 
-    def QFIM(self, save_file=False):
+    def QFIM(self, W=[], save_file=False):
         """
         Description: use differential evolution algorithm to update the control coefficients that maximize the
                      QFI (1/Tr(WF^{-1} with F the QFIM).
@@ -83,6 +82,10 @@ class DE_Copt(Control.ControlSystem):
                            False: save the control coefficients for the last episode and all the QFI (Tr(WF^{-1})).
             --type: bool
         """
+
+        if W == []:
+            W = np.eye(len(self.Hamiltonian_derivative))
+        self.W = W
 
         diffevo = Main.QuanEstimation.DE_Copt(
             self.freeHamiltonian,
@@ -108,7 +111,7 @@ class DE_Copt(Control.ControlSystem):
             save_file,
         )
 
-    def CFIM(self, M, save_file=False):
+    def CFIM(self, M, W=[], save_file=False):
         """
         Description: use differential evolution algorithm to update the control coefficients that maximize the
                      CFI (1/Tr(WF^{-1} with F the CFIM).
@@ -122,6 +125,11 @@ class DE_Copt(Control.ControlSystem):
             --type: bool
         """
         M = [np.array(x, dtype=np.complex128) for x in M]
+
+        if W == []:
+            W = np.eye(len(self.Hamiltonian_derivative))
+        self.W = W
+
         diffevo = Main.QuanEstimation.DE_Copt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
@@ -147,7 +155,7 @@ class DE_Copt(Control.ControlSystem):
             save_file,
         )
 
-    def HCRB(self, save_file=False):
+    def HCRB(self, W=[], save_file=False):
         """
         Description: use differential evolution algorithm to update the control coefficients that maximize the
                      HCRB.
@@ -167,6 +175,11 @@ class DE_Copt(Control.ControlSystem):
                 DeprecationWarning,
             )
         else:
+
+            if W == []:
+                W = np.eye(len(self.Hamiltonian_derivative))
+            self.W = W
+
             diffevo = Main.QuanEstimation.DE_Copt(
                 self.freeHamiltonian,
                 self.Hamiltonian_derivative,
@@ -191,10 +204,15 @@ class DE_Copt(Control.ControlSystem):
                 save_file,
             )
 
-    def mintime(self, f, target="QFIM", W=[], M=[], method="binary"):
+    def mintime(self, f, target="QFIM", dtype="SLD", W=[], M=[], method="binary"):
         if len(self.Hamiltonian_derivative) > 1:
             f = 1 / f
         M = [np.array(x, dtype=np.complex128) for x in M]
+
+        if W == []:
+            W = np.eye(len(self.Hamiltonian_derivative))
+        self.W = W
+
         diffevo = Main.QuanEstimation.DE_Copt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
@@ -227,6 +245,7 @@ class DE_Copt(Control.ControlSystem):
                 self.cr,
                 self.seed,
                 self.max_episode,
+                dtype,
             )
         elif target == "CFIM":
             Main.QuanEstimation.mintime(
@@ -241,6 +260,7 @@ class DE_Copt(Control.ControlSystem):
                 self.cr,
                 self.seed,
                 self.max_episode,
+                dtype,
             )
         elif target == "HCRB":
             Main.QuanEstimation.mintime(
@@ -254,6 +274,7 @@ class DE_Copt(Control.ControlSystem):
                 self.cr,
                 self.seed,
                 self.max_episode,
+                dtype,
             )
         else:
             warnings.warn(
