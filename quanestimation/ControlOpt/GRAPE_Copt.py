@@ -14,7 +14,6 @@ class GRAPE_Copt(Control.ControlSystem):
         Hc,
         decay=[],
         ctrl_bound=[],
-        W=[],
         auto=True,
         Adam=True,
         ctrl0=[],
@@ -26,7 +25,7 @@ class GRAPE_Copt(Control.ControlSystem):
     ):
 
         Control.ControlSystem.__init__(
-            self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, eps=1e-8
+            self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, ctrl0, load, eps=1e-8
         )
 
         """
@@ -73,7 +72,7 @@ class GRAPE_Copt(Control.ControlSystem):
         self.mt = 0.0
         self.vt = 0.0
 
-    def QFIM(self, save_file=False):
+    def QFIM(self, W=[], save_file=False):
         """
         Description: use auto-GRAPE (GRAPE) algorithm to update the control coefficients that maximize the
                      QFI (1/Tr(WF^{-1} with F the QFIM).
@@ -87,6 +86,11 @@ class GRAPE_Copt(Control.ControlSystem):
             --type: bool
 
         """
+
+        if W == []:
+            W = np.eye(len(self.Hamiltonian_derivative))
+        self.W = W
+
         grape = Main.QuanEstimation.GRAPE_Copt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
@@ -124,7 +128,7 @@ class GRAPE_Copt(Control.ControlSystem):
                     grape, self.max_episode, self.Adam, save_file
                 )
 
-    def CFIM(self, M, save_file=False):
+    def CFIM(self, M, W=[], save_file=False):
         """
         Description: use auto-GRAPE (GRAPE) algorithm to update the control coefficients that maximize the
                      CFI (1/Tr(WF^{-1} with F the CFIM).
@@ -138,6 +142,11 @@ class GRAPE_Copt(Control.ControlSystem):
 
         """
         M = [np.array(x, dtype=np.complex128) for x in M]
+
+        if W == []:
+            W = np.eye(len(self.Hamiltonian_derivative))
+        self.W = W
+
         grape = Main.QuanEstimation.GRAPE_Copt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
@@ -175,16 +184,21 @@ class GRAPE_Copt(Control.ControlSystem):
                     M, grape, self.max_episode, self.Adam, save_file
                 )
 
-    def HCRB(self, save_file=False):
+    def HCRB(self, W=[], save_file=False):
         warnings.warn(
             "GRAPE is not available when the objective function is HCRB. Supported methods are 'PSO', 'DE' and 'DDPG'.",
             DeprecationWarning,
         )
 
-    def mintime(self, f, target="QFIM", W=[], M=[], method="binary"):
+    def mintime(self, f, target="QFIM", dtype="SLD", W=[], M=[], method="binary"):
         if len(self.Hamiltonian_derivative) > 1:
-                f = 1 / f
+            f = 1 / f
         M = [np.array(x, dtype=np.complex128) for x in M]
+
+        if W == []:
+            W = np.eye(len(self.Hamiltonian_derivative))
+        self.W = W
+
         grape = Main.QuanEstimation.GRAPE_Copt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
@@ -219,6 +233,7 @@ class GRAPE_Copt(Control.ControlSystem):
                     f,
                     self.max_episode,
                     self.Adam,
+                    dtype,
                 )
             else:
                 Main.QuanEstimation.mintime(
@@ -228,6 +243,7 @@ class GRAPE_Copt(Control.ControlSystem):
                     f,
                     self.max_episode,
                     self.Adam,
+                    dtype,
                 )
         elif target == "CFIM":
             if self.auto:
@@ -239,6 +255,7 @@ class GRAPE_Copt(Control.ControlSystem):
                     M,
                     self.max_episode,
                     self.Adam,
+                    dtype,
                 )
             else:
                 Main.QuanEstimation.mintime(
@@ -249,6 +266,7 @@ class GRAPE_Copt(Control.ControlSystem):
                     M,
                     self.max_episode,
                     self.Adam,
+                    dtype,
                 )
         else:
             warnings.warn(
