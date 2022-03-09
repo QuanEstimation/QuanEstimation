@@ -80,7 +80,7 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{true}
     env.params.psi = state_new/norm(state_new)
 
     f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.M)
-    env.reward = -log(f_current/env.f_ini)
+    env.reward = log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
 
@@ -98,7 +98,7 @@ function _step_noiseless!(env::ControlEnv_noiseless, a, ::Val{true}, ::Val{false
     env.params.psi = state_new/norm(state_new)
 
     f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.M)
-    env.reward = -log(f_current/env.f_ini)
+    env.reward = log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
 
@@ -309,7 +309,7 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{true})
     env.params.psi = state_new/norm(state_new)
 
     f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.M)
-    env.reward = -log(f_current/env.f_ini)
+    env.reward = log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
 
@@ -327,7 +327,7 @@ function _step_noise!(env::ControlEnv_noise, a, ::Val{true}, ::Val{false})
     env.params.psi = state_new/norm(state_new)
 
     f_current = 1.0/obj_func(Val{env.sym}(), env.params, env.M)
-    env.reward = -log(f_current/env.f_ini)
+    env.reward = log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
 

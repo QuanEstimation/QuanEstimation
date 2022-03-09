@@ -59,13 +59,13 @@ function info_PSO_noiseless(M, pso, max_episode, particle_num, ini_particle, c0,
         particles[pj].psi = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
     end
 
-    qfi_ini = obj_func(Val{sym}(), pso, M)
+    f_ini = obj_func(Val{sym}(), pso, M)
 
     if length(typeof(pso)==TimeIndepend_noiseless ? pso.Hamiltonian_derivative : pso.dK) == 1
         println("single parameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
-        println("initial $str2 is $(1.0/qfi_ini)")      
-        f_list = [1.0/qfi_ini]
+        println("initial $str2 is $(1.0/f_ini)")      
+        f_list = [1.0/f_ini]
         if save_file==true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
@@ -110,8 +110,8 @@ function info_PSO_noiseless(M, pso, max_episode, particle_num, ini_particle, c0,
     else
         println("multiparameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
-        println("initial value of $str3 is $(qfi_ini)")       
-        f_list = [qfi_ini]
+        println("initial value of $str3 is $(f_ini)")       
+        f_list = [f_ini]
         if save_file==true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
@@ -254,13 +254,13 @@ function info_PSO_noise(M, pso, max_episode, particle_num, ini_particle, c0, c1,
         particles[pj].psi = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
     end
 
-    qfi_ini = obj_func(Val{sym}(), pso, M)
+    f_ini = obj_func(Val{sym}(), pso, M)
 
     if length(pso.Hamiltonian_derivative) == 1
         println("single parameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
-        println("initial $str2 is $(1.0/qfi_ini)")
-        f_list = [1.0/qfi_ini]
+        println("initial $str2 is $(1.0/f_ini)")
+        f_list = [1.0/f_ini]
         if save_file==true
             for ei in 1:(max_episode[1]-1)
                 #### train ####
@@ -305,8 +305,8 @@ function info_PSO_noise(M, pso, max_episode, particle_num, ini_particle, c0, c1,
     else
         println("multiparameter scenario")
         println("search algorithm: Particle Swarm Optimization (PSO)")
-        println("initial value of $str3 is $(qfi_ini)")
-        f_list = [qfi_ini]
+        println("initial value of $str3 is $(f_ini)")
+        f_list = [f_ini]
         if save_file==true
             for ei in 1:(max_episode[1]-1)
                 #### train ####

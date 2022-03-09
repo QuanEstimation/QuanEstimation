@@ -1,8 +1,7 @@
 import numpy as np
 from julia import Main
-from scipy.sparse import csr_matrix
 from scipy.linalg import sqrtm, schur, eigvals
-from quanestimation.Common.common import brgd
+from quanestimation.Common.common import brgd, annihilation
 
 class adaptMZI():
     def __init__(self, x, p, rho0):
@@ -11,13 +10,7 @@ class adaptMZI():
         self.p = p
         self.rho0 = rho0
         self.N = int(np.sqrt(len(rho0))) -1 
-        #### annihilation operator ####
-        n = self.N + 1
-        data = np.sqrt(np.arange(1, n, dtype=complex))
-        indices = np.arange(1, n)
-        indptr = np.arange(n+1)
-        indptr[-1] = n-1
-        self.a = csr_matrix((data, indices, indptr), shape=(n, n)).todense()
+        self.a = annihilation(self.N+1)
         
     def general(self):
         self.MZI_type = "general"
@@ -38,5 +31,3 @@ class adaptMZI():
         else:
             raise ValueError("{!r} is not a valid value for method, supported values are 'DE' and 'PSO'.".format(method))
             
-    
-        

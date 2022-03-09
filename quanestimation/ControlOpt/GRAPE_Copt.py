@@ -2,7 +2,7 @@ import numpy as np
 import warnings
 from julia import Main
 import quanestimation.ControlOpt.ControlStruct as Control
-
+from quanestimation.Common.common import SIC
 
 class GRAPE_Copt(Control.ControlSystem):
     def __init__(
@@ -14,7 +14,7 @@ class GRAPE_Copt(Control.ControlSystem):
         Hc,
         decay=[],
         ctrl_bound=[],
-        auto=True,
+        save_file=False,
         Adam=True,
         ctrl0=[],
         max_episode=300,
@@ -22,11 +22,11 @@ class GRAPE_Copt(Control.ControlSystem):
         beta1=0.90,
         beta2=0.99,
         load=False,
-    ):
+        eps=1e-8,
+        auto=True):
 
         Control.ControlSystem.__init__(
-            self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, ctrl0, load, eps=1e-8
-        )
+            self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, save_file, ctrl0, load, eps)
 
         """
         ----------
@@ -72,7 +72,7 @@ class GRAPE_Copt(Control.ControlSystem):
         self.mt = 0.0
         self.vt = 0.0
 
-    def QFIM(self, W=[], save_file=False):
+    def QFIM(self, W=[], dtype="SLD"):
         """
         Description: use auto-GRAPE (GRAPE) algorithm to update the control coefficients that maximize the
                      QFI (1/Tr(WF^{-1} with F the QFIM).
@@ -80,17 +80,15 @@ class GRAPE_Copt(Control.ControlSystem):
         ---------
         Inputs
         ---------
-        save_file:
-            --description: True: save all the control coefficients and QFI (Tr(WF^{-1})).
-                           False: save the control coefficients for the last episode and all the QFI (Tr(WF^{-1})).
-            --type: bool
+        W:
+            --description: weight matrix.
+            --type: matrix
 
         """
-
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
-
+        
         grape = Main.QuanEstimation.GRAPE_Copt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
@@ -107,46 +105,68 @@ class GRAPE_Copt(Control.ControlSystem):
             self.epsilon,
             self.beta1,
             self.beta2,
-            self.eps,
-        )
+            self.eps)
+        
         if self.auto == True:
-            Main.QuanEstimation.QFIM_autoGRAPE_Copt(
-                grape, self.max_episode, self.Adam, save_file
-            )
+            if dtype == "SLD":
+                Main.QuanEstimation.QFIM_autoGRAPE_Copt(grape, self.max_episode, self.Adam, self.save_file)
+            elif dtype == "RLD":
+                pass #### to be done
+            elif dtype == "LLD":
+                pass #### to be done
+            else:
+                raise ValueError("{!r} is not a valid value for dtype, supported \
+                                 values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
         else:
             if (len(self.tspan) - 1) != len(self.control_coefficients[0]):
-                warnings.warn(
-                    "GRAPE is not available when the length of each control is not equal to the \
-                               length of time, and is replaced by auto-GRAPE.",
-                    DeprecationWarning,
-                )
-                Main.QuanEstimation.QFIM_autoGRAPE_Copt(
-                    grape, self.max_episode, self.Adam, save_file
-                )
+                warnings.warn("GRAPE is not available when the length of each control is not \
+                               equal to the length of time, and is replaced by auto-GRAPE.",
+                               DeprecationWarning)
+                if dtype == "SLD":
+                    Main.QuanEstimation.QFIM_autoGRAPE_Copt(
+                        grape, self.max_episode, self.Adam, self.save_file)
+                elif dtype == "RLD":
+                    pass #### to be done
+                elif dtype == "LLD":
+                    pass #### to be done
+                else:
+                    raise ValueError("{!r} is not a valid value for dtype, supported \
+                                     values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
             else:
-                Main.QuanEstimation.QFIM_GRAPE_Copt(
-                    grape, self.max_episode, self.Adam, save_file
-                )
+                if dtype == "SLD":
+                    Main.QuanEstimation.QFIM_GRAPE_Copt(grape, self.max_episode, self.Adam, self.save_file)
+                elif dtype == "RLD":
+                    pass #### to be done
+                elif dtype == "LLD":
+                    pass #### to be done
+                else:
+                    raise ValueError("{!r} is not a valid value for dtype, supported \
+                                     values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
 
-    def CFIM(self, M, W=[], save_file=False):
+    def CFIM(self, M=[], W=[]):
+
         """
         Description: use auto-GRAPE (GRAPE) algorithm to update the control coefficients that maximize the
                      CFI (1/Tr(WF^{-1} with F the CFIM).
         ---------
         Inputs
         ---------
-        save_file:
-            --description: True: save all the control coefficients and CFI (Tr(WF^{-1})).
-                           False: save the control coefficients for the last episode and all the CFI (Tr(WF^{-1})).
-            --type: bool
-
+        M:
+            --description: a set of POVM.
+            --type: list of matrix
+            
+        W:
+            --description: weight matrix.
+            --type: matrix
         """
+        if M==[]:
+            M = SIC(len(self.rho0))
         M = [np.array(x, dtype=np.complex128) for x in M]
-
+        
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
-
+        
         grape = Main.QuanEstimation.GRAPE_Copt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
@@ -163,42 +183,34 @@ class GRAPE_Copt(Control.ControlSystem):
             self.epsilon,
             self.beta1,
             self.beta2,
-            self.eps,
-        )
+            self.eps)
+        
         if self.auto == True:
-            Main.QuanEstimation.CFIM_autoGRAPE_Copt(
-                M, grape, self.max_episode, self.Adam, save_file
-            )
+            Main.QuanEstimation.CFIM_autoGRAPE_Copt(M, grape, self.max_episode, self.Adam, self.save_file)
         else:
             if (len(self.tspan) - 1) != len(self.control_coefficients[0]):
-                warnings.warn(
-                    "GRAPE is not available when the length of each control is not equal to the length of time, \
-                               and is replaced by auto-GRAPE.",
-                    DeprecationWarning,
-                )
-                Main.QuanEstimation.CFIM_autoGRAPE_Copt(
-                    M, grape, self.max_episode, self.Adam, save_file
-                )
+                warnings.warn("GRAPE is not available when the length of each control is not equal to \
+                               the length of time, and is replaced by auto-GRAPE.", DeprecationWarning)
+                Main.QuanEstimation.CFIM_autoGRAPE_Copt(M, grape, self.max_episode, self.Adam, self.save_file)
             else:
-                Main.QuanEstimation.CFIM_GRAPE_Copt(
-                    M, grape, self.max_episode, self.Adam, save_file
-                )
+                Main.QuanEstimation.CFIM_GRAPE_Copt(M, grape, self.max_episode, self.Adam, self.save_file)
 
-    def HCRB(self, W=[], save_file=False):
-        warnings.warn(
-            "GRAPE is not available when the objective function is HCRB. Supported methods are 'PSO', 'DE' and 'DDPG'.",
-            DeprecationWarning,
-        )
+    def HCRB(self, W=[]):
+        warnings.warn("GRAPE is not available when the target function is HCRB. \
+                       Supported methods are 'PSO', 'DE' and 'DDPG'.", DeprecationWarning)
 
-    def mintime(self, f, target="QFIM", dtype="SLD", W=[], M=[], method="binary"):
+    def mintime(self, f, W=[], M=[], method="binary", target="QFIM", dtype="SLD"):
         if len(self.Hamiltonian_derivative) > 1:
             f = 1 / f
+            
+        if M==[]:
+            M = SIC(len(self.rho0))
         M = [np.array(x, dtype=np.complex128) for x in M]
-
+        
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
-
+        
         grape = Main.QuanEstimation.GRAPE_Copt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
@@ -215,37 +227,12 @@ class GRAPE_Copt(Control.ControlSystem):
             self.epsilon,
             self.beta1,
             self.beta2,
-            self.eps,
-        )
+            self.eps)
 
         if not (method == "binary" or method == "forward"):
-            warnings.warn(
-                "Method {!r} is currently not surppoted.".format(method),
-                DeprecationWarning,
-            )
-
-        if target == "QFIM":
-            if self.auto:
-                Main.QuanEstimation.mintime(
-                    Main.eval("Val{:" + method + "}()"),
-                    "QFIM_autoGRAPE_Copt",
-                    grape,
-                    f,
-                    self.max_episode,
-                    self.Adam,
-                    dtype,
-                )
-            else:
-                Main.QuanEstimation.mintime(
-                    Main.eval("Val{:" + method + "}()"),
-                    "QFIM_GRAPE_Copt",
-                    grape,
-                    f,
-                    self.max_episode,
-                    self.Adam,
-                    dtype,
-                )
-        elif target == "CFIM":
+            raise ValueError("{!r} is not a valid value for method, supported \
+                             values are 'binary' and 'forward'.".format(method))
+        if M != []:
             if self.auto:
                 Main.QuanEstimation.mintime(
                     Main.eval("Val{:" + method + "}()"),
@@ -254,9 +241,7 @@ class GRAPE_Copt(Control.ControlSystem):
                     f,
                     M,
                     self.max_episode,
-                    self.Adam,
-                    dtype,
-                )
+                    self.Adam)
             else:
                 Main.QuanEstimation.mintime(
                     Main.eval("Val{:" + method + "}()"),
@@ -265,13 +250,34 @@ class GRAPE_Copt(Control.ControlSystem):
                     f,
                     M,
                     self.max_episode,
-                    self.Adam,
-                    dtype,
-                )
+                    self.Adam)
         else:
-            warnings.warn(
-                "GRAPE is not available with the objective function {!r}. Supported methods are 'PSO', 'DE' and 'DDPG'.".format(
-                    target
-                ),
-                DeprecationWarning,
-            )
+            if target == "HCRB":
+                warnings.warn("GRAPE is not available when the target function is HCRB. \
+                       Supported methods are 'PSO', 'DE' and 'DDPG'.", DeprecationWarning)
+            elif target=="QFIM" and dtype=="SLD":
+                if self.auto:
+                    Main.QuanEstimation.mintime(
+                        Main.eval("Val{:" + method + "}()"),
+                        "QFIM_autoGRAPE_Copt",
+                        grape,
+                        f,
+                        self.max_episode,
+                        self.Adam)
+                else:
+                    Main.QuanEstimation.mintime(
+                        Main.eval("Val{:" + method + "}()"),
+                        "QFIM_GRAPE_Copt",
+                        grape,
+                        f,
+                        self.max_episode,
+                        self.Adam)
+            elif target=="QFIM" and dtype=="RLD":
+                pass #### to be done
+            elif target=="QFIM" and dtype=="LLD":
+                pass #### to be done
+            else:
+                raise ValueError("Please enter the correct values for target and dtype.\
+                                  Supported target are 'QFIM', 'CFIM' and 'HCRB',  \
+                                  supported dtype are 'SLD', 'RLD' and 'LLD'.") 
+                

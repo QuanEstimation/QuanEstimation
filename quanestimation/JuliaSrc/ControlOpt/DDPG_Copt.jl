@@ -172,7 +172,7 @@ function _step!(env::ControlEnv, a, ::Val{false}, ::Val{true})
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
     f_current = 1.0/obj_func(Val{env.sym}(), ρₜₙ, ∂ₓρₜₙ, env.params.W, env.M, env.params.eps)
-    reward_current = log(f_current/env.f_noctrl[env.t])
+    reward_current = -log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
     [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]
@@ -195,7 +195,7 @@ function _step!(env::ControlEnv, a, ::Val{false}, ::Val{false})
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.cnum
     f_current = 1.0/obj_func(Val{env.sym}(), ρₜₙ, ∂ₓρₜₙ, env.params.W, env.M, env.params.eps)
-    reward_current = log(f_current/env.f_noctrl[env.t])
+    reward_current = -log(f_current/env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
     [append!(env.ctrl_list[i], a[i]) for i in 1:length(a)]

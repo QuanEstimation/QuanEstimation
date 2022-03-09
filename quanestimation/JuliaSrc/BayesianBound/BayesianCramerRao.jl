@@ -1,19 +1,21 @@
 
 ########## Bayesian quantum Cramer-Rao bound ##########
-function BQCRB(x, p, rho, drho; b=[], db=[], btype=1, eps=1e-8)
+function BQCRB(x, p, rho, drho; b=nothing, db=nothing, dtype="SLD", btype=1, eps=1e-8)
     para_num = length(x)
 
-    if b==[]
+    if b==nothing
         b =  [zero(x) for x in x]
         db =  [zero(x) for x in x]
     end
-    if b!=[] && db==[] 
+    if b!=nothing && db==nothing 
         db = [zero(x) for x in x]
     end
     
     if para_num == 1    
-        p_num = length(p)
+        
         #### singleparameter senario ####
+        p_num = length(p)
+
         if typeof(drho[1]) == Vector{Matrix{ComplexF64}}
             drho = [drho[i][1] for i in 1:p_num]
         end
@@ -44,6 +46,7 @@ function BQCRB(x, p, rho, drho; b=[], db=[], btype=1, eps=1e-8)
         return F
     else
         #### multiparameter senario ####
+
         xnum = length(x)
         bs  =  Iterators.product(b...)
         dbs =  Iterators.product(db...)
@@ -65,20 +68,23 @@ function BQCRB(x, p, rho, drho; b=[], db=[], btype=1, eps=1e-8)
     end
 end
 
-function BCRB(x, p, rho, drho; M=[], b=[], db=[], btype=1, eps=1e-8)
+function BCRB(x, p, rho, drho; M::Union{AbstractVector,Nothing}=nothing, b=nothing, db=nothing, btype=1, eps=1e-8)
     para_num = length(x)
-    
-    if b==[]
+     
+    if b==nothing
         b =  [zero(x) for x in x]
         db =  [zero(x) for x in x]
     end
-    if b!=[] && db==[] 
+    if b!=nothing && db==nothing 
         db = [zero(x) for x in x]
     end
 
     if para_num == 1
-        p_num = length(p)
         #### singleparameter senario ####
+        p_num = length(p)
+        if M==nothing
+            M = SIC(size(rho[1])[1])
+        end
         if typeof(drho[1]) == Vector{Matrix{ComplexF64}}
             drho = [drho[i][1] for i in 1:p_num]
         end
@@ -90,7 +96,7 @@ function BCRB(x, p, rho, drho; M=[], b=[], db=[], btype=1, eps=1e-8)
         end
         F_tp = zeros(p_num)
         for i in 1:p_num
-            f = QFIM(rho[i], drho[i]; dtype=dtype, eps=eps)
+            f = CFI(rho[i], drho[i], M, eps)
             F_tp[i] = f
         end
         F = 0.0
@@ -108,7 +114,11 @@ function BCRB(x, p, rho, drho; M=[], b=[], db=[], btype=1, eps=1e-8)
         end
         return F
     else
-        #### multiparameter senario #### # TODO: SIC for multi-
+        #### multiparameter senario #### 
+        if M==nothing
+            M = SIC(size(vec(rho)[1])[1])
+        end
+
         xnum = length(x)
         bs  =  Iterators.product(b...)
         dbs =  Iterators.product(db...)
@@ -180,12 +190,12 @@ function QVTB(x, p, dp, rho, drho; dtype="SLD", btype=1, eps=1e-8)
     end
 end
 
-function VTB(x, p, dp, rho, drho; M=[], btype=1, eps=1e-8)
+function VTB(x, p, dp, rho, drho; M::Union{AbstractVector,Nothing}=nothing, btype=1, eps=1e-8)
     para_num = length(x)
     if para_num == 1
         #### singleparameter senario ####
         p_num = length(p)
-        if M==[]
+        if M==nothing
             M = SIC(size(rho[1])[1])
         end
         if typeof(drho[1]) == Vector{Matrix{ComplexF64}}
@@ -196,7 +206,7 @@ function VTB(x, p, dp, rho, drho; M=[], btype=1, eps=1e-8)
         end
         F_tp = zeros(p_num)
         for m in 1:p_num
-            F_tp[m] = CFI(rho[m], drho[m], M; eps=eps)
+            F_tp[m] = CFI(rho[m], drho[m], M, eps)
         end
         res = 0.0
         if btype==1
@@ -212,7 +222,10 @@ function VTB(x, p, dp, rho, drho; M=[], btype=1, eps=1e-8)
         end
         return res
     else
-        #### multiparameter senario #### # TODO: M for multi-
+        #### multiparameter senario #### 
+        if M==nothing
+            M = SIC(size(vec(rho)[1])[1])
+        end
         xnum = length(x)
         trapzm(x, integrands, slice_dim) =  [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
         Ip(p,dp) = dp*dp'/p^2
@@ -279,7 +292,7 @@ function OBB(x, p, dp, rho, drho, d2rho; dtype="SLD", eps=1e-8)
         F[m] = f
     end
 
-    prob = BVProblem(OBB_func, boundary_condition, [0.0, 0.0], (x1, x2), (F, J, x))
+    prob = BVProblem(OBB_func, boundary_condition, [0.0, 0.0], (x[1], x[end]), (F, J, x))
     sol = solve(prob, GeneralMIRK4(), dt=delta)
 
     bias = [sol.u[i][1] for i in 1:p_num] 

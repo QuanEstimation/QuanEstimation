@@ -8,7 +8,7 @@ import quanestimation.Adaptive as apt
 from quanestimation.Common.common import extract_ele
 from quanestimation.MeasurementOpt.MeasurementStruct import MeasurementOpt
 from quanestimation.Dynamics.dynamics import Lindblad
-from quanestimation.AsymptoticBound.CramerRao import QFIM
+from quanestimation.AsymptoticBound.CramerRao import QFIM, CFIM
 
 class adaptive():
     def __init__(self, x, p, rho0, max_episode=1000, eps=1e-8):
@@ -36,11 +36,13 @@ class adaptive():
             
         self.dynamic_type = "kraus"
         
-    def CFIM(self, M, W=[], save_file=False):
+    def CFIM(self, M=[], W=[], save_file=False):
+        if M==[]: 
+            M = SIC(len(self.rho0))
         if W == []:
             W = np.eye(len(self.x))
         self.W = W
-
+        
         if self.dynamic_type == "dynamics":
             adaptive_dynamics(self.x, self.p, M, self.tspan, self.rho0, self.H, self.dH, self.decay, self.Hc,\
                               self.ctrl, W, self.max_episode, self.eps, save_file)
@@ -54,7 +56,7 @@ class adaptive():
             W = np.identity(self.para_num)
         else:
             W = W
-        
+         
         if self.dynamic_type == "dynamics":
             if self.para_num == 1:
                 F = []
@@ -98,7 +100,7 @@ class adaptive():
             if self.para_num == 1:
                 F = []
                 for hi in range(len(K)):
-                    rho_tp = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K[hi]])  
+                    rho_tp = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K[hi]]) 
                     drho_tp = sum([np.dot(dKi, np.dot(rho0, Ki.conj().T)) + np.dot(Ki, np.dot(rho0, dKi.conj().T)) for (Ki,dKi) in zip(K[hi],dK[hi])]) 
                     F_tp = QFIM(rho_tp, drho_tp)
                     F.append(F_tp)
@@ -119,9 +121,10 @@ class adaptive():
                     dK_list.append(dK_ele)
                 F = []
                 for hi in range(len(p_list)):
-                    rho_tp = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K[hi]])  
+                    rho_tp = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K_list[hi]])  
+                    dK_reshape = [[dK_list[hi][i][j] for i in range(k_num)] for j in range(para_num)]
                     drho_tp = [sum([np.dot(dKi, np.dot(rho0, Ki.conj().T)) + np.dot(Ki, np.dot(rho0, dKi.conj().T)) \
-                                for (Ki, dKi) in zip(K[hi],dKj)]) for dKj in dK[hi]]
+                                for (Ki, dKi) in zip(K_list[hi],dKj)]) for dKj in dK_reshape]
                     F_tp = QFIM(rho_tp, drho_tp)
                     if np.linalg.det(F_tp) < eps:
                         F.append(eps)
@@ -145,10 +148,10 @@ def adaptive_dynamics(x, p, M, tspan, rho0, H, dH, decay, Hc, ctrl, W, max_episo
         p_num = len(p)
         
         F = []
-        for hi in range(len(H)):
+        for hi in range(p_num):
             dynamics = Lindblad(tspan, rho0, H[hi], dH[hi], decay=decay, Hc=Hc, ctrl=ctrl)
             rho_tp, drho_tp = dynamics.expm()
-            F_tp = QFIM(rho_tp[-1], drho_tp[-1])
+            F_tp = CFIM(rho_tp[-1], drho_tp[-1], M)
             F.append(F_tp)
             
         idx = np.argmax(F)
@@ -219,7 +222,7 @@ def adaptive_dynamics(x, p, M, tspan, rho0, H, dH, decay, Hc, ctrl, W, max_episo
         for hi in range(len(p_list)):
             dynamics = Lindblad(tspan, rho0, H_list[hi], dH_list[hi], decay=decay, Hc=Hc, ctrl=ctrl)
             rho_tp, drho_tp = dynamics.expm()
-            F_tp = QFIM(rho_tp[-1], drho_tp[-1])
+            F_tp = CFIM(rho_tp[-1], drho_tp[-1], M)
             if np.linalg.det(F_tp) < eps:
                 F.append(eps)
             else:
@@ -288,7 +291,7 @@ def adaptive_kraus(x, p, M, rho0, K, dK, W, max_episode, eps, save_file):
             rho_tp = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K[hi]])  
             drho_tp = [sum([(np.dot(dKi, np.dot(rho0, Ki.conj().T)) + np.dot(Ki, np.dot(rho0, dKi.conj().T))) \
                       for (Ki,dKi) in zip(K[hi],dKj)]) for dKj in dK[hi]]
-            F_tp = QFIM(rho_tp, drho_tp)
+            F_tp = CFIM(rho_tp, drho_tp, M)
             F.append(F_tp)
 
         idx = np.argmax(F)
@@ -351,13 +354,14 @@ def adaptive_kraus(x, p, M, rho0, K, dK, W, max_episode, eps, save_file):
             p_list.append(p_ele)
             K_list.append(K_ele)
             dK_list.append(dK_ele)
-                
+        k_num = len(K_list[0])        
         F = []
         for hi in range(len(p_list)):
             rho_tp = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K_list[hi]])  
+            dK_reshape = [[dK_list[hi][i][j] for i in range(k_num)] for j in range(para_num)]
             drho_tp = [sum([np.dot(dKi, np.dot(rho0, Ki.conj().T)) + np.dot(Ki, np.dot(rho0, dKi.conj().T)) \
-                      for (Ki, dKi) in zip(K_list[hi],dKj)]) for dKj in dK_list[hi]]
-            F_tp = QFIM(rho_tp, drho_tp)
+                      for (Ki, dKi) in zip(K_list[hi],dKj)]) for dKj in dK_reshape]
+            F_tp = CFIM(rho_tp, drho_tp, M)
             if np.linalg.det(F_tp) < eps:
                 F.append(eps)
             else:

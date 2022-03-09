@@ -5,7 +5,7 @@ import cvxpy as cp
 from quanestimation.Common import suN_generator
 from quanestimation.AsymptoticBound.CramerRao import QFIM
 
-def Holevo_bound(rho, drho, W, eps=1e-8):
+def HCRB(rho, drho, W, eps=1e-8):
     """
     Description: solve Holevo Cramer-Rao bound via the semidefinite program (SDP).
                  

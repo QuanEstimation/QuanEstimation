@@ -3,13 +3,13 @@
 import os
 from julia import Main
 
-from quanestimation.AsymptoticBound.CramerRao import (CFIM, QFIM, QFIM_Bloch, BCFIM, BQFIM, LLD, RLD, SLD,)
-from quanestimation.AsymptoticBound.Holevo import (Holevo_bound,)
-from quanestimation.BayesianBound.BayesianCramerRao import (BCRB, BQCRB, QVTB, VTB, OBB, )
+from quanestimation.AsymptoticBound.CramerRao import (CFIM, QFIM, QFIM_Bloch, QFIM_Gauss, QFIM_Kraus, FIM, LLD, RLD, SLD,)
+from quanestimation.AsymptoticBound.Holevo import (HCRB,)
+from quanestimation.BayesianBound.BayesianCramerRao import ( BCFIM, BQFIM, BCRB, BQCRB, QVTB, VTB, OBB, )
 from quanestimation.BayesianBound.ZivZakai import (QZZB,)
 from quanestimation.BayesianBound.BayesEstimation import (Bayes, MLE,)
 
-from quanestimation.Common.common import (mat_vec_convert, suN_generator, gramschmidt, SIC, AdaptiveInput, )
+from quanestimation.Common.common import (mat_vec_convert, suN_generator, gramschmidt, basis, SIC, annihilation, AdaptiveInput, )
 
 from quanestimation.ComprehensiveOpt.ComprehensiveStruct import (ComprehensiveSystem, ComprehensiveOpt, )
 from quanestimation.ComprehensiveOpt.AD_Compopt import (AD_Compopt,)
@@ -41,17 +41,15 @@ from quanestimation.StateOpt.NM_Sopt import (NM_Sopt,)
 from quanestimation.Adaptive.adaptive import (adaptive)
 from quanestimation.Adaptive.adaptMZI import (adaptMZI)
 
-
 Main.include("quanestimation/JuliaSrc/QuanEstimation.jl")
-Main.pkgpath = os.path.join(os.path.dirname(__file__))
 
 __all__ = ["ControlOpt", "StateOpt", "MeasurementOpt", "ComprehensiveOpt", 
-           "CFIM", "QFIM","QFIM_Bloch", "BCFIM", "BQFIM", "LLD",  "RLD", "SLD", "Holevo_bound", 
-           "BCRB","BQCRB", "OBB", "QVTB", "VTB","QZZB", "Bayes", "MLE",
-           "Lindblad", "SpinSqueezing", "TargetTime", 
+           "CFIM", "QFIM","QFIM_Bloch", "LLD",  "RLD", "SLD", "HCRB", "QFIM_Gauss", "QFIM_Kraus", "FIM",
+           "BCFIM", "BQFIM", "BCRB","BQCRB", "OBB", "QVTB", "VTB","QZZB", "Bayes", "MLE",
+           "Lindblad", "squeezing_parameter", "Concurrence", "Entropy_VN",
            "GRAPE_Copt", "DE_Copt", "PSO_Copt", "DDPG_Copt",
            "AD_Mopt", "PSO_Mopt", "DE_Mopt",
            "AD_Sopt", "DE_Sopt", "PSO_Sopt", "DDPG_Sopt", "NM_Sopt",
-           "mat_vec_convert", "suN_generator", "gramschmidt", "SIC", "AdaptiveInput",
+           "mat_vec_convert", "suN_generator", "gramschmidt", "basis", "SIC", "annihilation", "AdaptiveInput",
            "csv2npy_controls", "csv2npy_states", "csv2npy_measurements",
            "AD_Compopt", "DE_Compopt", "PSO_Compopt", "adaptive", "adaptMZI", ]

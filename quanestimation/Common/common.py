@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import copy
-from scipy.sparse import csc_matrix
+from scipy.sparse import csc_matrix, csr_matrix
 from sympy import Matrix, GramSchmidt
 from itertools import product
 
@@ -81,7 +81,7 @@ def gramschmidt(A):
         Q[j] = q/rjj
     return Q
 
-def get_basis(dim, index):
+def basis(dim, index):
     x = np.zeros(dim)
     x[index] = 1.0
     return x.reshape(dim,1)
@@ -102,9 +102,9 @@ def sic_povm(fiducial):
     for i in range(d):
         for j in range(d):
             if j != (d-1):
-                X += np.dot(get_basis(d, j+1), get_basis(d,j).transpose().conj())
+                X += np.dot(basis(d, j+1), basis(d,j).transpose().conj())
             else:
-                X += np.dot(get_basis(d, 0), get_basis(d,j).transpose().conj())
+                X += np.dot(basis(d, 0), basis(d,j).transpose().conj())
     X = X/d
     
     D = [[[] for i in range(d)] for j in range(d)]
@@ -124,19 +124,30 @@ def sic_povm(fiducial):
     return res
 
 def SIC(dim):
-    file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),'sic_fiducial_vectors/d%d.txt'%(dim))
-    data = np.loadtxt(file_path)
-    fiducial = data[:,0] + data[:,1]*1.0j
-    fiducial = np.array(fiducial).reshape(len(fiducial),1) 
-    M = sic_povm(fiducial)
-    return M
-
+    if dim <= 151:
+        file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),'sic_fiducial_vectors/d%d.txt'%(dim))
+        data = np.loadtxt(file_path)
+        fiducial = data[:,0] + data[:,1]*1.0j
+        fiducial = np.array(fiducial).reshape(len(fiducial),1) 
+        M = sic_povm(fiducial)
+        return M
+    else:
+        raise ValueError("The dimension of the space should be less or equal to 151.")
+        
 def extract_ele(element, n):
     if n:
         for x in element: 
             yield from extract_ele(x,n-1)
     else: 
         yield element
+        
+def annihilation(n):
+    data = np.sqrt(np.arange(1, n, dtype=complex))
+    indices = np.arange(1, n)
+    indptr = np.arange(n+1)
+    indptr[-1] = n-1
+    a = csr_matrix((data, indices, indptr), shape=(n, n)).todense()
+    return a
 
 def brgd(n):
     if n==1:
@@ -174,5 +185,4 @@ def AdaptiveInput(x, func, dfunc, channel="dynamics"):
         return K_res, dK_res
     else:
         raise ValueError("{!r} is not a valid value for channel, supported values are 'dynamics' and 'kraus'.".format(channel))
-        
         

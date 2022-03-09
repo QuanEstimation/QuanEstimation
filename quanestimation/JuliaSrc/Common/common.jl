@@ -86,7 +86,7 @@ function suN_generator(n)
     return result
 end
 
-function get_basis(dim, index)
+function basis(dim, index)
     x = zeros(dim)
     x[index] = 1.0
     return x
@@ -107,9 +107,9 @@ function sic_povm(fiducial)
     for i in 1:d
         for j in 1:d
             if j != d
-                X += get_basis(d, j+1)*get_basis(d,j)'
+                X += basis(d, j+1)*basis(d,j)'
             else
-                X += get_basis(d, 1)* get_basis(d,j)'
+                X += basis(d, 1)* basis(d,j)'
             end
         end
     end
@@ -134,9 +134,9 @@ function sic_povm(fiducial)
     end
     return res
 end
-
+ 
 function SIC(dim)
-    data = readdlm("$(Main.pkgpath)/sic_fiducial_vectors/d$(dim).txt", '\t', Float64, '\n')
+    data = readdlm("$(pkgpath)/sic_fiducial_vectors/d$(dim).txt", '\t', Float64, '\n')
     fiducial = data[:,1]+1.0im*data[:,2]
     M = sic_povm(fiducial)
 end
