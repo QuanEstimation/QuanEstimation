@@ -170,8 +170,9 @@ class PSO_Copt(Control.ControlSystem):
             self.c2,
             self.seed,
             self.save_file)
-
+        
     def HCRB(self, W=[]):
+
         """
         Description: use particle swarm optimization algorithm to update the control coefficients
                      that maximize the HCRB.
@@ -192,6 +193,11 @@ class PSO_Copt(Control.ControlSystem):
                            Please choose QFIM as the target function for control optimization",\
                            DeprecationWarning)
         else:
+
+            if W == []:
+                W = np.eye(len(self.Hamiltonian_derivative))
+            self.W = W
+
             pso = Main.QuanEstimation.PSO_Copt(
                 self.freeHamiltonian,
                 self.Hamiltonian_derivative,

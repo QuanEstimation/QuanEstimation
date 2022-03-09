@@ -66,7 +66,7 @@ end
 
 #========================================================#
 ####################### calculate QFI ####################
-function QFI(ρ, dρ, eps)
+function QFI(ρ, dρ, eps::Number)
     SLD_tp = SLD(ρ, dρ, eps)
     SLD2_tp = SLD_tp * SLD_tp
     F = tr(ρ * SLD2_tp)

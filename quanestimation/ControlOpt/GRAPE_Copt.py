@@ -144,6 +144,7 @@ class GRAPE_Copt(Control.ControlSystem):
                                      values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
 
     def CFIM(self, M=[], W=[]):
+
         """
         Description: use auto-GRAPE (GRAPE) algorithm to update the control coefficients that maximize the
                      CFI (1/Tr(WF^{-1} with F the CFIM).

@@ -29,7 +29,7 @@ from quanestimation.MeasurementOpt.AD_Mopt import (AD_Mopt,)
 from quanestimation.MeasurementOpt.PSO_Mopt import (PSO_Mopt,)
 from quanestimation.MeasurementOpt.DE_Mopt import (DE_Mopt,)
 
-from quanestimation.Resources.Resources import (squeezing_parameter, Concurrence, Entropy_VN, )
+from quanestimation.Resources.Resources import (SpinSqueezing, TargetTime )
 
 from quanestimation.StateOpt.StateStruct import (StateSystem, StateOpt,csv2npy_states, )
 from quanestimation.StateOpt.AD_Sopt import (AD_Sopt,)

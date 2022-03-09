@@ -54,6 +54,7 @@ class DDPG_Copt(Control.ControlSystem):
         self.seed = seed
 
     def QFIM(self, W=[], dtype="SLD"):
+
         """
         Description: use DDPG algorithm to update the control coefficients that maximize the
                      QFI (1/Tr(WF^{-1} with F the QFIM).
@@ -195,7 +196,7 @@ class DDPG_Copt(Control.ControlSystem):
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
-        
+
         ddpg = Main.QuanEstimation.DDPG_Copt(
                 self.freeHamiltonian,
                 self.Hamiltonian_derivative,

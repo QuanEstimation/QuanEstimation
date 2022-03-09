@@ -115,6 +115,7 @@ class DE_Copt(Control.ControlSystem):
                              values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
 
     def CFIM(self, M=[], W=[]):
+
         """
         Description: use differential evolution algorithm to update the control coefficients that maximize the
                      CFI (1/Tr(WF^{-1} with F the CFIM).
@@ -182,6 +183,11 @@ class DE_Copt(Control.ControlSystem):
                            Please choose QFIM as the target function for control optimization",\
                            DeprecationWarning)
         else:
+
+            if W == []:
+                W = np.eye(len(self.Hamiltonian_derivative))
+            self.W = W
+
             diffevo = Main.QuanEstimation.DE_Copt(
                 self.freeHamiltonian,
                 self.Hamiltonian_derivative,

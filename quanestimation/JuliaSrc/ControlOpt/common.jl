@@ -97,7 +97,7 @@ function SaveFile_ddpg(f_now::Vector{Float64}, reward::Vector{Float64}, control)
 end
 
 ###################### mintime opt #############################
-function mintime(::Val{:binary}, opt::String, system, f, args...)
+function mintime(::Val{:binary}, opt::String, system, f, args...,dtype)
     tspan = system.tspan
     ctrl = system.control_coefficients
     low, high = 1, length(tspan)
@@ -129,7 +129,7 @@ function mintime(::Val{:binary}, opt::String, system, f, args...)
     println("The minimum time to reach target is ", system.tspan[end],", data saved.")
 end
 
-function mintime(::Val{:forward}, opt::String, system, f, args...)
+function mintime(::Val{:forward}, opt::String, system, f, args..., dtype)
     tspan = system.tspan
     ctrl = system.control_coefficients
     idx = 2

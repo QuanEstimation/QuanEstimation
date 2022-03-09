@@ -14,6 +14,8 @@ function vec2mat(x::Matrix)
     throw(ErrorException("vec2mating a matrix of size $(size(x))"))
 end
 
+unzip(X) = map(x->getfield.(X, x), fieldnames(eltype(X)))
+
 function Base.repeat(system, N)
     [deepcopy(system) for i in 1:N]
 end
