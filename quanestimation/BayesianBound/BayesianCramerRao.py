@@ -7,6 +7,185 @@ from itertools import product
 from quanestimation.AsymptoticBound.CramerRao import CFIM, QFIM, SLD
 from quanestimation.Common.common import SIC, extract_ele
 
+def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
+    """
+    Description: Calculation Bayesian version of classical Fisher information 
+                 matrix (CFIM) for a density matrix.
+
+    ---------
+    Inputs
+    ---------
+    x:
+        --description: the regimes of x for the integral.
+        --type: list of arrays
+
+    p:
+        --description: the prior distribution.
+        --type: multidimensional array
+
+    rho:
+        --description: parameterized density matrix.
+        --type: multidimensional lists
+
+    drho:
+        --description: derivatives of density matrix (rho) on all parameters  
+                       to be estimated. 
+        --type: multidimensional lists
+
+    M:
+       --description: a set of POVM. It takes the form [M1, M2, ...].
+       --type: list (of matrix)
+
+    ----------
+    Returns
+    ----------
+    BCFIM:
+        --description: Bayesian version of classical Fisher information matrix. 
+                       If the length of x is one, the output is a float number (BCFI),
+                       otherwise it returns a matrix (BCFIM).
+        --type: float number (BCFI) or matrix (BCFIM)
+
+    """
+    para_num = len(x)
+    if para_num == 1: 
+        #### singleparameter senario ####
+        if M==[]: 
+            M = SIC(len(rho[0]))
+        else:
+            if type(M) != list:
+                raise TypeError("Please make sure M is a list!")
+
+        p_num = len(p)
+        if type(drho[0]) == list:
+            drho = [drho[i][0] for i in range(p_num)]
+        p_num = len(p)
+        F_tp = np.zeros(p_num)
+        for m in range(p_num):
+            F_tp[m] = CFIM(rho[m], [drho[m]], M=M, eps=eps)
+
+        arr = [p[i]*F_tp[i] for i in range(p_num)]
+        return simps(arr, x[0])
+    else:
+        #### multiparameter senario ####
+        p_shape = np.shape(p)
+        p_ext = extract_ele(p, para_num)
+        rho_ext = extract_ele(rho, para_num)
+        drho_ext = extract_ele(drho, para_num)
+
+        p_list, rho_list, drho_list = [], [], []
+        for p_ele, rho_ele, drho_ele in zip(p_ext, rho_ext, drho_ext):
+            p_list.append(p_ele)
+            rho_list.append(rho_ele)
+            drho_list.append(drho_ele)
+   
+        dim = len(rho_list[0])
+        if M==[]: 
+            M = SIC(dim)
+        else:
+            if type(M) != list:
+                raise TypeError("Please make sure M is a list!")
+
+        F_list = [[[0.0 for i in range(len(p_list))] for j in range(para_num)] for k in range(para_num)]
+        for i in range(len(p_list)):
+            F_tp = CFIM(rho_list[i], drho_list[i], M=M, eps=eps)
+            for pj in range(para_num):
+                for pk in range(para_num):
+                    F_list[pj][pk][i] = F_tp[pj][pk]
+
+        BCFIM_res = np.zeros([para_num,para_num])
+        for para_i in range(0, para_num):
+            for para_j in range(para_i, para_num):
+                F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
+                arr = p*F_ij
+                for si in range(para_num):
+                    arr = simps(arr, x[si])
+                BCFIM_res[para_i][para_j] = arr
+                BCFIM_res[para_j][para_i] = arr
+        return BCFIM_res
+    
+def BQFIM(x, p, rho, drho, dtype="SLD", eps=1e-8):
+    """
+    Description: Calculation of Bayesian version of quantum Fisher information 
+                 matrix (QFIM) for a density matrix.
+
+    ----------
+    Inputs
+    ----------
+    x:
+        --description: the regimes of x for the integral.
+        --type: list of arrays
+
+    p:
+        --description: the prior distribution.
+        --type: multidimensional array
+
+    rho:
+        --description: parameterized density matrix.
+        --type: multidimensional lists
+
+    drho:
+        --description: derivatives of density matrix (rho) on all parameters  
+                       to be estimated. For example, 
+        --type: multidimensional lists
+
+    dtype:
+        --description: the type of logarithmic derivatives.
+        --type: string {'SLD', 'RLD', 'LLD'}
+           
+    ----------
+    Returns
+    ----------
+    BQFIM:
+        --description: Bayesian version of quantum Fisher information matrix. 
+                       If the length of x is 1, the output is a float number (BQFI),
+                       otherwise it returns a matrix (BQFIM).
+        --type: float number (BQFI) or matrix (BQFIM)
+
+    """
+
+    para_num = len(x)
+    if para_num == 1: 
+        #### singleparameter senario ####
+        p_num = len(p)
+        if type(drho[0]) == list:
+            drho = [drho[i][0] for i in range(p_num)]
+        
+        F_tp = np.zeros(p_num)
+        for m in range(p_num):
+            F_tp[m] = QFIM(rho[m], [drho[m]], dtype=dtype, eps=eps)
+        arr = [p[i]*F_tp[i] for i in range(p_num)]
+        return simps(arr, x[0])
+    else:
+        #### multiparameter senario ####
+        p_shape = np.shape(p)
+        p_ext = extract_ele(p, para_num)
+        rho_ext = extract_ele(rho, para_num)
+        drho_ext = extract_ele(drho, para_num)
+
+        p_list, rho_list, drho_list = [], [], []
+        for p_ele, rho_ele, drho_ele in zip(p_ext, rho_ext, drho_ext):
+            p_list.append(p_ele)
+            rho_list.append(rho_ele)
+            drho_list.append(drho_ele)
+
+        F_list = [[[0.0 for i in range(len(p_list))] for j in range(para_num)] for k in range(para_num)]
+        for i in range(len(p_list)):
+            F_tp = QFIM(rho_list[i], drho_list[i], dtype=dtype, eps=eps)
+            for pj in range(para_num):
+                for pk in range(para_num):
+                    F_list[pj][pk][i] = F_tp[pj][pk]
+
+        BQFIM_res = np.zeros([para_num,para_num])
+        for para_i in range(0, para_num):
+            for para_j in range(para_i, para_num):
+                F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
+                arr = p*F_ij
+                for si in range(para_num):
+                    arr = simps(arr, x[si])
+                BQFIM_res[para_i][para_j] = arr
+                BQFIM_res[para_j][para_i] = arr
+        return BQFIM_res
+    
 def BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
     para_num = len(x)
     if para_num==1:

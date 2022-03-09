@@ -158,7 +158,6 @@ function info_DE_Copt(M, DE, popsize, ini_population, c, cr, seed, max_episode, 
         end
         return 1/f_list[end], populations[indx].control_coefficients
     end
-    
 end
 
 function DE_train_Copt(M, populations, c, cr, p_num, ctrl_num, ctrl_length, p_fit, sym)

@@ -8,6 +8,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
         self,
         mtype,
         minput,
+        save_file=False,
         popsize=10,
         measurement0=[],
         max_episode=1000,
@@ -15,11 +16,10 @@ class DE_Mopt(Measurement.MeasurementSystem):
         cr=0.5,
         seed=1234,
         load=False,
-    ):
+        eps=1e-8):
 
         Measurement.MeasurementSystem.__init__(
-            self, mtype, minput, measurement0, seed, load, eps=1e-8
-        )
+            self, mtype, minput, save_file, measurement0, seed, load, eps)
 
         """
         --------
@@ -55,7 +55,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
         self.c = c
         self.cr = cr
 
-    def CFIM(self, W=[], save_file=False):
+    def CFIM(self, W=[]):
         """
         Description: use differential evolution algorithm to update the measurements that maximize the
                      CFI (1/Tr(WF^{-1} with F the CFIM).
@@ -63,10 +63,9 @@ class DE_Mopt(Measurement.MeasurementSystem):
         ---------
         Inputs
         ---------
-        save_file:
-            --description: True: save the measurements for each episode but overwrite in the next episode and all the CFI (Tr(WF^{-1})).
-                           False: save the measurements for the last episode and all the CFI (Tr(WF^{-1})).
-            --type: bool
+        W:
+            --description: weight matrix.
+            --type: matrix
         """
         if self.mtype == "projection":
             if self.dynamics_type == "dynamics":
@@ -83,8 +82,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.gamma,
                     self.M,
                     self.W,
-                    self.eps,
-                )
+                    self.eps)
                 Main.QuanEstimation.CFIM_DE_Mopt(
                     diffevo,
                     self.popsize,
@@ -93,9 +91,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.cr,
                     self.seed,
                     self.max_episode,
-                    save_file,
-                )
-
+                    self.save_file)
             elif self.dynamics_type == "kraus":
                 if W == []:
                     W = np.eye(len(self.dK))
@@ -107,8 +103,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.rho0,
                     self.M,
                     self.W,
-                    self.eps,
-                )
+                    self.eps)
                 Main.QuanEstimation.CFIM_DE_Mopt(
                     diffevo,
                     self.popsize,
@@ -117,11 +112,8 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.cr,
                     self.seed,
                     self.max_episode,
-                    save_file,
-                )
-
+                    self.save_file)
             self.load_save()
-
         elif self.mtype == "input":
             if self.dynamics_type == "dynamics":
                 if W == []:
@@ -138,8 +130,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.povm_basis,
                     self.M_num,
                     self.W,
-                    self.eps,
-                )
+                    self.eps)
                 Main.QuanEstimation.CFIM_DE_Mopt(
                     diffevo,
                     self.popsize,
@@ -147,8 +138,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.cr,
                     self.seed,
                     self.max_episode,
-                    save_file,
-                )
+                    self.save_file)
             elif self.dynamics_type == "kraus":
                 if W == []:
                     W = np.eye(len(self.dK))
@@ -161,8 +151,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.povm_basis,
                     self.M_num,
                     self.W,
-                    self.eps,
-                )
+                    self.eps)
                 Main.QuanEstimation.CFIM_DE_Mopt(
                     diffevo,
                     self.popsize,
@@ -170,11 +159,8 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.cr,
                     self.seed,
                     self.max_episode,
-                    save_file,
-                )
-
+                    self.save_file)
             self.load_save()
-
         elif self.mtype == "rotation":
             if self.dynamics_type == "dynamics":
                 if W == []:
@@ -190,8 +176,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.gamma,
                     self.povm_basis,
                     self.W,
-                    self.eps,
-                )
+                    self.eps)
                 Main.QuanEstimation.CFIM_DE_Mopt(
                     diffevo,
                     self.popsize,
@@ -199,8 +184,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.cr,
                     self.seed,
                     self.max_episode,
-                    save_file,
-                )
+                    self.save_file)
             elif self.dynamics_type == "kraus":
                 if W == []:
                     W = np.eye(len(self.dK))
@@ -212,8 +196,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.rho0,
                     self.povm_basis,
                     self.W,
-                    self.eps,
-                )
+                    self.eps)
                 Main.QuanEstimation.CFIM_DE_Mopt(
                     diffevo,
                     self.popsize,
@@ -221,12 +204,8 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.cr,
                     self.seed,
                     self.max_episode,
-                    save_file,
-                )
+                    self.save_file)
             self.load_save()
         else:
-            raise ValueError(
-                "{!r} is not a valid value for mtype, supported values are 'projection' and 'input'.".format(
-                    self.mtype
-                )
-            )
+            raise ValueError("{!r} is not a valid value for mtype, supported values are \
+                             'projection' and 'input'.".format(self.mtype))

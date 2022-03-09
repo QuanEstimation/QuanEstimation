@@ -1,8 +1,11 @@
-function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, M::AbstractVector, tspan, H, dH; 
-                decay::Union{Vector,Nothing}=nothing, Hc::Union{Vector,Nothing}=nothing, ctrl::Union{Vector,Nothing}=nothing, 
+function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; decay::Union{Vector,Nothing}=nothing, 
+                Hc::Union{Vector,Nothing}=nothing, ctrl::Union{Vector,Nothing}=nothing, M::Union{AbstractVector,Nothing}=nothing, 
                 W::Union{Matrix,Nothing}=nothing, max_episode::Int=1000, eps::Float64=1e-8, save_file=false)
     dim = size(rho0)[1]
     para_num = length(x)
+    if M == nothing
+        M = SIC(size(rho0)[1])
+    end
     if decay == nothing
         decay_opt = [zeros(ComplexF64, dim, dim)]
         gamma = [0.0]
@@ -38,10 +41,10 @@ function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, M::AbstractVector,
         #### singleparameter senario ####
         p_num = length(p)
 
-        F = zeros(length(p_num))
-        for hi in 1:length(p_num)
+        F = zeros(p_num)
+        for hi in 1:p_num
             rho_tp, drho_tp = dynamics(H[hi], dH[hi][1], rho0, decay_opt, gamma, Hc, ctrl, tspan)
-            F[hi] = CFI(rho_tp, drho_tp, M; eps=eps)
+            F[hi] = CFI(rho_tp, drho_tp, M, eps)
         end
         idx = findmax(F)[2]
         x_opt = x[1][idx]
@@ -52,9 +55,9 @@ function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, M::AbstractVector,
         for ei in 1:max_episode
             rho = [zeros(ComplexF64, dim, dim) for i in 1:p_num]
             for hj in 1:p_num
-                x_indx = findmin(abs.(x[1] .- (x[1][hj]+u)))[2]
-                H_tp = H[x_indx]
-                dH_tp = dH[x_indx]
+                x_idx = findmin(abs.(x[1] .- (x[1][hj]+u)))[2]
+                H_tp = H[x_idx]
+                dH_tp = dH[x_idx]
                 rho_tp, drho_tp = dynamics(H_tp, dH_tp[1], rho0, decay_opt, gamma, Hc, ctrl, tspan)
                 rho[hj] = rho_tp
             end
@@ -69,8 +72,8 @@ function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, M::AbstractVector,
             py = trapz(x[1], pyx.*p)
             p_update = pyx.*p/py
             p = p_update 
-            indx_p = findmax(p)[2]
-            x_out = x[1][indx_p]
+            p_idx = findmax(p)[2]
+            x_out = x[1][p_idx]
             println("The estimator is $x_out ($ei episodes)")
             u = x_opt - x_out
 
@@ -106,12 +109,13 @@ function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, M::AbstractVector,
         end
     else
         #### multiparameter senario ####
+        p_num = length(p|>vec)
         x_list = [(Iterators.product(x...))...]
 
         dynamics_res = [dynamics(H_tp, dH_tp, rho0, decay_opt, gamma, Hc, ctrl, tspan) for (H_tp, dH_tp) in zip(H, dH)]
-        F_all = zeros(length(p |> vec))
-        for hi in 1:length(p |> vec) 
-            F_tp = QFIM(dynamics_res[hi][1], dynamics_res[hi][2], eps)
+        F_all = zeros(p_num)
+        for hi in 1:p_num
+            F_tp = CFIM(dynamics_res[hi][1], dynamics_res[hi][2], M, eps)
             F_all[hi] = abs(det(F_tp)) < eps ? eps : 1.0/real(tr(W*inv(F_tp)))
         end
         F = reshape(F_all, size(p))
@@ -122,8 +126,8 @@ function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, M::AbstractVector,
         u = [0.0 for i in 1:para_num]
         y, xout, pout = [], [], []
         for ei in 1:max_episode
-            rho = Array{Matrix{ComplexF64}}(undef, length(p|>vec))
-            for hj in 1:length(p|>vec)
+            rho = Array{Matrix{ComplexF64}}(undef, p_num)
+            for hj in 1:p_num
                 x_idx = [findmin(abs.(x[k] .- (x_list[hj][k]+u[k])))[2] for k in 1:para_num]
                 H_tp = H[x_idx...]
                 dH_tp = dH[x_idx...]

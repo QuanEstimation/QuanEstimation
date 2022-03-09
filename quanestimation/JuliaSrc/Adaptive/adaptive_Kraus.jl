@@ -1,10 +1,14 @@
-function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, M::AbstractVector, K, 
-    dK; W::Union{Matrix,Nothing}=nothing, max_episode::Int=1000, eps::Float64=1e-8, save_file=false)
+function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; M::Union{AbstractVector,Nothing}=nothing, 
+    W::Union{Matrix,Nothing}=nothing, max_episode::Int=1000, eps::Float64=1e-8, save_file=false)
     dim = size(rho0)[1]
     para_num = length(x)
 
     if W == nothing
         W = zeros(para_num, para_num)
+    end
+
+    if M == nothing
+        M = SIC(size(rho0)[1])
     end
     
     if para_num == 1
@@ -77,12 +81,15 @@ function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, M::AbstractVector,
         end
     else
         #### multiparameter senario ####
+        k_num = length(vec(K)[1])
+        para_num = length(x)
         x_list = [(Iterators.product(x...))...]
 
         rho_tp = [sum([Ki*rho0*Ki' for Ki in K_tp]) for K_tp in K]
         
-        drho_tp = [[sum([dKi*rho0*Ki' + Ki*rho0*dKi' for (Ki,dKi) in zip(K_tp,dKj)]) for dKj in dK_tp] for (K_tp,dK_tp) in zip(K,dK)]
-        #### data format for dK
+        drho_tp = [[sum([dKi*rho0*Ki' + Ki*rho0*dKi' for (Ki,dKi) in zip(K_tp,dKj)]) for dKj in 
+                   [[dK_tp[i][j] for i in 1:k_num] for j in 1:para_num]] for (K_tp,dK_tp) in zip(K,dK)]
+
         F_all = zeros(length(p |> vec))
         for hi in 1:length(p |> vec) 
             F_tp = QFIM(rho_tp[hi], drho_tp[hi], eps)

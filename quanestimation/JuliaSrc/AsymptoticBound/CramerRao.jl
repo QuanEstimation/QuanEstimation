@@ -73,6 +73,13 @@ function QFI(ρ, dρ, eps)
     F |> real
 end
 
+function QFIM(ρ::Matrix{T}, dρ::Matrix{T}, eps)where {T<:Complex}
+    SLD_tp = SLD(ρ, dρ, eps)
+    SLD2_tp = SLD_tp * SLD_tp
+    F = tr(ρ * SLD2_tp)
+    F |> real
+end
+
 function QFI_RLD(ρ, dρ::Matrix{T}, eps) where {T<:Complex}
     RLD_tp = RLD(ρ, dρ, eps)
     F = tr(ρ * RLD_tp * RLD_tp')
@@ -147,7 +154,7 @@ end
 
 #==========================================================#
 ####################### calculate QFIM #####################
-function QFIM(ρ, dρ, eps=1e-8)
+function QFIM(ρ::Matrix{T}, dρ::Vector{Matrix{T}}, eps=1e-8) where {T<:Complex}
     p_num = length(dρ)
     LD_tp = SLD(ρ, dρ, eps)
     qfim = ([0.5*ρ] .* (kron(LD_tp, reshape(LD_tp,1,p_num)) + kron(reshape(LD_tp,1,p_num), LD_tp))).|> tr .|>real 

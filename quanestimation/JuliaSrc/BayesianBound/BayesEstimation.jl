@@ -1,13 +1,16 @@
-function Bayes(x, p, rho, M, y; save_file=false)
+function Bayes(x, p, rho, y; M=nothing, save_file=false)
     y = y .+ 1
     para_num = length(x)
     max_episode = length(y)
     if para_num == 1
         #### singleparameter senario ####
+        if M==nothing
+            M = SIC(size(rho[1])[1])
+        end
         if save_file == false
             for mi in 1:max_episode
-                res_exp = y[mi]
-                pyx = real.(tr.(rho.*M[res_exp]))
+                res_exp = y[mi] |> Int
+                pyx = real.(tr.(rho.*[M[res_exp]]))
                 py = trapz(x[1], pyx.*p)
                 p_update = pyx.*p/py
                 p = p_update
@@ -18,8 +21,8 @@ function Bayes(x, p, rho, M, y; save_file=false)
         else
             p_out, x_out = [], []
             for mi in 1:max_episode
-                res_exp = y[mi]
-                pyx = real.(tr.(rho.*M[res_exp]))
+                res_exp = y[mi] |> Int
+                pyx = real.(tr.(rho.*[M[res_exp]]))
                 py = trapz(x[1], pyx.*p)
                 p_update = pyx.*p/py
                 p = p_update
@@ -39,9 +42,12 @@ function Bayes(x, p, rho, M, y; save_file=false)
         end
     else 
         #### multiparameter senario ####
+        if M==nothing
+            M = SIC(size(vec(rho)[1])[1])
+        end
         if save_file == false
             for mi in 1:max_episode
-                res_exp = y[mi]
+                res_exp = y[mi] |> Int
                 pyx = real.(tr.(rho.*[M[res_exp]]))
                 arr = p.*pyx
                 py = trapz(tuple(x...), arr)
@@ -55,7 +61,7 @@ function Bayes(x, p, rho, M, y; save_file=false)
         else
             p_out, x_out = [], []
             for mi in 1:max_episode
-                res_exp = y[mi]
+                res_exp = y[mi] |> Int
                 pyx = real.(tr.(rho.*[M[res_exp]]))
                 arr = p.*pyx
                 py = trapz(tuple(x...), arr)
@@ -78,15 +84,18 @@ function Bayes(x, p, rho, M, y; save_file=false)
     end
 end
 
-function MLE(x, rho, M, y; save_file=false)
+function MLE(x, rho, y; M::Union{AbstractVector,Nothing}=nothing, save_file=false)
     y = y .+ 1
     para_num = length(x)
     max_episode = length(y)
     if para_num == 1
+        if M==nothing
+            M = SIC(size(rho[1])[1])
+        end
         if save_file == false
             L_out = ones(length(x[1]))
             for mi in 1:max_episode
-                res_exp = y[mi]
+                res_exp = y[mi] |> Int
                 p_tp = real.(tr.(rho.*[M[res_exp]]))
                 L_out = L_out.*p_tp
             end
@@ -97,7 +106,7 @@ function MLE(x, rho, M, y; save_file=false)
             L_out, x_out = [], []
             L_tp = ones(length(x[1]))
             for mi in 1:max_episode
-                res_exp = y[mi]
+                res_exp = y[mi] |> Int
                 p_tp = real.(tr.(rho.*[M[res_exp]]))
                 L_tp = L_tp.*p_tp
 
@@ -121,10 +130,14 @@ function MLE(x, rho, M, y; save_file=false)
             append!(p_shape,length(x[i]))
         end
 
+        if M==nothing
+            M = SIC(size(vec(rho)[1])[1])
+        end
+
         if save_file == false
             L_out = ones(p_shape...)
             for mi in 1:max_episode
-                res_exp = y[mi]
+                res_exp = y[mi] |> Int
                 p_tp = real.(tr.(rho.*[M[res_exp]]))
                 L_out = L_out.*p_tp
             end
@@ -135,7 +148,7 @@ function MLE(x, rho, M, y; save_file=false)
             L_out, x_out = [], []
             L_tp = ones(p_shape...)
             for mi in 1:max_episode
-                res_exp = y[mi]
+                res_exp = y[mi] |> Int
                 p_tp = real.(tr.(rho.*[M[res_exp]]))
                 L_tp = L_tp.*p_tp
                 indx = findmax(L_tp)[2]

@@ -913,7 +913,7 @@ function gradient_QFIM_analy_Adam(grape::GRAPE_Copt{T}) where {T<:Complex}
     
     ρt_T, ∂ρt_T, δρt_δV, ∂xδρt_δV = dynamics_analy(grape, dim, tnum, para_num, ctrl_num)
 
-    Lx = SLD(ρt_T, ∂ρt_T)
+    Lx = SLD(ρt_T, ∂ρt_T, grape.eps)
     F_T = QFIM(ρt_T, ∂ρt_T, grape.eps)
 
     if para_num == 1
@@ -996,7 +996,7 @@ function gradient_QFIM_analy(grape::GRAPE_Copt{T}) where {T<:Complex}
     
     ρt_T, ∂ρt_T, δρt_δV, ∂xδρt_δV = dynamics_analy(grape, dim, tnum, para_num, ctrl_num)
 
-    Lx = SLD(ρt_T, ∂ρt_T)
+    Lx = SLD(ρt_T, ∂ρt_T, grape.eps)
     F_T = QFIM(ρt_T, ∂ρt_T, grape.eps)
 
     cost_function = F_T[1]

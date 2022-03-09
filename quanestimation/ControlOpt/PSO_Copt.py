@@ -1,7 +1,8 @@
 import numpy as np
 from julia import Main
+import warnings
 import quanestimation.ControlOpt.ControlStruct as Control
-
+from quanestimation.Common.common import SIC
 
 class PSO_Copt(Control.ControlSystem):
     def __init__(
@@ -13,7 +14,7 @@ class PSO_Copt(Control.ControlSystem):
         Hc,
         decay=[],
         ctrl_bound=[],
-        W=[],
+        save_file=False,
         particle_num=10,
         ctrl0=[],
         max_episode=[1000, 100],
@@ -22,11 +23,10 @@ class PSO_Copt(Control.ControlSystem):
         c2=2.0,
         seed=1234,
         load=False,
-    ):
+        eps=1e-8):
 
         Control.ControlSystem.__init__(
-            self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, W, ctrl0, load, eps=1e-8
-        )
+            self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, save_file, ctrl0, load, eps)
 
         """
         -------- 
@@ -75,7 +75,7 @@ class PSO_Copt(Control.ControlSystem):
         self.c2 = c2
         self.seed = seed
 
-    def QFIM(self, save_file=False):
+    def QFIM(self, W=[], dtype="SLD"):
         """
         Description: use particle swarm optimization algorithm to update the control coefficients
                      that maximize the QFI (1/Tr(WF^{-1} with F the QFIM).
@@ -83,11 +83,14 @@ class PSO_Copt(Control.ControlSystem):
         ---------
         Inputs
         ---------
-        save_file:
-            --description: True: save all the control coefficients for each episode but overwrite in the next episode and all the QFI (Tr(WF^{-1})).
-                           False: save the control coefficients for the last episode and all the QFI (Tr(WF^{-1})).
-            --type: bool
+        W:
+            --description: weight matrix.
+            --type: matrix
         """
+        if W == []:
+            W = np.eye(len(self.Hamiltonian_derivative))
+        self.W = W
+        
         pso = Main.QuanEstimation.PSO_Copt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
@@ -99,21 +102,28 @@ class PSO_Copt(Control.ControlSystem):
             self.control_coefficients,
             self.ctrl_bound,
             self.W,
-            self.eps,
-        )
-        Main.QuanEstimation.QFIM_PSO_Copt(
-            pso,
-            self.max_episode,
-            self.particle_num,
-            self.ini_particle,
-            self.c0,
-            self.c1,
-            self.c2,
-            self.seed,
-            save_file,
-        )
+            self.eps)
+        
+        if dtype == "SLD":
+            Main.QuanEstimation.QFIM_PSO_Copt(
+                pso,
+                self.max_episode,
+                self.particle_num,
+                self.ini_particle,
+                self.c0,
+                self.c1,
+                self.c2,
+                self.seed,
+                self.save_file)
+        elif dtype == "RLD":
+            pass #### to be done
+        elif dtype == "LLD":
+            pass #### to be done
+        else:
+            raise ValueError("{!r} is not a valid value for dtype, supported \
+                              values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
 
-    def CFIM(self, M, save_file=False):
+    def CFIM(self, M=[], W=[]):
         """
         Description: use particle swarm optimization algorithm to update the control coefficients
                      that maximize the CFI (1/Tr(WF^{-1} with F the CFIM).
@@ -121,12 +131,22 @@ class PSO_Copt(Control.ControlSystem):
         ---------
         Inputs
         ---------
-        save_file:
-            --description: True: save the control coefficients for each episode but overwrite in the next episode and all the CFI (Tr(WF^{-1})).
-                           False: save the control coefficients for the last episode and all the CFI (Tr(WF^{-1})).
-            --type: bool
+        M:
+            --description: a set of POVM.
+            --type: list of matrix
+            
+        W:
+            --description: weight matrix.
+            --type: matrix
         """
+        if M==[]:
+            M = SIC(len(self.rho0))
         M = [np.array(x, dtype=np.complex128) for x in M]
+        
+        if W == []:
+            W = np.eye(len(self.Hamiltonian_derivative))
+        self.W = W
+        
         pso = Main.QuanEstimation.PSO_Copt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
@@ -138,8 +158,7 @@ class PSO_Copt(Control.ControlSystem):
             self.control_coefficients,
             self.ctrl_bound,
             self.W,
-            self.eps,
-        )
+            self.eps)
         Main.QuanEstimation.CFIM_PSO_Copt(
             M,
             pso,
@@ -150,10 +169,9 @@ class PSO_Copt(Control.ControlSystem):
             self.c1,
             self.c2,
             self.seed,
-            save_file,
-        )
+            self.save_file)
 
-    def HCRB(self, save_file=False):
+    def HCRB(self, W=[]):
         """
         Description: use particle swarm optimization algorithm to update the control coefficients
                      that maximize the HCRB.
@@ -161,17 +179,18 @@ class PSO_Copt(Control.ControlSystem):
         ---------
         Inputs
         ---------
-        save_file:
-            --description: True: save the control coefficients for each episode but overwrite in the next episode and all the HCRB.
-                           False: save the control coefficients for the last episode and all the HCRB.
-            --type: bool
+        W:
+            --description: weight matrix.
+            --type: matrix
         """
+        if W == []:
+            W = np.eye(len(self.Hamiltonian_derivative))
+        self.W = W
+        
         if len(self.Hamiltonian_derivative) == 1:
-            warnings.warn(
-                "In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the objection function \
-                           for control optimization",
-                DeprecationWarning,
-            )
+            warnings.warn("In single parameter scenario, HCRB is equivalent to QFI. \
+                           Please choose QFIM as the target function for control optimization",\
+                           DeprecationWarning)
         else:
             pso = Main.QuanEstimation.PSO_Copt(
                 self.freeHamiltonian,
@@ -184,8 +203,7 @@ class PSO_Copt(Control.ControlSystem):
                 self.control_coefficients,
                 self.ctrl_bound,
                 self.W,
-                self.eps,
-            )
+                self.eps)
             Main.QuanEstimation.HCRB_PSO_Copt(
                 pso,
                 self.max_episode,
@@ -195,13 +213,24 @@ class PSO_Copt(Control.ControlSystem):
                 self.c1,
                 self.c2,
                 self.seed,
-                save_file,
-            )
+                self.save_file)
 
-    def mintime(self, f, target="QFIM", W=[], M=[], method="binary"):
+    def mintime(self, f, W=[], M=[], method="binary", target="QFIM", dtype="SLD"):
         if len(self.Hamiltonian_derivative) > 1:
             f = 1 / f
+            
+        if M==[]:
+            M = SIC(len(self.rho0))
         M = [np.array(x, dtype=np.complex128) for x in M]
+        
+        if W == []:
+            W = np.eye(len(self.Hamiltonian_derivative))
+        self.W = W
+        
+        if not (method == "binary" or method == "forward"):
+            raise ValueError("{!r} is not a valid value for method, supported \
+                             values are 'binary' and 'forward'.".format(method))
+            
         pso = Main.QuanEstimation.PSO_Copt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
@@ -213,30 +242,9 @@ class PSO_Copt(Control.ControlSystem):
             self.control_coefficients,
             self.ctrl_bound,
             self.W,
-            self.eps,
-        )
-
-        if not (method == "binary" or method == "forward"):
-            warnings.warn(
-                "Method {!r} is currently not surppoted.".format(method),
-                DeprecationWarning,
-            )
-
-        if target == "QFIM":
-            Main.QuanEstimation.mintime(
-                Main.eval("Val{:" + method + "}()"),
-                "QFIM_PSO_Copt",
-                pso,
-                f,
-                self.max_episode,
-                self.particle_num,
-                self.ini_particle,
-                self.c0,
-                self.c1,
-                self.c2,
-                self.seed,
-            )
-        elif target == "CFIM":
+            self.eps)
+        
+        if M != []:
             Main.QuanEstimation.mintime(
                 Main.eval("Val{:" + method + "}()"),
                 "CFIM_PSO_Copt",
@@ -249,24 +257,45 @@ class PSO_Copt(Control.ControlSystem):
                 self.c0,
                 self.c1,
                 self.c2,
-                self.seed,
-            )
-        elif target == "HCRB":
-            Main.QuanEstimation.mintime(
-                Main.eval("Val{:" + method + "}()"),
-                "HCRB_PSO_Copt",
-                pso,
-                f,
-                self.max_episode,
-                self.particle_num,
-                self.ini_particle,
-                self.c0,
-                self.c1,
-                self.c2,
-                self.seed,
-            )
+                self.seed)
         else:
-            warnings.warn(
-                "PSO is not available with the objective function {!r}.".format(target),
-                DeprecationWarning,
-            )
+            if target == "HCRB":
+                if len(self.Hamiltonian_derivative) == 1:
+                    warnings.warn("In single parameter scenario, HCRB is equivalent to QFI. Please \
+                                   choose QFIM as the target function for control optimization",\
+                                   DeprecationWarning)
+                else:
+                    Main.QuanEstimation.mintime(
+                        Main.eval("Val{:" + method + "}()"),
+                        "HCRB_PSO_Copt",
+                        pso,
+                        f,
+                        self.max_episode,
+                        self.particle_num,
+                        self.ini_particle,
+                        self.c0,
+                        self.c1,
+                        self.c2,
+                        self.seed)
+            elif target=="QFIM" and dtype=="SLD":
+                Main.QuanEstimation.mintime(
+                    Main.eval("Val{:" + method + "}()"),
+                    "QFIM_PSO_Copt",
+                    pso,
+                    f,
+                    self.max_episode,
+                    self.particle_num,
+                    self.ini_particle,
+                    self.c0,
+                    self.c1,
+                    self.c2,
+                    self.seed)
+            elif target=="QFIM" and dtype=="RLD":
+                pass #### to be done
+            elif target=="QFIM" and dtype=="LLD":
+                pass #### to be done
+            else:
+                raise ValueError("Please enter the correct values for target and dtype.\
+                                  Supported target are 'QFIM', 'CFIM' and 'HCRB',  \
+                                  supported dtype are 'SLD', 'RLD' and 'LLD'.") 
+            

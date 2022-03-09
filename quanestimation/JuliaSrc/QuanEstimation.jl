@@ -15,6 +15,8 @@ using BoundaryValueDiffEq
 using Trapz
 using Interpolations
 
+const pkgpath = @__DIR__
+
 include("AsymptoticBound/CramerRao.jl")
 include("AsymptoticBound/CramerRao_Kraus.jl")
 include("AsymptoticBound/Holevo.jl")
@@ -56,8 +58,8 @@ include("ComprehensiveOpt/PSO_Compopt_Kraus.jl")
 include("Adaptive/adaptive.jl")
 include("Adaptive/adaptive_Kraus.jl")
 include("Adaptive/adaptMZI.jl")
-
 # include("QuanResources/")
+
 export QFI, QFIM, CFI, CFIM
 export suN_generator, expm
 ######## control optimization ########
@@ -73,4 +75,6 @@ export PSO_QFIM, PSO_CFIM
 export NM_QFIM, NM_CFIM
 export DDPG_QFIM, DDPG_CFIM
 export σ_x, σ_y, σ_z
+
+export pkgpath
 end
