@@ -1,0 +1,13 @@
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  # This workflow contains a single job called "build"
+  check:
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Black Code Formatter
+        uses: lgeiger/black-action@v1.0.1
