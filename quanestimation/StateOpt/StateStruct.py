@@ -4,6 +4,7 @@ import math
 import warnings
 import quanestimation.StateOpt as stateoptimize
 
+
 class StateSystem:
     def __init__(self, save_file, psi0, seed, load, eps):
 
@@ -15,11 +16,11 @@ class StateSystem:
             --description: True: save the states and the value of target function for each episode .
                            False: save the states and the value of target function for the last episode.
             --type: bool
-        
+
         psi0:
             --description: initial guess of states (kets).
             --type: array
-            
+
         seed:
             --description: random seed.
             --type: int
@@ -102,12 +103,19 @@ class StateSystem:
             ctrl_num = len(ctrl)
             Hc_num = len(Hc)
             if Hc_num < ctrl_num:
-                raise TypeError("There are %d control Hamiltonians but %d coefficients sequences: \
-                                 too many coefficients sequences"% (Hc_num, ctrl_num))
+                raise TypeError(
+                    "There are %d control Hamiltonians but %d coefficients sequences: \
+                                 too many coefficients sequences"
+                    % (Hc_num, ctrl_num)
+                )
             elif Hc_num > ctrl_num:
-                warnings.warn("Not enough coefficients sequences: there are %d control Hamiltonians \
+                warnings.warn(
+                    "Not enough coefficients sequences: there are %d control Hamiltonians \
                                but %d coefficients sequences. The rest of the control sequences are\
-                               set to be 0." % (Hc_num, ctrl_num), DeprecationWarning)
+                               set to be 0."
+                    % (Hc_num, ctrl_num),
+                    DeprecationWarning,
+                )
                 for i in range(Hc_num - ctrl_num):
                     ctrl = np.concatenate((ctrl, np.zeros(len(ctrl[0]))))
             else:
@@ -173,7 +181,8 @@ class StateSystem:
         para_num = len(dK[0])
         dK_tp = [
             [np.array(dK[i][j], dtype=np.complex128) for i in range(k_num)]
-            for j in range(para_num)]
+            for j in range(para_num)
+        ]
         self.rho0 = np.array(rho0, dtype=np.complex128)
         self.K = [np.array(x, dtype=np.complex128) for x in K]
         self.dK = dK_tp
@@ -196,6 +205,7 @@ class StateSystem:
 
         self.dynamics_type = "kraus"
 
+
 def StateOpt(save_file=False, method="AD", **kwargs):
 
     if method == "AD":
@@ -209,8 +219,12 @@ def StateOpt(save_file=False, method="AD", **kwargs):
     elif method == "NM":
         return stateoptimize.NM_Sopt(save_file=save_file, **kwargs)
     else:
-        raise ValueError("{!r} is not a valid value for method, supported values are 'AD', 'PSO', \
-                         'DE', 'NM', 'DDPG'.".format(method))
+        raise ValueError(
+            "{!r} is not a valid value for method, supported values are 'AD', 'PSO', \
+                         'DE', 'NM', 'DDPG'.".format(
+                method
+            )
+        )
 
 
 def csv2npy_states(states, num=1):

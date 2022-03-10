@@ -10,26 +10,26 @@ class MeasurementSystem:
     def __init__(self, mtype, minput, save_file, measurement0, seed, load, eps):
 
         """
-        ----------
-        Inputs
-        ----------
-       save_file:
-            --description: True: save the measurements and the value of the target function 
-                                 for each episode.
-                           False: save the measurements and all the value of the target 
-                                  function for the last episode.
-            --type: bool 
+         ----------
+         Inputs
+         ----------
+        save_file:
+             --description: True: save the measurements and the value of the target function
+                                  for each episode.
+                            False: save the measurements and all the value of the target
+                                   function for the last episode.
+             --type: bool
 
-        measurement0:
-           --description: a set of POVMs.
-           --type: list (of vector)
+         measurement0:
+            --description: a set of POVMs.
+            --type: list (of vector)
 
-        eps:
-            --description: calculation eps.
-            --type: float
+         eps:
+             --description: calculation eps.
+             --type: float
 
-        notes: the Weyl-Heisenberg covariant SIC-POVM fiducial state of dimension $d$
-               are download from http://www.physics.umb.edu/Research/QBism/solutions.html.
+         notes: the Weyl-Heisenberg covariant SIC-POVM fiducial state of dimension $d$
+                are download from http://www.physics.umb.edu/Research/QBism/solutions.html.
 
         """
         self.mtype = mtype
@@ -104,7 +104,8 @@ class MeasurementSystem:
                 M = [[] for i in range(len(self.rho0))]
                 for i in range(len(self.rho0)):
                     r_ini = 2 * np.random.random(len(self.rho0)) - np.ones(
-                        len(self.rho0))
+                        len(self.rho0)
+                    )
                     r = r_ini / np.linalg.norm(r_ini)
                     phi = 2 * np.pi * np.random.random(len(self.rho0))
                     M[i] = [r[i] * np.exp(1.0j * phi[i]) for i in range(len(self.rho0))]
@@ -117,7 +118,8 @@ class MeasurementSystem:
                 if self.minput[1] == []:
                     file_path = os.path.join(
                         os.path.dirname(os.path.dirname(__file__)),
-                        "sic_fiducial_vectors/d%d.txt" % (len(self.rho0)))
+                        "sic_fiducial_vectors/d%d.txt" % (len(self.rho0)),
+                    )
                     data = np.loadtxt(file_path)
                     fiducial = data[:, 0] + data[:, 1] * 1.0j
                     fiducial = np.array(fiducial).reshape(len(fiducial), 1)
@@ -137,14 +139,20 @@ class MeasurementSystem:
                                 raise TypeError(
                                     "The given POVMs should be semidefinite!"
                                 )
-                        M = np.zeros((len(self.rho0), len(self.rho0)), dtype=np.complex128)
+                        M = np.zeros(
+                            (len(self.rho0), len(self.rho0)), dtype=np.complex128
+                        )
                         for i in range(len(self.minput[1])):
                             M += self.minput[1][i]
                         if np.all(M.round(accu) - np.identity(len(self.rho0)) == 0):
                             pass
                         else:
-                            raise TypeError("The sum of the given POVMs should be identity matrix!")
-                        self.povm_basis = [np.array(x, dtype=np.complex128) for x in self.minput[1]]
+                            raise TypeError(
+                                "The sum of the given POVMs should be identity matrix!"
+                            )
+                        self.povm_basis = [
+                            np.array(x, dtype=np.complex128) for x in self.minput[1]
+                        ]
                         self.M_num = self.minput[2]
             elif self.minput[0] == "rotation":
                 ## optimize the coefficients of the rotation matrix
@@ -166,15 +174,27 @@ class MeasurementSystem:
                     if np.all(M.round(accu) - np.identity(len(self.rho0)) == 0):
                         pass
                     else:
-                        raise TypeError("The sum of the given POVMs should be identity matrix!")
-                    self.povm_basis = [np.array(x, dtype=np.complex128) for x in self.minput[1]]
+                        raise TypeError(
+                            "The sum of the given POVMs should be identity matrix!"
+                        )
+                    self.povm_basis = [
+                        np.array(x, dtype=np.complex128) for x in self.minput[1]
+                    ]
                     self.mtype = "rotation"
             else:
-                raise ValueError("{!r} is not a valid value for the first input of minput, \
-                                 supported values are 'LC' and 'rotation'.".format(self.minput[0]))
+                raise ValueError(
+                    "{!r} is not a valid value for the first input of minput, \
+                                 supported values are 'LC' and 'rotation'.".format(
+                        self.minput[0]
+                    )
+                )
         else:
-            raise ValueError("{!r} is not a valid value for mtype, supported values are 'projection' \
-                              and 'input'.".format(self.mtype))
+            raise ValueError(
+                "{!r} is not a valid value for mtype, supported values are 'projection' \
+                              and 'input'.".format(
+                    self.mtype
+                )
+            )
         if Hc == [] or ctrl == []:
             if type(H0) == np.ndarray:
                 self.freeHamiltonian = np.array(H0, dtype=np.complex128)
@@ -184,12 +204,19 @@ class MeasurementSystem:
             ctrl_num = len(ctrl)
             Hc_num = len(Hc)
             if Hc_num < ctrl_num:
-                raise TypeError("There are %d control Hamiltonians but %d coefficients sequences: \
-                                 too many coefficients sequences"% (Hc_num, ctrl_num))
+                raise TypeError(
+                    "There are %d control Hamiltonians but %d coefficients sequences: \
+                                 too many coefficients sequences"
+                    % (Hc_num, ctrl_num)
+                )
             elif Hc_num > ctrl_num:
-                warnings.warn("Not enough coefficients sequences: there are %d control Hamiltonians \
+                warnings.warn(
+                    "Not enough coefficients sequences: there are %d control Hamiltonians \
                             but %d coefficients sequences. The rest of the control sequences are\
-                            set to be 0."% (Hc_num, ctrl_num),DeprecationWarning)
+                            set to be 0."
+                    % (Hc_num, ctrl_num),
+                    DeprecationWarning,
+                )
                 for i in range(Hc_num - ctrl_num):
                     ctrl = np.concatenate((ctrl, np.zeros(len(ctrl[0]))))
             else:
@@ -236,7 +263,10 @@ class MeasurementSystem:
     def kraus(self, rho0, K, dK):
         k_num = len(K)
         para_num = len(dK[0])
-        dK_tp = [[np.array(dK[i][j], dtype=np.complex128) for i in range(k_num)] for j in range(para_num)]
+        dK_tp = [
+            [np.array(dK[i][j], dtype=np.complex128) for i in range(k_num)]
+            for j in range(para_num)
+        ]
         self.rho0 = np.array(rho0, dtype=np.complex128)
         self.K = [np.array(x, dtype=np.complex128) for x in K]
         self.dK = dK_tp
@@ -247,7 +277,8 @@ class MeasurementSystem:
                 M = [[] for i in range(len(self.rho0))]
                 for i in range(len(self.rho0)):
                     r_ini = 2 * np.random.random(len(self.rho0)) - np.ones(
-                        len(self.rho0))
+                        len(self.rho0)
+                    )
                     r = r_ini / np.linalg.norm(r_ini)
                     phi = 2 * np.pi * np.random.random(len(self.rho0))
                     M[i] = [r[i] * np.exp(1.0j * phi[i]) for i in range(len(self.rho0))]
@@ -260,7 +291,8 @@ class MeasurementSystem:
                 if self.minput[1] == []:
                     file_path = os.path.join(
                         os.path.dirname(os.path.dirname(__file__)),
-                        "sic_fiducial_vectors/d%d.txt" % (len(self.rho0)),)
+                        "sic_fiducial_vectors/d%d.txt" % (len(self.rho0)),
+                    )
                     data = np.loadtxt(file_path)
                     fiducial = data[:, 0] + data[:, 1] * 1.0j
                     fiducial = np.array(fiducial).reshape(len(fiducial), 1)
@@ -277,17 +309,23 @@ class MeasurementSystem:
                             if np.all(val.round(accu) >= 0):
                                 pass
                             else:
-                                raise TypeError("The given POVMs should be semidefinite!")
-                        M = np.zeros((len(self.rho0), len(self.rho0)), dtype=np.complex128)
+                                raise TypeError(
+                                    "The given POVMs should be semidefinite!"
+                                )
+                        M = np.zeros(
+                            (len(self.rho0), len(self.rho0)), dtype=np.complex128
+                        )
                         for i in range(len(self.minput[1])):
                             M += self.minput[1][i]
                         if np.all(M.round(accu) - np.identity(len(self.rho0)) == 0):
                             pass
                         else:
                             raise TypeError(
-                                "The sum of the given POVMs should be identity matrix!")
+                                "The sum of the given POVMs should be identity matrix!"
+                            )
                         self.povm_basis = [
-                            np.array(x, dtype=np.complex128) for x in self.minput[1]]
+                            np.array(x, dtype=np.complex128) for x in self.minput[1]
+                        ]
                         self.M_num = self.minput[2]
             elif self.minput[0] == "rotation":
                 ## optimize the coefficients of the rotation matrix
@@ -309,19 +347,34 @@ class MeasurementSystem:
                     if np.all(M.round(accu) - np.identity(len(self.rho0)) == 0):
                         pass
                     else:
-                        raise TypeError("The sum of the given POVMs should be identity matrix!")
-                    self.povm_basis = [np.array(x, dtype=np.complex128) for x in self.minput[1]]
+                        raise TypeError(
+                            "The sum of the given POVMs should be identity matrix!"
+                        )
+                    self.povm_basis = [
+                        np.array(x, dtype=np.complex128) for x in self.minput[1]
+                    ]
                     self.mtype = "rotation"
             else:
-                raise ValueError("{!r} is not a valid value for the first input of minput, \
-                                  supported values are 'LC' and 'rotation'.".format(self.minput[0]))
+                raise ValueError(
+                    "{!r} is not a valid value for the first input of minput, \
+                                  supported values are 'LC' and 'rotation'.".format(
+                        self.minput[0]
+                    )
+                )
         else:
-            raise ValueError("{!r} is not a valid value for mtype, supported values are \
-                             'projection' and 'input'.".format(self.mtype))
+            raise ValueError(
+                "{!r} is not a valid value for mtype, supported values are \
+                             'projection' and 'input'.".format(
+                    self.mtype
+                )
+            )
 
         self.dynamics_type = "kraus"
 
-def MeasurementOpt(mtype="projection", minput=[], save_file=False, method="DE", **kwargs):
+
+def MeasurementOpt(
+    mtype="projection", minput=[], save_file=False, method="DE", **kwargs
+):
 
     if method == "AD":
         return Measure.AD_Mopt(mtype, minput, save_file=save_file, **kwargs)
@@ -330,8 +383,13 @@ def MeasurementOpt(mtype="projection", minput=[], save_file=False, method="DE", 
     elif method == "DE":
         return Measure.DE_Mopt(mtype, minput, save_file=save_file, **kwargs)
     else:
-        raise ValueError("{!r} is not a valid value for method, supported values \
-                          are 'AD', 'PSO' and 'DE'.".format(method))
+        raise ValueError(
+            "{!r} is not a valid value for method, supported values \
+                          are 'AD', 'PSO' and 'DE'.".format(
+                method
+            )
+        )
+
 
 def csv2npy_measurements(M, num):
     n = int(np.sqrt(len(M[0])))
@@ -342,6 +400,7 @@ def csv2npy_measurements(M, num):
         M = [M_tp[i].reshape(n, n).T for i in range(num)]
         M_save.append(M)
     np.save("measurements", M_save)
+
 
 def load_measurements(M, num, indx=-1):
     n = int(np.sqrt(len(M[0])))

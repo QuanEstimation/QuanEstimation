@@ -4,6 +4,7 @@ import warnings
 import quanestimation.ControlOpt.ControlStruct as Control
 from quanestimation.Common.common import SIC
 
+
 class PSO_Copt(Control.ControlSystem):
     def __init__(
         self,
@@ -23,10 +24,23 @@ class PSO_Copt(Control.ControlSystem):
         c2=2.0,
         seed=1234,
         load=False,
-        eps=1e-8):
+        eps=1e-8,
+    ):
 
         Control.ControlSystem.__init__(
-            self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, save_file, ctrl0, load, eps)
+            self,
+            tspan,
+            rho0,
+            H0,
+            Hc,
+            dH,
+            decay,
+            ctrl_bound,
+            save_file,
+            ctrl0,
+            load,
+            eps,
+        )
 
         """
         -------- 
@@ -90,7 +104,7 @@ class PSO_Copt(Control.ControlSystem):
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
-        
+
         pso = Main.QuanEstimation.PSO_Copt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
@@ -102,8 +116,9 @@ class PSO_Copt(Control.ControlSystem):
             self.control_coefficients,
             self.ctrl_bound,
             self.W,
-            self.eps)
-        
+            self.eps,
+        )
+
         if dtype == "SLD":
             Main.QuanEstimation.QFIM_PSO_Copt(
                 pso,
@@ -114,14 +129,19 @@ class PSO_Copt(Control.ControlSystem):
                 self.c1,
                 self.c2,
                 self.seed,
-                self.save_file)
+                self.save_file,
+            )
         elif dtype == "RLD":
-            pass #### to be done
+            pass  #### to be done
         elif dtype == "LLD":
-            pass #### to be done
+            pass  #### to be done
         else:
-            raise ValueError("{!r} is not a valid value for dtype, supported \
-                              values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
+            raise ValueError(
+                "{!r} is not a valid value for dtype, supported \
+                              values are 'SLD', 'RLD' and 'LLD'.".format(
+                    dtype
+                )
+            )
 
     def CFIM(self, M=[], W=[]):
         """
@@ -134,19 +154,19 @@ class PSO_Copt(Control.ControlSystem):
         M:
             --description: a set of POVM.
             --type: list of matrix
-            
+
         W:
             --description: weight matrix.
             --type: matrix
         """
-        if M==[]:
+        if M == []:
             M = SIC(len(self.rho0))
         M = [np.array(x, dtype=np.complex128) for x in M]
-        
+
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
-        
+
         pso = Main.QuanEstimation.PSO_Copt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
@@ -158,7 +178,8 @@ class PSO_Copt(Control.ControlSystem):
             self.control_coefficients,
             self.ctrl_bound,
             self.W,
-            self.eps)
+            self.eps,
+        )
         Main.QuanEstimation.CFIM_PSO_Copt(
             M,
             pso,
@@ -169,8 +190,9 @@ class PSO_Copt(Control.ControlSystem):
             self.c1,
             self.c2,
             self.seed,
-            self.save_file)
-        
+            self.save_file,
+        )
+
     def HCRB(self, W=[]):
 
         """
@@ -187,11 +209,13 @@ class PSO_Copt(Control.ControlSystem):
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
-        
+
         if len(self.Hamiltonian_derivative) == 1:
-            warnings.warn("In single parameter scenario, HCRB is equivalent to QFI. \
-                           Please choose QFIM as the target function for control optimization",\
-                           DeprecationWarning)
+            warnings.warn(
+                "In single parameter scenario, HCRB is equivalent to QFI. \
+                           Please choose QFIM as the target function for control optimization",
+                DeprecationWarning,
+            )
         else:
 
             if W == []:
@@ -209,7 +233,8 @@ class PSO_Copt(Control.ControlSystem):
                 self.control_coefficients,
                 self.ctrl_bound,
                 self.W,
-                self.eps)
+                self.eps,
+            )
             Main.QuanEstimation.HCRB_PSO_Copt(
                 pso,
                 self.max_episode,
@@ -219,24 +244,29 @@ class PSO_Copt(Control.ControlSystem):
                 self.c1,
                 self.c2,
                 self.seed,
-                self.save_file)
+                self.save_file,
+            )
 
     def mintime(self, f, W=[], M=[], method="binary", target="QFIM", dtype="SLD"):
         if len(self.Hamiltonian_derivative) > 1:
             f = 1 / f
-            
-        if M==[]:
+
+        if M == []:
             M = SIC(len(self.rho0))
         M = [np.array(x, dtype=np.complex128) for x in M]
-        
+
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
-        
+
         if not (method == "binary" or method == "forward"):
-            raise ValueError("{!r} is not a valid value for method, supported \
-                             values are 'binary' and 'forward'.".format(method))
-            
+            raise ValueError(
+                "{!r} is not a valid value for method, supported \
+                             values are 'binary' and 'forward'.".format(
+                    method
+                )
+            )
+
         pso = Main.QuanEstimation.PSO_Copt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
@@ -248,8 +278,9 @@ class PSO_Copt(Control.ControlSystem):
             self.control_coefficients,
             self.ctrl_bound,
             self.W,
-            self.eps)
-        
+            self.eps,
+        )
+
         if M != []:
             Main.QuanEstimation.mintime(
                 Main.eval("Val{:" + method + "}()"),
@@ -263,13 +294,16 @@ class PSO_Copt(Control.ControlSystem):
                 self.c0,
                 self.c1,
                 self.c2,
-                self.seed)
+                self.seed,
+            )
         else:
             if target == "HCRB":
                 if len(self.Hamiltonian_derivative) == 1:
-                    warnings.warn("In single parameter scenario, HCRB is equivalent to QFI. Please \
-                                   choose QFIM as the target function for control optimization",\
-                                   DeprecationWarning)
+                    warnings.warn(
+                        "In single parameter scenario, HCRB is equivalent to QFI. Please \
+                                   choose QFIM as the target function for control optimization",
+                        DeprecationWarning,
+                    )
                 else:
                     Main.QuanEstimation.mintime(
                         Main.eval("Val{:" + method + "}()"),
@@ -282,8 +316,9 @@ class PSO_Copt(Control.ControlSystem):
                         self.c0,
                         self.c1,
                         self.c2,
-                        self.seed)
-            elif target=="QFIM" and dtype=="SLD":
+                        self.seed,
+                    )
+            elif target == "QFIM" and dtype == "SLD":
                 Main.QuanEstimation.mintime(
                     Main.eval("Val{:" + method + "}()"),
                     "QFIM_PSO_Copt",
@@ -295,13 +330,15 @@ class PSO_Copt(Control.ControlSystem):
                     self.c0,
                     self.c1,
                     self.c2,
-                    self.seed)
-            elif target=="QFIM" and dtype=="RLD":
-                pass #### to be done
-            elif target=="QFIM" and dtype=="LLD":
-                pass #### to be done
+                    self.seed,
+                )
+            elif target == "QFIM" and dtype == "RLD":
+                pass  #### to be done
+            elif target == "QFIM" and dtype == "LLD":
+                pass  #### to be done
             else:
-                raise ValueError("Please enter the correct values for target and dtype.\
+                raise ValueError(
+                    "Please enter the correct values for target and dtype.\
                                   Supported target are 'QFIM', 'CFIM' and 'HCRB',  \
-                                  supported dtype are 'SLD', 'RLD' and 'LLD'.") 
-            
+                                  supported dtype are 'SLD', 'RLD' and 'LLD'."
+                )

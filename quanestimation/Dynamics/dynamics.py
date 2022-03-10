@@ -1,8 +1,8 @@
-
 import numpy as np
 import warnings
 import math
 from julia import Main
+
 
 class Lindblad:
     """
@@ -16,37 +16,37 @@ class Lindblad:
         ----------
         Inputs
         ----------
-        tspan: 
+        tspan:
            --description: time series.
            --type: array
-        
-        rho0: 
+
+        rho0:
            --description: initial state (density matrix).
            --type: matrix
-        
-        H0: 
+
+        H0:
            --description: free Hamiltonian.
            --type: matrix
-           
-        Hc: 
+
+        Hc:
            --description: control Hamiltonian.
            --type: list (of matrix)
-        
-        dH: 
+
+        dH:
            --description: derivatives of Hamiltonian on all parameters to
                           be estimated. For example, dH[0] is the derivative
                           vector on the first parameter.
            --type: list (of matrix)
-           
-        ctrl: 
+
+        ctrl:
            --description: control coefficients.
            --type: list (of array)
-           
+
         decay:
            --description: decay operators and the corresponding decay rates.
                           decay[0] represent a list of decay operators and
                           decay[1] represent the corresponding decay rates.
-           --type: list 
+           --type: list
         """
         self.tspan = tspan
         self.rho0 = np.array(rho0, dtype=np.complex128)
@@ -54,15 +54,15 @@ class Lindblad:
         if type(H0) == np.ndarray:
             self.freeHamiltonian = np.array(H0, dtype=np.complex128)
         else:
-            self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0] 
+            self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0]
 
         if type(dH[0]) != np.ndarray:
-            raise TypeError("The derivative of Hamiltonian should be a list!") 
+            raise TypeError("The derivative of Hamiltonian should be a list!")
 
         if dH == []:
             dH = [np.zeros((len(self.rho0), len(self.rho0)))]
         self.Hamiltonian_derivative = [np.array(x, dtype=np.complex128) for x in dH]
-        
+
         if decay == []:
             decay_opt = [np.zeros((len(self.rho0), len(self.rho0)))]
             self.gamma = [0.0]
@@ -73,38 +73,62 @@ class Lindblad:
 
         if Hc == []:
             Hc = [np.zeros((len(self.rho0), len(self.rho0)))]
-            ctrl = [np.zeros(len(self.tspan)-1)]
+            ctrl = [np.zeros(len(self.tspan) - 1)]
             self.control_Hamiltonian = [np.array(x, dtype=np.complex128) for x in Hc]
             self.control_coefficients = ctrl
         elif ctrl == []:
-            ctrl = [np.zeros(len(self.tspan)-1) for j in range(len(Hc))]
+            ctrl = [np.zeros(len(self.tspan) - 1) for j in range(len(Hc))]
             self.control_Hamiltonian = Hc
             self.control_coefficients = ctrl
         else:
             ctrl_length = len(ctrl)
             ctrlnum = len(Hc)
             if ctrlnum < ctrl_length:
-                raise TypeError("There are %d control Hamiltonians but %d coefficients sequences: \
-                                too many coefficients sequences"%(ctrlnum,ctrl_length))
+                raise TypeError(
+                    "There are %d control Hamiltonians but %d coefficients sequences: \
+                                too many coefficients sequences"
+                    % (ctrlnum, ctrl_length)
+                )
             elif ctrlnum > ctrl_length:
-                warnings.warn("Not enough coefficients sequences: there are %d control Hamiltonians \
+                warnings.warn(
+                    "Not enough coefficients sequences: there are %d control Hamiltonians \
                             but %d coefficients sequences. The rest of the control sequences are\
-                            set to be 0."%(ctrlnum,ctrl_length), DeprecationWarning)
-        
-            number = math.ceil((len(self.tspan)-1)/len(ctrl[0]))
-            if len(self.tspan)-1 % len(ctrl[0]) != 0:
-                tnum = number*len(ctrl[0])
-                self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum+1)
+                            set to be 0."
+                    % (ctrlnum, ctrl_length),
+                    DeprecationWarning,
+                )
+
+            number = math.ceil((len(self.tspan) - 1) / len(ctrl[0]))
+            if len(self.tspan) - 1 % len(ctrl[0]) != 0:
+                tnum = number * len(ctrl[0])
+                self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum + 1)
             self.control_Hamiltonian = Hc
             self.control_coefficients = ctrl
 
     def expm(self):
-        rho, drho = Main.QuanEstimation.expm(self.freeHamiltonian, self.Hamiltonian_derivative, self.rho0, self.decay_opt, \
-                                 self.gamma, self.control_Hamiltonian, self.control_coefficients, self.tspan)
+        rho, drho = Main.QuanEstimation.expm(
+            self.freeHamiltonian,
+            self.Hamiltonian_derivative,
+            self.rho0,
+            self.decay_opt,
+            self.gamma,
+            self.control_Hamiltonian,
+            self.control_coefficients,
+            self.tspan,
+        )
         return rho, drho
 
     def secondorder_derivative(self, d2H):
         d2H = [np.array(x, dtype=np.complex128) for x in d2H]
-        rho, drho, d2rho = Main.QuanEstimation.secondorder_derivative(self.freeHamiltonian, self.Hamiltonian_derivative, d2H, self.rho0, self.decay_opt, \
-                                 self.gamma, self.control_Hamiltonian, self.control_coefficients, self.tspan)
+        rho, drho, d2rho = Main.QuanEstimation.secondorder_derivative(
+            self.freeHamiltonian,
+            self.Hamiltonian_derivative,
+            d2H,
+            self.rho0,
+            self.decay_opt,
+            self.gamma,
+            self.control_Hamiltonian,
+            self.control_coefficients,
+            self.tspan,
+        )
         return rho, drho, d2rho

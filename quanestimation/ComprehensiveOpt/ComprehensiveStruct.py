@@ -17,21 +17,21 @@ class ComprehensiveSystem:
         psi0:
            --description: initial guesses of states (kets).
            --type: array
-           
+
         ctrl0:
             --description: initial control coefficients.
             --type: list (of vector)
-            
+
         measurement0:
            --description: a set of POVMs.
            --type: list (of vector)
-           
+
         save_file:
-            --description: True: save the states (or controls, measurements) and the value of the 
+            --description: True: save the states (or controls, measurements) and the value of the
                                  target function for each episode.
-                           False: save the states (or controls, measurements) and all the value 
+                           False: save the states (or controls, measurements) and all the value
                                    of the target function for the last episode.
-            --type: bool 
+            --type: bool
 
         eps:
             --description: calculation eps.
@@ -89,7 +89,7 @@ class ComprehensiveSystem:
                           ctrl_bound[1] represent the upper bound of the control coefficients.
            --type: list
         """
-        
+
         self.tspan = tspan
 
         if type(H0) == np.ndarray:
@@ -207,7 +207,10 @@ class ComprehensiveSystem:
         # TODO: initialize K, dK
         k_num = len(K)
         para_num = len(dK[0])
-        dK_tp = [[np.array(dK[i][j], dtype=np.complex128) for i in range(k_num)] for j in range(para_num)]
+        dK_tp = [
+            [np.array(dK[i][j], dtype=np.complex128) for i in range(k_num)]
+            for j in range(para_num)
+        ]
         self.rho0 = np.array(rho0, dtype=np.complex128)
         self.K = [np.array(x, dtype=np.complex128) for x in K]
         self.dK = dK_tp
@@ -263,6 +266,7 @@ class ComprehensiveSystem:
         else:
             pass
 
+
 def ComprehensiveOpt(save_file=False, method="AD", **kwargs):
 
     if method == "AD":
@@ -272,5 +276,9 @@ def ComprehensiveOpt(save_file=False, method="AD", **kwargs):
     elif method == "DE":
         return compopt.DE_Compopt(save_file=save_file, **kwargs)
     else:
-        raise ValueError("{!r} is not a valid value for method, supported values are 'AD', \
-                         'PSO', 'DE'.".format(method))
+        raise ValueError(
+            "{!r} is not a valid value for method, supported values are 'AD', \
+                         'PSO', 'DE'.".format(
+                method
+            )
+        )

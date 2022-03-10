@@ -4,6 +4,7 @@ from julia import Main
 import quanestimation.ControlOpt.ControlStruct as Control
 from quanestimation.Common.common import SIC
 
+
 class GRAPE_Copt(Control.ControlSystem):
     def __init__(
         self,
@@ -23,10 +24,23 @@ class GRAPE_Copt(Control.ControlSystem):
         beta2=0.99,
         load=False,
         eps=1e-8,
-        auto=True):
+        auto=True,
+    ):
 
         Control.ControlSystem.__init__(
-            self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, save_file, ctrl0, load, eps)
+            self,
+            tspan,
+            rho0,
+            H0,
+            Hc,
+            dH,
+            decay,
+            ctrl_bound,
+            save_file,
+            ctrl0,
+            load,
+            eps,
+        )
 
         """
         ----------
@@ -88,7 +102,7 @@ class GRAPE_Copt(Control.ControlSystem):
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
-        
+
         grape = Main.QuanEstimation.GRAPE_Copt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
@@ -105,43 +119,63 @@ class GRAPE_Copt(Control.ControlSystem):
             self.epsilon,
             self.beta1,
             self.beta2,
-            self.eps)
-        
+            self.eps,
+        )
+
         if self.auto == True:
             if dtype == "SLD":
-                Main.QuanEstimation.QFIM_autoGRAPE_Copt(grape, self.max_episode, self.Adam, self.save_file)
+                Main.QuanEstimation.QFIM_autoGRAPE_Copt(
+                    grape, self.max_episode, self.Adam, self.save_file
+                )
             elif dtype == "RLD":
-                pass #### to be done
+                pass  #### to be done
             elif dtype == "LLD":
-                pass #### to be done
+                pass  #### to be done
             else:
-                raise ValueError("{!r} is not a valid value for dtype, supported \
-                                 values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
+                raise ValueError(
+                    "{!r} is not a valid value for dtype, supported \
+                                 values are 'SLD', 'RLD' and 'LLD'.".format(
+                        dtype
+                    )
+                )
         else:
             if (len(self.tspan) - 1) != len(self.control_coefficients[0]):
-                warnings.warn("GRAPE is not available when the length of each control is not \
+                warnings.warn(
+                    "GRAPE is not available when the length of each control is not \
                                equal to the length of time, and is replaced by auto-GRAPE.",
-                               DeprecationWarning)
+                    DeprecationWarning,
+                )
                 if dtype == "SLD":
                     Main.QuanEstimation.QFIM_autoGRAPE_Copt(
-                        grape, self.max_episode, self.Adam, self.save_file)
+                        grape, self.max_episode, self.Adam, self.save_file
+                    )
                 elif dtype == "RLD":
-                    pass #### to be done
+                    pass  #### to be done
                 elif dtype == "LLD":
-                    pass #### to be done
+                    pass  #### to be done
                 else:
-                    raise ValueError("{!r} is not a valid value for dtype, supported \
-                                     values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
+                    raise ValueError(
+                        "{!r} is not a valid value for dtype, supported \
+                                     values are 'SLD', 'RLD' and 'LLD'.".format(
+                            dtype
+                        )
+                    )
             else:
                 if dtype == "SLD":
-                    Main.QuanEstimation.QFIM_GRAPE_Copt(grape, self.max_episode, self.Adam, self.save_file)
+                    Main.QuanEstimation.QFIM_GRAPE_Copt(
+                        grape, self.max_episode, self.Adam, self.save_file
+                    )
                 elif dtype == "RLD":
-                    pass #### to be done
+                    pass  #### to be done
                 elif dtype == "LLD":
-                    pass #### to be done
+                    pass  #### to be done
                 else:
-                    raise ValueError("{!r} is not a valid value for dtype, supported \
-                                     values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
+                    raise ValueError(
+                        "{!r} is not a valid value for dtype, supported \
+                                     values are 'SLD', 'RLD' and 'LLD'.".format(
+                            dtype
+                        )
+                    )
 
     def CFIM(self, M=[], W=[]):
 
@@ -154,19 +188,19 @@ class GRAPE_Copt(Control.ControlSystem):
         M:
             --description: a set of POVM.
             --type: list of matrix
-            
+
         W:
             --description: weight matrix.
             --type: matrix
         """
-        if M==[]:
+        if M == []:
             M = SIC(len(self.rho0))
         M = [np.array(x, dtype=np.complex128) for x in M]
-        
+
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
-        
+
         grape = Main.QuanEstimation.GRAPE_Copt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
@@ -183,34 +217,47 @@ class GRAPE_Copt(Control.ControlSystem):
             self.epsilon,
             self.beta1,
             self.beta2,
-            self.eps)
-        
+            self.eps,
+        )
+
         if self.auto == True:
-            Main.QuanEstimation.CFIM_autoGRAPE_Copt(M, grape, self.max_episode, self.Adam, self.save_file)
+            Main.QuanEstimation.CFIM_autoGRAPE_Copt(
+                M, grape, self.max_episode, self.Adam, self.save_file
+            )
         else:
             if (len(self.tspan) - 1) != len(self.control_coefficients[0]):
-                warnings.warn("GRAPE is not available when the length of each control is not equal to \
-                               the length of time, and is replaced by auto-GRAPE.", DeprecationWarning)
-                Main.QuanEstimation.CFIM_autoGRAPE_Copt(M, grape, self.max_episode, self.Adam, self.save_file)
+                warnings.warn(
+                    "GRAPE is not available when the length of each control is not equal to \
+                               the length of time, and is replaced by auto-GRAPE.",
+                    DeprecationWarning,
+                )
+                Main.QuanEstimation.CFIM_autoGRAPE_Copt(
+                    M, grape, self.max_episode, self.Adam, self.save_file
+                )
             else:
-                Main.QuanEstimation.CFIM_GRAPE_Copt(M, grape, self.max_episode, self.Adam, self.save_file)
+                Main.QuanEstimation.CFIM_GRAPE_Copt(
+                    M, grape, self.max_episode, self.Adam, self.save_file
+                )
 
     def HCRB(self, W=[]):
-        warnings.warn("GRAPE is not available when the target function is HCRB. \
-                       Supported methods are 'PSO', 'DE' and 'DDPG'.", DeprecationWarning)
+        warnings.warn(
+            "GRAPE is not available when the target function is HCRB. \
+                       Supported methods are 'PSO', 'DE' and 'DDPG'.",
+            DeprecationWarning,
+        )
 
     def mintime(self, f, W=[], M=[], method="binary", target="QFIM", dtype="SLD"):
         if len(self.Hamiltonian_derivative) > 1:
             f = 1 / f
-            
-        if M==[]:
+
+        if M == []:
             M = SIC(len(self.rho0))
         M = [np.array(x, dtype=np.complex128) for x in M]
-        
+
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
-        
+
         grape = Main.QuanEstimation.GRAPE_Copt(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
@@ -227,11 +274,16 @@ class GRAPE_Copt(Control.ControlSystem):
             self.epsilon,
             self.beta1,
             self.beta2,
-            self.eps)
+            self.eps,
+        )
 
         if not (method == "binary" or method == "forward"):
-            raise ValueError("{!r} is not a valid value for method, supported \
-                             values are 'binary' and 'forward'.".format(method))
+            raise ValueError(
+                "{!r} is not a valid value for method, supported \
+                             values are 'binary' and 'forward'.".format(
+                    method
+                )
+            )
         if M != []:
             if self.auto:
                 Main.QuanEstimation.mintime(
@@ -241,7 +293,8 @@ class GRAPE_Copt(Control.ControlSystem):
                     f,
                     M,
                     self.max_episode,
-                    self.Adam)
+                    self.Adam,
+                )
             else:
                 Main.QuanEstimation.mintime(
                     Main.eval("Val{:" + method + "}()"),
@@ -250,12 +303,16 @@ class GRAPE_Copt(Control.ControlSystem):
                     f,
                     M,
                     self.max_episode,
-                    self.Adam)
+                    self.Adam,
+                )
         else:
             if target == "HCRB":
-                warnings.warn("GRAPE is not available when the target function is HCRB. \
-                       Supported methods are 'PSO', 'DE' and 'DDPG'.", DeprecationWarning)
-            elif target=="QFIM" and dtype=="SLD":
+                warnings.warn(
+                    "GRAPE is not available when the target function is HCRB. \
+                       Supported methods are 'PSO', 'DE' and 'DDPG'.",
+                    DeprecationWarning,
+                )
+            elif target == "QFIM" and dtype == "SLD":
                 if self.auto:
                     Main.QuanEstimation.mintime(
                         Main.eval("Val{:" + method + "}()"),
@@ -263,7 +320,8 @@ class GRAPE_Copt(Control.ControlSystem):
                         grape,
                         f,
                         self.max_episode,
-                        self.Adam)
+                        self.Adam,
+                    )
                 else:
                     Main.QuanEstimation.mintime(
                         Main.eval("Val{:" + method + "}()"),
@@ -271,13 +329,15 @@ class GRAPE_Copt(Control.ControlSystem):
                         grape,
                         f,
                         self.max_episode,
-                        self.Adam)
-            elif target=="QFIM" and dtype=="RLD":
-                pass #### to be done
-            elif target=="QFIM" and dtype=="LLD":
-                pass #### to be done
+                        self.Adam,
+                    )
+            elif target == "QFIM" and dtype == "RLD":
+                pass  #### to be done
+            elif target == "QFIM" and dtype == "LLD":
+                pass  #### to be done
             else:
-                raise ValueError("Please enter the correct values for target and dtype.\
+                raise ValueError(
+                    "Please enter the correct values for target and dtype.\
                                   Supported target are 'QFIM', 'CFIM' and 'HCRB',  \
-                                  supported dtype are 'SLD', 'RLD' and 'LLD'.") 
-                
+                                  supported dtype are 'SLD', 'RLD' and 'LLD'."
+                )

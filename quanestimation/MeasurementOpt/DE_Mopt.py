@@ -16,10 +16,12 @@ class DE_Mopt(Measurement.MeasurementSystem):
         cr=0.5,
         seed=1234,
         load=False,
-        eps=1e-8):
+        eps=1e-8,
+    ):
 
         Measurement.MeasurementSystem.__init__(
-            self, mtype, minput, save_file, measurement0, seed, load, eps)
+            self, mtype, minput, save_file, measurement0, seed, load, eps
+        )
 
         """
         --------
@@ -82,7 +84,8 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.gamma,
                     self.M,
                     self.W,
-                    self.eps)
+                    self.eps,
+                )
                 Main.QuanEstimation.CFIM_DE_Mopt(
                     diffevo,
                     self.popsize,
@@ -91,19 +94,16 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.cr,
                     self.seed,
                     self.max_episode,
-                    self.save_file)
+                    self.save_file,
+                )
             elif self.dynamics_type == "kraus":
                 if W == []:
                     W = np.eye(len(self.dK))
                 self.W = W
 
                 diffevo = Main.QuanEstimation.projection_Mopt_Kraus(
-                    self.K,
-                    self.dK,
-                    self.rho0,
-                    self.M,
-                    self.W,
-                    self.eps)
+                    self.K, self.dK, self.rho0, self.M, self.W, self.eps
+                )
                 Main.QuanEstimation.CFIM_DE_Mopt(
                     diffevo,
                     self.popsize,
@@ -112,7 +112,8 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.cr,
                     self.seed,
                     self.max_episode,
-                    self.save_file)
+                    self.save_file,
+                )
             self.load_save()
         elif self.mtype == "input":
             if self.dynamics_type == "dynamics":
@@ -130,7 +131,8 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.povm_basis,
                     self.M_num,
                     self.W,
-                    self.eps)
+                    self.eps,
+                )
                 Main.QuanEstimation.CFIM_DE_Mopt(
                     diffevo,
                     self.popsize,
@@ -138,7 +140,8 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.cr,
                     self.seed,
                     self.max_episode,
-                    self.save_file)
+                    self.save_file,
+                )
             elif self.dynamics_type == "kraus":
                 if W == []:
                     W = np.eye(len(self.dK))
@@ -151,7 +154,8 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.povm_basis,
                     self.M_num,
                     self.W,
-                    self.eps)
+                    self.eps,
+                )
                 Main.QuanEstimation.CFIM_DE_Mopt(
                     diffevo,
                     self.popsize,
@@ -159,7 +163,8 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.cr,
                     self.seed,
                     self.max_episode,
-                    self.save_file)
+                    self.save_file,
+                )
             self.load_save()
         elif self.mtype == "rotation":
             if self.dynamics_type == "dynamics":
@@ -176,7 +181,8 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.gamma,
                     self.povm_basis,
                     self.W,
-                    self.eps)
+                    self.eps,
+                )
                 Main.QuanEstimation.CFIM_DE_Mopt(
                     diffevo,
                     self.popsize,
@@ -184,19 +190,16 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.cr,
                     self.seed,
                     self.max_episode,
-                    self.save_file)
+                    self.save_file,
+                )
             elif self.dynamics_type == "kraus":
                 if W == []:
                     W = np.eye(len(self.dK))
                 self.W = W
 
                 diffevo = Main.QuanEstimation.RotateBasis_Mopt_Kraus(
-                    self.K,
-                    self.dK,
-                    self.rho0,
-                    self.povm_basis,
-                    self.W,
-                    self.eps)
+                    self.K, self.dK, self.rho0, self.povm_basis, self.W, self.eps
+                )
                 Main.QuanEstimation.CFIM_DE_Mopt(
                     diffevo,
                     self.popsize,
@@ -204,8 +207,13 @@ class DE_Mopt(Measurement.MeasurementSystem):
                     self.cr,
                     self.seed,
                     self.max_episode,
-                    self.save_file)
+                    self.save_file,
+                )
             self.load_save()
         else:
-            raise ValueError("{!r} is not a valid value for mtype, supported values are \
-                             'projection' and 'input'.".format(self.mtype))
+            raise ValueError(
+                "{!r} is not a valid value for mtype, supported values are \
+                             'projection' and 'input'.".format(
+                    self.mtype
+                )
+            )

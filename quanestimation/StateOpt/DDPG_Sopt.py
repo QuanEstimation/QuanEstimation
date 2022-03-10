@@ -4,6 +4,7 @@ import numpy as np
 import quanestimation.StateOpt.StateStruct as State
 from quanestimation.Common.common import SIC
 
+
 class DDPG_Sopt(State.StateSystem):
     def __init__(
         self,
@@ -14,7 +15,8 @@ class DDPG_Sopt(State.StateSystem):
         seed=1234,
         psi0=[],
         load=False,
-        eps=1e-8):
+        eps=1e-8,
+    ):
 
         State.StateSystem.__init__(self, save_file, psi0, seed, load, eps)
         """
@@ -33,7 +35,7 @@ class DDPG_Sopt(State.StateSystem):
             --description: random seed.
             --type: int
         """
-        
+
         self.layer_num = layer_num
         self.layer_dim = layer_dim
         self.max_episode = max_episode
@@ -66,7 +68,8 @@ class DDPG_Sopt(State.StateSystem):
                     self.decay_opt,
                     self.gamma,
                     self.W,
-                    self.eps)
+                    self.eps,
+                )
                 if dtype == "SLD":
                     Main.QuanEstimation.QFIM_DDPG_Sopt(
                         DDPG,
@@ -74,14 +77,19 @@ class DDPG_Sopt(State.StateSystem):
                         self.layer_dim,
                         self.seed,
                         self.max_episode,
-                        self.save_file)
+                        self.save_file,
+                    )
                 elif dtype == "RLD":
-                    pass #### to be done
+                    pass  #### to be done
                 elif dtype == "LLD":
-                    pass #### to be done
+                    pass  #### to be done
                 else:
-                    raise ValueError("{!r} is not a valid value for dtype, supported \
-                              values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
+                    raise ValueError(
+                        "{!r} is not a valid value for dtype, supported \
+                              values are 'SLD', 'RLD' and 'LLD'.".format(
+                            dtype
+                        )
+                    )
             else:
                 DDPG = Main.QuanEstimation.TimeIndepend_noiseless(
                     self.freeHamiltonian,
@@ -89,7 +97,8 @@ class DDPG_Sopt(State.StateSystem):
                     self.psi0,
                     self.tspan,
                     self.W,
-                    self.eps)
+                    self.eps,
+                )
                 if dtype == "SLD":
                     Main.QuanEstimation.QFIM_DDPG_Sopt(
                         DDPG,
@@ -97,21 +106,28 @@ class DDPG_Sopt(State.StateSystem):
                         self.layer_dim,
                         self.seed,
                         self.max_episode,
-                        self.save_file)
+                        self.save_file,
+                    )
                 elif dtype == "RLD":
-                    pass #### to be done
+                    pass  #### to be done
                 elif dtype == "LLD":
-                    pass #### to be done
+                    pass  #### to be done
                 else:
-                    raise ValueError("{!r} is not a valid value for dtype, supported \
-                              values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
+                    raise ValueError(
+                        "{!r} is not a valid value for dtype, supported \
+                              values are 'SLD', 'RLD' and 'LLD'.".format(
+                            dtype
+                        )
+                    )
 
         elif self.dynamics_type == "kraus":
             if W == []:
                 W = np.eye(len(self.dK))
             self.W = W
 
-            DDPG = Main.QuanEstimation.TimeIndepend_Kraus(self.K, self.dK, self.psi0, self.W, self.eps)
+            DDPG = Main.QuanEstimation.TimeIndepend_Kraus(
+                self.K, self.dK, self.psi0, self.W, self.eps
+            )
             if dtype == "SLD":
                 Main.QuanEstimation.QFIM_DDPG_Sopt(
                     DDPG,
@@ -119,14 +135,19 @@ class DDPG_Sopt(State.StateSystem):
                     self.layer_dim,
                     self.seed,
                     self.max_episode,
-                    self.save_file)
+                    self.save_file,
+                )
             elif dtype == "RLD":
-                pass #### to be done
+                pass  #### to be done
             elif dtype == "LLD":
-                pass #### to be done
+                pass  #### to be done
             else:
-                raise ValueError("{!r} is not a valid value for dtype, supported \
-                                  values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
+                raise ValueError(
+                    "{!r} is not a valid value for dtype, supported \
+                                  values are 'SLD', 'RLD' and 'LLD'.".format(
+                        dtype
+                    )
+                )
 
         self.load_save()
 
@@ -141,15 +162,15 @@ class DDPG_Sopt(State.StateSystem):
         M:
             --description: a set of POVM.
             --type: list of matrix
-            
+
         W:
             --description: weight matrix.
             --type: matrix
         """
-        if M==[]:
+        if M == []:
             M = SIC(len(self.psi0))
         M = [np.array(x, dtype=np.complex128) for x in M]
-        
+
         if self.dynamics_type == "dynamics":
             if W == []:
                 W = np.eye(len(self.Hamiltonian_derivative))
@@ -164,7 +185,8 @@ class DDPG_Sopt(State.StateSystem):
                     self.decay_opt,
                     self.gamma,
                     self.W,
-                    self.eps)
+                    self.eps,
+                )
                 Main.QuanEstimation.CFIM_DDPG_Sopt(
                     M,
                     DDPG,
@@ -172,7 +194,8 @@ class DDPG_Sopt(State.StateSystem):
                     self.layer_dim,
                     self.seed,
                     self.max_episode,
-                    self.save_file)
+                    self.save_file,
+                )
             else:
                 DDPG = Main.QuanEstimation.TimeIndepend_noiseless(
                     self.freeHamiltonian,
@@ -180,7 +203,8 @@ class DDPG_Sopt(State.StateSystem):
                     self.psi0,
                     self.tspan,
                     self.W,
-                    self.eps)
+                    self.eps,
+                )
                 Main.QuanEstimation.CFIM_DDPG_Sopt(
                     M,
                     DDPG,
@@ -188,14 +212,17 @@ class DDPG_Sopt(State.StateSystem):
                     self.layer_dim,
                     self.seed,
                     self.max_episode,
-                    self.save_file)
+                    self.save_file,
+                )
 
         elif self.dynamics_type == "kraus":
             if W == []:
                 W = np.eye(len(self.dK))
             self.W = W
 
-            DDPG = Main.QuanEstimation.TimeIndepend_Kraus(self.K, self.dK, self.psi0, self.W, self.eps)
+            DDPG = Main.QuanEstimation.TimeIndepend_Kraus(
+                self.K, self.dK, self.psi0, self.W, self.eps
+            )
             Main.QuanEstimation.CFIM_DDPG_Sopt(
                 M,
                 DDPG,
@@ -203,7 +230,8 @@ class DDPG_Sopt(State.StateSystem):
                 self.layer_dim,
                 self.seed,
                 self.max_episode,
-                self.save_file)
+                self.save_file,
+            )
 
         self.load_save()
 
@@ -225,9 +253,11 @@ class DDPG_Sopt(State.StateSystem):
             self.W = W
 
             if len(self.Hamiltonian_derivative) == 1:
-                warnings.warn("In single parameter scenario, HCRB is equivalent to QFI. Please \
-                               choose QFIM as the target function for control optimization",\
-                               DeprecationWarning)
+                warnings.warn(
+                    "In single parameter scenario, HCRB is equivalent to QFI. Please \
+                               choose QFIM as the target function for control optimization",
+                    DeprecationWarning,
+                )
             else:
                 if any(self.gamma):
                     DDPG = Main.QuanEstimation.TimeIndepend_noise(
@@ -238,14 +268,16 @@ class DDPG_Sopt(State.StateSystem):
                         self.decay_opt,
                         self.gamma,
                         self.W,
-                        self.eps)
+                        self.eps,
+                    )
                     Main.QuanEstimation.HCRB_DDPG_Sopt(
                         DDPG,
                         self.layer_num,
                         self.layer_dim,
                         self.seed,
                         self.max_episode,
-                        self.save_file)
+                        self.save_file,
+                    )
                 else:
                     DDPG = Main.QuanEstimation.TimeIndepend_noiseless(
                         self.freeHamiltonian,
@@ -253,27 +285,32 @@ class DDPG_Sopt(State.StateSystem):
                         self.psi0,
                         self.tspan,
                         self.W,
-                        self.eps)
+                        self.eps,
+                    )
                     Main.QuanEstimation.HCRB_DDPG_Sopt(
                         DDPG,
                         self.layer_num,
                         self.layer_dim,
                         self.seed,
                         self.max_episode,
-                        self.save_file)
+                        self.save_file,
+                    )
 
         elif self.dynamics_type == "kraus":
             if W == []:
                 W = np.eye(len(self.dK))
             self.W = W
 
-            DDPG = Main.QuanEstimation.TimeIndepend_Kraus(self.K, self.dK, self.psi0, self.W, self.eps)
+            DDPG = Main.QuanEstimation.TimeIndepend_Kraus(
+                self.K, self.dK, self.psi0, self.W, self.eps
+            )
             Main.QuanEstimation.HCRB_DDPG_Sopt(
                 DDPG,
                 self.layer_num,
                 self.layer_dim,
                 self.seed,
                 self.max_episode,
-                self.save_file)
+                self.save_file,
+            )
 
         self.load_save()
