@@ -3,57 +3,57 @@ import warnings
 import math
 import os
 import quanestimation.ControlOpt as ctrl
+from julia import Main
 
 
 class ControlSystem:
-    def __init__(
-        self, tspan, rho0, H0, Hc, dH, decay, ctrl_bound, save_file, ctrl0, load, eps):
+    def __init__(self, save_file, ctrl0, load, eps):
 
         """
         ----------
         Inputs
         ----------
-        tspan: 
+        tspan:
            --description: time series.
            --type: array
-        
-        rho0: 
+
+        rho0:
            --description: initial state (density matrix).
            --type: matrix
-        
-        H0: 
+
+        H0:
            --description: free Hamiltonian.
            --type: matrix or a list of matrix
-           
-        Hc: 
+
+        Hc:
            --description: control Hamiltonian.
            --type: list (of matrix)
-        
-        dH: 
+
+        dH:
            --description: derivatives of Hamiltonian on all parameters to
                           be estimated. For example, dH[0] is the derivative
                           vector on the first parameter.
            --type: list (of matrix)
-           
+
         decay:
            --description: decay operators and the corresponding decay rates.
                           decay[0][0] represent the first decay operator and
                           decay[0][1] represent the corresponding decay rate.
-           --type: list 
+           --type: list
 
-        ctrl_bound:   
+        ctrl_bound:
            --description: lower and upper bounds of the control coefficients.
                           ctrl_bound[0] represent the lower bound of the control coefficients and
                           ctrl_bound[1] represent the upper bound of the control coefficients.
-           --type: list 
+           --type: list
 
         save_file:
-            --description: True: save the control coefficients and the value of the target function 
+            --description: True: save the control coefficients and the value of the target function
                                  for each episode.
-                           False: save the control coefficients and all the value of the target 
+                           False: save the control coefficients and all the value of the target
                                   function for the last episode.
             --type: bool
-        
+
         ctrl0:
             --description: initial control coefficients.
             --type: list (of vector)
@@ -61,8 +61,13 @@ class ControlSystem:
         eps:
             --description: calculation eps.
             --type: float
-        
+
         """
+        self.save_file = save_file
+        self.ctrl0 = ctrl0
+        self.eps = eps
+
+    def dynamics(self,tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[]):
         self.tspan = tspan
         self.rho0 = np.array(rho0, dtype=np.complex128)
 
@@ -81,24 +86,10 @@ class ControlSystem:
         if dH == []:
             dH = [np.zeros((len(self.rho0), len(self.rho0)))]
         self.Hamiltonian_derivative = [np.array(x, dtype=np.complex128) for x in dH]
-
-        if ctrl0 == []:
-            if ctrl_bound == []:
-                ctrl0 = [
-                    2 * np.random.random(len(self.tspan) - 1)
-                    - np.ones(len(self.tspan) - 1)
-                    for i in range(len(self.control_Hamiltonian))]
-            else:
-                a = ctrl_bound[0]
-                b = ctrl_bound[1]
-                ctrl0 = [
-                    (b - a) * np.random.random(len(self.tspan) - 1)
-                    + a * np.ones(len(self.tspan) - 1)
-                    for i in range(len(self.control_Hamiltonian))]
-            self.control_coefficients = ctrl0
-        elif len(ctrl0) >= 1:
-            self.control_coefficients = [
-                ctrl0[0][i] for i in range(len(self.control_Hamiltonian))]
+        if len(dH) == 1:
+            self.para_type = "single_para"
+        else:
+            self.para_type = "multi_para"
 
         if decay == []:
             decay_opt = [np.zeros((len(self.rho0), len(self.rho0)))]
@@ -113,13 +104,29 @@ class ControlSystem:
             ctrl_bound = [-np.inf, np.inf]
         self.ctrl_bound = ctrl_bound
 
-        self.save_file = save_file
+        if self.ctrl0 == []:
+            if ctrl_bound == []:
+                ctrl0 = [
+                    2 * np.random.random(len(self.tspan) - 1)
+                    - np.ones(len(self.tspan) - 1)
+                    for i in range(len(self.control_Hamiltonian))]
+            else:
+                a = ctrl_bound[0]
+                b = ctrl_bound[1]
+                ctrl0 = [
+                    (b - a) * np.random.random(len(self.tspan) - 1)
+                    + a * np.ones(len(self.tspan) - 1)
+                    for i in range(len(self.control_Hamiltonian))]
+            self.control_coefficients = ctrl0
+            self.ctrl0 = [ctrl0]
+        elif len(self.ctrl0) >= 1:
+            self.control_coefficients = [
+                self.ctrl0[0][i] for i in range(len(self.control_Hamiltonian))]
 
-        self.eps = eps
         if load == True:
             if os.path.exists("controls.csv"):
                 data = np.genfromtxt("controls.csv")[-len(self.control_Hamiltonian) :]
-                self.control_coefficients = [data[i] for i in range(len(data))]
+                self.control_coefficients = [data[i] for i in range(len(data))] 
 
         ctrl_num = len(self.control_coefficients)
         Hc_num = len(self.control_Hamiltonian)
@@ -127,12 +134,20 @@ class ControlSystem:
             raise TypeError("There are %d control Hamiltonians but %d coefficients sequences: \
                              too many coefficients sequences"% (Hc_num, ctrl_num))
         elif Hc_num > ctrl_num:
-            warnings.warn("Not enough coefficients sequences: there are %d control Hamiltonians \
+            warnings.warn(
+                "Not enough coefficients sequences: there are %d control Hamiltonians \
                             but %d coefficients sequences. The rest of the control sequences are\
-                            set to be 0." % (Hc_num, ctrl_num), DeprecationWarning)
+                            set to be 0."
+                % (Hc_num, ctrl_num),
+                DeprecationWarning,
+            )
             for i in range(Hc_num - ctrl_num):
                 self.control_coefficients = np.concatenate(
-                    (self.control_coefficients, np.zeros(len(self.control_coefficients[0]))))
+                    (
+                        self.control_coefficients,
+                        np.zeros(len(self.control_coefficients[0])),
+                    )
+                )
         else:
             pass
 
@@ -143,21 +158,136 @@ class ControlSystem:
         else:
             pass
 
-def ControlOpt(*args, save_file=False, method="auto-GRAPE", **kwargs):
+        self.opt = Main.QuanEstimation.ControlOpt(
+            self.control_coefficients, self.ctrl_bound
+        )
+        self.dynamic = Main.QuanEstimation.Lindblad(
+            self.freeHamiltonian,
+            self.Hamiltonian_derivative,
+            self.control_Hamiltonian,
+            self.control_coefficients,
+            self.rho0,
+            self.tspan,
+            self.decay_opt,
+        self.gamma,
+        )
+        self.output = Main.QuanEstimation.Output(self.opt, self.save_file)
+
+    def QFIM(self, W=[], dtype="SLD"):
+        """
+        Description: use differential evolution algorithm to update the control coefficients that maximize the
+                     QFI (1/Tr(WF^{-1} with F the QFIM).
+
+        ---------
+        Inputs
+        ---------
+        W:
+            --description: weight matrix.
+            --type: matrix
+        """
+        if dtype != "SLD" and dtype != "RLD" and dtyep != "LLD":
+            raise ValueError(
+                "{!r} is not a valid value for dtype, supported values are 'SLD', 'RLD' and 'LLD'.".format(
+                    dtype
+                )
+            )
+
+        if W == []:
+            W = np.eye(len(self.Hamiltonian_derivative))
+        self.W = W
+
+        self.obj = Main.QuanEstimation.QFIM_Obj(self.W, self.eps, self.para_type, dtype)
+        system = Main.QuanEstimation.QuanEstSystem(
+            self.opt, self.alg, self.obj, self.dynamic, self.output
+        )
+        Main.QuanEstimation.run(system)
+
+    def CFIM(self, M=[], W=[]):
+
+        """
+        Description: use differential evolution algorithm to update the control coefficients that maximize the
+                     CFI (1/Tr(WF^{-1} with F the CFIM).
+
+        ---------
+        Inputs
+        ---------
+        M:
+            --description: a set of POVM.
+            --type: list of matrix
+
+        W:
+            --description: weight matrix.
+            --type: matrix
+        """
+        if M == []:
+            M = SIC(len(self.rho0))
+        M = [np.array(x, dtype=np.complex128) for x in M]
+
+        if W == []:
+            W = np.eye(len(self.Hamiltonian_derivative))
+        self.W = W
+
+        self.obj = Main.QuanEstimation.CFIM_Obj(M, self.W, self.eps, self.para_type)
+        system = Main.QuanEstimation.QuanEstSystem(
+            self.opt, self.alg, self.obj, self.dynamic, self.output
+        )
+        Main.QuanEstimation.run(system)
+
+    def HCRB(self, W=[]):
+        """
+        Description: use differential evolution algorithm to update the control coefficients that maximize the
+                     HCRB.
+
+        ---------
+        Inputs
+        ---------
+        W:
+            --description: weight matrix.
+            --type: matrix
+        """
+        if W == []:
+            W = np.eye(len(self.Hamiltonian_derivative))
+        self.W = W
+
+        if len(self.Hamiltonian_derivative) == 1:
+            warnings.warn(
+                "In single parameter scenario, HCRB is equivalent to QFI. \
+                           Please choose QFIM as the target function for control optimization",
+                DeprecationWarning,
+            )
+        else:
+
+            if W == []:
+                W = np.eye(len(self.Hamiltonian_derivative))
+            self.W = W
+
+            self.obj = Main.QuanEstimation.HCRB_Obj(self.W, self.eps, self.para_type)
+            system = Main.QuanEstimation.QuanEstSystem(
+                self.opt, self.alg, self.obj, self.dynamic, self.output
+            )
+            Main.QuanEstimation.run(system)
+
+
+def ControlOpt(save_file=False, method="auto-GRAPE", **kwargs):
 
     if method == "auto-GRAPE":
-        return ctrl.GRAPE_Copt(*args, save_file=save_file, **kwargs, auto=True)
+        return ctrl.GRAPE_Copt(save_file=save_file, **kwargs, auto=True)
     elif method == "GRAPE":
-        return ctrl.GRAPE_Copt(*args, save_file=save_file, **kwargs, auto=False)
+        return ctrl.GRAPE_Copt(save_file=save_file, **kwargs, auto=False)
     elif method == "PSO":
-        return ctrl.PSO_Copt(*args, save_file=save_file, **kwargs)
+        return ctrl.PSO_Copt(save_file=save_file, **kwargs)
     elif method == "DE":
-        return ctrl.DE_Copt(*args, save_file=save_file, **kwargs)
+        return ctrl.DE_Copt(save_file=save_file, **kwargs)
     elif method == "DDPG":
-        return ctrl.DDPG_Copt(*args, save_file=save_file, **kwargs)
+        return ctrl.DDPG_Copt(save_file=save_file, **kwargs)
     else:
-        raise ValueError("{!r} is not a valid value for method, supported values are 'auto-GRAPE', \
-                         'GRAPE', 'PSO', 'DE', 'DDPG'.".format(method))
+        raise ValueError(
+            "{!r} is not a valid value for method, supported values are 'auto-GRAPE', \
+                         'GRAPE', 'PSO', 'DE', 'DDPG'.".format(
+                method
+            )
+        )
+
 
 def csv2npy_controls(controls, num):
     C_save = []

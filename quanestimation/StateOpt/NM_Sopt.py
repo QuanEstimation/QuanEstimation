@@ -64,7 +64,6 @@ class NM_Sopt(State.StateSystem):
         """
 
         self.state_num = state_num
-        self.ini_state = self.psi
         self.max_episode = max_episode
         self.ar = ar
         self.ae = ae
@@ -73,275 +72,46 @@ class NM_Sopt(State.StateSystem):
         self.seed = seed
 
     def QFIM(self, W=[], dtype="SLD"):
-        """
-        Description: use nelder-mead method to search the optimal initial state that maximize the
-                     QFI (1/Tr(WF^{-1} with F the QFIM).
+        ini_state = Main.vec(self.psi)
+        self.alg = Main.QuanEstimation.NM(
+            self.max_episode,
+            self.state_num,
+            ini_state,
+            self.ar,
+            self.ae,
+            self.ac,
+            self.as0,
+            self.seed
+        )
 
-        ---------
-        Inputs
-        ---------
-        W:
-            --description: weight matrix.
-            --type: matrix
-        """
-
-        if self.dynamics_type == "dynamics":
-            if W == []:
-                W = np.eye(len(self.Hamiltonian_derivative))
-            self.W = W
-            
-            if any(self.gamma):
-                neldermead = Main.QuanEstimation.TimeIndepend_noise(
-                    self.freeHamiltonian,
-                    self.Hamiltonian_derivative,
-                    self.psi0,
-                    self.tspan,
-                    self.decay_opt,
-                    self.gamma,
-                    self.W,
-                    self.eps)
-                if dtype == "SLD":
-                    Main.QuanEstimation.QFIM_NM_Sopt(
-                        neldermead,
-                        self.state_num,
-                        self.ini_state,
-                        self.ar,
-                        self.ae,
-                        self.ac,
-                        self.as0,
-                        self.max_episode,
-                        self.seed,
-                        self.save_file)
-                elif dtype == "RLD":
-                    pass #### to be done
-                elif dtype == "LLD":
-                    pass #### to be done
-                else:
-                    raise ValueError("{!r} is not a valid value for dtype, supported \
-                              values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
-            else:
-                neldermead = Main.QuanEstimation.TimeIndepend_noiseless(
-                    self.freeHamiltonian,
-                    self.Hamiltonian_derivative,
-                    self.psi0,
-                    self.tspan,
-                    self.W,
-                    self.eps)
-                if dtype == "SLD":
-                    Main.QuanEstimation.QFIM_NM_Sopt(
-                        neldermead,
-                        self.state_num,
-                        self.ini_state,
-                        self.ar,
-                        self.ae,
-                        self.ac,
-                        self.as0,
-                        self.max_episode,
-                        self.seed,
-                        self.save_file)
-                elif dtype == "RLD":
-                    pass #### to be done
-                elif dtype == "LLD":
-                    pass #### to be done
-                else:
-                    raise ValueError("{!r} is not a valid value for dtype, supported \
-                              values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
-        elif self.dynamics_type == "kraus":
-            if W == []:
-                W = np.eye(len(self.dK))
-            self.W = W
-            
-            neldermead = Main.QuanEstimation.TimeIndepend_Kraus(self.K, self.dK, self.psi0, self.W, self.eps)
-            if dtype == "SLD":
-                Main.QuanEstimation.QFIM_NM_Sopt(
-                    neldermead,
-                    self.state_num,
-                    self.ini_state,
-                    self.ar,
-                    self.ae,
-                    self.ac,
-                    self.as0,
-                    self.max_episode,
-                    self.seed,
-                    self.save_file)
-            elif dtype == "RLD":
-                pass #### to be done
-            elif dtype == "LLD":
-                pass #### to be done
-            else:
-                raise ValueError("{!r} is not a valid value for dtype, supported \
-                                  values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
-
-        self.load_save()
+        super().QFIM(W, dtype)
 
     def CFIM(self, M=[], W=[]):
-        """
-        Description: use nelder-mead method to search the optimal initial state that maximize the
-                     CFI (1/Tr(WF^{-1} with F the CFIM).
+        ini_state = Main.vec(self.psi)
+        self.alg = Main.QuanEstimation.NM(
+            self.max_episode,
+            self.state_num,
+            ini_state,
+            self.ar,
+            self.ae,
+            self.ac,
+            self.as0,
+            self.seed
+        )
 
-        ---------
-        Inputs
-        ---------
-        M:
-            --description: a set of POVM.
-            --type: list of matrix
-            
-        W:
-            --description: weight matrix.
-            --type: matrix
-        """
-
-        if M==[]:
-            M = SIC(len(self.psi0))
-        M = [np.array(x, dtype=np.complex128) for x in M]
-        
-        if self.dynamics_type == "dynamics":
-            if W == []:
-                W = np.eye(len(self.Hamiltonian_derivative))
-            self.W = W
-            
-            if any(self.gamma):
-                neldermead = Main.QuanEstimation.TimeIndepend_noise(
-                    self.freeHamiltonian,
-                    self.Hamiltonian_derivative,
-                    self.psi0,
-                    self.tspan,
-                    self.decay_opt,
-                    self.gamma,
-                    self.W,
-                    self.eps)
-                Main.QuanEstimation.CFIM_NM_Sopt(
-                    M,
-                    neldermead,
-                    self.state_num,
-                    self.ini_state,
-                    self.ar,
-                    self.ae,
-                    self.ac,
-                    self.as0,
-                    self.max_episode,
-                    self.seed,
-                    self.save_file)
-            else:
-                neldermead = Main.QuanEstimation.TimeIndepend_noiseless(
-                    self.freeHamiltonian,
-                    self.Hamiltonian_derivative,
-                    self.psi0,
-                    self.tspan,
-                    self.W,
-                    self.eps)
-                Main.QuanEstimation.CFIM_NM_Sopt(
-                    M,
-                    neldermead,
-                    self.state_num,
-                    self.ini_state,
-                    self.ar,
-                    self.ae,
-                    self.ac,
-                    self.as0,
-                    self.max_episode,
-                    self.seed,
-                    self.save_file)
-
-        elif self.dynamics_type == "kraus":
-            if W == []:
-                W = np.eye(len(self.dK))
-            self.W = W
-            neldermead = Main.QuanEstimation.TimeIndepend_Kraus(self.K, self.dK, self.psi0, self.W, self.eps)
-            Main.QuanEstimation.CFIM_NM_Sopt(
-                M,
-                neldermead,
-                self.state_num,
-                self.ini_state,
-                self.ar,
-                self.ae,
-                self.ac,
-                self.as0,
-                self.max_episode,
-                self.seed,
-                self.save_file)
-
-        self.load_save()
+        super().CFIM(M, W)
 
     def HCRB(self, W=[]):
-        """
-        Description: use nelder-mead method to search the optimal initial state that maximize the HCRB.
+        ini_state = Main.vec(self.psi)
+        self.alg = Main.QuanEstimation.NM(
+            self.max_episode,
+            self.state_num,
+            ini_state,
+            self.ar,
+            self.ae,
+            self.ac,
+            self.as0,
+            self.seed
+        )
 
-        ---------
-        Inputs
-        ---------
-        W:
-            --description: weight matrix.
-            --type: matrix
-        """
-        
-        if self.dynamics_type == "dynamics":
-            if W == []:
-                W = np.eye(self.Hamiltonian_derivative)
-            self.W = W
-            
-            if len(self.Hamiltonian_derivative) == 1:
-                warnings.warn("In single parameter scenario, HCRB is equivalent to QFI. Please \
-                               choose QFIM as the target function for control optimization",\
-                               DeprecationWarning)
-            else:
-                if any(self.gamma):
-                    neldermead = Main.QuanEstimation.TimeIndepend_noise(
-                        self.freeHamiltonian,
-                        self.Hamiltonian_derivative,
-                        self.psi0,
-                        self.tspan,
-                        self.decay_opt,
-                        self.gamma,
-                        self.W,
-                        self.eps)
-                    Main.QuanEstimation.HCRB_NM_Sopt(
-                        neldermead,
-                        self.state_num,
-                        self.ini_state,
-                        self.ar,
-                        self.ae,
-                        self.ac,
-                        self.as0,
-                        self.max_episode,
-                        self.seed,
-                        self.save_file)
-                else:
-                    neldermead = Main.QuanEstimation.TimeIndepend_noiseless(
-                        self.freeHamiltonian,
-                        self.Hamiltonian_derivative,
-                        self.psi0,
-                        self.tspan,
-                        self.W,
-                        self.eps)
-                    Main.QuanEstimation.HCRB_NM_Sopt(
-                        neldermead,
-                        self.state_num,
-                        self.ini_state,
-                        self.ar,
-                        self.ae,
-                        self.ac,
-                        self.as0,
-                        self.max_episode,
-                        self.seed,
-                        self.save_file)
-
-        elif self.dynamics_type == "kraus":
-            if W == []:
-                W = np.eye(len(self.dK))
-            self.W = W
-            
-            neldermead = Main.QuanEstimation.TimeIndepend_Kraus(self.K, self.dK, self.psi0, self.W, self.eps)
-            Main.QuanEstimation.HCRB_NM_Sopt(
-                neldermead,
-                self.state_num,
-                self.ini_state,
-                self.ar,
-                self.ae,
-                self.ac,
-                self.as0,
-                self.max_episode,
-                self.seed,
-                self.save_file)
-
-        self.load_save()
+        super().HCRB(W)

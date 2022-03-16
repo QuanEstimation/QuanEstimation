@@ -18,10 +18,12 @@ class AD_Mopt(Measurement.MeasurementSystem):
         beta2=0.99,
         seed=1234,
         load=False,
-        eps=1e-8):
+        eps=1e-8,
+    ):
 
         Measurement.MeasurementSystem.__init__(
-            self, mtype, minput, save_file, measurement0, seed, load, eps)
+            self, mtype, minput, save_file, measurement0, seed, load, eps
+        )
 
         """
         --------
@@ -64,7 +66,6 @@ class AD_Mopt(Measurement.MeasurementSystem):
         self.mt = 0.0
         self.vt = 0.0
         self.seed = seed
-        self.update_basis = 50
 
     def CFIM(self, W=[]):
         """
@@ -80,8 +81,11 @@ class AD_Mopt(Measurement.MeasurementSystem):
         """
 
         if self.mtype == "projection":
-            warnings.warn("AD is not available when mtype is projection. Supported methods are \
-                           'PSO' and 'DE'.", DeprecationWarning)
+            warnings.warn(
+                "AD is not available when mtype is projection. Supported methods are \
+                           'PSO' and 'DE'.",
+                DeprecationWarning,
+            )
         elif self.mtype == "input":
             if self.dynamics_type == "dynamics":
                 if W == []:
@@ -98,7 +102,8 @@ class AD_Mopt(Measurement.MeasurementSystem):
                     self.povm_basis,
                     self.M_num,
                     self.W,
-                    self.eps)
+                    self.eps,
+                )
                 Main.QuanEstimation.CFIM_AD_Mopt(
                     AD,
                     self.mt,
@@ -109,7 +114,8 @@ class AD_Mopt(Measurement.MeasurementSystem):
                     self.max_episode,
                     self.Adam,
                     self.save_file,
-                    self.seed)
+                    self.seed,
+                )
             elif self.dynamics_type == "kraus":
                 if W == []:
                     W = np.eye(len(self.dK))
@@ -122,7 +128,8 @@ class AD_Mopt(Measurement.MeasurementSystem):
                     self.povm_basis,
                     self.M_num,
                     self.W,
-                    self.eps)
+                    self.eps,
+                )
                 Main.QuanEstimation.CFIM_AD_Mopt(
                     AD,
                     self.mt,
@@ -133,7 +140,8 @@ class AD_Mopt(Measurement.MeasurementSystem):
                     self.max_episode,
                     self.Adam,
                     self.save_file,
-                    self.seed)
+                    self.seed,
+                )
             self.load_save()
         elif self.mtype == "rotation":
             if self.dynamics_type == "dynamics":
@@ -150,7 +158,8 @@ class AD_Mopt(Measurement.MeasurementSystem):
                     self.gamma,
                     self.povm_basis,
                     self.W,
-                    self.eps)
+                    self.eps,
+                )
                 Main.QuanEstimation.CFIM_AD_Mopt(
                     AD,
                     self.mt,
@@ -161,19 +170,16 @@ class AD_Mopt(Measurement.MeasurementSystem):
                     self.max_episode,
                     self.Adam,
                     self.save_file,
-                    self.seed)
+                    self.seed,
+                )
             elif self.dynamics_type == "kraus":
                 if W == []:
                     W = np.eye(len(self.dK))
                 self.W = W
 
                 AD = Main.QuanEstimation.RotateBasis_Mopt_Kraus(
-                    self.K,
-                    self.dK,
-                    self.rho0,
-                    self.povm_basis,
-                    self.W,
-                    self.eps)
+                    self.K, self.dK, self.rho0, self.povm_basis, self.W, self.eps
+                )
                 Main.QuanEstimation.CFIM_AD_Mopt(
                     AD,
                     self.mt,
@@ -184,8 +190,13 @@ class AD_Mopt(Measurement.MeasurementSystem):
                     self.max_episode,
                     self.Adam,
                     self.save_file,
-                    self.seed)
+                    self.seed,
+                )
             self.load_save()
         else:
-            raise ValueError("{!r} is not a valid value for method, supported values are \
-                             'projection' and 'input'.".format(self.mtype))
+            raise ValueError(
+                "{!r} is not a valid value for method, supported values are \
+                             'projection' and 'input'.".format(
+                    self.mtype
+                )
+            )

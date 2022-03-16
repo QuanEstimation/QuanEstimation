@@ -1,3 +1,4 @@
+from re import S
 import numpy as np
 import os
 import math
@@ -98,6 +99,7 @@ class MeasurementSystem:
         self.tspan = tspan
         self.rho0 = np.array(rho0, dtype=np.complex128)
 
+
         if self.mtype == "projection":
             if self.measurement0 == []:
                 np.random.seed(self.seed)
@@ -111,6 +113,9 @@ class MeasurementSystem:
                 self.M = gramschmidt(np.array(M))
             elif len(self.measurement0) >= 1:
                 self.M = [self.measurement0[0][i] for i in range(len(self.rho0))]
+            
+            self.opt = Main.QuanEstimation.Mopt_Projection(self.measurement0)
+        
         elif self.mtype == "input":
             if self.minput[0] == "LC":
                 ## optimize the combination of a set of SIC-POVM
@@ -146,6 +151,14 @@ class MeasurementSystem:
                             raise TypeError("The sum of the given POVMs should be identity matrix!")
                         self.povm_basis = [np.array(x, dtype=np.complex128) for x in self.minput[1]]
                         self.M_num = self.minput[2]
+
+                if self.measurement0 == []:
+                    self.B = [np.random.random(len(self.povm_basis)) for i in 1:M_num]
+                elif len(self.measurement0) >= 1:
+                    self.B = [self.measurement0[0][i] for i in range(len(self.povm_basis))]
+
+                self.opt = Main.QuanEstimation.Mopt_LinearComb(self.B, self.povm_basis, self.measurement0)
+                        
             elif self.minput[0] == "rotation":
                 ## optimize the coefficients of the rotation matrix
                 if type(self.minput[1]) != list:
@@ -169,12 +182,21 @@ class MeasurementSystem:
                         raise TypeError("The sum of the given POVMs should be identity matrix!")
                     self.povm_basis = [np.array(x, dtype=np.complex128) for x in self.minput[1]]
                     self.mtype = "rotation"
+                
+                if self.measurement0 == []:
+                    self.s = np.random.random(len(self.rho0)**2)
+                elif len(self.measurement0) >= 1:
+                    self.s = [self.measurement0[0][i] for i in range(len(self.rho0)*len(self.rho0))]
+
+                self.opt = Main.QuanEstimation.Mopt_Rotation(self.s, self.povm_basis, self.measurement0)
+            
             else:
                 raise ValueError("{!r} is not a valid value for the first input of minput, \
                                  supported values are 'LC' and 'rotation'.".format(self.minput[0]))
         else:
             raise ValueError("{!r} is not a valid value for mtype, supported values are 'projection' \
                               and 'input'.".format(self.mtype))
+        
         if Hc == [] or ctrl == []:
             if type(H0) == np.ndarray:
                 self.freeHamiltonian = np.array(H0, dtype=np.complex128)
@@ -231,6 +253,17 @@ class MeasurementSystem:
             self.gamma = [decay[i][1] for i in range(len(decay))]
         self.decay_opt = [np.array(x, dtype=np.complex128) for x in decay_opt]
 
+
+        self.dynamic = Main.QuanEstimation.Lindblad(
+                self.freeHamiltonian,
+                self.Hamiltonian_derivative,
+                self.rho0,
+                self.tspan,
+                self.decay_opt,
+                self.gamma,
+            )
+        self.output = Main.QuanEstimation.Output(self.opt, self.save_file)
+            
         self.dynamics_type = "dynamics"
 
     def kraus(self, rho0, K, dK):
@@ -254,6 +287,8 @@ class MeasurementSystem:
                 self.M = gramschmidt(np.array(M))
             elif len(self.measurement0) >= 1:
                 self.M = [self.measurement0[0][i] for i in range(len(self.rho0))]
+
+            
         elif self.mtype == "input":
             if self.minput[0] == "LC":
                 ## optimize the combination of a set of SIC-POVM

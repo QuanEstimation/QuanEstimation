@@ -46,7 +46,7 @@ Main.include("quanestimation/JuliaSrc/QuanEstimation.jl")
 __all__ = ["ControlOpt", "StateOpt", "MeasurementOpt", "ComprehensiveOpt", 
            "CFIM", "QFIM","QFIM_Bloch", "LLD",  "RLD", "SLD", "HCRB", "QFIM_Gauss", "QFIM_Kraus", "FIM",
            "BCFIM", "BQFIM", "BCRB","BQCRB", "OBB", "QVTB", "VTB","QZZB", "Bayes", "MLE",
-           "Lindblad", "squeezing_parameter", "Concurrence", "Entropy_VN",
+           "Lindblad", "SpinSqueezing", "TargetTime",
            "GRAPE_Copt", "DE_Copt", "PSO_Copt", "DDPG_Copt",
            "AD_Mopt", "PSO_Mopt", "DE_Mopt",
            "AD_Sopt", "DE_Sopt", "PSO_Sopt", "DDPG_Sopt", "NM_Sopt",
