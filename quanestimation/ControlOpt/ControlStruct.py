@@ -4,7 +4,7 @@ import math
 import os
 import quanestimation.ControlOpt as ctrl
 from julia import Main
-
+from quanestimation.Common.common import SIC
 
 class ControlSystem:
     def __init__(self, save_file, ctrl0, load, eps):
@@ -66,6 +66,7 @@ class ControlSystem:
         self.save_file = save_file
         self.ctrl0 = ctrl0
         self.eps = eps
+        self.load = load
 
     def dynamics(self,tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[]):
         self.tspan = tspan
@@ -110,6 +111,8 @@ class ControlSystem:
                     2 * np.random.random(len(self.tspan) - 1)
                     - np.ones(len(self.tspan) - 1)
                     for i in range(len(self.control_Hamiltonian))]
+                self.control_coefficients = ctrl0
+                self.ctrl0 = [np.array(ctrl0)]
             else:
                 a = ctrl_bound[0]
                 b = ctrl_bound[1]
@@ -118,12 +121,12 @@ class ControlSystem:
                     + a * np.ones(len(self.tspan) - 1)
                     for i in range(len(self.control_Hamiltonian))]
             self.control_coefficients = ctrl0
-            self.ctrl0 = [ctrl0]
+            self.ctrl0 = [np.array(ctrl0)]
         elif len(self.ctrl0) >= 1:
             self.control_coefficients = [
                 self.ctrl0[0][i] for i in range(len(self.control_Hamiltonian))]
 
-        if load == True:
+        if self.load == True:
             if os.path.exists("controls.csv"):
                 data = np.genfromtxt("controls.csv")[-len(self.control_Hamiltonian) :]
                 self.control_coefficients = [data[i] for i in range(len(data))] 

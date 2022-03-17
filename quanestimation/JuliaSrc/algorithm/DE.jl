@@ -20,7 +20,7 @@ function update!(opt::ControlOpt, alg::DE, obj, dynamics, output)
     set_io!(output, f_noctrl, p_out[1])
     show(opt, output, obj)
     
-    for i = 1:(max_episode-1)
+    for ei = 1:(max_episode-1)
         for pj = 1:p_num
             #mutations
             mut_num = sample(1:p_num, 3, replace = false)
@@ -69,12 +69,12 @@ function update!(opt::ControlOpt, alg::DE, obj, dynamics, output)
         set_io!(output, p_out[idx], ei)
         show(output, obj)
     end
-    set_io!(output, p_out[idx])
+    set_io!(output, output.f_list[end])
 end
 
 #### state optimization ####
 function update!(opt::StateOpt, alg::DE, obj, dynamics, output)
-    (; p_num, ini_population, c, cr, rng) = alg
+    (; max_episode, p_num, ini_population, c, cr, rng) = alg
     dim = length(dynamics.data.ψ0)
     populations = repeat(dynamics, p_num)
     # initialization  
@@ -123,17 +123,17 @@ function update!(opt::StateOpt, alg::DE, obj, dynamics, output)
             end
         end
         idx = findmax(p_fit)[2]
-        set_output!(output, p_out[idx])
+        set_f!(output, p_out[idx])
         set_buffer!(output, populations[idx].data.ψ0)
         set_io!(output, p_out[idx], ei)
         show(output, obj)
     end
-    set_io!(output, p_out[idx])
+    set_io!(output, output.f_list[end])
 end
     
 #### projective measurement optimization ####
 function update!(opt::Mopt_Projection, alg::DE, obj, dynamics, output)
-    (; p_num, ini_population, c, cr, rng) = alg
+    (; max_episode, p_num, ini_population, c, cr, rng) = alg
 
     dim = size(dynamics.data.ρ0)[1]
     M_num = length(opt.C)
@@ -198,17 +198,17 @@ function update!(opt::Mopt_Projection, alg::DE, obj, dynamics, output)
         end
         idx = findmax(p_fit)[2]
         M = [populations[idx][i]*(populations[idx][i])' for i in 1:M_num]
-        set_output!(output, p_out[idx])
+        set_f!(output, p_out[idx])
         set_buffer!(output, M)
         set_io!(output, p_out[idx], ei)
         show(output, obj)
     end
-    set_io!(output, p_out[idx])
+    set_io!(output, output.f_list[end])
 end 
 
 #### find the optimal linear combination of a given set of POVM ####
 function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
-    (; p_num, ini_population, c, cr, rng) = alg
+    (; max_episode, p_num, ini_population, c, cr, rng) = alg
     (; B, POVM_basis, M_num) = opt
     basis_num = length(POVM_basis)
     populations = repeat(B, p_num)
@@ -277,17 +277,17 @@ function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
         end
         idx = findmax(p_fit)[2]
         M = [sum([populations[idx][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
-        set_output!(output, p_out[idx])
+        set_f!(output, p_out[idx])
         set_buffer!(output, M)
         set_io!(output, p_out[idx], ei)
         show(output, obj)
     end
-    set_io!(output, p_out[idx])
+    set_io!(output, output.f_list[end])
 end
 
 #### find the optimal rotated measurement of a given set of POVM ####
 function update!(opt::Mopt_Rotation, alg::DE, obj, dynamics, output)
-    (; p_num, ini_population, c, cr, rng) = alg
+    (; max_episode, p_num, ini_population, c, cr, rng) = alg
     (; s, POVM_basis, Lambda) = opt
     Random.seed!(seed)
     dim = size(dynamics.data.ρ0)[1]
@@ -360,17 +360,17 @@ function update!(opt::Mopt_Rotation, alg::DE, obj, dynamics, output)
         idx = findmax(p_fit)[2]
         U = rotation_matrix(populations[idx], Lambda)
         M = [U*POVM_basis[i]*U' for i in 1:M_num]
-        set_output!(output, p_out[idx])
+        set_f!(output, p_out[idx])
         set_buffer!(output, M)
         set_io!(output, p_out[idx], ei)
         show(output, obj)
     end
-    set_io!(output, p_out[idx])
+    set_io!(output, output.f_list[end])
 end
 
 #### state and control optimization ####
 function update!(opt::StateControlOpt, alg::DE, obj, dynamics, output)
-    (; p_num, ini_population, c, cr, rng) = alg
+    (; max_episode, p_num, ini_population, c, cr, rng) = alg
     psi0, ctrl0 = ini_population
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
@@ -456,17 +456,17 @@ function update!(opt::StateControlOpt, alg::DE, obj, dynamics, output)
             end
         end
         idx = findmax(p_fit)[2]
-        set_output!(output, p_out[idx])
+        set_f!(output, p_out[idx])
         set_buffer!(output, populations[idx].data.ψ0, populations[idx].data.ctrl)
         set_io!(output, p_out[idx], ei)
         show(output, obj)
     end
-    set_io!(output, p_out[idx])
+    set_io!(output, output.f_list[end])
 end
 
 #### state and measurement optimization ####
 function update!(opt::StateMeasurementOpt, alg::DE, obj, dynamics, output)
-    (; p_num, ini_population, c, cr, rng) = alg
+    (; max_episode, p_num, ini_population, c, cr, rng) = alg
     psi0, measurement0 = ini_population
     dim = length(dynamics.data.ψ0)
     M_num = length(measurement0[1])
@@ -556,17 +556,17 @@ function update!(opt::StateMeasurementOpt, alg::DE, obj, dynamics, output)
         end
         idx = findmax(p_fit)[2]
         M = [C_all[idx][i]*(C_all[idx][i])' for i in 1:M_num]
-        set_output!(output, p_out[idx])
+        set_f!(output, p_out[idx])
         set_buffer!(output, populations[idx].data.ψ0, M)
         set_io!(output, p_out[idx], ei)
         show(output, obj)
     end
-    set_io!(output, p_out[idx])
+    set_io!(output, output.f_list[end])
 end
 
 #### control and measurement optimization ####
 function update!(opt::ControlMeasurementOpt, alg::DE, obj, dynamics, output)
-    (; p_num, ini_population, c, cr, rng) = alg
+    (; max_episode, p_num, ini_population, c, cr, rng) = alg
     ctrl0, measurement0 = ini_population
     dim = length(dynamics.data.ψ0)
     ctrl_length = length(dynamics.data.ctrl[1])
@@ -667,17 +667,17 @@ function update!(opt::ControlMeasurementOpt, alg::DE, obj, dynamics, output)
         end
         idx = findmax(p_fit)[2]
         M = [C_all[idx][i]*(C_all[idx][i])' for i in 1:M_num]
-        set_output!(output, p_out[idx])
+        set_f!(output, p_out[idx])
         set_buffer!(output, populations[idx].data.ctrl, M)
         set_io!(output, p_out[idx], ei)
         show(output, obj)
     end
-    set_io!(output, p_out[idx])
+    set_io!(output, output.f_list[end])
 end
 
 #### state, control and measurement optimization ####
 function update!(opt::StateControlMeasurementOpt, alg::DE, obj, dynamics, output)
-    (; p_num, ini_population, c, cr, rng) = alg
+    (; max_episode, p_num, ini_population, c, cr, rng) = alg
     psi0, ctrl0, measurement0 = ini_population
     dim = length(dynamics.data.ψ0)
     ctrl_length = length(dynamics.data.ctrl[1])
@@ -796,10 +796,10 @@ function update!(opt::StateControlMeasurementOpt, alg::DE, obj, dynamics, output
         end
         idx = findmax(p_fit)[2]
         M = [C_all[idx][i]*(C_all[idx][i])' for i in 1:M_num]
-        set_output!(output, p_out[idx])
+        set_f!(output, p_out[idx])
         set_buffer!(output, populations[idx].data.ψ0, populations[idx].data.ctrl, M)
         set_io!(output, p_out[idx], ei)
         show(output, obj)
         end
-    set_io!(output, p_out[idx])
+    set_io!(output, output.f_list[end])
 end

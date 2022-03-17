@@ -55,7 +55,6 @@ class GRAPE_Copt(Control.ControlSystem):
 
         """
 
-        
         self.Adam = Adam
         self.max_episode = max_episode
         self.epsilon = epsilon
@@ -81,10 +80,6 @@ class GRAPE_Copt(Control.ControlSystem):
 
     def CFIM(self, M=[], W=[]):
         super().CFIM(M, W)
-
-    def HCRB(self, W=[]):
-        super().HCRB(W)
-
 
     def HCRB(self, W=[]):
         warnings.warn("GRAPE is not available when the target function is HCRB. \

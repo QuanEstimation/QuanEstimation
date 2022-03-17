@@ -12,6 +12,7 @@ end
 state_flatten(s) = vcat((s|>reim.|>vec)...)
 rsplit_half(v) = Base.rsplit(v, length(v)÷2)
 to_psi(s) = complex.(rsplit_half(s)...)
+density_matrix(s) = complex.(rsplit_half(s)...)|>vec2mat
 
 mutable struct ControlEnv <: AbstractEnv
     obj::Any
@@ -188,7 +189,8 @@ function _step!(env::ControlEnv, a)
     env.state = ρₜₙ |> state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.ctrl_length
-    f_out, f_current = objective(env.obj, env.dynamics)
+    dynamics_copy = set_ctrl(env.dynamics, a)
+    f_out, f_current = objective(env.obj, dynamics_copy)
     reward_current = log(f_current / env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
@@ -205,22 +207,22 @@ function _step!(env::ControlEnv, a)
 end
 
 #### state optimization ####
-mutable struct StateEnv{T<:Complex, M<:Real, R<:AbstractRNG}
-    obj
-    dynamics
-    output
+mutable struct StateEnv  <: AbstractEnv
+    obj::Any
+    dynamics::Any
+    output::Any
     action_space::Space
     state_space::Space
-    state::Vector{M}
+    state::AbstractVector
     done::Bool
-    rng::R
+    rng::AbstractRNG
     reward::Float64
     total_reward::Float64
     ctrl_num::Int
     para_num::Int
     f_ini::Float64
-    f_list::Vector{M}
-    reward_all::Vector{M}
+    f_list::AbstractVector
+    reward_all::AbstractVector
     episode::Int
 end
 
@@ -234,7 +236,7 @@ function update!(Sopt::StateOpt, alg::DDPG, obj, dynamics, output)
     (; max_episode, layer_num, layer_dim, rng) = alg
     episode = 1
     
-    length(dynamics.data.dH)
+    para_num = length(dynamics.data.dH)
     state = dynamics.data.ψ0
     state = state |> state_flatten
     ctrl_num = length(state)
@@ -243,9 +245,10 @@ function update!(Sopt::StateOpt, alg::DDPG, obj, dynamics, output)
     f_list = Vector{Float64}()
     reward_all = Vector{Float64}()
     f_ini, f_comp = objective(obj, dynamics)
-    
-    env = ControlEnv_noise(obj, dynamics, output, action_space, state_space, state, true, rng, 0.0, 0.0, ctrl_num, 
-                           para_num, f_ini, f_list, reward_all, episode)
+
+    env = StateEnv(obj, dynamics, output, action_space, state_space, state, true, rng, 0.0, 0.0, ctrl_num, 
+                    para_num, f_ini, f_list, reward_all, episode)
+
     reset!(env)
 
     ns = 2*length(dynamics.data.ψ0)
@@ -266,7 +269,7 @@ function update!(Sopt::StateOpt, alg::DDPG, obj, dynamics, output)
                                     target_critic=NeuralNetworkApproximator(model=create_critic(), optimizer=ADAM(),),
                                     γ=0.99f0, ρ=0.995f0, na=env.ctrl_num, batch_size=64, start_steps=100,
                                     start_policy=RandomPolicy(Space([-1.0..1.0 for _ in 1:env.ctrl_num]); rng=rng),
-                                    update_after=100, update_freq=1, act_limit=1.0e35,
+                                    update_after=50, update_freq=1, act_limit=1.0e35,
                                     act_noise=0.01, rng=rng,),
                   trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na,),),)
                   
@@ -279,10 +282,17 @@ function update!(Sopt::StateOpt, alg::DDPG, obj, dynamics, output)
     hook = TotalRewardPerEpisode(is_display_on_exit=false)
     RLBase.run(agent, env, stop_condition, hook)
 
-    show(output, output)
+    set_io!(output, output.f_list[end])
     if save_type(output) == :no_save
         SaveReward(env.reward_all)
     end
+end
+
+function RLBase.reset!(env::StateEnv)
+    state = env.dynamics.data.ψ0
+    env.state = state |> state_flatten
+    env.done = false
+    nothing
 end
 
 function (env::StateEnv)(a)
@@ -291,9 +301,11 @@ end
 
 function _step!(env::StateEnv, a)
     state_new = (env.state + a) |> to_psi
-    env.params.psi = state_new/norm(state_new)
+    env.dynamics.data.ψ0 = state_new/norm(state_new)
 
-    f_out, f_current = objective(obj, env.dynamics)
+    dynamics_copy = set_state(env.dynamics, env.dynamics.data.ψ0)
+    f_out, f_current = objective(env.obj, dynamics_copy)
+
     env.reward = log(f_current/env.f_ini)
     env.total_reward = env.reward
     env.done = true
@@ -302,8 +314,9 @@ function _step!(env::StateEnv, a)
     append!(env.reward_all, env.reward)
     env.episode += 1
     
-    set_output!(output, f_out, env.episode)
-    set_buffer!(output, a)
-    show(output, obj)
+    set_f!(env.output, f_out)
+    set_buffer!(env.output, a)
+    set_io!(env.output, f_out, env.episode)
+    show(env.output, env.obj)
     SaveReward(env.output, env.total_reward) 
 end

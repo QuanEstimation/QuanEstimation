@@ -76,72 +76,18 @@ class AD_Compopt(Comp.ComprehensiveSystem):
         self.seed = seed
 
     def SC(self, W=[], M=[], target="QFIM", dtype="SLD"):
-        """
-        Description: use auto-GRAPE (GRAPE) algorithm to optimize states and control coefficients.
-
-        ---------
-        Inputs
-        ---------
-        M:
-            --description: a set of POVM.
-            --type: list of matrix
-            
-        W:
-            --description: weight matrix.
-            --type: matrix
-
-        """
-        if self.dynamics_type != "dynamics":
-            raise ValueError("{!r} is not a valid type for dynamics, supported type is \
-                             Lindblad dynamics.".format(self.dynamics_type))
-            
-        if M==[]:
-            M = SIC(len(self.rho0))
-        M = [np.array(x, dtype=np.complex128) for x in M]
-
-        if W == []:
-            W = np.eye(len(self.Hamiltonian_derivative))
-        self.W = W
-
-        AD = Main.QuanEstimation.Compopt_SCopt(
-            self.freeHamiltonian,
-            self.Hamiltonian_derivative,
-            self.psi0,
-            self.tspan,
-            self.decay_opt,
-            self.gamma,
-            self.control_Hamiltonian,
-            self.control_coefficients,
-            self.ctrl_bound,
-            self.W,
-            self.eps)
-        
         if M != []:
             warnings.warn("AD is not available when target is 'CFIM'. Supported methods \
                            are 'PSO' and 'DE'.", DeprecationWarning)
-        else:
-            if target=="HCRB":
-                warnings.warn("GRAPE is not available when the target function is HCRB. \
+        elif target=="HCRB":
+            warnings.warn("AD is not available when the target function is HCRB. \
                        Supported methods are 'PSO', 'DE' and 'DDPG'.", DeprecationWarning)
-            elif target=="QFIM" and dtype=="SLD":
-                Main.QuanEstimation.SC_AD_Compopt(
-                AD,
-                self.max_episode,
-                self.epsilon,
-                self.mt,
-                self.vt,
-                self.beta1,
-                self.beta2,
-                self.eps,
-                self.Adam,
-                self.save_file)
-                self.load_save_state()
-            elif target=="QFIM" and dtype=="RLD":
-                pass #### to be done
-            elif target=="QFIM" and dtype=="LLD":
-                pass #### to be done
-            else:
-                raise ValueError("Please enter the correct values for target and dtype.\
-                                  Supported target are 'QFIM', 'CFIM' and 'HCRB',  \
-                                  supported dtype are 'SLD', 'RLD' and 'LLD'.") 
+
+        if self.Adam:
+            self.alg = Main.QuanEstimation.AD(self.max_episode, self.epsilon, self.beta1,self.beta2)
+        else:
+            self.alg = Main.QuanEstimation.AD(self.max_episode, self.epsilon)
             
+        super().SC(W,M,target,dtype)
+        
+    

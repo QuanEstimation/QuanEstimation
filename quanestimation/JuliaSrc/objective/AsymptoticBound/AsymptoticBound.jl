@@ -42,8 +42,8 @@ LD_type(::QFIM_Obj{P,SLD}) where {P} = :SLD
 LD_type(::QFIM_Obj{P,RLD}) where {P} = :RLD
 LD_type(::QFIM_Obj{P,LLD}) where {P} = :LLD
 
-QFIM_Obj(opt::CFIM{P}) where P = QFIM_Obj{P, SLD}(opt.W, opt.eps)
-QFIM_Obj(opt::CFIM{P}, LDtype::Symbol) where P = QFIM_Obj{P, eval(LDtype)}(opt.W, opt.eps)
+QFIM_Obj(opt::CFIM_Obj{P}) where P = QFIM_Obj{P, SLD}(opt.W, opt.eps)
+QFIM_Obj(opt::CFIM_Obj{P}, LDtype::Symbol) where P = QFIM_Obj{P, eval(LDtype)}(opt.W, opt.eps)
 
 function set_M(obj::CFIM_Obj{single_para}, M::AbstractMatrix)
     temp = deepcopy(obj)

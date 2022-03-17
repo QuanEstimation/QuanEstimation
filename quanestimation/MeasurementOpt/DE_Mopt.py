@@ -56,156 +56,20 @@ class DE_Mopt(Measurement.MeasurementSystem):
         self.cr = cr
 
     def CFIM(self, W=[]):
-        """
-        Description: use differential evolution algorithm to update the measurements that maximize the
-                     CFI (1/Tr(WF^{-1} with F the CFIM).
-
-        ---------
-        Inputs
-        ---------
-        W:
-            --description: weight matrix.
-            --type: matrix
-        """
         if self.mtype == "projection":
-            if self.dynamics_type == "dynamics":
-                if W == []:
-                    W = np.eye(len(self.Hamiltonian_derivative))
-                self.W = W
-
-                diffevo = Main.QuanEstimation.projection_Mopt(
-                    self.freeHamiltonian,
-                    self.Hamiltonian_derivative,
-                    self.rho0,
-                    self.tspan,
-                    self.decay_opt,
-                    self.gamma,
-                    self.M,
-                    self.W,
-                    self.eps)
-                Main.QuanEstimation.CFIM_DE_Mopt(
-                    diffevo,
-                    self.popsize,
-                    self.measurement0,
-                    self.c,
-                    self.cr,
-                    self.seed,
-                    self.max_episode,
-                    self.save_file)
-            elif self.dynamics_type == "kraus":
-                if W == []:
-                    W = np.eye(len(self.dK))
-                self.W = W
-
-                diffevo = Main.QuanEstimation.projection_Mopt_Kraus(
-                    self.K,
-                    self.dK,
-                    self.rho0,
-                    self.M,
-                    self.W,
-                    self.eps)
-                Main.QuanEstimation.CFIM_DE_Mopt(
-                    diffevo,
-                    self.popsize,
-                    self.measurement0,
-                    self.c,
-                    self.cr,
-                    self.seed,
-                    self.max_episode,
-                    self.save_file)
-            self.load_save()
+            ini_population = Main.vec(self.measurement0)
         elif self.mtype == "input":
-            if self.dynamics_type == "dynamics":
-                if W == []:
-                    W = np.eye(len(self.Hamiltonian_derivative))
-                self.W = W
-
-                diffevo = Main.QuanEstimation.LinearComb_Mopt(
-                    self.freeHamiltonian,
-                    self.Hamiltonian_derivative,
-                    self.rho0,
-                    self.tspan,
-                    self.decay_opt,
-                    self.gamma,
-                    self.povm_basis,
-                    self.M_num,
-                    self.W,
-                    self.eps)
-                Main.QuanEstimation.CFIM_DE_Mopt(
-                    diffevo,
-                    self.popsize,
-                    self.c,
-                    self.cr,
-                    self.seed,
-                    self.max_episode,
-                    self.save_file)
-            elif self.dynamics_type == "kraus":
-                if W == []:
-                    W = np.eye(len(self.dK))
-                self.W = W
-
-                diffevo = Main.QuanEstimation.LinearComb_Mopt_Kraus(
-                    self.K,
-                    self.dK,
-                    self.rho0,
-                    self.povm_basis,
-                    self.M_num,
-                    self.W,
-                    self.eps)
-                Main.QuanEstimation.CFIM_DE_Mopt(
-                    diffevo,
-                    self.popsize,
-                    self.c,
-                    self.cr,
-                    self.seed,
-                    self.max_episode,
-                    self.save_file)
-            self.load_save()
-        elif self.mtype == "rotation":
-            if self.dynamics_type == "dynamics":
-                if W == []:
-                    W = np.eye(len(self.Hamiltonian_derivative))
-                self.W = W
-
-                diffevo = Main.QuanEstimation.RotateBasis_Mopt(
-                    self.freeHamiltonian,
-                    self.Hamiltonian_derivative,
-                    self.rho0,
-                    self.tspan,
-                    self.decay_opt,
-                    self.gamma,
-                    self.povm_basis,
-                    self.W,
-                    self.eps)
-                Main.QuanEstimation.CFIM_DE_Mopt(
-                    diffevo,
-                    self.popsize,
-                    self.c,
-                    self.cr,
-                    self.seed,
-                    self.max_episode,
-                    self.save_file)
-            elif self.dynamics_type == "kraus":
-                if W == []:
-                    W = np.eye(len(self.dK))
-                self.W = W
-
-                diffevo = Main.QuanEstimation.RotateBasis_Mopt_Kraus(
-                    self.K,
-                    self.dK,
-                    self.rho0,
-                    self.povm_basis,
-                    self.W,
-                    self.eps)
-                Main.QuanEstimation.CFIM_DE_Mopt(
-                    diffevo,
-                    self.popsize,
-                    self.c,
-                    self.cr,
-                    self.seed,
-                    self.max_episode,
-                    self.save_file)
-            self.load_save()
-        else:
-            raise ValueError("{!r} is not a valid value for mtype, supported values are \
-                             'projection' and 'input'.".format(self.mtype))
+            if self.minput[0] == "LC":
+                ini_population = Main.vec(self.povm_basis)
+            elif self.minput[0] == "rotation":
+                ini_population = Main.vec(self.povm_basis)
+        
+        self.alg = Main.QuanEstimation.DE(
+            self.max_episode,
+            self.popsize,
+            ini_population,
+            self.c,
+            self.cr,
+            self.seed,
+        )
+        super().CFIM(W)

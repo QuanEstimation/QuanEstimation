@@ -19,36 +19,63 @@ const IO_alg = Dict(
     :AD => "optimization algorithm: auto-GRAPE",
     :PSO => "optimization algorithm: Particle Swarm Optimization (PSO)",
     :DE => "optimization algorithm: Differential Evolution (DE)",
-    :DDPG => "optimization algorithm: deep deterministic policy gradient algorithm (DDPG)",
-    :NM => "optimization algorithm: Nelder-Mead method (NM)",
+    :DDPG => "optimization algorithm: Deep Deterministic Policy Gradient (DDPG)",
+    :NM => "optimization algorithm: Nelder-Mead (NM)",
 )
 
 const IO_ini = Dict(
+    #### control optimization ####
     (
         :Copt,
         :QFIM,
         :single_para,
-    ) => "non-controlled value of QFI is %f\n initial value of QFI is %f\n",
+    ) => "non-controlled value of QFI is %f\ninitial value of QFI is %f\n",
     (
         :Copt,
         :QFIM,
         :multi_para,
-    ) => "non-controlled value of tr(WF^{-1}) is %f\n initial value of tr(WF^{-1}) is %f\n",
+    ) => "non-controlled value of tr(WF^{-1}) is %f\ninitial value of tr(WF^{-1}) is %f\n",
     (
         :Copt,
         :CFIM,
         :single_para,
-    ) => "non-controlled value of CFI is %f\n initial value of CFI is %f\n",
+    ) => "non-controlled value of CFI is %f\ninitial value of CFI is %f\n",
     (
         :Copt,
         :CFIM,
         :multi_para,
-    ) => "non-controlled value of tr(WI^{-1}) is %f\n initial value of tr(WI^{-1}) is %f\n",
+    ) => "non-controlled value of tr(WI^{-1}) is %f\ninitial value of tr(WI^{-1}) is %f\n",
     (
         :Copt,
         :HCRB,
         :multi_para,
-    ) => "non-controlled value of HCRB is %f\n initial value of HCRB is %f\n",
+    ) => "non-controlled value of HCRB is %f\ninitial value of HCRB is %f\n",
+    #### state optimization ####
+    (
+        :Sopt,
+        :QFIM,
+        :single_para,
+    ) => "initial value of QFI is %f\n",
+    (
+        :Sopt,
+        :QFIM,
+        :multi_para,
+    ) => "initial value of tr(WF^{-1}) is %f\n",
+    (
+        :Sopt,
+        :CFIM,
+        :single_para,
+    ) => "initial value of CFI is %f\n",
+    (
+        :Sopt,
+        :CFIM,
+        :multi_para,
+    ) => "initial value of tr(WI^{-1}) is %f\n",
+    (
+        :Sopt,
+        :HCRB,
+        :multi_para,
+    ) => "initial value of HCRB is %f\n",
 )
 
 const IO_current = Dict(

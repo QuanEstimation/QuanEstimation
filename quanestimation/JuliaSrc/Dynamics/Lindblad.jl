@@ -190,7 +190,7 @@ Lindblad(
     dH::AbstractVector,
     ψ0::AbstractVector,
     tspan::AbstractVector,
-) = Lindblad(Lindblad_noiseless_free(H0, dH, ψ0, tspan), :noiseless, :free, :ket)
+) = Lindblad(Lindblad_noiseless_free_pure(H0, dH, ψ0, tspan), :noiseless, :free, :ket)
 
 Lindblad(
     H0::AbstractMatrix,
@@ -199,7 +199,7 @@ Lindblad(
     tspan::AbstractVector,
     decay_opt::AbstractVector,
     γ::AbstractVector,
-) = Lindblad(Lindblad_noisy_free(H0, dH, ψ0, tspan, decay_opt, γ), :noisy, :free, :ket)
+) = Lindblad(Lindblad_noisy_free_pure(H0, dH, ψ0, tspan, decay_opt, γ), :noisy, :free, :ket)
 
 Lindblad(
     H0::AbstractVector,
@@ -412,9 +412,9 @@ function expm(
     ∂ρt_∂x_all[1] = ρt_all[1] |> zero
 
     for t = 2:length(tspan)
-        expL = evolve(H[t-1], decay_opt, γ, Δt, t)
-        ρt_all[t] = expL * ρt_all[t-1]
-        ∂ρt_∂x_all[t] = -im * Δt * dH_L * ρt_all[t] + expL * ∂ρt_∂x_all[t-1]
+        exp_L = expL(H[t-1], decay_opt, γ, Δt, t)
+        ρt_all[t] = exp_L * ρt_all[t-1]
+        ∂ρt_∂x_all[t] = -im * Δt * dH_L * ρt_all[t] + exp_L * ∂ρt_∂x_all[t-1]
     end
     ρt_all |> vec2mat, ∂ρt_∂x_all |> vec2mat
 end
@@ -451,10 +451,10 @@ function expm(
     end
 
     for t = 2:length(tspan)
-        expL = evolve(H[t-1], decay_opt, γ, Δt, t)
-        ρt_all[t] = expL * ρt_all[t-1]
+        exp_L = expL(H[t-1], decay_opt, γ, Δt, t)
+        ρt_all[t] = exp_L * ρt_all[t-1]
         for pj = 1:para_num
-            ∂ρt_∂x_all[t][pj] = -im * Δt * dH_L[pj] * ρt_all[t] + expL * ∂ρt_∂x_all[t-1][pj]
+            ∂ρt_∂x_all[t][pj] = -im * Δt * dH_L[pj] * ρt_all[t] + exp_L * ∂ρt_∂x_all[t-1][pj]
         end
     end
     ρt_all |> vec2mat, ∂ρt_∂x_all |> vec2mat
@@ -489,14 +489,14 @@ function secondorder_derivative(
     ∂2ρt_∂x = [ρt |> zero for i = 1:para_num]
     for t = 2:length(tspan)
         Δt = tspan[t] - tspan[t-1] # tspan may not be equally spaced 
-        expL = evolve(H[t-1], decay_opt, γ, Δt, t)
-        ρt = expL * ρt
-        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [expL] .* ∂ρt_∂x
+        exp_L = expL(H[t-1], decay_opt, γ, Δt, t)
+        ρt = exp_L * ρt
+        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
         ∂2ρt_∂x =
             [
                 (-im * Δt * dH_L[i] + Δt * Δt * dH_L[i] * dH_L[i]) * ρt -
                 2 * im * Δt * dH_L[i] * ∂ρt_∂x[i] for i = 1:para_num
-            ] + [expL] .* ∂2ρt_∂x
+            ] + [exp_L] .* ∂2ρt_∂x
     end
     ρt = exp(vec(H[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat, ∂2ρt_∂x |> vec2mat
@@ -504,13 +504,13 @@ end
 
 #### evolution of pure states under time-independent Hamiltonian without noise and controls ####
 function evolve(dynamics::Lindblad{noiseless,free,ket})
-    (; H0, dH, psi0, tspan) = dynamics.data
+    (; H0, dH, ψ0, tspan) = dynamics.data
 
     para_num = length(dH)
     Δt = tspan[2] - tspan[1]
     U = exp(-im * H0 * Δt)
-    psi_t = psi0
-    ∂psi_∂x = [psi0 |> zero for i = 1:para_num]
+    psi_t = ψ0
+    ∂psi_∂x = [ψ0 |> zero for i = 1:para_num]
     for t = 2:length(tspan)
         psi_t = U * psi_t
         ∂psi_∂x = [-im * Δt * dH[i] * psi_t for i = 1:para_num] + [U] .* ∂psi_∂x
@@ -522,17 +522,17 @@ end
 
 #### evolution of pure states under time-dependent Hamiltonian without noise and controls ####
 function evolve(dynamics::Lindblad{noiseless,timedepend,ket})
-    (; H0, dH, psi0, tspan) = dynamics.data
+    (; H0, dH, ψ0, tspan) = dynamics.data
 
     para_num = length(dH)
     dH_L = [liouville_commu(dH[i]) for i = 1:para_num]
-    ρt = (psi0 * psi0') |> vec
+    ρt = (ψ0 * ψ0') |> vec
     ∂ρt_∂x = [ρt |> zero for i = 1:para_num]
     for t = 2:length(tspan)
         Δt = tspan[t] - tspan[t-1] # tspan may not be equally spaced 
-        expL = expL(H0[t-1], Δt)
-        ρt = expL * ρt
-        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [expL] .* ∂ρt_∂x
+        exp_L = expL(H0[t-1], Δt)
+        ρt = exp_L * ρt
+        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
     ρt = exp(vec(H0[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
@@ -544,13 +544,13 @@ function evolve(dynamics::Lindblad{noiseless,free,dm})
 
     para_num = length(dH)
     Δt = tspan[2] - tspan[1]
-    expL = expL(H0, Δt)
+    exp_L = expL(H0, Δt)
     dH_L = [liouville_commu(dH[i]) for i = 1:para_num]
     ρt = ρ0 |> vec
     ∂ρt_∂x = [ρt |> zero for i = 1:para_num]
     for t = 2:length(tspan)
-        ρt = expL * ρt
-        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [expL] .* ∂ρt_∂x
+        ρt = exp_L * ρt
+        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
     ρt = exp(vec(H[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
@@ -558,13 +558,13 @@ end
 
 #### evolution of pure states under time-independent Hamiltonian without noise and controls ####
 function evolve(dynamics::Lindblad{noiseless,free,ket})
-    (; H0, dH, psi0, tspan) = dynamics.data
+    (; H0, dH, ψ0, tspan) = dynamics.data
 
     para_num = length(dH)
     Δt = tspan[2] - tspan[1]
     U = exp(-im * H0 * Δt)
-    psi_t = psi0
-    ∂psi_∂x = [psi0 |> zero for i = 1:para_num]
+    psi_t = ψ0
+    ∂psi_∂x = [ψ0 |> zero for i = 1:para_num]
     for t = 2:length(tspan)
         psi_t = U * psi_t
         ∂psi_∂x = [-im * Δt * dH[i] * psi_t for i = 1:para_num] + [U] .* ∂psi_∂x
@@ -576,17 +576,17 @@ end
 
 #### evolution of pure states under time-dependent Hamiltonian without noise and controls ####
 function evolve(dynamics::Lindblad{noiseless,timedepend,ket})
-    (; H0, dH, psi0, tspan) = dynamics.data
+    (; H0, dH, ψ0, tspan) = dynamics.data
 
     para_num = length(dH)
     dH_L = [liouville_commu(dH[i]) for i = 1:para_num]
-    ρt = (psi0 * psi0') |> vec
+    ρt = (ψ0 * ψ0') |> vec
     ∂ρt_∂x = [ρt |> zero for i = 1:para_num]
     for t = 2:length(tspan)
         Δt = tspan[t] - tspan[t-1] # tspan may not be equally spaced 
-        expL = expL(H0[t-1], Δt)
-        ρt = expL * ρt
-        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [expL] .* ∂ρt_∂x
+        exp_L = expL(H0[t-1], Δt)
+        ρt = exp_L * ρt
+        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
     ρt = exp(vec(H0[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
@@ -598,13 +598,13 @@ function evolve(dynamics::Lindblad{noiseless,free,dm})
 
     para_num = length(dH)
     Δt = tspan[2] - tspan[1]
-    expL = expL(H0, Δt)
+    exp_L = expL(H0, Δt)
     dH_L = [liouville_commu(dH[i]) for i = 1:para_num]
     ρt = ρ0 |> vec
     ∂ρt_∂x = [ρt |> zero for i = 1:para_num]
     for t = 2:length(tspan)
-        ρt = expL * ρt
-        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [expL] .* ∂ρt_∂x
+        ρt = exp_L * ρt
+        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
     ρt = exp(vec(H[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
@@ -620,9 +620,9 @@ function evolve(dynamics::Lindblad{noiseless,timedepend,dm})
     ∂ρt_∂x = [ρt |> zero for i = 1:para_num]
     for t = 2:length(tspan)
         Δt = tspan[t] - tspan[t-1] # tspan may not be equally spaced 
-        expL = expL(H0[t-1], Δt)
-        ρt = expL * ρt
-        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [expL] .* ∂ρt_∂x
+        exp_L = expL(H0[t-1], Δt)
+        ρt = exp_L * ρt
+        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
     ρt = exp(vec(H0[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
@@ -631,17 +631,17 @@ end
 #### evolution of pure states under time-independent Hamiltonian  
 #### with noise but without controls
 function evolve(dynamics::Lindblad{noisy,free,ket})
-    (; H0, dH, psi0, tspan, decay_opt, γ) = dynamics.data
+    (; H0, dH, ψ0, tspan, decay_opt, γ) = dynamics.data
 
     para_num = length(dH)
-    ρt = (psi0 * psi0') |> vec
+    ρt = (ψ0 * ψ0') |> vec
     ∂ρt_∂x = [ρt |> zero for i = 1:para_num]
     Δt = tspan[2] - tspan[1]
-    expL = expL(H0, decay_opt, γ, Δt, 1)
+    exp_L = expL(H0, decay_opt, γ, Δt, 1)
     dH_L = [liouville_commu(dH[i]) for i = 1:para_num]
     for t = 2:length(tspan)
-        ρt = expL * ρt
-        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [expL] .* ∂ρt_∂x
+        ρt = exp_L * ρt
+        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
 end
@@ -655,11 +655,11 @@ function evolve(dynamics::Lindblad{noisy,free,dm})
     ρt = ρ0 |> vec
     ∂ρt_∂x = [ρt |> zero for i = 1:para_num]
     Δt = tspan[2] - tspan[1]
-    expL = expL(H0, decay_opt, γ, Δt, 1)
+    exp_L = expL(H0, decay_opt, γ, Δt, 1)
     dH_L = [liouville_commu(dH[i]) for i = 1:para_num]
     for t = 2:length(tspan)
-        ρt = expL * ρt
-        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [expL] .* ∂ρt_∂x
+        ρt = exp_L * ρt
+        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
 end
@@ -667,7 +667,7 @@ end
 #### evolution of pure states under time-dependent Hamiltonian  
 #### with noise but without controls
 function evolve(dynamics::Lindblad{noisy,timedepend,ket})
-    (; H0, dH, psi0, tspan, decay_opt, γ) = dynamics.data
+    (; H0, dH, ψ0, tspan, decay_opt, γ) = dynamics.data
 
     para_num = length(dH)
     dH_L = [liouville_commu(dH[i]) for i = 1:para_num]
@@ -675,9 +675,9 @@ function evolve(dynamics::Lindblad{noisy,timedepend,ket})
     ∂ρt_∂x = [ρt |> zero for i = 1:para_num]
     for t = 2:length(tspan)
         Δt = tspan[t] - tspan[t-1] # tspan may not be equally spaced 
-        expL = expL(H0[t-1], decay_opt, γ, Δt, t)
-        ρt = expL * ρt
-        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [expL] .* ∂ρt_∂x
+        exp_L = expL(H0[t-1], decay_opt, γ, Δt, t)
+        ρt = exp_L * ρt
+        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
     ρt = exp(vec(H0[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
@@ -694,9 +694,9 @@ function evolve(dynamics::Lindblad{noisy,timedepend,dm})
     ∂ρt_∂x = [ρt |> zero for i = 1:para_num]
     for t = 2:length(tspan)
         Δt = tspan[t] - tspan[t-1] # tspan may not be equally spaced 
-        expL = expL(H0[t-1], decay_opt, γ, Δt, t)
-        ρt = expL * ρt
-        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [expL] .* ∂ρt_∂x
+        exp_L = expL(H0[t-1], decay_opt, γ, Δt, t)
+        ρt = exp_L * ρt
+        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
     ρt = exp(vec(H0[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
@@ -717,9 +717,9 @@ function evolve(dynamics::Lindblad{noiseless,controlled,dm})
     ∂ρt_∂x = [ρt |> zero for i = 1:para_num]
     for t = 2:length(tspan)
         Δt = tspan[t] - tspan[t-1] # tspan may not be equally spaced 
-        expL = expL(H[t-1], Δt)
-        ρt = expL * ρt
-        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [expL] .* ∂ρt_∂x
+        exp_L = expL(H[t-1], Δt)
+        ρt = exp_L * ρt
+        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
     ρt = exp(vec(H[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
@@ -739,9 +739,9 @@ function evolve(dynamics::Lindblad{noisy,controlled,dm})
     ∂ρt_∂x = [ρt |> zero for i = 1:para_num]
     for t = 2:length(tspan)
         Δt = tspan[t] - tspan[t-1] # tspan may not be equally spaced 
-        expL_t = expL(H[t-1], decay_opt, γ, Δt, t)
-        ρt = expL_t * ρt
-        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [expL_t] .* ∂ρt_∂x
+        exp_L = expL(H[t-1], decay_opt, γ, Δt, t)
+        ρt = exp_L * ρt
+        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
     ρt = exp(vec(H[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
@@ -758,9 +758,9 @@ end
 #     ∂ρt_∂x = [ρt |> zero for i = 1:para_num]
 #     for t = 2:length(tspan)
 #         Δt = tspan[t] - tspan[t-1] # tspan may not be equally spaced 
-#         expL = expL(H[t-1], decay_opt, γ, Δt, t)
-#         ρt = expL * ρt
-#         ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [expL] .* ∂ρt_∂x
+#         exp_L = expL(H[t-1], decay_opt, γ, Δt, t)
+#         ρt = exp_L * ρt
+#         ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
 #     end
 #     ρt = exp(vec(H[end])' * zero(ρt)) * ρt
 #     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
@@ -777,9 +777,9 @@ end
 #     ∂ρt_∂x = [ρt |> zero for i = 1:para_num]
 #     for t = 2:length(tspan)
 #         Δt = tspan[t] - tspan[t-1] # tspan may not be equally spaced 
-#         expL = expL(H[t-1], decay_opt, γ, Δt, t)
-#         ρt = expL * ρt
-#         ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [expL] .* ∂ρt_∂x
+#         exp_L = expL(H[t-1], decay_opt, γ, Δt, t)
+#         ρt = exp_L * ρt
+#         ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
 #     end
 #     ρt = exp(vec(H[end])' * zero(ρt)) * ρt
 #     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
@@ -797,13 +797,13 @@ function propagate(
     para_num = length(dH)
     H = Htot(H0, Hc, ctrl)
     dH_L = [liouville_commu(dH[i]) for i = 1:para_num]
-    expL_t = expL(H, decay_opt, γ, Δt)
+    exp_L = expL(H, decay_opt, γ, Δt)
     ρₜ_next = ρₜ |> vec
     dρₜ_next = [(dρₜ[para] |> vec) for para = 1:para_num]
     for i = 1:ctrl_interval
-        ρₜ_next = expL_t * ρₜ_next
+        ρₜ_next = exp_L * ρₜ_next
         for para = 1:para_num
-            dρₜ_next[para] = -im * Δt * dH_L[para] * ρₜ_next + expL_t * dρₜ_next[para]
+            dρₜ_next[para] = -im * Δt * dH_L[para] * ρₜ_next + exp_L * dρₜ_next[para]
         end
     end
     ρₜ_next |> vec2mat, dρₜ_next |> vec2mat
@@ -821,13 +821,13 @@ function propagate(
     para_num = length(dH)
     H = Htot(H0, Hc, ctrl)
     dH_L = [liouville_commu(dH[i]) for i = 1:para_num]
-    expL_t = expL(H, Δt)
+    exp_L = expL(H, Δt)
     ρₜ_next = ρₜ |> vec
     dρₜ_next = [(dρₜ[para] |> vec) for para = 1:para_num]
     for i = 1:ctrl_interval
-        ρₜ_next = expL_t * ρₜ_next
+        ρₜ_next = exp_L * ρₜ_next
         for para = 1:para_num
-            dρₜ_next[para] = -im * Δt * dH_L[para] * ρₜ_next + expL_t * dρₜ_next[para]
+            dρₜ_next[para] = -im * Δt * dH_L[para] * ρₜ_next + exp_L * dρₜ_next[para]
         end
     end
     ρₜ_next |> vec2mat, dρₜ_next |> vec2mat

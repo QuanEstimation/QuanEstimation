@@ -34,7 +34,7 @@ function update!(opt::StateOpt, alg::NM, obj, dynamics, output)
         # calculate the average vector
         vec_ave = zeros(ComplexF64, dim)
         for ni in 1:dim
-            vec_ave[ni] = [nelder_mead[pk].psi[ni] for pk in 1:(state_num-1)] |> sum
+            vec_ave[ni] = [nelder_mead[pk].data.ψ0[ni] for pk in 1:(state_num-1)] |> sum
             vec_ave[ni] = vec_ave[ni]/(state_num-1)
         end
         vec_ave = vec_ave/norm(vec_ave)
@@ -42,7 +42,7 @@ function update!(opt::StateOpt, alg::NM, obj, dynamics, output)
         # reflection
         vec_ref = zeros(ComplexF64, dim)
         for nj in 1:dim
-            vec_ref[nj] = vec_ave[nj] + ar*(vec_ave[nj]-nelder_mead[sort_ind[end]].psi[nj])
+            vec_ref[nj] = vec_ave[nj] + ar*(vec_ave[nj]-nelder_mead[sort_ind[end]].data.ψ0[nj])
         end
         vec_ref = vec_ref/norm(vec_ref)
         dynamics_copy = set_state(dynamics, vec_ref)
@@ -59,14 +59,14 @@ function update!(opt::StateOpt, alg::NM, obj, dynamics, output)
             fe_out, fe = objective(obj, dynamics_copy)
             if fe <= fr
                 for np in 1:dim
-                    nelder_mead[sort_ind[end]].psi[np] = vec_ref[np]
+                    nelder_mead[sort_ind[end]].data.ψ0[np] = vec_ref[np]
                 end
                 p_fit[sort_ind[end]] = fr
                 p_out[sort_ind[end]] = fr_out
                 sort_ind = sortperm(p_fit, rev=true)
             else
                 for np in 1:dim
-                    nelder_mead[sort_ind[end]].psi[np] = vec_exp[np]
+                    nelder_mead[sort_ind[end]].data.ψ0[np] = vec_exp[np]
                 end
                 p_fit[sort_ind[end]] = fe
                 p_out[sort_ind[end]] = fe_out
@@ -78,26 +78,26 @@ function update!(opt::StateOpt, alg::NM, obj, dynamics, output)
                 # inside constraction
                 vec_ic = zeros(ComplexF64, dim)
                 for nl in 1:dim
-                    vec_ic[nl] = vec_ave[nl] - ac*(vec_ave[nl]-nelder_mead[sort_ind[end]].psi[nl])
+                    vec_ic[nl] = vec_ave[nl] - ac*(vec_ave[nl]-nelder_mead[sort_ind[end]].data.ψ0[nl])
                 end
                 vec_ic = vec_ic/norm(vec_ic)
                 dynamics_copy = set_state(dynamics, vec_ic)
                 fic_out, fic = objective(obj, dynamics_copy)
                 if fic > p_fit[sort_ind[end]]
                     for np in 1:dim
-                        nelder_mead[sort_ind[end]].psi[np] = vec_ic[np]
+                        nelder_mead[sort_ind[end]].data.ψ0[np] = vec_ic[np]
                     end
                     p_fit[sort_ind[end]] = fic
                     p_out[sort_ind[end]] = fic_out
                     sort_ind = sortperm(p_fit, rev=true)
                 else
                     # shrink
-                    vec_first = [nelder_mead[sort_ind[1]].psi[i] for i in 1:dim]
+                    vec_first = [nelder_mead[sort_ind[1]].data.ψ0[i] for i in 1:dim]
                     for pk in 1:state_num
                         for nq in 1:dim
-                            nelder_mead[pk].psi[nq] = vec_first[nq] + as0*(nelder_mead[pk].psi[nq]-vec_first[nq])
+                            nelder_mead[pk].data.ψ0[nq] = vec_first[nq] + as0*(nelder_mead[pk].data.ψ0[nq]-vec_first[nq])
                         end
-                        nelder_mead[pk].psi = nelder_mead[pk].psi/norm(nelder_mead[pk].psi)
+                        nelder_mead[pk].data.ψ0 = nelder_mead[pk].data.ψ0/norm(nelder_mead[pk].data.ψ0)
                         p_out[pk], p_fit[pk] = objective(obj, nelder_mead[pk])
                     end
                     sort_ind = sortperm(p_fit, rev=true)
@@ -113,19 +113,19 @@ function update!(opt::StateOpt, alg::NM, obj, dynamics, output)
                 foc_out, foc = objective(obj, dynamics_copy)
                 if foc >= fr
                     for np in 1:dim
-                        nelder_mead[sort_ind[end]].psi[np] = vec_oc[np]
+                        nelder_mead[sort_ind[end]].data.ψ0[np] = vec_oc[np]
                     end
                     p_fit[sort_ind[end]] = foc
                     p_out[sort_ind[end]] = foc_out
                     sort_ind = sortperm(p_fit, rev=true)
                 else
                     # shrink
-                    vec_first = [nelder_mead[sort_ind[1]].psi[i] for i in 1:dim]
+                    vec_first = [nelder_mead[sort_ind[1]].data.ψ0[i] for i in 1:dim]
                     for pk in 1:state_num
                         for nq in 1:dim
-                            nelder_mead[pk].psi[nq] = vec_first[nq] + as0*(nelder_mead[pk].psi[nq]-vec_first[nq])
+                            nelder_mead[pk].data.ψ0[nq] = vec_first[nq] + as0*(nelder_mead[pk].data.ψ0[nq]-vec_first[nq])
                         end
-                        nelder_mead[pk].psi = nelder_mead[pk].psi/norm(nelder_mead[pk].psi)
+                        nelder_mead[pk].data.ψ0 = nelder_mead[pk].data.ψ0/norm(nelder_mead[pk].data.ψ0)
                         p_out[pk], p_fit[pk] = objective(obj, nelder_mead[pk])
                     end
                     sort_ind = sortperm(p_fit, rev=true)
@@ -133,7 +133,7 @@ function update!(opt::StateOpt, alg::NM, obj, dynamics, output)
             end
         else
             for np in 1:dim
-                nelder_mead[sort_ind[end]].psi[np] = vec_ref[np]
+                nelder_mead[sort_ind[end]].data.ψ0[np] = vec_ref[np]
             end
             p_fit[sort_ind[end]] = fr
             p_out[sort_ind[end]] = fr_out

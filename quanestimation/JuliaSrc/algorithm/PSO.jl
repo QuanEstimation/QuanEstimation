@@ -28,7 +28,7 @@ function update!(opt::ControlOpt, alg::PSO, obj, dynamics, output)
     set_io!(output, f_noctrl, f_ini)
     show(opt, output, obj)
 
-    idx = 0
+    idx = 1
     for ei = 1:(max_episode[1]-1)
         for pj = 1:p_num
             p_out[pj], f_now = objective(obj, particles[pj])
@@ -106,7 +106,7 @@ function update!(opt::StateOpt, alg::PSO, obj, dynamics, output)
         max_episode = [max_episode, max_episode]
     end
 
-    velocity = v0.*rand(rng, ComplexF64, dim, p_num)
+    velocity = 0.1.*rand(rng, ComplexF64, dim, p_num)
     pbest = zeros(ComplexF64, dim, p_num)
     gbest = zeros(ComplexF64, dim)
 
@@ -121,7 +121,7 @@ function update!(opt::StateOpt, alg::PSO, obj, dynamics, output)
     set_buffer!(output, dynamics.data.ψ0)
     set_io!(output, f_ini)
     show(opt, output, obj)
-    idx = 0
+    idx = 1
     for ei in 1:(max_episode[1]-1)
         for pj in 1:p_num
             p_out[pj], f_now = objective(obj, particles[pj])
@@ -157,7 +157,7 @@ function update!(opt::StateOpt, alg::PSO, obj, dynamics, output)
             end
         end
         if ei%max_episode[2] == 0
-            dynamics.data.data.ψ0 = [gbest[i] for i in 1:dim]
+            dynamics.data.ψ0 = [gbest[i] for i in 1:dim]
             particles = repeat(dynamics, p_num)
         end
         set_f!(output, p_out[idx])
@@ -165,11 +165,11 @@ function update!(opt::StateOpt, alg::PSO, obj, dynamics, output)
         set_io!(output, p_out[idx], ei)
         show(output, obj)
     end
-    set_io!(output, p_out[idx])
+    set_io!(output, output.f_list[end])
 end
 
 #### projective measurement optimization ####
-function update!(opt::MOpt_Projection, alg::PSO, obj, dynamics, output)
+function update!(opt::Mopt_Projection, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg  
     dim = size(dynamics.data.ρ0)[1] 
     M_num = length(opt.C)
@@ -197,7 +197,7 @@ function update!(opt::MOpt_Projection, alg::PSO, obj, dynamics, output)
     set_buffer!(output, M)
     set_io!(output, f_ini)
     show(opt, output, obj)
-    idx = 0
+    idx = 1
     for ei in 1:(max_episode[1]-1)
         for pj in 1:p_num
             M = [particles[pj][i]*(particles[pj][i])' for i in 1:M_num]
@@ -250,11 +250,11 @@ function update!(opt::MOpt_Projection, alg::PSO, obj, dynamics, output)
         set_io!(output, p_out[idx], ei)
         show(output, obj)
     end
-    set_io!(output, p_out[idx])
+    set_io!(output, output.f_list[end])
 end
 
 #### find the optimal linear combination of a given set of POVM ####
-function update!(opt::MOpt_LinearComb, alg::PSO, obj, dynamics, output)
+function update!(opt::Mopt_LinearComb, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
     (; B, POVM_basis, M_num) = opt
     basis_num = length(POVM_basis)
@@ -288,7 +288,7 @@ function update!(opt::MOpt_LinearComb, alg::PSO, obj, dynamics, output)
     set_io!(output, f_opt, f_povm, f_ini)
     show(opt, output, obj)
     
-    idx = 0
+    idx = 1
     for ei in 1:(max_episode[1]-1)
         for pj in 1:p_num
             M = [sum([particles[pj][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
@@ -341,11 +341,11 @@ function update!(opt::MOpt_LinearComb, alg::PSO, obj, dynamics, output)
         set_io!(output, p_out[idx], ei)
         show(output, obj)
     end
-    set_io!(output, p_out[idx])
+    set_io!(output, output.f_list[end])
 end
 
 #### find the optimal rotated measurement of a given set of POVM ####
-function update!(opt::MOpt_Rotation, alg::PSO, obj, dynamics, output)
+function update!(opt::Mopt_Rotation, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
     (; s, POVM_basis, Lambda) = opt
     M_num = length(POVM_basis)
@@ -384,7 +384,7 @@ function update!(opt::MOpt_Rotation, alg::PSO, obj, dynamics, output)
     set_io!(output, f_opt, f_povm, f_ini)
     show(opt, output, obj)
 
-    idx = 0
+    idx = 1
     for ei in 1:(max_episode[1]-1)
         for pj in 1:p_num
             U = rotation_matrix(particles[pj], Lambda)
@@ -432,7 +432,7 @@ function update!(opt::MOpt_Rotation, alg::PSO, obj, dynamics, output)
         set_io!(output, p_out[idx], ei)
         show(output, obj)
     end
-    set_io!(output, p_out[idx])
+    set_io!(output, output.f_list[end])
 end
 
 #### state and control optimization ####
@@ -470,7 +470,7 @@ function update!(opt::StateControlOpt, alg::PSO, obj, dynamics, output)
     set_io!(output, f_noctrl, f_ini)
     show(opt, output, obj)
 
-    idx = 0
+    idx = 1
     for ei in 1:(max_episode[1]-1)
         for pj in 1:p_num
             p_out[pj], f_now = objective(obj, particles[pj])
@@ -539,7 +539,7 @@ function update!(opt::StateControlOpt, alg::PSO, obj, dynamics, output)
         set_io!(output, p_out[idx], ei)
         show(output, obj)
     end
-    set_io!(output, p_out[idx])
+    set_io!(output, output.f_list[end])
 end
 
 #### state and measurement optimization ####
@@ -578,7 +578,7 @@ function update!(opt::StateMeasurementOpt, alg::PSO, obj, dynamics, output)
     set_io!(output, f_ini)
     show(opt, output, obj)
 
-    idx = 0
+    idx = 1
     for ei in 1:(max_episode[1]-1)
         for pj in 1:p_num
             M = [C_all[pj][i]*(C_all[pj][i])' for i in 1:M_num]
@@ -651,7 +651,7 @@ function update!(opt::StateMeasurementOpt, alg::PSO, obj, dynamics, output)
         set_io!(output, p_out[idx], ei)
         show(output, obj)
     end
-    set_io!(output, p_out[idx])
+    set_io!(output, output.f_list[end])
 end
 
 #### control and measurement optimization ####
@@ -691,7 +691,7 @@ function update!(opt::ControlMeasurementOpt, alg::PSO, obj, dynamics, output)
     set_io!(output, f_ini)
     show(opt, output, obj)
 
-    idx = 0
+    idx = 1
     for ei in 1:(max_episode[1]-1)
         for pj in 1:p_num
             M = [C_all[pj][i]*(C_all[pj][i])' for i in 1:M_num]
@@ -771,7 +771,7 @@ function update!(opt::ControlMeasurementOpt, alg::PSO, obj, dynamics, output)
         set_io!(output, p_out[idx], ei)
         show(output, obj)
     end
-    set_io!(output, p_out[idx])
+    set_io!(output, output.f_list[end])
 end
 
 #### state, control and measurement optimization ####
@@ -816,7 +816,7 @@ function update!(opt::StateControlMeasurementOpt, alg::PSO, obj, dynamics, outpu
     set_io!(output, f_ini)
     show(opt, output, obj)
     
-    idx = 0
+    idx = 1
     for ei in 1:(max_episode[1]-1)
         for pj in 1:p_num
             M = [C_all[pj][i]*(C_all[pj][i])' for i in 1:M_num]
@@ -914,5 +914,5 @@ function update!(opt::StateControlMeasurementOpt, alg::PSO, obj, dynamics, outpu
         set_io!(output, p_out[idx], ei)
         show(output, obj)
     end
-    set_io!(output, p_out[idx])
+    set_io!(output, output.f_list[end])
 end

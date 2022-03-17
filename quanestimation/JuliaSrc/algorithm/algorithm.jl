@@ -3,6 +3,7 @@ abstract type AbstractAlgorithm end
 abstract type AbstractGRAPE <: AbstractAlgorithm end
 struct GRAPE <: AbstractGRAPE
     max_episode::Number
+    ϵ::Number
 end
 
 struct GRAPE_Adam <: AbstractGRAPE
@@ -72,7 +73,7 @@ DDPG(max_episode, layer_num, layer_dim, seed::Number) =
 struct NM <: AbstractAlgorithm
     max_episode::Number
     state_num::Number
-    nelder_mead::AbstractVector
+    ini_state::AbstractVector
     ar::Number
     ae::Number
     ac::Number

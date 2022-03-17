@@ -58,7 +58,7 @@ class DE_Copt(Control.ControlSystem):
         self.seed = seed
 
     def QFIM(self, W=[], dtype="SLD"):
-        ini_population = Main.vec(self.ctrl0)
+        ini_population = self.ctrl0
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
             self.popsize,
@@ -71,7 +71,7 @@ class DE_Copt(Control.ControlSystem):
         super().QFIM(W, dtype)
 
     def CFIM(self, M=[], W=[]):
-        ini_population = Main.vec(self.ctrl0)
+        ini_population = self.ctrl0
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
             self.popsize,
@@ -84,7 +84,7 @@ class DE_Copt(Control.ControlSystem):
         super().CFIM(M, W)
 
     def HCRB(self, W=[]):
-        ini_population = Main.vec(self.ctrl0)
+        ini_population = self.ctrl0
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
             self.popsize,

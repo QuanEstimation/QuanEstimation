@@ -2,7 +2,9 @@ import numpy as np
 import os
 import math
 import warnings
+from julia import Main
 import quanestimation.StateOpt as stateoptimize
+from quanestimation.Common.common import SIC
 
 class StateSystem:
     def __init__(self, save_file, psi0, seed, load, eps):
@@ -242,12 +244,21 @@ class StateSystem:
             if W == []:
                 W = np.eye(len(self.Hamiltonian_derivative))
             self.W = W
+
+            if len(self.Hamiltonian_derivative) == 1:
+                self.para_type = "single_para"
+            else:
+                self.para_type = "multi_para"
         elif self.dynamics_type == "kraus":
             if W == []:
                 W = np.eye(len(self.dK))
             self.W = W
+            if len(self.dK) == 1:
+                self.para_type = "single_para"
+            else:
+                self.para_type = "multi_para"
         else:
-            pass ##TODO: dynamics
+            pass 
         
         self.obj = Main.QuanEstimation.QFIM_Obj(self.W, self.eps, self.para_type, dtype)
         system = Main.QuanEstimation.QuanEstSystem(

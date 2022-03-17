@@ -64,7 +64,7 @@ class PSO_Copt(Control.ControlSystem):
         self.seed = seed
 
     def QFIM(self, W=[], dtype="SLD"):
-        ini_particle = Main.vec(self.ctrl0)
+        ini_particle = self.ctrl0
         self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
             self.particle_num,
@@ -78,7 +78,7 @@ class PSO_Copt(Control.ControlSystem):
         super().QFIM(W, dtype)
 
     def CFIM(self, M=[], W=[]):
-        ini_particle = Main.vec(self.ctrl0)
+        ini_particle = self.ctrl0
         self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
             self.particle_num,
@@ -92,7 +92,7 @@ class PSO_Copt(Control.ControlSystem):
         super().CFIM(M, W)
 
     def HCRB(self, W=[]):
-        ini_particle = Main.vec(self.ctrl0)
+        ini_particle = self.ctrl0
         self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
             self.particle_num,
