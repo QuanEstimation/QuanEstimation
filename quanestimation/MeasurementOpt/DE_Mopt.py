@@ -50,24 +50,17 @@ class DE_Mopt(Measurement.MeasurementSystem):
             --type: int
         
         """
-        self.popsize = popsize
+        self.p_num = popsize
         self.max_episode = max_episode
         self.c = c
         self.cr = cr
 
     def CFIM(self, W=[]):
-        if self.mtype == "projection":
-            ini_population = ([self.measurement0],)
-        elif self.mtype == "input":
-            if self.minput[0] == "LC":
-                ini_population = ([self.povm_basis],)
-            elif self.minput[0] == "rotation":
-                ini_population =  ([self.povm_basis],)
         
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
-            self.popsize,
-            ini_population,
+            self.p_num,
+            self.measurement0,
             self.c,
             self.cr,
             self.seed,

@@ -55,7 +55,7 @@ class PSO_Sopt(State.StateSystem):
         """
         
         self.max_episode = max_episode 
-        self.particle_num = particle_num
+        self.p_num = particle_num
         self.c0 = c0
         self.c1 = c1
         self.c2 = c2
@@ -63,10 +63,10 @@ class PSO_Sopt(State.StateSystem):
 
 
     def QFIM(self, W=[], dtype="SLD"):
-        ini_particle = Main.vec(self.psi)
+        ini_particle = ([self.psi],)
         self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
-            self.particle_num,
+            self.p_num,
             ini_particle,
             self.c0,
             self.c1,
@@ -77,10 +77,10 @@ class PSO_Sopt(State.StateSystem):
         super().QFIM(W, dtype)
 
     def CFIM(self, M=[], W=[]):
-        ini_particle = Main.vec(self.psi)
+        ini_particle = ([self.psi],)
         self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
-            self.particle_num,
+            self.p_num,
             ini_particle,
             self.c0,
             self.c1,
@@ -91,10 +91,10 @@ class PSO_Sopt(State.StateSystem):
         super().CFIM(M, W)
 
     def HCRB(self, W=[]):
-        ini_particle = Main.vec(self.psi)
+        ini_particle = ([self.psi],)
         self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
-            self.particle_num,
+            self.p_num,
             ini_particle,
             self.c0,
             self.c1,

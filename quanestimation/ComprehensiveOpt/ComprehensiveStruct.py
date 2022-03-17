@@ -2,6 +2,7 @@ import numpy as np
 import warnings
 import math
 import os
+from julia import Main
 import quanestimation.ComprehensiveOpt as compopt
 from quanestimation.Common.common import gramschmidt
 
@@ -41,7 +42,6 @@ class ComprehensiveSystem:
         self.save_file = save_file
         self.ctrl0 = ctrl0
         self.psi0 = psi0
-        self.psi = psi0
         self.eps = eps
         self.seed = seed
         self.measurement0 = measurement0
@@ -101,14 +101,13 @@ class ComprehensiveSystem:
 
         if self.psi0 == []:
             np.random.seed(self.seed)
-            for i in range(self.dim):
                 r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
                 r = r_ini / np.linalg.norm(r_ini)
                 phi = 2 * np.pi * np.random.random(self.dim)
-                psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
-            self.psi0 = np.array(psi0)
+            self.psi = np.array([r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)])
+            self.psi0 = [self.psi]
         else:
-            self.psi0 = np.array(self.psi0[0], dtype=np.complex128)
+            self.psi = np.array(self.psi0[0], dtype=np.complex128)
 
         if Hc == []:
             Hc = [np.zeros((len(self.dim), len(self.dim)))]
@@ -195,11 +194,12 @@ class ComprehensiveSystem:
                 r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
                 r = r_ini / np.linalg.norm(r_ini)
                 phi = 2 * np.pi * np.random.random(self.dim)
-                M[i] = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
-            self.M = gramschmidt(np.array(M))
+                M[i] = [r[j] * np.exp(1.0j * phi[j]) for j in range(self.dim)]
+            self.C = gramschmidt(np.array(M))
+            self.measurement0 = [np.array([self.C[i] for i in range(len(self.psi))])]
         elif len(self.measurement0) >= 1:
-            self.M = [self.measurement0[0][i] for i in range(self.dim)]
-            self.M = [np.array(x, dtype=np.complex128) for x in self.M]
+            self.C = [self.measurement0[0][i] for i in range(len(self.psi))]
+            self.C = [np.array(x, dtype=np.complex128) for x in self.C]
 
         number = math.ceil((len(self.tspan) - 1) / len(self.control_coefficients[0]))
         if len(self.tspan) - 1 % len(self.control_coefficients[0]) != 0:
@@ -208,17 +208,6 @@ class ComprehensiveSystem:
         else:
             pass
          
-        self.dynamic = Main.QuanEstimation.Lindblad(
-            self.freeHamiltonian,
-            self.Hamiltonian_derivative,
-            self.control_Hamiltonian,
-            self.control_coefficients,
-            self.psi0,
-            self.tspan,
-            self.decay_opt,
-            self.gamma,
-        )   
-        
         self.dynamics_type = "dynamics"
 
     def kraus(self, K, dK):
@@ -236,17 +225,13 @@ class ComprehensiveSystem:
         self.dim = len(K[0])
         if self.psi0 == []:
             np.random.seed(self.seed)
-            for i in range(self.dim):
-                r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
-                r = r_ini / np.linalg.norm(r_ini)
-                phi = 2 * np.pi * np.random.random(self.dim)
-                psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
-            self.psi0 = np.array(psi0)
+            r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
+            r = r_ini / np.linalg.norm(r_ini)
+            phi = 2 * np.pi * np.random.random(self.dim)
+            self.psi = np.array([r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)])
+            self.psi0 = [self.psi]
         else:
-            self.psi0 = np.array(self.psi0[0], dtype=np.complex128)
-
-        if self.psi == []:
-            self.psi = [self.psi0]
+            self.psi = np.array(self.psi0[0], dtype=np.complex128)
 
         if self.measurement0 == []:
             np.random.seed(self.seed)
@@ -256,12 +241,13 @@ class ComprehensiveSystem:
                 r = r_ini / np.linalg.norm(r_ini)
                 phi = 2 * np.pi * np.random.random(self.dim)
                 M[i] = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
-            self.M = gramschmidt(np.array(M))
+            self.C = gramschmidt(np.array(M))
+            self.measurement0 = [np.array([self.C[i] for i in range(len(self.psi))])]
         elif len(self.measurement0) >= 1:
-            self.M = [self.measurement0[0][i] for i in range(self.dim)]
-            self.M = [np.array(x, dtype=np.complex128) for x in self.M]
+            self.C = [self.measurement0[0][i] for i in range(len(self.psi))]
+            self.C = [np.array(x, dtype=np.complex128) for x in self.C]
             
-        self.dynamic = Main.QuanEstimation.Kraus(self.K,self.dK,self.rho0)
+        self.dynamic = Main.QuanEstimation.Kraus(self.K, self.dK, self.psi)
 
         self.dynamics_type = "kraus"
     
@@ -308,8 +294,20 @@ class ComprehensiveSystem:
                                   Supported target are 'QFIM', 'CFIM' and 'HCRB',  \
                                   supported dtype are 'SLD', 'RLD' and 'LLD'.")
         
-        self.opt = Main.QuanEstimation.StateControlOpt(self.psi0, self.control_coefficients)
+        self.opt = Main.QuanEstimation.StateControlOpt(self.psi, self.control_coefficients, self.ctrl_bound)
         self.output = Main.QuanEstimation.Output(self.opt, self.save_file) 
+
+        if self.dynamics_type == "dynamics":
+            self.dynamic = Main.QuanEstimation.Lindblad(
+                self.freeHamiltonian,
+                self.Hamiltonian_derivative,
+                self.control_Hamiltonian,
+                self.control_coefficients,
+                self.psi,
+                self.tspan,
+                self.decay_opt,
+                self.gamma,
+            )
 
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
@@ -342,9 +340,21 @@ class ComprehensiveSystem:
         
         self.rho0 = np.array(rho0, dtype=np.complex128)
         
-        self.obj = Main.QuanEstimation.CFIM_Obj(self.M, self.W, self.eps, self.para_type)
-        self.opt = Main.QuanEstimation.ControlMeasurementOpt(self.M, self.control_coefficients)
+        self.obj = Main.QuanEstimation.CFIM_Obj([], self.W, self.eps, self.para_type) #### M=[]
+        self.opt = Main.QuanEstimation.ControlMeasurementOpt(self.control_coefficients, self.C, self.ctrl_bound)
         self.output = Main.QuanEstimation.Output(self.opt, self.save_file) 
+
+        if self.dynamics_type == "dynamics":
+            self.dynamic = Main.QuanEstimation.Lindblad(
+                self.freeHamiltonian,
+                self.Hamiltonian_derivative,
+                self.control_Hamiltonian,
+                self.control_coefficients,
+                rho0,
+                self.tspan,
+                self.decay_opt,
+                self.gamma,
+            )
 
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
@@ -392,7 +402,7 @@ class ComprehensiveSystem:
             self.dynamic = Main.QuanEstimation.Lindblad(
                 freeHamiltonian,
                 self.Hamiltonian_derivative,
-                self.psi0,
+                self.psi,
                 self.tspan,
                 self.decay_opt,
                 self.gamma,
@@ -403,8 +413,8 @@ class ComprehensiveSystem:
                 W = np.eye(len(self.dK))
             self.W = W
 
-        self.obj = Main.QuanEstimation.CFIM_Obj(self.M, self.W, self.eps, self.para_type)
-        self.opt = Main.QuanEstimation.StateMeasurementOpt(self.psi0, self.M)
+        self.obj = Main.QuanEstimation.CFIM_Obj([], self.W, self.eps, self.para_type) 
+        self.opt = Main.QuanEstimation.StateMeasurementOpt(self.psi, self.C)
         self.output = Main.QuanEstimation.Output(self.opt, self.save_file) 
 
         system = Main.QuanEstimation.QuanEstSystem(
@@ -432,9 +442,21 @@ class ComprehensiveSystem:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
         
-        self.obj = Main.QuanEstimation.CFIM_Obj(self.M, self.W, self.eps, self.para_type)
-        self.opt = Main.QuanEstimation.StateControlMeasurementOpt(self.control_coefficients, self.psi0, self.M)
+        self.obj = Main.QuanEstimation.CFIM_Obj([], self.W, self.eps, self.para_type)
+        self.opt = Main.QuanEstimation.StateControlMeasurementOpt(self.psi, self.control_coefficients, self.C, self.ctrl_bound)
         self.output = Main.QuanEstimation.Output(self.opt, self.save_file) 
+
+        if self.dynamics_type == "dynamics":
+            self.dynamic = Main.QuanEstimation.Lindblad(
+                self.freeHamiltonian,
+                self.Hamiltonian_derivative,
+                self.control_Hamiltonian,
+                self.control_coefficients,
+                self.psi,
+                self.tspan,
+                self.decay_opt,
+                self.gamma,
+            )
 
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output

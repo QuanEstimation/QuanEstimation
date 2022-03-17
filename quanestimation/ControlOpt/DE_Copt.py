@@ -51,7 +51,7 @@ class DE_Copt(Control.ControlSystem):
         
         """
 
-        self.popsize = popsize
+        self.p_num = popsize
         self.max_episode = max_episode
         self.c = c
         self.cr = cr
@@ -61,7 +61,7 @@ class DE_Copt(Control.ControlSystem):
         ini_population = ([self.ctrl0],)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
-            self.popsize,
+            self.p_num,
             ini_population,
             self.c,
             self.cr,
@@ -74,7 +74,7 @@ class DE_Copt(Control.ControlSystem):
         ini_population = ([self.ctrl0],)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
-            self.popsize,
+            self.p_num,
             ini_population,
             self.c,
             self.cr,
@@ -87,7 +87,7 @@ class DE_Copt(Control.ControlSystem):
         ini_population = ([self.ctrl0],)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
-            self.popsize,
+            self.p_num,
             ini_population,
             self.c,
             self.cr,

@@ -57,7 +57,7 @@ class PSO_Copt(Control.ControlSystem):
         """
 
         self.max_episode = max_episode
-        self.particle_num = particle_num
+        self.p_num = particle_num
         self.c0 = c0
         self.c1 = c1
         self.c2 = c2
@@ -67,7 +67,7 @@ class PSO_Copt(Control.ControlSystem):
         ini_particle = ([self.ctrl0],)
         self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
-            self.particle_num,
+            self.p_num,
             ini_particle,
             self.c0,
             self.c1,
@@ -81,7 +81,7 @@ class PSO_Copt(Control.ControlSystem):
         ini_particle = ([self.ctrl0],)
         self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
-            self.particle_num,
+            self.p_num,
             ini_particle,
             self.c0,
             self.c1,
@@ -95,7 +95,7 @@ class PSO_Copt(Control.ControlSystem):
         ini_particle = ([self.ctrl0],)
         self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
-            self.particle_num,
+            self.p_num,
             ini_particle,
             self.c0,
             self.c1,

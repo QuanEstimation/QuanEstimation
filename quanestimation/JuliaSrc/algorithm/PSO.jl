@@ -884,7 +884,7 @@ function update!(opt::StateControlMeasurementOpt, alg::PSO, obj, dynamics, outpu
             for dk in 1:ctrl_num
                 for ck in 1:ctrl_length
                     control_coeff_pre[dk][ck] = particles[pk].data.ctrl[dk][ck]
-                    velocity_ctrl[dk, ck, pk] = c0*velocity_ctrl[dk, ck, pk] + c1*rand(rng)*(pbest_ctrl[dk, ck, pk] - particles[pk].ctrl[dk][ck]) 
+                    velocity_ctrl[dk, ck, pk] = c0*velocity_ctrl[dk, ck, pk] + c1*rand(rng)*(pbest_ctrl[dk, ck, pk] - particles[pk].data.ctrl[dk][ck]) 
                                          + c2*rand(rng)*(gbest_ctrl[dk, ck] - particles[pk].data.ctrl[dk][ck])
                     particles[pk].data.ctrl[dk][ck] += velocity_ctrl[dk, ck, pk]
                 end

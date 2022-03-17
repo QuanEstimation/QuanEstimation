@@ -68,8 +68,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         
         """
 
-        self.particle_num = particle_num
-        self.ini_particle = self.psi
+        self.p_num = particle_num
         self.max_episode = max_episode
         self.c0 = c0
         self.c1 = c1
@@ -77,10 +76,10 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         self.seed = seed
 
     def SC(self, W=[], M=[], target="QFIM", dtype="SLD"):
-        ini_particle = Main.vec([self.psi, self.ctrl0])
+        ini_particle = (self.psi0, self.ctrl0)
         self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
-            self.particle_num,
+            self.p_num,
             ini_particle,
             self.c0,
             self.c1,
@@ -91,13 +90,14 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         super().SC(W,M,target,dtype)
 
     def CM(self, rho0, W=[]):
-        ini_particle = Main.vec([self.ctrl0, self.measurement0])
-        self.alg = Main.QuanEstimation.DE(
+        ini_particle = (self.ctrl0, self.measurement0)
+        self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
-            self.popsize,
+            self.p_num,
             ini_particle,
-            self.c,
-            self.cr,
+            self.c0,
+            self.c1,
+            self.c2,
             self.seed,
         )
 
@@ -105,26 +105,28 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         
 
     def SM(self, W=[]):
-        ini_particle = Main.vec([self.psi, self.measurement0])
-        self.alg = Main.QuanEstimation.DE(
+        ini_particle = (self.psi0, self.measurement0)
+        self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
-            self.popsize,
+            self.p_num,
             ini_particle,
-            self.c,
-            self.cr,
+            self.c0,
+            self.c1,
+            self.c2,
             self.seed,
         )
 
         super().SM(W)
 
     def SCM(self, W=[]):
-        ini_particle = Main.vec([self.ctrl0, self.psi, self.measurement0])
-        self.alg = Main.QuanEstimation.DE(
+        ini_particle = (self.psi0, self.ctrl0, self.measurement0)
+        self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
-            self.popsize,
+            self.p_num,
             ini_particle,
-            self.c,
-            self.cr,
+            self.c0,
+            self.c1,
+            self.c2,
             self.seed,
         )
 

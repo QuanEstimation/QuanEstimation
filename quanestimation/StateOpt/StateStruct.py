@@ -140,11 +140,10 @@ class StateSystem:
 
         if self.psi0 == []:
             np.random.seed(self.seed)
-            for i in range(self.dim):
-                r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
-                r = r_ini / np.linalg.norm(r_ini)
-                phi = 2 * np.pi * np.random.random(self.dim)
-                psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
+            r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
+            r = r_ini / np.linalg.norm(r_ini)
+            phi = 2 * np.pi * np.random.random(self.dim)
+            psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
             self.psi0 = np.array(psi0)
         else:
             self.psi0 = np.array(self.psi0[0], dtype=np.complex128)
@@ -202,11 +201,10 @@ class StateSystem:
 
         if self.psi0 == []:
             np.random.seed(self.seed)
-            for i in range(self.dim):
-                r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
-                r = r_ini / np.linalg.norm(r_ini)
-                phi = 2 * np.pi * np.random.random(self.dim)
-                psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
+            r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
+            r = r_ini / np.linalg.norm(r_ini)
+            phi = 2 * np.pi * np.random.random(self.dim)
+            psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
             self.psi0 = np.array(psi0)
         else:
             self.psi0 = np.array(self.psi0[0], dtype=np.complex128)

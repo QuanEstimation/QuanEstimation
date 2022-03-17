@@ -65,17 +65,17 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         
         """
 
-        self.popsize = popsize
+        self.p_num = popsize
         self.max_episode = max_episode
         self.c = c
         self.cr = cr
         self.seed = seed
 
     def SC(self, W=[], M=[], target="QFIM", dtype="SLD"):
-        ini_population = Main.vec([self.psi, self.ctrl0])
+        ini_population = (self.psi0, self.ctrl0)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
-            self.popsize,
+            self.p_num,
             ini_population,
             self.c,
             self.cr,
@@ -86,10 +86,10 @@ class DE_Compopt(Comp.ComprehensiveSystem):
 
 
     def CM(self, rho0, W=[]):
-        ini_population = Main.vec([self.ctrl0, self.measurement0])
+        ini_population = (self.ctrl0, self.measurement0)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
-            self.popsize,
+            self.p_num,
             ini_population,
             self.c,
             self.cr,
@@ -100,10 +100,10 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         
 
     def SM(self, W=[]):
-        ini_population = Main.vec([self.psi, self.measurement0])
+        ini_population = (self.psi0, self.measurement0)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
-            self.popsize,
+            self.p_num,
             ini_population,
             self.c,
             self.cr,
@@ -113,10 +113,10 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         super().SM(W)
 
     def SCM(self, W=[]):
-        ini_population = Main.vec([self.ctrl0, self.psi, self.measurement0])
+        ini_population = (self.psi0, self.ctrl0, self.measurement0)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
-            self.popsize,
+            self.p_num,
             ini_population,
             self.c,
             self.cr,

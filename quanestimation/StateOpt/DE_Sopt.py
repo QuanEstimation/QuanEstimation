@@ -49,17 +49,17 @@ class DE_Sopt(State.StateSystem):
         
         """
 
-        self.popsize = popsize
+        self.p_num = popsize
         self.max_episode = max_episode
         self.c = c
         self.cr = cr
         self.seed = seed
 
     def QFIM(self, W=[], dtype="SLD"):
-        ini_population = Main.vec(self.psi)
+        ini_population = ([self.psi],)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
-            self.popsize,
+            self.p_num,
             ini_population,
             self.c,
             self.cr,
@@ -69,10 +69,10 @@ class DE_Sopt(State.StateSystem):
         super().QFIM(W, dtype)
 
     def CFIM(self, M=[], W=[]):
-        ini_population = Main.vec(self.psi)
+        ini_population = ([self.psi],)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
-            self.popsize,
+            self.p_num,
             ini_population,
             self.c,
             self.cr,
@@ -82,10 +82,10 @@ class DE_Sopt(State.StateSystem):
         super().CFIM(M, W)
 
     def HCRB(self, W=[]):
-        ini_population = Main.vec(self.psi)
+        ini_population = ([self.psi],)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
-            self.popsize,
+            self.p_num,
             ini_population,
             self.c,
             self.cr,

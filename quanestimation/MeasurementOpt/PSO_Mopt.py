@@ -2,7 +2,6 @@ import numpy as np
 from julia import Main
 import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
-
 class PSO_Mopt(Measurement.MeasurementSystem):
     def __init__(
         self,
@@ -55,7 +54,7 @@ class PSO_Mopt(Measurement.MeasurementSystem):
             --type: int
         
         """
-        self.particle_num = particle_num
+        self.p_num = particle_num
         self.max_episode = max_episode
         self.c0 = c0
         self.c1 = c1
@@ -63,18 +62,11 @@ class PSO_Mopt(Measurement.MeasurementSystem):
         self.seed = seed
 
     def CFIM(self, W=[]):
-        if self.mtype == "projection":
-            ini_particle = Main.vec(self.measurement0)
-        elif self.mtype == "input":
-            if self.minput[0] == "LC":
-                ini_particle = Main.vec(self.povm_basis)
-            elif self.minput[0] == "rotation":
-                ini_particle = Main.vec(self.povm_basis)
-                
+
         self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
-            self.particle_num,
-            ini_particle,
+            self.p_num,
+            self.measurement0,
             self.c0,
             self.c1,
             self.c2,

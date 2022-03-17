@@ -3,6 +3,7 @@ import numpy as np
 import os
 import math
 import warnings
+from julia import Main
 import quanestimation.MeasurementOpt as Measure
 from quanestimation.Common.common import gramschmidt, sic_povm
 
@@ -99,7 +100,6 @@ class MeasurementSystem:
         self.tspan = tspan
         self.rho0 = np.array(rho0, dtype=np.complex128)
 
-
         if self.mtype == "projection":
             if self.measurement0 == []:
                 np.random.seed(self.seed)
@@ -109,13 +109,13 @@ class MeasurementSystem:
                         len(self.rho0))
                     r = r_ini / np.linalg.norm(r_ini)
                     phi = 2 * np.pi * np.random.random(len(self.rho0))
-                    M[i] = [r[i] * np.exp(1.0j * phi[i]) for i in range(len(self.rho0))]
-                self.M = gramschmidt(np.array(M))
-            elif len(self.measurement0) >= 1:
-                self.M = [self.measurement0[0][i] for i in range(len(self.rho0))]
-            
-            self.opt = Main.QuanEstimation.Mopt_Projection(self.measurement0)
-        
+                    M[i] = [r[j] * np.exp(1.0j * phi[j]) for j in range(len(self.rho0))]
+                self.C = gramschmidt(np.array(M))
+                self.measurement0 = [np.array([self.C[i] for i in range(len(self.rho0))])]
+            else:
+                self.C = [self.measurement0[0][i] for i in range(len(self.rho0))]
+            self.opt = Main.QuanEstimation.Mopt_Projection(self.C)  
+
         elif self.mtype == "input":
             if self.minput[0] == "LC":
                 ## optimize the combination of a set of SIC-POVM
@@ -153,11 +153,11 @@ class MeasurementSystem:
                         self.M_num = self.minput[2]
 
                 if self.measurement0 == []:
-                    self.B = [np.random.random(len(self.povm_basis)) for i in np.arange(self.M_num)]
+                    self.B = [np.random.random(len(self.povm_basis)) for i in range(self.M_num)]
+                    self.measurement0 = [np.array(self.B)]
                 elif len(self.measurement0) >= 1:
                     self.B = [self.measurement0[0][i] for i in range(len(self.povm_basis))]
-                
-                self.opt = Main.QuanEstimation.Mopt_LinearComb(self.B, self.povm_basis, self.measurement0)
+                self.opt = Main.QuanEstimation.Mopt_LinearComb(self.B, self.povm_basis, self.M_num)
                         
             elif self.minput[0] == "rotation":
                 ## optimize the coefficients of the rotation matrix
@@ -185,10 +185,11 @@ class MeasurementSystem:
                 
                 if self.measurement0 == []:
                     self.s = np.random.random(len(self.rho0)**2)
+                    self.measurement0 = [self.s]
                 elif len(self.measurement0) >= 1:
                     self.s = [self.measurement0[0][i] for i in range(len(self.rho0)*len(self.rho0))]
 
-                self.opt = Main.QuanEstimation.Mopt_Rotation(self.s, self.povm_basis, self.measurement0)
+                self.opt = Main.QuanEstimation.Mopt_Rotation(self.s, self.povm_basis, [])  #### Lambda=[]
             
             else:
                 raise ValueError("{!r} is not a valid value for the first input of minput, \
@@ -294,11 +295,13 @@ class MeasurementSystem:
                     r = r_ini / np.linalg.norm(r_ini)
                     phi = 2 * np.pi * np.random.random(len(self.rho0))
                     M[i] = [r[i] * np.exp(1.0j * phi[i]) for i in range(len(self.rho0))]
-                self.M = gramschmidt(np.array(M))
+                self.C = gramschmidt(np.array(M))
+                self.measurement0 = [np.array([self.C[i] for i in range(len(self.rho0))])]
             elif len(self.measurement0) >= 1:
-                self.M = [self.measurement0[0][i] for i in range(len(self.rho0))]
+                self.C = [self.measurement0[0][i] for i in range(len(self.rho0))]
+                self.C = [np.array(x, dtype=np.complex128) for x in self.C]
             
-            self.opt = Main.QuanEstimation.Mopt_Projection(self.measurement0)
+            self.opt = Main.QuanEstimation.Mopt_Projection(self.C)
             
         elif self.mtype == "input":
             if self.minput[0] == "LC":
@@ -332,11 +335,14 @@ class MeasurementSystem:
                         else:
                             raise TypeError(
                                 "The sum of the given POVMs should be identity matrix!")
-                        self.povm_basis = [
-                            np.array(x, dtype=np.complex128) for x in self.minput[1]]
+                        self.povm_basis = [np.array(x, dtype=np.complex128) for x in self.minput[1]]
                         self.M_num = self.minput[2]
-                
-                self.opt = Main.QuanEstimation.Mopt_LinearComb(self.B, self.povm_basis, self.measurement0)
+                if self.measurement0 == []:
+                    self.B = [np.random.random(len(self.povm_basis)) for i in np.arange(self.M_num)]
+                    self.measurement0 = [np.array(self.B)]
+                elif len(self.measurement0) >= 1:
+                    self.B = [self.measurement0[0][i] for i in range(len(self.povm_basis))]
+                self.opt = Main.QuanEstimation.Mopt_LinearComb(self.B, self.povm_basis, self.M_num)
                 
             elif self.minput[0] == "rotation":
                 ## optimize the coefficients of the rotation matrix
@@ -361,7 +367,13 @@ class MeasurementSystem:
                         raise TypeError("The sum of the given POVMs should be identity matrix!")
                     self.povm_basis = [np.array(x, dtype=np.complex128) for x in self.minput[1]]
                     self.mtype = "rotation"
-                    self.opt = Main.QuanEstimation.Mopt_Rotation(self.s, self.povm_basis, self.measurement0)
+
+                    if self.measurement0 == []:
+                        self.s = np.random.random(len(self.rho0)**2)
+                        self.measurement0 = [self.s]
+                    elif len(self.measurement0) >= 1:
+                        self.s = [self.measurement0[0][i] for i in range(len(self.rho0)*len(self.rho0))]
+                    self.opt = Main.QuanEstimation.Mopt_Rotation(self.s, self.povm_basis, []) #### Lambda=[]
             else:
                 raise ValueError("{!r} is not a valid value for the first input of minput, \
                                   supported values are 'LC' and 'rotation'.".format(self.minput[0]))
@@ -369,7 +381,7 @@ class MeasurementSystem:
             raise ValueError("{!r} is not a valid value for mtype, supported values are \
                              'projection' and 'input'.".format(self.mtype))
         
-        self.dynamic = Main.QuanEstimation.Kraus(self.K,self.dK,self.rho0,)
+        self.dynamic = Main.QuanEstimation.Kraus(self.K,self.dK,self.rho0)
         self.output = Main.QuanEstimation.Output(self.opt, self.save_file)    
 
         self.dynamics_type = "kraus"
@@ -395,7 +407,7 @@ class MeasurementSystem:
                 W = np.eye(len(self.dK))
             self.W = W            
 
-        self.obj = Main.QuanEstimation.CFIM_Obj(M, self.W, self.eps, self.para_type)
+        self.obj = Main.QuanEstimation.CFIM_Obj([], self.W, self.eps, self.para_type) #### m=[]
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )

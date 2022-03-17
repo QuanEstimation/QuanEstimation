@@ -571,7 +571,7 @@ end
 function update!(opt::ControlMeasurementOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     ctrl0, measurement0 = ini_population
-    dim = length(dynamics.data.ψ0)
+    dim = size(dynamics.data.ρ0)[1]
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
     M_num = length(opt.C)

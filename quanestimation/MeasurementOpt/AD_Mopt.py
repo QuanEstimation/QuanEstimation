@@ -3,7 +3,6 @@ from julia import Main
 import warnings
 import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
-
 class AD_Mopt(Measurement.MeasurementSystem):
     def __init__(
         self,
@@ -79,5 +78,5 @@ class AD_Mopt(Measurement.MeasurementSystem):
                            'PSO' and 'DE'.",
                 DeprecationWarning,
             )
-        
-        super().CFIM(W)
+        else:
+            super().CFIM(W)
