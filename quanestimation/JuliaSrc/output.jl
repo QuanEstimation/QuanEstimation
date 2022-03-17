@@ -22,7 +22,7 @@ function set_io!(output::AbstractOutput, buffer...)
     output.io_buffer = [buffer...]
 end
 
-Output{T}(opt::AbstractOpt) where {T} = Output{T}([], result(opt), res_file(opt), [])
+Output{T}(opt::AbstractOpt) where {T} = Output{T}([], [], res_file(opt), [])
 Output(opt::AbstractOpt, save_type::Bool) =
     save_type ? Output{save_file}(opt) : Output{no_save}(opt)
 

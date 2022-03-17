@@ -1,6 +1,7 @@
 #### control optimization ####
 function update!(opt::ControlOpt, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
+    ini_particle = ini_particle[1]
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
     particles = repeat(dynamics, p_num)
@@ -99,6 +100,7 @@ end
 #### state optimization ####
 function update!(opt::StateOpt, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
+    ini_particle = ini_particle[1]
     dim = length(dynamics.data.ψ0)
     particles = repeat(dynamics, p_num)
 
@@ -171,10 +173,11 @@ end
 
 #### projective measurement optimization ####
 function update!(opt::Mopt_Projection, alg::PSO, obj, dynamics, output)
-    (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg  
+    (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
+    ini_particle = ini_particle[1]  
     dim = size(dynamics.data.ρ0)[1] 
     M_num = length(opt.C)
-    particles = [opt.C for i in 1:p_num]
+    particles = [[zeros(ComplexF64, dim) for j in 1:M_num] for i in 1:p_num]
 
     if typeof(max_episode) == Int
         max_episode = [max_episode, max_episode]
@@ -258,9 +261,10 @@ end
 #### find the optimal linear combination of a given set of POVM ####
 function update!(opt::Mopt_LinearComb, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
+    ini_particle = ini_particle[1]
     (; B, POVM_basis, M_num) = opt
     basis_num = length(POVM_basis)
-    particles = [B for i in 1:p_num]
+    particles = [[zeros(POVM_basis) for j in 1:M_num] for i in 1:p_num]
 
     if typeof(max_episode) == Int
         max_episode = [max_episode, max_episode]
@@ -349,6 +353,7 @@ end
 #### find the optimal rotated measurement of a given set of POVM ####
 function update!(opt::Mopt_Rotation, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
+    ini_particle = ini_particle[1]
     (; s, POVM_basis, Lambda) = opt
     M_num = length(POVM_basis)
     dim = size(dynamics.data.ρ0)[1]
@@ -368,7 +373,7 @@ function update!(opt::Mopt_Rotation, alg::PSO, obj, dynamics, output)
     fit, fit_out = 0.0, 0.0
 
     # initialization  
-    particles = [s for i in 1:p_num]
+    particles = [zeros(dim^2) for i in 1:p_num]
     initial_Rotation!(ini_particle, particles, dim, p_num, rng)
     
     obj_QFIM = QFIM_Obj(obj)
@@ -440,10 +445,11 @@ end
 function update!(opt::StateControlOpt, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
     psi0, ctrl0 = ini_particle
+    dim = length(dynamics.data.ψ0)
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
     particles = repeat(dynamics, p_num)
-    
+
     if typeof(max_episode) == Int
         max_episode = [max_episode, max_episode]
     end
@@ -462,7 +468,7 @@ function update!(opt::StateControlOpt, alg::PSO, obj, dynamics, output)
     initial_state!(psi0, particles, p_num, rng)
     initial_ctrl!(opt, ctrl0, particles, p_num, rng)
 
-    dynamics_copy = set_ctrl(dynamics, [zeros(ctrl_length) for i in 1:ctrl_num])
+    dynamics_copy = set_ctrl(dynamics, [zeros(ctrl_length) for i=1:ctrl_num])
     f_noctrl, f_comp = objective(obj, dynamics_copy)
     f_ini, f_comp = objective(obj, dynamics)
 
@@ -522,7 +528,7 @@ function update!(opt::StateControlOpt, alg::PSO, obj, dynamics, output)
             for dk in 1:ctrl_num
                 for ck in 1:ctrl_length
                     control_coeff_pre[dk][ck] = particles[pk].data.ctrl[dk][ck]
-                    velocity_ctrl[dk, ck, pk] = c0*velocity_ctrl[dk, ck, pk] + c1*rand(rng)*(pbest_ctrl[dk, ck, pk] - particles[pk].ctrl[dk][ck]) 
+                    velocity_ctrl[dk, ck, pk] = c0*velocity_ctrl[dk, ck, pk] + c1*rand(rng)*(pbest_ctrl[dk, ck, pk] - particles[pk].data.ctrl[dk][ck]) 
                                          + c2*rand(rng)*(gbest_ctrl[dk, ck] - particles[pk].data.ctrl[dk][ck])
                     particles[pk].data.ctrl[dk][ck] += velocity_ctrl[dk, ck, pk]
                 end
@@ -548,7 +554,7 @@ function update!(opt::StateMeasurementOpt, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
     psi0, measurement0 = ini_particle
     dim = length(dynamics.data.ψ0)
-    M_num = length(measurement0[1])
+    M_num = length(opt.C)
     particles = repeat(dynamics, p_num)
 
     if typeof(max_episode) == Int
@@ -567,7 +573,7 @@ function update!(opt::StateMeasurementOpt, alg::PSO, obj, dynamics, output)
 
     # initialization  
     initial_state!(psi0, particles, p_num, rng)
-    C_all = [opt.C for i in 1:p_num]
+    C_all = [[zeros(ComplexF64, dim) for j in 1:M_num] for i in 1:p_num]
     initial_M!(measurement0, C_all, dim, p_num, M_num, rng)
 
     M = [C_all[1][i]*(C_all[1][i])' for i in 1:M_num]
@@ -661,8 +667,8 @@ function update!(opt::ControlMeasurementOpt, alg::PSO, obj, dynamics, output)
     ctrl0, measurement0 = ini_particle
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
-    dim = length(dynamics.data.ψ0)
-    M_num = length(measurement0[1])
+    dim = size(dynamics.data.ρ0)[1]
+    M_num = length(opt.C)
     particles = repeat(dynamics, p_num)
 
     if typeof(max_episode) == Int
@@ -680,7 +686,7 @@ function update!(opt::ControlMeasurementOpt, alg::PSO, obj, dynamics, output)
     fit, fit_out = 0.0, 0.0
 
     initial_ctrl!(opt, ctrl0, particles, p_num, rng)
-    C_all = [opt.C for i in 1:p_num]
+    C_all = [[zeros(ComplexF64, dim) for j in 1:M_num] for i in 1:p_num]
     initial_M!(measurement0, C_all, dim, p_num, M_num, rng)
 
     M = [C_all[1][i]*(C_all[1][i])' for i in 1:M_num]
@@ -735,7 +741,7 @@ function update!(opt::ControlMeasurementOpt, alg::PSO, obj, dynamics, output)
             for dk in 1:ctrl_num
                 for ck in 1:ctrl_length
                     control_coeff_pre[dk][ck] = particles[pk].data.ctrl[dk][ck]
-                    velocity_ctrl[dk, ck, pk] = c0*velocity_ctrl[dk, ck, pk] + c1*rand(rng)*(pbest_ctrl[dk, ck, pk] - particles[pk].ctrl[dk][ck]) 
+                    velocity_ctrl[dk, ck, pk] = c0*velocity_ctrl[dk, ck, pk] + c1*rand(rng)*(pbest_ctrl[dk, ck, pk] - particles[pk].data.ctrl[dk][ck]) 
                                          + c2*rand(rng)*(gbest_ctrl[dk, ck] - particles[pk].data.ctrl[dk][ck])
                     particles[pk].data.ctrl[dk][ck] += velocity_ctrl[dk, ck, pk]
                 end
@@ -782,7 +788,7 @@ function update!(opt::StateControlMeasurementOpt, alg::PSO, obj, dynamics, outpu
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
     dim = length(dynamics.data.ψ0)
-    M_num = length(measurement0[1])
+    M_num = length(opt.C)
     particles = repeat(dynamics, p_num)
 
     if typeof(max_episode) == Int
@@ -805,7 +811,7 @@ function update!(opt::StateControlMeasurementOpt, alg::PSO, obj, dynamics, outpu
     # initialization 
     initial_state!(psi0, particles, p_num, rng)
     initial_ctrl!(opt, ctrl0, particles, p_num, rng)
-    C_all = [opt.C for i in 1:p_num]
+    C_all = [[zeros(ComplexF64, dim) for j in 1:M_num] for i in 1:p_num]
     initial_M!(measurement0, C_all, dim, p_num, M_num, rng)
 
     M = [C_all[1][i]*(C_all[1][i])' for i in 1:M_num]

@@ -7,7 +7,10 @@ const IO_opt = Dict(
     :Sopt => "state optimization",
     :Mopt => "measurement optimization",
     :Mopt_input => "measurement optimization",
-    :CompOpt => "comprehensive optimization",
+    :SCopt => "comprehensive optimization",
+    :SMopt => "comprehensive optimization",
+    :CMopt => "comprehensive optimization",
+    :SCMopt => "comprehensive optimization",
 )
 
 const IO_para = Dict(
@@ -101,6 +104,62 @@ const IO_ini = Dict(
         :CFIM,
         :multi_para,
     ) => "initial value of tr(WI^{-1}) is %f\ntr(WI^{-1}) under the given POVM is %f\ntr(WF^{-1}) is  %f\n",
+
+    #### state and control optimization ####
+    (
+        :SCopt,
+        :QFIM,
+        :single_para,
+    ) => "non-controlled value of QFI is %f\ninitial value of QFI is %f\n",
+    (
+        :SCopt,
+        :QFIM,
+        :multi_para,
+    ) => "initial value of tr(WF^{-1}) is %f\n",
+    (
+        :SCopt,
+        :CFIM,
+        :single_para,
+    ) => "initial value of CFI is %f\n",
+    (
+        :SCopt,
+        :CFIM,
+        :multi_para,
+    ) => "initial value of tr(WI^{-1}) is %f\n",
+    #### state and measurement optimization ####
+    (
+        :SMopt,
+        :CFIM,
+        :single_para,
+    ) => "initial value of CFI is %f\n",
+    (
+        :SMopt,
+        :CFIM,
+        :multi_para,
+    ) => "initial value of tr(WI^{-1}) is %f\n",
+    #### control and measurement optimization ####
+    (
+        :CMopt,
+        :CFIM,
+        :single_para,
+    ) => "initial value of CFI is %f\n",
+    (
+        :CMopt,
+        :CFIM,
+        :multi_para,
+    ) => "initial value of tr(WI^{-1}) is %f\n",
+    #### state, control and measurement optimization ####
+    (
+        :SCMopt,
+        :CFIM,
+        :single_para,
+    ) => "initial value of CFI is %f\n",
+    (
+        :SCMopt,
+        :CFIM,
+        :multi_para,
+    ) => "initial value of tr(WI^{-1}) is %f\n",
+
 )
 
 const IO_current = Dict(

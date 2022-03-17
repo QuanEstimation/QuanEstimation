@@ -39,11 +39,13 @@ abstract type CompOpt <: Opt end
 mutable struct StateControlOpt <: CompOpt
     ψ0::AbstractVector
     ctrl::AbstractVector
+    ctrl_bound::AbstractVector
 end
 
 mutable struct ControlMeasurementOpt <: CompOpt
     ctrl::AbstractVector
     C::AbstractVector
+    ctrl_bound::AbstractVector
 end
 
 mutable struct StateMeasurementOpt <: CompOpt
@@ -55,6 +57,7 @@ mutable struct StateControlMeasurementOpt <: CompOpt
     ctrl::AbstractVector
     ψ0::AbstractVector
     C::AbstractVector
+    ctrl_bound::AbstractVector
 end
 
 MeasurementOpt(M, mtype::Symbol = :Projection) = MeasurementOpt{eval(mtype)}(M)

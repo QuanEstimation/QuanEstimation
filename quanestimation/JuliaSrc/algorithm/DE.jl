@@ -1,6 +1,7 @@
 #### control optimization ####
 function update!(opt::ControlOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    ini_population = ini_population[1]
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
     populations = repeat(dynamics, p_num)
@@ -75,8 +76,10 @@ end
 #### state optimization ####
 function update!(opt::StateOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    ini_population = ini_population[1]
     dim = length(dynamics.data.ψ0)
     populations = repeat(dynamics, p_num)
+
     # initialization  
     initial_state!(ini_population, populations, p_num, rng)
 
@@ -134,11 +137,12 @@ end
 #### projective measurement optimization ####
 function update!(opt::Mopt_Projection, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    ini_population = ini_population[1]
 
     dim = size(dynamics.data.ρ0)[1]
     M_num = length(opt.C)
 
-    populations = repeat(opt.C, p_num)
+    populations = [[zeros(ComplexF64, dim) for j in 1:M_num] for i in 1:p_num]
     # initialization  
     initial_M!(ini_population, populations, dim, p_num, M_num, rng)
 
@@ -209,9 +213,10 @@ end
 #### find the optimal linear combination of a given set of POVM ####
 function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    ini_population = ini_population[1]
     (; B, POVM_basis, M_num) = opt
     basis_num = length(POVM_basis)
-    populations = [B for i in 1:p_num]
+    populations = [[zeros(POVM_basis) for j in 1:M_num] for i in 1:p_num]
 
     # initialization
     initial_LinearComb!(ini_population, populations, basis_num, M_num, p_num, rng)
@@ -288,13 +293,14 @@ end
 #### find the optimal rotated measurement of a given set of POVM ####
 function update!(opt::Mopt_Rotation, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    ini_population = ini_population[1]
     (; s, POVM_basis, Lambda) = opt
     dim = size(dynamics.data.ρ0)[1]
     suN = suN_generator(dim)
     append!(Lambda, [Matrix{ComplexF64}(I,dim,dim)])
     append!(Lambda, [suN[i] for i in 1:length(suN)])
     M_num = length(POVM_basis)
-    populations = [s for i in 1:p_num]
+    populations = [zeros(dim^2) for i in 1:p_num]
     # initialization  
     initial_Rotation!(ini_population, populations, dim, p_num, rng)
 
@@ -372,7 +378,7 @@ function update!(opt::StateControlOpt, alg::DE, obj, dynamics, output)
     psi0, ctrl0 = ini_population
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
-    dim = length(dynamics.data.ψ0)
+    dim = size(dynamics.data.ρ0)[1]
     populations = repeat(dynamics, p_num)
 
     # initialization 
@@ -467,12 +473,12 @@ function update!(opt::StateMeasurementOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     psi0, measurement0 = ini_population
     dim = length(dynamics.data.ψ0)
-    M_num = length(measurement0[1])
+    M_num = length(opt.C)
     populations = repeat(dynamics, p_num)
 
     # initialization 
     initial_state!(psi0, populations, p_num, rng)
-    C_all = [opt.C for i in 1:p_num]
+    C_all = [[zeros(ComplexF64, dim) for j in 1:M_num] for i in 1:p_num]
     initial_M!(measurement0, C_all, dim, p_num, M_num, rng)
 
     p_fit, p_out = zeros(p_num), zeros(p_num)
@@ -569,12 +575,12 @@ function update!(opt::ControlMeasurementOpt, alg::DE, obj, dynamics, output)
     dim = length(dynamics.data.ψ0)
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
-    M_num = length(measurement0[1])
+    M_num = length(opt.C)
     populations = repeat(dynamics, p_num)
 
     # initialization 
     initial_ctrl!(opt, ctrl0, populations, p_num, rng)
-    C_all = [opt.C for i in 1:p_num]
+    C_all = [[zeros(ComplexF64, dim) for j in 1:M_num] for i in 1:p_num]
     initial_M!(measurement0, C_all, dim, p_num, M_num, rng)
 
     p_fit, p_out = zeros(p_num), zeros(p_num)
@@ -680,13 +686,13 @@ function update!(opt::StateControlMeasurementOpt, alg::DE, obj, dynamics, output
     dim = length(dynamics.data.ψ0)
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
-    M_num = length(measurement0[1])
+    M_num = length(opt.C)
     populations = repeat(dynamics, p_num)
 
     # initialization 
     initial_state!(psi0, populations, p_num, rng)
     initial_ctrl!(opt, ctrl0, populations, p_num, rng)
-    C_all = [opt.C for i in 1:p_num]
+    C_all = [[zeros(ComplexF64, dim) for j in 1:M_num] for i in 1:p_num]
     initial_M!(measurement0, C_all, dim, p_num, M_num, rng)
 
     p_fit, p_out = zeros(p_num), zeros(p_num)

@@ -33,7 +33,7 @@ AD(max_episode, ϵ, beta1, beta2) = AD_Adam(max_episode, ϵ, beta1, beta2)
 struct PSO <: AbstractAlgorithm
     max_episode::Union{T,Vector{T}} where {T<:Number}
     p_num::Number
-    ini_particle::AbstractVector
+    ini_particle::Tuple
     c0::Number
     c1::Number
     c2::Number
@@ -48,7 +48,7 @@ PSO(max_episode, p_num, ini_particle, c0, c1, c2, seed::Number) =
 struct DE <: AbstractAlgorithm
     max_episode::Number
     p_num::Number
-    ini_population::AbstractVector
+    ini_population::Tuple
     c::Number
     cr::Number
     rng::AbstractRNG
