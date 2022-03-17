@@ -79,7 +79,6 @@ function update!(opt::StateOpt, alg::DE, obj, dynamics, output)
     ini_population = ini_population[1]
     dim = length(dynamics.data.ψ0)
     populations = repeat(dynamics, p_num)
-
     # initialization  
     initial_state!(ini_population, populations, p_num, rng)
 

@@ -11,7 +11,7 @@ function mintime(::Val{:binary}, f, system)
         dynamics.data.tspan = tspan[1:mid]
         dynamics.data.ctrl = [c[1:mid-1] for c in ctrl] 
         
-        f_ini = obj(obj, dynamics)[2]
+        f_ini = objective(obj, dynamics)[2]
         if f > f_ini
             run(system)
             f_mid = output.f_list[end]

@@ -186,12 +186,12 @@ const IO_final = Dict(
 
 ## io info
 function show(system::QuanEstSystem)
-    (; optim, algorithm, objective) = system
+    (; optim, algorithm, obj) = system
     println(
-        (optim isa ControlOpt ? IO_obj[obj_type(objective)] : "") *
+        (optim isa ControlOpt ? IO_obj[obj_type(obj)] : "") *
         IO_opt[opt_target(optim)],
     )
-    println(IO_para[para_type(objective)])
+    println(IO_para[para_type(obj)])
     println(IO_alg[alg_type(algorithm)])
 end
 
