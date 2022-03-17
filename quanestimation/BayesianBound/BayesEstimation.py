@@ -3,28 +3,29 @@ from scipy.integrate import simps
 from quanestimation.Common.common import extract_ele
 from quanestimation.Common.common import SIC
 
+
 def Bayes(x, p, rho, y, M=[], save_file=False):
     para_num = len(x)
     max_episode = len(y)
     if para_num == 1:
         #### singleparameter senario ####
-        if M==[]: 
+        if M == []:
             M = SIC(len(rho[0]))
         else:
             if type(M) != list:
                 raise TypeError("Please make sure M is a list!")
-        if save_file==False:
+        if save_file == False:
             for mi in range(max_episode):
                 res_exp = int(y[mi])
                 pyx = np.zeros(len(x[0]))
                 for xi in range(len(x[0])):
                     p_tp = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
                     pyx[xi] = p_tp
-                arr = [pyx[m]*p[m] for m in range(len(x[0]))]
+                arr = [pyx[m] * p[m] for m in range(len(x[0]))]
                 py = simps(arr, x[0])
-                p_update = pyx*p/py
+                p_update = pyx * p / py
                 p = p_update
-            indx = np.where(p == max(p))[0][0] 
+            indx = np.where(p == max(p))[0][0]
             x_out = x[0][indx]
             return p, x_out
         else:
@@ -35,13 +36,13 @@ def Bayes(x, p, rho, y, M=[], save_file=False):
                 for xi in range(len(x[0])):
                     p_tp = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
                     pyx[xi] = p_tp
-                arr = [pyx[m]*p[m] for m in range(len(x[0]))]
+                arr = [pyx[m] * p[m] for m in range(len(x[0]))]
                 py = simps(arr, x[0])
-                p_update = pyx*p/py
-                p = p_update  
-                indx = np.where(p == max(p))[0][0] 
+                p_update = pyx * p / py
+                p = p_update
+                indx = np.where(p == max(p))[0][0]
                 p_out.append(p)
-                x_out.append(x[0][indx])   
+                x_out.append(x[0][indx])
             np.save("pout", p_out)
             np.save("xout", x_out)
             return p, x_out[-1]
@@ -55,14 +56,14 @@ def Bayes(x, p, rho, y, M=[], save_file=False):
         for p_ele, rho_ele in zip(p_ext, rho_ext):
             p_list.append(p_ele)
             rho_list.append(rho_ele)
-        
+
         dim = len(rho_list[0])
-        if M==[]: 
+        if M == []:
             M = SIC(dim)
         else:
             if type(M) != list:
                 raise TypeError("Please make sure M is a list!")
-            
+
         if save_file == False:
             for mi in range(max_episode):
                 res_exp = int(y[mi])
@@ -71,11 +72,11 @@ def Bayes(x, p, rho, y, M=[], save_file=False):
                     p_tp = np.real(np.trace(np.dot(rho_list[xi], M[res_exp])))
                     pyx_list[xi] = p_tp
                 pyx = pyx_list.reshape(p_shape)
-                arr = p*pyx
+                arr = p * pyx
                 for si in reversed(range(para_num)):
                     arr = simps(arr, x[si])
                 py = arr
-                p_update = p*pyx/py
+                p_update = p * pyx / py
                 p = p_update
 
             indx = np.where(np.array(p) == np.max(np.array(p)))
@@ -90,39 +91,40 @@ def Bayes(x, p, rho, y, M=[], save_file=False):
                     p_tp = np.real(np.trace(np.dot(rho_list[xi], M[res_exp])))
                     pyx_list[xi] = p_tp
                 pyx = pyx_list.reshape(p_shape)
-                arr = p*pyx
+                arr = p * pyx
                 for si in reversed(range(para_num)):
                     arr = simps(arr, x[si])
                 py = arr
-                p_update = p*pyx/py
+                p_update = p * pyx / py
                 p = p_update
 
-                indx = np.where(np.array(p) == np.max(np.array(p))) 
+                indx = np.where(np.array(p) == np.max(np.array(p)))
                 p_out.append(p)
                 x_out.append([x[i][indx[i][0]] for i in range(para_num)])
             np.save("pout", p_out)
             np.save("xout", x_out)
             return p, x_out[-1]
 
+
 def MLE(x, rho, y, M=[], save_file=False):
     para_num = len(x)
     max_episode = len(y)
     if para_num == 1:
         #### singleparameter senario ####
-        if M==[]: 
+        if M == []:
             M = SIC(len(rho[0]))
         else:
             if type(M) != list:
                 raise TypeError("Please make sure M is a list!")
-        
+
         if save_file == False:
             L_out = np.ones(len(x[0]))
             for mi in range(max_episode):
                 res_exp = int(y[mi])
                 for xi in range(len(x[0])):
                     p_tp = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
-                    L_out[xi] = L_out[xi]*p_tp
-            indx = np.where(L_out == max(L_out))[0][0] 
+                    L_out[xi] = L_out[xi] * p_tp
+            indx = np.where(L_out == max(L_out))[0][0]
             x_out = x[0][indx]
             return L_out, x_out
         else:
@@ -132,11 +134,11 @@ def MLE(x, rho, y, M=[], save_file=False):
                 res_exp = int(y[mi])
                 for xi in range(len(x[0])):
                     p_tp = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
-                    L_tp[xi] = L_tp[xi]*p_tp
-                indx = np.where(L_tp == max(L_tp))[0][0] 
+                    L_tp[xi] = L_tp[xi] * p_tp
+                indx = np.where(L_tp == max(L_tp))[0][0]
                 L_out.append(L_tp)
                 x_out.append(x[0][indx])
-            
+
             np.save("Lout", L_out)
             np.save("xout", x_out)
             return L_tp, x_out[-1]
@@ -150,38 +152,38 @@ def MLE(x, rho, y, M=[], save_file=False):
         rho_list = []
         for rho_ele in rho_ext:
             rho_list.append(rho_ele)
-            
+
         dim = len(rho_list[0])
-        if M==[]: 
+        if M == []:
             M = SIC(dim)
         else:
             if type(M) != list:
                 raise TypeError("Please make sure M is a list!")
-            
+
         if save_file == False:
             L_list = np.ones(len(rho_list))
             for mi in range(max_episode):
                 res_exp = int(y[mi])
                 for xi in range(len(rho_list)):
                     p_tp = np.real(np.trace(np.dot(rho_list[xi], M[res_exp])))
-                    L_list[xi] = L_list[xi]*p_tp
+                    L_list[xi] = L_list[xi] * p_tp
             L_out = L_list.reshape(p_shape)
             indx = np.where(L_out == np.max(L_out))
             x_out = [x[i][indx[i][0]] for i in range(para_num)]
             return L_out, x_out
         else:
-            L_out, x_out = [], [] 
+            L_out, x_out = [], []
             L_list = np.ones(len(rho_list))
             for mi in range(max_episode):
                 res_exp = int(y[mi])
                 for xi in range(len(rho_list)):
                     p_tp = np.real(np.trace(np.dot(rho_list[xi], M[res_exp])))
-                    L_list[xi] = L_list[xi]*p_tp
+                    L_list[xi] = L_list[xi] * p_tp
                 L_tp = L_list.reshape(p_shape)
-                indx = np.where(L_tp == np.max(L_tp)) 
+                indx = np.where(L_tp == np.max(L_tp))
                 L_out.append(L_tp)
                 x_out.append([x[i][indx[i][0]] for i in range(para_num)])
-            
+
             np.save("Lout", L_out)
             np.save("xout", x_out)
             return L_tp, x_out[-1]

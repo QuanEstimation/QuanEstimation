@@ -17,21 +17,21 @@ class ComprehensiveSystem:
         psi0:
            --description: initial guesses of states (kets).
            --type: array
-           
+
         ctrl0:
             --description: initial control coefficients.
             --type: list (of vector)
-            
+
         measurement0:
            --description: a set of POVMs.
            --type: list (of vector)
-           
+
         save_file:
-            --description: True: save the states (or controls, measurements) and the value of the 
+            --description: True: save the states (or controls, measurements) and the value of the
                                  target function for each episode.
-                           False: save the states (or controls, measurements) and all the value 
+                           False: save the states (or controls, measurements) and all the value
                                    of the target function for the last episode.
-            --type: bool 
+            --type: bool
 
         eps:
             --description: calculation eps.
@@ -89,7 +89,7 @@ class ComprehensiveSystem:
                           ctrl_bound[1] represent the upper bound of the control coefficients.
            --type: list
         """
-        
+
         self.tspan = tspan
 
         if type(H0) == np.ndarray:
@@ -120,7 +120,7 @@ class ComprehensiveSystem:
         if dH == []:
             dH = [np.zeros((len(self.dim), len(self.dim)))]
         self.Hamiltonian_derivative = [np.array(x, dtype=np.complex128) for x in dH]
-                
+
         if len(dH) == 1:
             self.para_type = "single_para"
         else:
@@ -207,7 +207,7 @@ class ComprehensiveSystem:
             self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum + 1)
         else:
             pass
-         
+
         self.dynamic = Main.QuanEstimation.Lindblad(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
@@ -217,17 +217,20 @@ class ComprehensiveSystem:
             self.tspan,
             self.decay_opt,
             self.gamma,
-        )   
-        
+        )
+
         self.dynamics_type = "dynamics"
 
     def kraus(self, K, dK):
         k_num = len(K)
         para_num = len(dK[0])
-        dK_tp = [[np.array(dK[i][j], dtype=np.complex128) for i in range(k_num)] for j in range(para_num)]
+        dK_tp = [
+            [np.array(dK[i][j], dtype=np.complex128) for i in range(k_num)]
+            for j in range(para_num)
+        ]
         self.K = [np.array(x, dtype=np.complex128) for x in K]
         self.dK = dK_tp
-        
+
         if para_num == 1:
             self.para_type = "single_para"
         else:
@@ -260,12 +263,11 @@ class ComprehensiveSystem:
         elif len(self.measurement0) >= 1:
             self.M = [self.measurement0[0][i] for i in range(self.dim)]
             self.M = [np.array(x, dtype=np.complex128) for x in self.M]
-            
-        self.dynamic = Main.QuanEstimation.Kraus(self.K,self.dK,self.rho0)
+
+        self.dynamic = Main.QuanEstimation.Kraus(self.K, self.dK, self.rho0)
 
         self.dynamics_type = "kraus"
-    
-    
+
     def SC(self, W=[], M=[], target="QFIM", dtype="SLD"):
         """
         Description: use DE algorithm to optimize states and control coefficients.
@@ -276,46 +278,60 @@ class ComprehensiveSystem:
         M:
             --description: a set of POVM.
             --type: list of matrix
-            
+
         W:
             --description: weight matrix.
             --type: matrix
 
         """
         if self.dynamics_type != "dynamics":
-            raise ValueError("{!r} is not a valid type for dynamics, supported type is \
-                             Lindblad dynamics.".format(self.dynamics_type))
+            raise ValueError(
+                "{!r} is not a valid type for dynamics, supported type is \
+                             Lindblad dynamics.".format(
+                    self.dynamics_type
+                )
+            )
 
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
-        
+
         if M != []:
             M = [np.array(x, dtype=np.complex128) for x in M]
-            self.obj = Main.QuanEstimation.CFIM_Obj(M, self.W, self.eps, self.para_type) 
+            self.obj = Main.QuanEstimation.CFIM_Obj(M, self.W, self.eps, self.para_type)
         else:
-            if target=="HCRB":
+            if target == "HCRB":
                 if self.para_type == "single_para":
-                    warnings.warn("In single parameter scenario, HCRB is equivalent to QFI. \
-                           Please choose QFIM as the target function for control optimization",\
-                           DeprecationWarning)
+                    warnings.warn(
+                        "In single parameter scenario, HCRB is equivalent to QFI. \
+                           Please choose QFIM as the target function for control optimization",
+                        DeprecationWarning,
+                    )
                 else:
-                    pass #### to be done
-            elif target=="QFIM" and (dtype=="SLD" or dtype=="RLD" or dtype=="LLD"):
-                self.obj = Main.QuanEstimation.QFIM_Obj(self.W, self.eps, self.para_type, dtype)
+                    pass  #### to be done
+            elif target == "QFIM" and (
+                dtype == "SLD" or dtype == "RLD" or dtype == "LLD"
+            ):
+                self.obj = Main.QuanEstimation.QFIM_Obj(
+                    self.W, self.eps, self.para_type, dtype
+                )
             else:
-                raise ValueError("Please enter the correct values for target and dtype.\
+                raise ValueError(
+                    "Please enter the correct values for target and dtype.\
                                   Supported target are 'QFIM', 'CFIM' and 'HCRB',  \
-                                  supported dtype are 'SLD', 'RLD' and 'LLD'.")
-        
-        self.opt = Main.QuanEstimation.StateControlOpt(self.psi0, self.control_coefficients)
-        self.output = Main.QuanEstimation.Output(self.opt, self.save_file) 
+                                  supported dtype are 'SLD', 'RLD' and 'LLD'."
+                )
+
+        self.opt = Main.QuanEstimation.StateControlOpt(
+            self.psi0, self.control_coefficients
+        )
+        self.output = Main.QuanEstimation.Output(self.opt, self.save_file)
 
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
-        Main.QuanEstimation.run(system) 
-        
+        Main.QuanEstimation.run(system)
+
     def CM(self, rho0, W=[]):
         """
         Description: use DE algorithm to optimize control coefficients and the measurements.
@@ -326,30 +342,38 @@ class ComprehensiveSystem:
         rho0:
             --description: initial state.
             --type: density matrix
-            
+
         W:
             --description: weight matrix.
             --type: matrix
 
         """
         if self.dynamics_type != "dynamics":
-            raise ValueError("{!r} is not a valid type for dynamics, supported type is \
-                             Lindblad dynamics.".format(self.dynamics_type))
-            
+            raise ValueError(
+                "{!r} is not a valid type for dynamics, supported type is \
+                             Lindblad dynamics.".format(
+                    self.dynamics_type
+                )
+            )
+
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
-        
+
         self.rho0 = np.array(rho0, dtype=np.complex128)
-        
-        self.obj = Main.QuanEstimation.CFIM_Obj(self.M, self.W, self.eps, self.para_type)
-        self.opt = Main.QuanEstimation.ControlMeasurementOpt(self.M, self.control_coefficients)
-        self.output = Main.QuanEstimation.Output(self.opt, self.save_file) 
+
+        self.obj = Main.QuanEstimation.CFIM_Obj(
+            self.M, self.W, self.eps, self.para_type
+        )
+        self.opt = Main.QuanEstimation.ControlMeasurementOpt(
+            self.M, self.control_coefficients
+        )
+        self.output = Main.QuanEstimation.Output(self.opt, self.save_file)
 
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
-        Main.QuanEstimation.run(system) 
+        Main.QuanEstimation.run(system)
 
         self.load_save_meas()
 
@@ -360,7 +384,7 @@ class ComprehensiveSystem:
         ---------
         Inputs
         ---------
-            
+
         W:
             --description: weight matrix.
             --type: matrix
@@ -373,19 +397,29 @@ class ComprehensiveSystem:
 
             if len(self.control_coefficients[0]) == 1:
                 H0 = np.array(self.freeHamiltonian, dtype=np.complex128)
-                Hc = [np.array(x, dtype=np.complex128) for x in self.control_Hamiltonian]
+                Hc = [
+                    np.array(x, dtype=np.complex128) for x in self.control_Hamiltonian
+                ]
                 Htot = H0 + sum(
-                    [Hc[i] * self.control_coefficients[i][0]
-                    for i in range(len(self.control_coefficients))])
+                    [
+                        Hc[i] * self.control_coefficients[i][0]
+                        for i in range(len(self.control_coefficients))
+                    ]
+                )
                 freeHamiltonian = np.array(Htot, dtype=np.complex128)
             else:
                 H0 = np.array(self.freeHamiltonian, dtype=np.complex128)
-                Hc = [np.array(x, dtype=np.complex128) for x in self.control_Hamiltonian]
+                Hc = [
+                    np.array(x, dtype=np.complex128) for x in self.control_Hamiltonian
+                ]
                 Htot = []
                 for i in range(len(self.control_coefficients[0])):
                     S_ctrl = sum(
-                        [Hc[j] * self.control_coefficients[j][i]
-                        for j in range(len(self.control_coefficients))])
+                        [
+                            Hc[j] * self.control_coefficients[j][i]
+                            for j in range(len(self.control_coefficients))
+                        ]
+                    )
                     Htot.append(H0 + S_ctrl)
                 freeHamiltonian = [np.array(x, dtype=np.complex128) for x in Htot]
 
@@ -396,22 +430,24 @@ class ComprehensiveSystem:
                 self.tspan,
                 self.decay_opt,
                 self.gamma,
-                )   
-        
+            )
+
         elif self.dynamics_type == "kraus":
             if W == []:
                 W = np.eye(len(self.dK))
             self.W = W
 
-        self.obj = Main.QuanEstimation.CFIM_Obj(self.M, self.W, self.eps, self.para_type)
+        self.obj = Main.QuanEstimation.CFIM_Obj(
+            self.M, self.W, self.eps, self.para_type
+        )
         self.opt = Main.QuanEstimation.StateMeasurementOpt(self.psi0, self.M)
-        self.output = Main.QuanEstimation.Output(self.opt, self.save_file) 
+        self.output = Main.QuanEstimation.Output(self.opt, self.save_file)
 
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
-        Main.QuanEstimation.run(system)    
-    
+        Main.QuanEstimation.run(system)
+
     def SCM(self, W=[]):
         """
         Description: use DE algorithm to optimize states, control coefficients and the measurements.
@@ -419,31 +455,38 @@ class ComprehensiveSystem:
         ---------
         Inputs
         ---------
-            
+
         W:
             --description: weight matrix.
             --type: matrix
 
         """
         if self.dynamics_type != "dynamics":
-            raise ValueError("{!r} is not a valid type for dynamics, supported type is \
-                             Lindblad dynamics.".format(self.dynamics_type))
+            raise ValueError(
+                "{!r} is not a valid type for dynamics, supported type is \
+                             Lindblad dynamics.".format(
+                    self.dynamics_type
+                )
+            )
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
-        
-        self.obj = Main.QuanEstimation.CFIM_Obj(self.M, self.W, self.eps, self.para_type)
-        self.opt = Main.QuanEstimation.StateControlMeasurementOpt(self.control_coefficients, self.psi0, self.M)
-        self.output = Main.QuanEstimation.Output(self.opt, self.save_file) 
+
+        self.obj = Main.QuanEstimation.CFIM_Obj(
+            self.M, self.W, self.eps, self.para_type
+        )
+        self.opt = Main.QuanEstimation.StateControlMeasurementOpt(
+            self.control_coefficients, self.psi0, self.M
+        )
+        self.output = Main.QuanEstimation.Output(self.opt, self.save_file)
 
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
-        Main.QuanEstimation.run(system)    
-        
+        Main.QuanEstimation.run(system)
+
         self.load_save_state()
         self.load_save_meas()
-
 
     def load_save_state(self):
         if os.path.exists("states.csv"):
@@ -467,6 +510,7 @@ class ComprehensiveSystem:
         else:
             pass
 
+
 def ComprehensiveOpt(save_file=False, method="AD", **kwargs):
 
     if method == "AD":
@@ -476,5 +520,9 @@ def ComprehensiveOpt(save_file=False, method="AD", **kwargs):
     elif method == "DE":
         return compopt.DE_Compopt(save_file=save_file, **kwargs)
     else:
-        raise ValueError("{!r} is not a valid value for method, supported values are 'AD', \
-                         'PSO', 'DE'.".format(method))
+        raise ValueError(
+            "{!r} is not a valid value for method, supported values are 'AD', \
+                         'PSO', 'DE'.".format(
+                method
+            )
+        )

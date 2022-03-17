@@ -3,6 +3,7 @@ from julia import Main
 import quanestimation.ComprehensiveOpt.ComprehensiveStruct as Comp
 from quanestimation.Common.common import SIC
 
+
 class PSO_Compopt(Comp.ComprehensiveSystem):
     def __init__(
         self,
@@ -16,9 +17,12 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         c1=2.0,
         c2=2.0,
         seed=1234,
-        eps=1e-8):
+        eps=1e-8,
+    ):
 
-        Comp.ComprehensiveSystem.__init__(self, psi0, ctrl0, measurement0, save_file, seed, eps)
+        Comp.ComprehensiveSystem.__init__(
+            self, psi0, ctrl0, measurement0, save_file, seed, eps
+        )
 
         """
         --------
@@ -88,7 +92,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             self.seed,
         )
 
-        super().SC(W,M,target,dtype)
+        super().SC(W, M, target, dtype)
 
     def CM(self, rho0, W=[]):
         ini_particle = Main.vec([self.ctrl0, self.measurement0])
@@ -102,7 +106,6 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         )
 
         super().CM(rho0, W)
-        
 
     def SM(self, W=[]):
         ini_particle = Main.vec([self.psi, self.measurement0])

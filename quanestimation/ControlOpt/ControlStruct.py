@@ -6,6 +6,7 @@ import quanestimation.ControlOpt as ctrl
 from julia import Main
 from quanestimation.Common.common import SIC
 
+
 class ControlSystem:
     def __init__(self, save_file, ctrl0, load, eps):
 
@@ -68,7 +69,7 @@ class ControlSystem:
         self.eps = eps
         self.load = load
 
-    def dynamics(self,tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[]):
+    def dynamics(self, tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[]):
         self.tspan = tspan
         self.rho0 = np.array(rho0, dtype=np.complex128)
 
@@ -110,7 +111,8 @@ class ControlSystem:
                 ctrl0 = [
                     2 * np.random.random(len(self.tspan) - 1)
                     - np.ones(len(self.tspan) - 1)
-                    for i in range(len(self.control_Hamiltonian))]
+                    for i in range(len(self.control_Hamiltonian))
+                ]
                 self.control_coefficients = ctrl0
                 self.ctrl0 = [np.array(ctrl0)]
             else:
@@ -119,23 +121,28 @@ class ControlSystem:
                 ctrl0 = [
                     (b - a) * np.random.random(len(self.tspan) - 1)
                     + a * np.ones(len(self.tspan) - 1)
-                    for i in range(len(self.control_Hamiltonian))]
+                    for i in range(len(self.control_Hamiltonian))
+                ]
             self.control_coefficients = ctrl0
             self.ctrl0 = [np.array(ctrl0)]
         elif len(self.ctrl0) >= 1:
             self.control_coefficients = [
-                self.ctrl0[0][i] for i in range(len(self.control_Hamiltonian))]
+                self.ctrl0[0][i] for i in range(len(self.control_Hamiltonian))
+            ]
 
         if self.load == True:
             if os.path.exists("controls.csv"):
                 data = np.genfromtxt("controls.csv")[-len(self.control_Hamiltonian) :]
-                self.control_coefficients = [data[i] for i in range(len(data))] 
+                self.control_coefficients = [data[i] for i in range(len(data))]
 
         ctrl_num = len(self.control_coefficients)
         Hc_num = len(self.control_Hamiltonian)
         if Hc_num < ctrl_num:
-            raise TypeError("There are %d control Hamiltonians but %d coefficients sequences: \
-                             too many coefficients sequences"% (Hc_num, ctrl_num))
+            raise TypeError(
+                "There are %d control Hamiltonians but %d coefficients sequences: \
+                             too many coefficients sequences"
+                % (Hc_num, ctrl_num)
+            )
         elif Hc_num > ctrl_num:
             warnings.warn(
                 "Not enough coefficients sequences: there are %d control Hamiltonians \
@@ -172,7 +179,7 @@ class ControlSystem:
             self.rho0,
             self.tspan,
             self.decay_opt,
-        self.gamma,
+            self.gamma,
         )
         self.output = Main.QuanEstimation.Output(self.opt, self.save_file)
 
