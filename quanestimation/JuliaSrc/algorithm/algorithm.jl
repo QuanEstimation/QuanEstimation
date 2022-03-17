@@ -40,10 +40,10 @@ struct PSO <: AbstractAlgorithm
     rng::AbstractRNG
 end
 
-PSO(max_episode, para_num, ini_particle, c0, c1, c2) =
-    PSO(max_episode, para_num, ini_particle, c0, c1, c2, GLOBAL_RNG)
-PSO(max_episode, para_num, ini_particle, c0, c1, c2, seed::Number) =
-    PSO(max_episode, para_num, ini_particle, c0, c1, c2, StableRNG(seed))
+PSO(max_episode, p_num, ini_particle, c0, c1, c2) =
+    PSO(max_episode, p_num, ini_particle, c0, c1, c2, GLOBAL_RNG)
+PSO(max_episode, p_num, ini_particle, c0, c1, c2, seed::Number) =
+    PSO(max_episode, p_num, ini_particle, c0, c1, c2, StableRNG(seed))
 
 struct DE <: AbstractAlgorithm
     max_episode::Number

@@ -6,6 +6,7 @@ const IO_opt = Dict(
     :Copt => "control optimization",
     :Sopt => "state optimization",
     :Mopt => "measurement optimization",
+    :Mopt_input => "measurement optimization",
     :CompOpt => "comprehensive optimization",
 )
 
@@ -16,7 +17,7 @@ const IO_para = Dict(
 
 const IO_alg = Dict(
     :GRAPE => "optimization algorithm: GRAPE",
-    :AD => "optimization algorithm: auto-GRAPE",
+    :AD => "optimization algorithm: Automatic Differentiation (AD)",
     :PSO => "optimization algorithm: Particle Swarm Optimization (PSO)",
     :DE => "optimization algorithm: Differential Evolution (DE)",
     :DDPG => "optimization algorithm: Deep Deterministic Policy Gradient (DDPG)",
@@ -76,6 +77,30 @@ const IO_ini = Dict(
         :HCRB,
         :multi_para,
     ) => "initial value of HCRB is %f\n",
+
+    #### projective measurement optimization ####
+    (
+        :Mopt,
+        :CFIM,
+        :single_para,
+    ) => "initial value of CFI is %f\n",
+    (
+        :Mopt,
+        :CFIM,
+        :multi_para,
+    ) => "initial value of tr(WI^{-1}) is %f\n",
+
+    #### measurement optimization for LinearComb and Rotation  ####
+    (
+        :Mopt_input,
+        :CFIM,
+        :single_para,
+    ) => "initial value of CFI is %f\nCFI under the given POVM is %f\nQFI is  %f\n",
+    (
+        :Mopt_input,
+        :CFIM,
+        :multi_para,
+    ) => "initial value of tr(WI^{-1}) is %f\ntr(WI^{-1}) under the given POVM is %f\ntr(WF^{-1}) is  %f\n",
 )
 
 const IO_current = Dict(

@@ -1,3 +1,5 @@
+include("mintime.jl")
+
 destroy(N) = diagm(1 => [1/sqrt(n) for n in 1:N-1])
 
 bases(dim; T=ComplexF64) = [e for e in I(dim).|>T|>eachrow]
@@ -236,7 +238,7 @@ function rotation_matrix(coefficients, Lambda)
     dim = size(Lambda[1])[1]
     U = Matrix{ComplexF64}(I,dim,dim)
     for i in 1:length(Lambda)
-        U = U*exp(1.0im*coefficients[i]*Lambda[i])
+        U = U*exp(1.0im*coefficients[i]*Matrix(Lambda[i]))
     end
     U
 end
@@ -294,8 +296,7 @@ function initial_velocity_ctrl(opt, ctrl_length, ctrl_num, p_num, rng)
 end
 
 #### initialization measurements for DE and PSO ####
-function initial_M!(measurement0, C_all, dim, p_num, rng)
-    M_num = length(measurement0[1])
+function initial_M!(measurement0, C_all, dim, p_num, M_num, rng)
     if length(measurement0) > p_num
         measurement0 = [measurement0[i] for i in 1:p_num]
     end 
@@ -321,7 +322,7 @@ function initial_LinearComb!(measurement0, B_all, basis_num, M_num, p_num, rng)
         measurement0 = [measurement0[i] for i in 1:p_num]
     end 
     for pj in 1:length(measurement0)
-        B_all[pj] = [[measurement0[pj][i,j] for j in 1:dim] for i in 1:M_num]
+        B_all[pj] = [[measurement0[pj][i,j] for j in 1:basis_num] for i in 1:M_num]
     end
 
     for pj in (length(measurement0)+1):p_num

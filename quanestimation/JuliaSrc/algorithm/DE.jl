@@ -140,7 +140,7 @@ function update!(opt::Mopt_Projection, alg::DE, obj, dynamics, output)
 
     populations = repeat(opt.C, p_num)
     # initialization  
-    initial_M!(ini_population, populations, dim, p_num, rng)
+    initial_M!(ini_population, populations, dim, p_num, M_num, rng)
 
     p_fit, p_out = zeros(p_num), zeros(p_num)
     for pj in 1:p_num
@@ -211,7 +211,7 @@ function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     (; B, POVM_basis, M_num) = opt
     basis_num = length(POVM_basis)
-    populations = repeat(B, p_num)
+    populations = [B for i in 1:p_num]
 
     # initialization
     initial_LinearComb!(ini_population, populations, basis_num, M_num, p_num, rng)
@@ -231,7 +231,7 @@ function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
     M = [sum([populations[1][i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
     set_f!(output, p_out[1])
     set_buffer!(output, M)
-    set_io!(output, f_opt, f_povm, p_out[1])
+    set_io!(output, p_out[1], f_povm, f_opt)
     show(opt, output, obj)
 
     for ei in 1:(max_episode-1)
@@ -262,7 +262,7 @@ function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
             # normalize the coefficients 
             bound_LC_coeff!(M_cross)
             M = [sum([M_cross[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
-            obj_cross = set_M(populations[pj], M)
+            obj_cross = set_M(obj, M)
             f_out, f_cross = objective(obj_cross, dynamics)
             #selection
             if f_cross > p_fit[pj]
@@ -289,14 +289,12 @@ end
 function update!(opt::Mopt_Rotation, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     (; s, POVM_basis, Lambda) = opt
-    Random.seed!(seed)
     dim = size(dynamics.data.ρ0)[1]
     suN = suN_generator(dim)
     append!(Lambda, [Matrix{ComplexF64}(I,dim,dim)])
     append!(Lambda, [suN[i] for i in 1:length(suN)])
     M_num = length(POVM_basis)
-    populations = repeat(s, p_num)
-
+    populations = [s for i in 1:p_num]
     # initialization  
     initial_Rotation!(ini_population, populations, dim, p_num, rng)
 
@@ -317,7 +315,7 @@ function update!(opt::Mopt_Rotation, alg::DE, obj, dynamics, output)
     M = [U*POVM_basis[i]*U' for i in 1:M_num]
     set_f!(output, p_out[1])
     set_buffer!(output, M)
-    set_io!(output, f_opt, f_povm, p_out[1])
+    set_io!(output, p_out[1], f_povm, f_opt)
     show(opt, output, obj)
 
     for ei in 1:(max_episode-1)
@@ -474,8 +472,8 @@ function update!(opt::StateMeasurementOpt, alg::DE, obj, dynamics, output)
 
     # initialization 
     initial_state!(psi0, populations, p_num, rng)
-    C_all = repeat(opt.C, p_num)
-    initial_M!(measurement0, C_all, dim, p_num, rng)
+    C_all = [opt.C for i in 1:p_num]
+    initial_M!(measurement0, C_all, dim, p_num, M_num, rng)
 
     p_fit, p_out = zeros(p_num), zeros(p_num)
     for pj in 1:p_num
@@ -576,8 +574,8 @@ function update!(opt::ControlMeasurementOpt, alg::DE, obj, dynamics, output)
 
     # initialization 
     initial_ctrl!(opt, ctrl0, populations, p_num, rng)
-    C_all = repeat(opt.C, p_num)
-    initial_M!(measurement0, C_all, dim, p_num, rng)
+    C_all = [opt.C for i in 1:p_num]
+    initial_M!(measurement0, C_all, dim, p_num, M_num, rng)
 
     p_fit, p_out = zeros(p_num), zeros(p_num)
     for pj in 1:p_num
@@ -688,8 +686,8 @@ function update!(opt::StateControlMeasurementOpt, alg::DE, obj, dynamics, output
     # initialization 
     initial_state!(psi0, populations, p_num, rng)
     initial_ctrl!(opt, ctrl0, populations, p_num, rng)
-    C_all = repeat(opt.C, p_num)
-    initial_M!(measurement0, C_all, dim, p_num, rng)
+    C_all = [opt.C for i in 1:p_num]
+    initial_M!(measurement0, C_all, dim, p_num, M_num, rng)
 
     p_fit, p_out = zeros(p_num), zeros(p_num)
     for pj in 1:p_num

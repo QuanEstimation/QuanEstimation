@@ -9,7 +9,7 @@ struct QFIM_Obj{P,D} <: AbstractObj
     eps::Number
 end
 
-struct CFIM_Obj{P} <: AbstractObj
+mutable struct CFIM_Obj{P} <: AbstractObj
     M::AbstractVecOrMat
     W::AbstractMatrix
     eps::Number
@@ -45,13 +45,13 @@ LD_type(::QFIM_Obj{P,LLD}) where {P} = :LLD
 QFIM_Obj(opt::CFIM_Obj{P}) where P = QFIM_Obj{P, SLD}(opt.W, opt.eps)
 QFIM_Obj(opt::CFIM_Obj{P}, LDtype::Symbol) where P = QFIM_Obj{P, eval(LDtype)}(opt.W, opt.eps)
 
-function set_M(obj::CFIM_Obj{single_para}, M::AbstractMatrix)
+function set_M(obj::CFIM_Obj{single_para}, M::AbstractVector)
     temp = deepcopy(obj)
     temp.M = M
     temp
 end
 
-function set_M(obj::CFIM_Obj{multi_para}, M::AbstractMatrix)
+function set_M(obj::CFIM_Obj{multi_para}, M::AbstractVector)
     temp = deepcopy(obj)
     temp.M = M
     temp

@@ -9,14 +9,14 @@ mutable struct QuanEstSystem{
 } <: AbstractSystem
     optim::T
     algorithm::A
-    objective::F
+    obj::F
     dynamics::D
     output::O
 end
 
 function run(system::QuanEstSystem)
-    (; optim, algorithm, objective, dynamics, output) = system
+    (; optim, algorithm, obj, dynamics, output) = system
     show(system) # io1
-    update!(optim, algorithm, objective, dynamics, output)
-    show(objective, output) #io4
+    update!(optim, algorithm, obj, dynamics, output)
+    show(obj, output) #io4
 end

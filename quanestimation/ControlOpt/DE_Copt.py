@@ -58,7 +58,7 @@ class DE_Copt(Control.ControlSystem):
         self.seed = seed
 
     def QFIM(self, W=[], dtype="SLD"):
-        ini_population = self.ctrl0
+        ini_population = ([self.ctrl0],)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
             self.popsize,
@@ -71,7 +71,7 @@ class DE_Copt(Control.ControlSystem):
         super().QFIM(W, dtype)
 
     def CFIM(self, M=[], W=[]):
-        ini_population = self.ctrl0
+        ini_population = ([self.ctrl0],)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
             self.popsize,
@@ -84,7 +84,7 @@ class DE_Copt(Control.ControlSystem):
         super().CFIM(M, W)
 
     def HCRB(self, W=[]):
-        ini_population = self.ctrl0
+        ini_population = ([self.ctrl0],)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
             self.popsize,
@@ -96,96 +96,15 @@ class DE_Copt(Control.ControlSystem):
         
         super().HCRB(W)
 
-    ## FIXME: mintime
     def mintime(self, f, W=[], M=[], method="binary", target="QFIM", dtype="SLD"):
-        if len(self.Hamiltonian_derivative) > 1:
-            f = 1 / f
-
-        if M == []:
-            M = SIC(len(self.rho0))
-        M = [np.array(x, dtype=np.complex128) for x in M]
-
-        if W == []:
-            W = np.eye(len(self.Hamiltonian_derivative))
-        self.W = W
-
-        diffevo = Main.QuanEstimation.DE_Copt(
-            self.freeHamiltonian,
-            self.Hamiltonian_derivative,
-            self.rho0,
-            self.tspan,
-            self.decay_opt,
-            self.gamma,
-            self.control_Hamiltonian,
-            self.control_coefficients,
-            self.ctrl_bound,
-            self.W,
-            self.eps,
+        ini_population = ([self.ctrl0],)
+        self.alg = Main.QuanEstimation.DE(
+            self.max_episode,
+            self.popsize,
+            ini_population,
+            self.c,
+            self.cr,
+            self.seed,
         )
 
-        if not (method == "binary" or method == "forward"):
-            raise ValueError(
-                "{!r} is not a valid value for method, supported \
-                             values are 'binary' and 'forward'.".format(
-                    method
-                )
-            )
-
-        if M != []:
-            Main.QuanEstimation.mintime(
-                Main.eval("Val{:" + method + "}()"),
-                "CFIM_DE_Copt",
-                diffevo,
-                f,
-                M,
-                self.popsize,
-                Main.vec(self.ctrl0),
-                self.c,
-                self.cr,
-                self.seed,
-                self.max_episode,
-            )
-        else:
-            if target == "HCRB":
-                if len(self.Hamiltonian_derivative) == 1:
-                    warnings.warn(
-                        "In single parameter scenario, HCRB is equivalent to QFI. Please \
-                                   choose QFIM as the target function for control optimization",
-                        DeprecationWarning,
-                    )
-                else:
-                    Main.QuanEstimation.mintime(
-                        Main.eval("Val{:" + method + "}()"),
-                        "HCRB_DE_Copt",
-                        diffevo,
-                        f,
-                        self.popsize,
-                        Main.vec(self.ctrl0),
-                        self.c,
-                        self.cr,
-                        self.seed,
-                        self.max_episode,
-                    )
-            elif target == "QFIM" and dtype == "SLD":
-                Main.QuanEstimation.mintime(
-                    Main.eval("Val{:" + method + "}()"),
-                    "QFIM_DE_Copt",
-                    diffevo,
-                    f,
-                    self.popsize,
-                    Main.vec(self.ctrl0),
-                    self.c,
-                    self.cr,
-                    self.seed,
-                    self.max_episode,
-                )
-            elif target == "QFIM" and dtype == "RLD":
-                pass  #### to be done
-            elif target == "QFIM" and dtype == "LLD":
-                pass  #### to be done
-            else:
-                raise ValueError(
-                    "Please enter the correct values for target and dtype.\
-                                  Supported target are 'QFIM', 'CFIM' and 'HCRB',  \
-                                  supported dtype are 'SLD', 'RLD' and 'LLD'."
-                )
+        super().mintime(f,W,M,method,target,dtype)

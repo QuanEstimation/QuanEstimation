@@ -172,9 +172,11 @@ class ControlSystem:
             self.rho0,
             self.tspan,
             self.decay_opt,
-        self.gamma,
+            self.gamma,
         )
         self.output = Main.QuanEstimation.Output(self.opt, self.save_file)
+        
+        self.dynamics_type = "lindblad"
 
     def QFIM(self, W=[], dtype="SLD"):
         """
@@ -269,6 +271,49 @@ class ControlSystem:
                 self.opt, self.alg, self.obj, self.dynamic, self.output
             )
             Main.QuanEstimation.run(system)
+            
+    def mintime(self, f, W=[], M=[], method="binary", target="QFIM", dtype="SLD"):
+        if not (method == "binary" or method == "forward"):
+            raise ValueError("{!r} is not a valid value for method, supported \
+                             values are 'binary' and 'forward'.".format(method))
+        
+        if self.dynamics_type != "lindblad":
+            raise ValueError("{!r} is not a valid type for dynamics, supported type is \
+                             Lindblad dynamics.".format(self.dynamics_type))
+
+        if len(self.Hamiltonian_derivative) > 1:
+            f = 1 / f
+            
+        if M==[]:
+            M = SIC(len(self.rho0))
+        M = [np.array(x, dtype=np.complex128) for x in M]
+        
+        if W == []:
+            W = np.eye(len(self.Hamiltonian_derivative))
+        self.W = W 
+
+        if M != []:
+            self.obj = Main.QuanEstimation.CFIM_Obj(M, self.W, self.eps, self.para_type)
+        else:
+            if target == "HCRB":
+                if self.para_type == "single_para":
+                    warnings.warn(
+                        "In single parameter scenario, HCRB is equivalent to QFI. Please \
+                                   choose QFIM as the target function for control optimization",
+                        DeprecationWarning,
+                    )
+                self.obj = Main.QuanEstimation.HCRB_Obj(self.W, self.eps, self.para_type)
+            elif target=="QFIM" or (dtype=="SLD" and dtype=="LLD" and dtype=="RLD"):
+                self.obj = Main.QuanEstimation.QFIM_Obj(self.W, self.eps, self.para_type, dtype)
+            else:
+                raise ValueError("Please enter the correct values for target and dtype.\
+                                  Supported target are 'QFIM', 'CFIM' and 'HCRB',  \
+                                  supported dtype are 'SLD', 'RLD' and 'LLD'.") 
+        
+        system = Main.QuanEstimation.QuanEstSystem(
+            self.opt, self.alg, self.obj, self.dynamic, self.output
+        )
+        Main.QuanEstimation.mintime(method, f, system)
 
 
 def ControlOpt(save_file=False, method="auto-GRAPE", **kwargs):

@@ -2,7 +2,6 @@ module QuanEstimation
 using Random
 using LinearAlgebra
 using Zygote
-using Random
 using SparseArrays
 using DelimitedFiles
 using StatsBase

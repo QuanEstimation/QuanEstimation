@@ -643,6 +643,7 @@ function evolve(dynamics::Lindblad{noisy,free,ket})
         ρt = exp_L * ρt
         ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
+    
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
 end
 
