@@ -102,7 +102,7 @@ class PSO_Copt(Control.ControlSystem):
             self.c2,
             self.seed,
         )
-        
+
         super().HCRB(W)
 
     def mintime(self, f, W=[], M=[], method="binary", target="QFIM", dtype="SLD"):

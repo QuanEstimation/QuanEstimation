@@ -16,10 +16,12 @@ class DE_Mopt(Measurement.MeasurementSystem):
         cr=0.5,
         seed=1234,
         load=False,
-        eps=1e-8):
+        eps=1e-8,
+    ):
 
         Measurement.MeasurementSystem.__init__(
-            self, mtype, minput, save_file, measurement0, seed, load, eps)
+            self, mtype, minput, save_file, measurement0, seed, load, eps
+        )
 
         """
         --------
@@ -63,7 +65,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
                 ini_population = Main.vec(self.povm_basis)
             elif self.minput[0] == "rotation":
                 ini_population = Main.vec(self.povm_basis)
-        
+
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
             self.popsize,

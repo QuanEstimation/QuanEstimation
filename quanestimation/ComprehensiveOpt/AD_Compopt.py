@@ -4,6 +4,7 @@ import warnings
 import quanestimation.ComprehensiveOpt.ComprehensiveStruct as Comp
 from quanestimation.Common.common import SIC
 
+
 class AD_Compopt(Comp.ComprehensiveSystem):
     def __init__(
         self,
@@ -17,9 +18,12 @@ class AD_Compopt(Comp.ComprehensiveSystem):
         beta1=0.90,
         beta2=0.99,
         seed=1234,
-        eps=1e-8):
+        eps=1e-8,
+    ):
 
-        Comp.ComprehensiveSystem.__init__(self, psi0, ctrl0, measurement0, save_file, seed, eps)
+        Comp.ComprehensiveSystem.__init__(
+            self, psi0, ctrl0, measurement0, save_file, seed, eps
+        )
 
         """
         ----------
@@ -77,17 +81,23 @@ class AD_Compopt(Comp.ComprehensiveSystem):
 
     def SC(self, W=[], M=[], target="QFIM", dtype="SLD"):
         if M != []:
-            warnings.warn("AD is not available when target is 'CFIM'. Supported methods \
-                           are 'PSO' and 'DE'.", DeprecationWarning)
-        elif target=="HCRB":
-            warnings.warn("AD is not available when the target function is HCRB. \
-                       Supported methods are 'PSO', 'DE' and 'DDPG'.", DeprecationWarning)
+            warnings.warn(
+                "AD is not available when target is 'CFIM'. Supported methods \
+                           are 'PSO' and 'DE'.",
+                DeprecationWarning,
+            )
+        elif target == "HCRB":
+            warnings.warn(
+                "AD is not available when the target function is HCRB. \
+                       Supported methods are 'PSO', 'DE' and 'DDPG'.",
+                DeprecationWarning,
+            )
 
         if self.Adam:
-            self.alg = Main.QuanEstimation.AD(self.max_episode, self.epsilon, self.beta1,self.beta2)
+            self.alg = Main.QuanEstimation.AD(
+                self.max_episode, self.epsilon, self.beta1, self.beta2
+            )
         else:
             self.alg = Main.QuanEstimation.AD(self.max_episode, self.epsilon)
-            
-        super().SC(W,M,target,dtype)
-        
-    
+
+        super().SC(W, M, target, dtype)

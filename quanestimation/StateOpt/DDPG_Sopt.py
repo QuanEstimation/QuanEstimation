@@ -4,6 +4,7 @@ import numpy as np
 import quanestimation.StateOpt.StateStruct as State
 from quanestimation.Common.common import SIC
 
+
 class DDPG_Sopt(State.StateSystem):
     def __init__(
         self,
@@ -14,7 +15,8 @@ class DDPG_Sopt(State.StateSystem):
         seed=1234,
         psi0=[],
         load=False,
-        eps=1e-8):
+        eps=1e-8,
+    ):
 
         State.StateSystem.__init__(self, save_file, psi0, seed, load, eps)
         """
@@ -36,15 +38,12 @@ class DDPG_Sopt(State.StateSystem):
         self.max_episode = max_episode
         self.layer_num = layer_num
         self.layer_dim = layer_dim
-        
+
         self.seed = seed
- 
+
         self.alg = Main.QuanEstimation.DDPG(
-            self.max_episode,
-            self.layer_num,
-            self.layer_dim,
-            self.seed
-        ) 
+            self.max_episode, self.layer_num, self.layer_dim, self.seed
+        )
 
     def QFIM(self, W=[], dtype="SLD"):
         super().QFIM(W, dtype)

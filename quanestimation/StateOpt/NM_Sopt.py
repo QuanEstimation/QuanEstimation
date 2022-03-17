@@ -4,6 +4,7 @@ import numpy as np
 import quanestimation.StateOpt.StateStruct as State
 from quanestimation.Common.common import SIC
 
+
 class NM_Sopt(State.StateSystem):
     def __init__(
         self,
@@ -17,7 +18,8 @@ class NM_Sopt(State.StateSystem):
         as0=0.5,
         seed=1234,
         load=False,
-        eps=1e-8):
+        eps=1e-8,
+    ):
 
         State.StateSystem.__init__(self, save_file, psi0, seed, load, eps)
 
@@ -81,7 +83,7 @@ class NM_Sopt(State.StateSystem):
             self.ae,
             self.ac,
             self.as0,
-            self.seed
+            self.seed,
         )
 
         super().QFIM(W, dtype)
@@ -96,7 +98,7 @@ class NM_Sopt(State.StateSystem):
             self.ae,
             self.ac,
             self.as0,
-            self.seed
+            self.seed,
         )
 
         super().CFIM(M, W)
@@ -111,7 +113,7 @@ class NM_Sopt(State.StateSystem):
             self.ae,
             self.ac,
             self.as0,
-            self.seed
+            self.seed,
         )
 
         super().HCRB(W)

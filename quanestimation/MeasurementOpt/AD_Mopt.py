@@ -68,7 +68,9 @@ class AD_Mopt(Measurement.MeasurementSystem):
         self.seed = seed
 
         if self.Adam:
-            self.alg = Main.QuanEstimation.AD(self.max_episode, self.epsilon, self.beta1,self.beta2)
+            self.alg = Main.QuanEstimation.AD(
+                self.max_episode, self.epsilon, self.beta1, self.beta2
+            )
         else:
             self.alg = Main.QuanEstimation.AD(self.max_episode, self.epsilon)
 
@@ -79,5 +81,5 @@ class AD_Mopt(Measurement.MeasurementSystem):
                            'PSO' and 'DE'.",
                 DeprecationWarning,
             )
-        
+
         super().CFIM(W)
