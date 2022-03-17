@@ -2,7 +2,6 @@ import numpy as np
 from julia import Main
 import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
-
 class PSO_Mopt(Measurement.MeasurementSystem):
     def __init__(
         self,
@@ -17,10 +16,12 @@ class PSO_Mopt(Measurement.MeasurementSystem):
         c2=2.0,
         seed=1234,
         load=False,
-        eps=1e-8):
+        eps=1e-8,
+    ):
 
         Measurement.MeasurementSystem.__init__(
-            self, mtype, minput, save_file, measurement0, seed, load, eps)
+            self, mtype, minput, save_file, measurement0, seed, load, eps
+        )
 
         """
         --------
@@ -55,7 +56,7 @@ class PSO_Mopt(Measurement.MeasurementSystem):
             --type: int
         
         """
-        self.particle_num = particle_num
+        self.p_num = particle_num
         self.max_episode = max_episode
         self.c0 = c0
         self.c1 = c1
@@ -63,163 +64,15 @@ class PSO_Mopt(Measurement.MeasurementSystem):
         self.seed = seed
 
     def CFIM(self, W=[]):
-        """
-        Description: use particle swarm optimization algorithm to update the measurements that maximize the
-                     CFI (1/Tr(WF^{-1} with F the CFIM).
 
-        ---------
-        Inputs
-        ---------
-        W:
-            --description: weight matrix.
-            --type: matrix
-        """
-        if self.mtype == "projection":
-            if self.dynamics_type == "dynamics":
-                if W == []:
-                    W = np.eye(len(self.Hamiltonian_derivative))
-                self.W = W
+        self.alg = Main.QuanEstimation.PSO(
+            self.max_episode,
+            self.p_num,
+            self.measurement0,
+            self.c0,
+            self.c1,
+            self.c2,
+            self.seed,
+        )
 
-                pso = Main.QuanEstimation.projection_Mopt(
-                    self.freeHamiltonian,
-                    self.Hamiltonian_derivative,
-                    self.rho0,
-                    self.tspan,
-                    self.decay_opt,
-                    self.gamma,
-                    self.M,
-                    self.W,
-                    self.eps)
-                Main.QuanEstimation.CFIM_PSO_Mopt(
-                    pso,
-                    self.max_episode,
-                    self.particle_num,
-                    self.measurement0,
-                    self.c0,
-                    self.c1,
-                    self.c2,
-                    self.seed,
-                    self.save_file)
-            elif self.dynamics_type == "kraus":
-                if W == []:
-                    W = np.eye(len(self.dK))
-                self.W = W
-
-                pso = Main.QuanEstimation.projection_Mopt_Kraus(
-                    self.K,
-                    self.dK,
-                    self.rho0,
-                    self.M,
-                    self.W,
-                    self.eps)
-                Main.QuanEstimation.CFIM_PSO_Mopt(
-                    pso,
-                    self.max_episode,
-                    self.particle_num,
-                    self.measurement0,
-                    self.c0,
-                    self.c1,
-                    self.c2,
-                    self.seed,
-                    self.save_file)
-            self.load_save()
-        elif self.mtype == "input":
-            if self.dynamics_type == "dynamics":
-                if W == []:
-                    W = np.eye(len(self.Hamiltonian_derivative))
-                self.W = W
-
-                pso = Main.QuanEstimation.LinearComb_Mopt(
-                    self.freeHamiltonian,
-                    self.Hamiltonian_derivative,
-                    self.rho0,
-                    self.tspan,
-                    self.decay_opt,
-                    self.gamma,
-                    self.povm_basis,
-                    self.M_num,
-                    self.W,
-                    self.eps)
-                Main.QuanEstimation.CFIM_PSO_Mopt(
-                    pso,
-                    self.max_episode,
-                    self.particle_num,
-                    self.c0,
-                    self.c1,
-                    self.c2,
-                    self.seed,
-                    self.save_file)
-            elif self.dynamics_type == "kraus":
-                if W == []:
-                    W = np.eye(len(self.dK))
-                self.W = W
-
-                pso = Main.QuanEstimation.LinearComb_Mopt_Kraus(
-                    self.K,
-                    self.dK,
-                    self.rho0,
-                    self.povm_basis,
-                    self.M_num,
-                    self.W,
-                    self.eps)
-                Main.QuanEstimation.CFIM_PSO_Mopt(
-                    pso,
-                    self.max_episode,
-                    self.particle_num,
-                    self.c0,
-                    self.c1,
-                    self.c2,
-                    self.seed,
-                    self.save_file)
-            self.load_save()
-
-        elif self.mtype == "rotation":
-            if self.dynamics_type == "dynamics":
-                if W == []:
-                    W = np.eye(len(self.Hamiltonian_derivative))
-                self.W = W
-
-                pso = Main.QuanEstimation.RotateBasis_Mopt(
-                    self.freeHamiltonian,
-                    self.Hamiltonian_derivative,
-                    self.rho0,
-                    self.tspan,
-                    self.decay_opt,
-                    self.gamma,
-                    self.povm_basis,
-                    self.W,
-                    self.eps)
-                Main.QuanEstimation.CFIM_PSO_Mopt(
-                    pso,
-                    self.max_episode,
-                    self.particle_num,
-                    self.c0,
-                    self.c1,
-                    self.c2,
-                    self.seed,
-                    self.save_file)
-            elif self.dynamics_type == "kraus":
-                if W == []:
-                    W = np.eye(len(self.dK))
-                self.W = W
-
-                pso = Main.QuanEstimation.RotateBasis_Mopt_Kraus(
-                    self.K,
-                    self.dK,
-                    self.rho0,
-                    self.povm_basis,
-                    self.W,
-                    self.eps)
-                Main.QuanEstimation.CFIM_PSO_Mopt(
-                    pso,
-                    self.max_episode,
-                    self.particle_num,
-                    self.c0,
-                    self.c1,
-                    self.c2,
-                    self.seed,
-                    self.save_file)
-            self.load_save()
-        else:
-            raise ValueError("{!r} is not a valid value for method, supported values are \
-                             'projection' and 'input'.".format(self.mtype))
+        super().CFIM(W)

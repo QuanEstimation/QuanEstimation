@@ -2,7 +2,10 @@ import numpy as np
 import os
 import math
 import warnings
+from julia import Main
 import quanestimation.StateOpt as stateoptimize
+from quanestimation.Common.common import SIC
+
 
 class StateSystem:
     def __init__(self, save_file, psi0, seed, load, eps):
@@ -15,11 +18,11 @@ class StateSystem:
             --description: True: save the states and the value of target function for each episode .
                            False: save the states and the value of target function for the last episode.
             --type: bool
-        
+
         psi0:
             --description: initial guess of states (kets).
             --type: array
-            
+
         seed:
             --description: random seed.
             --type: int
@@ -102,12 +105,19 @@ class StateSystem:
             ctrl_num = len(ctrl)
             Hc_num = len(Hc)
             if Hc_num < ctrl_num:
-                raise TypeError("There are %d control Hamiltonians but %d coefficients sequences: \
-                                 too many coefficients sequences"% (Hc_num, ctrl_num))
+                raise TypeError(
+                    "There are %d control Hamiltonians but %d coefficients sequences: \
+                                 too many coefficients sequences"
+                    % (Hc_num, ctrl_num)
+                )
             elif Hc_num > ctrl_num:
-                warnings.warn("Not enough coefficients sequences: there are %d control Hamiltonians \
+                warnings.warn(
+                    "Not enough coefficients sequences: there are %d control Hamiltonians \
                                but %d coefficients sequences. The rest of the control sequences are\
-                               set to be 0." % (Hc_num, ctrl_num), DeprecationWarning)
+                               set to be 0."
+                    % (Hc_num, ctrl_num),
+                    DeprecationWarning,
+                )
                 for i in range(Hc_num - ctrl_num):
                     ctrl = np.concatenate((ctrl, np.zeros(len(ctrl[0]))))
             else:
@@ -138,11 +148,10 @@ class StateSystem:
 
         if self.psi0 == []:
             np.random.seed(self.seed)
-            for i in range(self.dim):
-                r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
-                r = r_ini / np.linalg.norm(r_ini)
-                phi = 2 * np.pi * np.random.random(self.dim)
-                psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
+            r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
+            r = r_ini / np.linalg.norm(r_ini)
+            phi = 2 * np.pi * np.random.random(self.dim)
+            psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
             self.psi0 = np.array(psi0)
         else:
             self.psi0 = np.array(self.psi0[0], dtype=np.complex128)
@@ -165,6 +174,25 @@ class StateSystem:
             self.gamma = [decay[i][1] for i in range(len(decay))]
         self.decay_opt = [np.array(x, dtype=np.complex128) for x in decay_opt]
 
+        self.opt = Main.QuanEstimation.StateOpt(self.psi0)
+        if any(self.gamma):
+            self.dynamic = Main.QuanEstimation.Lindblad(
+                self.freeHamiltonian,
+                self.Hamiltonian_derivative,
+                self.psi0,
+                self.tspan,
+                self.decay_opt,
+                self.gamma,
+            )
+        else:
+            self.dynamic = Main.QuanEstimation.Lindblad(
+                self.freeHamiltonian,
+                self.Hamiltonian_derivative,
+                self.psi0,
+                self.tspan,
+            )
+        self.output = Main.QuanEstimation.Output(self.opt, self.save_file)
+
         self.dynamics_type = "dynamics"
 
     def kraus(self, K, dK):
@@ -173,8 +201,8 @@ class StateSystem:
         para_num = len(dK[0])
         dK_tp = [
             [np.array(dK[i][j], dtype=np.complex128) for i in range(k_num)]
-            for j in range(para_num)]
-        self.rho0 = np.array(rho0, dtype=np.complex128)
+            for j in range(para_num)
+        ]
         self.K = [np.array(x, dtype=np.complex128) for x in K]
         self.dK = dK_tp
 
@@ -182,11 +210,10 @@ class StateSystem:
 
         if self.psi0 == []:
             np.random.seed(self.seed)
-            for i in range(self.dim):
-                r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
-                r = r_ini / np.linalg.norm(r_ini)
-                phi = 2 * np.pi * np.random.random(self.dim)
-                psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
+            r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
+            r = r_ini / np.linalg.norm(r_ini)
+            phi = 2 * np.pi * np.random.random(self.dim)
+            psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
             self.psi0 = np.array(psi0)
         else:
             self.psi0 = np.array(self.psi0[0], dtype=np.complex128)
@@ -194,7 +221,105 @@ class StateSystem:
         if self.psi == []:
             self.psi = [self.psi0]
 
+        self.opt = Main.QuanEstimation.StateOpt(self.psi0)
+        self.dynamic = Main.Estimation.Kraus(self.K, self.dK, self.psi0)
+        self.output = Main.QuanEstimation.Output(self.opt, self.save_file)
+
         self.dynamics_type = "kraus"
+
+    def QFIM(self, W=[], dtype="SLD"):
+        """
+        Description: use autodifferential algorithm to search the optimal initial state that maximize the
+                     QFI (1/Tr(WF^{-1} with F the QFIM).
+
+        ---------
+        Inputs
+        ---------
+        W:
+            --description: weight matrix.
+            --type: matrix
+        """
+
+        if dtype != "SLD" and dtype != "RLD" and dtyep != "LLD":
+            raise ValueError(
+                "{!r} is not a valid value for dtype, supported values are 'SLD', 'RLD' and 'LLD'.".format(
+                    dtype
+                )
+            )
+
+        if self.dynamics_type == "dynamics":
+            if W == []:
+                W = np.eye(len(self.Hamiltonian_derivative))
+            self.W = W
+
+            if len(self.Hamiltonian_derivative) == 1:
+                self.para_type = "single_para"
+            else:
+                self.para_type = "multi_para"
+        elif self.dynamics_type == "kraus":
+            if W == []:
+                W = np.eye(len(self.dK))
+            self.W = W
+            if len(self.dK) == 1:
+                self.para_type = "single_para"
+            else:
+                self.para_type = "multi_para"
+        else:
+            pass
+
+        self.obj = Main.QuanEstimation.QFIM_Obj(self.W, self.eps, self.para_type, dtype)
+        system = Main.QuanEstimation.QuanEstSystem(
+            self.opt, self.alg, self.obj, self.dynamic, self.output
+        )
+        Main.QuanEstimation.run(system)
+
+        self.load_save()
+
+    def CFIM(self, M=[], W=[]):
+        """
+        Description: use autodifferential algorithm to search the optimal initial state that maximize the
+                     CFI (1/Tr(WF^{-1} with F the CFIM).
+
+        ---------
+        Inputs
+        ---------
+        M:
+            --description: a set of POVM.
+            --type: list of matrix
+
+        W:
+            --description: weight matrix.
+            --type: matrix
+        """
+        if M == []:
+            M = SIC(len(self.psi0))
+        M = [np.array(x, dtype=np.complex128) for x in M]
+
+        if self.dynamics_type == "dynamics":
+            if W == []:
+                W = np.eye(len(self.Hamiltonian_derivative))
+            self.W = W
+
+        elif self.dynamics_type == "kraus":
+            if W == []:
+                W = np.eye(len(self.dK))
+            self.W = W
+
+        self.obj = Main.QuanEstimation.CFIM_Obj(M, self.W, self.eps, self.para_type)
+        system = Main.QuanEstimation.QuanEstSystem(
+            self.opt, self.alg, self.obj, self.dynamic, self.output
+        )
+        Main.QuanEstimation.run(system)
+
+        self.load_save()
+
+    def HCRB(self, W=[]):
+        warnings.warn(
+            "AD is not available when the objective function is HCRB. \
+                       Supported methods are 'PSO', 'DE', 'NM' and 'DDPG'.",
+            DeprecationWarning,
+        )
+
 
 def StateOpt(save_file=False, method="AD", **kwargs):
 
@@ -209,8 +334,12 @@ def StateOpt(save_file=False, method="AD", **kwargs):
     elif method == "NM":
         return stateoptimize.NM_Sopt(save_file=save_file, **kwargs)
     else:
-        raise ValueError("{!r} is not a valid value for method, supported values are 'AD', 'PSO', \
-                         'DE', 'NM', 'DDPG'.".format(method))
+        raise ValueError(
+            "{!r} is not a valid value for method, supported values are 'AD', 'PSO', \
+                         'DE', 'NM', 'DDPG'.".format(
+                method
+            )
+        )
 
 
 def csv2npy_states(states, num=1):

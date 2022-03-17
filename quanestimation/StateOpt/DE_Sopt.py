@@ -4,6 +4,7 @@ import numpy as np
 import quanestimation.StateOpt.StateStruct as State
 from quanestimation.Common.common import SIC
 
+
 class DE_Sopt(State.StateSystem):
     def __init__(
         self,
@@ -15,7 +16,8 @@ class DE_Sopt(State.StateSystem):
         cr=0.5,
         seed=1234,
         load=False,
-        eps=1e-8):
+        eps=1e-8,
+    ):
 
         State.StateSystem.__init__(self, save_file, psi0, seed, load, eps)
 
@@ -49,261 +51,47 @@ class DE_Sopt(State.StateSystem):
         
         """
 
-        self.popsize = popsize
-        self.ini_population = self.psi
+        self.p_num = popsize
+        self.max_episode = max_episode
         self.c = c
         self.cr = cr
         self.seed = seed
-        self.max_episode = max_episode
 
     def QFIM(self, W=[], dtype="SLD"):
-        """
-        Description: use differential evolution algorithm to search the optimal initial state that maximize the
-                     QFI (1/Tr(WF^{-1} with F the QFIM).
+        ini_population = ([self.psi],)
+        self.alg = Main.QuanEstimation.DE(
+            self.max_episode,
+            self.p_num,
+            ini_population,
+            self.c,
+            self.cr,
+            self.seed,
+        )
 
-        ---------
-        Inputs
-        ---------
-        W:
-            --description: weight matrix.
-            --type: matrix
-        """
-
-        if self.dynamics_type == "dynamics":
-            if W == []:
-                W = np.eye(len(self.Hamiltonian_derivative))
-            self.W = W
-
-            if any(self.gamma):
-                diffevo = Main.QuanEstimation.TimeIndepend_noise(
-                    self.freeHamiltonian,
-                    self.Hamiltonian_derivative,
-                    self.psi0,
-                    self.tspan,
-                    self.decay_opt,
-                    self.gamma,
-                    self.W,
-                    self.eps)
-                if dtype == "SLD":
-                    Main.QuanEstimation.QFIM_DE_Sopt(
-                        diffevo,
-                        self.popsize,
-                        self.ini_population,
-                        self.c,
-                        self.cr,
-                        self.seed,
-                        self.max_episode,
-                        self.save_file)
-                elif dtype == "RLD":
-                    pass #### to be done
-                elif dtype == "LLD":
-                    pass #### to be done
-                else:
-                    raise ValueError("{!r} is not a valid value for dtype, supported \
-                              values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
-            else:
-                diffevo = Main.QuanEstimation.TimeIndepend_noiseless(
-                    self.freeHamiltonian,
-                    self.Hamiltonian_derivative,
-                    self.psi0,
-                    self.tspan,
-                    self.W,
-                    self.eps)
-                if dtype == "SLD":
-                    Main.QuanEstimation.QFIM_DE_Sopt(
-                        diffevo,
-                        self.popsize,
-                        self.ini_population,
-                        self.c,
-                        self.cr,
-                        self.seed,
-                        self.max_episode,
-                        self.save_file)
-                elif dtype == "RLD":
-                    pass #### to be done
-                elif dtype == "LLD":
-                    pass #### to be done
-                else:
-                    raise ValueError("{!r} is not a valid value for dtype, supported \
-                              values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
-        elif self.dynamics_type == "kraus":
-            if W == []:
-                W = np.eye(len(self.dK))
-            self.W = W
-
-            diffevo = Main.QuanEstimation.TimeIndepend_Kraus(self.K, self.dK, self.psi0, self.W, self.eps)
-            if dtype == "SLD":
-                Main.QuanEstimation.QFIM_DE_Sopt(
-                    diffevo,
-                    self.popsize,
-                    self.ini_population,
-                    self.c,
-                    self.cr,
-                    self.seed,
-                    self.max_episode,
-                    self.save_file)
-            elif dtype == "RLD":
-                pass #### to be done
-            elif dtype == "LLD":
-                pass #### to be done
-            else:
-                raise ValueError("{!r} is not a valid value for dtype, supported \
-                                  values are 'SLD', 'RLD' and 'LLD'.".format(dtype))
-        self.load_save()
+        super().QFIM(W, dtype)
 
     def CFIM(self, M=[], W=[]):
-        """
-        Description: use differential evolution algorithm to search the optimal initial state that maximize the
-                     CFI (1/Tr(WF^{-1} with F the CFIM).
+        ini_population = ([self.psi],)
+        self.alg = Main.QuanEstimation.DE(
+            self.max_episode,
+            self.p_num,
+            ini_population,
+            self.c,
+            self.cr,
+            self.seed,
+        )
 
-        ---------
-        Inputs
-        ---------
-        M:
-            --description: a set of POVM.
-            --type: list of matrix
-            
-        W:
-            --description: weight matrix.
-            --type: matrix
-        """
-        if M==[]:
-            M = SIC(len(self.psi0))
-        M = [np.array(x, dtype=np.complex128) for x in M]
-        
-        if self.dynamics_type == "dynamics":
-            if W == []:
-                W = np.eye(len(self.Hamiltonian_derivative))
-            self.W = W
-
-            if any(self.gamma):
-                diffevo = Main.QuanEstimation.TimeIndepend_noise(
-                    self.freeHamiltonian,
-                    self.Hamiltonian_derivative,
-                    self.psi0,
-                    self.tspan,
-                    self.decay_opt,
-                    self.gamma,
-                    self.W,
-                    self.eps)
-                Main.QuanEstimation.CFIM_DE_Sopt(
-                    M,
-                    diffevo,
-                    self.popsize,
-                    self.ini_population,
-                    self.c,
-                    self.cr,
-                    self.seed,
-                    self.max_episode,
-                    self.save_file)
-            else:
-                diffevo = Main.QuanEstimation.TimeIndepend_noiseless(
-                    self.freeHamiltonian,
-                    self.Hamiltonian_derivative,
-                    self.psi0,
-                    self.tspan,
-                    self.W,
-                    self.eps)
-                Main.QuanEstimation.CFIM_DE_Sopt(
-                    M,
-                    diffevo,
-                    self.popsize,
-                    self.ini_population,
-                    self.c,
-                    self.cr,
-                    self.seed,
-                    self.max_episode,
-                    self.save_file)
-        elif self.dynamics_type == "kraus":
-            if W == []:
-                W = np.eye(len(self.dK))
-            self.W = W
-
-            diffevo = Main.QuanEstimation.TimeIndepend_Kraus(self.K, self.dK, self.psi0, self.W, self.eps)
-            Main.QuanEstimation.CFIM_DE_Sopt(
-                M,
-                diffevo,
-                self.popsize,
-                self.ini_population,
-                self.c,
-                self.cr,
-                self.seed,
-                self.max_episode,
-                self.save_file)
-        self.load_save()
+        super().CFIM(M, W)
 
     def HCRB(self, W=[]):
-        """
-        Description: use differential evolution algorithm to search the optimal initial state that maximize the HCRB.
+        ini_population = ([self.psi],)
+        self.alg = Main.QuanEstimation.DE(
+            self.max_episode,
+            self.p_num,
+            ini_population,
+            self.c,
+            self.cr,
+            self.seed,
+        )
 
-        ---------
-        Inputs
-        ---------
-        W:
-            --description: weight matrix.
-            --type: matrix
-        """
-
-        if self.dynamics_type == "dynamics":
-            if W == []:
-                W = np.eye(len(self.Hamiltonian_derivative))
-            self.W = W
-
-            if len(self.Hamiltonian_derivative) == 1:
-                warnings.warn("In single parameter scenario, HCRB is equivalent to QFI. Please \
-                               choose QFIM as the target function for control optimization",\
-                               DeprecationWarning)
-            else:
-                if any(self.gamma):
-                    diffevo = Main.QuanEstimation.TimeIndepend_noise(
-                        self.freeHamiltonian,
-                        self.Hamiltonian_derivative,
-                        self.psi0,
-                        self.tspan,
-                        self.decay_opt,
-                        self.gamma,
-                        self.W,
-                        self.eps)
-                    Main.QuanEstimation.HCRB_DE_Sopt(
-                        diffevo,
-                        self.popsize,
-                        self.ini_population,
-                        self.c,
-                        self.cr,
-                        self.seed,
-                        self.max_episode,
-                        self.save_file)
-                else:
-                    diffevo = Main.QuanEstimation.TimeIndepend_noiseless(
-                        self.freeHamiltonian,
-                        self.Hamiltonian_derivative,
-                        self.psi0,
-                        self.tspan,
-                        self.W,
-                        self.eps)
-                    Main.QuanEstimation.HCRB_DE_Sopt(
-                        diffevo,
-                        self.popsize,
-                        self.ini_population,
-                        self.c,
-                        self.cr,
-                        self.seed,
-                        self.max_episode,
-                        self.save_file)
-
-        elif self.dynamics_type == "kraus":
-            if W == []:
-                W = np.eye(len(self.dK))
-            self.W = W
-
-            diffevo = Main.QuanEstimation.TimeIndepend_Kraus(self.K, self.dK, self.psi0, self.W, self.eps)
-            Main.QuanEstimation.HCRB_DE_Sopt(
-                diffevo,
-                self.popsize,
-                self.ini_population,
-                self.c,
-                self.cr,
-                self.seed,
-                self.max_episode,
-                self.save_file)
-        self.load_save()
+        super().HCRB(W)
