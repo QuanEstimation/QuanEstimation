@@ -4,6 +4,7 @@ from julia import Main
 import quanestimation.ControlOpt.ControlStruct as Control
 from quanestimation.Common.common import SIC
 
+
 class GRAPE_Copt(Control.ControlSystem):
     def __init__(
         self,

@@ -4,6 +4,7 @@ import quanestimation.StateOpt.StateStruct as State
 import numpy as np
 from quanestimation.Common.common import SIC
 
+
 class PSO_Sopt(State.StateSystem):
     def __init__(
         self,
@@ -16,7 +17,8 @@ class PSO_Sopt(State.StateSystem):
         c2=2.0,
         seed=1234,
         load=False,
-        eps=1e-8):
+        eps=1e-8,
+    ):
 
         State.StateSystem.__init__(self, save_file, psi0, seed, load, eps)
 
@@ -61,7 +63,6 @@ class PSO_Sopt(State.StateSystem):
         self.c2 = c2
         self.seed = seed
 
-
     def QFIM(self, W=[], dtype="SLD"):
         ini_particle = ([self.psi],)
         self.alg = Main.QuanEstimation.PSO(
@@ -101,5 +102,5 @@ class PSO_Sopt(State.StateSystem):
             self.c2,
             self.seed,
         )
-        
+
         super().HCRB(W)

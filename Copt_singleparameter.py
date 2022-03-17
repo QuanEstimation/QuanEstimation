@@ -92,7 +92,7 @@ ctrl0 = [np.array([np.zeros(cnum), np.zeros(cnum), np.zeros(cnum)])]
 # control.HCRB()
 
 # control algorithm: DDPG
-DDPG_paras = {"layer_num":4, "layer_dim":250, "max_episode":100, "seed":1234}
+DDPG_paras = {"layer_num": 4, "layer_dim": 250, "max_episode": 100, "seed": 1234}
 control = ControlOpt(save_file=False, method="DDPG", **DDPG_paras)
 control.dynamics(
     tspan,

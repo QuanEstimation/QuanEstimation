@@ -16,10 +16,12 @@ class DE_Mopt(Measurement.MeasurementSystem):
         cr=0.5,
         seed=1234,
         load=False,
-        eps=1e-8):
+        eps=1e-8,
+    ):
 
         Measurement.MeasurementSystem.__init__(
-            self, mtype, minput, save_file, measurement0, seed, load, eps)
+            self, mtype, minput, save_file, measurement0, seed, load, eps
+        )
 
         """
         --------

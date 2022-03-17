@@ -4,6 +4,7 @@ import warnings
 import quanestimation.ComprehensiveOpt.ComprehensiveStruct as Comp
 from quanestimation.Common.common import SIC
 
+
 class DE_Compopt(Comp.ComprehensiveSystem):
     def __init__(
         self,
@@ -16,9 +17,12 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         c=1.0,
         cr=0.5,
         seed=1234,
-        eps=1e-8):
-        
-        Comp.ComprehensiveSystem.__init__(self, psi0, ctrl0, measurement0, save_file, seed, eps)
+        eps=1e-8,
+    ):
+
+        Comp.ComprehensiveSystem.__init__(
+            self, psi0, ctrl0, measurement0, save_file, seed, eps
+        )
 
         """
         --------
@@ -82,8 +86,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             self.seed,
         )
 
-        super().SC(W,M,target,dtype)
-
+        super().SC(W, M, target, dtype)
 
     def CM(self, rho0, W=[]):
         ini_population = (self.ctrl0, self.measurement0)
@@ -97,7 +100,6 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         )
 
         super().CM(rho0, W)
-        
 
     def SM(self, W=[]):
         ini_population = (self.psi0, self.measurement0)

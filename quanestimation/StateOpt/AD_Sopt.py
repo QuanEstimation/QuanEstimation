@@ -4,6 +4,7 @@ import numpy as np
 import quanestimation.StateOpt.StateStruct as State
 from quanestimation.Common.common import SIC
 
+
 class AD_Sopt(State.StateSystem):
     def __init__(
         self,
@@ -16,7 +17,8 @@ class AD_Sopt(State.StateSystem):
         beta2=0.99,
         seed=1234,
         load=False,
-        eps=1e-8):
+        eps=1e-8,
+    ):
 
         State.StateSystem.__init__(self, save_file, psi0, seed, load, eps)
 
