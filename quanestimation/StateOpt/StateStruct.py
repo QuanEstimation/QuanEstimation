@@ -95,10 +95,10 @@ class StateSystem:
         self.tspan = tspan
 
         if Hc == [] or ctrl == []:
-            if type(H0) == np.ndarray: 
+            if type(H0) == np.ndarray:
                 self.freeHamiltonian = np.array(H0, dtype=np.complex128)
                 self.dim = len(self.freeHamiltonian)
-            else: 
+            else:
                 self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0]
                 self.dim = len(self.freeHamiltonian[0])
         else:
@@ -120,7 +120,8 @@ class StateSystem:
                 )
                 for i in range(Hc_num - ctrl_num):
                     ctrl = np.concatenate((ctrl, np.zeros(len(ctrl[0]))))
-            else: pass
+            else:
+                pass
 
             if len(ctrl[0]) == 1:
                 if type(H0) == np.ndarray:
@@ -133,16 +134,21 @@ class StateSystem:
                     H0 = [np.array(x, dtype=np.complex128) for x in H0]
                     Htot = []
                     for i in range(len(H0)):
-                        Htot.append(H0[i] + sum([Hc[i] * ctrl[i][0] for i in range(ctrl_num)]))
-                    self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in Htot]
-                    self.dim = len(self.freeHamiltonian[0])    
+                        Htot.append(
+                            H0[i] + sum([Hc[i] * ctrl[i][0] for i in range(ctrl_num)])
+                        )
+                    self.freeHamiltonian = [
+                        np.array(x, dtype=np.complex128) for x in Htot
+                    ]
+                    self.dim = len(self.freeHamiltonian[0])
             else:
                 number = math.ceil((len(self.tspan) - 1) / len(ctrl[0]))
                 if len(self.tspan) - 1 % len(ctrl[0]) != 0:
                     tnum = number * len(ctrl[0])
                     self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum + 1)
-                else: pass
-                
+                else:
+                    pass
+
                 if type(H0) == np.ndarray:
                     H0 = np.array(H0, dtype=np.complex128)
                     Hc = [np.array(x, dtype=np.complex128) for x in Hc]
@@ -150,19 +156,23 @@ class StateSystem:
                     for i in range(len(ctrl[0])):
                         S_ctrl = sum([Hc[j] * ctrl[j][i] for j in range(len(ctrl))])
                         Htot.append(H0 + S_ctrl)
-                    self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in Htot]
+                    self.freeHamiltonian = [
+                        np.array(x, dtype=np.complex128) for x in Htot
+                    ]
                     self.dim = len(self.freeHamiltonian[0])
                 else:
                     H0 = [np.array(x, dtype=np.complex128) for x in H0]
                     if len(H0) != len(self.tspan):
-                        for i in range(abs(len(H0)-len(self.tspan))):
+                        for i in range(abs(len(H0) - len(self.tspan))):
                             H0 = np.concatenate((H0, H0[-1]))
                     Hc = [np.array(x, dtype=np.complex128) for x in Hc]
                     Htot = []
                     for i in range(len(ctrl[0])):
                         S_ctrl = sum([Hc[j] * ctrl[j][i] for j in range(len(ctrl))])
-                        Htot.append(H0[i*number] + S_ctrl)
-                    self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in Htot]
+                        Htot.append(H0[i * number] + S_ctrl)
+                    self.freeHamiltonian = [
+                        np.array(x, dtype=np.complex128) for x in Htot
+                    ]
                     self.dim = len(self.freeHamiltonian[0])
 
         if self.psi0 == []:
@@ -286,7 +296,9 @@ class StateSystem:
         else:
             pass
 
-        self.obj = Main.QuanEstimation.QFIM_Obj(self.W, self.eps, self.para_type, LDtype)
+        self.obj = Main.QuanEstimation.QFIM_Obj(
+            self.W, self.eps, self.para_type, LDtype
+        )
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )

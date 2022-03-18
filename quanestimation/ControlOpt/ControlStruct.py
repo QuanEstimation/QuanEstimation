@@ -208,7 +208,9 @@ class ControlSystem:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
 
-        self.obj = Main.QuanEstimation.QFIM_Obj(self.W, self.eps, self.para_type, LDtype)
+        self.obj = Main.QuanEstimation.QFIM_Obj(
+            self.W, self.eps, self.para_type, LDtype
+        )
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
@@ -281,12 +283,20 @@ class ControlSystem:
 
     def mintime(self, f, W=[], M=[], method="binary", target="QFIM", LDtype="SLD"):
         if not (method == "binary" or method == "forward"):
-            raise ValueError("{!r} is not a valid value for method, supported \
-                             values are 'binary' and 'forward'.".format(method))
+            raise ValueError(
+                "{!r} is not a valid value for method, supported \
+                             values are 'binary' and 'forward'.".format(
+                    method
+                )
+            )
 
         if self.dynamics_type != "lindblad":
-            raise ValueError("{!r} is not a valid type for dynamics, supported type is \
-                             Lindblad dynamics.".format(self.dynamics_type))
+            raise ValueError(
+                "{!r} is not a valid type for dynamics, supported type is \
+                             Lindblad dynamics.".format(
+                    self.dynamics_type
+                )
+            )
 
         if len(self.Hamiltonian_derivative) > 1:
             f = 1 / f
@@ -309,13 +319,21 @@ class ControlSystem:
                                    choose QFIM as the target function for control optimization",
                         DeprecationWarning,
                     )
-                self.obj = Main.QuanEstimation.HCRB_Obj(self.W, self.eps, self.para_type)
-            elif target=="QFIM" or (LDtype=="SLD" and LDtype=="LLD" and LDtype=="RLD"):
-                self.obj = Main.QuanEstimation.QFIM_Obj(self.W, self.eps, self.para_type, LDtype)
+                self.obj = Main.QuanEstimation.HCRB_Obj(
+                    self.W, self.eps, self.para_type
+                )
+            elif target == "QFIM" or (
+                LDtype == "SLD" and LDtype == "LLD" and LDtype == "RLD"
+            ):
+                self.obj = Main.QuanEstimation.QFIM_Obj(
+                    self.W, self.eps, self.para_type, LDtype
+                )
             else:
-                raise ValueError("Please enter the correct values for target and LDtype.\
+                raise ValueError(
+                    "Please enter the correct values for target and LDtype.\
                                   Supported target are 'QFIM', 'CFIM' and 'HCRB',  \
-                                  supported LDtype are 'SLD', 'RLD' and 'LLD'.") 
+                                  supported LDtype are 'SLD', 'RLD' and 'LLD'."
+                )
 
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output

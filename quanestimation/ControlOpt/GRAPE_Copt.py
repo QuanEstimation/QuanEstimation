@@ -100,5 +100,5 @@ class GRAPE_Copt(Control.ControlSystem):
                 "GRAPE is not available when the target function is HCRB.Supported methods are 'PSO', 'DE' and 'DDPG'.",
                 DeprecationWarning,
             )
-        
+
         super().mintime(f, W, M, method, target, LDtype)
