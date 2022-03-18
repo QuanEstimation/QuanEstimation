@@ -123,7 +123,8 @@ from quanestimation.StateOpt.NM_Sopt import (
 from quanestimation.Adaptive.adaptive import adaptive
 from quanestimation.Adaptive.adaptMZI import adaptMZI
 
-Main.include("quanestimation/JuliaSrc/QuanEstimation.jl")
+pkgpath = os.path.abspath(os.path.dirname(__file__))
+Main.include(pkgpath+"/JuliaSrc/QuanEstimation.jl")
 
 __all__ = [
     "ControlOpt",

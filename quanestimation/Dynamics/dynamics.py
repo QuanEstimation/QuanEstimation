@@ -109,12 +109,12 @@ class Lindblad:
         rho, drho = Main.QuanEstimation.expm(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
-            self.rho0,
-            self.decay_opt,
-            self.gamma,
             self.control_Hamiltonian,
             self.control_coefficients,
+            self.rho0,
             self.tspan,
+            self.decay_opt,
+            self.gamma,
         )
         return rho, drho
 
