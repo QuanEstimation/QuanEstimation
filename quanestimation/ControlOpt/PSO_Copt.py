@@ -117,4 +117,4 @@ class PSO_Copt(Control.ControlSystem):
             self.seed,
         )
 
-        super().mintime(f,W,M,method,target,dtype)
+        super().mintime(f, W, M, method, target, dtype)
