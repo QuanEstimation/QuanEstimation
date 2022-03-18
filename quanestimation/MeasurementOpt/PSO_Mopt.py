@@ -2,13 +2,12 @@ import numpy as np
 from julia import Main
 import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
-
 class PSO_Mopt(Measurement.MeasurementSystem):
     def __init__(
         self,
         mtype,
         minput,
-        save_file=False,
+        savefile=False,
         particle_num=10,
         measurement0=[],
         max_episode=[1000, 100],
@@ -21,7 +20,7 @@ class PSO_Mopt(Measurement.MeasurementSystem):
     ):
 
         Measurement.MeasurementSystem.__init__(
-            self, mtype, minput, save_file, measurement0, seed, load, eps
+            self, mtype, minput, savefile, measurement0, seed, load, eps
         )
 
         """

@@ -37,7 +37,7 @@ class adaptive:
 
         self.dynamic_type = "kraus"
 
-    def CFIM(self, M=[], W=[], save_file=False):
+    def CFIM(self, M=[], W=[], savefile=False):
         if M == []:
             M = SIC(len(self.rho0))
         if W == []:
@@ -59,7 +59,7 @@ class adaptive:
                 W,
                 self.max_episode,
                 self.eps,
-                save_file,
+                savefile,
             )
         elif self.dynamic_type == "kraus":
             adaptive_kraus(
@@ -72,7 +72,7 @@ class adaptive:
                 W,
                 self.max_episode,
                 self.eps,
-                save_file,
+                savefile,
             )
         else:
             raise ValueError(
@@ -147,7 +147,7 @@ class adaptive:
                 ctrl=self.ctrl,
                 decay=self.decay,
             )
-            m.CFIM(W=W, save_file=False)
+            m.CFIM(W=W, savefile=False)
         elif self.dynamic_type == "kraus":
             if self.para_num == 1:
                 F = []
@@ -208,7 +208,7 @@ class adaptive:
                 K_res, dK_res = self.K_list[idx], self.dK_list[idx]
             m = MeasurementOpt(mtype="projection", minput=[], method="DE")
             m.kraus(self.rho0, K_res, dK_res, decay=self.decay)
-            m.CFIM(W=W, save_file=False)
+            m.CFIM(W=W, savefile=False)
         else:
             raise ValueError(
                 "{!r} is not a valid value for type of dynamics, supported values are 'dynamics' and 'kraus'.".format(
@@ -218,7 +218,7 @@ class adaptive:
 
 
 def adaptive_dynamics(
-    x, p, M, tspan, rho0, H, dH, decay, Hc, ctrl, W, max_episode, eps, save_file
+    x, p, M, tspan, rho0, H, dH, decay, Hc, ctrl, W, max_episode, eps, savefile
 ):
 
     para_num = len(x)
@@ -277,7 +277,7 @@ def adaptive_dynamics(
             y.append(res_exp)
             pout.append(p)
         #### save file ####
-        if save_file == False:
+        if savefile == False:
             np.save("xout", xout)
             np.save("y", y)
             np.save("pout", p)
@@ -375,7 +375,7 @@ def adaptive_dynamics(
             y.append(res_exp)
             pout.append(p)
         #### save file ####
-        if save_file == False:
+        if savefile == False:
             np.save("xout", xout)
             np.save("y", y)
             np.save("pout", p)
@@ -385,7 +385,7 @@ def adaptive_dynamics(
             np.save("pout", pout)
 
 
-def adaptive_kraus(x, p, M, rho0, K, dK, W, max_episode, eps, save_file):
+def adaptive_kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
     para_num = len(x)
     dim = np.shape(rho0)[0]
     if para_num == 1:
@@ -445,7 +445,7 @@ def adaptive_kraus(x, p, M, rho0, K, dK, W, max_episode, eps, save_file):
             y.append(res_exp)
             pout.append(p)
         #### save file ####
-        if save_file == False:
+        if savefile == False:
             np.save("xout", xout)
             np.save("y", y)
             np.save("pout", p)
@@ -548,7 +548,7 @@ def adaptive_kraus(x, p, M, rho0, K, dK, W, max_episode, eps, save_file):
             y.append(res_exp)
             pout.append(p)
         #### save file ####
-        if save_file == False:
+        if savefile == False:
             np.save("xout", xout)
             np.save("y", y)
             np.save("pout", p)

@@ -8,7 +8,7 @@ from quanestimation.Common.common import SIC
 class DDPG_Copt(Control.ControlSystem):
     def __init__(
         self,
-        save_file=False,
+        savefile=False,
         max_episode=500,
         layer_num=3,
         layer_dim=200,
@@ -18,7 +18,7 @@ class DDPG_Copt(Control.ControlSystem):
         eps=1e-8,
     ):
 
-        Control.ControlSystem.__init__(self, save_file, ctrl0, load, eps)
+        Control.ControlSystem.__init__(self, savefile, ctrl0, load, eps)
 
         """                                           
         ----------
@@ -51,8 +51,8 @@ class DDPG_Copt(Control.ControlSystem):
             self.max_episode, self.layer_num, self.layer_dim, self.seed
         )
 
-    def QFIM(self, W=[], dtype="SLD"):
-        super().QFIM(W, dtype)
+    def QFIM(self, W=[], LDtype="SLD"):
+        super().QFIM(W, LDtype)
 
     def CFIM(self, M=[], W=[]):
         super().CFIM(M, W)
@@ -60,5 +60,5 @@ class DDPG_Copt(Control.ControlSystem):
     def HCRB(self, W=[]):
         super().HCRB(W)
 
-    def mintime(self, f, W=[], M=[], method="binary", target="QFIM", dtype="SLD"):
-        super().mintime(f, W, M, method, target, dtype)
+    def mintime(self, f, W=[], M=[], method="binary", target="QFIM", LDtype="SLD"):
+        super().mintime(f, W, M, method, target, LDtype)

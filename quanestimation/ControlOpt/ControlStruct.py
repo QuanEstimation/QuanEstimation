@@ -8,7 +8,7 @@ from quanestimation.Common.common import SIC
 
 
 class ControlSystem:
-    def __init__(self, save_file, ctrl0, load, eps):
+    def __init__(self, savefile, ctrl0, load, eps):
 
         """
         ----------
@@ -48,7 +48,7 @@ class ControlSystem:
                           ctrl_bound[1] represent the upper bound of the control coefficients.
            --type: list
 
-        save_file:
+        savefile:
             --description: True: save the control coefficients and the value of the target function
                                  for each episode.
                            False: save the control coefficients and all the value of the target
@@ -64,7 +64,7 @@ class ControlSystem:
             --type: float
 
         """
-        self.save_file = save_file
+        self.savefile = savefile
         self.ctrl0 = ctrl0
         self.eps = eps
         self.load = load
@@ -181,11 +181,11 @@ class ControlSystem:
             self.decay_opt,
             self.gamma,
         )
-        self.output = Main.QuanEstimation.Output(self.opt, self.save_file)
+        self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
 
         self.dynamics_type = "lindblad"
 
-    def QFIM(self, W=[], dtype="SLD"):
+    def QFIM(self, W=[], LDtype="SLD"):
         """
         Description: use differential evolution algorithm to update the control coefficients that maximize the
                      QFI (1/Tr(WF^{-1} with F the QFIM).
@@ -197,10 +197,10 @@ class ControlSystem:
             --description: weight matrix.
             --type: matrix
         """
-        if dtype != "SLD" and dtype != "RLD" and dtyep != "LLD":
+        if LDtype != "SLD" and LDtype != "RLD" and LDtype != "LLD":
             raise ValueError(
-                "{!r} is not a valid value for dtype, supported values are 'SLD', 'RLD' and 'LLD'.".format(
-                    dtype
+                "{!r} is not a valid value for LDtype, supported values are 'SLD', 'RLD' and 'LLD'.".format(
+                    LDtype
                 )
             )
 
@@ -208,7 +208,7 @@ class ControlSystem:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
 
-        self.obj = Main.QuanEstimation.QFIM_Obj(self.W, self.eps, self.para_type, dtype)
+        self.obj = Main.QuanEstimation.QFIM_Obj(self.W, self.eps, self.para_type, LDtype)
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
@@ -279,22 +279,14 @@ class ControlSystem:
             )
             Main.QuanEstimation.run(system)
 
-    def mintime(self, f, W=[], M=[], method="binary", target="QFIM", dtype="SLD"):
+    def mintime(self, f, W=[], M=[], method="binary", target="QFIM", LDtype="SLD"):
         if not (method == "binary" or method == "forward"):
-            raise ValueError(
-                "{!r} is not a valid value for method, supported \
-                             values are 'binary' and 'forward'.".format(
-                    method
-                )
-            )
+            raise ValueError("{!r} is not a valid value for method, supported \
+                             values are 'binary' and 'forward'.".format(method))
 
         if self.dynamics_type != "lindblad":
-            raise ValueError(
-                "{!r} is not a valid type for dynamics, supported type is \
-                             Lindblad dynamics.".format(
-                    self.dynamics_type
-                )
-            )
+            raise ValueError("{!r} is not a valid type for dynamics, supported type is \
+                             Lindblad dynamics.".format(self.dynamics_type))
 
         if len(self.Hamiltonian_derivative) > 1:
             f = 1 / f
@@ -317,21 +309,13 @@ class ControlSystem:
                                    choose QFIM as the target function for control optimization",
                         DeprecationWarning,
                     )
-                self.obj = Main.QuanEstimation.HCRB_Obj(
-                    self.W, self.eps, self.para_type
-                )
-            elif target == "QFIM" or (
-                dtype == "SLD" and dtype == "LLD" and dtype == "RLD"
-            ):
-                self.obj = Main.QuanEstimation.QFIM_Obj(
-                    self.W, self.eps, self.para_type, dtype
-                )
+                self.obj = Main.QuanEstimation.HCRB_Obj(self.W, self.eps, self.para_type)
+            elif target=="QFIM" or (LDtype=="SLD" and LDtype=="LLD" and LDtype=="RLD"):
+                self.obj = Main.QuanEstimation.QFIM_Obj(self.W, self.eps, self.para_type, LDtype)
             else:
-                raise ValueError(
-                    "Please enter the correct values for target and dtype.\
+                raise ValueError("Please enter the correct values for target and LDtype.\
                                   Supported target are 'QFIM', 'CFIM' and 'HCRB',  \
-                                  supported dtype are 'SLD', 'RLD' and 'LLD'."
-                )
+                                  supported LDtype are 'SLD', 'RLD' and 'LLD'.") 
 
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
@@ -339,18 +323,18 @@ class ControlSystem:
         Main.QuanEstimation.mintime(method, f, system)
 
 
-def ControlOpt(save_file=False, method="auto-GRAPE", **kwargs):
+def ControlOpt(savefile=False, method="auto-GRAPE", **kwargs):
 
     if method == "auto-GRAPE":
-        return ctrl.GRAPE_Copt(save_file=save_file, **kwargs, auto=True)
+        return ctrl.GRAPE_Copt(savefile=savefile, **kwargs, auto=True)
     elif method == "GRAPE":
-        return ctrl.GRAPE_Copt(save_file=save_file, **kwargs, auto=False)
+        return ctrl.GRAPE_Copt(savefile=savefile, **kwargs, auto=False)
     elif method == "PSO":
-        return ctrl.PSO_Copt(save_file=save_file, **kwargs)
+        return ctrl.PSO_Copt(savefile=savefile, **kwargs)
     elif method == "DE":
-        return ctrl.DE_Copt(save_file=save_file, **kwargs)
+        return ctrl.DE_Copt(savefile=savefile, **kwargs)
     elif method == "DDPG":
-        return ctrl.DDPG_Copt(save_file=save_file, **kwargs)
+        return ctrl.DDPG_Copt(savefile=savefile, **kwargs)
     else:
         raise ValueError(
             "{!r} is not a valid value for method, supported values are 'auto-GRAPE', \

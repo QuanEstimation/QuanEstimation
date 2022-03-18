@@ -8,7 +8,7 @@ from quanestimation.Common.common import SIC
 class AD_Sopt(State.StateSystem):
     def __init__(
         self,
-        save_file=False,
+        savefile=False,
         Adam=False,
         psi0=[],
         max_episode=300,
@@ -20,7 +20,7 @@ class AD_Sopt(State.StateSystem):
         eps=1e-8,
     ):
 
-        State.StateSystem.__init__(self, save_file, psi0, seed, load, eps)
+        State.StateSystem.__init__(self, savefile, psi0, seed, load, eps)
 
         """
         ----------
@@ -61,14 +61,12 @@ class AD_Sopt(State.StateSystem):
         self.vt = 0.0
 
         if self.Adam:
-            self.alg = Main.QuanEstimation.AD(
-                self.max_episode, self.epsilon, self.beta1, self.beta2
-            )
+            self.alg = Main.QuanEstimation.AD(self.max_episode, self.epsilon, self.beta1, self.beta2)
         else:
             self.alg = Main.QuanEstimation.AD(self.max_episode, self.epsilon)
 
-    def QFIM(self, W=[], dtype="SLD"):
-        super().QFIM(W, dtype)
+    def QFIM(self, W=[], LDtype="SLD"):
+        super().QFIM(W, LDtype)
 
     def CFIM(self, M=[], W=[]):
         super().CFIM(M, W)

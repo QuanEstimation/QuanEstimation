@@ -8,7 +8,7 @@ from quanestimation.Common.common import SIC
 class GRAPE_Copt(Control.ControlSystem):
     def __init__(
         self,
-        save_file=False,
+        savefile=False,
         Adam=True,
         ctrl0=[],
         max_episode=300,
@@ -20,7 +20,7 @@ class GRAPE_Copt(Control.ControlSystem):
         auto=True,
     ):
 
-        Control.ControlSystem.__init__(self, save_file, ctrl0, load, eps)
+        Control.ControlSystem.__init__(self, savefile, ctrl0, load, eps)
 
         """
         ----------
@@ -81,8 +81,8 @@ class GRAPE_Copt(Control.ControlSystem):
             else:
                 self.alg = Main.QuanEstimation.GRAPE(self.max_episode, self.epsilon)
 
-    def QFIM(self, W=[], dtype="SLD"):
-        super().QFIM(W, dtype)
+    def QFIM(self, W=[], LDtype="SLD"):
+        super().QFIM(W, LDtype)
 
     def CFIM(self, M=[], W=[]):
         super().CFIM(M, W)
@@ -94,11 +94,11 @@ class GRAPE_Copt(Control.ControlSystem):
             DeprecationWarning,
         )
 
-    def mintime(self, f, W=[], M=[], method="binary", target="QFIM", dtype="SLD"):
+    def mintime(self, f, W=[], M=[], method="binary", target="QFIM", LDtype="SLD"):
         if target == "HCRB":
             warnings.warn(
                 "GRAPE is not available when the target function is HCRB.Supported methods are 'PSO', 'DE' and 'DDPG'.",
                 DeprecationWarning,
             )
-
-        super().mintime(f, W, M, method, target, dtype)
+        
+        super().mintime(f, W, M, method, target, LDtype)

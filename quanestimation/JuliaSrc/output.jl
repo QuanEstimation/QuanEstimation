@@ -1,6 +1,6 @@
 abstract type AbstractOutput end
 abstract type no_save end
-abstract type save_file end
+abstract type savefile end
 abstract type save_reward end
 
 mutable struct Output{S} <: AbstractOutput
@@ -24,9 +24,9 @@ end
 
 Output{T}(opt::AbstractOpt) where {T} = Output{T}([], [], res_file(opt), [])
 Output(opt::AbstractOpt, save_type::Bool) =
-    save_type ? Output{save_file}(opt) : Output{no_save}(opt)
+    save_type ? Output{savefile}(opt) : Output{no_save}(opt)
 
-save_type(::Output{save_file}) = :save_file
+save_type(::Output{savefile}) = :savefile
 save_type(::Output{no_save}) = :no_save
 
 function SaveFile(output::Output{no_save})
@@ -40,9 +40,9 @@ function SaveFile(output::Output{no_save})
     end
 end
 
-function SaveFile(output::Output{save_file}) end
+function SaveFile(output::Output{savefile}) end
 
-function SaveCurrent(output::Output{save_file})
+function SaveCurrent(output::Output{savefile})
     open("f.csv", "w") do f
         writedlm(f, output.f_list[end])
     end
@@ -55,7 +55,7 @@ end
 
 function SaveCurrent(output::Output{no_save}) end
 
-function SaveReward(output::Output{save_file}, reward::Number) ## TODO: reset file
+function SaveReward(output::Output{savefile}, reward::Number) ## TODO: reset file
     open("reward.csv", "w") do r
         writedlm(r, reward)
     end

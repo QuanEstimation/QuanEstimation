@@ -218,22 +218,22 @@ end
 function QFIM(
     ρ::Matrix{T},
     dρ::Matrix{T};
-    dtype = :SLD,
+    LDtype = :SLD,
     eps = eps_default,
 ) where {T<:Complex}
 
-    Symbol("QFIM_" * string(dtype))(ρ, dρ; eps = eps)
+    Symbol("QFIM_" * string(LDtype))(ρ, dρ; eps = eps)
 end
 
 ## QFIM 
 function QFIM(
     ρ::Matrix{T},
     dρ::Vector{Matrix{T}};
-    dtype = :SLD,
+    LDtype = :SLD,
     eps = eps_default,
 ) where {T<:Complex}
 
-    Symbol("QFIM_" * string(dtype))(ρ, dρ; eps = eps)
+    Symbol("QFIM_" * string(LDtype))(ρ, dρ; eps = eps)
 end
 
 
@@ -244,12 +244,12 @@ function QFIM(
     ::Type{Val{:exportLD}},
     ρ::Matrix{T},
     dρ::Matrix{T};
-    dtype = :SLD,
+    LDtype = :SLD,
     eps = eps_default,
 ) where {T<:Complex}
 
-    F = QFIM(ρ, dρ; dtype = dtype, eps = eps)
-    LD = eval(dtype)(ρ, dρ; eps = eps)
+    F = QFIM(ρ, dρ; LDtype = LDtype, eps = eps)
+    LD = eval(LDtype)(ρ, dρ; eps = eps)
     return F, LD
 end
 
@@ -258,12 +258,12 @@ function QFIM(
     ::Type{Val{:exportLD}},
     ρ::Matrix{T},
     dρ::Vector{Matrix{T}};
-    dtype = :SLD,
+    LDtype = :SLD,
     eps = eps_default,
 ) where {T<:Complex}
 
-    F = QFIM(ρ, dρ; dtype = dtype, eps = eps)
-    LD = eval(dtype)(ρ, dρ; eps = eps)
+    F = QFIM(ρ, dρ; LDtype = LDtype, eps = eps)
+    LD = eval(LDtype)(ρ, dρ; eps = eps)
     return F, LD
 end
 

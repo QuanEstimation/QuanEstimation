@@ -8,7 +8,7 @@ from quanestimation.Common.common import SIC
 class AD_Compopt(Comp.ComprehensiveSystem):
     def __init__(
         self,
-        save_file=False,
+        savefile=False,
         Adam=False,
         psi0=[],
         ctrl0=[],
@@ -22,14 +22,14 @@ class AD_Compopt(Comp.ComprehensiveSystem):
     ):
 
         Comp.ComprehensiveSystem.__init__(
-            self, psi0, ctrl0, measurement0, save_file, seed, eps
+            self, psi0, ctrl0, measurement0, savefile, seed, eps
         )
 
         """
         ----------
         Inputs
         ----------
-        save_file:
+        savefile:
             --description: True: save the states (or controls, measurements) and the value of the 
                                  target function for each episode.
                            False: save the states (or controls, measurements) and all the value 
@@ -79,7 +79,7 @@ class AD_Compopt(Comp.ComprehensiveSystem):
         self.vt = 0.0
         self.seed = seed
 
-    def SC(self, W=[], M=[], target="QFIM", dtype="SLD"):
+    def SC(self, W=[], M=[], target="QFIM", LDtype="SLD"):
         if M != []:
             warnings.warn(
                 "AD is not available when target is 'CFIM'. Supported methods \
@@ -100,4 +100,4 @@ class AD_Compopt(Comp.ComprehensiveSystem):
         else:
             self.alg = Main.QuanEstimation.AD(self.max_episode, self.epsilon)
 
-        super().SC(W, M, target, dtype)
+        super().SC(W, M, target, LDtype)

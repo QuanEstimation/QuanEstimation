@@ -8,3 +8,4 @@ abstract type single_para <: AbstractParaType end
 abstract type multi_para <: AbstractParaType end
 
 include("AsymptoticBound/AsymptoticBound.jl")
+include("BayesianBound/BayesianBound.jl")

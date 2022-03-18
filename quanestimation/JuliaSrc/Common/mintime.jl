@@ -1,7 +1,7 @@
 ###################### mintime opt #############################
 function mintime(::Val{:binary}, f, system)
-    (;dynamics, output, obj) = system
-    (;tspan, ctrl) = deepcopy(dynamics.data)
+    (; dynamics, output, obj) = system
+    (; tspan, ctrl) = deepcopy(dynamics.data)
     low, high = 1, length(tspan)
     mid = 0
     f_mid = 0.0
@@ -37,8 +37,8 @@ function mintime(::Val{:binary}, f, system)
 end
 
 function mintime(::Val{:forward}, f, system)
-    (;dynamics, output) = system
-    (;tspan, ctrl) = deepcopy(dynamics.data)
+    (; dynamics, output) = system
+    (; tspan, ctrl) = deepcopy(dynamics.data)
     idx = 2
     f_now = 0.0
 
@@ -59,7 +59,7 @@ function mintime(::Val{:forward}, f, system)
         writedlm(t, dynamics.data.tspan)
     end
     open("controls.csv","w") do c
-        writedlm(c, dynamics.data.control_coefficients)
+        writedlm(c, dynamics.data.ctrl)
     end
     println("The minimum time to reach target is ",dynamics.data.tspan[end],", data saved.")
 end

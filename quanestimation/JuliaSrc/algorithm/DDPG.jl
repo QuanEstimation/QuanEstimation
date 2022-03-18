@@ -15,9 +15,9 @@ to_psi(s) = complex.(rsplit_half(s)...)
 density_matrix(s) = complex.(rsplit_half(s)...)|>vec2mat
 
 mutable struct ControlEnv <: AbstractEnv
-    obj::Any
-    dynamics::Any
-    output::Any
+    obj::AbstractObj
+    dynamics::AbstractDynamics
+    output::AbstractOutput
     action_space::Space
     state_space::Space
     state::AbstractVector
@@ -185,7 +185,7 @@ end
 function _step!(env::ControlEnv, a)
     env.t += 1
     ρₜ, ∂ₓρₜ = env.state |> density_matrix, env.dstate
-    ρₜₙ, ∂ₓρₜₙ = propagate(env.dynamics, ρₜ, ∂ₓρₜ, a, env.t)## TODO:
+    ρₜₙ, ∂ₓρₜₙ = propagate(env.dynamics, ρₜ, ∂ₓρₜ, a, env.t)
     env.state = ρₜₙ |> state_flatten
     env.dstate = ∂ₓρₜₙ
     env.done = env.t > env.ctrl_length
@@ -208,9 +208,9 @@ end
 
 #### state optimization ####
 mutable struct StateEnv  <: AbstractEnv
-    obj::Any
-    dynamics::Any
-    output::Any
+    obj::AbstractObj
+    dynamics::AbstractDynamics
+    output::AbstractOutput
     action_space::Space
     state_space::Space
     state::AbstractVector

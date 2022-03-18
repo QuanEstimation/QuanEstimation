@@ -3,13 +3,12 @@ from julia import Main
 import warnings
 import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
-
 class AD_Mopt(Measurement.MeasurementSystem):
     def __init__(
         self,
         mtype,
         minput,
-        save_file=False,
+        savefile=False,
         Adam=False,
         measurement0=[],
         max_episode=300,
@@ -22,7 +21,7 @@ class AD_Mopt(Measurement.MeasurementSystem):
     ):
 
         Measurement.MeasurementSystem.__init__(
-            self, mtype, minput, save_file, measurement0, seed, load, eps
+            self, mtype, minput, savefile, measurement0, seed, load, eps
         )
 
         """
