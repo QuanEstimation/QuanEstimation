@@ -64,6 +64,42 @@ function objective(obj::QFIM_Obj{single_para,SLD}, dynamics::Lindblad)
     return f, f
 end
 
+function objective(obj::QFIM_Obj{single_para,SLD}, ρ, dρ)
+    (; W, eps) = obj
+    f = W[1] * QFIM_SLD(ρ, dρ[1]; eps = eps)
+    return f, f
+end
+
+function objective(obj::QFIM_Obj{multi_para,SLD}, ρ, dρ)
+    (; W, eps) = obj
+    f = tr(W * pinv(QFIM_SLD(ρ, dρ; eps = eps)))
+    return f, 1.0 / f
+end
+
+function objective(obj::QFIM_Obj{single_para,RLD}, ρ, dρ)
+    (; W, eps) = obj
+    f = W[1] * QFIM_RLD(ρ, dρ[1]; eps = eps)
+    return f, f
+end
+
+function objective(obj::QFIM_Obj{multi_para,RLD}, ρ, dρ)
+    (; W, eps) = obj
+    f = tr(W * pinv(QFIM_RLD(ρ, dρ; eps = eps)))
+    return f, 1.0 / f
+end
+
+function objective(obj::QFIM_Obj{single_para,LLD}, ρ, dρ)
+    (; W, eps) = obj
+    f = W[1] * QFIM_LLD(ρ, dρ[1]; eps = eps)
+    return f, f
+end
+
+function objective(obj::QFIM_Obj{multi_para,LLD}, ρ, dρ)
+    (; W, eps) = obj
+    f = tr(W * pinv(QFIM_LLD(ρ, dρ; eps = eps)))
+    return f, 1.0 / f
+end
+
 function objective(obj::QFIM_Obj{multi_para,SLD}, dynamics::Lindblad)
     (; W, eps) = obj
     ρ, dρ = evolve(dynamics)
@@ -141,6 +177,18 @@ function objective(obj::QFIM_Obj{multi_para,LLD}, dynamics::Kraus)
     return f, 1.0 / f
 end
 
+function objective(obj::CFIM_Obj{single_para}, ρ, dρ)
+    (; M, W, eps) = obj
+    f = W[1] * CFIM(ρ, dρ[1], M; eps = eps)
+    return f, f
+end
+
+function objective(obj::CFIM_Obj{multi_para}, ρ, dρ)
+    (; M, W, eps) = obj
+    f = tr(W * pinv(CFIM(ρ, dρ, M; eps = eps)))
+    return f, 1.0 / f
+end
+
 function objective(obj::CFIM_Obj{single_para}, dynamics::Lindblad)
     (; M, W, eps) = obj
     ρ, dρ = evolve(dynamics)
@@ -166,6 +214,12 @@ function objective(obj::CFIM_Obj{multi_para}, dynamics::Kraus)
     (; M, W, eps) = obj
     ρ, dρ = evolve(dynamics)
     f = tr(W * pinv(CFIM(ρ, dρ, M; eps = eps)))
+    return f, 1.0 / f
+end
+
+function objective(obj::HCRB_Obj{multi_para}, ρ, dρ)
+    (; W, eps) = obj
+    f = Holevo_bound(ρ, dρ, W; eps = eps)
     return f, 1.0 / f
 end
 
