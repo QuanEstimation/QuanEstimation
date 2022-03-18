@@ -1,5 +1,5 @@
 #### control optimization ####
-function update!(opt::ControlOpt, alg::AbstractAD, obj, dynamics, output)
+function update!(opt::ControlOpt, alg::AbstractautoGRAPE, obj, dynamics, output)
     (; max_episode) = alg
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
@@ -27,7 +27,7 @@ function update!(opt::ControlOpt, alg::AbstractAD, obj, dynamics, output)
     set_io!(output, output.f_list[end])
 end
 
-function update_ctrl!(alg::AD_Adam, obj, dynamics, δ)
+function update_ctrl!(alg::autoGRAPE_Adam, obj, dynamics, δ)
     (; ϵ, beta1, beta2) = alg
     for ci in 1:length(δ)
         mt, vt = 0.0, 0.0
@@ -38,7 +38,7 @@ function update_ctrl!(alg::AD_Adam, obj, dynamics, δ)
     end
 end
 
-function update_ctrl!(alg::AD, obj, dynamics, δ)
+function update_ctrl!(alg::autoGRAPE, obj, dynamics, δ)
     dynamics.data.ctrl += alg.ϵ*δ
 end
 

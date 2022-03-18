@@ -20,6 +20,7 @@ const IO_para = Dict(
 
 const IO_alg = Dict(
     :GRAPE => "optimization algorithm: GRAPE",
+    :autoGRAPE => "optimization algorithm: auto-GRAPE",
     :AD => "optimization algorithm: Automatic Differentiation (AD)",
     :PSO => "optimization algorithm: Particle Swarm Optimization (PSO)",
     :DE => "optimization algorithm: Differential Evolution (DE)",

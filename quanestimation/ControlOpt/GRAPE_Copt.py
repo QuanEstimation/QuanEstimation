@@ -68,11 +68,11 @@ class GRAPE_Copt(Control.ControlSystem):
 
         if self.auto:
             if self.Adam:
-                self.alg = Main.QuanEstimation.AD(
+                self.alg = Main.QuanEstimation.autoGRAPE(
                     self.max_episode, self.epsilon, self.beta1, self.beta2
                 )
             else:
-                self.alg = Main.QuanEstimation.AD(self.max_episode, self.epsilon)
+                self.alg = Main.QuanEstimation.autoGRAPE(self.max_episode, self.epsilon)
         else:
             if self.Adam:
                 self.alg = Main.QuanEstimation.GRAPE(

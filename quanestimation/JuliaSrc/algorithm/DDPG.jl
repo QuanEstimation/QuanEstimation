@@ -66,7 +66,7 @@ function update!(opt::ControlOpt, alg::DDPG, obj, dynamics, output)
     set_io!(output, f_noctrl[end], f_ini)
     show(opt, output, obj)
 
-    total_reward_all = Vector{Float64}()
+    total_reward_all = [0.0]
     episode = 1
     env = ControlEnv(
         obj,
@@ -94,6 +94,7 @@ function update!(opt::ControlOpt, alg::DDPG, obj, dynamics, output)
         episode,
     )
     reset!(env)
+    SaveReward(env.output, 0.0)
 
     ns, na = 2 * dim^2, ctrl_num
     init = glorot_uniform(rng)
@@ -199,6 +200,7 @@ function _step!(env::ControlEnv, a)
         set_buffer!(env.output, env.ctrl_list)
         set_io!(env.output, f_out, env.episode)
         show(env.output, env.obj)
+        append!(env.total_reward_all, env.total_reward)
 
         env.episode += 1
         SaveReward(env.output, env.total_reward)
@@ -242,13 +244,13 @@ function update!(Sopt::StateOpt, alg::DDPG, obj, dynamics, output)
     action_space = Space(fill(-1.0e35..1.0e35, length(state)))
     state_space = Space(fill(-1.0e35..1.0e35, length(state))) 
     f_list = Vector{Float64}()
-    reward_all = Vector{Float64}()
+    reward_all = [0.0]
     f_ini, f_comp = objective(obj, dynamics)
 
     env = StateEnv(obj, dynamics, output, action_space, state_space, state, true, rng, 0.0, 0.0, ctrl_num, 
                     para_num, f_ini, f_list, reward_all, episode)
-
     reset!(env)
+    SaveReward(env.output, 0.0)
 
     ns = 2*length(dynamics.data.ψ0)
     na = env.ctrl_num
