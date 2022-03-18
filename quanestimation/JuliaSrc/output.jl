@@ -30,21 +30,8 @@ save_type(::Output{savefile}) = :savefile
 save_type(::Output{no_save}) = :no_save
 
 function SaveFile(output::Output{no_save})
-    open("f.csv", "a") do f
-        writedlm(f, output.f_list)
-    end
-    for (res, file) in zip(output.opt_buffer, output.res_file)
-        open(file, "a") do g
-            writedlm(g, res)
-        end
-    end
-end
-
-function SaveFile(output::Output{savefile}) end
-
-function SaveCurrent(output::Output{savefile})
     open("f.csv", "w") do f
-        writedlm(f, output.f_list[end])
+        writedlm(f, output.f_list)
     end
     for (res, file) in zip(output.opt_buffer, output.res_file)
         open(file, "w") do g
@@ -53,10 +40,23 @@ function SaveCurrent(output::Output{savefile})
     end
 end
 
+function SaveFile(output::Output{savefile}) end
+
+function SaveCurrent(output::Output{savefile})
+    open("f.csv", "a") do f
+        writedlm(f, output.f_list[end])
+    end
+    for (res, file) in zip(output.opt_buffer, output.res_file)
+        open(file, "a") do g
+            writedlm(g, res)
+        end
+    end
+end
+
 function SaveCurrent(output::Output{no_save}) end
 
 function SaveReward(output::Output{savefile}, reward::Number) ## TODO: reset file
-    open("reward.csv", "w") do r
+    open("reward.csv", "a") do r
         writedlm(r, reward)
     end
 end
@@ -64,7 +64,7 @@ end
 function SaveReward(output::Output{no_save}, reward::Number) end
 
 function SaveReward(rewards)
-    open("reward.csv", "a") do r
+    open("reward.csv", "w") do r
         writedlm(r, rewards)
     end
 end

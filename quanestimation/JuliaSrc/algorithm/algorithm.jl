@@ -15,6 +15,21 @@ end
 
 GRAPE(max_episode, ϵ, beta1, beta2) = GRAPE_Adam(max_episode, ϵ, beta1, beta2)
 
+abstract type AbstractautoGRAPE <: AbstractAlgorithm end
+struct autoGRAPE <: AbstractautoGRAPE
+    max_episode::Number
+    ϵ::Number
+end
+
+struct autoGRAPE_Adam <: AbstractautoGRAPE
+    max_episode::Number
+    ϵ::Number
+    beta1::Number
+    beta2::Number
+end
+
+autoGRAPE(max_episode, ϵ, beta1, beta2) = autoGRAPE_Adam(max_episode, ϵ, beta1, beta2)
+
 abstract type AbstractAD <:  AbstractAlgorithm end
 struct AD <: AbstractAD
     max_episode::Number
@@ -90,6 +105,8 @@ alg_type(::AD) = :AD
 alg_type(::AD_Adam) = :AD
 alg_type(::GRAPE) = :GRAPE
 alg_type(::GRAPE_Adam) = :GRAPE
+alg_type(::autoGRAPE) = :autoGRAPE
+alg_type(::autoGRAPE_Adam) = :autoGRAPE
 alg_type(::PSO) = :PSO
 alg_type(::DDPG) = :DDPG
 alg_type(::DE) = :DE
