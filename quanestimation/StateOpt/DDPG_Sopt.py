@@ -8,7 +8,7 @@ from quanestimation.Common.common import SIC
 class DDPG_Sopt(State.StateSystem):
     def __init__(
         self,
-        save_file=False,
+        savefile=False,
         max_episode=500,
         layer_num=3,
         layer_dim=200,
@@ -18,7 +18,7 @@ class DDPG_Sopt(State.StateSystem):
         eps=1e-8,
     ):
 
-        State.StateSystem.__init__(self, save_file, psi0, seed, load, eps)
+        State.StateSystem.__init__(self, savefile, psi0, seed, load, eps)
         """
         ----------
         Inputs
@@ -45,8 +45,8 @@ class DDPG_Sopt(State.StateSystem):
             self.max_episode, self.layer_num, self.layer_dim, self.seed
         )
 
-    def QFIM(self, W=[], dtype="SLD"):
-        super().QFIM(W, dtype)
+    def QFIM(self, W=[], LDtype="SLD"):
+        super().QFIM(W, LDtype)
 
     def CFIM(self, M=[], W=[]):
         super().CFIM(M, W)

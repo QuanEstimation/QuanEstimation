@@ -8,13 +8,13 @@ from quanestimation.Common.common import SIC
 
 
 class StateSystem:
-    def __init__(self, save_file, psi0, seed, load, eps):
+    def __init__(self, savefile, psi0, seed, load, eps):
 
         """
         ----------
         Inputs
         ----------
-        save_file:
+        savefile:
             --description: True: save the states and the value of target function for each episode .
                            False: save the states and the value of target function for the last episode.
             --type: bool
@@ -31,7 +31,7 @@ class StateSystem:
             --description: machine eps.
             --type: float
         """
-        self.save_file = save_file
+        self.savefile = savefile
         self.psi0 = psi0
         self.psi = psi0
         self.eps = eps
@@ -95,10 +95,10 @@ class StateSystem:
         self.tspan = tspan
 
         if Hc == [] or ctrl == []:
-            if type(H0) == np.ndarray:
+            if type(H0) == np.ndarray: 
                 self.freeHamiltonian = np.array(H0, dtype=np.complex128)
                 self.dim = len(self.freeHamiltonian)
-            else:
+            else: 
                 self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0]
                 self.dim = len(self.freeHamiltonian[0])
         else:
@@ -107,7 +107,7 @@ class StateSystem:
             if Hc_num < ctrl_num:
                 raise TypeError(
                     "There are %d control Hamiltonians but %d coefficients sequences: \
-                                 too many coefficients sequences"
+                                 too many coefficients sequences."
                     % (Hc_num, ctrl_num)
                 )
             elif Hc_num > ctrl_num:
@@ -120,31 +120,50 @@ class StateSystem:
                 )
                 for i in range(Hc_num - ctrl_num):
                     ctrl = np.concatenate((ctrl, np.zeros(len(ctrl[0]))))
-            else:
-                pass
+            else: pass
 
             if len(ctrl[0]) == 1:
-                H0 = np.array(H0, dtype=np.complex128)
-                Hc = [np.array(x, dtype=np.complex128) for x in Hc]
-                Htot = H0 + sum([Hc[i] * ctrl[i][0] for i in range(ctrl_num)])
-                self.freeHamiltonian = np.array(Htot, dtype=np.complex128)
-                self.dim = len(self.freeHamiltonian)
+                if type(H0) == np.ndarray:
+                    H0 = np.array(H0, dtype=np.complex128)
+                    Hc = [np.array(x, dtype=np.complex128) for x in Hc]
+                    Htot = H0 + sum([Hc[i] * ctrl[i][0] for i in range(ctrl_num)])
+                    self.freeHamiltonian = np.array(Htot, dtype=np.complex128)
+                    self.dim = len(self.freeHamiltonian)
+                else:
+                    H0 = [np.array(x, dtype=np.complex128) for x in H0]
+                    Htot = []
+                    for i in range(len(H0)):
+                        Htot.append(H0[i] + sum([Hc[i] * ctrl[i][0] for i in range(ctrl_num)]))
+                    self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in Htot]
+                    self.dim = len(self.freeHamiltonian[0])    
             else:
                 number = math.ceil((len(self.tspan) - 1) / len(ctrl[0]))
                 if len(self.tspan) - 1 % len(ctrl[0]) != 0:
                     tnum = number * len(ctrl[0])
                     self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum + 1)
+                else: pass
+                
+                if type(H0) == np.ndarray:
+                    H0 = np.array(H0, dtype=np.complex128)
+                    Hc = [np.array(x, dtype=np.complex128) for x in Hc]
+                    Htot = []
+                    for i in range(len(ctrl[0])):
+                        S_ctrl = sum([Hc[j] * ctrl[j][i] for j in range(len(ctrl))])
+                        Htot.append(H0 + S_ctrl)
+                    self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in Htot]
+                    self.dim = len(self.freeHamiltonian[0])
                 else:
-                    pass
-
-                H0 = np.array(H0, dtype=np.complex128)
-                Hc = [np.array(x, dtype=np.complex128) for x in Hc]
-                Htot = []
-                for i in range(len(ctrl[0])):
-                    S_ctrl = sum([Hc[j] * ctrl[j][i] for j in range(len(ctrl))])
-                    Htot.append(H0 + S_ctrl)
-                self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in Htot]
-                self.dim = len(self.freeHamiltonian[0])
+                    H0 = [np.array(x, dtype=np.complex128) for x in H0]
+                    if len(H0) != len(self.tspan):
+                        for i in range(abs(len(H0)-len(self.tspan))):
+                            H0 = np.concatenate((H0, H0[-1]))
+                    Hc = [np.array(x, dtype=np.complex128) for x in Hc]
+                    Htot = []
+                    for i in range(len(ctrl[0])):
+                        S_ctrl = sum([Hc[j] * ctrl[j][i] for j in range(len(ctrl))])
+                        Htot.append(H0[i*number] + S_ctrl)
+                    self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in Htot]
+                    self.dim = len(self.freeHamiltonian[0])
 
         if self.psi0 == []:
             np.random.seed(self.seed)
@@ -191,12 +210,12 @@ class StateSystem:
                 self.psi0,
                 self.tspan,
             )
-        self.output = Main.QuanEstimation.Output(self.opt, self.save_file)
+        self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
 
         self.dynamics_type = "dynamics"
 
     def kraus(self, K, dK):
-        # TODO: initialize K, dK
+
         k_num = len(K)
         para_num = len(dK[0])
         dK_tp = [
@@ -223,11 +242,11 @@ class StateSystem:
 
         self.opt = Main.QuanEstimation.StateOpt(self.psi0)
         self.dynamic = Main.Estimation.Kraus(self.K, self.dK, self.psi0)
-        self.output = Main.QuanEstimation.Output(self.opt, self.save_file)
+        self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
 
         self.dynamics_type = "kraus"
 
-    def QFIM(self, W=[], dtype="SLD"):
+    def QFIM(self, W=[], LDtype="SLD"):
         """
         Description: use autodifferential algorithm to search the optimal initial state that maximize the
                      QFI (1/Tr(WF^{-1} with F the QFIM).
@@ -240,10 +259,10 @@ class StateSystem:
             --type: matrix
         """
 
-        if dtype != "SLD" and dtype != "RLD" and dtyep != "LLD":
+        if LDtype != "SLD" and LDtype != "RLD" and LDtype != "LLD":
             raise ValueError(
-                "{!r} is not a valid value for dtype, supported values are 'SLD', 'RLD' and 'LLD'.".format(
-                    dtype
+                "{!r} is not a valid value for LDtype, supported values are 'SLD', 'RLD' and 'LLD'.".format(
+                    LDtype
                 )
             )
 
@@ -267,7 +286,7 @@ class StateSystem:
         else:
             pass
 
-        self.obj = Main.QuanEstimation.QFIM_Obj(self.W, self.eps, self.para_type, dtype)
+        self.obj = Main.QuanEstimation.QFIM_Obj(self.W, self.eps, self.para_type, LDtype)
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
@@ -321,18 +340,18 @@ class StateSystem:
         )
 
 
-def StateOpt(save_file=False, method="AD", **kwargs):
+def StateOpt(savefile=False, method="AD", **kwargs):
 
     if method == "AD":
-        return stateoptimize.AD_Sopt(save_file=save_file, **kwargs)
+        return stateoptimize.AD_Sopt(savefile=savefile, **kwargs)
     elif method == "PSO":
-        return stateoptimize.PSO_Sopt(save_file=save_file, **kwargs)
+        return stateoptimize.PSO_Sopt(savefile=savefile, **kwargs)
     elif method == "DE":
-        return stateoptimize.DE_Sopt(save_file=save_file, **kwargs)
+        return stateoptimize.DE_Sopt(savefile=savefile, **kwargs)
     elif method == "DDPG":
-        return stateoptimize.DDPG_Sopt(save_file=save_file, **kwargs)
+        return stateoptimize.DDPG_Sopt(savefile=savefile, **kwargs)
     elif method == "NM":
-        return stateoptimize.NM_Sopt(save_file=save_file, **kwargs)
+        return stateoptimize.NM_Sopt(savefile=savefile, **kwargs)
     else:
         raise ValueError(
             "{!r} is not a valid value for method, supported values are 'AD', 'PSO', \

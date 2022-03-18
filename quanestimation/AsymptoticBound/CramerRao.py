@@ -343,7 +343,7 @@ def LLD(rho, drho, rep="original", eps=1e-8):
         return LLD
 
 
-def QFIM(rho, drho, dtype="SLD", exportLD=False, eps=1e-8):
+def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
     """
     Description: Calculation of quantum Fisher information matrix (QFIM)
                 for a density matrix.
@@ -361,7 +361,7 @@ def QFIM(rho, drho, dtype="SLD", exportLD=False, eps=1e-8):
                        vector on the first parameter.
         --type: list (of matrix)
 
-    dtype:
+    LDtype:
         --description: the type of logarithmic derivatives.
         --type: string {'SLD', 'RLD', 'LLD'}
 
@@ -388,31 +388,31 @@ def QFIM(rho, drho, dtype="SLD", exportLD=False, eps=1e-8):
 
     # singleparameter estimation
     if para_num == 1:
-        if dtype == "SLD":
+        if LDtype == "SLD":
             LD_tp = SLD(rho, drho, eps=eps)
             SLD_ac = np.dot(LD_tp, LD_tp) + np.dot(LD_tp, LD_tp)
             QFIM_res = np.real(0.5 * np.trace(np.dot(rho, SLD_ac)))
 
-        elif dtype == "RLD":
+        elif LDtype == "RLD":
             LD_tp = RLD(rho, drho, eps=eps)
             QFIM_res = np.real(
                 np.trace(np.dot(rho, np.dot(LD_tp, LD_tp).conj().transpose()))
             )
 
-        elif dtype == "LLD":
+        elif LDtype == "LLD":
             LD_tp = LLD(rho, drho, eps=eps)
             QFIM_res = np.real(
                 np.trace(np.dot(rho, np.dot(LD_tp, LD_tp).conj().transpose()))
             )
         else:
             raise NameError(
-                "NameError: dtype should be choosen in {'SLD', 'RLD', 'LLD'}"
+                "NameError: LDtype should be choosen in {'SLD', 'RLD', 'LLD'}"
             )
 
     # multiparameter estimation
     else:
         QFIM_res = np.zeros([para_num, para_num])
-        if dtype == "SLD":
+        if LDtype == "SLD":
             LD_tp = SLD(rho, drho, eps=eps)
             for para_i in range(0, para_num):
                 for para_j in range(para_i, para_num):
@@ -424,7 +424,7 @@ def QFIM(rho, drho, dtype="SLD", exportLD=False, eps=1e-8):
                     )
                     QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
 
-        elif dtype == "RLD":
+        elif LDtype == "RLD":
             LD_tp = RLD(rho, drho, eps=eps)
             for para_i in range(0, para_num):
                 for para_j in range(para_i, para_num):
@@ -438,7 +438,7 @@ def QFIM(rho, drho, dtype="SLD", exportLD=False, eps=1e-8):
                     )
                     QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
 
-        elif dtype == "LLD":
+        elif LDtype == "LLD":
             LD_tp = LLD(rho, drho, eps=eps)
             for para_i in range(0, para_num):
                 for para_j in range(para_i, para_num):
@@ -453,7 +453,7 @@ def QFIM(rho, drho, dtype="SLD", exportLD=False, eps=1e-8):
                     QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
         else:
             raise NameError(
-                "NameError: dtype should be choosen in {'SLD', 'RLD', 'LLD'}"
+                "NameError: LDtype should be choosen in {'SLD', 'RLD', 'LLD'}"
             )
 
     if exportLD == False:

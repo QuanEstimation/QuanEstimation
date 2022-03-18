@@ -8,7 +8,7 @@ from quanestimation.Common.common import SIC
 class DE_Sopt(State.StateSystem):
     def __init__(
         self,
-        save_file=False,
+        savefile=False,
         popsize=10,
         psi0=[],
         max_episode=1000,
@@ -19,7 +19,7 @@ class DE_Sopt(State.StateSystem):
         eps=1e-8,
     ):
 
-        State.StateSystem.__init__(self, save_file, psi0, seed, load, eps)
+        State.StateSystem.__init__(self, savefile, psi0, seed, load, eps)
 
         """
         --------
@@ -57,7 +57,7 @@ class DE_Sopt(State.StateSystem):
         self.cr = cr
         self.seed = seed
 
-    def QFIM(self, W=[], dtype="SLD"):
+    def QFIM(self, W=[], LDtype="SLD"):
         ini_population = ([self.psi],)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
@@ -68,7 +68,7 @@ class DE_Sopt(State.StateSystem):
             self.seed,
         )
 
-        super().QFIM(W, dtype)
+        super().QFIM(W, LDtype)
 
     def CFIM(self, M=[], W=[]):
         ini_population = ([self.psi],)

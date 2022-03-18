@@ -8,7 +8,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
         self,
         mtype,
         minput,
-        save_file=False,
+        savefile=False,
         popsize=10,
         measurement0=[],
         max_episode=1000,
@@ -20,7 +20,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
     ):
 
         Measurement.MeasurementSystem.__init__(
-            self, mtype, minput, save_file, measurement0, seed, load, eps
+            self, mtype, minput, savefile, measurement0, seed, load, eps
         )
 
         """
@@ -58,7 +58,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
         self.cr = cr
 
     def CFIM(self, W=[]):
-
+        
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
             self.p_num,
@@ -68,3 +68,4 @@ class DE_Mopt(Measurement.MeasurementSystem):
             self.seed,
         )
         super().CFIM(W)
+        

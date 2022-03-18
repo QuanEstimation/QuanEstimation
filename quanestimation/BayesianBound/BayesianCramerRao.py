@@ -107,7 +107,7 @@ def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
         return BCFIM_res
 
 
-def BQFIM(x, p, rho, drho, dtype="SLD", eps=1e-8):
+def BQFIM(x, p, rho, drho, LDtype="SLD", eps=1e-8):
     """
     Description: Calculation of Bayesian version of quantum Fisher information
                  matrix (QFIM) for a density matrix.
@@ -132,7 +132,7 @@ def BQFIM(x, p, rho, drho, dtype="SLD", eps=1e-8):
                        to be estimated. For example,
         --type: multidimensional lists
 
-    dtype:
+    LDtype:
         --description: the type of logarithmic derivatives.
         --type: string {'SLD', 'RLD', 'LLD'}
 
@@ -156,7 +156,7 @@ def BQFIM(x, p, rho, drho, dtype="SLD", eps=1e-8):
 
         F_tp = np.zeros(p_num)
         for m in range(p_num):
-            F_tp[m] = QFIM(rho[m], [drho[m]], dtype=dtype, eps=eps)
+            F_tp[m] = QFIM(rho[m], [drho[m]], LDtype=LDtype, eps=eps)
         arr = [p[i] * F_tp[i] for i in range(p_num)]
         return simps(arr, x[0])
     else:
@@ -177,7 +177,7 @@ def BQFIM(x, p, rho, drho, dtype="SLD", eps=1e-8):
             for k in range(para_num)
         ]
         for i in range(len(p_list)):
-            F_tp = QFIM(rho_list[i], drho_list[i], dtype=dtype, eps=eps)
+            F_tp = QFIM(rho_list[i], drho_list[i], LDtype=LDtype, eps=eps)
             for pj in range(para_num):
                 for pk in range(para_num):
                     F_list[pj][pk][i] = F_tp[pj][pk]
@@ -357,7 +357,7 @@ def BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
             raise NameError("NameError: btype should be choosen in {1, 2}")
 
 
-def BQCRB(x, p, rho, drho, b=[], db=[], btype=1, dtype="SLD", eps=1e-8):
+def BQCRB(x, p, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
     para_num = len(x)
 
     if para_num == 1:
@@ -379,7 +379,7 @@ def BQCRB(x, p, rho, drho, b=[], db=[], btype=1, dtype="SLD", eps=1e-8):
 
         F_tp = np.zeros(p_num)
         for m in range(p_num):
-            F_tp[m] = QFIM(rho[m], [drho[m]], dtype=dtype, eps=eps)
+            F_tp[m] = QFIM(rho[m], [drho[m]], LDtype=LDtype, eps=eps)
 
         if btype == 1:
             arr = [
@@ -434,7 +434,7 @@ def BQCRB(x, p, rho, drho, b=[], db=[], btype=1, dtype="SLD", eps=1e-8):
                 for k in range(para_num)
             ]
             for i in range(len(p_list)):
-                F_tp = QFIM(rho_list[i], drho_list[i], dtype=dtype, eps=eps)
+                F_tp = QFIM(rho_list[i], drho_list[i], LDtype=LDtype, eps=eps)
                 F_inv = np.linalg.pinv(F_tp)
                 B = np.diag([(1.0 + db_list[i][j]) for j in range(para_num)])
                 term1 = np.dot(B, np.dot(F_inv, B))
@@ -470,7 +470,7 @@ def BQCRB(x, p, rho, drho, b=[], db=[], btype=1, dtype="SLD", eps=1e-8):
                 for k in range(para_num)
             ]
             for i in range(len(p_list)):
-                F_tp = QFIM(rho_list[i], drho_list[i], dtype=dtype, eps=eps)
+                F_tp = QFIM(rho_list[i], drho_list[i], LDtype=LDtype, eps=eps)
                 B_tp = np.diag([(1.0 + db_list[i][j]) for j in range(para_num)])
                 bb_tp = np.dot(
                     np.array(b_list[i]).reshape(para_num, 1),
@@ -629,7 +629,7 @@ def VTB(x, p, dp, rho, drho, M=[], btype=1, eps=1e-8):
             raise NameError("NameError: btype should be choosen in {1, 2}")
 
 
-def QVTB(x, p, dp, rho, drho, btype=1, dtype="SLD", eps=1e-8):
+def QVTB(x, p, dp, rho, drho, btype=1, LDtype="SLD", eps=1e-8):
     para_num = len(x)
     p_num = len(p)
 
@@ -641,7 +641,7 @@ def QVTB(x, p, dp, rho, drho, btype=1, dtype="SLD", eps=1e-8):
 
         F_tp = np.zeros(p_num)
         for m in range(p_num):
-            F_tp[m] = QFIM(rho[m], [drho[m]], dtype=dtype, eps=eps)
+            F_tp[m] = QFIM(rho[m], [drho[m]], LDtype=LDtype, eps=eps)
 
         if btype == 1:
             I_tp = [np.real(dp[i] * dp[i] / p[i] ** 2) for i in range(p_num)]
@@ -685,7 +685,7 @@ def QVTB(x, p, dp, rho, drho, btype=1, dtype="SLD", eps=1e-8):
                 for k in range(para_num)
             ]
             for i in range(len(p_list)):
-                F_tp = QFIM(rho_list[i], drho_list[i], dtype=dtype, eps=eps)
+                F_tp = QFIM(rho_list[i], drho_list[i], LDtype=LDtype, eps=eps)
                 I_tp = np.zeros((para_num, para_num))
                 for pm in range(para_num):
                     for pn in range(para_num):
@@ -716,7 +716,7 @@ def QVTB(x, p, dp, rho, drho, btype=1, dtype="SLD", eps=1e-8):
                 for k in range(para_num)
             ]
             for i in range(len(p_list)):
-                F_tp = QFIM(rho_list[i], drho_list[i], dtype=dtype, eps=eps)
+                F_tp = QFIM(rho_list[i], drho_list[i], LDtype=LDtype, eps=eps)
                 for pj in range(para_num):
                     for pk in range(para_num):
                         F_list[pj][pk][i] = F_tp[pj][pk]
@@ -755,7 +755,7 @@ def boundary_condition(ya, yb):
     return np.array([ya[1] + 1.0, yb[1] + 1.0])
 
 
-def OBB(x, p, dp, rho, drho, d2rho, dtype="SLD", eps=1e-8):
+def OBB(x, p, dp, rho, drho, d2rho, LDtype="SLD", eps=1e-8):
     #### single parameter senario ####
     p_num = len(p)
 
@@ -771,7 +771,7 @@ def OBB(x, p, dp, rho, drho, d2rho, dtype="SLD", eps=1e-8):
     F, J = np.zeros(p_num), np.zeros(p_num)
     bias, dbias = np.zeros(p_num), np.zeros(p_num)
     for m in range(p_num):
-        f, LD = QFIM(rho[m], [drho[m]], dtype=dtype, exportLD=True, eps=eps)
+        f, LD = QFIM(rho[m], [drho[m]], LDtype=LDtype, exportLD=True, eps=eps)
         F[m] = f
         term1 = np.dot(np.dot(d2rho[m], d2rho[m]), LD)
         term2 = np.dot(np.dot(LD, LD), drho[m])

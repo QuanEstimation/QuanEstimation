@@ -23,7 +23,6 @@ __all__ = [
     "StateSystem",
     "StateOpt",
     "AD_Sopt",
-    "AD_Sopt_test",
     "DE_Sopt",
     "PSO_Sopt",
     "DDPG_Sopt",

@@ -8,7 +8,7 @@ from quanestimation.Common.common import SIC
 class PSO_Sopt(State.StateSystem):
     def __init__(
         self,
-        save_file=False,
+        savefile=False,
         particle_num=10,
         psi0=[],
         max_episode=[1000, 100],
@@ -20,7 +20,7 @@ class PSO_Sopt(State.StateSystem):
         eps=1e-8,
     ):
 
-        State.StateSystem.__init__(self, save_file, psi0, seed, load, eps)
+        State.StateSystem.__init__(self, savefile, psi0, seed, load, eps)
 
         """
         --------
@@ -55,15 +55,15 @@ class PSO_Sopt(State.StateSystem):
             --type: int
 
         """
-
-        self.max_episode = max_episode
+        
+        self.max_episode = max_episode 
         self.p_num = particle_num
         self.c0 = c0
         self.c1 = c1
         self.c2 = c2
         self.seed = seed
 
-    def QFIM(self, W=[], dtype="SLD"):
+    def QFIM(self, W=[], LDtype="SLD"):
         ini_particle = ([self.psi],)
         self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
@@ -75,7 +75,7 @@ class PSO_Sopt(State.StateSystem):
             self.seed,
         )
 
-        super().QFIM(W, dtype)
+        super().QFIM(W, LDtype)
 
     def CFIM(self, M=[], W=[]):
         ini_particle = ([self.psi],)

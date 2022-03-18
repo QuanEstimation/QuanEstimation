@@ -1,4 +1,5 @@
 include("mintime.jl")
+include("BayesEstimation.jl")
 
 destroy(N) = diagm(1 => [1/sqrt(n) for n in 1:N-1])
 

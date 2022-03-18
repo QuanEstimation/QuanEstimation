@@ -4,7 +4,7 @@ from quanestimation.Common.common import extract_ele
 from quanestimation.Common.common import SIC
 
 
-def Bayes(x, p, rho, y, M=[], save_file=False):
+def Bayes(x, p, rho, y, M=[], savefile=False):
     para_num = len(x)
     max_episode = len(y)
     if para_num == 1:
@@ -14,7 +14,7 @@ def Bayes(x, p, rho, y, M=[], save_file=False):
         else:
             if type(M) != list:
                 raise TypeError("Please make sure M is a list!")
-        if save_file == False:
+        if savefile == False:
             for mi in range(max_episode):
                 res_exp = int(y[mi])
                 pyx = np.zeros(len(x[0]))
@@ -64,7 +64,7 @@ def Bayes(x, p, rho, y, M=[], save_file=False):
             if type(M) != list:
                 raise TypeError("Please make sure M is a list!")
 
-        if save_file == False:
+        if savefile == False:
             for mi in range(max_episode):
                 res_exp = int(y[mi])
                 pyx_list = np.zeros(len(p_list))
@@ -106,7 +106,7 @@ def Bayes(x, p, rho, y, M=[], save_file=False):
             return p, x_out[-1]
 
 
-def MLE(x, rho, y, M=[], save_file=False):
+def MLE(x, rho, y, M=[], savefile=False):
     para_num = len(x)
     max_episode = len(y)
     if para_num == 1:
@@ -117,7 +117,7 @@ def MLE(x, rho, y, M=[], save_file=False):
             if type(M) != list:
                 raise TypeError("Please make sure M is a list!")
 
-        if save_file == False:
+        if savefile == False:
             L_out = np.ones(len(x[0]))
             for mi in range(max_episode):
                 res_exp = int(y[mi])
@@ -160,7 +160,7 @@ def MLE(x, rho, y, M=[], save_file=False):
             if type(M) != list:
                 raise TypeError("Please make sure M is a list!")
 
-        if save_file == False:
+        if savefile == False:
             L_list = np.ones(len(rho_list))
             for mi in range(max_episode):
                 res_exp = int(y[mi])

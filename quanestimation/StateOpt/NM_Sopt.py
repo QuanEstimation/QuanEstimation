@@ -8,7 +8,7 @@ from quanestimation.Common.common import SIC
 class NM_Sopt(State.StateSystem):
     def __init__(
         self,
-        save_file=False,
+        savefile=False,
         state_num=10,
         psi0=[],
         max_episode=1000,
@@ -21,7 +21,7 @@ class NM_Sopt(State.StateSystem):
         eps=1e-8,
     ):
 
-        State.StateSystem.__init__(self, save_file, psi0, seed, load, eps)
+        State.StateSystem.__init__(self, savefile, psi0, seed, load, eps)
 
         """
         --------
@@ -73,7 +73,7 @@ class NM_Sopt(State.StateSystem):
         self.as0 = as0
         self.seed = seed
 
-    def QFIM(self, W=[], dtype="SLD"):
+    def QFIM(self, W=[], LDtype="SLD"):
         ini_state = Main.vec(self.psi)
         self.alg = Main.QuanEstimation.NM(
             self.max_episode,
@@ -86,7 +86,7 @@ class NM_Sopt(State.StateSystem):
             self.seed,
         )
 
-        super().QFIM(W, dtype)
+        super().QFIM(W, LDtype)
 
     def CFIM(self, M=[], W=[]):
         ini_state = Main.vec(self.psi)

@@ -8,7 +8,7 @@ from quanestimation.Common.common import SIC
 class DE_Compopt(Comp.ComprehensiveSystem):
     def __init__(
         self,
-        save_file=False,
+        savefile=False,
         popsize=10,
         psi0=[],
         ctrl0=[],
@@ -21,14 +21,14 @@ class DE_Compopt(Comp.ComprehensiveSystem):
     ):
 
         Comp.ComprehensiveSystem.__init__(
-            self, psi0, ctrl0, measurement0, save_file, seed, eps
+            self, psi0, ctrl0, measurement0, savefile, seed, eps
         )
 
         """
         --------
         inputs
         --------
-        save_file:
+        savefile:
             --description: True: save the states (or controls, measurements) and the value of the 
                                  target function for each episode.
                            False: save the states (or controls, measurements) and all the value 
@@ -75,7 +75,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         self.cr = cr
         self.seed = seed
 
-    def SC(self, W=[], M=[], target="QFIM", dtype="SLD"):
+    def SC(self, W=[], M=[], target="QFIM", LDtype="SLD"):
         ini_population = (self.psi0, self.ctrl0)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
@@ -86,7 +86,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             self.seed,
         )
 
-        super().SC(W, M, target, dtype)
+        super().SC(W, M, target, LDtype)
 
     def CM(self, rho0, W=[]):
         ini_population = (self.ctrl0, self.measurement0)

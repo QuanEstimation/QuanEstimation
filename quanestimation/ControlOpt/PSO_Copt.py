@@ -8,7 +8,7 @@ from quanestimation.Common.common import SIC
 class PSO_Copt(Control.ControlSystem):
     def __init__(
         self,
-        save_file=False,
+        savefile=False,
         particle_num=10,
         ctrl0=[],
         max_episode=[1000, 100],
@@ -20,7 +20,7 @@ class PSO_Copt(Control.ControlSystem):
         eps=1e-8,
     ):
 
-        Control.ControlSystem.__init__(self, save_file, ctrl0, load, eps)
+        Control.ControlSystem.__init__(self, savefile, ctrl0, load, eps)
 
         """
         -------- 
@@ -63,7 +63,7 @@ class PSO_Copt(Control.ControlSystem):
         self.c2 = c2
         self.seed = seed
 
-    def QFIM(self, W=[], dtype="SLD"):
+    def QFIM(self, W=[], LDtype="SLD"):
         ini_particle = ([self.ctrl0],)
         self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
@@ -75,7 +75,7 @@ class PSO_Copt(Control.ControlSystem):
             self.seed,
         )
 
-        super().QFIM(W, dtype)
+        super().QFIM(W, LDtype)
 
     def CFIM(self, M=[], W=[]):
         ini_particle = ([self.ctrl0],)
@@ -105,7 +105,7 @@ class PSO_Copt(Control.ControlSystem):
 
         super().HCRB(W)
 
-    def mintime(self, f, W=[], M=[], method="binary", target="QFIM", dtype="SLD"):
+    def mintime(self, f, W=[], M=[], method="binary", target="QFIM", LDtype="SLD"):
         ini_particle = ([self.ctrl0],)
         self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
@@ -117,4 +117,4 @@ class PSO_Copt(Control.ControlSystem):
             self.seed,
         )
 
-        super().mintime(f, W, M, method, target, dtype)
+        super().mintime(f, W, M, method, target, LDtype)
