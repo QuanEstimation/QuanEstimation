@@ -101,9 +101,9 @@ class ComprehensiveSystem:
 
         if self.psi0 == []:
             np.random.seed(self.seed)
-                r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
-                r = r_ini / np.linalg.norm(r_ini)
-                phi = 2 * np.pi * np.random.random(self.dim)
+            r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
+            r = r_ini / np.linalg.norm(r_ini)
+            phi = 2 * np.pi * np.random.random(self.dim)
             self.psi = np.array([r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)])
             self.psi0 = [self.psi]
         else:
