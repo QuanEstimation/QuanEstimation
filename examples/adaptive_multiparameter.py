@@ -4,26 +4,36 @@ import random
 from itertools import product
 
 # initial state
-rho0 = 0.5*np.array([[1.+0.0j, 1.], [1., 1.]])
+rho0 = 0.5 * np.array([[1.0 + 0.0j, 1.0], [1.0, 1.0]])
 # free Hamiltonian
-B = 0.5*np.pi
-sx = np.array([[0.j, 1.], [1., 0.0]])
-sy = np.array([[0., -1.j], [1.j, 0.]])
-sz = np.array([[1., 0.0j], [0., -1.]]) 
-H0_func = lambda x: 0.5*x[1]*(sx*np.cos(x[0])+sz*np.sin(x[0]))
-dH_func = lambda x: [0.5*x[1]*(-sx*np.sin(x[0])+sz*np.cos(x[0])), 0.5*(sx*np.cos(x[0])+sz*np.sin(x[0]))]
+B = 0.5 * np.pi
+sx = np.array([[0.0j, 1.0], [1.0, 0.0]])
+sy = np.array([[0.0, -1.0j], [1.0j, 0.0]])
+sz = np.array([[1.0, 0.0j], [0.0, -1.0]])
+H0_func = lambda x: 0.5 * x[1] * (sx * np.cos(x[0]) + sz * np.sin(x[0]))
+dH_func = lambda x: [
+    0.5 * x[1] * (-sx * np.sin(x[0]) + sz * np.cos(x[0])),
+    0.5 * (sx * np.cos(x[0]) + sz * np.sin(x[0])),
+]
 # measurement
-M1 = 0.5*np.array([[1.+0.0j, 1.], [1., 1.]])
-M2 = 0.5*np.array([[1.+0.0j, -1.], [-1., 1.]])
+M1 = 0.5 * np.array([[1.0 + 0.0j, 1.0], [1.0, 1.0]])
+M2 = 0.5 * np.array([[1.0 + 0.0j, -1.0], [-1.0, 1.0]])
 M = [M1, M2]
 # dynamics
-tspan = np.linspace(0., 1.0, 1000)
+tspan = np.linspace(0.0, 1.0, 1000)
 
 # Bayesian estimation
-x = [np.linspace(0.0, 0.5*np.pi, 100), np.linspace(0.5*np.pi-0.1, 0.5*np.pi+0.1, 10)]
-p = (1.0/(x[0][-1]-x[0][0]))*(1.0/(x[1][-1]-x[1][0]))*np.ones((len(x[0]), len(x[1])))
+x = [
+    np.linspace(0.0, 0.5 * np.pi, 100),
+    np.linspace(0.5 * np.pi - 0.1, 0.5 * np.pi + 0.1, 10),
+]
+p = (
+    (1.0 / (x[0][-1] - x[0][0]))
+    * (1.0 / (x[1][-1] - x[1][0]))
+    * np.ones((len(x[0]), len(x[1])))
+)
 dp = np.zeros((len(x[0]), len(x[1])))
-    
+
 rho = [[[] for j in range(len(x[1]))] for i in range(len(x[0]))]
 for i in range(len(x[0])):
     for j in range(len(x[1])):
@@ -36,12 +46,12 @@ for i in range(len(x[0])):
 
 np.random.seed(1234)
 y = [0 for i in range(500)]
-res_rand = random.sample(range(0,len(y)), 125)
+res_rand = random.sample(range(0, len(y)), 125)
 for i in range(len(res_rand)):
-    y[res_rand[i]] = 1  
-pout, xout = Bayes(x, p, rho,  y, M=M, savefile=False)
+    y[res_rand[i]] = 1
+pout, xout = Bayes(x, p, rho, y, M=M, savefile=False)
 
-# adaptive 
+# adaptive
 p = pout
 H, dH = AdaptiveInput(x, H0_func, dH_func, channel="dynamics")
 apt = adaptive(x, p, rho0, max_episode=10, eps=1e-8)

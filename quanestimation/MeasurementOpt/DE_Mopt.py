@@ -58,7 +58,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
         self.cr = cr
 
     def CFIM(self, W=[]):
-        
+
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
             self.p_num,
@@ -68,4 +68,3 @@ class DE_Mopt(Measurement.MeasurementSystem):
             self.seed,
         )
         super().CFIM(W)
-        
