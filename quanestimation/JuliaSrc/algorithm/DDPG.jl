@@ -173,7 +173,7 @@ function RLBase.reset!(env::ControlEnv)
     env.done = false
     env.reward = 0.0
     env.total_reward = 0.0
-    env.ctrl_list = [Vector{Float64}() for _ = 1:env.ctrl_num]
+    env.ctrl_list = [Float64[] for _ = 1:env.ctrl_num]
     nothing
 end
 
@@ -188,9 +188,8 @@ function _step!(env::ControlEnv, a)
     ρₜₙ, ∂ₓρₜₙ = propagate(env.dynamics, ρₜ, ∂ₓρₜ, a, env.t)
     env.state = ρₜₙ |> state_flatten
     env.dstate = ∂ₓρₜₙ
-    env.done = env.t > env.ctrl_length
-    dynamics_copy = set_ctrl(env.dynamics, a)
-    f_out, f_current = objective(env.obj, dynamics_copy)
+    env.done = env.t >= env.ctrl_length
+    f_out, f_current = objective(env.obj, ρₜₙ, ∂ₓρₜₙ)
     reward_current = log(f_current / env.f_noctrl[env.t])
     env.reward = reward_current
     env.total_reward += reward_current
@@ -303,8 +302,7 @@ function _step!(env::StateEnv, a)
     state_new = (env.state + a) |> to_psi
     env.dynamics.data.ψ0 = state_new/norm(state_new)
 
-    dynamics_copy = set_state(env.dynamics, env.dynamics.data.ψ0)
-    f_out, f_current = objective(env.obj, dynamics_copy)
+    f_out, f_current = objective(env.obj, env.dynamics)
 
     env.reward = log(f_current/env.f_ini)
     env.total_reward = env.reward

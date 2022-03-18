@@ -387,13 +387,13 @@ function expL(H, dt)
 end
 
 function expm(
-    H0::Matrix{T},
-    dH::Matrix{T},
-    Hc::Vector{Matrix{T}},
-    ctrl::Vector{Vector{R}},
-    ρ0::Matrix{T},
+    H0::AbstractMatrix,
+    dH::AbstractMatrix,
+    Hc::AbstractVector,
+    ctrl::AbstractVector,
+    ρ0::AbstractMatrix,
     tspan,
-    decay_opt::Vector{Matrix{T}},
+    decay_opt::AbstractVector,
     γ,
 ) where {T<:Complex,R<:Real}
 
@@ -420,15 +420,15 @@ function expm(
 end
 
 function expm(
-    H0::Matrix{T},
-    dH::Vector{Matrix{T}},
-    Hc::Vector{Matrix{T}},
-    ctrl::Vector{Vector{R}},
-    ρ0::Matrix{T},
+    H0::AbstractMatrix,
+    dH::AbstractVector,
+    Hc::AbstractVector,
+    ctrl::AbstractVector,
+    ρ0::AbstractMatrix,
     tspan,
-    decay_opt::Vector{Matrix{T}},
+    decay_opt::AbstractVector,
     γ,
-) where {T<:Complex,R<:Real}
+)
 
     para_num = length(dH)
     ctrl_num = length(Hc)
@@ -774,19 +774,19 @@ function propagate(
     dynamics::Lindblad{noisy,controlled,dm,P},
     ρₜ::AbstractMatrix,
     dρₜ::AbstractVector,
-    ctrl::Vector{R},
-    Δt::Real,
+    a::Vector{R},
+    t::Real,
 ) where {R<:Real,P}
-    (; H0, dH, decay_opt, γ, Hc, tspan) = dynamics.data
+    (; H0, dH, decay_opt, γ, Hc, tspan, ctrl) = dynamics.data
+    Δt = tspan[t+1] - tspan[t]
     ctrl_interval = ((length(tspan) - 1) / length(ctrl[1])) |> Int
     para_num = length(dH)
-    H = Htot(H0, Hc, ctrl)
-    dH_L = [liouville_commu(dH[i]) for i = 1:para_num]
+    H = Htot(H0, Hc, a)
+    dH_L = [liouville_commu(dH) for dH in dH]
     exp_L = expL(H, decay_opt, γ, Δt)
-    ρₜ_next = ρₜ |> vec
-    dρₜ_next = [(dρₜ[para] |> vec) for para = 1:para_num]
-    for i = 1:ctrl_interval
-        ρₜ_next = exp_L * ρₜ_next
+    dρₜ_next = [dρₜ|>vec for dρₜ in dρₜ ]
+    ρₜ_next = exp_L * vec(ρₜ )
+    for i in 1:ctrl_interval
         for para = 1:para_num
             dρₜ_next[para] = -im * Δt * dH_L[para] * ρₜ_next + exp_L * dρₜ_next[para]
         end
@@ -798,19 +798,19 @@ function propagate(
     dynamics::Lindblad{noiseless,controlled,dm,P},
     ρₜ::AbstractMatrix,
     dρₜ::AbstractVector,
-    ctrl::Vector{R},
-    Δt::Real,
+    a::Vector{R},
+    t::Real,
 ) where {R<:Real,P}
-    (; H0, dH, Hc, tspan) = dynamics.data
+    (; H0, dH, Hc, tspan, ctrl) = dynamics.data
+    Δt = tspan[t+1] - tspan[t]
     ctrl_interval = ((length(tspan) - 1) / length(ctrl[1])) |> Int
     para_num = length(dH)
-    H = Htot(H0, Hc, ctrl)
-    dH_L = [liouville_commu(dH[i]) for i = 1:para_num]
+    H = Htot(H0, Hc, a)
+    dH_L = [liouville_commu(dH) for dH in dH]
     exp_L = expL(H, Δt)
-    ρₜ_next = ρₜ |> vec
-    dρₜ_next = [(dρₜ[para] |> vec) for para = 1:para_num]
-    for i = 1:ctrl_interval
-        ρₜ_next = exp_L * ρₜ_next
+    dρₜ_next = [dρₜ|>vec for dρₜ in dρₜ ]
+    ρₜ_next = exp_L * vec(ρₜ )
+    for i in 1:ctrl_interval
         for para = 1:para_num
             dρₜ_next[para] = -im * Δt * dH_L[para] * ρₜ_next + exp_L * dρₜ_next[para]
         end
@@ -818,11 +818,11 @@ function propagate(
     ρₜ_next |> vec2mat, dρₜ_next |> vec2mat
 end
 
-function propagate(ρₜ, dρₜ, dynamics, ctrl, t = 1, ctrl_interval = 1)
-    Δt = dynamics.tspan[t+1] - system.tspan[t]
-    propagate(dynamics, ρₜ, dρₜ, ctrl, Δt, ctrl_interval)
-end
-
+# function propagate(ρₜ, dρₜ, dynamics, ctrl, t = 1, ctrl_interval = 1)
+#     Δt = dynamics.data.tspan[t+1] - system.data.tspan[t]
+#     propagate(dynamics, ρₜ, dρₜ, ctrl, Δt, ctrl_interval)
+# end
+# 
 # function propagate!(system)
 #     system.ρ, system.∂ρ_∂x = propagate(system.freeHamiltonian, system.dH, system.ρ0,
 #                             system.decay_opt, system.γ, system.Hc, 
