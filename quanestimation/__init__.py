@@ -79,19 +79,46 @@ from quanestimation.Dynamics.dynamics import (
     Lindblad,
 )
 
-from quanestimation.MeasurementOpt.MeasurementStruct import (MeasurementSystem, MeasurementOpt, csv2npy_measurements, )
-from quanestimation.MeasurementOpt.AD_Mopt import (AD_Mopt,)
-from quanestimation.MeasurementOpt.PSO_Mopt import (PSO_Mopt,)
-from quanestimation.MeasurementOpt.DE_Mopt import (DE_Mopt,)
+from quanestimation.MeasurementOpt.MeasurementStruct import (
+    MeasurementSystem,
+    MeasurementOpt,
+    csv2npy_measurements,
+)
+from quanestimation.MeasurementOpt.AD_Mopt import (
+    AD_Mopt,
+)
+from quanestimation.MeasurementOpt.PSO_Mopt import (
+    PSO_Mopt,
+)
+from quanestimation.MeasurementOpt.DE_Mopt import (
+    DE_Mopt,
+)
 
-from quanestimation.Resources.Resources import (SpinSqueezing, TargetTime, )
+from quanestimation.Resources.Resources import (
+    SpinSqueezing,
+    TargetTime,
+)
 
-from quanestimation.StateOpt.StateStruct import (StateSystem, StateOpt, csv2npy_states, )
-from quanestimation.StateOpt.AD_Sopt import (AD_Sopt,)
-from quanestimation.StateOpt.DE_Sopt import (DE_Sopt,)
-from quanestimation.StateOpt.PSO_Sopt import (PSO_Sopt,)
-from quanestimation.StateOpt.DDPG_Sopt import (DDPG_Sopt,)
-from quanestimation.StateOpt.NM_Sopt import (NM_Sopt,)
+from quanestimation.StateOpt.StateStruct import (
+    StateSystem,
+    StateOpt,
+    csv2npy_states,
+)
+from quanestimation.StateOpt.AD_Sopt import (
+    AD_Sopt,
+)
+from quanestimation.StateOpt.DE_Sopt import (
+    DE_Sopt,
+)
+from quanestimation.StateOpt.PSO_Sopt import (
+    PSO_Sopt,
+)
+from quanestimation.StateOpt.DDPG_Sopt import (
+    DDPG_Sopt,
+)
+from quanestimation.StateOpt.NM_Sopt import (
+    NM_Sopt,
+)
 
 from quanestimation.Adaptive.adaptive import adaptive
 from quanestimation.Adaptive.adaptMZI import adaptMZI

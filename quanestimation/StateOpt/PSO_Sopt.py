@@ -55,8 +55,8 @@ class PSO_Sopt(State.StateSystem):
             --type: int
 
         """
-        
-        self.max_episode = max_episode 
+
+        self.max_episode = max_episode
         self.p_num = particle_num
         self.c0 = c0
         self.c1 = c1

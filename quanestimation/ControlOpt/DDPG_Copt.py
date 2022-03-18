@@ -61,4 +61,4 @@ class DDPG_Copt(Control.ControlSystem):
         super().HCRB(W)
 
     def mintime(self, f, W=[], M=[], method="binary", target="QFIM", dtype="SLD"):
-        super().mintime(f,W,M,method,target,dtype)
+        super().mintime(f, W, M, method, target, dtype)

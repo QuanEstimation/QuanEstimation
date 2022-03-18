@@ -2,6 +2,7 @@ import numpy as np
 from julia import Main
 import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
+
 class PSO_Mopt(Measurement.MeasurementSystem):
     def __init__(
         self,

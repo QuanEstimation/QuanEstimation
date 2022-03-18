@@ -58,7 +58,8 @@ DDPG_paras = {"layer_num": 4, "layer_dim": 250, "max_episode": 500, "seed": 1234
 control = ControlOpt(
     # method="auto-GRAPE", **GRAPE_paras
     # method="PSO", **PSO_paras
-    method="DE", **DE_paras
+    method="DE",
+    **DE_paras
     # method="DDPG, **DDPG_paras
 )
 
