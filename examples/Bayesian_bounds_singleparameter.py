@@ -70,5 +70,15 @@ for eta in eta_span:
     f_QZZB.append(f_QZZB_tp)
 
 
-for f in [f_BCRB1,f_BCRB2,f_VTB1,f_VTB2,f_BQCRB1,f_BQCRB2,f_QVTB1,f_QVTB2,f_QZZB]:
+for f in [
+    f_BCRB1,
+    f_BCRB2,
+    f_VTB1,
+    f_VTB2,
+    f_BQCRB1,
+    f_BQCRB2,
+    f_QVTB1,
+    f_QVTB2,
+    f_QZZB,
+]:
     print(f)
