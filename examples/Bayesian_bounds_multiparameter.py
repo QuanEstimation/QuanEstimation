@@ -77,5 +77,5 @@ f_QVTB1 = QVTB(x, p, dp, rho, drho, btype=1)
 f_QVTB2 = QVTB(x, p, dp, rho, drho, btype=2)
 
 
-for f in [f_BCRB1,f_BCRB2,f_VTB1,f_VTB2,f_BQCRB1,f_BQCRB2,f_QVTB1,f_QVTB2]:
+for f in [f_BCRB1, f_BCRB2, f_VTB1, f_VTB2, f_BQCRB1, f_BQCRB2, f_QVTB1, f_QVTB2]:
     print(f)
