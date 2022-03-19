@@ -11,7 +11,18 @@ with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
 requirements = [
-    "Click>=7.0",
+    "pip>=19.2.3",
+    "bump2version>=0.5.11",
+    "wheel>=0.33.6",
+    "coverage>=4.5.4",
+    "numpy",
+    "sympy", 
+    "matplotlib",
+    "jill",
+    "scipy", 
+    "qutip", 
+    "cvxpy",
+    "julia",
 ]
 
 test_requirements = []
@@ -45,7 +56,7 @@ setup(
     packages=find_packages(include=["quanestimation", "quanestimation.*"]),
     test_suite="tests",
     tests_require=test_requirements,
-    url="https://github.com/HM-Yuuu/quanestimation",
-    version="0.0.7",
+    url="https://github.com/QuanEstimation/QuanEstimation",
+    version="0.1.0",
     zip_safe=False,
 )
