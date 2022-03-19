@@ -1,5 +1,5 @@
 using Trapz
-include("quanestimation/JuliaSrc/QuanEstimation.jl")
+include("../quanestimation/JuliaSrc/QuanEstimation.jl")
 
 # initial state
 rho0 = 0.5*[1.0 1.0+0.0im; 1.0 1.0]
@@ -46,7 +46,7 @@ for i = 1:length(x[1])
         x_tp = [x[1][i], x[2][j]]
         H0_tp = H0_func(x_tp)
         dH_tp = dH_func(x_tp)
-        rho_tp, drho_tp  = QuanEstimation.expm(H0_tp, dH_tp, rho0, decay_opt, gamma, [zeros(ComplexF64,size(rho0)[1],size(rho0)[1])], [zeros(length(tspan)-1)],tspan)
+        rho_tp, drho_tp  = QuanEstimation.expm(H0_tp, dH_tp, [zeros(ComplexF64,size(rho0)[1],size(rho0)[1])], [zeros(length(tspan)-1)], rho0, tspan, decay_opt, gamma)
         rho[i,j] = rho_tp[end]
         drho[i,j] = drho_tp[end]
         p_tp[i,j] = p_func(x[1][i], x[2][j], mu_x, mu_y, sigmax, sigmay, r)
@@ -66,3 +66,7 @@ f_BQCRB1 = QuanEstimation.BQCRB(x, p, rho, drho, btype=1)
 f_BQCRB2 = QuanEstimation.BQCRB(x, p, rho, drho, btype=2)
 f_QVTB1 = QuanEstimation.QVTB(x, p, dp, rho, drho, btype=1)
 f_QVTB2 = QuanEstimation.QVTB(x, p, dp, rho, drho, btype=2)
+
+for f in [f_BCRB1,f_BCRB2,f_VTB1,f_VTB2,f_BQCRB1,f_BQCRB2,f_QVTB1,f_QVTB2]
+    println(f)
+end

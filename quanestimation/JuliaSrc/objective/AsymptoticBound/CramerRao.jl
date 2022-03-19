@@ -222,7 +222,7 @@ function QFIM(
     eps = eps_default,
 ) where {T<:Complex}
 
-    Symbol("QFIM_" * string(LDtype))(ρ, dρ; eps = eps)
+    eval(Symbol("QFIM_" * string(LDtype)))(ρ, dρ; eps = eps)
 end
 
 ## QFIM 
@@ -233,7 +233,7 @@ function QFIM(
     eps = eps_default,
 ) where {T<:Complex}
 
-    Symbol("QFIM_" * string(LDtype))(ρ, dρ; eps = eps)
+    eval(Symbol("QFIM_" * string(LDtype)))(ρ, dρ; eps = eps)
 end
 
 
@@ -241,7 +241,7 @@ QFIM(sym::Symbol, args...; kwargs...) = QFIM(Val{sym}, args...; kwargs...)
 
 ## QFI with exportLD
 function QFIM(
-    ::Type{Val{:exportLD}},
+    ::Val{:exportLD},
     ρ::Matrix{T},
     dρ::Matrix{T};
     LDtype = :SLD,
@@ -255,7 +255,7 @@ end
 
 ## QFIM with exportLD
 function QFIM(
-    ::Type{Val{:exportLD}},
+    ::Val{:exportLD},
     ρ::Matrix{T},
     dρ::Vector{Matrix{T}};
     LDtype = :SLD,

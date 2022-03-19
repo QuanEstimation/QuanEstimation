@@ -1,6 +1,6 @@
 
 ########## Bayesian quantum Cramer-Rao bound ##########
-function BQCRB(x, p, rho, drho; b=nothing, db=nothing, dtype="SLD", btype=1, eps=1e-8)
+function BQCRB(x, p, rho, drho; b=nothing, db=nothing, LDtype="SLD", btype=1, eps=1e-8)
     para_num = length(x)
 
     if b==nothing
@@ -27,7 +27,7 @@ function BQCRB(x, p, rho, drho; b=nothing, db=nothing, dtype="SLD", btype=1, eps
         end
         F_tp = zeros(p_num)
         for i in 1:p_num
-            f = QFIM(rho[i], drho[i]; dtype=dtype, eps=eps)
+            f = QFIM(rho[i], drho[i]; LDtype=LDtype, eps=eps)
             F_tp[i] = f
         end
         F = 0.0
@@ -53,13 +53,13 @@ function BQCRB(x, p, rho, drho; b=nothing, db=nothing, dtype="SLD", btype=1, eps
         trapzm(x, integrands, slice_dim) =  [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
 
         if btype == 1 
-            integrand(p,rho,drho,b,db)=p*diagm(1 .+db)*pinv(QFIM(rho,drho,eps))*diagm(1 .+db)+b*b'
+            integrand(p,rho,drho,b,db)=p*diagm(1 .+db)*pinv(QFIM(rho,drho;eps=eps))*diagm(1 .+db)+b*b'
             integrands = [integrand(p,rho,drho,[b...],[db...])|>vec for (p,rho,drho,b,db) in zip(p,rho,drho,bs,dbs)]
             I = trapzm(x, integrands, xnum^2) |> I->reshape(I,xnum,xnum)
         elseif btype == 2
             Bs = [p*(1 .+[db...]) for (p,db) in zip(p,dbs)]
             B = trapzm(x, Bs, xnum)|> diagm
-            Fs = [p*QFIM(rho,drho,eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
+            Fs = [p*QFIM(rho,drho;eps=eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
             F = trapzm(x, Fs, xnum^2) |> I->reshape(I,xnum,xnum)
             bbts = [p*[b...]*[b...]'|>vec for (p,b) in zip(p,bs)]
             I = B*pinv(F)*B + (trapzm(x, bbts, xnum^2) |> I->reshape(I,xnum,xnum))
@@ -96,7 +96,7 @@ function BCRB(x, p, rho, drho; M::Union{AbstractVector,Nothing}=nothing, b=nothi
         end
         F_tp = zeros(p_num)
         for i in 1:p_num
-            f = CFI(rho[i], drho[i], M, eps)
+            f = CFIM(rho[i], drho[i], M; eps=eps)
             F_tp[i] = f
         end
         F = 0.0
@@ -125,13 +125,13 @@ function BCRB(x, p, rho, drho; M::Union{AbstractVector,Nothing}=nothing, b=nothi
         trapzm(x, integrands, slice_dim) =  [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
 
         if btype == 1 
-            integrand(p,rho,drho,b,db)=p*diagm(1 .+db)*pinv(CFIM(rho,drho,M,eps))*diagm(1 .+db)+b*b'
+            integrand(p,rho,drho,b,db)=p*diagm(1 .+db)*pinv(CFIM(rho,drho,M;eps=eps))*diagm(1 .+db)+b*b'
             integrands = [integrand(p,rho,drho,[b...],[db...])|>vec for (p,rho,drho,b,db) in zip(p,rho,drho,bs,dbs)]
             I = trapzm(x, integrands, xnum^2) |> I->reshape(I,xnum,xnum)
         elseif btype == 2
             Bs = [p*(1 .+[db...]) for (p,db) in zip(p,dbs)]
             B = trapzm(x, Bs, xnum)|> diagm
-            Fs = [p*CFIM(rho,drho,M,eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
+            Fs = [p*CFIM(rho,drho,M;eps=eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
             F = trapzm(x, Fs, xnum^2) |> I->reshape(I,xnum,xnum)
             bbts = [p*[b...]*[b...]'|>vec for (p,b) in zip(p,bs)]
             I = B*pinv(F)*B + (trapzm(x, bbts, xnum^2) |> I->reshape(I,xnum,xnum))
@@ -140,7 +140,7 @@ function BCRB(x, p, rho, drho; M::Union{AbstractVector,Nothing}=nothing, b=nothi
     end
 end
 
-function QVTB(x, p, dp, rho, drho; dtype="SLD", btype=1, eps=1e-8)
+function QVTB(x, p, dp, rho, drho; LDtype="SLD", btype=1, eps=1e-8)
     para_num = length(x)
     if para_num == 1
         #### singleparameter senario ####
@@ -153,9 +153,9 @@ function QVTB(x, p, dp, rho, drho; dtype="SLD", btype=1, eps=1e-8)
         end
         F_tp = zeros(p_num)
         for m in 1:p_num
-            F_tp[m] = QFIM(rho[m], drho[m]; dtype=dtype, eps=eps)
+            F_tp[m] = QFIM(rho[m], drho[m]; LDtype=LDtype, eps=eps)
         end
-        res = 0.0
+        I = 0.0
         if btype==1
             I_tp = [real(dp[i]*dp[i]/p[i]^2) for i in 1:p_num]
             arr = [p[j]/(I_tp[j]+F_tp[j]) for j in 1:p_num]
@@ -168,7 +168,7 @@ function QVTB(x, p, dp, rho, drho; dtype="SLD", btype=1, eps=1e-8)
             F = trapz(x[1], arr2)
             I = 1.0/(I+F)
         end
-        return res
+        return I
     else
         #### multiparameter senario ####
         xnum = length(x)
@@ -176,13 +176,13 @@ function QVTB(x, p, dp, rho, drho; dtype="SLD", btype=1, eps=1e-8)
         Ip(p,dp) = dp*dp'/p^2
 
         if btype == 1 
-            integrand(p,dp,rho,drho)=p*pinv(Ip(p,dp)+QFIM(rho,drho,eps))
+            integrand(p,dp,rho,drho)=p*pinv(Ip(p,dp)+QFIM(rho,drho;eps=eps))
             integrands = [integrand(p,dp,rho,drho)|>vec for (p,dp,rho,drho) in zip(p,dp,rho,drho)]
             I = trapzm(x, integrands, xnum^2) |> I->reshape(I,xnum,xnum)
         elseif btype == 2
             Iprs = [p*Ip(p,dp)|>vec for (p,dp) in zip(p,dp)]
             Ipr = trapzm(x, Iprs, xnum^2)|> I->reshape(I,xnum,xnum)
-            Fs = [p*QFIM(rho,drho,eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
+            Fs = [p*QFIM(rho,drho;eps=eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
             F = trapzm(x, Fs, xnum^2) |> I->reshape(I,xnum,xnum)
             I = pinv(Ipr+F)
         end
@@ -206,7 +206,7 @@ function VTB(x, p, dp, rho, drho; M::Union{AbstractVector,Nothing}=nothing, btyp
         end
         F_tp = zeros(p_num)
         for m in 1:p_num
-            F_tp[m] = CFI(rho[m], drho[m], M, eps)
+            F_tp[m] = CFIM(rho[m], drho[m], M; eps=eps)
         end
         res = 0.0
         if btype==1
@@ -230,13 +230,13 @@ function VTB(x, p, dp, rho, drho; M::Union{AbstractVector,Nothing}=nothing, btyp
         trapzm(x, integrands, slice_dim) =  [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
         Ip(p,dp) = dp*dp'/p^2
         if btype == 1 
-            integrand(p,dp,rho,drho)=p*pinv(Ip(p,dp)+CFIM(rho,drho,M,eps))
+            integrand(p,dp,rho,drho)=p*pinv(Ip(p,dp)+CFIM(rho,drho,M;eps=eps))
             integrands = [integrand(p,dp,rho,drho)|>vec for (p,dp,rho,drho) in zip(p,dp,rho,drho)]
             I = trapzm(x, integrands, xnum^2) |> I->reshape(I,xnum,xnum)
         elseif btype == 2
             Iprs = [p*Ip(p,dp)|>vec for (p,dp) in zip(p,dp)]
             Ipr = trapzm(x, Iprs, xnum^2)|> I->reshape(I,xnum,xnum)
-            Fs = [p*CFIM(rho,drho,M,eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
+            Fs = [p*CFIM(rho,drho,M;eps=eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
             F = trapzm(x, Fs, xnum^2) |> I->reshape(I,xnum,xnum)
             I = pinv(Ipr+F)
         end
@@ -267,7 +267,7 @@ function interp1(xspan, yspan, x)
     return y
 end
 
-function OBB(x, p, dp, rho, drho, d2rho; dtype="SLD", eps=1e-8)
+function OBB(x, p, dp, rho, drho, d2rho; LDtype="SLD", eps=1e-8)
     p_num = length(p)
     
     if typeof(drho[1]) == Vector{Matrix{ComplexF64}}
@@ -286,7 +286,7 @@ function OBB(x, p, dp, rho, drho, d2rho; dtype="SLD", eps=1e-8)
     delta = x[2] - x[1] 
     F, J = zeros(p_num), zeros(p_num)
     for m in 1:p_num
-        f, LD = QFIM(rho[m], drho[m]; dtype=dtype, exportLD=true, eps=eps)
+        f, LD = QFIM(Val{:exportLD}(),rho[m], drho[m]; LDtype=Symbol(LDtype), eps=eps)
         dF = real(tr(2*d2rho[m]*d2rho[m]*LD - LD*LD*drho[m]))
         J[m] = dp[m]/p[m] - dF/f 
         F[m] = f
