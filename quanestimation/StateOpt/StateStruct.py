@@ -187,6 +187,8 @@ class StateSystem:
 
         if self.psi == []:
             self.psi = [self.psi0]
+        else:
+            self.psi = [np.array(psi, dtype=np.complex128) for psi in self.psi]
 
         if type(dH) != list:
             raise TypeError("The derivative of Hamiltonian should be a list!")
@@ -228,12 +230,14 @@ class StateSystem:
 
         k_num = len(K)
         para_num = len(dK[0])
-        dK_tp = [
-            [np.array(dK[i][j], dtype=np.complex128) for i in range(k_num)]
-            for j in range(para_num)
-        ]
+        # dK_tp = [
+        #     [np.array(dK[i][j], dtype=np.complex128) for i in range(k_num)]
+        #     for j in range(para_num)
+        # ]
         self.K = [np.array(x, dtype=np.complex128) for x in K]
-        self.dK = dK_tp
+        self.dK = dK
+        # Main.dK =dK
+        # Main.eval("println(size([[@show dK[i,j,:,:][1] for j in 1:size(dK,2)] for i in 1:size(dK,1)][1]))")
 
         self.dim = len(self.K[0])
 
@@ -249,9 +253,11 @@ class StateSystem:
 
         if self.psi == []:
             self.psi = [self.psi0]
+        else:
+            self.psi = [np.array(psi, dtype=np.complex128) for psi in self.psi]
 
         self.opt = Main.QuanEstimation.StateOpt(self.psi0)
-        self.dynamic = Main.Estimation.Kraus(self.K, self.dK, self.psi0)
+        self.dynamic = Main.QuanEstimation.Kraus(self.K, self.dK, self.psi0)
         self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
 
         self.dynamics_type = "kraus"
