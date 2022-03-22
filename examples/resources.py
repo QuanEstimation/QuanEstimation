@@ -4,9 +4,9 @@ from qutip import spin_coherent
 
 #### spin squeezing ####
 N = 3
-theta = 0.5*np.pi
-phi = 0.5*np.pi
-rho_CSS = spin_coherent(int(0.5*N), theta, phi, type='dm')
+theta = 0.5 * np.pi
+phi = 0.5 * np.pi
+rho_CSS = spin_coherent(int(0.5 * N), theta, phi, type="dm")
 
 xi = SpinSqueezing(rho_CSS.full(), basis="Dicke", output="KU")
 print(xi)

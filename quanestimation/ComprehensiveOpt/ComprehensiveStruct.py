@@ -294,7 +294,9 @@ class ComprehensiveSystem:
                         "In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function for control optimization"
                     )
                 else:
-                    self.obj = Main.QuanEstimation.HCRB_Obj(self.W, self.eps, self.para_type)
+                    self.obj = Main.QuanEstimation.HCRB_Obj(
+                        self.W, self.eps, self.para_type
+                    )
             elif target == "QFIM" and (
                 LDtype == "SLD" or LDtype == "RLD" or LDtype == "LLD"
             ):
@@ -465,7 +467,8 @@ class ComprehensiveSystem:
                     if type(self.freeHamiltonian) != np.ndarray:
                         #### linear interpolation  ####
                         f = interp1d(self.freeHamiltonian, self.tspan, axis=0)
-                    else: pass
+                    else:
+                        pass
                     if len(self.tspan) - 1 % len(self.ctrl[0]) != 0:
                         tnum = number * len(self.ctrl[0])
                         self.tspan = np.linspace(
@@ -473,9 +476,13 @@ class ComprehensiveSystem:
                         )
                         if type(self.freeHamiltonian) != np.ndarray:
                             H0_inter = f(self.tspan)
-                            self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0_inter]
-                        else: pass
-                    else: pass
+                            self.freeHamiltonian = [
+                                np.array(x, dtype=np.complex128) for x in H0_inter
+                            ]
+                        else:
+                            pass
+                    else:
+                        pass
 
                     if type(self.freeHamiltonian) == np.ndarray:
                         H0 = np.array(self.freeHamiltonian, dtype=np.complex128)
@@ -605,7 +612,8 @@ class ComprehensiveSystem:
             file_save = open("measurements.csv", "w")
             file_save.writelines(file_load)
             file_save.close()
-        else: pass
+        else:
+            pass
 
 
 def ComprehensiveOpt(savefile=False, method="AD", **kwargs):

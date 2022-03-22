@@ -163,16 +163,21 @@ class ControlSystem:
         if type(H0) != np.ndarray:
             #### linear interpolation  ####
             f = interp1d(H0, self.tspan, axis=0)
-        else: pass
+        else:
+            pass
         if len(self.tspan) - 1 % len(self.control_coefficients[0]) != 0:
             tnum = number * len(self.control_coefficients[0])
             self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum + 1)
             if type(H0) != np.ndarray:
                 H0_inter = f(self.tspan)
-                self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0_inter]
-            else: pass
-                
-        else: pass
+                self.freeHamiltonian = [
+                    np.array(x, dtype=np.complex128) for x in H0_inter
+                ]
+            else:
+                pass
+
+        else:
+            pass
 
         self.opt = Main.QuanEstimation.ControlOpt(
             self.control_coefficients, self.ctrl_bound
@@ -301,9 +306,9 @@ class ControlSystem:
             )
         if self.savefile == True:
             warnings.warn(
-                    "savefile is set to be False",
-                    DeprecationWarning,
-                )
+                "savefile is set to be False",
+                DeprecationWarning,
+            )
         self.output = Main.QuanEstimation.Output(self.opt, False)
 
         if len(self.Hamiltonian_derivative) > 1:
@@ -356,7 +361,8 @@ def ControlOpt(savefile=False, method="auto-GRAPE", **kwargs):
         return ctrl.DDPG_Copt(savefile=savefile, **kwargs)
     else:
         raise ValueError(
-            "{!r} is not a valid value for method, supported values are 'auto-GRAPE', 'GRAPE', 'PSO', 'DE', 'DDPG'.".format(method
+            "{!r} is not a valid value for method, supported values are 'auto-GRAPE', 'GRAPE', 'PSO', 'DE', 'DDPG'.".format(
+                method
             )
         )
 
