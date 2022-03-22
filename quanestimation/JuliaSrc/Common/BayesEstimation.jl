@@ -1,4 +1,4 @@
-function Bayes(x, p, rho, y; M=nothing, save_file=false)
+function Bayes(x, p, rho, y; M=nothing, savefile=false)
     y = y .+ 1
     para_num = length(x)
     max_episode = length(y)
@@ -7,7 +7,7 @@ function Bayes(x, p, rho, y; M=nothing, save_file=false)
         if M==nothing
             M = SIC(size(rho[1])[1])
         end
-        if save_file == false
+        if savefile == false
             for mi in 1:max_episode
                 res_exp = y[mi] |> Int
                 pyx = real.(tr.(rho.*[M[res_exp]]))
@@ -45,7 +45,7 @@ function Bayes(x, p, rho, y; M=nothing, save_file=false)
         if M==nothing
             M = SIC(size(vec(rho)[1])[1])
         end
-        if save_file == false
+        if savefile == false
             for mi in 1:max_episode
                 res_exp = y[mi] |> Int
                 pyx = real.(tr.(rho.*[M[res_exp]]))
@@ -84,7 +84,7 @@ function Bayes(x, p, rho, y; M=nothing, save_file=false)
     end
 end
 
-function MLE(x, rho, y; M::Union{AbstractVector,Nothing}=nothing, save_file=false)
+function MLE(x, rho, y; M::Union{AbstractVector,Nothing}=nothing, savefile=false)
     y = y .+ 1
     para_num = length(x)
     max_episode = length(y)
@@ -92,7 +92,7 @@ function MLE(x, rho, y; M::Union{AbstractVector,Nothing}=nothing, save_file=fals
         if M==nothing
             M = SIC(size(rho[1])[1])
         end
-        if save_file == false
+        if savefile == false
             L_out = ones(length(x[1]))
             for mi in 1:max_episode
                 res_exp = y[mi] |> Int
@@ -134,7 +134,7 @@ function MLE(x, rho, y; M::Union{AbstractVector,Nothing}=nothing, save_file=fals
             M = SIC(size(vec(rho)[1])[1])
         end
 
-        if save_file == false
+        if savefile == false
             L_out = ones(p_shape...)
             for mi in 1:max_episode
                 res_exp = y[mi] |> Int

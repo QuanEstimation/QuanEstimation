@@ -87,24 +87,24 @@ const IO_ini = Dict(
         :Mopt,
         :CFIM,
         :single_para,
-    ) => "initial value of CFI is %f\n",
+    ) => "initial value of CFI is %f\nQFI is %f\n",
     (
         :Mopt,
         :CFIM,
         :multi_para,
-    ) => "initial value of tr(WI^{-1}) is %f\n",
+    ) => "initial value of tr(WI^{-1}) is %f\ninitial value of tr(WF^{-1}) is %f\n",
 
-    #### measurement optimization for LinearComb and Rotation  ####
+    #### measurement optimization for LinearComb and Rotation ####
     (
         :Mopt_input,
         :CFIM,
         :single_para,
-    ) => "initial value of CFI is %f\nCFI under the given POVM is %f\nQFI is  %f\n",
+    ) => "initial value of CFI is %f\nCFI under the given POVM is %f\nQFI is %f\n",
     (
         :Mopt_input,
         :CFIM,
         :multi_para,
-    ) => "initial value of tr(WI^{-1}) is %f\ntr(WI^{-1}) under the given POVM is %f\ntr(WF^{-1}) is  %f\n",
+    ) => "initial value of tr(WI^{-1}) is %f\ntr(WI^{-1}) under the given POVM is %f\ntr(WF^{-1}) is %f\n",
 
     #### state and control optimization ####
     (
@@ -116,17 +116,22 @@ const IO_ini = Dict(
         :SCopt,
         :QFIM,
         :multi_para,
-    ) => "initial value of tr(WF^{-1}) is %f\n",
+    ) => "non-controlled value of tr(WF^{-1}) is %f\ninitial value of tr(WF^{-1}) is %f\n",
     (
         :SCopt,
         :CFIM,
         :single_para,
-    ) => "initial value of CFI is %f\n",
+    ) => "non-controlled value of CFI is %f\ninitial value of CFI is %f\n",
     (
         :SCopt,
         :CFIM,
         :multi_para,
-    ) => "initial value of tr(WI^{-1}) is %f\n",
+    ) => "non-controlled value of tr(WI^{-1}) is %f\ninitial value of tr(WI^{-1}) is %f\n",
+    (
+        :SCopt,
+        :HCRB,
+        :multi_para,
+    ) => "non-controlled value of HCRB is %f\ninitial value of HCRB is %f\n",
     #### state and measurement optimization ####
     (
         :SMopt,

@@ -193,6 +193,14 @@ function bound_LC_coeff!(coefficients::Vector{Vector{Float64}})
     for ck in 1:M_num
         for tk in 1:basis_num
             coefficients[ck][tk] = (x-> x < 0.0 ? 0.0 : x > 1.0 ? 1.0 : x)(coefficients[ck][tk])
+        end 
+    end
+
+    Sum_col = [sum([coefficients[m][n] for m in 1:M_num])  for n in 1:basis_num]
+    for si in 1:basis_num
+        if Sum_col[si] == 0.0
+            int_num = sample(1:M_num, 1, replace=false)[1]
+            coefficients[int_num][si] = 1.0
         end
     end
 
@@ -344,3 +352,4 @@ function initial_Rotation!(measurement0, s_all, dim, p_num, rng)
         s_all[pj] = rand(rng, dim*dim)
     end
 end
+

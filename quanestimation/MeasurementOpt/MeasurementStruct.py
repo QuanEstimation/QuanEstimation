@@ -1,5 +1,6 @@
 from re import S
 import numpy as np
+from scipy.interpolate import interp1d
 import os
 import math
 import warnings
@@ -50,8 +51,7 @@ class MeasurementSystem:
             file_save = open("measurements.csv", "w")
             file_save.writelines(file_load)
             file_save.close()
-        else:
-            pass
+        else: pass
 
     def dynamics(self, tspan, rho0, H0, dH, Hc=[], ctrl=[], decay=[]):
 
@@ -99,6 +99,12 @@ class MeasurementSystem:
         """
         self.tspan = tspan
         self.rho0 = np.array(rho0, dtype=np.complex128)
+
+        self.dynamics_type = "dynamics"
+        if len(dH) == 1:
+            self.para_type = "single_para"
+        else:
+            self.para_type = "multi_para"
 
         if self.mtype == "projection":
             if self.measurement0 == []:
@@ -223,15 +229,13 @@ class MeasurementSystem:
 
             else:
                 raise ValueError(
-                    "{!r} is not a valid value for the first input of minput, \
-                                 supported values are 'LC' and 'rotation'.".format(
+                    "{!r} is not a valid value for the first input of minput, supported values are 'LC' and 'rotation'.".format(
                         self.minput[0]
                     )
                 )
         else:
             raise ValueError(
-                "{!r} is not a valid value for mtype, supported values are 'projection' \
-                              and 'input'.".format(
+                "{!r} is not a valid value for mtype, supported values are 'projection' and 'input'.".format(
                     self.mtype
                 )
             )
@@ -246,15 +250,12 @@ class MeasurementSystem:
             Hc_num = len(Hc)
             if Hc_num < ctrl_num:
                 raise TypeError(
-                    "There are %d control Hamiltonians but %d coefficients sequences: \
-                                 too many coefficients sequences"
+                    "There are %d control Hamiltonians but %d coefficients sequences: too many coefficients sequences"
                     % (Hc_num, ctrl_num)
                 )
             elif Hc_num > ctrl_num:
                 warnings.warn(
-                    "Not enough coefficients sequences: there are %d control Hamiltonians \
-                            but %d coefficients sequences. The rest of the control sequences are\
-                            set to be 0."
+                    "Not enough coefficients sequences: there are %d control Hamiltonians but %d coefficients sequences. The rest of the control sequences are set to be 0."
                     % (Hc_num, ctrl_num),
                     DeprecationWarning,
                 )
@@ -281,11 +282,18 @@ class MeasurementSystem:
                     ]
             else:
                 number = math.ceil((len(self.tspan) - 1) / len(ctrl[0]))
+                if type(H0) != np.ndarray:
+                    #### linear interpolation  ####
+                    f = interp1d(H0, self.tspan, axis=0)
+                else: pass
                 if len(self.tspan) - 1 % len(ctrl[0]) != 0:
                     tnum = number * len(ctrl[0])
                     self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum + 1)
-                else:
-                    pass
+                    if type(H0) != np.ndarray:
+                        H0_inter = f(self.tspan)
+                        H0 = [np.array(x, dtype=np.complex128) for x in H0_inter]
+                    else: pass
+                else: pass
 
                 if type(H0) == np.ndarray:
                     H0 = np.array(H0, dtype=np.complex128)
@@ -299,12 +307,9 @@ class MeasurementSystem:
                     ]
                 else:
                     H0 = [np.array(x, dtype=np.complex128) for x in H0]
-                    if len(H0) != len(self.tspan):
-                        for i in range(abs(len(H0) - len(self.tspan))):
-                            H0 = np.concatenate((H0, H0[-1]))
                     Hc = [np.array(x, dtype=np.complex128) for x in Hc]
                     Htot = []
-                    for i in range(len(ctrl[0])):
+                    for i in range(len(H0)):
                         S_ctrl = sum([Hc[j] * ctrl[j][i] for j in range(len(ctrl))])
                         Htot.append(H0[i * number] + S_ctrl)
                     self.freeHamiltonian = [
@@ -317,11 +322,6 @@ class MeasurementSystem:
         if dH == []:
             dH = [np.zeros((len(self.rho0), len(self.rho0)))]
         self.Hamiltonian_derivative = [np.array(x, dtype=np.complex128) for x in dH]
-
-        if len(dH) == 1:
-            self.para_type = "single_para"
-        else:
-            self.para_type = "multi_para"
 
         if decay == []:
             decay_opt = [np.zeros((len(self.rho0), len(self.rho0)))]
@@ -341,18 +341,16 @@ class MeasurementSystem:
         )
         self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
 
-        self.dynamics_type = "dynamics"
 
     def kraus(self, rho0, K, dK):
         k_num = len(K)
         para_num = len(dK[0])
-        dK_tp = [
+        self.dK = [
             [np.array(dK[i][j], dtype=np.complex128) for i in range(k_num)]
             for j in range(para_num)
         ]
         self.rho0 = np.array(rho0, dtype=np.complex128)
         self.K = [np.array(x, dtype=np.complex128) for x in K]
-        self.dK = dK_tp
 
         if para_num == 1:
             self.para_type = "single_para"
@@ -477,15 +475,13 @@ class MeasurementSystem:
                     )  #### Lambda=[]
             else:
                 raise ValueError(
-                    "{!r} is not a valid value for the first input of minput, \
-                                  supported values are 'LC' and 'rotation'.".format(
+                    "{!r} is not a valid value for the first input of minput, supported values are 'LC' and 'rotation'.".format(
                         self.minput[0]
                     )
                 )
         else:
             raise ValueError(
-                "{!r} is not a valid value for mtype, supported values are \
-                             'projection' and 'input'.".format(
+                "{!r} is not a valid value for mtype, supported values are 'projection' and 'input'.".format(
                     self.mtype
                 )
             )
@@ -523,6 +519,7 @@ class MeasurementSystem:
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
         Main.QuanEstimation.run(system)
+        self.load_save()
 
 
 def MeasurementOpt(
@@ -537,8 +534,7 @@ def MeasurementOpt(
         return Measure.DE_Mopt(mtype, minput, savefile=savefile, **kwargs)
     else:
         raise ValueError(
-            "{!r} is not a valid value for method, supported values \
-                          are 'AD', 'PSO' and 'DE'.".format(
+            "{!r} is not a valid value for method, supported values are 'AD', 'PSO' and 'DE'.".format(
                 method
             )
         )

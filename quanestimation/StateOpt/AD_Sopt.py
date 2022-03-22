@@ -1,5 +1,4 @@
 from julia import Main
-import warnings
 import numpy as np
 import quanestimation.StateOpt.StateStruct as State
 from quanestimation.Common.common import SIC
@@ -74,4 +73,5 @@ class AD_Sopt(State.StateSystem):
         super().CFIM(M, W)
 
     def HCRB(self, W=[]):
-        super().HCRB(W)
+        raise ValueError(
+            "AD is not available when the objective function is HCRB. Supported methods are 'PSO', 'DE', 'NM' and 'DDPG'.")

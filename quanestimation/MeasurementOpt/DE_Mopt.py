@@ -58,11 +58,11 @@ class DE_Mopt(Measurement.MeasurementSystem):
         self.cr = cr
 
     def CFIM(self, W=[]):
-
+        ini_population = ([self.measurement0],)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
             self.p_num,
-            self.measurement0,
+            ini_population,
             self.c,
             self.cr,
             self.seed,

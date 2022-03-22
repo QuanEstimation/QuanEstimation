@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.interpolate import interp1d
 import os
 import math
 import warnings
@@ -143,11 +144,18 @@ class StateSystem:
                     self.dim = len(self.freeHamiltonian[0])
             else:
                 number = math.ceil((len(self.tspan) - 1) / len(ctrl[0]))
+                if type(H0) != np.ndarray:
+                    #### linear interpolation  ####
+                    f = interp1d(H0, self.tspan, axis=0)
+                else: pass
                 if len(self.tspan) - 1 % len(ctrl[0]) != 0:
                     tnum = number * len(ctrl[0])
                     self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum + 1)
-                else:
-                    pass
+                    if type(H0) != np.ndarray:
+                        H0_inter = f(self.tspan)
+                        H0 = [np.array(x, dtype=np.complex128) for x in H0_inter]
+                    else: pass
+                else: pass
 
                 if type(H0) == np.ndarray:
                     H0 = np.array(H0, dtype=np.complex128)
@@ -162,12 +170,9 @@ class StateSystem:
                     self.dim = len(self.freeHamiltonian[0])
                 else:
                     H0 = [np.array(x, dtype=np.complex128) for x in H0]
-                    if len(H0) != len(self.tspan):
-                        for i in range(abs(len(H0) - len(self.tspan))):
-                            H0 = np.concatenate((H0, H0[-1]))
                     Hc = [np.array(x, dtype=np.complex128) for x in Hc]
                     Htot = []
-                    for i in range(len(ctrl[0])):
+                    for i in range(len(H0)):
                         S_ctrl = sum([Hc[j] * ctrl[j][i] for j in range(len(ctrl))])
                         Htot.append(H0[i * number] + S_ctrl)
                     self.freeHamiltonian = [
@@ -225,19 +230,20 @@ class StateSystem:
         self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
 
         self.dynamics_type = "dynamics"
+        if len(self.Hamiltonian_derivative) == 1:
+            self.para_type = "single_para"
+        else:
+            self.para_type = "multi_para"
 
     def kraus(self, K, dK):
 
         k_num = len(K)
         para_num = len(dK[0])
-        # dK_tp = [
-        #     [np.array(dK[i][j], dtype=np.complex128) for i in range(k_num)]
-        #     for j in range(para_num)
-        # ]
         self.K = [np.array(x, dtype=np.complex128) for x in K]
-        self.dK = dK
-        # Main.dK =dK
-        # Main.eval("println(size([[@show dK[i,j,:,:][1] for j in 1:size(dK,2)] for i in 1:size(dK,1)][1]))")
+        self.dK = [
+            [np.array(dK[i][j], dtype=np.complex128) for i in range(k_num)]
+            for j in range(para_num)
+        ]
 
         self.dim = len(self.K[0])
 
@@ -261,6 +267,10 @@ class StateSystem:
         self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
 
         self.dynamics_type = "kraus"
+        if len(self.dK) == 1:
+            self.para_type = "single_para"
+        else:
+            self.para_type = "multi_para"
 
     def QFIM(self, W=[], LDtype="SLD"):
         """
@@ -287,18 +297,10 @@ class StateSystem:
                 W = np.eye(len(self.Hamiltonian_derivative))
             self.W = W
 
-            if len(self.Hamiltonian_derivative) == 1:
-                self.para_type = "single_para"
-            else:
-                self.para_type = "multi_para"
         elif self.dynamics_type == "kraus":
             if W == []:
                 W = np.eye(len(self.dK))
             self.W = W
-            if len(self.dK) == 1:
-                self.para_type = "single_para"
-            else:
-                self.para_type = "multi_para"
         else:
             pass
 
@@ -351,11 +353,25 @@ class StateSystem:
         self.load_save()
 
     def HCRB(self, W=[]):
-        warnings.warn(
-            "AD is not available when the objective function is HCRB. \
-                       Supported methods are 'PSO', 'DE', 'NM' and 'DDPG'.",
-            DeprecationWarning,
+        if self.dynamics_type == "dynamics":
+            if W == []:
+                W = np.eye(len(self.Hamiltonian_derivative))
+            self.W = W
+
+        elif self.dynamics_type == "kraus":
+            if W == []:
+                W = np.eye(len(self.dK))
+            self.W = W
+        else:
+            pass
+
+        self.obj = Main.QuanEstimation.HCRB_Obj(self.W, self.eps, self.para_type)
+        system = Main.QuanEstimation.QuanEstSystem(
+                self.opt, self.alg, self.obj, self.dynamic, self.output
         )
+        Main.QuanEstimation.run(system)
+
+        self.load_save()
 
 
 def StateOpt(savefile=False, method="AD", **kwargs):
@@ -372,8 +388,7 @@ def StateOpt(savefile=False, method="AD", **kwargs):
         return stateoptimize.NM_Sopt(savefile=savefile, **kwargs)
     else:
         raise ValueError(
-            "{!r} is not a valid value for method, supported values are 'AD', 'PSO', \
-                         'DE', 'NM', 'DDPG'.".format(
+            "{!r} is not a valid value for method, supported values are 'AD', 'PSO', 'DE', 'NM', 'DDPG'.".format(
                 method
             )
         )

@@ -21,7 +21,7 @@ tspan = np.linspace(0.0, 1.0, 1000)
 x = [np.linspace(-0.25 * np.pi + 0.1, 3.0 * np.pi / 4.0 - 0.1, 100)]
 p = (1.0 / (x[0][-1] - x[0][0])) * np.ones(len(x[0]))
 # Bayesian estimation
-rho = [np.zeros((len(rho0), len(rho0)), LDtype=np.complex128) for i in range(len(x[0]))]
+rho = [np.zeros((len(rho0), len(rho0)), dtype=np.complex128) for i in range(len(x[0]))]
 for xi in range(len(x[0])):
     H_tp = H0_func([x[0][xi]])
     dH_tp = dH_func([x[0][xi]])

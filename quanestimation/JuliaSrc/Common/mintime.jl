@@ -8,10 +8,12 @@ function mintime(::Val{:binary}, f, system)
 
     while low < high 
         mid = fld1(low + high, 2)
+
         dynamics.data.tspan = tspan[1:mid]
         dynamics.data.ctrl = [c[1:mid-1] for c in ctrl] 
         
         f_ini = objective(obj, dynamics)[2]
+
         if f > f_ini
             run(system)
             f_mid = output.f_list[end]
@@ -37,7 +39,7 @@ function mintime(::Val{:binary}, f, system)
 end
 
 function mintime(::Val{:forward}, f, system)
-    (; dynamics, output) = system
+    (; dynamics, output, obj) = system
     (; tspan, ctrl) = deepcopy(dynamics.data)
     idx = 2
     f_now = 0.0
@@ -45,14 +47,8 @@ function mintime(::Val{:forward}, f, system)
     while f_now < f && idx<length(tspan)
         dynamics.data.tspan = tspan[1:idx]
         dynamics.data.ctrl = [c[1:idx-1] for c in ctrl] 
-       
-        if f > f_ini
-            run(system)
-            f_now = output.f_list[end]
-        else
-            f_now = f_ini
-        end
-
+        run(system)
+        f_now = output.f_list[end]
         idx += 1
     end
     open("mtspan.csv","w") do t

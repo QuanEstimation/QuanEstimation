@@ -1,5 +1,4 @@
 from julia import Main
-import warnings
 import quanestimation.StateOpt.StateStruct as State
 import numpy as np
 from quanestimation.Common.common import SIC
