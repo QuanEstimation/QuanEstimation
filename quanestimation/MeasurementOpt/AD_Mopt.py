@@ -1,6 +1,5 @@
 import numpy as np
 from julia import Main
-import warnings
 import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
 
@@ -76,10 +75,8 @@ class AD_Mopt(Measurement.MeasurementSystem):
 
     def CFIM(self, W=[]):
         if self.mtype == "projection":
-            warnings.warn(
-                "AD is not available when mtype is projection. Supported methods are \
-                           'PSO' and 'DE'.",
-                DeprecationWarning,
+            raise ValueError(
+                "AD is not available when mtype is projection. Supported methods are 'PSO' and 'DE'.",
             )
         else:
             super().CFIM(W)

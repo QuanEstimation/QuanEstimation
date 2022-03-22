@@ -219,21 +219,21 @@ end
 
 function objective(obj::HCRB_Obj{multi_para}, ρ, dρ)
     (; W, eps) = obj
-    f = Holevo_bound(ρ, dρ, W; eps = eps)
+    f = Holevo_bound_obj(ρ, dρ, W; eps = eps)
     return f, 1.0 / f
 end
 
 function objective(obj::HCRB_Obj{multi_para}, dynamics::Lindblad)
     (; W, eps) = obj
     ρ, dρ = evolve(dynamics)
-    f = Holevo_bound(ρ, dρ, W; eps = eps)
+    f = Holevo_bound_obj(ρ, dρ, W; eps = eps)
     return f, 1.0 / f
 end
 
 function objective(obj::HCRB_Obj{multi_para}, dynamics::Kraus)
     (; W, eps) = obj
     ρ, dρ = evolve(dynamics)
-    f = Holevo_bound(ρ, dρ, W; eps = eps)
+    f = Holevo_bound_obj(ρ, dρ, W; eps = eps)
     return f, 1.0 / f
 end
 
@@ -308,16 +308,16 @@ function objective(opt::Mopt_Rotation, obj::CFIM_Obj{multi_para}, dynamics::Krau
 end
 
 #####
-function objective(::Type{Val{:expm}}, obj, dynamics)
-    temp = Float64[]
-    (; tspan, ctrl) = dynamics.data
-    for i = 1:length(tspan)-1
-        dynamics_copy = set_ctrl(dynamics, [ctrl[1:i] for ctrl in ctrl])
-        dynamics_copy.data.tspan = tspan[1:i+1]
-        append!(temp, objective(obj, dynamics_copy))
-    end
-    temp
-end  # function objective
+# function objective(::Type{Val{:expm}}, obj, dynamics)
+#     temp = []
+#     (; tspan, ctrl) = dynamics.data
+#     for i = 1:length( ctrl)
+#         dynamics_copy = set_ctrl(dynamics, [ctrl[1:i] for ctrl in ctrl])
+#         dynamics_copy.data.tspan = tspan[1:i+1]
+#         append!(temp, [objective(obj, dynamics_copy)])
+#     end
+#     temp
+# end  # function objective
 
 include("CramerRao.jl")
 include("Holevo.jl")

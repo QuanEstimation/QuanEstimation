@@ -1,5 +1,4 @@
 import numpy as np
-import warnings
 from julia import Main
 import quanestimation.ControlOpt.ControlStruct as Control
 from quanestimation.Common.common import SIC
@@ -100,7 +99,7 @@ class DE_Copt(Control.ControlSystem):
         ini_population = ([self.ctrl0],)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
-            self.popsize,
+            self.p_num,
             ini_population,
             self.c,
             self.cr,

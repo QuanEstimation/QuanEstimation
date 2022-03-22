@@ -33,7 +33,7 @@ for i = 1:length(x[1])
         x_tp = [x[1][i], x[2][j]]
         H0_tp = H0_func(x_tp)
         dH_tp = dH_func(x_tp)
-        rho_tp, drho_tp = QuanEstimation.expm(H0_tp, dH_tp, rho0, decay_opt, gamma, [zeros(ComplexF64,size(rho0)[1],size(rho0)[1])], [zeros(length(tspan)-1)],tspan)
+        rho_tp, drho_tp = QuanEstimation.expm(H0_tp, dH_tp, [zeros(ComplexF64,size(rho0)[1],size(rho0)[1])], [zeros(length(tspan)-1)],rho0, tspan,decay_opt, gamma)
         rho[i,j] = rho_tp[end]
     end
 end
@@ -48,4 +48,4 @@ pout, xout = QuanEstimation.Bayes(x, p, rho, y, M=M, savefile=false)
 # adaptive
 p = pout
 H, dH = QuanEstimation.AdaptiveInput(x, H0_func, dH_func; channel="dynamics")
-QuanEstimation.adaptive(x, p, rho0, tspan, H, dH, M=M, max_episode=20)
+QuanEstimation.adaptive(x, p, rho0, tspan, H, dH, M=M, max_episode=10)

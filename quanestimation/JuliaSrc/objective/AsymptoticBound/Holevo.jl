@@ -69,3 +69,12 @@ function Holevo_bound(
     Convex.solve!(problem, SCS.Optimizer(verbose = false))
     return evaluate(tr(C * V)), evaluate(X), evaluate(V)
 end
+
+function Holevo_bound_obj(
+    ρ::Matrix{T},
+    ∂ρ_∂x::Vector{Matrix{T}},
+    C::Matrix{Float64};
+    eps = eps_default,
+) where {T<:Complex}
+    return Holevo_bound(ρ, ∂ρ_∂x, C; eps = eps)[1]
+end

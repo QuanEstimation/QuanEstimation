@@ -22,7 +22,7 @@ M = [M1, M2]
 # dynamics
 decay_opt = [zeros(ComplexF64,size(rho0)[1],size(rho0)[1])] 
 gamma = [0.0]
-tspan = range(0.0, stop=1.0, length=1000)
+tspan = range(0.0, stop=1.0, length=1000) |>Vector
 #### prior distribution ####
 x = [range(-0.25*pi+0.1, stop=3.0*pi/4.0-0.1, length=100)].|>Vector
 p = (1.0/(x[1][end]-x[1][1]))*ones(length(x[1]))
@@ -31,7 +31,7 @@ rho = Vector{Matrix{ComplexF64}}(undef, length(x[1]))
 for i = 1:length(x[1]) 
     H0_tp = H0_func(x[1][i])
     dH_tp = dH_func(x[1][i])
-    rho_tp, drho_tp = QuanEstimation.expm(H0_tp, dH_tp, rho0, decay_opt, gamma, [zeros(ComplexF64,size(rho0)[1],size(rho0)[1])], [zeros(length(tspan)-1)],tspan)
+    rho_tp, drho_tp = QuanEstimation.expm(H0_tp, dH_tp, [zeros(ComplexF64,size(rho0)[1],size(rho0)[1])], [zeros(length(tspan)-1)], rho0, tspan, decay_opt, gamma)
     rho[i] = rho_tp[end]
 end
 
@@ -46,4 +46,4 @@ pout, xout = QuanEstimation.Bayes(x, p, rho, y, M=M, savefile=false)
 
 p = pout
 H, dH = QuanEstimation.AdaptiveInput(x, H0_func, dH_func; channel="dynamics")
-QuanEstimation.adaptive(x, p, rho0, tspan, H, dH, M=M, max_episode=20)
+QuanEstimation.adaptive(x, p, rho0, tspan, H, dH; M=M, max_episode=10)

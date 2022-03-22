@@ -1,5 +1,4 @@
 import numpy as np
-import warnings
 from julia import Main
 import quanestimation.ControlOpt.ControlStruct as Control
 from quanestimation.Common.common import SIC

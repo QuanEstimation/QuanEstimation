@@ -66,6 +66,7 @@ class GRAPE_Copt(Control.ControlSystem):
         self.vt = 0.0
         self.auto = auto
 
+    def QFIM(self, W=[], LDtype="SLD"):
         if self.auto:
             if self.Adam:
                 self.alg = Main.QuanEstimation.autoGRAPE(
@@ -74,31 +75,84 @@ class GRAPE_Copt(Control.ControlSystem):
             else:
                 self.alg = Main.QuanEstimation.autoGRAPE(self.max_episode, self.epsilon)
         else:
-            if self.Adam:
-                self.alg = Main.QuanEstimation.GRAPE(
-                    self.max_episode, self.epsilon, self.beta1, self.beta2
-                )
+            if (len(self.tspan) - 1) != len(self.control_coefficients[0]):
+                warnings.warn("GRAPE is not available when the length of each control is not \
+                               equal to the length of time, and is replaced by auto-GRAPE.",
+                               DeprecationWarning)
+                #### call autoGRAPE automatically ####
+                if self.Adam:
+                    self.alg = Main.QuanEstimation.autoGRAPE(
+                        self.max_episode, self.epsilon, self.beta1, self.beta2
+                    )
+                else:
+                    self.alg = Main.QuanEstimation.autoGRAPE(self.max_episode, self.epsilon)
             else:
-                self.alg = Main.QuanEstimation.GRAPE(self.max_episode, self.epsilon)
+                if LDtype == "SLD":
+                    if self.Adam:
+                        self.alg = Main.QuanEstimation.GRAPE(
+                            self.max_episode, self.epsilon, self.beta1, self.beta2
+                            )
+                    else:
+                        self.alg = Main.QuanEstimation.GRAPE(self.max_episode, self.epsilon)
+                else:
+                    raise ValueError("GRAPE is only available when LDtype is SLD.")
 
-    def QFIM(self, W=[], LDtype="SLD"):
         super().QFIM(W, LDtype)
 
     def CFIM(self, M=[], W=[]):
+        if self.auto:
+            if self.Adam:
+                self.alg = Main.QuanEstimation.autoGRAPE(
+                    self.max_episode, self.epsilon, self.beta1, self.beta2
+                )
+            else:
+                self.alg = Main.QuanEstimation.autoGRAPE(self.max_episode, self.epsilon)
+        else:
+            if (len(self.tspan) - 1) != len(self.control_coefficients[0]):
+                warnings.warn("GRAPE is not available when the length of each control is not \
+                               equal to the length of time, and is replaced by auto-GRAPE.",
+                               DeprecationWarning)
+                #### call autoGRAPE automatically ####
+                if self.Adam:
+                    self.alg = Main.QuanEstimation.autoGRAPE(
+                        self.max_episode, self.epsilon, self.beta1, self.beta2
+                    )
+                else:
+                    self.alg = Main.QuanEstimation.autoGRAPE(self.max_episode, self.epsilon)
+            else:    
+                if self.Adam:
+                    self.alg = Main.QuanEstimation.GRAPE(
+                        self.max_episode, self.epsilon, self.beta1, self.beta2
+                    )
+                else:
+                    self.alg = Main.QuanEstimation.GRAPE(self.max_episode, self.epsilon)
+
         super().CFIM(M, W)
 
     def HCRB(self, W=[]):
-        warnings.warn(
-            "GRAPE is not available when the target function is HCRB. \
-                       Supported methods are 'PSO', 'DE' and 'DDPG'.",
-            DeprecationWarning,
+        raise ValueError(
+            "GRAPE is not available when the target function is HCRB. Supported methods are 'PSO', 'DE' and 'DDPG'.",
         )
 
     def mintime(self, f, W=[], M=[], method="binary", target="QFIM", LDtype="SLD"):
         if target == "HCRB":
-            warnings.warn(
-                "GRAPE is not available when the target function is HCRB.Supported methods are 'PSO', 'DE' and 'DDPG'.",
-                DeprecationWarning,
+            raise ValueError(
+                "GRAPE is not available when the target function is HCRB. Supported methods are 'PSO', 'DE' and 'DDPG'.",
             )
+        if self.auto:
+            if self.Adam:
+                self.alg = Main.QuanEstimation.autoGRAPE(
+                    self.max_episode, self.epsilon, self.beta1, self.beta2
+                )
+            else:
+                self.alg = Main.QuanEstimation.autoGRAPE(self.max_episode, self.epsilon)
+        else:
+            
+            if self.Adam:
+                self.alg = Main.QuanEstimation.GRAPE(
+                        self.max_episode, self.epsilon, self.beta1, self.beta2
+                    )
+            else:
+                self.alg = Main.QuanEstimation.GRAPE(self.max_episode, self.epsilon)
 
         super().mintime(f, W, M, method, target, LDtype)

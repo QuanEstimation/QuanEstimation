@@ -778,7 +778,7 @@ function propagate(
     t::Real,
 ) where {R<:Real,P}
     (; H0, dH, decay_opt, γ, Hc, tspan, ctrl) = dynamics.data
-    Δt = tspan[t+1] - tspan[t]
+    Δt = tspan[t] - tspan[t-1]
     ctrl_interval = ((length(tspan) - 1) / length(ctrl[1])) |> Int
     para_num = length(dH)
     H = Htot(H0, Hc, a)
@@ -802,7 +802,7 @@ function propagate(
     t::Real,
 ) where {R<:Real,P}
     (; H0, dH, Hc, tspan, ctrl) = dynamics.data
-    Δt = tspan[t+1] - tspan[t]
+    Δt = tspan[t] - tspan[t-1]
     ctrl_interval = ((length(tspan) - 1) / length(ctrl[1])) |> Int
     para_num = length(dH)
     H = Htot(H0, Hc, a)

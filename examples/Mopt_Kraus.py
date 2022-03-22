@@ -13,7 +13,7 @@ K = [K1, K2]
 
 dK1 = np.array([[1.0, 0.0], [0.0, -0.5 / np.sqrt(1 - gamma)]])
 dK2 = np.array([[0.0, 0.0], [0.5 / np.sqrt(gamma), 0.0]])
-dK = [[dK1, dK2]]
+dK = [[dK1], [dK2]]
 
 
 # measurement optimization algorithm: AD

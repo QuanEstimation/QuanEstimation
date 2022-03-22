@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.interpolate import interp1d
 import warnings
 import math
 import os
@@ -139,15 +140,12 @@ class ControlSystem:
         Hc_num = len(self.control_Hamiltonian)
         if Hc_num < ctrl_num:
             raise TypeError(
-                "There are %d control Hamiltonians but %d coefficients sequences: \
-                             too many coefficients sequences"
+                "There are %d control Hamiltonians but %d coefficients sequences: too many coefficients sequences"
                 % (Hc_num, ctrl_num)
             )
         elif Hc_num > ctrl_num:
             warnings.warn(
-                "Not enough coefficients sequences: there are %d control Hamiltonians \
-                            but %d coefficients sequences. The rest of the control sequences are\
-                            set to be 0."
+                "Not enough coefficients sequences: there are %d control Hamiltonians but %d coefficients sequences. The rest of the control sequences are set to be 0."
                 % (Hc_num, ctrl_num),
                 DeprecationWarning,
             )
@@ -162,11 +160,19 @@ class ControlSystem:
             pass
 
         number = math.ceil((len(self.tspan) - 1) / len(self.control_coefficients[0]))
+        if type(H0) != np.ndarray:
+            #### linear interpolation  ####
+            f = interp1d(H0, self.tspan, axis=0)
+        else: pass
         if len(self.tspan) - 1 % len(self.control_coefficients[0]) != 0:
             tnum = number * len(self.control_coefficients[0])
             self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum + 1)
-        else:
-            pass
+            if type(H0) != np.ndarray:
+                H0_inter = f(self.tspan)
+                self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0_inter]
+            else: pass
+                
+        else: pass
 
         self.opt = Main.QuanEstimation.ControlOpt(
             self.control_coefficients, self.ctrl_bound
@@ -264,10 +270,8 @@ class ControlSystem:
         self.W = W
 
         if len(self.Hamiltonian_derivative) == 1:
-            warnings.warn(
-                "In single parameter scenario, HCRB is equivalent to QFI. \
-                           Please choose QFIM as the target function for control optimization",
-                DeprecationWarning,
+            raise ValueError(
+                "In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function for control optimization",
             )
         else:
 
@@ -284,40 +288,39 @@ class ControlSystem:
     def mintime(self, f, W=[], M=[], method="binary", target="QFIM", LDtype="SLD"):
         if not (method == "binary" or method == "forward"):
             raise ValueError(
-                "{!r} is not a valid value for method, supported \
-                             values are 'binary' and 'forward'.".format(
+                "{!r} is not a valid value for method, supported values are 'binary' and 'forward'.".format(
                     method
                 )
             )
 
         if self.dynamics_type != "lindblad":
             raise ValueError(
-                "{!r} is not a valid type for dynamics, supported type is \
-                             Lindblad dynamics.".format(
+                "{!r} is not a valid type for dynamics, supported type is Lindblad dynamics.".format(
                     self.dynamics_type
                 )
             )
+        if self.savefile == True:
+            warnings.warn(
+                    "savefile is set to be False",
+                    DeprecationWarning,
+                )
+        self.output = Main.QuanEstimation.Output(self.opt, False)
 
         if len(self.Hamiltonian_derivative) > 1:
             f = 1 / f
-
-        if M == []:
-            M = SIC(len(self.rho0))
-        M = [np.array(x, dtype=np.complex128) for x in M]
 
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
 
         if M != []:
+            M = [np.array(x, dtype=np.complex128) for x in M]
             self.obj = Main.QuanEstimation.CFIM_Obj(M, self.W, self.eps, self.para_type)
         else:
             if target == "HCRB":
                 if self.para_type == "single_para":
-                    warnings.warn(
-                        "In single parameter scenario, HCRB is equivalent to QFI. Please \
-                                   choose QFIM as the target function for control optimization",
-                        DeprecationWarning,
+                    raise ValueError(
+                        "In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function for control optimization",
                     )
                 self.obj = Main.QuanEstimation.HCRB_Obj(
                     self.W, self.eps, self.para_type
@@ -330,9 +333,7 @@ class ControlSystem:
                 )
             else:
                 raise ValueError(
-                    "Please enter the correct values for target and LDtype.\
-                                  Supported target are 'QFIM', 'CFIM' and 'HCRB',  \
-                                  supported LDtype are 'SLD', 'RLD' and 'LLD'."
+                    "Please enter the correct values for target and LDtype. Supported target are 'QFIM', 'CFIM' and 'HCRB', supported LDtype are 'SLD', 'RLD' and 'LLD'."
                 )
 
         system = Main.QuanEstimation.QuanEstSystem(
@@ -355,9 +356,7 @@ def ControlOpt(savefile=False, method="auto-GRAPE", **kwargs):
         return ctrl.DDPG_Copt(savefile=savefile, **kwargs)
     else:
         raise ValueError(
-            "{!r} is not a valid value for method, supported values are 'auto-GRAPE', \
-                         'GRAPE', 'PSO', 'DE', 'DDPG'.".format(
-                method
+            "{!r} is not a valid value for method, supported values are 'auto-GRAPE', 'GRAPE', 'PSO', 'DE', 'DDPG'.".format(method
             )
         )
 

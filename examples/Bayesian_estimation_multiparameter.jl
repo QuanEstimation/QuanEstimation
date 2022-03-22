@@ -33,7 +33,7 @@ for i = 1:length(x[1])
         x_tp = [x[1][i], x[2][j]]
         H0_tp = H0_func(x_tp)
         dH_tp = dH_func(x_tp)
-        rho_tp, drho_tp = QuanEstimation.expm(H0_tp, dH_tp, rho0, decay_opt, gamma, [zeros(ComplexF64,size(rho0)[1],size(rho0)[1])], [zeros(length(tspan)-1)],tspan)
+        rho_tp, drho_tp = QuanEstimation.expm(H0_tp, dH_tp, [zeros(ComplexF64,size(rho0)[1],size(rho0)[1])], [zeros(length(tspan)-1)],rho0, tspan, decay_opt, gamma)
         rho[i,j] = rho_tp[end]
     end
 end
@@ -44,7 +44,7 @@ res_rand = sample(1:length(y), 125, replace=false)
 for i in 1:length(res_rand)
     y[res_rand[i]] = 1
 end
-pout, xout = QuanEstimation.Bayes(x, p, rho, y, M=M, savefile=false)
+pout, xout = QuanEstimation.Bayes(x, p, rho, y; M=M, savefile=false)
 println(xout)
-Lout, xout = QuanEstimation.MLE(x, rho, y, M=M, savefile=false)
+Lout, xout = QuanEstimation.MLE(x, rho, y; M=M, savefile=false)
 println(xout)

@@ -8,13 +8,13 @@ end
 
 mutable struct Kraus_dm <: AbstractDynamicsData
     K::AbstractVector
-    dK::AbstractVector
+    dK::AbstractVecOrMat
     ρ0::AbstractMatrix
 end
 
 mutable struct Kraus_pure <: AbstractDynamicsData
     K::AbstractVector
-    dK::AbstractVector
+    dK::AbstractVecOrMat
     ψ0::AbstractVector
 end
 

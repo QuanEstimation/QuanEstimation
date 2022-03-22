@@ -51,4 +51,6 @@ for i in range(len(res_rand)):
     y[res_rand[i]] = 1
 
 pout, xout = Bayes(x, p, rho, y, M=M, savefile=True)
+print(xout)
 Lout, xout = MLE(x, rho, y, M=M, savefile=True)
+print(xout)

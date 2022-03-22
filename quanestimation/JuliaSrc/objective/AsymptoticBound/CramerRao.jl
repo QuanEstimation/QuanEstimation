@@ -72,8 +72,16 @@ function RLD(ρ::Matrix{T}, dρ::Matrix{T}; eps = eps_default) where {T<:Complex
     pinv(ρ, rtol = eps) * dρ
 end
 
+function RLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = eps_default) where {T<:Complex}
+    (x -> RLD(ρ, x; eps = eps)).(dρ)
+end
+
 function LLD(ρ::Matrix{T}, dρ::Matrix{T}; eps = eps_default) where {T<:Complex}
     (dρ * pinv(ρ, rtol = eps))
+end
+
+function LLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = eps_default) where {T<:Complex}
+    (x -> LLD(ρ, x; eps = eps)).(dρ)
 end
 
 #========================================================#
@@ -91,7 +99,7 @@ function QFIM_RLD(ρ::Matrix{T}, dρ::Matrix{T}; eps = eps_default) where {T<:Co
     F |> real
 end
 
-function QFI_LLD(ρ::Matrix{T}, dρ::Matrix{T}; eps = eps_default) where {T<:Complex}
+function QFIM_LLD(ρ::Matrix{T}, dρ::Matrix{T}; eps = eps_default) where {T<:Complex}
     LLD_tp = LLD(ρ, dρ; eps = eps)
     F = tr(ρ * LLD_tp * LLD_tp')
     F |> real
@@ -112,9 +120,7 @@ function QFIM_SLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = eps_default) wher
     (
         [0.5 * ρ] .*
         (kron(LD_tp, reshape(LD_tp, 1, p_num)) + kron(reshape(LD_tp, 1, p_num), LD_tp))
-    ) .|>
-    tr .|>
-    real
+    ) .|> tr .|> real
 end
 
 function QFIM_RLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = eps_default) where {T<:Complex}
@@ -137,9 +143,7 @@ function QFIM_liouville(ρ, dρ)
     (
         [0.5 * ρ] .*
         (kron(LD_tp, reshape(LD_tp, 1, p_num)) + kron(reshape(LD_tp, 1, p_num), LD_tp))
-    ) .|>
-    tr .|>
-    real
+    ) .|> tr .|> real
 end
 
 function QFIM_pure(ρ::Matrix{T}, ∂ρ_∂x::Vector{Matrix{T}}) where {T<:Complex}

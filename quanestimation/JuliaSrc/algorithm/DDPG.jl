@@ -55,15 +55,25 @@ function update!(opt::ControlOpt, alg::DDPG, obj, dynamics, output)
     action_space = Space([opt.ctrl_bound[1] .. opt.ctrl_bound[2] for _ = 1:ctrl_num])
     state_space = Space(fill(-1.0e35 .. 1.0e35, length(state)))
 
-    dynamics_copy = set_ctrl(dynamics, [zeros(ctrl_length) for i = 1:ctrl_num])
-    f_noctrl = objective(Val{:expm}, obj, dynamics_copy)
+    # dynamics_copy = set_ctrl(dynamics, [zeros(ctrl_length) for i = 1:ctrl_num])
+    # f_noctrl = objective(Val{:expm}, obj, dynamics_copy)
+
+    #### the objective function for non controlled scenario ####
+    f_noctrl = zeros(ctrl_length+1)
+    f_noctrl_out = 0.0
+    ρₜₙ, ∂ₓρₜₙ = state |> density_matrix, dstate
+    for ti in 2:ctrl_length+1
+        ρₜₙ, ∂ₓρₜₙ = propagate(dynamics, ρₜₙ, ∂ₓρₜₙ, [0.0 for i in 1:ctrl_num], ti)
+        f_noctrl_out, f_noctrl[ti] = objective(obj, ρₜₙ, ∂ₓρₜₙ)
+    end
+
     f_ini, f_comp = objective(obj, dynamics)
 
     ctrl_list = [Vector{Float64}() for _ = 1:ctrl_num]
 
     set_f!(output, f_ini)
     set_buffer!(output, dynamics.data.ctrl)
-    set_io!(output, f_noctrl[end], f_ini)
+    set_io!(output, f_noctrl_out, f_ini)
     show(opt, output, obj)
 
     total_reward_all = [0.0]
@@ -170,7 +180,7 @@ function RLBase.reset!(env::ControlEnv)
     state = env.dynamics.data.ρ0
     env.dstate = [state |> zero for _ = 1:(env.para_num)]
     env.state = state |> state_flatten
-    env.t = 0
+    env.t = 1
     env.done = false
     env.reward = 0.0
     env.total_reward = 0.0
@@ -275,7 +285,7 @@ function update!(Sopt::StateOpt, alg::DDPG, obj, dynamics, output)
                   trajectory=CircularArraySARTTrajectory(capacity=400, state=Vector{Float64} => (ns,), action=Vector{Float64} => (na,),),)
                   
     set_f!(output, f_ini)
-    set_buffer!(output, dynamics.data.ψ0)
+    set_buffer!(output, transpose(dynamics.data.ψ0))
     set_io!(output, f_ini)
     show(Sopt, output, obj)
 
@@ -315,7 +325,7 @@ function _step!(env::StateEnv, a)
     env.episode += 1
     
     set_f!(env.output, f_out)
-    set_buffer!(env.output, a)
+    set_buffer!(env.output, transpose(env.dynamics.data.ψ0))
     set_io!(env.output, f_out, env.episode)
     show(env.output, env.obj)
     SaveReward(env.output, env.total_reward) 

@@ -1,6 +1,5 @@
 import numpy as np
 from julia import Main
-import warnings
 import quanestimation.ControlOpt.ControlStruct as Control
 from quanestimation.Common.common import SIC
 
@@ -109,7 +108,7 @@ class PSO_Copt(Control.ControlSystem):
         ini_particle = ([self.ctrl0],)
         self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
-            self.particle_num,
+            self.p_num,
             ini_particle,
             self.c0,
             self.c1,

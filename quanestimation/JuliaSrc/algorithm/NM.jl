@@ -24,7 +24,7 @@ function update!(opt::StateOpt, alg::NM, obj, dynamics, output)
     sort_ind = sortperm(p_fit, rev=true)
 
     set_f!(output, p_out[1])
-    set_buffer!(output, dynamics.data.ψ0)
+    set_buffer!(output, transpose(dynamics.data.ψ0))
     set_io!(output, p_out[1])
     show(opt, output, obj)
 
@@ -141,7 +141,7 @@ function update!(opt::StateOpt, alg::NM, obj, dynamics, output)
         end
         idx = findmax(p_fit)[2]
         set_f!(output, p_out[idx])
-        set_buffer!(output, nelder_mead[sort_ind[1]].data.ψ0)
+        set_buffer!(output, transpose(nelder_mead[sort_ind[1]].data.ψ0))
         set_io!(output, p_out[idx], ei)
         show(output, obj)
     end

@@ -120,7 +120,7 @@ function update!(opt::StateOpt, alg::PSO, obj, dynamics, output)
 
     f_ini, f_comp = objective(obj, dynamics)
     set_f!(output, f_ini)
-    set_buffer!(output, dynamics.data.ψ0)
+    set_buffer!(output, transpose(dynamics.data.ψ0))
     set_io!(output, f_ini)
     show(opt, output, obj)
 
@@ -164,7 +164,7 @@ function update!(opt::StateOpt, alg::PSO, obj, dynamics, output)
             particles = repeat(dynamics, p_num)
         end
         set_f!(output, fit_out)
-        set_buffer!(output, gbest)
+        set_buffer!(output, transpose(gbest))
         set_io!(output, fit_out, ei)
         show(output, obj)
     end
@@ -185,7 +185,7 @@ function update!(opt::Mopt_Projection, alg::PSO, obj, dynamics, output)
 
     velocity = 0.1*rand(rng, ComplexF64, M_num, dim, p_num)
     pbest = zeros(ComplexF64, M_num, dim, p_num)
-    gbest = zeros(ComplexF64, M_num, dim)
+    gbest = [zeros(ComplexF64, dim) for i in 1:M_num]
 
     p_fit, p_out = zeros(p_num), zeros(p_num)
     fit, fit_out = 0.0, 0.0
@@ -197,9 +197,12 @@ function update!(opt::Mopt_Projection, alg::PSO, obj, dynamics, output)
     obj_copy = set_M(obj, M)
     f_ini, f_comp = objective(obj_copy, dynamics)
 
+    obj_QFIM = QFIM_Obj(obj)
+    f_opt, f_comp = objective(obj_QFIM, dynamics)
+
     set_f!(output, f_ini)
     set_buffer!(output, M)
-    set_io!(output, f_ini)
+    set_io!(output, f_ini, f_opt)
     show(opt, output, obj)
 
     for ei in 1:(max_episode[1]-1)
@@ -224,7 +227,7 @@ function update!(opt::Mopt_Projection, alg::PSO, obj, dynamics, output)
                 fit_out = p_out[pj]
                 for dj in 1:M_num
                     for nj in 1:dim
-                        gbest[dj, nj] = pbest[dj,nj,pj]
+                        gbest[dj][nj] = pbest[dj,nj,pj]
                     end
                 end
             end
@@ -237,7 +240,7 @@ function update!(opt::Mopt_Projection, alg::PSO, obj, dynamics, output)
                     meas_pre[dk][ck] = particles[pk][dk][ck]
         
                     velocity[dk, ck, pk] = c0*velocity[dk, ck, pk] + c1*rand(rng)*(pbest[dk, ck, pk] - particles[pk][dk][ck]) 
-                                               + c2*rand(rng)*(gbest[dk, ck] - particles[pk][dk][ck])
+                                               + c2*rand(rng)*(gbest[dk][ck] - particles[pk][dk][ck])
                     particles[pk][dk][ck] += velocity[dk, ck, pk]
                 end
             end
@@ -264,7 +267,7 @@ function update!(opt::Mopt_LinearComb, alg::PSO, obj, dynamics, output)
     ini_particle = ini_particle[1]
     (; B, POVM_basis, M_num) = opt
     basis_num = length(POVM_basis)
-    particles = [[zeros(POVM_basis) for j in 1:M_num] for i in 1:p_num]
+    particles = [[zeros(basis_num) for j in 1:M_num] for i in 1:p_num]
 
     if typeof(max_episode) == Int
         max_episode = [max_episode, max_episode]
@@ -473,7 +476,7 @@ function update!(opt::StateControlOpt, alg::PSO, obj, dynamics, output)
     f_ini, f_comp = objective(obj, dynamics)
 
     set_f!(output, f_ini)
-    set_buffer!(output, particles[1].data.ψ0, particles[1].data.ctrl)
+    set_buffer!(output, transpose(particles[1].data.ψ0), particles[1].data.ctrl)
     set_io!(output, f_noctrl, f_ini)
     show(opt, output, obj)
 
@@ -542,7 +545,7 @@ function update!(opt::StateControlOpt, alg::PSO, obj, dynamics, output)
             end
         end
         set_f!(output, fit_out)
-        set_buffer!(output, gbest_state, gbest_ctrl)
+        set_buffer!(output, transpose(gbest_state), gbest_ctrl)
         set_io!(output, fit_out, ei)
         show(output, obj)
     end
@@ -566,7 +569,7 @@ function update!(opt::StateMeasurementOpt, alg::PSO, obj, dynamics, output)
     gbest_state = zeros(ComplexF64, dim)
     velocity_meas = 0.1*rand(rng, ComplexF64, M_num, dim, p_num)
     pbest_meas = zeros(ComplexF64, M_num, dim, p_num)
-    gbest_meas = zeros(ComplexF64, M_num, dim)
+    gbest_meas = [zeros(ComplexF64, dim) for i in 1:M_num]
 
     p_fit, p_out = zeros(p_num), zeros(p_num)
     fit, fit_out = 0.0, 0.0
@@ -581,7 +584,7 @@ function update!(opt::StateMeasurementOpt, alg::PSO, obj, dynamics, output)
     f_ini, f_comp = objective(obj_copy, dynamics)
 
     set_f!(output, f_ini)
-    set_buffer!(output, particles[1].data.ψ0, M)
+    set_buffer!(output, transpose(particles[1].data.ψ0), M)
     set_io!(output, f_ini)
     show(opt, output, obj)
 
@@ -615,7 +618,7 @@ function update!(opt::StateMeasurementOpt, alg::PSO, obj, dynamics, output)
     
                 for dj in 1:M_num
                     for nj in 1:dim
-                        gbest_meas[dj, nj] = pbest_meas[dj,nj,pj]
+                        gbest_meas[dj][nj] = pbest_meas[dj,nj,pj]
                     end
                 end
             end
@@ -640,7 +643,7 @@ function update!(opt::StateMeasurementOpt, alg::PSO, obj, dynamics, output)
                     meas_pre[dk][ck] = C_all[pk][dk][ck]
         
                     velocity_meas[dk, ck, pk] = c0*velocity_meas[dk, ck, pk] + c1*rand(rng)*(pbest_meas[dk, ck, pk] - C_all[pk][dk][ck]) 
-                                               + c2*rand(rng)*(gbest_meas[dk, ck] - C_all[pk][dk][ck])
+                                               + c2*rand(rng)*(gbest_meas[dk][ck] - C_all[pk][dk][ck])
                                                C_all[pk][dk][ck] += velocity_meas[dk, ck, pk]
                 end
             end
@@ -654,7 +657,7 @@ function update!(opt::StateMeasurementOpt, alg::PSO, obj, dynamics, output)
         end
         M = [gbest_meas[i]*(gbest_meas[i])' for i in 1:M_num]
         set_f!(output, fit_out)
-        set_buffer!(output, gbest_state, M)
+        set_buffer!(output, transpose(gbest_state), M)
         set_io!(output, fit_out, ei)
         show(output, obj)
     end
@@ -680,7 +683,7 @@ function update!(opt::ControlMeasurementOpt, alg::PSO, obj, dynamics, output)
     gbest_ctrl = zeros(ctrl_num, ctrl_length)
     velocity_meas = 0.1*rand(rng, ComplexF64, M_num, dim, p_num)
     pbest_meas = zeros(ComplexF64, M_num, dim, p_num)
-    gbest_meas = zeros(ComplexF64, M_num, dim)
+    gbest_meas = [zeros(ComplexF64, dim) for i in 1:M_num]
 
     p_fit, p_out = zeros(p_num), zeros(p_num)
     fit, fit_out = 0.0, 0.0
@@ -730,7 +733,7 @@ function update!(opt::ControlMeasurementOpt, alg::PSO, obj, dynamics, output)
                 end
                 for dj in 1:M_num
                     for nj in 1:dim
-                        gbest_meas[dj, nj] = pbest_meas[dj,nj,pj]
+                        gbest_meas[dj][nj] = pbest_meas[dj,nj,pj]
                     end
                 end
             end
@@ -760,7 +763,7 @@ function update!(opt::ControlMeasurementOpt, alg::PSO, obj, dynamics, output)
                     meas_pre[dk][ck] = C_all[pk][dk][ck]
         
                     velocity_meas[dk, ck, pk] = c0*velocity_meas[dk, ck, pk] + c1*rand(rng)*(pbest_meas[dk, ck, pk] - C_all[pk][dk][ck]) 
-                                               + c2*rand(rng)*(gbest_meas[dk, ck] - C_all[pk][dk][ck])
+                                               + c2*rand(rng)*(gbest_meas[dk][ck] - C_all[pk][dk][ck])
                                                C_all[pk][dk][ck] += velocity_meas[dk, ck, pk]
                 end
             end
@@ -803,7 +806,7 @@ function update!(opt::StateControlMeasurementOpt, alg::PSO, obj, dynamics, outpu
     gbest_ctrl = zeros(ctrl_num, ctrl_length)
     velocity_meas = 0.1*rand(rng, ComplexF64, M_num, dim, p_num)
     pbest_meas = zeros(ComplexF64, M_num, dim, p_num)
-    gbest_meas = zeros(ComplexF64, M_num, dim)
+    gbest_meas = [zeros(ComplexF64, dim) for i in 1:M_num]
 
     p_fit, p_out = zeros(p_num), zeros(p_num)
     fit, fit_out = 0.0, 0.0
@@ -819,7 +822,7 @@ function update!(opt::StateControlMeasurementOpt, alg::PSO, obj, dynamics, outpu
     f_ini, f_comp = objective(obj_copy, dynamics)
 
     set_f!(output, f_ini)
-    set_buffer!(output, particles[1].data.ψ0, particles[1].data.ctrl, M)
+    set_buffer!(output,  transpose(particles[1].data.ψ0), particles[1].data.ctrl, M)
     set_io!(output, f_ini)
     show(opt, output, obj)
     
@@ -861,7 +864,7 @@ function update!(opt::StateControlMeasurementOpt, alg::PSO, obj, dynamics, outpu
                 end
                 for dj in 1:M_num
                     for nj in 1:dim
-                        gbest_meas[dj, nj] = pbest_meas[dj,nj,pj]
+                        gbest_meas[dj][nj] = pbest_meas[dj,nj,pj]
                     end
                 end
             end
@@ -903,7 +906,7 @@ function update!(opt::StateControlMeasurementOpt, alg::PSO, obj, dynamics, outpu
                     meas_pre[dk][ck] = C_all[pk][dk][ck]
         
                     velocity_meas[dk, ck, pk] = c0*velocity_meas[dk, ck, pk] + c1*rand(rng)*(pbest_meas[dk, ck, pk] - C_all[pk][dk][ck]) 
-                                               + c2*rand(rng)*(gbest_meas[dk, ck] - C_all[pk][dk][ck])
+                                               + c2*rand(rng)*(gbest_meas[dk][ck] - C_all[pk][dk][ck])
                     C_all[pk][dk][ck] += velocity_meas[dk, ck, pk]
                 end
             end
@@ -917,7 +920,7 @@ function update!(opt::StateControlMeasurementOpt, alg::PSO, obj, dynamics, outpu
         end
         M = [gbest_meas[i]*(gbest_meas[i])' for i in 1:M_num]
         set_f!(output, fit_out)
-        set_buffer!(output, gbest_ctrl, gbest_meas, M)
+        set_buffer!(output, transpose(gbest_state), gbest_ctrl, M)
         set_io!(output, fit_out, ei)
         show(output, obj)
     end

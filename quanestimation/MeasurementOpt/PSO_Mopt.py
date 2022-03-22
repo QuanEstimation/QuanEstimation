@@ -65,11 +65,11 @@ class PSO_Mopt(Measurement.MeasurementSystem):
         self.seed = seed
 
     def CFIM(self, W=[]):
-
+        ini_particle = ([self.measurement0],)
         self.alg = Main.QuanEstimation.PSO(
             self.max_episode,
             self.p_num,
-            self.measurement0,
+            ini_particle,
             self.c0,
             self.c1,
             self.c2,

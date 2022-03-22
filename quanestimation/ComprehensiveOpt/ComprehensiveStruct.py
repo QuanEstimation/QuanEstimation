@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.interpolate import interp1d
 import warnings
 import math
 import os
@@ -274,8 +275,7 @@ class ComprehensiveSystem:
         """
         if self.dynamics_type != "dynamics":
             raise ValueError(
-                "{!r} is not a valid type for dynamics, supported type is \
-                             Lindblad dynamics.".format(
+                "{!r} is not a valid type for dynamics, supported type is Lindblad dynamics.".format(
                     self.dynamics_type
                 )
             )
@@ -290,13 +290,11 @@ class ComprehensiveSystem:
         else:
             if target == "HCRB":
                 if self.para_type == "single_para":
-                    warnings.warn(
-                        "In single parameter scenario, HCRB is equivalent to QFI. \
-                           Please choose QFIM as the target function for control optimization",
-                        DeprecationWarning,
+                    raise ValueError(
+                        "In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function for control optimization"
                     )
                 else:
-                    pass  #### to be done
+                    self.obj = Main.QuanEstimation.HCRB_Obj(self.W, self.eps, self.para_type)
             elif target == "QFIM" and (
                 LDtype == "SLD" or LDtype == "RLD" or LDtype == "LLD"
             ):
@@ -305,9 +303,7 @@ class ComprehensiveSystem:
                 )
             else:
                 raise ValueError(
-                    "Please enter the correct values for target and LDtype.\
-                                  Supported target are 'QFIM', 'CFIM' and 'HCRB',  \
-                                  supported LDtype are 'SLD', 'RLD' and 'LLD'."
+                    "Please enter the correct values for target and LDtype. Supported target are 'QFIM', 'CFIM' and 'HCRB', supported LDtype are 'SLD', 'RLD' and 'LLD'."
                 )
 
         self.opt = Main.QuanEstimation.StateControlOpt(
@@ -326,11 +322,12 @@ class ComprehensiveSystem:
                 self.decay_opt,
                 self.gamma,
             )
-
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
         Main.QuanEstimation.run(system)
+
+        self.load_save_state()
 
     def CM(self, rho0, W=[]):
         """
@@ -350,8 +347,7 @@ class ComprehensiveSystem:
         """
         if self.dynamics_type != "dynamics":
             raise ValueError(
-                "{!r} is not a valid type for dynamics, supported type is \
-                             Lindblad dynamics.".format(
+                "{!r} is not a valid type for dynamics, supported type is Lindblad dynamics.".format(
                     self.dynamics_type
                 )
             )
@@ -466,13 +462,20 @@ class ComprehensiveSystem:
                         ]
                 else:
                     number = math.ceil((len(self.tspan) - 1) / len(self.ctrl[0]))
+                    if type(self.freeHamiltonian) != np.ndarray:
+                        #### linear interpolation  ####
+                        f = interp1d(self.freeHamiltonian, self.tspan, axis=0)
+                    else: pass
                     if len(self.tspan) - 1 % len(self.ctrl[0]) != 0:
                         tnum = number * len(self.ctrl[0])
                         self.tspan = np.linspace(
                             self.tspan[0], self.tspan[-1], tnum + 1
                         )
-                    else:
-                        pass
+                        if type(self.freeHamiltonian) != np.ndarray:
+                            H0_inter = f(self.tspan)
+                            self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0_inter]
+                        else: pass
+                    else: pass
 
                     if type(self.freeHamiltonian) == np.ndarray:
                         H0 = np.array(self.freeHamiltonian, dtype=np.complex128)
@@ -494,15 +497,12 @@ class ComprehensiveSystem:
                             np.array(x, dtype=np.complex128)
                             for x in self.freeHamiltonian
                         ]
-                        if len(H0) != len(self.tspan):
-                            for i in range(abs(len(H0) - len(self.tspan))):
-                                H0 = np.concatenate((H0, H0[-1]))
                         Hc = [
                             np.array(x, dtype=np.complex128)
                             for x in self.control_Hamiltonian
                         ]
                         Htot = []
-                        for i in range(len(ctrl[0])):
+                        for i in range(len(self.ctrl[0])):
                             S_ctrl = sum(
                                 [Hc[j] * self.ctrl[j][i] for j in range(len(self.ctrl))]
                             )
@@ -534,6 +534,9 @@ class ComprehensiveSystem:
         )
         Main.QuanEstimation.run(system)
 
+        self.load_save_state()
+        self.load_save_meas()
+
     def SCM(self, W=[]):
         """
         Description: use DE algorithm to optimize states, control coefficients and the measurements.
@@ -549,8 +552,7 @@ class ComprehensiveSystem:
         """
         if self.dynamics_type != "dynamics":
             raise ValueError(
-                "{!r} is not a valid type for dynamics, supported type is \
-                             Lindblad dynamics.".format(
+                "{!r} is not a valid type for dynamics, supported type is Lindblad dynamics.".format(
                     self.dynamics_type
                 )
             )
@@ -603,8 +605,7 @@ class ComprehensiveSystem:
             file_save = open("measurements.csv", "w")
             file_save.writelines(file_load)
             file_save.close()
-        else:
-            pass
+        else: pass
 
 
 def ComprehensiveOpt(savefile=False, method="AD", **kwargs):
@@ -617,8 +618,7 @@ def ComprehensiveOpt(savefile=False, method="AD", **kwargs):
         return compopt.DE_Compopt(savefile=savefile, **kwargs)
     else:
         raise ValueError(
-            "{!r} is not a valid value for method, supported values are 'AD', \
-                         'PSO', 'DE'.".format(
+            "{!r} is not a valid value for method, supported values are 'AD', 'PSO', 'DE'.".format(
                 method
             )
         )

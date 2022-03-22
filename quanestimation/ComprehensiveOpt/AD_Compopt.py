@@ -1,6 +1,5 @@
 import numpy as np
 from julia import Main
-import warnings
 import quanestimation.ComprehensiveOpt.ComprehensiveStruct as Comp
 from quanestimation.Common.common import SIC
 
@@ -81,16 +80,12 @@ class AD_Compopt(Comp.ComprehensiveSystem):
 
     def SC(self, W=[], M=[], target="QFIM", LDtype="SLD"):
         if M != []:
-            warnings.warn(
-                "AD is not available when target is 'CFIM'. Supported methods \
-                           are 'PSO' and 'DE'.",
-                DeprecationWarning,
+            raise ValueError(
+                "AD is not available when target is 'CFIM'. Supported methods are 'PSO' and 'DE'.",
             )
         elif target == "HCRB":
-            warnings.warn(
-                "AD is not available when the target function is HCRB. \
-                       Supported methods are 'PSO', 'DE' and 'DDPG'.",
-                DeprecationWarning,
+            raise ValueError(
+                "AD is not available when the target function is HCRB. Supported methods are 'PSO', 'DE' and 'DDPG'.",
             )
 
         if self.Adam:
