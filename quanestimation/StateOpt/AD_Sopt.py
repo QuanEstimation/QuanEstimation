@@ -74,4 +74,5 @@ class AD_Sopt(State.StateSystem):
 
     def HCRB(self, W=[]):
         raise ValueError(
-            "AD is not available when the objective function is HCRB. Supported methods are 'PSO', 'DE', 'NM' and 'DDPG'.")
+            "AD is not available when the objective function is HCRB. Supported methods are 'PSO', 'DE', 'NM' and 'DDPG'."
+        )

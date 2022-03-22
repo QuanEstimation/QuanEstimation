@@ -51,7 +51,8 @@ class MeasurementSystem:
             file_save = open("measurements.csv", "w")
             file_save.writelines(file_load)
             file_save.close()
-        else: pass
+        else:
+            pass
 
     def dynamics(self, tspan, rho0, H0, dH, Hc=[], ctrl=[], decay=[]):
 
@@ -285,15 +286,18 @@ class MeasurementSystem:
                 if type(H0) != np.ndarray:
                     #### linear interpolation  ####
                     f = interp1d(H0, self.tspan, axis=0)
-                else: pass
+                else:
+                    pass
                 if len(self.tspan) - 1 % len(ctrl[0]) != 0:
                     tnum = number * len(ctrl[0])
                     self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum + 1)
                     if type(H0) != np.ndarray:
                         H0_inter = f(self.tspan)
                         H0 = [np.array(x, dtype=np.complex128) for x in H0_inter]
-                    else: pass
-                else: pass
+                    else:
+                        pass
+                else:
+                    pass
 
                 if type(H0) == np.ndarray:
                     H0 = np.array(H0, dtype=np.complex128)
@@ -340,7 +344,6 @@ class MeasurementSystem:
             self.gamma,
         )
         self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
-
 
     def kraus(self, rho0, K, dK):
         k_num = len(K)
