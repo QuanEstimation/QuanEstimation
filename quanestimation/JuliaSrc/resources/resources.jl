@@ -1,13 +1,34 @@
 using SparseArrays
 
-fusdasdsadsa::nction J₊(j::Number)
+function J₊(j::Number)
     spdiagm(1=>[sqrt(j*(j+1)-m*(m+1)) for m in j:-1:-j][2:end])
 end
 
-function SpinSqueezing(ρ::AbstractMatrix, basis="Dicke", output = "KU")
+function Jp_full(N)
+    sp = [0.0 1.0; 0.0 0.0]
+    Jp, jp_tp = zeros(2^N, 2^N), zeros(2^N, 2^N)
+    for i in 0:N-1
+        if i==0 
+            jp_tp = kron(sp, Matrix(I, 2^(N-1), 2^(N-1)))
+        elseif i==N-1
+            jp_tp = kron(Matrix(I, 2^(N-1), 2^(N-1)), sp)
+        else
+            jp_tp = kron(Matrix(I, 2^i, 2^i), kron(sp, Matrix(I, 2^(N-1-i), 2^(N-1-i))))
+        end
+        Jp += jp_tp
+    end
+    Jp
+end
+
+function SpinSqueezing(ρ::AbstractMatrix; basis="Dicke", output = "KU")
     N = size(ρ)[1] - 1
+    coef = 4.0/N
     j = N/2
-    Jp  = J₊(j)
+    if basis == "Pauli"
+        Jp = Jp_full(N)
+    else
+        Jp  = J₊(j)
+    end
     Jx = 0.5*(Jp + Jp')
     Jy = -0.5im*(Jp - Jp')
     Jz = spdiagm(j:-1:-j)

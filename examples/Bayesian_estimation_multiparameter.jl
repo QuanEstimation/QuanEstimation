@@ -1,6 +1,6 @@
 using Random
 using StatsBase
-include("quanestimation/JuliaSrc/QuanEstimation.jl")
+include("../quanestimation/JuliaSrc/QuanEstimation.jl")
 
 # initial state
 rho0 = 0.5*[1.0 1.0+0.0im; 1.0 1.0]

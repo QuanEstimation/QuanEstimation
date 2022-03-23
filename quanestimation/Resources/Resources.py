@@ -37,10 +37,24 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
 
     coef = 4.0 / float(N)
     j = N / 2
-    offdiag = [
-        np.sqrt(float(j * (j + 1) - m * (m + 1))) for m in np.arange(j, -j - 1, -1)
-    ][1:]
-    Jp = np.matrix(np.diag(offdiag, 1))
+    if basis == "Pauli":
+        sp = np.array([[0.0,1.0],[0.0, 0.0]])
+        jp = []
+        for i in range(0, N): 
+            if i==0 :
+                jp_tp = np.kron(sp, np.identity(2**(N-1)))
+            elif i==N-1 :
+                jp_tp = np.kron(np.identity(2**(N-1)), sp)
+            else:
+                jp_tp = np.kron(np.identity(2**i), np.kron(sp, np.identity(2**(N-1-i))))
+            jp.append(jp_tp)
+        Jp = sum(jp)
+    else:
+        offdiag = [
+            np.sqrt(float(j * (j + 1) - m * (m + 1))) for m in np.arange(j, -j - 1, -1)
+        ][1:]
+    
+        Jp = np.matrix(np.diag(offdiag, 1))
     Jx = 0.5 * (Jp + Jp.H)
     Jy = -0.5 * 1j * (Jp - Jp.H)
     Jz = np.diag(np.arange(j, -j - 1, -1))
