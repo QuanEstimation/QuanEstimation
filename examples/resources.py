@@ -36,5 +36,6 @@ for ti in range(1, 2000):
     QFI_tp = QFIM(rho[ti], drho[ti])
     QFI.append(QFI_tp)
 print(QFI[242])
+print(tspan[242])
 t = TargetTime(20.0, tspan, QFIM, rho, drho)
 print(t)

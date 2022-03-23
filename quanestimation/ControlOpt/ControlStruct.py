@@ -295,10 +295,8 @@ class ControlSystem:
 
         if self.dynamics_type != "lindblad":
             raise ValueError(
-                "{!r} is not a valid type for dynamics, supported type is Lindblad dynamics.".format(
-                    self.dynamics_type
+                "Supported type of dynamics is Lindblad."
                 )
-            )
         if self.savefile == True:
             warnings.warn(
                     "savefile is set to be False",

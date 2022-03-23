@@ -1,11 +1,8 @@
 import numpy as np
-from julia import Main
-import math
-import warnings
 from scipy.integrate import simps
 from itertools import product
 import quanestimation.Adaptive as apt
-from quanestimation.Common.common import extract_ele
+from quanestimation.Common.common import extract_ele, SIC
 from quanestimation.MeasurementOpt.MeasurementStruct import MeasurementOpt
 from quanestimation.Dynamics.dynamics import Lindblad
 from quanestimation.AsymptoticBound.CramerRao import QFIM, CFIM
@@ -107,9 +104,9 @@ class adaptive:
                 idx = np.argmax(F)
                 H_res, dH_res = self.H[idx], self.dH[idx]
             else:
-                p_ext = extract_ele(p, self.para_num)
-                H_ext = extract_ele(H, self.para_num)
-                dH_ext = extract_ele(dH, self.para_num)
+                p_ext = extract_ele(self.p, self.para_num)
+                H_ext = extract_ele(self.H, self.para_num)
+                dH_ext = extract_ele(self.dH, self.para_num)
 
                 p_list, H_list, dH_list = [], [], []
                 for p_ele, H_ele, dH_ele in zip(p_ext, H_ext, dH_ext):
@@ -151,15 +148,15 @@ class adaptive:
         elif self.dynamic_type == "kraus":
             if self.para_num == 1:
                 F = []
-                for hi in range(len(K)):
+                for hi in range(len(self.K)):
                     rho_tp = sum(
-                        [np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K[hi]]
+                        [np.dot(Ki, np.dot(self.rho0, Ki.conj().T)) for Ki in K[hi]]
                     )
                     drho_tp = sum(
                         [
-                            np.dot(dKi, np.dot(rho0, Ki.conj().T))
-                            + np.dot(Ki, np.dot(rho0, dKi.conj().T))
-                            for (Ki, dKi) in zip(K[hi], dK[hi])
+                            np.dot(dKi, np.dot(self.rho0, Ki.conj().T))
+                            + np.dot(Ki, np.dot(self.rho0, dKi.conj().T))
+                            for (Ki, dKi) in zip(self.K[hi], self.dK[hi])
                         ]
                     )
                     F_tp = QFIM(rho_tp, drho_tp)
@@ -168,11 +165,11 @@ class adaptive:
                 idx = np.argmax(F)
                 K_res, dK_res = self.K[idx], self.dK[idx]
             else:
-                p_shape = np.shape(p)
+                p_shape = np.shape(self.p)
 
-                p_ext = extract_ele(p, para_num)
-                K_ext = extract_ele(K, para_num)
-                dK_ext = extract_ele(dK, para_num)
+                p_ext = extract_ele(self.p, self.para_num)
+                K_ext = extract_ele(self.K, self.para_num)
+                dK_ext = extract_ele(self.dK, self.para_num)
 
                 p_list, K_list, dK_list = [], [], []
                 for K_ele, dK_ele in zip(K_ext, dK_ext):
@@ -182,25 +179,25 @@ class adaptive:
                 F = []
                 for hi in range(len(p_list)):
                     rho_tp = sum(
-                        [np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K_list[hi]]
+                        [np.dot(Ki, np.dot(self.rho0, Ki.conj().T)) for Ki in K_list[hi]]
                     )
                     dK_reshape = [
-                        [dK_list[hi][i][j] for i in range(k_num)]
-                        for j in range(para_num)
+                        [dK_list[hi][i][j] for i in range(self.k_num)]
+                        for j in range(self.para_num)
                     ]
                     drho_tp = [
                         sum(
                             [
-                                np.dot(dKi, np.dot(rho0, Ki.conj().T))
-                                + np.dot(Ki, np.dot(rho0, dKi.conj().T))
+                                np.dot(dKi, np.dot(self.rho0, Ki.conj().T))
+                                + np.dot(Ki, np.dot(self.rho0, dKi.conj().T))
                                 for (Ki, dKi) in zip(K_list[hi], dKj)
                             ]
                         )
                         for dKj in dK_reshape
                     ]
                     F_tp = QFIM(rho_tp, drho_tp)
-                    if np.linalg.det(F_tp) < eps:
-                        F.append(eps)
+                    if np.linalg.det(F_tp) < self.eps:
+                        F.append(self.eps)
                     else:
                         F.append(1.0 / np.trace(np.dot(W, np.linalg.inv(F_tp))))
                 F = np.array(F).reshape(p_shape)
@@ -254,7 +251,7 @@ def adaptive_dynamics(
                 rho_tp, drho_tp = dynamics.expm()
                 rho[hj] = rho_tp[-1]
             print("The tunable parameter is %f" % u)
-            res_exp = input("Please enter the experimental result:\n")
+            res_exp = input("Please enter the experimental result: ")
             res_exp = int(res_exp)
             pyx = np.zeros(p_num)
             for xi in range(p_num):
@@ -345,7 +342,7 @@ def adaptive_dynamics(
                 rho_tp, drho_tp = dynamics.expm()
                 rho[hj] = rho_tp[-1]
             print("The tunable parameter are %s" % (u))
-            res_exp = input("Please enter the experimental result:\n")
+            res_exp = input("Please enter the experimental result: ")
             res_exp = int(res_exp)
             pyx_list = np.zeros(len(p_list))
             for xi in range(len(p_list)):
@@ -422,7 +419,7 @@ def adaptive_kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
                 rho_tp = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K[x_idx]])
                 rho[hj] = rho_tp
             print("The tunable parameter is %s" % u)
-            res_exp = input("Please enter the experimental result:\n")
+            res_exp = input("Please enter the experimental result: ")
             res_exp = int(res_exp)
             pyx = np.zeros(p_num)
             for xi in range(p_num):
@@ -474,8 +471,9 @@ def adaptive_kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
         for hi in range(len(p_list)):
             rho_tp = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K_list[hi]])
             dK_reshape = [
-                [dK_list[hi][i][j] for i in range(k_num)] for j in range(para_num)
-            ]
+                        [dK_list[hi][i][j] for i in range(k_num)]
+                        for j in range(para_num)
+                    ]
             drho_tp = [
                 sum(
                     [
@@ -518,7 +516,7 @@ def adaptive_kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
                     [np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K_list[x_idx]]
                 )
             print("The tunable parameter are %s" % (u))
-            res_exp = input("Please enter the experimental result:\n")
+            res_exp = input("Please enter the experimental result: ")
             res_exp = int(res_exp)
             pyx_list = np.zeros(len(p_list))
             for xi in range(len(p_list)):
