@@ -220,10 +220,6 @@ class MeasurementSystem:
                     ]
 
                 self.opt = Main.QuanEstimation.Mopt_Rotation(
-                    self.s, self.povm_basis, self.measurement0
-                )
-
-                self.opt = Main.QuanEstimation.Mopt_Rotation(
                     self.s, self.povm_basis, []
                 )  #### Lambda=[]
 
@@ -372,10 +368,8 @@ class MeasurementSystem:
                 self.measurement0 = [
                     np.array([self.C[i] for i in range(len(self.rho0))])
                 ]
-            elif len(self.measurement0) >= 1:
+            else:
                 self.C = [self.measurement0[0][i] for i in range(len(self.rho0))]
-                self.C = [np.array(x, dtype=np.complex128) for x in self.C]
-
             self.opt = Main.QuanEstimation.Mopt_Projection(self.C)
 
         elif self.mtype == "input":
@@ -420,10 +414,11 @@ class MeasurementSystem:
                             np.array(x, dtype=np.complex128) for x in self.minput[1]
                         ]
                         self.M_num = self.minput[2]
+
                 if self.measurement0 == []:
                     self.B = [
                         np.random.random(len(self.povm_basis))
-                        for i in np.arange(self.M_num)
+                        for i in range(self.M_num)
                     ]
                     self.measurement0 = [np.array(self.B)]
                 elif len(self.measurement0) >= 1:
@@ -462,17 +457,19 @@ class MeasurementSystem:
                     ]
                     self.mtype = "rotation"
 
-                    if self.measurement0 == []:
-                        self.s = np.random.random(len(self.rho0) ** 2)
-                        self.measurement0 = [self.s]
-                    elif len(self.measurement0) >= 1:
-                        self.s = [
-                            self.measurement0[0][i]
-                            for i in range(len(self.rho0) * len(self.rho0))
-                        ]
-                    self.opt = Main.QuanEstimation.Mopt_Rotation(
-                        self.s, self.povm_basis, []
-                    )  #### Lambda=[]
+                if self.measurement0 == []:
+                    self.s = np.random.random(len(self.rho0) ** 2)
+                    self.measurement0 = [self.s]
+                elif len(self.measurement0) >= 1:
+                    self.s = [
+                        self.measurement0[0][i]
+                        for i in range(len(self.rho0) * len(self.rho0))
+                    ]
+
+                self.opt = Main.QuanEstimation.Mopt_Rotation(
+                    self.s, self.povm_basis, []
+                )
+
             else:
                 raise ValueError(
                     "{!r} is not a valid value for the first input of minput, supported values are 'LC' and 'rotation'.".format(
@@ -511,6 +508,10 @@ class MeasurementSystem:
             if W == []:
                 W = np.eye(len(self.dK))
             self.W = W
+        else:
+            raise ValueError(
+                "Supported type of dynamics are Lindblad and Kraus."
+                )
 
         self.obj = Main.QuanEstimation.CFIM_Obj(
             [], self.W, self.eps, self.para_type

@@ -210,8 +210,8 @@ function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; M::Union{Ab
         #### singleparameter senario ####
         p_num = length(p)
         
-        F = zeros(length(p_num))
-        for hi in 1:length(p_num)
+        F = zeros(p_num)
+        for hi in 1:p_num
             rho_tp = sum([Ki*rho0*Ki' for Ki in K[hi]]) 
             drho_tp = [sum([dKi*rho0*Ki' + Ki*rho0*dKi' for (Ki,dKi) in zip(K[hi],dKj)]) for dKj in dK[hi]]
             F[hi] = CFIM(rho_tp, drho_tp[1], M; eps=eps)

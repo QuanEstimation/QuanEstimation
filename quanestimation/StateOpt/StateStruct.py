@@ -357,13 +357,25 @@ class StateSystem:
             if W == []:
                 W = np.eye(len(self.Hamiltonian_derivative))
             self.W = W
+            if len(self.Hamiltonian_derivative) == 1:
+                raise ValueError(
+                    "In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function for control optimization",
+                )
+            else: pass
 
         elif self.dynamics_type == "kraus":
             if W == []:
                 W = np.eye(len(self.dK))
             self.W = W
+            if len(self.dK) == 1:
+                raise ValueError(
+                    "In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function for control optimization",
+                )
+            else: pass
         else:
-            pass
+            raise ValueError(
+                "Supported type of dynamics are Lindblad and Kraus."
+                )
 
         self.obj = Main.QuanEstimation.HCRB_Obj(self.W, self.eps, self.para_type)
         system = Main.QuanEstimation.QuanEstSystem(

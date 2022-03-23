@@ -132,3 +132,15 @@ class Lindblad:
             self.tspan,
         )
         return rho, drho, d2rho
+
+def kraus(rho0, K, dK):
+    k_num = len(K)
+    para_num = len(dK[0])
+    dK_reshape = [[dK[i][j] for i in range(k_num)] for j in range(para_num)]
+
+    rho = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K])
+    drho = [sum([(np.dot(dKi, np.dot(rho0, Ki.conj().T))+ np.dot(Ki, np.dot(rho0, dKi.conj().T))) for (Ki, dKi) in zip(K, dKj)]) for dKj in dK_reshape]
+
+    return rho, drho
+    
+    

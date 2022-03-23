@@ -275,10 +275,8 @@ class ComprehensiveSystem:
         """
         if self.dynamics_type != "dynamics":
             raise ValueError(
-                "{!r} is not a valid type for dynamics, supported type is Lindblad dynamics.".format(
-                    self.dynamics_type
+                "Supported type of dynamics is Lindblad."
                 )
-            )
 
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
@@ -311,16 +309,15 @@ class ComprehensiveSystem:
         )
         self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
 
-        if self.dynamics_type == "dynamics":
-            self.dynamic = Main.QuanEstimation.Lindblad(
-                self.freeHamiltonian,
-                self.Hamiltonian_derivative,
-                self.control_Hamiltonian,
-                self.control_coefficients,
-                self.psi,
-                self.tspan,
-                self.decay_opt,
-                self.gamma,
+        self.dynamic = Main.QuanEstimation.Lindblad(
+            self.freeHamiltonian,
+            self.Hamiltonian_derivative,
+            self.control_Hamiltonian,
+            self.control_coefficients,
+            self.psi,
+            self.tspan,
+            self.decay_opt,
+            self.gamma,
             )
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
@@ -347,10 +344,8 @@ class ComprehensiveSystem:
         """
         if self.dynamics_type != "dynamics":
             raise ValueError(
-                "{!r} is not a valid type for dynamics, supported type is Lindblad dynamics.".format(
-                    self.dynamics_type
+                "Supported type of dynamics is Lindblad."
                 )
-            )
 
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
@@ -364,16 +359,15 @@ class ComprehensiveSystem:
         )
         self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
 
-        if self.dynamics_type == "dynamics":
-            self.dynamic = Main.QuanEstimation.Lindblad(
-                self.freeHamiltonian,
-                self.Hamiltonian_derivative,
-                self.control_Hamiltonian,
-                self.control_coefficients,
-                rho0,
-                self.tspan,
-                self.decay_opt,
-                self.gamma,
+        self.dynamic = Main.QuanEstimation.Lindblad(
+            self.freeHamiltonian,
+            self.Hamiltonian_derivative,
+            self.control_Hamiltonian,
+            self.control_coefficients,
+            rho0,
+            self.tspan,
+            self.decay_opt,
+            self.gamma,
             )
 
         system = Main.QuanEstimation.QuanEstSystem(
@@ -519,11 +513,14 @@ class ComprehensiveSystem:
                 self.decay_opt,
                 self.gamma,
             )
-
         elif self.dynamics_type == "kraus":
             if W == []:
                 W = np.eye(len(self.dK))
             self.W = W
+        else:
+            raise ValueError(
+                "Supported type of dynamics are Lindblad and Kraus."
+                )
 
         self.obj = Main.QuanEstimation.CFIM_Obj([], self.W, self.eps, self.para_type)
         self.opt = Main.QuanEstimation.StateMeasurementOpt(self.psi, self.C)
@@ -552,10 +549,8 @@ class ComprehensiveSystem:
         """
         if self.dynamics_type != "dynamics":
             raise ValueError(
-                "{!r} is not a valid type for dynamics, supported type is Lindblad dynamics.".format(
-                    self.dynamics_type
+                "Supported type of dynamics is Lindblad."
                 )
-            )
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
@@ -566,16 +561,15 @@ class ComprehensiveSystem:
         )
         self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
 
-        if self.dynamics_type == "dynamics":
-            self.dynamic = Main.QuanEstimation.Lindblad(
-                self.freeHamiltonian,
-                self.Hamiltonian_derivative,
-                self.control_Hamiltonian,
-                self.control_coefficients,
-                self.psi,
-                self.tspan,
-                self.decay_opt,
-                self.gamma,
+        self.dynamic = Main.QuanEstimation.Lindblad(
+            self.freeHamiltonian,
+            self.Hamiltonian_derivative,
+            self.control_Hamiltonian,
+            self.control_coefficients,
+            self.psi,
+            self.tspan,
+            self.decay_opt,
+            self.gamma,
             )
 
         system = Main.QuanEstimation.QuanEstSystem(

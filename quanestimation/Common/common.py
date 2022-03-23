@@ -191,11 +191,18 @@ def AdaptiveInput(x, func, dfunc, channel="dynamics"):
         k_num = len(func([0 for i in range(para_num)]))
         dim = len(func([0 for i in range(para_num)])[0])
         K_list, dK_list = [], []
-        for xi in x_all:
-            K_list.append(func([i for i in xi]))
-            dK_list.append(dfunc([i for i in xi]))
-        K_res = np.reshape(K_list, [*size, *[k_num, dim, dim]])
-        dK_res = np.reshape(dK_list, [*size, *[para_num, k_num, dim, dim]])
+        if para_num == 1:
+            for xi in x_all:
+                K_list.append(func([i for i in xi]))
+                dK_list.append(dfunc([i for i in xi]))
+            K_res = np.reshape(K_list, [*size, *[k_num, dim, dim]])
+            dK_res = np.reshape(dK_list, [*size, *[para_num, k_num, dim, dim]])
+        else:
+            for xi in x_all:
+                K_list.append(func([i for i in xi]))
+                dK_list.append(dfunc([i for i in xi]))
+            K_res = np.reshape(K_list, [*size, *[k_num, dim, dim]])
+            dK_res = np.reshape(dK_list, [*size, *[k_num, para_num, dim, dim]])
         return K_res, dK_res
     else:
         raise ValueError(

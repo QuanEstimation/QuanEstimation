@@ -8,13 +8,15 @@ rho0 = 0.5 * np.array([[1.0, 1.0], [1.0, 1.0]])
 
 gamma = 0.1
 K1 = np.array([[1.0, 0.0], [0.0, np.sqrt(1 - gamma)]])
-K2 = np.array([[0.0, 0.0], [np.sqrt(gamma), 0.0]])
+K2 = np.array([[0.0, np.sqrt(gamma)], [0.0, 0.0]])
 K = [K1, K2]
 
 dK1 = np.array([[1.0, 0.0], [0.0, -0.5 / np.sqrt(1 - gamma)]])
-dK2 = np.array([[0.0, 0.0], [0.5 / np.sqrt(gamma), 0.0]])
+dK2 = np.array([[0.0, 0.5 / np.sqrt(gamma)], [0.0, 0.0]])
 dK = [[dK1], [dK2]]
 
+# measurement
+povm_basis = SIC(len(rho0))
 
 # measurement optimization algorithm: AD
 AD_paras = {
@@ -27,9 +29,9 @@ AD_paras = {
     "seed": 1234,
 }
 Measopt = MeasurementOpt(
-    mtype="input", minput=["LC", povm_basis, 2], savefile=False, method="AD", **AD_paras
+    mtype="input", minput=["LC", [], 2], savefile=False, method="AD", **AD_paras
 )
-Measopt.dynamics(K, dK, rho0)
+Measopt.kraus(rho0, K, dK)
 Measopt.CFIM()
 Measopt = MeasurementOpt(
     mtype="input",
@@ -38,6 +40,7 @@ Measopt = MeasurementOpt(
     method="AD",
     **AD_paras
 )
+Measopt.kraus(rho0, K, dK)
 Measopt.CFIM()
 
 # measurement optimization algorithm: PSO
@@ -50,16 +53,17 @@ PSO_paras = {
     "c2": 2.0,
     "seed": 1234,
 }
-Measopt = MeasurementOpt(mtype="projection", minput=[], method="PSO", **PSO_paras)
-Measopt.dynamics(K, dK, rho0)
+Measopt = MeasurementOpt(mtype="projection", minput=[], savefile=False, method="PSO", **PSO_paras)
+Measopt.kraus(rho0, K, dK)
 Measopt.CFIM()
 Measopt = MeasurementOpt(
     mtype="input",
-    minput=["LC", povm_basis, 2],
+    minput=["LC", [], 2],
     savefile=False,
     method="PSO",
     **PSO_paras
 )
+Measopt.kraus(rho0, K, dK)
 Measopt.CFIM()
 Measopt = MeasurementOpt(
     mtype="input",
@@ -68,6 +72,7 @@ Measopt = MeasurementOpt(
     method="PSO",
     **PSO_paras
 )
+Measopt.kraus(rho0, K, dK)
 Measopt.CFIM()
 
 # measurement optimization algorithm: DE
@@ -79,12 +84,13 @@ DE_paras = {
     "cr": 0.5,
     "seed": 1234,
 }
-Measopt = MeasurementOpt(mtype="projection", minput=[], method="DE", **DE_paras)
-Measopt.dynamics(K, dK, rho0)
+Measopt = MeasurementOpt(mtype="projection", minput=[], savefile=False, method="DE", **DE_paras)
+Measopt.kraus(rho0, K, dK)
 Measopt.CFIM()
 Measopt = MeasurementOpt(
-    mtype="input", minput=["LC", povm_basis, 2], savefile=False, method="DE", **DE_paras
+    mtype="input", minput=["LC", [], 2], savefile=False, method="DE", **DE_paras
 )
+Measopt.kraus(rho0, K, dK)
 Measopt.CFIM()
 Measopt = MeasurementOpt(
     mtype="input",
@@ -93,4 +99,5 @@ Measopt = MeasurementOpt(
     method="DE",
     **DE_paras
 )
+Measopt.kraus(rho0, K, dK)
 Measopt.CFIM()
