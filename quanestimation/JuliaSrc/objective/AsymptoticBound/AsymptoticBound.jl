@@ -72,7 +72,7 @@ end
 
 function objective(obj::QFIM_Obj{multi_para,SLD}, ρ, dρ)
     (; W, eps) = obj
-    f = tr(W * pinv(QFIM_SLD(ρ, dρ; eps = eps)))
+    f = tr(W * pinv(QFIM_SLD(ρ, dρ; eps = eps))) 
     return f, 1.0 / f
 end
 
@@ -84,7 +84,7 @@ end
 
 function objective(obj::QFIM_Obj{multi_para,RLD}, ρ, dρ)
     (; W, eps) = obj
-    f = tr(W * pinv(QFIM_RLD(ρ, dρ; eps = eps)))
+    f = tr(W * pinv(QFIM_RLD(ρ, dρ; eps = eps))) |> real
     return f, 1.0 / f
 end
 
@@ -96,7 +96,7 @@ end
 
 function objective(obj::QFIM_Obj{multi_para,LLD}, ρ, dρ)
     (; W, eps) = obj
-    f = tr(W * pinv(QFIM_LLD(ρ, dρ; eps = eps)))
+    f = tr(W * pinv(QFIM_LLD(ρ, dρ; eps = eps))) |> real
     return f, 1.0 / f
 end
 
@@ -117,7 +117,7 @@ end
 function objective(obj::QFIM_Obj{multi_para,RLD}, dynamics::Lindblad)
     (; W, eps) = obj
     ρ, dρ = evolve(dynamics)
-    f = tr(W * pinv(QFIM_RLD(ρ, dρ; eps = eps)))
+    f = tr(W * pinv(QFIM_RLD(ρ, dρ; eps = eps))) |> real
     return f, 1.0 / f
 end
 
@@ -131,7 +131,7 @@ end
 function objective(obj::QFIM_Obj{multi_para,LLD}, dynamics::Lindblad)
     (; W, eps) = obj
     ρ, dρ = evolve(dynamics)
-    f = tr(W * pinv(QFIM_LLD(ρ, dρ; eps = eps)))
+    f = tr(W * pinv(QFIM_LLD(ρ, dρ; eps = eps))) |> real
     return f, 1.0 / f
 end
 
@@ -159,7 +159,7 @@ end
 function objective(obj::QFIM_Obj{multi_para,RLD}, dynamics::Kraus)
     (; W, eps) = obj
     ρ, dρ = evolve(dynamics)
-    f = tr(W * pinv(QFIM_RLD(ρ, dρ; eps = eps)))
+    f = tr(W * pinv(QFIM_RLD(ρ, dρ; eps = eps))) |> real
     return f, 1.0 / f
 end
 
@@ -173,7 +173,7 @@ end
 function objective(obj::QFIM_Obj{multi_para,LLD}, dynamics::Kraus)
     (; W, eps) = obj
     ρ, dρ = evolve(dynamics)
-    f = tr(W * pinv(QFIM_LLD(ρ, dρ; eps = eps)))
+    f = tr(W * pinv(QFIM_LLD(ρ, dρ; eps = eps))) |> real
     return f, 1.0 / f
 end
 

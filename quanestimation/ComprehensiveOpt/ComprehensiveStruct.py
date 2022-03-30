@@ -99,7 +99,7 @@ class ComprehensiveSystem:
             self.freeHamiltonian = np.array(H0, dtype=np.complex128)
             self.dim = len(self.freeHamiltonian)
         else:
-            self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0]
+            self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0[:-1]]
             self.dim = len(self.freeHamiltonian[0])
 
         if self.psi0 == []:
@@ -187,8 +187,7 @@ class ComprehensiveSystem:
                         np.zeros(len(self.control_coefficients[0])),
                     )
                 )
-        else:
-            pass
+        else: pass
 
         if self.measurement0 == []:
             np.random.seed(self.seed)
@@ -204,12 +203,19 @@ class ComprehensiveSystem:
             self.C = [self.measurement0[0][i] for i in range(len(self.psi))]
             self.C = [np.array(x, dtype=np.complex128) for x in self.C]
 
+        if type(H0) != np.ndarray:
+            #### linear interpolation  ####
+            f = interp1d(self.tspan, H0, axis=0)
+        else: pass
         number = math.ceil((len(self.tspan) - 1) / len(self.control_coefficients[0]))
         if len(self.tspan) - 1 % len(self.control_coefficients[0]) != 0:
             tnum = number * len(self.control_coefficients[0])
             self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum + 1)
-        else:
-            pass
+            if type(H0) != np.ndarray:
+                H0_inter = f(self.tspan)
+                self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0_inter[:-1]]
+            else: pass
+        else: pass
 
         self.dynamics_type = "dynamics"
 
@@ -455,11 +461,11 @@ class ComprehensiveSystem:
                             np.array(x, dtype=np.complex128) for x in Htot
                         ]
                 else:
-                    number = math.ceil((len(self.tspan) - 1) / len(self.ctrl[0]))
                     if type(self.freeHamiltonian) != np.ndarray:
                         #### linear interpolation  ####
-                        f = interp1d(self.freeHamiltonian, self.tspan, axis=0)
+                        f = interp1d(self.tspan, self.freeHamiltonian, axis=0)
                     else: pass
+                    number = math.ceil((len(self.tspan) - 1) / len(self.ctrl[0]))
                     if len(self.tspan) - 1 % len(self.ctrl[0]) != 0:
                         tnum = number * len(self.ctrl[0])
                         self.tspan = np.linspace(
@@ -477,6 +483,7 @@ class ComprehensiveSystem:
                             np.array(x, dtype=np.complex128)
                             for x in self.control_Hamiltonian
                         ]
+                        self.ctrl = [np.array(self.ctrl[i]).repeat(number) for i in range(len(Hc))]
                         Htot = []
                         for i in range(len(self.ctrl[0])):
                             S_ctrl = sum(
@@ -495,12 +502,13 @@ class ComprehensiveSystem:
                             np.array(x, dtype=np.complex128)
                             for x in self.control_Hamiltonian
                         ]
+                        self.ctrl = [np.array(self.ctrl[i]).repeat(number) for i in range(len(Hc))]
                         Htot = []
                         for i in range(len(self.ctrl[0])):
                             S_ctrl = sum(
                                 [Hc[j] * self.ctrl[j][i] for j in range(len(self.ctrl))]
                             )
-                            Htot.append(H0[i * number] + S_ctrl)
+                            Htot.append(H0[i] + S_ctrl)
                         freeHamiltonian = [
                             np.array(x, dtype=np.complex128) for x in Htot
                         ]

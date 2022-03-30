@@ -1,9 +1,7 @@
 import numpy as np
-import numpy.linalg as LA
 from numpy.linalg import inv
-from scipy.integrate import simps
 from scipy.linalg import sqrtm, schur, eigvals
-from quanestimation.Common.common import SIC, extract_ele
+from quanestimation.Common.common import SIC, suN_generator
 
 # ===============================================================================
 # Subclass: metrology
@@ -153,6 +151,7 @@ def SLD(rho, drho, rep="original", eps=1e-8):
                 SLD[para_i] = SLD_org[para_i]
             elif rep == "eigen":
                 val, vec = np.linalg.eig(rho)
+                val = np.real(val)
                 SLD[para_i] = np.dot(
                     vec.conj().transpose(), np.dot(SLD_org[para_i], vec)
                 )
@@ -164,9 +163,9 @@ def SLD(rho, drho, rep="original", eps=1e-8):
             return SLD[0]
         else:
             return SLD
-
     else:
         val, vec = np.linalg.eig(rho)
+        val = np.real(val)
         for para_i in range(0, para_num):
             SLD_eig = np.array(
                 [[0.0 + 0.0 * 1.0j for i in range(0, dim)] for i in range(0, dim)]
@@ -239,9 +238,9 @@ def RLD(rho, drho, rep="original", eps=1e-8):
     para_num = len(drho)
     dim = len(rho)
     RLD = [[] for i in range(0, para_num)]
-    # purity = np.trace(np.dot(rho, rho))
 
     val, vec = np.linalg.eig(rho)
+    val = np.real(val)
     for para_i in range(0, para_num):
         RLD_eig = np.array(
             [[0.0 + 0.0 * 1.0j for i in range(0, dim)] for i in range(0, dim)]
@@ -310,9 +309,9 @@ def LLD(rho, drho, rep="original", eps=1e-8):
     para_num = len(drho)
     dim = len(rho)
     LLD = [[] for i in range(0, para_num)]
-    # purity = np.trace(np.dot(rho, rho))
 
     val, vec = np.linalg.eig(rho)
+    val = np.real(val)
     for para_i in range(0, para_num):
         LLD_eig = np.array(
             [[0.0 + 0.0 * 1.0j for i in range(0, dim)] for i in range(0, dim)]
@@ -392,27 +391,24 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
             LD_tp = SLD(rho, drho, eps=eps)
             SLD_ac = np.dot(LD_tp, LD_tp) + np.dot(LD_tp, LD_tp)
             QFIM_res = np.real(0.5 * np.trace(np.dot(rho, SLD_ac)))
-
         elif LDtype == "RLD":
             LD_tp = RLD(rho, drho, eps=eps)
             QFIM_res = np.real(
-                np.trace(np.dot(rho, np.dot(LD_tp, LD_tp).conj().transpose()))
+                np.trace(np.dot(rho, np.dot(LD_tp, LD_tp.conj().transpose())))
             )
-
         elif LDtype == "LLD":
             LD_tp = LLD(rho, drho, eps=eps)
             QFIM_res = np.real(
-                np.trace(np.dot(rho, np.dot(LD_tp, LD_tp).conj().transpose()))
+                np.trace(np.dot(rho, np.dot(LD_tp, LD_tp.conj().transpose())))
             )
         else:
             raise NameError(
                 "NameError: LDtype should be choosen in {'SLD', 'RLD', 'LLD'}"
             )
-
     # multiparameter estimation
     else:
-        QFIM_res = np.zeros([para_num, para_num])
         if LDtype == "SLD":
+            QFIM_res = np.zeros([para_num, para_num])
             LD_tp = SLD(rho, drho, eps=eps)
             for para_i in range(0, para_num):
                 for para_j in range(para_i, para_num):
@@ -423,33 +419,29 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
                         0.5 * np.trace(np.dot(rho, SLD_ac))
                     )
                     QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
-
         elif LDtype == "RLD":
+            QFIM_res = np.zeros((para_num, para_num), dtype=np.complex128)
             LD_tp = RLD(rho, drho, eps=eps)
             for para_i in range(0, para_num):
                 for para_j in range(para_i, para_num):
-                    QFIM_res[para_i][para_j] = np.real(
-                        np.trace(
+                    QFIM_res[para_i][para_j] = np.trace(
                             np.dot(
                                 rho,
-                                np.dot(LD_tp[para_i], LD_tp[para_j]).conj().transpose(),
+                                np.dot(LD_tp[para_i], LD_tp[para_j].conj().transpose()),
                             )
                         )
-                    )
                     QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
-
         elif LDtype == "LLD":
+            QFIM_res = np.zeros((para_num, para_num), dtype=np.complex128)
             LD_tp = LLD(rho, drho, eps=eps)
             for para_i in range(0, para_num):
                 for para_j in range(para_i, para_num):
-                    QFIM_res[para_i][para_j] = np.real(
-                        np.trace(
+                    QFIM_res[para_i][para_j] = np.trace(
                             np.dot(
                                 rho,
-                                np.dot(LD_tp[para_i], LD_tp[para_j]).conj().transpose(),
+                                np.dot(LD_tp[para_i], LD_tp[para_j].conj().transpose()),
                             )
                         )
-                    )
                     QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
         else:
             raise NameError(
@@ -462,22 +454,27 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
         return QFIM_res, LD_tp
 
 
-def QFIM_Kraus(rho0, K, dK, eps=1e-8):
+def QFIM_Kraus(rho0, K, dK, LDtype="SLD", exportLD=False, eps=1e-8):
     dK = [[dK[i][j] for i in range(len(K))] for j in range(len(dK[0]))]
     rho = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K])
-    drho = sum(
-        [
-            np.dot(dKi, np.dot(rho0, Ki.conj().T))
-            + np.dot(Ki, np.dot(rho0, dKi.conj().T))
-            for (Ki, dKi) in zip(K, dK)
-        ]
-    )
-    return QFIM(rho, drho)
+    drho = [
+                sum(
+                    [
+                        (
+                            np.dot(dKi, np.dot(rho0, Ki.conj().T))
+                            + np.dot(Ki, np.dot(rho0, dKi.conj().T))
+                        )
+                        for (Ki, dKi) in zip(K, dKj)
+                    ]
+                )
+                for dKj in dK
+            ]
+    return QFIM(rho, drho, LDtype=LDtype, exportLD=exportLD, eps=eps)
 
 
 def QFIM_Bloch(r, dr, eps=1e-8):
     """
-    Description: Calculation of quantum Fisher information matrix (QFIM)
+    Description: Calculation of SLD-based quantum Fisher information matrix (QFIM)
                 in Bloch representation.
 
     ----------
@@ -557,8 +554,8 @@ def QFIM_Bloch(r, dr, eps=1e-8):
 
 def QFIM_Gauss(R, dR, D, dD, eps=1e-8):
     """
-    Description: Calculation of quantum Fisher information matrix (QFIM)
-                for Gaussian states representation.
+    Description: Calculation of SLD-based quantum Fisher information matrix (QFIM)
+                for Gaussian states representation .
 
     ----------
     Inputs
