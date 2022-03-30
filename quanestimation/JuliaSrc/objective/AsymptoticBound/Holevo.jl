@@ -7,14 +7,14 @@ end
 function HCRB(
     ρ::Matrix{T},
     ∂ρ_∂x::Vector{Matrix{T}},
-    C::Matrix{Float64},
+    C::Matrix{Float64};
     eps = 1e-6,
 ) where {T<:Complex}
     if length(∂ρ_∂x) == 1
         println(
             "In single parameter scenario, HCRB is equivalent to QFI. This function will return the value of QFI",
         )
-        f = QFI(ρ, ∂ρ_∂x[1], eps)
+        f = QFIM_SLD(ρ, ∂ρ_∂x[1]; eps=eps)
         return f
     else
         Holevo_bound(ρ, ∂ρ_∂x, C; eps = eps)

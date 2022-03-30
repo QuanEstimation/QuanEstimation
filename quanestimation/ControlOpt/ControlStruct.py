@@ -16,7 +16,7 @@ class ControlSystem:
         Inputs
         ----------
         tspan:
-           --description: time series.
+           --description: time length for the evolution.
            --type: array
 
         rho0:
@@ -77,7 +77,7 @@ class ControlSystem:
         if type(H0) == np.ndarray:
             self.freeHamiltonian = np.array(H0, dtype=np.complex128)
         else:
-            self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0]
+            self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0[:-1]]
 
         if Hc == []:
             Hc = [np.zeros((len(self.rho0), len(self.rho0)))]
@@ -156,20 +156,19 @@ class ControlSystem:
                         np.zeros(len(self.control_coefficients[0])),
                     )
                 )
-        else:
-            pass
+        else: pass
 
-        number = math.ceil((len(self.tspan) - 1) / len(self.control_coefficients[0]))
         if type(H0) != np.ndarray:
             #### linear interpolation  ####
-            f = interp1d(H0, self.tspan, axis=0)
+            f = interp1d(self.tspan, H0, axis=0)
         else: pass
+        number = math.ceil((len(self.tspan) - 1) / len(self.control_coefficients[0]))
         if len(self.tspan) - 1 % len(self.control_coefficients[0]) != 0:
             tnum = number * len(self.control_coefficients[0])
             self.tspan = np.linspace(self.tspan[0], self.tspan[-1], tnum + 1)
             if type(H0) != np.ndarray:
                 H0_inter = f(self.tspan)
-                self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0_inter]
+                self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0_inter[:-1]]
             else: pass
                 
         else: pass

@@ -77,7 +77,7 @@ function RLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = eps_default) where {T<
 end
 
 function LLD(ρ::Matrix{T}, dρ::Matrix{T}; eps = eps_default) where {T<:Complex}
-    (dρ * pinv(ρ, rtol = eps))
+    (dρ * pinv(ρ, rtol = eps))'
 end
 
 function LLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = eps_default) where {T<:Complex}
@@ -127,14 +127,16 @@ function QFIM_RLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = eps_default) wher
     p_num = length(dρ)
     LD_tp = RLD(ρ, dρ; eps = eps)
     LD_dag = [LD_tp[i]' for i = 1:p_num]
-    ([ρ] .* (kron(LD_tp, reshape(LD_dag, 1, p_num)))) .|> tr .|> real
+    ([ρ] .* (kron(LD_tp, reshape(LD_dag, 1, p_num)))) .|> tr
+    # ([ρ] .* (kron(LD_tp, reshape(LD_dag, 1, p_num)))) .|> tr .|> real
 end
 
 function QFIM_LLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = eps_default) where {T<:Complex}
     p_num = length(dρ)
     LD_tp = LLD(ρ, dρ; eps = eps)
     LD_dag = [LD_tp[i]' for i = 1:p_num]
-    ([ρ] .* (kron(LD_tp, reshape(LD_dag, 1, p_num)))) .|> tr .|> real
+    ([ρ] .* (kron(LD_tp, reshape(LD_dag, 1, p_num)))) .|> tr
+    # ([ρ] .* (kron(LD_tp, reshape(LD_dag, 1, p_num)))) .|> tr .|> real
 end
 
 function QFIM_liouville(ρ, dρ)
@@ -155,6 +157,13 @@ function QFIM_pure(ρ::Matrix{T}, ∂ρ_∂x::Vector{Matrix{T}}) where {T<:Compl
     ) .|>
     tr .|>
     real
+end
+
+function QFIM_Kraus(ρ0::Matrix{T}, K::Vector{Matrix{T}}, dK::Vector{Vector{Matrix{T}}}; LDtype=:SLD, exportLD::Bool=false, eps = eps_default) where {T<:Complex}
+    dK = [[dK[i][j] for i in 1:length(K)] for j in 1:length(dK[1])]
+    ρ = [K * ρ0 * K' for K in K] |> sum
+    dρ = [[dK * ρ0 * K' + K * ρ0 * dK' for (K,dK) in zip(K,dK)] |> sum for dK in dK]
+    return QFIM(ρ, dρ; LDtype=LDtype, exportLD=exportLD, eps=eps)
 end
 
 #======================================================#
@@ -217,6 +226,43 @@ function CFIM(ρ::Matrix{T}, dρ::Vector{Matrix{T}}, M; eps = eps_default) where
     real
 end
 
+function FIM(p::Vector{R}, dp::Vector{R}; eps = eps_default) where {R<:Real}
+    m_num = length(p)
+    F = 0.0
+    for i = 1:m_num
+        p_tp = p[i]
+        dp_tp = dp[i]
+        cadd = 0.0
+        if p_tp > eps
+            cadd = (dp_tp * dp_tp) / p_tp
+        end
+        F += cadd
+    end
+    real(F)
+end
+
+function FIM(p::Vector{R}, dp::Vector{Vector{R}}; eps = eps_default) where {R<:Real}
+    m_num = length(p)
+    para_num = length(dp[1])
+
+    FIM_res = zeros(para_num, para_num)
+    for pj in 1:m_num
+        p_tp = p[pj]
+        Cadd = zeros(para_num, para_num)
+        if p_tp > eps
+            for para_i in 1:para_num
+                dp_i = dp[pj][para_i]
+                for para_j in para_i:para_num
+                    dp_j = dp[pj][para_j]
+                    Cadd[para_i,para_j] = real(dp_i * dp_j / p_tp)
+                    Cadd[para_j,para_i] = real(dp_i * dp_j / p_tp)
+                end
+            end
+            FIM_res += Cadd
+        end
+    end
+    FIM_res
+end
 
 ## QFI
 function QFIM(
@@ -241,38 +287,44 @@ function QFIM(
 end
 
 
-QFIM(sym::Symbol, args...; kwargs...) = QFIM(Val{sym}, args...; kwargs...)
+QFIM(ρ, dρ; LDtype=LDtype, exportLD=false, eps=eps_default) = QFIM(ρ, dρ; LDtype=LDtype, eps=eps_default)
 
 ## QFI with exportLD
 function QFIM(
-    ::Val{:exportLD},
     ρ::Matrix{T},
-    dρ::Matrix{T};
+    dρ::Matrix{T}; 
     LDtype = :SLD,
+    exportLD ::Bool= false,
     eps = eps_default,
 ) where {T<:Complex}
-
-    F = QFIM(ρ, dρ; LDtype = LDtype, eps = eps)
-    LD = eval(LDtype)(ρ, dρ; eps = eps)
-    return F, LD
+    F = eval(Symbol("QFIM_" * string(LDtype)))(ρ, dρ; eps = eps)
+    if exportLD == false
+        return F
+    else
+        LD = eval(Symbol(LDtype))(ρ, dρ; eps = eps)
+        return F, LD
+    end
 end
 
 ## QFIM with exportLD
 function QFIM(
-    ::Val{:exportLD},
     ρ::Matrix{T},
     dρ::Vector{Matrix{T}};
     LDtype = :SLD,
+    exportLD ::Bool= false,
     eps = eps_default,
 ) where {T<:Complex}
 
-    F = QFIM(ρ, dρ; LDtype = LDtype, eps = eps)
-    LD = eval(LDtype)(ρ, dρ; eps = eps)
-    return F, LD
+    F = eval(Symbol("QFIM_" * string(LDtype)))(ρ, dρ; eps = eps)
+    if exportLD == false
+        return F
+    else
+        LD = eval(Symbol(LDtype))(ρ, dρ; eps = eps)
+        return F, LD
+    end
 end
 
 
-## TODO: 👇 check type stability
 function QFIM_Bloch(r, dr; eps = 1e-8)
     para_num = length(dr)
     QFIM_res = zeros(para_num, para_num)
@@ -284,7 +336,7 @@ function QFIM_Bloch(r, dr; eps = 1e-8)
         if abs(r_norm - 1.0) < eps
             for para_i = 1:para_num
                 for para_j = para_i:para_num
-                    QFIM_res[para_i, para_j] = dr[para_i]' * dr[para_j]
+                    QFIM_res[para_i, para_j] = real(dr[para_i]' * dr[para_j])
                     QFIM_res[para_j, para_i] = QFIM_res[para_i, para_j]
                 end
             end
@@ -292,8 +344,8 @@ function QFIM_Bloch(r, dr; eps = 1e-8)
             for para_i = 1:para_num
                 for para_j = para_i:para_num
                     QFIM_res[para_i, para_j] =
-                        dr[para_i]' * dr[para_j] +
-                        (r' * dr[para_i]) * (r' * dr[para_j]) / (1 - r_norm)
+                        real(dr[para_i]' * dr[para_j] +
+                        (r' * dr[para_i]) * (r' * dr[para_j]) / (1 - r_norm))
                     QFIM_res[para_j, para_i] = QFIM_res[para_i, para_j]
                 end
             end
@@ -314,8 +366,7 @@ function QFIM_Bloch(r, dr; eps = 1e-8)
 
         for para_m = 1:para_num
             for para_n = para_m:para_num
-                # println(dr[para_n]*mat_inv*dr[para_m]')
-                QFIM_res[para_m, para_n] = dr[para_n]' * mat_inv * dr[para_m]
+                QFIM_res[para_m, para_n] = real(dr[para_n]' * mat_inv * dr[para_m])
                 QFIM_res[para_n, para_m] = QFIM_res[para_m, para_n]
             end
         end
@@ -344,7 +395,7 @@ function Williamson_form(A::AbstractMatrix)
     return S, c
 end
 
-# const a_Gauss = [im*σ_y,σ_z,σ_x|>one, σ_x]
+const a_Gauss = [im*σ_y, σ_z, σ_x|>one, σ_x]
 
 function A_Gauss(m::Int)
     e = bases(m)
@@ -359,9 +410,8 @@ function G_Gauss(S::M, dC::VM, c::V) where {M<:AbstractMatrix,V,VM<:AbstractVect
     gs = [
         [[inv(S) * ∂ₓC * inv(transpose(S)) * a' |> tr for a in A] for A in As] for ∂ₓC in dC
     ]
-    #[[inv(S)*∂ₓC*inv(transpose(S))*As[l][j,k]|>tr for j in 1:m, k in 1:m] for l in 1:4]
-    G = [zero(S) for _ = 1:para_num]
 
+    G = [zero(S) for _ = 1:para_num]
     for i = 1:para_num
         for j = 1:m
             for k = 1:m
