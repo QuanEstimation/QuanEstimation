@@ -1,0 +1,119 @@
+## **Dynamics**
+::: quanestimation.Lindblad
+
+# **Control Optimization**
+The Hamiltonian of a controlled system can be written as
+
+$$H = H_0(\textbf{x})+\sum_{k=1}^K u_k(t) H_k,$$
+
+where $H_0(\textbf{x})$ is the free evolution Hamiltonian with unknown parameters 
+$\textbf{x}$ and $H_k$ represent the $k$th control Hamiltonian with $u_k$ the 
+corresponding control field. In QuanEstimation, different algorithms are invoked to 
+calculate the optimal control coefficients. The control optimization algorithms are include 
+gradient ascent pulse engineering (GRAPE), auto-GRAPE, particle swarm optimization (PSO), 
+differential evolution (DE) and deep deterministic policy gradients (DDPG).
+
+## **Control System**
+::: quanestimation.ControlSystem
+
+## **Control optimization with GRAPE and auto-GRAPE**
+::: quanestimation.GRAPE_Copt
+
+## **Control Optimization with PSO**
+::: quanestimation.PSO_Copt
+
+## **Control Optimization DE**
+::: quanestimation.DE_Copt
+
+## **Control Optimization with DDPG**
+::: quanestimation.DDPG_Copt
+
+---
+
+# **State Optimization**
+The probe state is expanded by $|\psi\rangle=\sum_i c_i|i\rangle$ in a specific
+basis, i.e., $\{|i\rangle\langle i|\}$. In state optimization, the search of the
+optimal probe states is equal to search of the normalized complex coefficients
+$\{c_i\}$. In QuanEstimation, the state optimization algorithms are include 
+automatic differentiatio (AD), particle swarm optimization (PSO), 
+differential evolution (DE), deep deterministic policy gradients (DDPG)
+and Nelder-Mead (NM).
+
+## **State System**
+::: quanestimation.StateSystem
+
+## **State optimization with AD**
+::: quanestimation.AD_Sopt
+
+## **State Optimization with PSO**
+::: quanestimation.PSO_Sopt
+
+## **State Optimization DE**
+::: quanestimation.DE_Sopt
+
+## **State Optimization with DDPG**
+::: quanestimation.DDPG_Sopt
+
+---
+
+# **Measurement Optimization**
+In QuanEstimation, three measurement optimization scenarios are considered. 
+The first one is to optimize a set of rank-one projective measurement, it can 
+be written in a specific basis $\{|\phi_i\rangle\}$ in the Hilbert space as
+$\{|\phi_i\rangle\langle\phi_i|\}$. Since $\{|\phi_i\rangle\}$ can be expanded
+as $|\phi_i\rangle=\sum_j C_{ij}|j\rangle$ with $|j\rangle$ an orthonormal basis.
+In this case, the goal is to search a set of optimal coefficients $C_{ij}$.
+The second scenario is to find the optimal linear combination of an input 
+measurement $\{\Pi_j\}$. The third scenario is to find the optimal rotated 
+measurement of an input measurement. After rotation, the new measurement is
+$\{U\Pi_i U^{\dagger}\}$, where $U=\prod_k \exp(i s_k\lambda_k)$ with $\lambda_k$ 
+a SU($N$) generator and $s_k$ a real number in the regime $[0,2\pi]$. 
+In this scenario, the goal is to search a set of optimal coefficients $s_k$.
+Here different algorithms are invoked to calculate the optimal measurement. 
+The measurement optimization algorithms are include automatic differentiatio (AD), 
+particle swarm optimization (PSO) and differential evolution (DE).
+
+## **Measurement System**
+::: quanestimation.MeasurementSystem
+
+## **Measurement optimization with AD**
+::: quanestimation.AD_Mopt
+
+## **Measurement Optimization with PSO**
+::: quanestimation.PSO_Mopt
+
+## **Measurement Optimization DE**
+::: quanestimation.DE_Mopt
+
+---
+
+# **Comprehensive Optimization**
+In order to obtain the optimal parameter estimation scheme, it is necessary to
+simultaneously optimize the probe state, control and measurement. The
+comprehensive optimization for the probe state and measurement (SM), the probe
+state and control (SC), the control and measurement (CM) and the probe state, 
+control and measurement (SCM) are proposed for this. In QuanEstimation, the 
+comprehensive optimization algorithms are include automatic differentiatio (AD), 
+particle swarm optimization (PSO) and differential evolution (DE).
+
+## **Comprehensive System**
+::: quanestimation.ComprehensiveSystem
+
+## **Comprehensive optimization with AD**
+::: quanestimation.AD_Compopt
+
+## **Comprehensive Optimization with PSO**
+::: quanestimation.PSO_Compopt
+
+## **Comprehensive Optimization with DE**
+::: quanestimation.DE_Compopt
+
+---
+
+# **Adaptive measurement schemes**
+In QuanEstimation, the Hamiltonian of the adaptive system should be written as
+$H(\textbf{x}+\textbf{u})$ with $\textbf{x}$ the unknown parameters and $\textbf{u}$ 
+the tunable parameters. The tunable parameters $\textbf{u}$ are used to let the 
+Hamiltonian work at the optimal point $\textbf{x}_{\mathrm{opt}}$. 
+## **Adaptive measurement**
+::: quanestimation.adaptive

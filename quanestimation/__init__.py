@@ -2,6 +2,8 @@
 import os
 from julia import Main
 
+__version__ = "0.1.0"
+
 from quanestimation.AsymptoticBound.CramerRao import (
     CFIM,
     QFIM,

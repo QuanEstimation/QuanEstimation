@@ -16,3 +16,8 @@ scipy
 qutip 
 cvxpy
 julia
+more_itertools
+mkdocs-material
+fontawesome_markdown
+mkdocstrings[crystal,python]
+

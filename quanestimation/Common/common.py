@@ -37,6 +37,19 @@ def suN_unsorted(n):
 
 
 def suN_generator(n):
+    r"""
+    Generation of the SU($N$) generators with $N$ the simension of the system.
+
+    Parameters
+    ----------
+    > **n:** `int` 
+        -- The dimension of the system.
+
+    Returns
+    ----------
+    SU($N$) generators.
+    """
+
     symm, anti_symm, diag = suN_unsorted(n)
     if n == 2:
         return [symm[0], anti_symm[0], diag[0]]
@@ -98,7 +111,6 @@ def sic_povm(fiducial):
     fiducial state.
     The Weyl-Heisenberg displacement operators are constructioned by Fuchs et al. in the article
     https://doi.org/10.3390/axioms6030021 and it is realized in QBism.
-
     """
 
     d = fiducial.shape[0]
@@ -131,6 +143,20 @@ def sic_povm(fiducial):
 
 
 def SIC(dim):
+    """
+    Generation of a set of rank-one symmetric informationally complete 
+    positive operator-valued measure (SIC-POVM).
+
+    Parameters
+    ----------
+    > **dim:** `int` 
+        -- The dimension of the system.
+
+    Returns
+    ----------
+    A set of SCI-POVM.
+    """
+
     if dim <= 151:
         file_path = os.path.join(
             os.path.dirname(os.path.dirname(__file__)),
@@ -175,6 +201,30 @@ def brgd(n):
 
 
 def AdaptiveInput(x, func, dfunc, channel="dynamics"):
+    """
+    Generation of the input variables H, dH (or K, dK).
+
+    Parameters
+    ----------
+    > **x:** `list`
+        -- The regimes of the parameters for the integral.
+
+    > **func:** `list`
+        -- Function defined by the users which returns H or K.
+
+    > **dfunc:** `list`
+        -- Function defined by the users which returns dH or dK.
+
+    > **channel:** `string`
+        -- Seeting the output of this function. Options are:  
+        "dynamics" (default) --  The output of this function is H and dH.  
+        "kraus" (default) --  The output of this function is K and dHK.
+
+    Returns
+    ----------
+    H, dH (or K, dK).
+    """
+
     para_num = len(x)
     size = [len(x[i]) for i in range(len(x))]
     x_all = product(*x)

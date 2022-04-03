@@ -9,7 +9,34 @@ from quanestimation.AsymptoticBound.CramerRao import QFIM, CFIM
 
 
 class adaptive:
-    def __init__(self, x, p, rho0, max_episode=1000, eps=1e-8):
+    """
+    Attributes
+    ----------
+    > **x:** `list`
+        -- The regimes of the parameters for the integral.
+
+    > **p:** `multidimensional array`
+        -- The prior distribution.
+
+    > **rho0:** `matrix`
+        -- Initial state (density matrix).
+
+    > **savefile:** `bool`
+        -- Whether or not to save all the posterior distributions.  
+        If set True then three files "pout.npy", "xout.npy" and "y.npy" will be 
+        generated including the posterior distributions and the estimated values 
+        in the iterations. If set False the posterior distribution in the final 
+        iteration and the estimated values in all iterations will be saved in 
+        "pout.npy", "xout.npy" and "y.npy". 
+
+    > **max_episode:** `int`
+        -- The number of episodes.
+
+    > **eps:** `float`
+        -- Machine epsilon.
+    """
+
+    def __init__(self, x, p, rho0, savefile=False, max_episode=1000, eps=1e-8):
 
         self.x = x
         self.p = p
@@ -19,6 +46,42 @@ class adaptive:
         self.para_num = len(x)
 
     def dynamics(self, tspan, H, dH, Hc=[], ctrl=[], decay=[]):
+        r"""
+        Dynamics of the density matrix of the form 
+        
+        $$\partial_{t}\rho=-i[H,\rho]+\sum_{i} \gamma_{i}\left (\Gamma_{i}\rho
+        \Gamma^{\dagger}_{i}-\frac{1}{2}\left \{\rho,\Gamma^{\dagger}_{i} 
+        \Gamma_{i} \right\}\right), $$ 
+
+        where $\rho$ is the evolved density matrix, H is the Hamiltonian of the 
+        system, $\Gamma_i$ and $\gamma_i$ are the $i\mathrm{th}$ decay 
+        operator and decay rate.
+
+        Parameters
+        ----------
+        > **tspan:** `array`
+            -- Time length for the evolution.
+
+        > **H0:** `multidimensional list`
+            -- Free Hamiltonian with respect to the values in x.
+
+        > **dH:** `multidimensional list`
+            -- Derivatives of the free Hamiltonian on the unknown parameters to be 
+            estimated.
+
+        > **Hc:** `list`
+            -- Control Hamiltonians.
+
+        > **ctrl:** `list`
+            -- Control coefficients.
+
+        > **decay:** `list`
+            -- Decay operators and the corresponding decay rates. Its input rule is 
+            `decay=[[Gamma1, gamma1],[Gamma2,gamma2],...]`, where `Gamma1 (Gamma2)` 
+            represents the decay operator and `gamma1 (gamma2)` is the corresponding 
+            decay rate.
+        """
+
         self.tspan = tspan
         self.H = H
         self.dH = dH
@@ -29,12 +92,48 @@ class adaptive:
         self.dynamic_type = "dynamics"
 
     def kraus(self, K, dK):
+        r"""
+        Dynamics of the density matrix of the form 
+        
+        $$\rho=\sum_i K_i\rho_0K_i^{\dagger}$$ 
+
+        where $\rho$ is the evolved density matrix, $K_i$ is the Kraus operator.
+
+        Parameters
+        ----------
+        > **K:** `multidimensional list`
+            -- Kraus operator(s) with respect to the values in x.
+
+        > **dK:** `multidimensional list`
+            -- Derivatives of the Kraus operator(s) on the unknown parameters to be 
+            estimated.
+        """
+
         self.K = K
         self.dK = dK
 
         self.dynamic_type = "kraus"
 
-    def CFIM(self, M=[], W=[], savefile=False):
+    def CFIM(self, M=[], W=[]):
+        r"""
+        Choose CFI or $\mathrm{Tr}(WI^{-1})$ as the objective function. 
+        In single parameter estimation the objective function is CFI and 
+        in multiparameter estimation it will be $\mathrm{Tr}(WI^{-1})$.
+
+        Parameters
+        ----------
+        > **W:** `matrix`
+            -- Weight matrix.
+
+        > **M:** `list of matrices`
+            -- A set of positive operator-valued measure (POVM). The default measurement 
+            is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+
+        **Note:** 
+            the Weyl-Heisenberg covariant SIC-POVM fiducial state of dimension $d$
+            are download from http://www.physics.umb.edu/Research/QBism/solutions.html.
+        """
+
         if M == []:
             M = SIC(len(self.rho0))
         if W == []:
@@ -79,6 +178,15 @@ class adaptive:
             )
 
     def Mopt(self, W=[]):
+        r"""
+        Measurement optimization for the optimal x.
+
+        Parameters
+        ----------
+        > **W:** `matrix`
+            -- Weight matrix.
+        """
+
         if W == []:
             W = np.identity(self.para_num)
         else:

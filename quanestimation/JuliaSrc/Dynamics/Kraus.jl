@@ -46,7 +46,6 @@ function evolve(dynamics::Kraus{ket})
     ρ0 = ψ0 * ψ0'
     ρ = [K * ρ0 * K' for K in K] |> sum
     dρ = [[dK * ρ0 * K' + K * ρ0 * dK' for (K,dK) in zip(K,dK)] |> sum for dK in dK]
-
     ρ, dρ
 end
 
@@ -55,6 +54,5 @@ function evolve(dynamics::Kraus{dm})
     (; K, dK, ρ0) = dynamics.data
     ρ = [K * ρ0 * K' for K in K] |> sum
     dρ = [[dK * ρ0 * K' + K * ρ0 * dK' for (K,dK) in zip(K,dK)] |> sum for dK in dK]
-
     ρ, dρ
 end

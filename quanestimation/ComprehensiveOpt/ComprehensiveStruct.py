@@ -9,37 +9,36 @@ from quanestimation.Common.common import gramschmidt
 
 
 class ComprehensiveSystem:
-    def __init__(self, psi0, ctrl0, measurement0, savefile, seed, eps):
+    """
+    Attributes
+    ----------
+    > **savefile:** `bool`
+        -- Whether or not to save all the optimized variables (probe states, 
+        control coefficients and measurements).  
+        If set True then the optimized variables and the values of the 
+        objective function obtained in all episodes will be saved during 
+        the training. If set False the optimized variables in the final 
+        episode and the values of the objective function in all episodes 
+        will be saved.
 
-        """
-        ----------
-        Inputs
-        ----------
+    > **psi0:** `list of arrays`
+        -- Initial guesses of states.
 
-        psi0:
-           --description: initial guesses of states (kets).
-           --type: array
+    > **ctrl0:** `list of arrays`
+        -- Initial guesses of control coefficients.
 
-        ctrl0:
-            --description: initial control coefficients.
-            --type: list (of vector)
+    > **measurement0:** `list of arrays`
+        -- Initial guesses of measurements.
 
-        measurement0:
-           --description: a set of POVMs.
-           --type: list (of vector)
+    > **seed:** `int`
+        -- Random seed.
 
-        savefile:
-            --description: True: save the states (or controls, measurements) and the value of the
-                                 target function for each episode.
-                           False: save the states (or controls, measurements) and all the value
-                                   of the target function for the last episode.
-            --type: bool
+    > **eps:** `float`
+        -- Machine epsilon.
+    """
 
-        eps:
-            --description: calculation eps.
-            --type: float
+    def __init__(self, savefile, psi0, ctrl0, measurement0, seed, eps):
 
-        """
         self.savefile = savefile
         self.ctrl0 = ctrl0
         self.psi0 = psi0
@@ -48,47 +47,47 @@ class ComprehensiveSystem:
         self.measurement0 = measurement0
 
     def dynamics(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], ctrl_bound=[]):
-        """
+        r"""
+        Dynamics of the density matrix of the form 
+        
+        $$\partial_{t}\rho=-i[H,\rho]+\sum_{i} \gamma_{i}\left (\Gamma_{i}\rho
+        \Gamma^{\dagger}_{i}-\frac{1}{2}\left \{\rho,\Gamma^{\dagger}_{i} 
+        \Gamma_{i} \right\}\right), $$ 
+
+        where $\rho$ is the evolved density matrix, H is the Hamiltonian of the 
+        system, $\Gamma_i$ and $\gamma_i$ are the $i\mathrm{th}$ decay 
+        operator and decay rate.
+
+        Parameters
         ----------
-        Inputs
-        ----------
-        tspan:
-           --description: time series.
-           --type: array
+        > **tspan:** `array`
+            -- Time length for the evolution.
 
-        psi0:
-           --description: initial state.
-           --type: vector
+        > **H0:** `matrix or list`
+            -- Free Hamiltonian. It is a matrix when the free Hamiltonian is time-
+            independent and a list of length equal to tspan when it is time-dependent.
 
-        measurement0:
-           --description: a set of POVMs.
-           --type: list (of vector)
+        > **dH:** `list`
+            -- Derivatives of the free Hamiltonian on the unknown parameters to be 
+            estimated. For example, dH[0] is the derivative vector on the first 
+            parameter.
 
-        H0:
-           --description: free Hamiltonian.
-           --type: matrix or a list of matrix
+        > **Hc:** `list`
+            -- Control Hamiltonians.
 
-        Hc:
-           --description: control Hamiltonian.
-           --type: list (of matrix)
+        > **ctrl:** `list of arrays`
+            -- Control coefficients.
 
-        dH:
-           --description: derivatives of Hamiltonian on all parameters to
-                          be estimated. For example, dH[0] is the derivative
-                          vector on the first parameter.
-           --type: list (of matrix)
+        > **decay:** `list`
+            -- Decay operators and the corresponding decay rates. Its input rule is 
+            `decay=[[Gamma1, gamma1],[Gamma2,gamma2],...]`, where Gamma1 (Gamma2) 
+            represents the decay operator and gamma1 (gamma2) is the corresponding 
+            decay rate.
 
-        decay:
-           --description: decay operators and the corresponding decay rates.
-                          decay[0][0] represent the first decay operator and
-                          decay[0][1] represent the corresponding decay rate.
-           --type: list
-
-        ctrl_bound:
-           --description: lower and upper bounds of the control coefficients.
-                          ctrl_bound[0] represent the lower bound of the control coefficients and
-                          ctrl_bound[1] represent the upper bound of the control coefficients.
-           --type: list
+        > **ctrl_bound:** `array`
+            -- Lower and upper bounds of the control coefficients.
+            `ctrl_bound[0]` represents the lower bound of the control coefficients and
+            `ctrl_bound[1]` represents the upper bound of the control coefficients.
         """
 
         self.tspan = tspan
@@ -220,6 +219,24 @@ class ComprehensiveSystem:
         self.dynamics_type = "dynamics"
 
     def kraus(self, K, dK):
+        r"""
+        Dynamics of the density matrix of the form 
+        
+        $$\rho=\sum_i K_i\rho_0K_i^{\dagger}$$ 
+
+        where $\rho$ is the evolved density matrix, $K_i$ is the Kraus operator.
+
+        Parameters
+        ----------
+        > **K:** `list`
+            -- Kraus operator(s).
+
+        > **dK:** `list`
+            -- Derivatives of the Kraus operator(s) on the unknown parameters to be 
+            estimated. For example, dK[0] is the derivative vector on the first 
+            parameter.
+        """
+
         k_num = len(K)
         para_num = len(dK[0])
         dK_tp = [
@@ -265,20 +282,31 @@ class ComprehensiveSystem:
 
     def SC(self, W=[], M=[], target="QFIM", LDtype="SLD"):
         """
-        Description: use DE algorithm to optimize states and control coefficients.
+        Comprehensive optimization of the probe state and control (SC).
 
-        ---------
-        Inputs
-        ---------
-        M:
-            --description: a set of POVM.
-            --type: list of matrix
+        Parameters
+        ----------
+        > **W:** `matrix`
+            -- Weight matrix.
 
-        W:
-            --description: weight matrix.
-            --type: matrix
+        > **M:** `list of matrices`
+            -- A set of positive operator-valued measure (POVM). The default measurement 
+            is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
 
+        > **target:** `string`
+            -- Objective functions for searching the minimum time to reach the given 
+            value of the objective function. Options are:  
+            "QFIM" (default) -- choose QFI (QFIM) as the objective function.  
+            "CFIM" -- choose CFI (CFIM) as the objective function.  
+            "HCRB" -- choose HCRB as the objective function.  
+
+        > **LDtype:** `string`
+            -- Types of QFI (QFIM) can be set as the objective function. Options are:  
+            "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
+            "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
+            "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD). 
         """
+
         if self.dynamics_type != "dynamics":
             raise ValueError(
                 "Supported type of dynamics is Lindblad."
@@ -334,20 +362,17 @@ class ComprehensiveSystem:
 
     def CM(self, rho0, W=[]):
         """
-        Description: use DE algorithm to optimize control coefficients and the measurements.
+        Comprehensive optimization of the control and measurement (CM).
 
-        ---------
-        Inputs
-        ---------
-        rho0:
-            --description: initial state.
-            --type: density matrix
+        Parameters
+        ----------
+        > **rho0:** `matrix`
+            -- Initial state (density matrix).
 
-        W:
-            --description: weight matrix.
-            --type: matrix
-
+        > **W:** `matrix`
+            -- Weight matrix.
         """
+
         if self.dynamics_type != "dynamics":
             raise ValueError(
                 "Supported type of dynamics is Lindblad."
@@ -385,17 +410,14 @@ class ComprehensiveSystem:
 
     def SM(self, W=[]):
         """
-        Description: use DE algorithm to optimize states and the measurements.
+        Comprehensive optimization of the probe state and measurement (SM).
 
-        ---------
-        Inputs
-        ---------
-
-        W:
-            --description: weight matrix.
-            --type: matrix
-
+        Parameters
+        ----------
+        > **W:** `matrix`
+            -- Weight matrix.
         """
+
         if self.dynamics_type == "dynamics":
             if W == []:
                 W = np.eye(len(self.Hamiltonian_derivative))
@@ -544,17 +566,14 @@ class ComprehensiveSystem:
 
     def SCM(self, W=[]):
         """
-        Description: use DE algorithm to optimize states, control coefficients and the measurements.
+        Comprehensive optimization of the probe state, control and measurement (SCM).
 
-        ---------
-        Inputs
-        ---------
-
-        W:
-            --description: weight matrix.
-            --type: matrix
-
+        Parameters
+        ----------
+        > **W:** `matrix`
+            -- Weight matrix.
         """
+
         if self.dynamics_type != "dynamics":
             raise ValueError(
                 "Supported type of dynamics is Lindblad."
