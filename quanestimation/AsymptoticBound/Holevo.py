@@ -7,32 +7,28 @@ from quanestimation.AsymptoticBound.CramerRao import QFIM
 
 def HCRB(rho, drho, W, eps=1e-8):
     """
-    Description: solve Holevo Cramer-Rao bound via the semidefinite program (SDP).
+    Calculation of the Holevo Cramer-Rao bound (HCRB) via the semidefinite program (SDP).
 
-    ---------
-    Inputs
-    ---------
-    rho:
-        --description: parameterized density matrix.
-        --type: matrix
-
-    drho:
-        --description: derivatives of density matrix (rho) on all parameters
-                       to be estimated. For example, drho[0] is the derivative
-                       vector on the first parameter.
-        --type: list (of matrix)
-
-    W:
-       --description: cost matrix.
-       --type: matrix
-
+    Parameters
     ----------
+    > **rho:** `matrix`
+        -- Density matrix.
+
+    > **drho:** `list`
+        -- Derivatives of the density matrix on the unknown parameters to be 
+        estimated. For example, drho[0] is the derivative vector on the first 
+        parameter.
+
+    > **W:** `matrix`
+        -- Weight matrix.
+
+    > **eps:** `float`
+        -- Machine epsilon.
+
     Returns
     ----------
-    Holevo bound:
-        --description: the Holevo Cramer-Rao bound.
-        --type: float
-
+    **HCRB:** `float`
+        -- The value of Holevo Cramer-Rao bound.
     """
 
     if type(drho) != list:
@@ -84,4 +80,4 @@ def HCRB(rho, drho, W, eps=1e-8):
         prob = cp.Problem(cp.Minimize(cp.trace(W @ V)), constraints)
         prob.solve()
 
-        return prob.value, X.value, V.value
+        return prob.value

@@ -5,10 +5,46 @@ from quanestimation.Common.common import SIC
 
 
 def Bayes(x, p, rho, y, M=[], savefile=False):
+    """
+    Bayesian estimation. The prior distribution is updated via the posterior  
+    distribution obtained by the Bayes’ rule and the estimated value of parameters
+    obtained via the maximum a posteriori probability (MAP).
+
+    Parameters
+    ----------
+    > **x:** `list`
+        -- The regimes of the parameters for the integral.
+
+    > **p:** `multidimensional array`
+        -- The prior distribution.
+
+    > **rho:** `multidimensional list`
+        -- Parameterized density matrix.
+
+    > **y:** `array`
+        -- The experimental results obtained in practice.
+
+    > **M:** `list of matrices`
+        -- A set of positive operator-valued measure (POVM). The default measurement 
+        is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+
+    > **savefile:** `bool`
+        -- Whether or not to save all the posterior distributions.  
+        If set True then two files "pout.npy" and "xout.npy" will be generated including
+        the posterior distributions and the estimated values in the iterations. If set 
+        False the posterior distribution in the final iteration and the estimated values
+        in all iterations will be saved in "pout.npy" and "xout.npy". 
+
+    Returns
+    ----------
+    **pout and xout:** `array and float`
+        -- The posterior distribution and the estimated values in the final iteration.
+    """
+
     para_num = len(x)
     max_episode = len(y)
     if para_num == 1:
-        #### singleparameter senario ####
+        #### single parameter scenario ####
         if M == []:
             M = SIC(len(rho[0]))
         else:
@@ -47,7 +83,7 @@ def Bayes(x, p, rho, y, M=[], savefile=False):
             np.save("xout", x_out)
             return p, x_out[-1]
     else:
-        #### multiparameter senario ####
+        #### multiparameter scenario ####
         p_shape = np.shape(p)
         p_ext = extract_ele(p, para_num)
         rho_ext = extract_ele(rho, para_num)
@@ -107,10 +143,42 @@ def Bayes(x, p, rho, y, M=[], savefile=False):
 
 
 def MLE(x, rho, y, M=[], savefile=False):
+    """
+    Bayesian estimation. The estimated value of parameters obtained via the 
+    maximum likelihood estimation (MLE).
+
+    Parameters
+    ----------
+    > **x:** `list`
+        -- The regimes of the parameters for the integral.
+
+    > **rho:** `multidimensional list`
+        -- Parameterized density matrix.
+
+    > **y:** `array`
+        -- The experimental results obtained in practice.
+
+    > **M:** `list of matrices`
+        -- A set of positive operator-valued measure (POVM). The default measurement 
+        is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+
+    > **savefile:** `bool`
+        -- Whether or not to save all the likelihood functions.  
+        If set True then two files "Lout.npy" and "xout.npy" will be generated including
+        the likelihood functions and the estimated values in the iterations. If set 
+        False the likelihood function in the final iteration and the estimated values
+        in all iterations will be saved in "Lout.npy" and "xout.npy". 
+
+    Returns
+    ----------
+    **Lout and xout:** `array and float`
+        -- The likelihood function and the estimated values in the final iteration.
+    """
+
     para_num = len(x)
     max_episode = len(y)
     if para_num == 1:
-        #### singleparameter senario ####
+        #### single parameter scenario ####
         if M == []:
             M = SIC(len(rho[0]))
         else:
@@ -143,7 +211,7 @@ def MLE(x, rho, y, M=[], savefile=False):
             np.save("xout", x_out)
             return L_tp, x_out[-1]
     else:
-        #### multiparameter senario ####
+        #### multiparameter scenario ####
         p_shape = []
         for i in range(para_num):
             p_shape.append(len(x[i]))

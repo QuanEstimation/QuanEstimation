@@ -30,6 +30,37 @@ def helstrom_vec(psi, phi, n=1):
 
 
 def QZZB(x, p, rho, eps=1e-8):
+    r"""
+    Calculation of the quantum Ziv-Zakai bound (QZZB). The expression of OBB with a 
+    prior distribution p(x) in a finite regime $[\alpha,\beta]$ is
+
+    $$\mathrm{var}(\hat{x},\{\Pi_y\}) \geq \frac{1}{2}\int_0^{\beta-\alpha}\mathrm{d}\tau\tau\mathcal{V}\int_{\alpha}^{\beta}\mathrm{d}x\min\left\{p(x), p(x+\tau)\right\} \nonumber \\
+    \times\left(1-\frac{1}{2}||\rho(x)-\rho(x+\tau)||\right),$$
+
+    where $||\cdot||$ represents the trace norm and $\mathcal{V}$ is the "valley-filling" 
+    operator satisfying $\mathcal{V}f(\tau)=\max_{h\geq 0}f(\tau+h)$. $\rho(x)$ is the 
+    parameterized density matrix. 
+
+    Parameters
+    ----------
+    > **x:** `list`
+        -- The regimes of the parameters for the integral.
+
+    > **p:** `multidimensional array`
+        -- The prior distribution.
+
+    > **rho:** `multidimensional list`
+        -- Parameterized density matrix.
+
+    > **eps:** `float`
+        -- Machine epsilon.
+
+    Returns
+    ----------
+    **QZZB:** `float`
+        -- Quantum Ziv-Zakai bound (QZZB).
+    """
+
     if type(x[0]) == list or type(x[0]) == np.ndarray:
         x = x[0]
     p_num = len(p)

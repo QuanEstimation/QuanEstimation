@@ -5,6 +5,45 @@ from quanestimation.Common.common import SIC
 
 
 class DE_Compopt(Comp.ComprehensiveSystem):
+    """
+    Attributes
+    ----------
+    > **savefile:** `bool`
+        -- Whether or not to save all the optimized variables (probe states, 
+        control coefficients and measurements).  
+        If set True then the optimized variables and the values of the 
+        objective function obtained in all episodes will be saved during 
+        the training. If set False the optimized variables in the final 
+        episode and the values of the objective function in all episodes 
+        will be saved.
+
+    > **popsize:** `int`
+        -- The number of populations.
+
+    > **psi0:** `list of arrays`
+        -- Initial guesses of states.
+
+    > **ctrl0:** `list of arrays`
+        -- Initial guesses of control coefficients.
+
+    > **measurement0:** `list of arrays`
+        -- Initial guesses of measurements.
+
+    > **max_episode:** `int`
+        -- The number of episodes.
+  
+    > **c:** `float`
+        -- Mutation constant.
+
+    > **cr:** `float`
+        -- Crossover constant.
+
+    > **seed:** `int`
+        -- Random seed.
+
+    > **eps:** `float`
+        -- Machine epsilon.
+    """
     def __init__(
         self,
         savefile=False,
@@ -20,53 +59,8 @@ class DE_Compopt(Comp.ComprehensiveSystem):
     ):
 
         Comp.ComprehensiveSystem.__init__(
-            self, psi0, ctrl0, measurement0, savefile, seed, eps
+            self, savefile, psi0, ctrl0, measurement0, seed, eps
         )
-
-        """
-        --------
-        inputs
-        --------
-        savefile:
-            --description: True: save the states (or controls, measurements) and the value of the 
-                                 target function for each episode.
-                           False: save the states (or controls, measurements) and all the value 
-                                   of the target function for the last episode.
-            --type: bool 
-            
-        popsize:
-           --description: the number of populations.
-           --type: int
-        
-        psi0:
-           --description: initial guesses of states (kets).
-           --type: array
-           
-        ctrl0:
-            --description: initial control coefficients.
-            --type: list (of vector)
-            
-        measurement0:
-           --description: a set of POVMs.
-           --type: list (of vector)
-
-        max_episode:
-            --description: max number of the training episodes.
-            --type: int
-        
-        c:
-            --description: mutation constant.
-            --type: float
-
-        cr:
-            --description: crossover constant.
-            --type: float
-        
-        seed:
-            --description: random seed.
-            --type: int
-        
-        """
 
         self.p_num = popsize
         self.max_episode = max_episode
@@ -74,7 +68,6 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         self.cr = cr
         self.seed = seed
 
-    def SC(self, W=[], M=[], target="QFIM", LDtype="SLD"):
         ini_population = (self.psi0, self.ctrl0)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
@@ -85,43 +78,70 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             self.seed,
         )
 
+    def SC(self, W=[], M=[], target="QFIM", LDtype="SLD"):
+        """
+        Comprehensive optimization of the probe state and control (SC).
+
+        Parameters
+        ----------
+        > **W:** `matrix`
+            -- Weight matrix.
+
+        > **M:** `list of matrices`
+            -- A set of positive operator-valued measure (POVM). The default measurement 
+            is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+
+        > **target:** `string`
+            -- Objective functions for searching the minimum time to reach the given 
+            value of the objective function. Options are:  
+            "QFIM" (default) -- choose QFI (QFIM) as the objective function.  
+            "CFIM" -- choose CFI (CFIM) as the objective function.  
+            "HCRB" -- choose HCRB as the objective function.  
+
+        > **LDtype:** `string`
+            -- Types of QFI (QFIM) can be set as the objective function. Options are:  
+            "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
+            "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
+            "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD). 
+        """
+        
         super().SC(W, M, target, LDtype)
 
     def CM(self, rho0, W=[]):
-        ini_population = (self.ctrl0, self.measurement0)
-        self.alg = Main.QuanEstimation.DE(
-            self.max_episode,
-            self.p_num,
-            ini_population,
-            self.c,
-            self.cr,
-            self.seed,
-        )
+        """
+        Comprehensive optimization of the control and measurement (CM).
+
+        Parameters
+        ----------
+        > **rho0:** `matrix`
+            -- Initial state (density matrix).
+
+        > **W:** `matrix`
+            -- Weight matrix.
+        """
 
         super().CM(rho0, W)
 
     def SM(self, W=[]):
-        ini_population = (self.psi0, self.measurement0)
-        self.alg = Main.QuanEstimation.DE(
-            self.max_episode,
-            self.p_num,
-            ini_population,
-            self.c,
-            self.cr,
-            self.seed,
-        )
+        """
+        Comprehensive optimization of the probe state and measurement (SM).
+
+        Parameters
+        ----------
+        > **W:** `matrix`
+            -- Weight matrix.
+        """
 
         super().SM(W)
 
     def SCM(self, W=[]):
-        ini_population = (self.psi0, self.ctrl0, self.measurement0)
-        self.alg = Main.QuanEstimation.DE(
-            self.max_episode,
-            self.p_num,
-            ini_population,
-            self.c,
-            self.cr,
-            self.seed,
-        )
+        """
+        Comprehensive optimization of the probe state, control and measurement (SCM).
+
+        Parameters
+        ----------
+        > **W:** `matrix`
+            -- Weight matrix.
+        """
 
         super().SCM(W)

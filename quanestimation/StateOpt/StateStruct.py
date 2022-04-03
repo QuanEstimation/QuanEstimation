@@ -9,29 +9,34 @@ from quanestimation.Common.common import SIC
 
 
 class StateSystem:
-    def __init__(self, savefile, psi0, seed, load, eps):
+    """
+    Attributes
+    ----------
+    > **savefile:**  `bool`
+        -- Whether or not to save all the states.
+        If set True then the states and the values of the 
+        objective function obtained in all episodes will be saved during 
+        the training. If set False the state in the final 
+        episode and the values of the objective function in all episodes 
+        will be saved.
 
-        """
-        ----------
-        Inputs
-        ----------
-        savefile:
-            --description: True: save the states and the value of target function for each episode .
-                           False: save the states and the value of target function for the last episode.
-            --type: bool
+    > **psi0:** `list of arrays`
+        -- Initial guesses of states.
 
-        psi0:
-            --description: initial guess of states (kets).
-            --type: array
+    > **seed:** `int`
+        -- Random seed.
 
-        seed:
-            --description: random seed.
-            --type: int
+    > **eps:** `float`
+        -- Machine epsilon.
 
-        eps:
-            --description: machine eps.
-            --type: float
-        """
+    > **load:** `bool`
+        -- Whether or not to load states in the current location.
+        If set True then the program will load state from "states.csv"
+        file in the current location and use it as the initial state.
+    """
+
+    def __init__(self, savefile, psi0, seed, eps, load):
+
         self.savefile = savefile
         self.psi0 = psi0
         self.psi = psi0
@@ -54,45 +59,44 @@ class StateSystem:
             pass
 
     def dynamics(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[]):
+        r"""
+        Dynamics of the density matrix of the form 
+        
+        $$\partial_{t}\rho=-i[H,\rho]+\sum_{i} \gamma_{i}\left (\Gamma_{i}
+        \rho\Gamma^{\dagger}_{i}-\frac{1}{2}\left \{\rho,\Gamma^{\dagger}_{i} 
+        \Gamma_{i} \right\}\right), $$ 
 
-        """
+        where $\rho$ is the evolved density matrix, H is the Hamiltonian of the 
+        system, $\Gamma_i$ and $\gamma_i$ are the $i\mathrm{th}$ decay 
+        operator and decay rate.
+
+        Parameters
         ----------
-        Inputs
-        ----------
-        tspan:
-           --description: time series.
-           --type: array
+        > **tspan:** `array`
+            -- Time length for the evolution.
 
-        H0:
-           --description: free Hamiltonian.
-           --type: matrix (a list of matrix)
+        > **H0:** `matrix or list`
+            -- Free Hamiltonian. It is a matrix when the free Hamiltonian is time-
+            independent and a list of length equal to tspan when it is time-dependent.
 
-        dH:
-           --description: derivatives of Hamiltonian on all parameters to
-                          be estimated. For example, dH[0] is the derivative
-                          vector on the first parameter.
-           --type: list (of matrix)
+        > **dH:** `list`
+            -- Derivatives of the free Hamiltonian on the unknown parameters to be 
+            estimated. For example, dH[0] is the derivative vector on the first 
+            parameter.
 
-        Hc:
-           --description: control Hamiltonian.
-           --type: list (of matrix)
+        > **Hc:** `list`
+            -- Control Hamiltonians.
 
-        ctrl:
-            --description: control coefficients.
-            --type: list (of vector)
+        > **ctrl:** `list of arrays`
+            -- Control coefficients.
 
-        decay:
-           --description: decay operators and the corresponding decay rates.
-                          decay[0][0] represent the first decay operator and
-                          decay[0][1] represent the corresponding decay rate.
-           --type: list
-
-        ctrl_bound:
-           --description: lower and upper bounds of the control coefficients.
-                          ctrl_bound[0] represent the lower bound of the control coefficients and
-                          ctrl_bound[1] represent the upper bound of the control coefficients.
-           --type: list
+        > **decay:** `list`
+            -- Decay operators and the corresponding decay rates. Its input rule is 
+            `decay=[[Gamma1, gamma1],[Gamma2,gamma2],...]`, where Gamma1 (Gamma2) 
+            represents the decay operator and gamma1 (gamma2) is the corresponding 
+            decay rate.
         """
+
         self.tspan = tspan
 
         if Hc == [] or ctrl == []:
@@ -236,6 +240,23 @@ class StateSystem:
             self.para_type = "multi_para"
 
     def kraus(self, K, dK):
+        r"""
+        Dynamics of the density matrix of the form 
+        
+        $$\rho=\sum_i K_i\rho_0K_i^{\dagger}$$ 
+
+        where $\rho$ is the evolved density matrix, $K_i$ is the Kraus operator.
+
+        Parameters
+        ----------
+        > **K:** `list`
+            -- Kraus operator(s).
+
+        > **dK:** `list`
+            -- Derivatives of the Kraus operator(s) on the unknown parameters to be 
+            estimated. For example, dK[0] is the derivative vector on the first 
+            parameter.
+        """
 
         k_num = len(K)
         para_num = len(dK[0])
@@ -273,16 +294,21 @@ class StateSystem:
             self.para_type = "multi_para"
 
     def QFIM(self, W=[], LDtype="SLD"):
-        """
-        Description: use autodifferential algorithm to search the optimal initial state that maximize the
-                     QFI (1/Tr(WF^{-1} with F the QFIM).
+        r"""
+        Choose QFI or $\mathrm{Tr}(WF^{-1})$ as the objective function. 
+        In single parameter estimation the objective function is QFI and in 
+        multiparameter estimation it will be $\mathrm{Tr}(WF^{-1})$.
 
-        ---------
-        Inputs
-        ---------
-        W:
-            --description: weight matrix.
-            --type: matrix
+        Parameters
+        ----------
+        > **W:** `matrix`
+            -- Weight matrix.
+
+        > **LDtype:** `string`
+            -- Types of QFI (QFIM) can be set as the objective function. Options are:
+            "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).
+            "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).
+            "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
         """
 
         if LDtype != "SLD" and LDtype != "RLD" and LDtype != "LLD":
@@ -315,21 +341,25 @@ class StateSystem:
         self.load_save()
 
     def CFIM(self, M=[], W=[]):
-        """
-        Description: use autodifferential algorithm to search the optimal initial state that maximize the
-                     CFI (1/Tr(WF^{-1} with F the CFIM).
+        r"""
+        Choose CFI or $\mathrm{Tr}(WI^{-1})$ as the objective function. 
+        In single parameter estimation the objective function is CFI and 
+        in multiparameter estimation it will be $\mathrm{Tr}(WI^{-1})$.
 
-        ---------
-        Inputs
-        ---------
-        M:
-            --description: a set of POVM.
-            --type: list of matrix
+        Parameters
+        ----------
+        > **W:** `matrix`
+            -- Weight matrix.
 
-        W:
-            --description: weight matrix.
-            --type: matrix
+        > **M:** `list of matrices`
+            -- A set of positive operator-valued measure (POVM). The default measurement 
+            is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+
+        **Note:** 
+            the Weyl-Heisenberg covariant SIC-POVM fiducial state of dimension $d$
+            are download from http://www.physics.umb.edu/Research/QBism/solutions.html.
         """
+
         if M == []:
             M = SIC(len(self.psi0))
         M = [np.array(x, dtype=np.complex128) for x in M]
@@ -353,6 +383,19 @@ class StateSystem:
         self.load_save()
 
     def HCRB(self, W=[]):
+        """
+        Choose HCRB as the objective function. 
+
+        **Notes:** (1) In single parameter estimation, HCRB is equivalent to QFI, please  
+        choose QFI as the objective function. (2) GRAPE and auto-GRAPE are not available
+        when the objective function is HCRB. Supported methods are PSO, DE and DDPG.
+
+        Parameters
+        ----------
+        > **W:** `matrix` 
+            -- Weight matrix.
+        """
+        
         if self.dynamics_type == "dynamics":
             if W == []:
                 W = np.eye(len(self.Hamiltonian_derivative))

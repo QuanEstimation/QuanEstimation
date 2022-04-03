@@ -3,47 +3,43 @@ from numpy.linalg import inv
 from scipy.linalg import sqrtm, schur, eigvals
 from quanestimation.Common.common import SIC, suN_generator
 
-# ===============================================================================
-# Subclass: metrology
-# ===============================================================================
-"""
-calculation of classical Fisher information matrix and quantum
-Fisher information matrix.
-"""
-
 
 def CFIM(rho, drho, M=[], eps=1e-8):
-    """
-    Description: Calculation classical Fisher information matrix (CFIM)
-                 for a density matrix.
+    r"""
+    Calculation of the classical Fisher information (CFI) and classical Fisher 
+    information matrix (CFIM) for a density matrix. The entry of CFIM $\mathcal{I}$
+    is defined as
 
-    ---------
-    Inputs
-    ---------
-    rho:
-        --description: parameterized density matrix.
-        --type: matrix
+    $$\mathcal{I}_{ab}=\sum_{y}\frac{1}{p(y|\textbf{x})}[\partial_a p(y|\textbf{x})][\partial_b p(y|\textbf{x})],$$
 
-    drho:
-        --description: derivatives of density matrix (rho) on all parameters
-                       to be estimated. For example, drho[0] is the derivative
-                       vector on the first parameter.
-        --type: list (of matrix)
+    where $p(y|\textbf{x})=\mathrm{Tr}(\rho\Pi_y)$ with $\rho$ the parameterized 
+    density matrix.
 
-    M:
-       --description: a set of POVM. It takes the form [M1, M2, ...].
-       --type: list (of matrix)
-
+    Parameters
     ----------
+    > **rho:** `matrix`
+        -- Density matrix.
+
+    > **drho:** `list`
+        -- Derivatives of the density matrix on the unknown parameters to be 
+        estimated. For example, drho[0] is the derivative vector on the first 
+        parameter.
+
+    > **M:** `list of matrices`
+        -- A set of positive operator-valued measure (POVM). The default measurement 
+        is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+
+    > **eps:** `float`
+        -- Machine epsilon.
+
     Returns
     ----------
-    CFIM:
-        --description: classical Fisher information matrix. If the length
-                       of drho is one, the output is a float number (CFI),
-                       otherwise it returns a matrix (CFIM).
-        --type: float number (CFI) or matrix (CFIM)
-
+    **CFI (CFIM):** `float or matrix` 
+        -- For single parameter estimation (the length of drho is equal to one), 
+        the output is CFI and for multiparameter estimation (the length of drho 
+        is more than one), it returns CFIM.
     """
+
     if type(drho) != list:
         raise TypeError("Please make sure drho is a list!")
 
@@ -78,6 +74,36 @@ def CFIM(rho, drho, M=[], eps=1e-8):
 
 
 def FIM(p, dp, eps=1e-8):
+    r"""
+    Calculation of the classical Fisher information (CFI) and classical Fisher 
+    information matrix (CFIM) for classical scenarios. The entry of FIM $I$
+    is defined as
+
+    $$I_{ab}=\sum_{y}\frac{1}{p_y}[\partial_a p_y][\partial_b p_y],$$
+
+    where $\{p_y\}$ is a set of the discrete probability distribution.
+
+    Parameters
+    ----------
+    > **p:** `array` 
+        -- The probability distribution.
+
+    > **dp:** `list`
+        -- Derivatives of the probability distribution on the unknown parameters to 
+        be estimated. For example, dp[0] is the derivative vector on the first 
+        parameter.
+
+    > **eps:** `float`
+        -- Machine epsilon.
+
+    Returns
+    ----------
+    **CFI (CFIM):** `float or matrix` 
+        -- For single parameter estimation (the length of drho is equal to one), 
+        the output is CFI and for multiparameter estimation (the length of drho 
+        is more than one), it returns CFIM.
+    """
+
     para_num = len(dp[0])
     m_num = len(p)
     FIM_res = np.zeros([para_num, para_num])
@@ -100,39 +126,47 @@ def FIM(p, dp, eps=1e-8):
 
 
 def SLD(rho, drho, rep="original", eps=1e-8):
-    """
-    Description: calculation of the symmetric logarithmic derivative (SLD)
-                 for a density matrix.
+    r"""
+    Calculation of the symmetric logarithmic derivative (SLD) for a density matrix.
+    The SLD operator $L_a$ is determined by
 
+    $$\partial_{a}\rho=\frac{1}{2}(\rho L_{a}+L_{a}\rho)$$
+
+    with $\rho$ the parameterized density matrix. The entries of RLD can be calculated
+    as 
+
+    $$\langle\lambda_i|L_{a}|\lambda_j\rangle=\frac{2\langle\lambda_i| \partial_{a}\rho |\lambda_j\rangle}{\lambda_i+\lambda_j}$$
+ 
+    for $\lambda_i (\lambda_i) \neq 0$.
+
+    Parameters
     ----------
-    Inputs
-    ----------
-    rho:
-        --description: parameterized density matrix.
-        --type: matrix
+    > **rho:** `matrix`
+        -- Density matrix.
 
-    drho:
-        --description: derivatives of density matrix (rho) on all parameters
-                       to be estimated. For example, drho[0] is the derivative
-                       vector on the first parameter.
-        --type: list (of matrix)
+    > **drho:** `list`
+        -- Derivatives of the density matrix on the unknown parameters to be 
+        estimated. For example, drho[0] is the derivative vector on the first 
+        parameter.
 
-    rep:
-        --description: the basis for the SLDs.
-                       rep=original means the basis for obtained SLDs is the
-                       same with the density matrix (rho).
-                       rep=eigen means the SLDs are written in the eigenspace of
-                       the density matrix (rho).
-        --type: string {"original", "eigen"}
+    > **rep:** `string`
+        -- The basis for the SLDs. Options are:  
+        "original" (default) -- it means the basis is the same with the input density 
+        matrix (rho).  
+        "eigen" -- it means the basis is the same with theeigenspace of the density
+        matrix (rho).
 
-    ----------
+    > **eps:** `float`
+        -- Machine epsilon.
+
     Returns
     ----------
-    SLD:
-        --description: SLD for the density matrix (rho).
-        --type: list (of matrix)
-
+    **SLD(s):** `matrix or list`
+        --For single parameter estimation (the length of drho is equal to one), the  
+        output is a matrix and for multiparameter estimation (the length of drho 
+        is more than one), it returns a list.
     """
+
     if type(drho) != list:
         raise TypeError("Please make sure drho is a list!")
 
@@ -199,39 +233,47 @@ def SLD(rho, drho, rep="original", eps=1e-8):
 
 
 def RLD(rho, drho, rep="original", eps=1e-8):
-    """
-    Description: calculation of the right logarithmic derivative (RLD)
-                 for a density matrix.
+    r"""
+    Calculation of the right logarithmic derivative (RLD) for a density matrix.
+    The RLD opertator $\mathcal{R}_a$ is defined by
 
+    $$\partial_{a}\rho=\rho \mathcal{R}_a$$
+
+    with $\rho$ the parameterized density matrix. The entries of RLD can be calculated
+    as 
+
+    $$\langle\lambda_i| \mathcal{R}_{a} |\lambda_j\rangle = \frac{1}{\lambda_i}\langle\lambda_i| \partial_{a}\rho |\lambda_j\rangle$$
+    
+    for $\lambda_i\neq 0$.
+
+    Parameters
     ----------
-    Inputs
-    ----------
-    rho:
-        --description: parameterized density matrix.
-        --type: matrix
+    > **rho:** `matrix`
+        -- Density matrix.
 
-    drho:
-        --description: derivatives of density matrix (rho) on all parameters
-                       to be estimated. For example, drho[0] is the derivative
-                       vector on the first parameter.
-        --type: list (of matrix)
+    > **drho:** `list`
+        -- Derivatives of the density matrix on the unknown parameters to be 
+        estimated. For example, drho[0] is the derivative vector on the first 
+        parameter.
 
-    rep:
-        --description: the basis for the RLDs.
-                       rep=original means the basis for obtained RLDs is the
-                       same with the density matrix (rho).
-                       rep=eigen means the RLDs are written in the eigenspace of
-                       the density matrix (rho).
-        --type: string {"original", "eigen"}
+    > **rep:** `string`
+        -- The basis for the RLD(s). Options are:  
+        "original" (default) -- it means the basis is the same with the input density 
+        matrix (rho).  
+        "eigen" -- it means the basis is the same with the eigenspace of the density 
+        matrix (rho).
 
-    ----------
+    > **eps:** `float`
+        -- Machine epsilon.
+
     Returns
     ----------
-    RLD:
-        --description: RLD for the density matrix (rho).
-        --type: list (of matrix)
-
+    **RLD(s):** `matrix or list`
+        -- For single parameter estimation (the length of drho is equal to one), the output 
+        is a matrix and for multiparameter estimation (the length of drho is more than one), 
+        it returns a list.
     """
+    
     if type(drho) != list:
         raise TypeError("Please make sure drho is a list!")
 
@@ -270,39 +312,47 @@ def RLD(rho, drho, rep="original", eps=1e-8):
 
 
 def LLD(rho, drho, rep="original", eps=1e-8):
-    """
-    Description: Calculation of the left logarithmic derivative (LLD)
-                for a density matrix.
+    r"""
+    Calculation of the left logarithmic derivative (LLD) for a density matrix.
+    The LLD opertator $\mathcal{R}_a$ is defined by
 
+    $$\partial_{a}\rho=\mathcal{R}_a^{\dagger}\rho$$
+
+    with $\rho$ the parameterized density matrix. The entries of LLD can be calculated
+    as 
+
+    $$\langle\lambda_i| \mathcal{R}_{a}^{\dagger} |\lambda_j\rangle=\frac{1}{\lambda_j}\langle\lambda_i| \partial_{a}\rho |\lambda_j\rangle$$
+    
+    for $\lambda_j\neq 0$.
+
+    Parameters
     ----------
-    Inputs
-    ----------
-    rho:
-        --description: parameterized density matrix.
-        --type: matrix
+    > **rho:** `matrix`
+        -- Density matrix.
 
-    drho:
-        --description: derivatives of density matrix (rho) on all parameters
-                       to be estimated. For example, drho[0] is the derivative
-                       vector on the first parameter.
-        --type: list (of matrix)
+    > **drho:** `list`
+        -- Derivatives of the density matrix on the unknown parameters to be 
+        estimated. For example, drho[0] is the derivative vector on the first 
+        parameter.
 
-    rep:
-        --description: the basis for the LLDs.
-                       rep=original means the basis for obtained LLDs is the
-                       same with the density matrix (rho).
-                       rep=eigen means the LLDs are written in the eigenspace of
-                       the density matrix (rho).
-        --type: string {"original", "eigen"}
+    > **rep:** `string`
+        -- The basis for the LLD(s). Options are:  
+        "original" (default) -- it means the basis is the same with the input density 
+        matrix (rho).  
+        "eigen" -- it means the basis is the same with the eigenspace of the density 
+        matrix (rho).
 
-    ----------
+    > **eps:** float
+        -- Machine epsilon.
+
     Returns
     ----------
-    LLD:
-        --description: LLD for the density matrix (rho).
-        --type: list (of matrix)
-
+    **LLD(s):** `matrix or list`
+        -- For single parameter estimation (the length of drho is equal to one), the output 
+        is a matrix and for multiparameter estimation (the length of drho is more than one), 
+        it returns a list.
     """
+
     if type(drho) != list:
         raise TypeError("Please make sure drho is a list!")
 
@@ -343,41 +393,50 @@ def LLD(rho, drho, rep="original", eps=1e-8):
 
 
 def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
-    """
-    Description: Calculation of quantum Fisher information matrix (QFIM)
-                for a density matrix.
+    r"""
+    Calculation of the quantum Fisher information (QFI) and quantum Fisher 
+    information matrix (QFIM) for all types. The entry of QFIM $\mathcal{F}$
+    is defined as
 
+    $$\mathcal{F}_{ab}=\frac{1}{2}\mathrm{Tr}(\rho\{L_a, L_b\})$$ 
+
+    with $L_a, L_b$ are SLD operators and 
+
+    and 
+
+    $$\mathcal{F}_{ab}=\mathrm{Tr}(\rho \mathcal{R}_a \mathcal{R}^{\dagger}_b)$$
+
+    with $\mathcal{R}_a$ the RLD or LLD operator.
+
+    Parameters
     ----------
-    Inputs
-    ----------
-    rho:
-        --description: parameterized density matrix.
-        --type: matrix
+    > **rho:** `matrix`
+        -- Density matrix.
 
-    drho:
-        --description: derivatives of density matrix (rho) on all parameters
-                       to be estimated. For example, drho[0] is the derivative
-                       vector on the first parameter.
-        --type: list (of matrix)
+    > **drho:** `list`
+        Derivatives of the density matrix on the unknown parameters to be 
+        estimated. For example, drho[0] is the derivative vector on the first 
+        parameter.
 
-    LDtype:
-        --description: the type of logarithmic derivatives.
-        --type: string {'SLD', 'RLD', 'LLD'}
+    > **LDtype:** `string`
+        -- Types of QFI (QFIM) can be set as the objective function. Options are:  
+        "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
+        "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
+        "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
 
-    exportLD:
-        --description: if True, the corresponding value of logarithmic derivatives
-                       will be exported.
-        --type: bool
+    > **exportLD:** `bool`
+        -- Whether or not to export the values of logarithmic derivatives. If set True
+        then the the values of logarithmic derivatives will be exported.
 
-    ----------
+    > **eps:** `float`
+        -- Machine epsilon.
+
     Returns
     ----------
-    QFIM:
-        --description: Quantum Fisher information matrix. If the length
-                       of drho is 1, the output is a float number (QFI),
-                       otherwise it returns a matrix (QFIM).
-        --type: float number (QFI) or matrix (QFIM)
-
+    **QFI or QFIM:** `float or matrix` 
+        -- For single parameter estimation (the length of drho is equal to one), 
+        the output is QFI and for multiparameter estimation (the length of drho 
+        is more than one), it returns QFIM.
     """
 
     if type(drho) != list:
@@ -385,7 +444,7 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
 
     para_num = len(drho)
 
-    # singleparameter estimation
+    # single parameter estimation
     if para_num == 1:
         if LDtype == "SLD":
             LD_tp = SLD(rho, drho, eps=eps)
@@ -455,6 +514,44 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
 
 
 def QFIM_Kraus(rho0, K, dK, LDtype="SLD", exportLD=False, eps=1e-8):
+    """
+    Calculation of the quantum Fisher information (QFI) and quantum Fisher 
+    information matrix (QFIM) with Kraus operator(s) for all types.
+
+    Parameters
+    ----------
+    > **rho0:** `matrix`
+        -- Initial state (density matrix).
+
+    > **K:** `list`
+        -- Kraus operator(s).
+
+    > **dK:** `list` 
+        -- Derivatives of the Kraus operator(s) on the unknown parameters to be 
+        estimated. For example, dK[0] is the derivative vector on the first 
+        parameter.
+
+    > **LDtype:** `string`
+        -- Types of QFI (QFIM) can be set as the objective function. Options are:  
+        "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
+        "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
+        "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
+
+    > **exportLD:** `bool`
+        -- Whether or not to export the values of logarithmic derivatives. If set True
+        then the the values of logarithmic derivatives will be exported.
+
+    > **eps:** `float`
+        -- Machine epsilon.
+
+    Returns
+    ----------
+    **QFI or QFIM:** `float or matrix`
+        -- For single parameter estimation (the length of drho is equal to one), 
+        the output is QFI and for multiparameter estimation (the length of drho 
+        is more than one), it returns QFIM.
+    """
+
     dK = [[dK[i][j] for i in range(len(K))] for j in range(len(dK[0]))]
     rho = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K])
     drho = [
@@ -474,22 +571,30 @@ def QFIM_Kraus(rho0, K, dK, LDtype="SLD", exportLD=False, eps=1e-8):
 
 def QFIM_Bloch(r, dr, eps=1e-8):
     """
-    Description: Calculation of SLD-based quantum Fisher information matrix (QFIM)
-                in Bloch representation.
+    Calculation of the SLD based quantum Fisher information (QFI) and quantum  
+    Fisher information matrix (QFIM) in Bloch representation.
 
+    Parameters
     ----------
-    Inputs
-    ----------
-    r:
-        --description: parameterized Bloch vector.
-        --type: vector
+    > **r:** `list`
+        -- Parameterized Bloch vector.
 
-    dr:
-        --description: derivatives of Bloch vector on all parameters to
-                        be estimated. For example, dr[0] is the derivative
-                        vector on the first parameter.
-        --type: list (of vector)
+    > **dr:** `list `
+        -- Derivatives of the Bloch vector on the unknown parameters to be 
+        estimated. For example, dr[0] is the derivative vector on the first 
+        parameter.
+
+    > **eps:** `float`
+        -- Machine epsilon.
+
+    Returns
+    ----------
+    **QFI or QFIM in Bloch representation:** `float or matrix`
+        -- For single parameter estimation (the length of drho is equal to one), 
+        the output is QFI and for multiparameter estimation (the length of drho 
+        is more than one), it returns QFIM.
     """
+
     if type(dr) != list:
         raise TypeError("Please make sure dr is a list")
 
@@ -554,21 +659,36 @@ def QFIM_Bloch(r, dr, eps=1e-8):
 
 def QFIM_Gauss(R, dR, D, dD, eps=1e-8):
     """
-    Description: Calculation of SLD-based quantum Fisher information matrix (QFIM)
-                for Gaussian states representation .
+    Calculation of the SLD based quantum Fisher information (QFI) and quantum 
+    Fisher information matrix (QFIM) with gaussian states.
 
+    Parameters
     ----------
-    Inputs
+    > **R:** `array` 
+        -- First-order moment.
+
+    > **dR:** `list`
+        -- Derivatives of the first-order moment on the unknown parameters to be 
+        estimated. For example, dR[0] is the derivative vector on the first 
+        parameter.
+
+    > **D:** `matrix`
+        -- Second-order moment.
+
+    > **dD:** `list`
+        -- Derivatives of the second-order moment on the unknown parameters to be 
+        estimated. For example, dD[0] is the derivative vector on the first 
+        parameter.
+
+    > **eps:** `float`
+        -- Machine epsilon.
+
+    Returns
     ----------
-    R:
-
-    dR:
-
-    D:
-
-    dD:
-
-
+    **QFI or QFIM with gaussian states:** `float or matrix`
+        -- For single parameter estimation (the length of drho is equal to one), 
+        the output is QFI and for multiparameter estimation (the length of drho 
+        is more than one), it returns QFIM.
     """
 
     para_num = len(dR)

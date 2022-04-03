@@ -1,10 +1,46 @@
 from julia import Main
-import numpy as np
 import quanestimation.StateOpt.StateStruct as State
-from quanestimation.Common.common import SIC
 
 
 class DE_Sopt(State.StateSystem):
+    """
+    Attributes
+    ----------
+    > **savefile:**  `bool`
+        -- Whether or not to save all the states.  
+        If set True then the states and the values of the 
+        objective function obtained in all episodes will be saved during 
+        the training. If set False the state in the final 
+        episode and the values of the objective function in all episodes 
+        will be saved.
+
+    > **popsize:** `int`
+        -- The number of populations.
+
+    > **psi0:** `list of arrays`
+        -- Initial guesses of states.
+
+    > **max_episode:** `int`
+        -- The number of episodes.
+  
+    > **c:** `float`
+        -- Mutation constant.
+
+    > **cr:** `float`
+        -- Crossover constant.
+
+    > **seed:** `int`
+        -- Random seed.
+
+    > **eps:** `float`
+        -- Machine epsilon.
+
+    > **load:** `bool`
+        -- Whether or not to load states in the current location.  
+        If set True then the program will load state from "states.csv"
+        file in the current location and use it as the initial state.
+    """
+
     def __init__(
         self,
         savefile=False,
@@ -14,41 +50,11 @@ class DE_Sopt(State.StateSystem):
         c=1.0,
         cr=0.5,
         seed=1234,
-        load=False,
         eps=1e-8,
+        load=False,
     ):
 
-        State.StateSystem.__init__(self, savefile, psi0, seed, load, eps)
-
-        """
-        --------
-        inputs
-        --------
-        popsize:
-           --description: the number of populations.
-           --type: int
-
-        psi0:
-           --description: initial guesses of states (kets).
-           --type: array
-
-        max_episode:
-            --description: max number of the training episodes.
-            --type: int
-        
-        c:
-            --description: mutation constant.
-            --type: float
-
-        cr:
-            --description: crossover constant.
-            --type: float
-        
-        seed:
-            --description: random seed.
-            --type: int
-        
-        """
+        State.StateSystem.__init__(self, savefile, psi0, seed, eps, load)
 
         self.p_num = popsize
         self.max_episode = max_episode
@@ -56,7 +62,6 @@ class DE_Sopt(State.StateSystem):
         self.cr = cr
         self.seed = seed
 
-    def QFIM(self, W=[], LDtype="SLD"):
         ini_population = ([self.psi],)
         self.alg = Main.QuanEstimation.DE(
             self.max_episode,
@@ -66,31 +71,56 @@ class DE_Sopt(State.StateSystem):
             self.cr,
             self.seed,
         )
+
+    def QFIM(self, W=[], LDtype="SLD"):
+        r"""
+        Choose QFI or $\mathrm{Tr}(WF^{-1})$ as the objective function. 
+        In single parameter estimation the objective function is QFI and in 
+        multiparameter estimation it will be $\mathrm{Tr}(WF^{-1})$.
+
+        Parameters
+        ----------
+        > **W:** `matrix`
+            -- Weight matrix.
+
+        > **LDtype:** `string`
+            -- Types of QFI (QFIM) can be set as the objective function. Options are:  
+            "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
+            "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
+            "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
+        """
 
         super().QFIM(W, LDtype)
 
     def CFIM(self, M=[], W=[]):
-        ini_population = ([self.psi],)
-        self.alg = Main.QuanEstimation.DE(
-            self.max_episode,
-            self.p_num,
-            ini_population,
-            self.c,
-            self.cr,
-            self.seed,
-        )
+        r"""
+        Choose CFI or $\mathrm{Tr}(WI^{-1})$ as the objective function. 
+        In single parameter estimation the objective function is CFI and 
+        in multiparameter estimation it will be $\mathrm{Tr}(WI^{-1})$.
+
+        Parameters
+        ----------
+        > **W:** `matrix`
+            -- Weight matrix.
+
+        > **M:** `list of matrices`
+            -- A set of positive operator-valued measure (POVM). The default measurement 
+            is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+        """
 
         super().CFIM(M, W)
 
     def HCRB(self, W=[]):
-        ini_population = ([self.psi],)
-        self.alg = Main.QuanEstimation.DE(
-            self.max_episode,
-            self.p_num,
-            ini_population,
-            self.c,
-            self.cr,
-            self.seed,
-        )
+        """
+        Choose HCRB as the objective function. 
 
+        **Note:** in single parameter estimation, HCRB is equivalent to QFI, please choose 
+        QFI as the objective function.
+
+        Parameters
+        ----------
+        > **W:** `matrix`
+            -- Weight matrix.
+        """
+        
         super().HCRB(W)

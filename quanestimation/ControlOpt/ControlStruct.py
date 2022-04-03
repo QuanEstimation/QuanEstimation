@@ -9,68 +9,80 @@ from quanestimation.Common.common import SIC
 
 
 class ControlSystem:
-    def __init__(self, savefile, ctrl0, load, eps):
+    """
+    Attributes
+    ----------
+    > **savefile:** `bool`
+        -- Whether or not to save all the control coeffients.  
+        If set True then the control coefficients and the values of the 
+        objective function obtained in all episodes will be saved during 
+        the training. If set False the control coefficients in the final 
+        episode and the values of the objective function in all episodes 
+        will be saved.
 
-        """
-        ----------
-        Inputs
-        ----------
-        tspan:
-           --description: time length for the evolution.
-           --type: array
+    > **ctrl0:** `list of arrays`
+        -- Initial guesses of control coefficients.
 
-        rho0:
-           --description: initial state (density matrix).
-           --type: matrix
+    > **eps:** `float`
+        -- Machine epsilon.
 
-        H0:
-           --description: free Hamiltonian.
-           --type: matrix or a list of matrix
+    > **load:** `bool`
+        -- Whether or not to load control coefficients in the current location.  
+        If set True then the program will load control coefficients from 
+        "controls.csv" file in the current location and use it as the initial 
+        control coefficients.
+    """
 
-        Hc:
-           --description: control Hamiltonian.
-           --type: list (of matrix)
-
-        dH:
-           --description: derivatives of Hamiltonian on all parameters to
-                          be estimated. For example, dH[0] is the derivative
-                          vector on the first parameter.
-           --type: list (of matrix)
-
-        decay:
-           --description: decay operators and the corresponding decay rates.
-                          decay[0][0] represent the first decay operator and
-                          decay[0][1] represent the corresponding decay rate.
-           --type: list
-
-        ctrl_bound:
-           --description: lower and upper bounds of the control coefficients.
-                          ctrl_bound[0] represent the lower bound of the control coefficients and
-                          ctrl_bound[1] represent the upper bound of the control coefficients.
-           --type: list
-
-        savefile:
-            --description: True: save the control coefficients and the value of the target function
-                                 for each episode.
-                           False: save the control coefficients and all the value of the target
-                                  function for the last episode.
-            --type: bool
-
-        ctrl0:
-            --description: initial control coefficients.
-            --type: list (of vector)
-
-        eps:
-            --description: calculation eps.
-            --type: float
-
-        """
+    def __init__(self, savefile, ctrl0, eps, load):
         self.savefile = savefile
         self.ctrl0 = ctrl0
         self.eps = eps
         self.load = load
 
     def dynamics(self, tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[]):
+        r"""
+        Dynamics of the density matrix of the form 
+        
+        $$\partial_{t}\rho=-i[H,\rho]+\sum_{i} \gamma_{i}\left (\Gamma_{i}\rho
+        \Gamma^{\dagger}_{i}-\frac{1}{2}\left \{\rho,\Gamma^{\dagger}_{i} 
+        \Gamma_{i} \right\}\right), $$ 
+
+        where $\rho$ is the evolved density matrix, H is the Hamiltonian of the 
+        system, $\Gamma_i$ and $\gamma_i$ are the $i\mathrm{th}$ decay 
+        operator and decay rate.
+
+        Parameters
+        ----------
+        > **tspan:** `array`
+            -- Time length for the evolution.
+
+        > **rho0:** `matrix`
+            -- Initial state (density matrix).
+
+        > **H0:** `matrix or list`
+            -- Free Hamiltonian. It is a matrix when the free Hamiltonian is time-
+            independent and a list of length equal to tspan when it is time-dependent.
+
+        > **dH:** `list`
+            -- Derivatives of the free Hamiltonian on the unknown parameters to be 
+            estimated. For example, dH[0] is the derivative vector on the first 
+            parameter.
+
+        > **Hc:** `list`
+            -- Control Hamiltonians.
+
+        > **decay:** `list`
+            -- Decay operators and the corresponding decay rates. Its input rule is 
+            `decay=[[Gamma1, gamma1],[Gamma2,gamma2],...]`, where `Gamma1 (Gamma2)` 
+            represents the decay operator and `gamma1 (gamma2)` is the corresponding 
+            decay rate.
+
+        > **ctrl_bound:** `array`
+            -- Lower and upper bounds of the control coefficients.
+            `ctrl_bound[0]` represents the lower bound of the control coefficients and
+            `ctrl_bound[1]` represents the upper bound of the control coefficients.
+        """
+
         self.tspan = tspan
         self.rho0 = np.array(rho0, dtype=np.complex128)
 
@@ -191,17 +203,23 @@ class ControlSystem:
         self.dynamics_type = "lindblad"
 
     def QFIM(self, W=[], LDtype="SLD"):
-        """
-        Description: use differential evolution algorithm to update the control coefficients that maximize the
-                     QFI (1/Tr(WF^{-1} with F the QFIM).
+        r"""
+        Choose QFI or $\mathrm{Tr}(WF^{-1})$ as the objective function. 
+        In single parameter estimation the objective function is QFI and in 
+        multiparameter estimation it will be $\mathrm{Tr}(WF^{-1})$.
 
-        ---------
-        Inputs
-        ---------
-        W:
-            --description: weight matrix.
-            --type: matrix
+        Parameters
+        ----------
+        > **W:** `matrix`
+            -- Weight matrix.
+
+        > **LDtype:** `string`
+            -- Types of QFI (QFIM) can be set as the objective function. Options are:  
+            "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
+            "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
+            "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).  
         """
+
         if LDtype != "SLD" and LDtype != "RLD" and LDtype != "LLD":
             raise ValueError(
                 "{!r} is not a valid value for LDtype, supported values are 'SLD', 'RLD' and 'LLD'.".format(
@@ -222,22 +240,25 @@ class ControlSystem:
         Main.QuanEstimation.run(system)
 
     def CFIM(self, M=[], W=[]):
+        r"""
+        Choose CFI or $\mathrm{Tr}(WI^{-1})$ as the objective function. 
+        In single parameter estimation the objective function is CFI and 
+        in multiparameter estimation it will be $\mathrm{Tr}(WI^{-1})$.
 
+        Parameters
+        ----------
+        > **W:** `matrix`
+            -- Weight matrix.
+
+        > **M:** `list`
+            -- A set of positive operator-valued measure (POVM). The default measurement 
+            is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+
+        **Note:** 
+            the Weyl-Heisenberg covariant SIC-POVM fiducial state of dimension $d$
+            are download from http://www.physics.umb.edu/Research/QBism/solutions.html.
         """
-        Description: use differential evolution algorithm to update the control coefficients that maximize the
-                     CFI (1/Tr(WF^{-1} with F the CFIM).
 
-        ---------
-        Inputs
-        ---------
-        M:
-            --description: a set of POVM.
-            --type: list of matrix
-
-        W:
-            --description: weight matrix.
-            --type: matrix
-        """
         if M == []:
             M = SIC(len(self.rho0))
         M = [np.array(x, dtype=np.complex128) for x in M]
@@ -254,16 +275,18 @@ class ControlSystem:
 
     def HCRB(self, W=[]):
         """
-        Description: use differential evolution algorithm to update the control coefficients that maximize the
-                     HCRB.
+        Choose HCRB as the objective function. 
 
-        ---------
-        Inputs
-        ---------
-        W:
-            --description: weight matrix.
-            --type: matrix
+        **Notes:** (1) In single parameter estimation, HCRB is equivalent to QFI, please
+        choose QFI as the objective function. (2) GRAPE and auto-GRAPE are not available
+        when the objective function is HCRB. Supported methods are PSO, DE and DDPG.
+
+        Parameters
+        ----------
+        > **W:** `matrix` 
+            -- Weight matrix.
         """
+
         if W == []:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
@@ -285,6 +308,41 @@ class ControlSystem:
             Main.QuanEstimation.run(system)
 
     def mintime(self, f, W=[], M=[], method="binary", target="QFIM", LDtype="SLD"):
+        """
+        Search of the minimum time to reach a given value of the objective function.
+
+        Parameters
+        ----------
+        > **f:** `float`
+            -- The given value of the objective function.
+
+        > **W:** `matrix`
+            -- Weight matrix.
+
+        > **M:** `list of matrices`
+            -- A set of positive operator-valued measure (POVM). The default measurement 
+            is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+
+        > **method:** `string`
+            -- Methods for searching the minimum time to reach the given value of the 
+            objective function. Options are:  
+            "binary" (default) -- binary search (logarithmic search).  
+            "forward" -- forward search from the beginning of time.  
+
+        > **target:** `string`
+            -- Objective functions for searching the minimum time to reach the given 
+            value of the objective function. Options are:  
+            "QFIM" (default) -- choose QFI (QFIM) as the objective function.  
+            "CFIM" -- choose CFI (CFIM) as the objective function.  
+            "HCRB" -- choose HCRB as the objective function.  
+
+        > **LDtype:** `string`
+            -- Types of QFI (QFIM) can be set as the objective function. Options are:  
+            "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
+            "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
+            "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).  
+        """
+
         if not (method == "binary" or method == "forward"):
             raise ValueError(
                 "{!r} is not a valid value for method, supported values are 'binary' and 'forward'.".format(

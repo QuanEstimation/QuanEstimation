@@ -6,33 +6,30 @@ from more_itertools import zip_broadcast
 
 
 def SpinSqueezing(rho, basis="Dicke", output="KU"):
-    """
-    Description: Calculate spin squeezing parameter for a density matrix.
+    r"""
+    Calculation of spin squeezing parameter for a density matrix.
 
-    ---------
-    Inputs
-    ---------
-    N :
-       --description: particle number.
-       --type: int
-    rho :
-       --description: density matrix.
-       --type: matrix
-
-    output:
-       --description: if output=='KU',the output of the squeezing parameter is defined by
-                      Kitagawa and Ueda. if output=='WBIMH',the output of the squeezing
-                      parameter is defined by Wineland et al.
-       --type: string {'KU', 'WBIMH'}
-
+    Parameters
     ----------
+    > **rho:** `matrix`
+        -- Density matrix.
+
+    > **basis:** `string`
+        -- The basis of the state. Options are:  
+        "Dicke" (default) -- Dicke basis.  
+        "Pauli" -- The original basis of each spin.
+
+    > **output:** `string`
+        -- Types of spin squeezing can be calculated. Options are:  
+        "KU" (default) -- Spin squeezing defined by Kitagawa and Ueda.  
+        "WBIMH" -- Spin squeezing defined by Wineland et al.
+
     Returns
     ----------
-    Xi :
-       --description: squeezing_parameter.
-       --type: float
-
+    **$\xi$:** `float`
+        -- spin squeezing parameter
     """
+
     N = len(rho) - 1
 
     coef = 4.0 / float(N)
@@ -92,6 +89,32 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
 
 
 def TargetTime(f, tspan, func, *args, **kwargs):
+    """
+    Calculation of spin squeezing parameter for a density matrix.
+
+    Parameters
+    ----------
+    > **f:** `float`
+        -- The given value of the objective function.
+
+    > **tspan:** `array`
+        -- Time length for the evolution.
+
+    > **func:** `array`
+        -- The handle of a function.
+
+    > ***args:** `string`
+        -- The corresponding input parameter.
+
+    > ****kwargs:** `string`
+        -- Keyword arguments in `func`.
+
+    Returns
+    ----------
+    **time:** `float`
+        -- Time to reach the given target.
+    """
+
     args = list(zip_broadcast(*args))
 
     f_last = func(*(args[0]), **kwargs)

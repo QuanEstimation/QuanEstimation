@@ -10,31 +10,49 @@ from quanestimation.Common.common import gramschmidt, sic_povm
 
 
 class MeasurementSystem:
-    def __init__(self, mtype, minput, savefile, measurement0, seed, load, eps):
+    """
 
-        """
-         ----------
-         Inputs
-         ----------
-        savefile:
-             --description: True: save the measurements and the value of the target function
-                                  for each episode.
-                            False: save the measurements and all the value of the target
-                                   function for the last episode.
-             --type: bool
+    Attributes
+    ----------
+    > **mtype:** `string`
+        -- The type of scenarios for the measurement optimization. Options are:  
+        "projection" (default) -- Optimization of rank-one projective measurements.  
+        "input" -- Find the optimal linear combination or the optimal rotated measurement 
+        of a given set of POVM.
 
-         measurement0:
-            --description: a set of POVMs.
-            --type: list (of vector)
+    > **minput:** `list`
+        -- In the case of optimization of rank-one projective measurements, the 
+        `minput` should keep empty. For finding the optimal linear combination and 
+        the optimal rotated measurement of a given set of POVM, the input rule are 
+        `minput=["LC", [Pi1,Pi2,...], m]` and `minput=["LC", [Pi1,Pi2,...]]` respectively.
+        Here `[Pi1,Pi2,...]` represents a list of input POVM and `m` is the number of operators 
+        of the output measurement. 
 
-         eps:
-             --description: calculation eps.
-             --type: float
+    > **savefile:** `bool`
+        -- Whether or not to save all the measurements.  
+        If set True then the measurements and the values of the 
+        objective function obtained in all episodes will be saved during 
+        the training. If set False the measurement in the final 
+        episode and the values of the objective function in all episodes 
+        will be saved.
 
-         notes: the Weyl-Heisenberg covariant SIC-POVM fiducial state of dimension $d$
-                are download from http://www.physics.umb.edu/Research/QBism/solutions.html.
+   > **measurement0:** `list of arrays`
+        -- Initial guesses of measurements.
 
-        """
+    > **seed:** `int`
+        -- Random seed.
+
+    > **eps:** `float`
+        -- Machine epsilon.
+
+    > **load:** `bool`
+        -- Whether or not to load measurements in the current location.  
+        If set True then the program will load measurement from "measurements.csv"
+        file in the current location and use it as the initial measurement.
+    """
+
+    def __init__(self, mtype, minput, savefile, measurement0, seed, eps, load):
+
         self.mtype = mtype
         self.minput = minput
         self.savefile = savefile
@@ -54,49 +72,45 @@ class MeasurementSystem:
         else: pass
 
     def dynamics(self, tspan, rho0, H0, dH, Hc=[], ctrl=[], decay=[]):
+        r"""
+        Dynamics of the density matrix of the form 
+        
+        $$\partial_{t}\rho=-i[H,\rho]+\sum_{i} \gamma_{i}\left (\Gamma_{i}\rho\Gamma^{\dagger}_{i}-\frac{1}{2}\left \{ \rho,\Gamma^{\dagger}_{i} \Gamma_{i} \right\}\right), $$ 
 
-        """
+        where $\rho$ is the evolved density matrix, H is the Hamiltonian of the 
+        system, $\Gamma_i$ and $\gamma_i$ are the $i\mathrm{th}$ decay 
+        operator and decay rate.
+
+        Parameters
         ----------
-        Inputs
-        ----------
-        tspan:
-           --description: time series.
-           --type: array
+        > **tspan:** `array`
+            -- Time length for the evolution.
 
-        psi0:
-            --description: initial guess of states (kets).
-            --type: array
+        > **rho0:** `matrix`
+            -- Initial state (density matrix).
 
-        H0:
-           --description: free Hamiltonian.
-           --type: matrix (a list of matrix)
+        > **H0:** `matrix or list`
+            -- Free Hamiltonian. It is a matrix when the free Hamiltonian is time-
+            independent and a list of length equal to tspan when it is time-dependent.
 
-        dH:
-           --description: derivatives of Hamiltonian on all parameters to
-                          be estimated. For example, dH[0] is the derivative
-                          vector on the first parameter.
-           --type: list (of matrix)
+        > **dH:** `list`
+            -- Derivatives of the free Hamiltonian on the unknown parameters to be 
+            estimated. For example, dH[0] is the derivative vector on the first 
+            parameter.
 
-        Hc:
-           --description: control Hamiltonian.
-           --type: list (of matrix)
+        > **Hc:** `list`
+            -- Control Hamiltonians.
 
-        ctrl:
-            --description: control coefficients.
-            --type: list (of vector)
+        > **ctrl:** `list of arrays`
+            -- Control coefficients.
 
-        decay:
-           --description: decay operators and the corresponding decay rates.
-                          decay[0][0] represent the first decay operator and
-                          decay[0][1] represent the corresponding decay rate.
-           --type: list
-
-        ctrl_bound:
-           --description: lower and upper bounds of the control coefficients.
-                          ctrl_bound[0] represent the lower bound of the control coefficients and
-                          ctrl_bound[1] represent the upper bound of the control coefficients.
-           --type: list
+        > **decay:** `list`
+            -- Decay operators and the corresponding decay rates. Its input rule is 
+            `decay=[[Gamma1, gamma1],[Gamma2,gamma2],...]`, where Gamma1 (Gamma2) 
+            represents the decay operator and gamma1 (gamma2) is the corresponding 
+            decay rate.
         """
+
         self.tspan = tspan
         self.rho0 = np.array(rho0, dtype=np.complex128)
 
@@ -340,6 +354,26 @@ class MeasurementSystem:
 
 
     def kraus(self, rho0, K, dK):
+        r"""
+        Dynamics of the density matrix of the form 
+        
+        $$\rho=\sum_i K_i\rho_0K_i^{\dagger}$$ 
+
+        where $\rho$ is the evolved density matrix, $K_i$ is the Kraus operator.
+
+        Parameters
+        ----------
+        > **rho0:** `matrix`
+            -- Initial state (density matrix).
+
+        > **K:** `list`
+            -- Kraus operator(s).
+
+        > **dK:** `list`
+            -- Derivatives of the Kraus operator(s) on the unknown parameters to be 
+            estimated. For example, dK[0] is the derivative vector on the first 
+            parameter.
+        """
         k_num = len(K)
         para_num = len(dK[0])
         self.dK = [
@@ -490,17 +524,17 @@ class MeasurementSystem:
         self.dynamics_type = "kraus"
 
     def CFIM(self, W=[]):
-        """
-        Description: use differential evolution algorithm to update the measurements that maximize the
-                     CFI (1/Tr(WF^{-1} with F the CFIM).
+        r"""
+        Choose CFI or $\mathrm{Tr}(WI^{-1})$ as the objective function. 
+        In single parameter estimation the objective function is CFI and 
+        in multiparameter estimation it will be $\mathrm{Tr}(WI^{-1})$.
 
-        ---------
-        Inputs
-        ---------
-        W:
-            --description: weight matrix.
-            --type: matrix
+        Parameters
+        ----------
+        > **W:** `matrix`
+            -- Weight matrix.
         """
+
         if self.dynamics_type == "dynamics":
             if W == []:
                 W = np.eye(len(self.Hamiltonian_derivative))

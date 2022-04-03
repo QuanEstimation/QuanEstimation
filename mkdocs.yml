@@ -1,0 +1,72 @@
+site_name: QuanEstimation
+site_description: Docs of QuanEstimation
+site_author: QuanEstimation
+site_url: http://bwmarrin.github.io/MkDocsPlus/
+
+repo_url: https://github.com/bwmarrin/MkDocsPlus
+
+# extra_javascript: []
+extra_css:
+      - css/style.css
+      - css/material.css
+      - css/mkdocstrings.css
+
+dev_addr: 0.0.0.0:8000
+
+markdown_extensions:
+      - pymdownx.arithmatex:
+              generic: true
+      - fontawesome_markdown
+      - pymdownx.highlight
+      # - deduplicate-toc
+      - pymdownx.tabbed
+            #   alternate_style: true
+      # - pymdownx.emoji:
+      # emoji_index: !!python/name:materialx.emoji.twemoji
+      # emoji_generator: !!python/name:materialx.emoji.to_svg
+
+extra_javascript:
+      - javascripts/mathjax.js
+      - https://polyfill.io/v3/polyfill.min.js?features=es6
+      - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+theme:
+      #readthedocs
+      name: material
+      icon:
+            logo: material/currency-sign
+      features:
+            - content.code.annotate
+            - navigation.tabs
+            - navigation.top
+      palette:
+            - media: "(prefers-color-scheme: light)"
+              scheme: default
+              primary: teal
+              accent: purple
+              toggle:
+                    icon: material/weather-sunny
+                    name: Switch to dark mode
+            - media: "(prefers-color-scheme: dark)"
+              scheme: slate
+              primary: black
+              accent: lime
+              toggle:
+                    icon: material/weather-night
+                    name: Switch to light mode
+
+plugins:
+      - search
+      - mkdocstrings:
+              handlers:
+                    python:
+                          import:
+                                - https://docs.python-requests.org/en/master/objects.inv
+
+nav:
+      - "Home": index.md
+      - "API documentation": 
+            - "Classes": API/classes.md
+            - "Functions": API/functions.md
+
+            # "Classes" : "API/Classes.md"
