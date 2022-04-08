@@ -1,7 +1,5 @@
-import numpy as np
 from julia import Main
 import quanestimation.ComprehensiveOpt.ComprehensiveStruct as Comp
-from quanestimation.Common.common import SIC
 
 
 class DE_Compopt(Comp.ComprehensiveSystem):
@@ -11,9 +9,9 @@ class DE_Compopt(Comp.ComprehensiveSystem):
     > **savefile:** `bool`
         -- Whether or not to save all the optimized variables (probe states, 
         control coefficients and measurements).  
-        If set True then the optimized variables and the values of the 
+        If set `True` then the optimized variables and the values of the 
         objective function obtained in all episodes will be saved during 
-        the training. If set False the optimized variables in the final 
+        the training. If set `False` the optimized variables in the final 
         episode and the values of the objective function in all episodes 
         will be saved.
 
@@ -103,6 +101,11 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
             "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
             "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD). 
+
+        **Note:** 
+            SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+            which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+            ](http://www.physics.umb.edu/Research/QBism/solutions.html).
         """
         
         super().SC(W, M, target, LDtype)

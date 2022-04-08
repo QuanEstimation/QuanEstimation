@@ -38,7 +38,7 @@
 
 ---
 
-<!-- # **Bayesian Cramér-Rao bounds**
+# **Bayesian Cramér-Rao bounds**
 ## **Bayesian classical Fisher information matrix (BCFIM)** #
 ::: quanestimation.BCFIM
 ## **Bayesian quantum Fisher information matrix (BQFIM)** #
@@ -67,7 +67,7 @@
 ## **Maximum likelihood estimation (MLE)**
 ::: quanestimation.MLE
 
---- -->
+---
 
 # **Common**
 ## **Adaptive input**

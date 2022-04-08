@@ -1,7 +1,6 @@
 import numpy as np
 from scipy.integrate import simps
 from itertools import product
-import quanestimation.Adaptive as apt
 from quanestimation.Common.common import extract_ele, SIC
 from quanestimation.MeasurementOpt.MeasurementStruct import MeasurementOpt
 from quanestimation.Dynamics.dynamics import Lindblad
@@ -23,9 +22,9 @@ class adaptive:
 
     > **savefile:** `bool`
         -- Whether or not to save all the posterior distributions.  
-        If set True then three files "pout.npy", "xout.npy" and "y.npy" will be 
+        If set `True` then three files "pout.npy", "xout.npy" and "y.npy" will be 
         generated including the posterior distributions and the estimated values 
-        in the iterations. If set False the posterior distribution in the final 
+        in the iterations. If set `False` the posterior distribution in the final 
         iteration and the estimated values in all iterations will be saved in 
         "pout.npy", "xout.npy" and "y.npy". 
 
@@ -44,14 +43,17 @@ class adaptive:
         self.max_episode = max_episode
         self.eps = eps
         self.para_num = len(x)
+        self.savefile = savefile
 
     def dynamics(self, tspan, H, dH, Hc=[], ctrl=[], decay=[]):
         r"""
         Dynamics of the density matrix of the form 
         
-        $$\partial_{t}\rho=-i[H,\rho]+\sum_{i} \gamma_{i}\left (\Gamma_{i}\rho
-        \Gamma^{\dagger}_{i}-\frac{1}{2}\left \{\rho,\Gamma^{\dagger}_{i} 
-        \Gamma_{i} \right\}\right), $$ 
+        \begin{align}
+        \partial_t\rho &=\mathcal{L}\rho \nonumber \\
+        &=-i[H,\rho]+\sum_i \gamma_i\left(\Gamma_i\rho\Gamma^{\dagger}_i-\frac{1}{2}
+        \left\{\rho,\Gamma^{\dagger}_i \Gamma_i \right\}\right),
+        \end{align} 
 
         where $\rho$ is the evolved density matrix, H is the Hamiltonian of the 
         system, $\Gamma_i$ and $\gamma_i$ are the $i\mathrm{th}$ decay 
@@ -77,7 +79,7 @@ class adaptive:
 
         > **decay:** `list`
             -- Decay operators and the corresponding decay rates. Its input rule is 
-            `decay=[[Gamma1, gamma1],[Gamma2,gamma2],...]`, where `Gamma1 (Gamma2)` 
+            `decay=[[Gamma1, gamma1], [Gamma2,gamma2],...]`, where `Gamma1 (Gamma2)` 
             represents the decay operator and `gamma1 (gamma2)` is the corresponding 
             decay rate.
         """
@@ -94,8 +96,9 @@ class adaptive:
     def kraus(self, K, dK):
         r"""
         Dynamics of the density matrix of the form 
-        
-        $$\rho=\sum_i K_i\rho_0K_i^{\dagger}$$ 
+        \begin{align}
+        \rho=\sum_i K_i\rho_0K_i^{\dagger}
+        \end{align}
 
         where $\rho$ is the evolved density matrix, $K_i$ is the Kraus operator.
 
@@ -130,8 +133,9 @@ class adaptive:
             is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
 
         **Note:** 
-            the Weyl-Heisenberg covariant SIC-POVM fiducial state of dimension $d$
-            are download from http://www.physics.umb.edu/Research/QBism/solutions.html.
+            SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+            which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+            ](http://www.physics.umb.edu/Research/QBism/solutions.html).
         """
 
         if M == []:
@@ -155,7 +159,7 @@ class adaptive:
                 W,
                 self.max_episode,
                 self.eps,
-                savefile,
+                self.savefile,
             )
         elif self.dynamic_type == "kraus":
             adaptive_kraus(
@@ -168,7 +172,7 @@ class adaptive:
                 W,
                 self.max_episode,
                 self.eps,
-                savefile,
+                self.savefile,
             )
         else:
             raise ValueError(
@@ -252,7 +256,7 @@ class adaptive:
                 ctrl=self.ctrl,
                 decay=self.decay,
             )
-            m.CFIM(W=W, savefile=False)
+            m.CFIM(W=W)
         elif self.dynamic_type == "kraus":
             if self.para_num == 1:
                 F = []
@@ -313,7 +317,7 @@ class adaptive:
                 K_res, dK_res = self.K_list[idx], self.dK_list[idx]
             m = MeasurementOpt(mtype="projection", minput=[], method="DE")
             m.kraus(self.rho0, K_res, dK_res, decay=self.decay)
-            m.CFIM(W=W, savefile=False)
+            m.CFIM(W=W)
         else:
             raise ValueError(
                 "{!r} is not a valid value for type of dynamics, supported values are 'dynamics' and 'kraus'.".format(

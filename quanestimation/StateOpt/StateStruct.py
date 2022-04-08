@@ -14,11 +14,10 @@ class StateSystem:
     ----------
     > **savefile:**  `bool`
         -- Whether or not to save all the states.
-        If set True then the states and the values of the 
-        objective function obtained in all episodes will be saved during 
-        the training. If set False the state in the final 
-        episode and the values of the objective function in all episodes 
-        will be saved.
+        If set `True` then the states and the values of the objective function 
+        obtained in all episodes will be saved during the training. If set `False` 
+        the state in the final episode and the values of the objective function in 
+        all episodes will be saved.
 
     > **psi0:** `list of arrays`
         -- Initial guesses of states.
@@ -31,7 +30,7 @@ class StateSystem:
 
     > **load:** `bool`
         -- Whether or not to load states in the current location.
-        If set True then the program will load state from "states.csv"
+        If set `True` then the program will load state from "states.csv"
         file in the current location and use it as the initial state.
     """
 
@@ -60,15 +59,17 @@ class StateSystem:
 
     def dynamics(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[]):
         r"""
-        Dynamics of the density matrix of the form 
+        The dynamics of a density matrix is of the form 
         
-        $$\partial_{t}\rho=-i[H,\rho]+\sum_{i} \gamma_{i}\left (\Gamma_{i}
-        \rho\Gamma^{\dagger}_{i}-\frac{1}{2}\left \{\rho,\Gamma^{\dagger}_{i} 
-        \Gamma_{i} \right\}\right), $$ 
+        \begin{align}
+        \partial_t\rho &=\mathcal{L}\rho \nonumber \\
+        &=-i[H,\rho]+\sum_i \gamma_i\left(\Gamma_i\rho\Gamma^{\dagger}_i-\frac{1}{2}
+        \left\{\rho,\Gamma^{\dagger}_i \Gamma_i \right\}\right),
+        \end{align}
 
         where $\rho$ is the evolved density matrix, H is the Hamiltonian of the 
         system, $\Gamma_i$ and $\gamma_i$ are the $i\mathrm{th}$ decay 
-        operator and decay rate.
+        operator and corresponding decay rate.
 
         Parameters
         ----------
@@ -77,7 +78,7 @@ class StateSystem:
 
         > **H0:** `matrix or list`
             -- Free Hamiltonian. It is a matrix when the free Hamiltonian is time-
-            independent and a list of length equal to tspan when it is time-dependent.
+            independent and a list of length equal to `tspan` when it is time-dependent.
 
         > **dH:** `list`
             -- Derivatives of the free Hamiltonian on the unknown parameters to be 
@@ -92,9 +93,9 @@ class StateSystem:
 
         > **decay:** `list`
             -- Decay operators and the corresponding decay rates. Its input rule is 
-            `decay=[[Gamma1, gamma1],[Gamma2,gamma2],...]`, where Gamma1 (Gamma2) 
-            represents the decay operator and gamma1 (gamma2) is the corresponding 
-            decay rate.
+            decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$,$\gamma_2$],...], where $\Gamma_1$ 
+            $(\Gamma_2)$ represents the decay operator and $\gamma_1$ $(\gamma_2)$ is the 
+            corresponding decay rate.
         """
 
         self.tspan = tspan
@@ -190,15 +191,12 @@ class StateSystem:
             r = r_ini / np.linalg.norm(r_ini)
             phi = 2 * np.pi * np.random.random(self.dim)
             psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
-            self.psi0 = np.array(psi0)
+            self.psi0 = np.array(psi0)  # Initial state (an array)
+            self.psi = [self.psi0] # Initial guesses of states (a list of arrays)
         else:
             self.psi0 = np.array(self.psi0[0], dtype=np.complex128)
-
-        if self.psi == []:
-            self.psi = [self.psi0]
-        else:
             self.psi = [np.array(psi, dtype=np.complex128) for psi in self.psi]
-
+            
         if type(dH) != list:
             raise TypeError("The derivative of Hamiltonian should be a list!")
 
@@ -241,19 +239,20 @@ class StateSystem:
 
     def kraus(self, K, dK):
         r"""
-        Dynamics of the density matrix of the form 
-        
-        $$\rho=\sum_i K_i\rho_0K_i^{\dagger}$$ 
+        The parameterization of a state is
+        \begin{align}
+        \rho=\sum_i K_i\rho_0K_i^{\dagger},
+        \end{align} 
 
         where $\rho$ is the evolved density matrix, $K_i$ is the Kraus operator.
 
         Parameters
         ----------
         > **K:** `list`
-            -- Kraus operator(s).
+            -- Kraus operators.
 
         > **dK:** `list`
-            -- Derivatives of the Kraus operator(s) on the unknown parameters to be 
+            -- Derivatives of the Kraus operators on the unknown parameters to be 
             estimated. For example, dK[0] is the derivative vector on the first 
             parameter.
         """
@@ -356,8 +355,9 @@ class StateSystem:
             is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
 
         **Note:** 
-            the Weyl-Heisenberg covariant SIC-POVM fiducial state of dimension $d$
-            are download from http://www.physics.umb.edu/Research/QBism/solutions.html.
+            SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+            which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+            ](http://www.physics.umb.edu/Research/QBism/solutions.html).
         """
 
         if M == []:
@@ -401,9 +401,8 @@ class StateSystem:
                 W = np.eye(len(self.Hamiltonian_derivative))
             self.W = W
             if len(self.Hamiltonian_derivative) == 1:
-                raise ValueError(
-                    "In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function for control optimization",
-                )
+                print("Program exit. In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function for control optimization"
+                    )
             else: pass
 
         elif self.dynamics_type == "kraus":

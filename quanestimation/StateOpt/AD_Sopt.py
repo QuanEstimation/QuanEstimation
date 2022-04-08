@@ -8,11 +8,10 @@ class AD_Sopt(State.StateSystem):
     ----------
     > **savefile:** `bool`
         -- Whether or not to save all the states.  
-        If set True then the states and the values of the 
-        objective function obtained in all episodes will be saved during 
-        the training. If set False the state in the final 
-        episode and the values of the objective function in all episodes 
-        will be saved.
+        If set `True` then the states and the values of the objective function 
+        obtained in all episodes will be saved during the training. If set `False` 
+        the state in the final episode and the values of the objective function in 
+        all episodes will be saved.
 
     > **Adam:** `bool`
         -- Whether or not to use Adam for updating states.
@@ -37,7 +36,7 @@ class AD_Sopt(State.StateSystem):
 
     > **load:** `bool`
         -- Whether or not to load states in the current location.  
-        If set True then the program will load state from "states.csv"
+        If set `True` then the program will load state from "states.csv"
         file in the current location and use it as the initial state.
     """
 
@@ -106,6 +105,11 @@ class AD_Sopt(State.StateSystem):
         > **M:** `list of matrices`
             -- A set of positive operator-valued measure (POVM). The default measurement 
             is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+
+        **Note:** 
+            SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+            which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+            ](http://www.physics.umb.edu/Research/QBism/solutions.html).
         """
 
         super().CFIM(M, W)

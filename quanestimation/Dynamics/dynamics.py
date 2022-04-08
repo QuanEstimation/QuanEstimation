@@ -6,15 +6,17 @@ from julia import Main
 
 class Lindblad:
     r"""
-    Dynamics of the density matrix of the form 
-        
-    $$\partial_{t}\rho=\mathcal{L}\rho=-i[H,\rho]+\sum_{i} \gamma_{i}\left 
-    (\Gamma_{i}\rho\Gamma^{\dagger}_{i}-\frac{1}{2}\left \{\rho,\Gamma^{\dagger}_{i} 
-    \Gamma_{i} \right\}\right), $$ 
+    The dynamics of a density matrix is of the form 
+
+    \begin{align}
+    \partial_t\rho &=\mathcal{L}\rho \nonumber \\
+    &=-i[H,\rho]+\sum_i \gamma_i\left(\Gamma_i\rho\Gamma^{\dagger}_i-\frac{1}{2}
+    \left\{\rho,\Gamma^{\dagger}_i \Gamma_i \right\}\right),
+    \end{align}
 
     where $\rho$ is the evolved density matrix, H is the Hamiltonian of the 
     system, $\Gamma_i$ and $\gamma_i$ are the $i\mathrm{th}$ decay 
-    operator and decay rate.
+    operator and the corresponding decay rate.
 
     Attributes
     ----------
@@ -26,7 +28,8 @@ class Lindblad:
 
     > **H0:** `matrix or list`
         -- Free Hamiltonian. It is a matrix when the free Hamiltonian is time-
-        independent and a list of length equal to tspan when it is time-dependent.
+        independent and a list with the length equal to `tspan` when it is 
+        time-dependent.
 
     > **dH:** `list`
         -- Derivatives of the free Hamiltonian on the unknown parameters to be 
@@ -35,9 +38,9 @@ class Lindblad:
 
     > **decay:** `list`
         -- Decay operators and the corresponding decay rates. Its input rule is 
-        `decay=[[Gamma1, gamma1],[Gamma2,gamma2],...]`, where Gamma1 (Gamma2) 
-        represents the decay operator and gamma1 (gamma2) is the corresponding 
-        decay rate.
+        decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$,$\gamma_2$],...], where $\Gamma_1$ 
+        $(\Gamma_2)$ represents the decay operator and $\gamma_1$ $(\gamma_2)$ is the 
+        corresponding decay rate.
 
     > **Hc:** `list`
         -- Control Hamiltonians.
@@ -107,14 +110,15 @@ class Lindblad:
 
     def expm(self):
         r"""
-        Calculation of the density matrix and its derivatives on the parameters.
+        Calculation of the density matrix and its derivatives on the unknown parameters.
         The density matrix at $j$th time interval is obtained by 
         $\rho_j=e^{\Delta t\mathcal{L}}\rho_{j-1}$, where $\Delta t$ is the time
-        interval and $\rho_{j-1}$ is the density matrix for the $j-1$th time interval.
-        $\partial_{\textbf{x}}\rho_j$ is calculated by
-
-        $$\partial_{\textbf{x}}\rho_j =\Delta t(\partial_{\textbf{x}}\mathcal{L})\rho_j
-        +e^{\Delta t \mathcal{L}}(\partial_{\textbf{x}}\rho_{j-1}).$$
+        interval and $\rho_{j-1}$ is the density matrix for the $(j-1)$th time interval.
+        $\partial_{\textbf{x}}\rho_j$ is calculated as
+        \begin{align}
+        \partial_{\textbf{x}}\rho_j =\Delta t(\partial_{\textbf{x}}\mathcal{L})\rho_j
+        +e^{\Delta t \mathcal{L}}(\partial_{\textbf{x}}\rho_{j-1}).
+        \end{align}
 
         """
 
@@ -133,23 +137,29 @@ class Lindblad:
     def secondorder_derivative(self, d2H):
         r"""
         Calculation of the density matrix and its derivatives and the second derivatives
-        on the parameters.
-        The density matrix at $j$th time interval is obtained by 
+        on $\textbf{x}$. The density matrix at $j$th time interval is obtained by 
         $\rho_j=e^{\Delta t\mathcal{L}}\rho_{j-1}$, where $\Delta t$ is the time
         interval and $\rho_{j-1}$ is the density matrix for the $(j-1)$th time interval.
-        $\partial_{\textbf{x}}\rho_j$ is calculated by
+        $\partial_{\textbf{x}}\rho_j$ is calculated via
+        \begin{align}
+        \partial_{\textbf{x}}\rho_j =\Delta t(\partial_{\textbf{x}}\mathcal{L})\rho_j
+        +e^{\Delta t \mathcal{L}}(\partial_{\textbf{x}}\rho_{j-1}).
+        \end{align}
 
-        $$\partial_{\textbf{x}}\rho_j =\Delta t(\partial_{\textbf{x}}\mathcal{L})\rho_j
-        +e^{\Delta t \mathcal{L}}(\partial_{\textbf{x}}\rho_{j-1}).$$
-
-        $\partial_{\textbf{x}}^2\rho_j$ is solved via
-
-        $$\partial_{\textbf{x}}^2\rho_j =\Delta t(\partial_{\textbf{x}}^2\mathcal{L})\rho_j
+        $\partial_{\textbf{x}}^2\rho_j$ is solved as
+        \begin{align}
+        \partial_{\textbf{x}}^2\rho_j =\Delta t(\partial_{\textbf{x}}^2\mathcal{L})\rho_j
         +\Delta t(\partial_{\textbf{x}}\mathcal{L})\partial_{\textbf{x}}\rho_j
         +\Delta t(\partial_{\textbf{x}}\mathcal{L})e^{\Delta t \mathcal{L}}
         \partial_{\textbf{x}}\rho_{j-1}
-        +e^{\Delta t \mathcal{L}}(\partial_{\textbf{x}}^2\rho_{j-1}).$$
+        +e^{\Delta t \mathcal{L}}(\partial_{\textbf{x}}^2\rho_{j-1}).
+        \end{align}
 
+        Parameters
+        ----------
+        > **d2H:** `list`
+            -- Second order derivatives of the free Hamiltonian on the unknown parameters 
+            to be estimated.
         """
 
         d2H = [np.array(x, dtype=np.complex128) for x in d2H]
@@ -168,9 +178,10 @@ class Lindblad:
 
 def kraus(rho0, K, dK):
     r"""
-    Dynamics of the density matrix of the form 
-        
-    $$\rho=\sum_i K_i\rho_0K_i^{\dagger}$$ 
+    The parameterization of a state is
+    \begin{align}
+    \rho=\sum_i K_i\rho_0K_i^{\dagger},
+    \end{align} 
 
     where $\rho$ is the evolved density matrix, $K_i$ is the Kraus operator.
 
@@ -180,16 +191,16 @@ def kraus(rho0, K, dK):
         -- Initial state (density matrix).
 
     > **K:** `list`
-        -- Kraus operator(s).
+        -- Kraus operators.
 
     > **dK:** `list`
-        -- Derivatives of the Kraus operator(s) on the unknown parameters to be 
+        -- Derivatives of the Kraus operators on the unknown parameters to be 
         estimated. For example, dK[0] is the derivative vector on the first 
         parameter.
 
     Returns
     ----------
-    Density matrix and its derivatives on the parameters.
+    Density matrix and its derivatives on the unknown parameters.
     """
 
     k_num = len(K)

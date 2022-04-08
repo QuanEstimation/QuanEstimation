@@ -1,7 +1,5 @@
-import numpy as np
 from julia import Main
 import quanestimation.ControlOpt.ControlStruct as Control
-from quanestimation.Common.common import SIC
 
 
 class DDPG_Copt(Control.ControlSystem):
@@ -10,9 +8,9 @@ class DDPG_Copt(Control.ControlSystem):
     ----------
     > **savefile:**  `bool`
         -- Whether or not to save all the control coeffients.  
-        If set True then the control coefficients and the values of the 
+        If set `True` then the control coefficients and the values of the 
         objective function obtained in all episodes will be saved during 
-        the training. If set False the control coefficients in the final 
+        the training. If set `False` the control coefficients in the final 
         episode and the values of the objective function in all episodes 
         will be saved.
 
@@ -23,7 +21,7 @@ class DDPG_Copt(Control.ControlSystem):
         -- The number of episodes.
   
     > **layer_num:** `int`
-        -- The number of layers (including the input and output layer).
+        -- The number of layers (include the input and output layer).
 
     > **layer_dim:** `int`
         -- The number of neurons in the hidden layer.
@@ -36,7 +34,7 @@ class DDPG_Copt(Control.ControlSystem):
 
     > **load:** `bool`
         -- Whether or not to load control coefficients in the current location.  
-        If set True then the program will load control coefficients from 
+        If set `True` then the program will load control coefficients from 
         "controls.csv" file in the current location and use it as the initial 
         control coefficients.
     """
@@ -99,6 +97,11 @@ class DDPG_Copt(Control.ControlSystem):
         > **M:** `list of matrices`
             -- A set of positive operator-valued measure (POVM). The default measurement 
             is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+
+        **Note:** 
+            SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+            which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+            ](http://www.physics.umb.edu/Research/QBism/solutions.html).
         """
 
         super().CFIM(M, W)
@@ -136,20 +139,26 @@ class DDPG_Copt(Control.ControlSystem):
         > **method:** `string`
             -- Methods for searching the minimum time to reach the given value of the 
             objective function. Options are:  
-            "binary" (default) -- binary search (logarithmic search).  
-            "forward" -- forward search from the beginning of time.
+            "binary" (default) -- Binary search (logarithmic search).  
+            "forward" -- Forward search from the beginning of time.
 
         > **target:** `string`
             -- Objective functions for searching the minimum time to reach the given 
             value of the objective function. Options are:  
-            "QFIM" (default) -- choose QFI (QFIM) as the objective function.  
-            "CFIM" -- choose CFI (CFIM) as the objective function.  
-            "HCRB" -- choose HCRB as the objective function.
+            "QFIM" (default) -- Choose QFI (QFIM) as the objective function.  
+            "CFIM" -- Choose CFI (CFIM) as the objective function.  
+            "HCRB" -- Choose HCRB as the objective function.
 
         > **LDtype:** `string`
             -- Types of QFI (QFIM) can be set as the objective function. Options are:  
             "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
             "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
             "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
+
+        **Note:** 
+            SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+            which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+            ](http://www.physics.umb.edu/Research/QBism/solutions.html).
         """
+
         super().mintime(f, W, M, method, target, LDtype)

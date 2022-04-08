@@ -1,4 +1,3 @@
-import numpy as np
 from julia import Main
 import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
@@ -9,9 +8,9 @@ class PSO_Mopt(Measurement.MeasurementSystem):
     ----------
     > **savefile:** `bool`
         -- Whether or not to save all the measurements.  
-        If set True then the measurements and the values of the 
+        If set `True` then the measurements and the values of the 
         objective function obtained in all episodes will be saved during 
-        the training. If set False the measurement in the final 
+        the training. If set `False` the measurement in the final 
         episode and the values of the objective function in all episodes 
         will be saved.
 
@@ -23,9 +22,9 @@ class PSO_Mopt(Measurement.MeasurementSystem):
 
     > **max_episode:** `int or list`
         -- If it is an integer, for example max_episode=1000, it means the 
-        program will continuously run 1000 episodes. However, if it is a
-        list, for example max_episode=[1000,100], the program will also
-        run 1000 episodes in total but replace measurements of all  the particles 
+        program will continuously run 1000 episodes. However, if it is an
+        array, for example max_episode=[1000,100], the program will run 
+        1000 episodes in total but replace measurements of all  the particles 
         with global best every 100 episodes.
   
     > **c0:** `float`
@@ -47,7 +46,7 @@ class PSO_Mopt(Measurement.MeasurementSystem):
 
     > **load:** `bool`
         -- Whether or not to load measurements in the current location.  
-        If set True then the program will load measurement from "measurements.csv"
+        If set `True` then the program will load measurement from "measurements.csv"
         file in the current location and use it as the initial measurement.
     """
 

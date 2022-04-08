@@ -9,8 +9,9 @@ def CFIM(rho, drho, M=[], eps=1e-8):
     Calculation of the classical Fisher information (CFI) and classical Fisher 
     information matrix (CFIM) for a density matrix. The entry of CFIM $\mathcal{I}$
     is defined as
-
-    $$\mathcal{I}_{ab}=\sum_{y}\frac{1}{p(y|\textbf{x})}[\partial_a p(y|\textbf{x})][\partial_b p(y|\textbf{x})],$$
+    \begin{align}
+    \mathcal{I}_{ab}=\sum_y\frac{1}{p(y|\textbf{x})}[\partial_a p(y|\textbf{x})][\partial_b p(y|\textbf{x})],
+    \end{align}
 
     where $p(y|\textbf{x})=\mathrm{Tr}(\rho\Pi_y)$ with $\rho$ the parameterized 
     density matrix.
@@ -38,6 +39,11 @@ def CFIM(rho, drho, M=[], eps=1e-8):
         -- For single parameter estimation (the length of drho is equal to one), 
         the output is CFI and for multiparameter estimation (the length of drho 
         is more than one), it returns CFIM.
+    
+    **Note:** 
+        SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+        which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+        ](http://www.physics.umb.edu/Research/QBism/solutions.html).
     """
 
     if type(drho) != list:
@@ -78,8 +84,9 @@ def FIM(p, dp, eps=1e-8):
     Calculation of the classical Fisher information (CFI) and classical Fisher 
     information matrix (CFIM) for classical scenarios. The entry of FIM $I$
     is defined as
-
-    $$I_{ab}=\sum_{y}\frac{1}{p_y}[\partial_a p_y][\partial_b p_y],$$
+    \begin{align}
+    I_{ab}=\sum_{y}\frac{1}{p_y}[\partial_a p_y][\partial_b p_y],
+    \end{align}
 
     where $\{p_y\}$ is a set of the discrete probability distribution.
 
@@ -129,15 +136,17 @@ def SLD(rho, drho, rep="original", eps=1e-8):
     r"""
     Calculation of the symmetric logarithmic derivative (SLD) for a density matrix.
     The SLD operator $L_a$ is determined by
+    \begin{align}
+    \partial_{a}\rho=\frac{1}{2}(\rho L_{a}+L_{a}\rho)
+    \end{align}
 
-    $$\partial_{a}\rho=\frac{1}{2}(\rho L_{a}+L_{a}\rho)$$
-
-    with $\rho$ the parameterized density matrix. The entries of RLD can be calculated
+    with $\rho$ the parameterized density matrix. The entries of SLD can be calculated
     as 
+    \begin{align}
+    \langle\lambda_i|L_{a}|\lambda_j\rangle=\frac{2\langle\lambda_i| \partial_{a}\rho |\lambda_j\rangle}{\lambda_i+\lambda_j}
+    \end{align}
 
-    $$\langle\lambda_i|L_{a}|\lambda_j\rangle=\frac{2\langle\lambda_i| \partial_{a}\rho |\lambda_j\rangle}{\lambda_i+\lambda_j}$$
- 
-    for $\lambda_i (\lambda_i) \neq 0$.
+    for $\lambda_i~(\lambda_j) \neq 0$. If $\lambda_i=\lambda_j=0$, the entry of SLD is set to be zero.
 
     Parameters
     ----------
@@ -162,7 +171,7 @@ def SLD(rho, drho, rep="original", eps=1e-8):
     Returns
     ----------
     **SLD(s):** `matrix or list`
-        --For single parameter estimation (the length of drho is equal to one), the  
+        --For single parameter estimation (the length of drho is equal to one), the
         output is a matrix and for multiparameter estimation (the length of drho 
         is more than one), it returns a list.
     """
@@ -235,16 +244,14 @@ def SLD(rho, drho, rep="original", eps=1e-8):
 def RLD(rho, drho, rep="original", eps=1e-8):
     r"""
     Calculation of the right logarithmic derivative (RLD) for a density matrix.
-    The RLD opertator $\mathcal{R}_a$ is defined by
+    The RLD opertator defined by $\partial_{a}\rho=\rho \mathcal{R}_a$
+    with $\rho$ the parameterized density matrix. 
+    \begin{align}
+    \langle\lambda_i| \mathcal{R}_{a} |\lambda_j\rangle=\frac{1}{\lambda_i}\langle\lambda_i| 
+    \partial_a\rho |\lambda_j\rangle 
+    \end{align}
 
-    $$\partial_{a}\rho=\rho \mathcal{R}_a$$
-
-    with $\rho$ the parameterized density matrix. The entries of RLD can be calculated
-    as 
-
-    $$\langle\lambda_i| \mathcal{R}_{a} |\lambda_j\rangle = \frac{1}{\lambda_i}\langle\lambda_i| \partial_{a}\rho |\lambda_j\rangle$$
-    
-    for $\lambda_i\neq 0$.
+    for $\lambda_i\neq 0$ is the $ij$th entry of RLD.
 
     Parameters
     ----------
@@ -313,16 +320,14 @@ def RLD(rho, drho, rep="original", eps=1e-8):
 
 def LLD(rho, drho, rep="original", eps=1e-8):
     r"""
-    Calculation of the left logarithmic derivative (LLD) for a density matrix.
-    The LLD opertator $\mathcal{R}_a$ is defined by
+    Calculation of the left logarithmic derivative (LLD) for a density matrix $\rho$.
+    The LLD opertator is defined by $\partial_{a}\rho=\mathcal{R}_a^{\dagger}\rho$. 
+    The entries of LLD can be calculated as 
+    \begin{align}
+    \langle\lambda_i| \mathcal{R}_{a}^{\dagger} |\lambda_j\rangle=\frac{1}{\lambda_j}\langle\lambda_i| 
+    \partial_a\rho |\lambda_j\rangle 
+    \end{align}
 
-    $$\partial_{a}\rho=\mathcal{R}_a^{\dagger}\rho$$
-
-    with $\rho$ the parameterized density matrix. The entries of LLD can be calculated
-    as 
-
-    $$\langle\lambda_i| \mathcal{R}_{a}^{\dagger} |\lambda_j\rangle=\frac{1}{\lambda_j}\langle\lambda_i| \partial_{a}\rho |\lambda_j\rangle$$
-    
     for $\lambda_j\neq 0$.
 
     Parameters
@@ -397,14 +402,16 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
     Calculation of the quantum Fisher information (QFI) and quantum Fisher 
     information matrix (QFIM) for all types. The entry of QFIM $\mathcal{F}$
     is defined as
-
-    $$\mathcal{F}_{ab}=\frac{1}{2}\mathrm{Tr}(\rho\{L_a, L_b\})$$ 
+    \begin{align}
+    \mathcal{F}_{ab}=\frac{1}{2}\mathrm{Tr}(\rho\{L_a, L_b\})
+    \end{align}
 
     with $L_a, L_b$ are SLD operators and 
 
     and 
-
-    $$\mathcal{F}_{ab}=\mathrm{Tr}(\rho \mathcal{R}_a \mathcal{R}^{\dagger}_b)$$
+    \begin{align}
+    \mathcal{F}_{ab}=\mathrm{Tr}(\rho \mathcal{R}_a \mathcal{R}^{\dagger}_b)
+    \end{align}
 
     with $\mathcal{R}_a$ the RLD or LLD operator.
 
@@ -657,7 +664,7 @@ def QFIM_Bloch(r, dr, eps=1e-8):
         return QFIM_res
 
 
-def QFIM_Gauss(R, dR, D, dD, eps=1e-8):
+def QFIM_Gauss(R, dR, D, dD):
     """
     Calculation of the SLD based quantum Fisher information (QFI) and quantum 
     Fisher information matrix (QFIM) with gaussian states.

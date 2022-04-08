@@ -9,9 +9,9 @@ class GRAPE_Copt(Control.ControlSystem):
     ----------
     > **savefile:** `bool`
         -- Whether or not to save all the control coeffients.  
-        If set True then the control coefficients and the values of the 
+        If set `True` then the control coefficients and the values of the 
         objective function obtained in all episodes will be saved during 
-        the training. If set False the control coefficients in the final 
+        the training. If set `False` the control coefficients in the final 
         episode and the values of the objective function in all episodes 
         will be saved.
 
@@ -38,13 +38,13 @@ class GRAPE_Copt(Control.ControlSystem):
 
     > **load:** `bool`
         -- Whether or not to load control coefficients in the current location.  
-        If set True then the program will load control coefficients from 
+        If set `True` then the program will load control coefficients from 
         "controls.csv" file in the current location and use it as the initial 
         control coefficients.
 
     > **auto:** `bool`
         -- Whether or not to invoke automatic differentiation algorithm to evaluate  
-        the gradient. If set True then the gradient will be calculated with 
+        the gradient. If set `True` then the gradient will be calculated with 
         automatic differentiation algorithm otherwise it will be calculated 
         using analytical method.
     """
@@ -138,6 +138,11 @@ class GRAPE_Copt(Control.ControlSystem):
         > **M:** `list of matrices`
             -- A set of positive operator-valued measure (POVM). The default measurement 
             is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+
+        **Note:** 
+            SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+            which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+            ](http://www.physics.umb.edu/Research/QBism/solutions.html).
         """
 
         if self.auto:
@@ -202,21 +207,26 @@ class GRAPE_Copt(Control.ControlSystem):
         > **method:** `string`
             -- Methods for searching the minimum time to reach the given value of the 
             objective function. Options are:  
-            "binary" (default) -- binary search (logarithmic search).  
-            "forward" -- forward search from the beginning of time.  
+            "binary" (default) -- Binary search (logarithmic search).  
+            "forward" -- Forward search from the beginning of time.  
 
         > **target:** `string`
             -- Objective functions for searching the minimum time to reach the given 
             value of the objective function. Options are:  
-            "QFIM" (default) -- choose QFI (QFIM) as the objective function.  
-            "CFIM" -- choose CFI (CFIM) as the objective function.  
-            "HCRB" -- choose HCRB as the objective function.
+            "QFIM" (default) -- Choose QFI (QFIM) as the objective function.  
+            "CFIM" -- Choose CFI (CFIM) as the objective function.  
+            "HCRB" -- Choose HCRB as the objective function.
 
         > **LDtype:** `string`
             -- Types of QFI (QFIM) can be set as the objective function. Options are:  
             "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
             "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
             "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
+
+        **Note:** 
+            SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+            which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+            ](http://www.physics.umb.edu/Research/QBism/solutions.html).
         """
 
         if target == "HCRB":
