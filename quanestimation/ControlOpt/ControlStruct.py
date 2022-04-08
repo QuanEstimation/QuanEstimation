@@ -14,9 +14,9 @@ class ControlSystem:
     ----------
     > **savefile:** `bool`
         -- Whether or not to save all the control coeffients.  
-        If set True then the control coefficients and the values of the 
+        If set `True` then the control coefficients and the values of the 
         objective function obtained in all episodes will be saved during 
-        the training. If set False the control coefficients in the final 
+        the training. If set `False` the control coefficients in the final 
         episode and the values of the objective function in all episodes 
         will be saved.
 
@@ -28,7 +28,7 @@ class ControlSystem:
 
     > **load:** `bool`
         -- Whether or not to load control coefficients in the current location.  
-        If set True then the program will load control coefficients from 
+        If set `True` then the program will load control coefficients from 
         "controls.csv" file in the current location and use it as the initial 
         control coefficients.
     """
@@ -41,15 +41,17 @@ class ControlSystem:
 
     def dynamics(self, tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[]):
         r"""
-        Dynamics of the density matrix of the form 
-        
-        $$\partial_{t}\rho=-i[H,\rho]+\sum_{i} \gamma_{i}\left (\Gamma_{i}\rho
-        \Gamma^{\dagger}_{i}-\frac{1}{2}\left \{\rho,\Gamma^{\dagger}_{i} 
-        \Gamma_{i} \right\}\right), $$ 
+        The dynamics of a density matrix is of the form 
 
+        \begin{align}
+        \partial_t\rho &=\mathcal{L}\rho \nonumber \\
+        &=-i[H,\rho]+\sum_i \gamma_i\left(\Gamma_i\rho\Gamma^{\dagger}_i-\frac{1}{2}
+        \left\{\rho,\Gamma^{\dagger}_i \Gamma_i \right\}\right),
+        \end{align}
+        
         where $\rho$ is the evolved density matrix, H is the Hamiltonian of the 
         system, $\Gamma_i$ and $\gamma_i$ are the $i\mathrm{th}$ decay 
-        operator and decay rate.
+        operator and corresponding decay rate.
 
         Parameters
         ----------
@@ -61,7 +63,7 @@ class ControlSystem:
 
         > **H0:** `matrix or list`
             -- Free Hamiltonian. It is a matrix when the free Hamiltonian is time-
-            independent and a list of length equal to tspan when it is time-dependent.
+            independent and a list of length equal to `tspan` when it is time-dependent.
 
         > **dH:** `list`
             -- Derivatives of the free Hamiltonian on the unknown parameters to be 
@@ -73,9 +75,9 @@ class ControlSystem:
 
         > **decay:** `list`
             -- Decay operators and the corresponding decay rates. Its input rule is 
-            `decay=[[Gamma1, gamma1],[Gamma2,gamma2],...]`, where `Gamma1 (Gamma2)` 
-            represents the decay operator and `gamma1 (gamma2)` is the corresponding 
-            decay rate.
+            decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$,$\gamma_2$],...], where $\Gamma_1$ 
+            $(\Gamma_2)$ represents the decay operator and $\gamma_1$ $(\gamma_2)$ is the 
+            corresponding decay rate.
 
         > **ctrl_bound:** `array`
             -- Lower and upper bounds of the control coefficients.
@@ -255,8 +257,9 @@ class ControlSystem:
             is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
 
         **Note:** 
-            the Weyl-Heisenberg covariant SIC-POVM fiducial state of dimension $d$
-            are download from http://www.physics.umb.edu/Research/QBism/solutions.html.
+            SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+            which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+            ](http://www.physics.umb.edu/Research/QBism/solutions.html).
         """
 
         if M == []:
@@ -292,11 +295,9 @@ class ControlSystem:
         self.W = W
 
         if len(self.Hamiltonian_derivative) == 1:
-            raise ValueError(
-                "In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function for control optimization",
-            )
+            print("Program exit. In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function for control optimization"
+                    )
         else:
-
             if W == []:
                 W = np.eye(len(self.Hamiltonian_derivative))
             self.W = W
@@ -326,15 +327,15 @@ class ControlSystem:
         > **method:** `string`
             -- Methods for searching the minimum time to reach the given value of the 
             objective function. Options are:  
-            "binary" (default) -- binary search (logarithmic search).  
-            "forward" -- forward search from the beginning of time.  
+            "binary" (default) -- Binary search (logarithmic search).  
+            "forward" -- Forward search from the beginning of time.  
 
         > **target:** `string`
             -- Objective functions for searching the minimum time to reach the given 
             value of the objective function. Options are:  
-            "QFIM" (default) -- choose QFI (QFIM) as the objective function.  
-            "CFIM" -- choose CFI (CFIM) as the objective function.  
-            "HCRB" -- choose HCRB as the objective function.  
+            "QFIM" (default) -- Choose QFI (QFIM) as the objective function.  
+            "CFIM" -- Choose CFI (CFIM) as the objective function.  
+            "HCRB" -- Choose HCRB as the objective function.  
 
         > **LDtype:** `string`
             -- Types of QFI (QFIM) can be set as the objective function. Options are:  
@@ -374,8 +375,8 @@ class ControlSystem:
         else:
             if target == "HCRB":
                 if self.para_type == "single_para":
-                    raise ValueError(
-                        "In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function for control optimization",
+                    print(
+                        "Program exit. In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function for control optimization"
                     )
                 self.obj = Main.QuanEstimation.HCRB_Obj(
                     self.W, self.eps, self.para_type

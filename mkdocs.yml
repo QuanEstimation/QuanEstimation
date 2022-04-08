@@ -10,20 +10,33 @@ extra_css:
       - css/style.css
       - css/material.css
       - css/mkdocstrings.css
+      - css/extra.css
 
 dev_addr: 0.0.0.0:8000
 
 markdown_extensions:
+      - attr_list  # adjust the size of an imag 
+      - md_in_html
+      - tables
       - pymdownx.arithmatex:
               generic: true
       - fontawesome_markdown
-      - pymdownx.highlight
+      # - pymdownx.highligh 
       # - deduplicate-toc
       - pymdownx.tabbed
             #   alternate_style: true
       # - pymdownx.emoji:
       # emoji_index: !!python/name:materialx.emoji.twemoji
       # emoji_generator: !!python/name:materialx.emoji.to_svg
+      - pymdownx.highlight
+            # anchor_linenums: true
+      - pymdownx.inlinehilite
+      - pymdownx.snippets
+      - pymdownx.superfences
+      - toc:
+            toc_depth: 2
+            permalink: true
+
 
 extra_javascript:
       - javascripts/mathjax.js
@@ -39,6 +52,7 @@ theme:
             - content.code.annotate
             - navigation.tabs
             - navigation.top
+
       palette:
             - media: "(prefers-color-scheme: light)"
               scheme: default
@@ -65,8 +79,19 @@ plugins:
 
 nav:
       - "Home": index.md
+      - "Installation": installation.md
+      - "Users Guide": 
+            - "Overview": guide/guide_overview.md
+            - "Quantum metrological tools": guide/guide_bounds.md
+            - "Control optimization": guide/guide_Copt.md
+            - "State optimization": guide/guide_Sopt.md
+            - "Measurement optimization": guide/guide_Mopt.md
+            - "Comprehensive optimization": guide/guide_Compopt.md
+            - "Adaptive measurement schemes": guide/guide_adaptive.md
       - "API documentation": 
             - "Classes": API/classes.md
             - "Functions": API/functions.md
-
-            # "Classes" : "API/Classes.md"
+      - "Examples": examples.md
+      - "Citing": citing.md
+      - "Developers": developers.md
+      

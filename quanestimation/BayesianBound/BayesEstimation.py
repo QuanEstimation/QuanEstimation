@@ -30,15 +30,20 @@ def Bayes(x, p, rho, y, M=[], savefile=False):
 
     > **savefile:** `bool`
         -- Whether or not to save all the posterior distributions.  
-        If set True then two files "pout.npy" and "xout.npy" will be generated including
+        If set `True` then two files "pout.npy" and "xout.npy" will be generated including
         the posterior distributions and the estimated values in the iterations. If set 
-        False the posterior distribution in the final iteration and the estimated values
+        `False` the posterior distribution in the final iteration and the estimated values
         in all iterations will be saved in "pout.npy" and "xout.npy". 
 
     Returns
     ----------
     **pout and xout:** `array and float`
         -- The posterior distribution and the estimated values in the final iteration.
+
+    **Note:** 
+        SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+        which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+        ](http://www.physics.umb.edu/Research/QBism/solutions.html).
     """
 
     para_num = len(x)
@@ -164,15 +169,20 @@ def MLE(x, rho, y, M=[], savefile=False):
 
     > **savefile:** `bool`
         -- Whether or not to save all the likelihood functions.  
-        If set True then two files "Lout.npy" and "xout.npy" will be generated including
+        If set `True` then two files "Lout.npy" and "xout.npy" will be generated including
         the likelihood functions and the estimated values in the iterations. If set 
-        False the likelihood function in the final iteration and the estimated values
+        `False` the likelihood function in the final iteration and the estimated values
         in all iterations will be saved in "Lout.npy" and "xout.npy". 
 
     Returns
     ----------
     **Lout and xout:** `array and float`
         -- The likelihood function and the estimated values in the final iteration.
+
+    **Note:** 
+        SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+        which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+        ](http://www.physics.umb.edu/Research/QBism/solutions.html).
     """
 
     para_num = len(x)

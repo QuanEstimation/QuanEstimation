@@ -3,17 +3,18 @@
 
 # **Control Optimization**
 The Hamiltonian of a controlled system can be written as
-
-$$H = H_0(\textbf{x})+\sum_{k=1}^K u_k(t) H_k,$$
+\begin{align}
+H = H_0(\textbf{x})+\sum_{k=1}^K u_k(t) H_k,
+\end{align}
 
 where $H_0(\textbf{x})$ is the free evolution Hamiltonian with unknown parameters 
-$\textbf{x}$ and $H_k$ represent the $k$th control Hamiltonian with $u_k$ the 
-corresponding control field. In QuanEstimation, different algorithms are invoked to 
+$\textbf{x}$ and $H_k$ represents the $k$th control Hamiltonian with $u_k$ the 
+corresponding control coefficient. In QuanEstimation, different algorithms are invoked to 
 calculate the optimal control coefficients. The control optimization algorithms are include 
 gradient ascent pulse engineering (GRAPE), auto-GRAPE, particle swarm optimization (PSO), 
 differential evolution (DE) and deep deterministic policy gradients (DDPG).
 
-## **Control System**
+## **Base**
 ::: quanestimation.ControlSystem
 
 ## **Control optimization with GRAPE and auto-GRAPE**
@@ -31,15 +32,15 @@ differential evolution (DE) and deep deterministic policy gradients (DDPG).
 ---
 
 # **State Optimization**
-The probe state is expanded by $|\psi\rangle=\sum_i c_i|i\rangle$ in a specific
+The probe state is expanded as $|\psi\rangle=\sum_i c_i|i\rangle$ in a specific
 basis, i.e., $\{|i\rangle\langle i|\}$. In state optimization, the search of the
 optimal probe states is equal to search of the normalized complex coefficients
 $\{c_i\}$. In QuanEstimation, the state optimization algorithms are include 
-automatic differentiatio (AD), particle swarm optimization (PSO), 
+automatic differentiation (AD), particle swarm optimization (PSO), 
 differential evolution (DE), deep deterministic policy gradients (DDPG)
 and Nelder-Mead (NM).
 
-## **State System**
+## **Base**
 ::: quanestimation.StateSystem
 
 ## **State optimization with AD**
@@ -69,11 +70,11 @@ measurement of an input measurement. After rotation, the new measurement is
 $\{U\Pi_i U^{\dagger}\}$, where $U=\prod_k \exp(i s_k\lambda_k)$ with $\lambda_k$ 
 a SU($N$) generator and $s_k$ a real number in the regime $[0,2\pi]$. 
 In this scenario, the goal is to search a set of optimal coefficients $s_k$.
-Here different algorithms are invoked to calculate the optimal measurement. 
-The measurement optimization algorithms are include automatic differentiatio (AD), 
+Here different algorithms are invoked to search the optimal measurement. 
+The measurement optimization algorithms are include automatic differentiation (AD), 
 particle swarm optimization (PSO) and differential evolution (DE).
 
-## **Measurement System**
+## **Base**
 ::: quanestimation.MeasurementSystem
 
 ## **Measurement optimization with AD**
@@ -82,7 +83,7 @@ particle swarm optimization (PSO) and differential evolution (DE).
 ## **Measurement Optimization with PSO**
 ::: quanestimation.PSO_Mopt
 
-## **Measurement Optimization DE**
+## **Measurement Optimization with DE**
 ::: quanestimation.DE_Mopt
 
 ---
@@ -93,10 +94,10 @@ simultaneously optimize the probe state, control and measurement. The
 comprehensive optimization for the probe state and measurement (SM), the probe
 state and control (SC), the control and measurement (CM) and the probe state, 
 control and measurement (SCM) are proposed for this. In QuanEstimation, the 
-comprehensive optimization algorithms are include automatic differentiatio (AD), 
+comprehensive optimization algorithms are include automatic differentiation (AD), 
 particle swarm optimization (PSO) and differential evolution (DE).
 
-## **Comprehensive System**
+## **Base**
 ::: quanestimation.ComprehensiveSystem
 
 ## **Comprehensive optimization with AD**

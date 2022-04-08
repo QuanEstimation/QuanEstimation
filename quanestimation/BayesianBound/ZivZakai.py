@@ -31,11 +31,14 @@ def helstrom_vec(psi, phi, n=1):
 
 def QZZB(x, p, rho, eps=1e-8):
     r"""
-    Calculation of the quantum Ziv-Zakai bound (QZZB). The expression of OBB with a 
+    Calculation of the quantum Ziv-Zakai bound (QZZB). The expression of QZZB with a 
     prior distribution p(x) in a finite regime $[\alpha,\beta]$ is
 
-    $$\mathrm{var}(\hat{x},\{\Pi_y\}) \geq \frac{1}{2}\int_0^{\beta-\alpha}\mathrm{d}\tau\tau\mathcal{V}\int_{\alpha}^{\beta}\mathrm{d}x\min\left\{p(x), p(x+\tau)\right\} \nonumber \\
-    \times\left(1-\frac{1}{2}||\rho(x)-\rho(x+\tau)||\right),$$
+    \begin{eqnarray}
+    \mathrm{var}(\hat{x},\{\Pi_y\}) &\geq & \frac{1}{2}\int_0^\infty \mathrm{d}\tau\tau
+    \mathcal{V}\int_{-\infty}^{\infty} \mathrm{d}x\min\!\left\{p(x), p(x+\tau)\right\} \nonumber \\
+    & & \times\left(1-\frac{1}{2}||\rho(x)-\rho(x+\tau)||\right),
+    \end{eqnarray}
 
     where $||\cdot||$ represents the trace norm and $\mathcal{V}$ is the "valley-filling" 
     operator satisfying $\mathcal{V}f(\tau)=\max_{h\geq 0}f(\tau+h)$. $\rho(x)$ is the 

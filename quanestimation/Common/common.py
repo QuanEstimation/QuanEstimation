@@ -38,7 +38,7 @@ def suN_unsorted(n):
 
 def suN_generator(n):
     r"""
-    Generation of the SU($N$) generators with $N$ the simension of the system.
+    Generation of the SU($N$) generators with $N$ the dimension of the system.
 
     Parameters
     ----------
@@ -155,6 +155,11 @@ def SIC(dim):
     Returns
     ----------
     A set of SCI-POVM.
+
+    **Note:** 
+        SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+        which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+        ](http://www.physics.umb.edu/Research/QBism/solutions.html).
     """
 
     if dim <= 151:

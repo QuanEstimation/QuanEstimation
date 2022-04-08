@@ -1,6 +1,3 @@
-from functools import wraps
-from scipy.linalg import sqrtm
-from numpy.linalg import eigvals
 import numpy as np
 from more_itertools import zip_broadcast
 
@@ -90,7 +87,7 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
 
 def TargetTime(f, tspan, func, *args, **kwargs):
     """
-    Calculation of spin squeezing parameter for a density matrix.
+    Calculation of the time to reach a given precision limit.
 
     Parameters
     ----------
@@ -101,7 +98,7 @@ def TargetTime(f, tspan, func, *args, **kwargs):
         -- Time length for the evolution.
 
     > **func:** `array`
-        -- The handle of a function.
+        -- The function for calculating the objective function.
 
     > ***args:** `string`
         -- The corresponding input parameter.

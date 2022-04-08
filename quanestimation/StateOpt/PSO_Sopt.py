@@ -8,11 +8,10 @@ class PSO_Sopt(State.StateSystem):
     ----------
     > **savefile:**  `bool`
         -- Whether or not to save all the states.  
-        If set True then the states and the values of the 
-        objective function obtained in all episodes will be saved during 
-        the training. If set False the state in the final 
-        episode and the values of the objective function in all episodes 
-        will be saved.
+        If set `True` then the states and the values of the objective function 
+        obtained in all episodes will be saved during the training. If set `False` 
+        the state in the final episode and the values of the objective function 
+        in all episodes will be saved.
 
     > **particle_num:** `int`
         -- The number of particles.
@@ -22,9 +21,9 @@ class PSO_Sopt(State.StateSystem):
 
     > **max_episode:** `int or list`
         -- If it is an integer, for example max_episode=1000, it means the 
-        program will continuously run 1000 episodes. However, if it is a
-        list, for example max_episode=[1000,100], the program will also
-        run 1000 episodes in total but replace states of all  the particles 
+        program will continuously run 1000 episodes. However, if it is an
+        array, for example max_episode=[1000,100], the program will run 
+        1000 episodes in total but replace states of all  the particles 
         with global best every 100 episodes.
   
     > **c0:** `float`
@@ -46,7 +45,7 @@ class PSO_Sopt(State.StateSystem):
 
     > **load:** `bool`
         -- Whether or not to load states in the current location.
-        If set True then the program will load state from "states.csv"
+        If set `True` then the program will load state from "states.csv"
         file in the current location and use it as the initial state.
     """
 
@@ -154,6 +153,11 @@ class PSO_Sopt(State.StateSystem):
         > **M:** `list of matrices`
             -- A set of positive operator-valued measure (POVM). The default measurement 
             is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+
+        **Note:** 
+            SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+            which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+            ](http://www.physics.umb.edu/Research/QBism/solutions.html).
         """
 
         super().CFIM(M, W)

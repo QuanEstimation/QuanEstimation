@@ -1,7 +1,5 @@
-import numpy as np
 from julia import Main
 import quanestimation.ComprehensiveOpt.ComprehensiveStruct as Comp
-from quanestimation.Common.common import SIC
 
 
 class PSO_Compopt(Comp.ComprehensiveSystem):
@@ -11,9 +9,9 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
     > **savefile:** `bool`
         -- Whether or not to save all the optimized variables (probe states, 
         control coefficients and measurements).  
-        If set True then the optimized variables and the values of the 
+        If set `True` then the optimized variables and the values of the 
         objective function obtained in all episodes will be saved during 
-        the training. If set False the optimized variables in the final 
+        the training. If set `False` the optimized variables in the final 
         episode and the values of the objective function in all episodes 
         will be saved.
 
@@ -31,9 +29,9 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
 
     > **max_episode:** `int or list`
         -- If it is an integer, for example max_episode=1000, it means the 
-        program will continuously run 1000 episodes. However, if it is a
-        list, for example max_episode=[1000,100], the program will also
-        run 1000 episodes in total but replace states of all  the particles 
+        program will continuously run 1000 episodes. However, if it is an
+        array, for example max_episode=[1000,100], the program will run 
+        1000 episodes in total but replace states of all  the particles 
         with global best every 100 episodes.
   
     > **c0:** `float`
@@ -116,6 +114,11 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
             "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
             "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD). 
+
+        **Note:** 
+            SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+            which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+            ](http://www.physics.umb.edu/Research/QBism/solutions.html).
         """
 
         super().SC(W, M, target, LDtype)

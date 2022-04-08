@@ -15,9 +15,9 @@ class ComprehensiveSystem:
     > **savefile:** `bool`
         -- Whether or not to save all the optimized variables (probe states, 
         control coefficients and measurements).  
-        If set True then the optimized variables and the values of the 
+        If set `True` then the optimized variables and the values of the 
         objective function obtained in all episodes will be saved during 
-        the training. If set False the optimized variables in the final 
+        the training. If set `False` the optimized variables in the final 
         episode and the values of the objective function in all episodes 
         will be saved.
 
@@ -48,15 +48,17 @@ class ComprehensiveSystem:
 
     def dynamics(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], ctrl_bound=[]):
         r"""
-        Dynamics of the density matrix of the form 
-        
-        $$\partial_{t}\rho=-i[H,\rho]+\sum_{i} \gamma_{i}\left (\Gamma_{i}\rho
-        \Gamma^{\dagger}_{i}-\frac{1}{2}\left \{\rho,\Gamma^{\dagger}_{i} 
-        \Gamma_{i} \right\}\right), $$ 
+        The dynamics of a density matrix is of the form 
+
+        \begin{align}
+        \partial_t\rho &=\mathcal{L}\rho \nonumber \\
+        &=-i[H,\rho]+\sum_i \gamma_i\left(\Gamma_i\rho\Gamma^{\dagger}_i-\frac{1}{2}
+        \left\{\rho,\Gamma^{\dagger}_i \Gamma_i \right\}\right),
+        \end{align} 
 
         where $\rho$ is the evolved density matrix, H is the Hamiltonian of the 
         system, $\Gamma_i$ and $\gamma_i$ are the $i\mathrm{th}$ decay 
-        operator and decay rate.
+        operator and corresponding decay rate.
 
         Parameters
         ----------
@@ -65,7 +67,7 @@ class ComprehensiveSystem:
 
         > **H0:** `matrix or list`
             -- Free Hamiltonian. It is a matrix when the free Hamiltonian is time-
-            independent and a list of length equal to tspan when it is time-dependent.
+            independent and a list of length equal to `tspan` when it is time-dependent.
 
         > **dH:** `list`
             -- Derivatives of the free Hamiltonian on the unknown parameters to be 
@@ -80,9 +82,9 @@ class ComprehensiveSystem:
 
         > **decay:** `list`
             -- Decay operators and the corresponding decay rates. Its input rule is 
-            `decay=[[Gamma1, gamma1],[Gamma2,gamma2],...]`, where Gamma1 (Gamma2) 
-            represents the decay operator and gamma1 (gamma2) is the corresponding 
-            decay rate.
+        decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$,$\gamma_2$],...], where $\Gamma_1$ 
+        $(\Gamma_2)$ represents the decay operator and $\gamma_1$ $(\gamma_2)$ is the 
+        corresponding decay rate.
 
         > **ctrl_bound:** `array`
             -- Lower and upper bounds of the control coefficients.
@@ -220,19 +222,20 @@ class ComprehensiveSystem:
 
     def kraus(self, K, dK):
         r"""
-        Dynamics of the density matrix of the form 
-        
-        $$\rho=\sum_i K_i\rho_0K_i^{\dagger}$$ 
+        The parameterization of a state is
+        \begin{align}
+        \rho=\sum_i K_i\rho_0K_i^{\dagger},
+        \end{align} 
 
         where $\rho$ is the evolved density matrix, $K_i$ is the Kraus operator.
 
         Parameters
         ----------
         > **K:** `list`
-            -- Kraus operator(s).
+            -- Kraus operators.
 
         > **dK:** `list`
-            -- Derivatives of the Kraus operator(s) on the unknown parameters to be 
+            -- Derivatives of the Kraus operators on the unknown parameters to be 
             estimated. For example, dK[0] is the derivative vector on the first 
             parameter.
         """
@@ -305,6 +308,11 @@ class ComprehensiveSystem:
             "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
             "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
             "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD). 
+
+        **Note:** 
+            SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+            which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+            ](http://www.physics.umb.edu/Research/QBism/solutions.html).
         """
 
         if self.dynamics_type != "dynamics":
@@ -322,8 +330,8 @@ class ComprehensiveSystem:
         else:
             if target == "HCRB":
                 if self.para_type == "single_para":
-                    raise ValueError(
-                        "In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function for control optimization"
+                    print(
+                        "Program exit. In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function for control optimization"
                     )
                 else:
                     self.obj = Main.QuanEstimation.HCRB_Obj(self.W, self.eps, self.para_type)

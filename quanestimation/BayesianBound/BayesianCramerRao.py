@@ -1,9 +1,8 @@
 import numpy as np
-import os
 from scipy import interpolate
 from scipy.integrate import simps, solve_bvp
 from itertools import product
-from quanestimation.AsymptoticBound.CramerRao import CFIM, QFIM, SLD
+from quanestimation.AsymptoticBound.CramerRao import CFIM, QFIM
 from quanestimation.Common.common import SIC, extract_ele
 
 
@@ -11,8 +10,9 @@ def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
     r"""
     Calculation of the Bayesian classical Fisher information (BCFI) and the 
     Bayesian classical Fisher information matrix (BCFIM) of the form
-
-    $$\mathcal{I}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{I}\mathrm{d}\textbf{x}$$
+    \begin{align}
+    \mathcal{I}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{I}\mathrm{d}\textbf{x}
+    \end{align}
     
     with $\mathcal{I}$ the CFIM and $p(\textbf{x})$ the prior distribution.
 
@@ -44,6 +44,11 @@ def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
         -- For single parameter estimation (the length of x is equal to one), the output 
         is BCFI and for multiparameter estimation (the length of x is more than one), 
         it returns BCFIM.
+
+    **Note:** 
+        SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+        which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+        ](http://www.physics.umb.edu/Research/QBism/solutions.html).
     """
 
     para_num = len(x)
@@ -111,8 +116,9 @@ def BQFIM(x, p, rho, drho, LDtype="SLD", eps=1e-8):
     r"""
     Calculation of the Bayesian quantum Fisher information (BQFI) and the 
     Bayesian quantum Fisher information matrix (BQFIM) of the form
-
-    $$\mathcal{F}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{F}\mathrm{d}\textbf{x}$$
+    \begin{align}
+    \mathcal{F}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{F}\mathrm{d}\textbf{x}
+    \end{align}
     
     with $\mathcal{F}$ the QFIM of all types and $p(\textbf{x})$ the prior distribution.
 
@@ -199,10 +205,11 @@ def BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
     r"""
     Calculation of the Bayesian Cramer-Rao bound (BCRB). The covariance matrix 
     with a prior distribution $p(\textbf{x})$ is defined as
-    
-    $$\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\!=\!\int \!p(\textbf{x})\sum_y\mathrm{Tr}
-    (\rho\Pi_y)(\hat{\textbf{x}}\!-\!\textbf{x})(\hat{\textbf{x}}\!-\!\textbf{x})^{\mathrm{T}}
-    \mathrm{d}\textbf{x}$$
+    \begin{align}
+    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})=\int p(\textbf{x})\sum_y\mathrm{Tr}
+    (\rho\Pi_y)(\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
+    \mathrm{d}\textbf{x}
+    \end{align}
 
     where $\textbf{x}=(x_0,x_1,\dots)^{\mathrm{T}}$ are the unknown parameters to be estimated
     and the integral $\int\mathrm{d}\textbf{x}:=\iiint\mathrm{d}x_0\mathrm{d}x_1\cdots$.
@@ -210,18 +217,20 @@ def BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
     the parameterized density matrix.
 
     This function calculates two types BCRB. The first one is 
-
-    $$\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})\left(B\mathcal{I}^{-1}B
-    +\textbf{b}\textbf{b}^{\mathrm{T}}\right)\mathrm{d}\textbf{x},$$
+    \begin{align}
+    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})\left(B\mathcal{I}^{-1}B
+    +\textbf{b}\textbf{b}^{\mathrm{T}}\right)\mathrm{d}\textbf{x},
+    \end{align}
 
     where $\textbf{b}$ and $\textbf{b}'$ are the vectors of biase and its derivatives on parameters.
     $B$ is a diagonal matrix with the $i$th entry $B_{ii}=1+[\textbf{b}']_{i}$ and $\mathcal{I}$ 
     is the CFIM.
 
     The second one is
-
-    $$\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \mathcal{B}\,\mathcal{I}_{\mathrm{Bayes}}^{-1}\,
-    \mathcal{B}+\int p(\textbf{x})\textbf{b}\textbf{b}^{\mathrm{T}}\mathrm{d}\textbf{x},$$
+    \begin{align}
+    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \mathcal{B}\,\mathcal{I}_{\mathrm{Bayes}}^{-1}\,
+    \mathcal{B}+\int p(\textbf{x})\textbf{b}\textbf{b}^{\mathrm{T}}\mathrm{d}\textbf{x},
+    \end{align}
 
     where $\mathcal{B}=\int p(\textbf{x})B\mathrm{d}\textbf{x}$ is the average of $B$ and 
     $\mathcal{I}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{I}\mathrm{d}\textbf{x}$ is 
@@ -267,6 +276,11 @@ def BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
         -- For single parameter estimation (the length of x is equal to one), the 
         output is a float and for multiparameter estimation (the length of x is 
         more than one), it returns a matrix.
+
+    **Note:** 
+        SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+        which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+        ](http://www.physics.umb.edu/Research/QBism/solutions.html).
     """
 
     para_num = len(x)
@@ -435,10 +449,11 @@ def BQCRB(x, p, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
     r"""
     Calculation of the Bayesian quantum Cramer-Rao bound (BQCRB). The covariance matrix 
     with a prior distribution $p(\textbf{x})$ is defined as
-    
-    $$\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\!=\!\int \!p(\textbf{x})\sum_y\mathrm{Tr}
-    (\rho\Pi_y)(\hat{\textbf{x}}\!-\!\textbf{x})(\hat{\textbf{x}}\!-\!\textbf{x})^{\mathrm{T}}
-    \mathrm{d}\textbf{x}$$
+    \begin{align}
+    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})=\int p(\textbf{x})\sum_y\mathrm{Tr}
+    (\rho\Pi_y)(\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
+    \mathrm{d}\textbf{x}
+    \end{align}
 
     where $\textbf{x}=(x_0,x_1,\dots)^{\mathrm{T}}$ are the unknown parameters to be estimated
     and the integral $\int\mathrm{d}\textbf{x}:=\iiint\mathrm{d}x_0\mathrm{d}x_1\cdots$.
@@ -446,18 +461,20 @@ def BQCRB(x, p, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
     the parameterized density matrix.
 
     This function calculates two types of the BQCRB. The first one is
-
-    $$\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq\int p(\textbf{x})\left(B\mathcal{F}^{-1}B
-    +\textbf{b}\textbf{b}^{\mathrm{T}}\right)\mathrm{d}\textbf{x},$$
+    \begin{align}
+    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq\int p(\textbf{x})\left(B\mathcal{F}^{-1}B
+    +\textbf{b}\textbf{b}^{\mathrm{T}}\right)\mathrm{d}\textbf{x},
+    \end{align}
         
     where $\textbf{b}$ and $\textbf{b}'$ are the vectors of biase and its derivatives on parameters.
     $B$ is a diagonal matrix with the $i$th entry $B_{ii}=1+[\textbf{b}']_{i}$ and $\mathcal{F}$
     is the QFIM for all types.
 
     The second one is
-
-    $$\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \mathcal{B}\,\mathcal{F}_{\mathrm{Bayes}}^{-1}\,
-    \mathcal{B}+\int p(\textbf{x})\textbf{b}\textbf{b}^{\mathrm{T}}\mathrm{d}\textbf{x},$$
+    \begin{align}
+    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \mathcal{B}\,\mathcal{F}_{\mathrm{Bayes}}^{-1}\,
+    \mathcal{B}+\int p(\textbf{x})\textbf{b}\textbf{b}^{\mathrm{T}}\mathrm{d}\textbf{x},
+    \end{align}
 
     where $\mathcal{B}=\int p(\textbf{x})B\mathrm{d}\textbf{x}$ is the average of $B$ and 
     $\mathcal{F}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{F}\mathrm{d}\textbf{x}$ is 
@@ -664,28 +681,31 @@ def VTB(x, p, dp, rho, drho, M=[], btype=1, eps=1e-8):
     Calculation of the Bayesian version of Cramer-Rao bound in troduced by
     Van Trees (VTB). The covariance matrix with a prior distribution $p(\textbf{x})$ 
     is defined as
-
-    $$\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\!=\!\int \!p(\textbf{x})\sum_y\mathrm{Tr}
-    (\rho\Pi_y)(\hat{\textbf{x}}\!-\!\textbf{x})(\hat{\textbf{x}}\!-\!\textbf{x})^{\mathrm{T}}
-    \mathrm{d}\textbf{x}$$
+    \begin{align}
+    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})=\int p(\textbf{x})\sum_y\mathrm{Tr}
+    (\rho\Pi_y)(\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
+    \mathrm{d}\textbf{x}
+    \end{align}
 
     where $\textbf{x}=(x_0,x_1,\dots)^{\mathrm{T}}$ are the unknown parameters to be estimated
     and the integral $\int\mathrm{d}\textbf{x}:=\iiint\mathrm{d}x_0\mathrm{d}x_1\cdots$.
     $\{\Pi_y\}$ is a set of positive operator-valued measure (POVM) and $\rho$ represent 
     the parameterized density matrix.
 
-    This function calculates two types of the VTB, The first one is 
-        
-    $$\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})\left(\mathcal{I}_p
-    +\mathcal{I}\right)^{-1}\mathrm{d}\textbf{x},$$
+    This function calculates two types of the VTB. The first one is 
+    \begin{align}
+    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})\left(\mathcal{I}_p
+    +\mathcal{I}\right)^{-1}\mathrm{d}\textbf{x},
+    \end{align}
 
     where the entry of $\mathcal{I}_{p}$ is defined by$[\mathcal{I}_{p}]_{ab}=[\partial_a 
     \ln p(\textbf{x})][\partial_b \ln p(\textbf{x})]$ and $\mathcal{I}$ represents the CFIM.
 
     The second one is
-        
-    $$\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \left(\mathcal{I}_{\mathrm{prior}}
-    +\mathcal{I}_{\mathrm{Bayes}}\right)^{-1},$$
+    \begin{align}
+    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \left(\mathcal{I}_{\mathrm{prior}}
+    +\mathcal{I}_{\mathrm{Bayes}}\right)^{-1},
+    \end{align}
 
     where $\mathcal{I}_{\mathrm{prior}}=\int p(\textbf{x})\mathcal{I}_{p}\mathrm{d}\textbf{x}$ 
     is the CFIM for $p(\textbf{x})$ and 
@@ -730,6 +750,11 @@ def VTB(x, p, dp, rho, drho, M=[], btype=1, eps=1e-8):
         -- For single parameter estimation (the length of x is equal to one), the 
         output is a float and for multiparameter estimation (the length of x is 
         more than one), it returns a matrix.
+
+    **Note:** 
+        SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+        which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
+        ](http://www.physics.umb.edu/Research/QBism/solutions.html).
     """
 
     para_num = len(x)
@@ -855,10 +880,11 @@ def QVTB(x, p, dp, rho, drho, btype=1, LDtype="SLD", eps=1e-8):
     Calculation of the Bayesian version of quantum Cramer-Rao bound in troduced 
     by Van Trees (QVTB). The covariance matrix with a prior distribution p(\textbf{x}) 
     is defined as
-
-    $$\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\!=\!\int \!p(\textbf{x})\sum_y\mathrm{Tr}
-    (\rho\Pi_y)(\hat{\textbf{x}}\!-\!\textbf{x})(\hat{\textbf{x}}\!-\!\textbf{x})^{\mathrm{T}}
-    \mathrm{d}\textbf{x}$$
+    \begin{align}
+    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})=\int p(\textbf{x})\sum_y\mathrm{Tr}
+    (\rho\Pi_y)(\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
+    \mathrm{d}\textbf{x}
+    \end{align}
 
     where $\textbf{x}=(x_0,x_1,\dots)^{\mathrm{T}}$ are the unknown parameters to be estimated
     and the integral $\int\mathrm{d}\textbf{x}:=\iiint\mathrm{d}x_0\mathrm{d}x_1\cdots$.
@@ -866,18 +892,20 @@ def QVTB(x, p, dp, rho, drho, btype=1, LDtype="SLD", eps=1e-8):
     the parameterized density matrix.
 
     This function calculates two types of QVTB. The first one is  
-
-    $$\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})\left(\mathcal{I}_p
-    +\mathcal{F}\right)^{-1}\mathrm{d}\textbf{x},$$
+    \begin{align}
+    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})\left(\mathcal{I}_p
+    +\mathcal{F}\right)^{-1}\mathrm{d}\textbf{x},
+    \end{align}
 
     where the entry of $\mathcal{I}_{p}$ is defined by $[\mathcal{I}_{p}]_{ab}=[\partial_a 
     \ln p(\textbf{x})][\partial_b \ln p(\textbf{x})]$ 
     and $\mathcal{F}$ is the QFIM for all types.
 
     The second one is
-
-    $$\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \left(\mathcal{I}_{\mathrm{prior}}
-    +\mathcal{F}_{\mathrm{Bayes}}\right)^{-1},$$
+    \begin{align}
+    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \left(\mathcal{I}_{\mathrm{prior}}
+    +\mathcal{F}_{\mathrm{Bayes}}\right)^{-1},
+    \end{align}
 
     where $\mathcal{I}_{\mathrm{prior}}=\int p(\textbf{x})\mathcal{I}_{p}\mathrm{d}\textbf{x}$ is 
     the CFIM for $p(\textbf{x})$ and $\mathcal{F}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{F}
@@ -1054,9 +1082,10 @@ def OBB(x, p, dp, rho, drho, d2rho, LDtype="SLD", eps=1e-8):
     Calculation of the optimal biased bound based on the first type of the BQCRB 
     in the case of single parameter estimation. The expression of OBB with a 
     prior distribution $p(x)$ is
-
-    $$\mathrm{var}(\hat{x},\{\Pi_y\})\geq\int p(x)\left(\frac{(1+b')^2}{F}
-    +b^2\right)\mathrm{d}x,$$
+    \begin{align}
+    \mathrm{var}(\hat{x},\{\Pi_y\})\geq\int p(x)\left(\frac{(1+b')^2}{F}
+    +b^2\right)\mathrm{d}x,
+    \end{align}
         
     where $b$ and $b'$ are the vector of biase and its derivative on $x$. 
     $F$ is the QFI for all types.
