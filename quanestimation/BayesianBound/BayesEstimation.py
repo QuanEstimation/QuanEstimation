@@ -42,8 +42,8 @@ def Bayes(x, p, rho, y, M=[], savefile=False):
 
     **Note:** 
         SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-        which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
-        ](http://www.physics.umb.edu/Research/QBism/solutions.html).
+        which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
+        solutions.html).
     """
 
     para_num = len(x)
@@ -181,8 +181,8 @@ def MLE(x, rho, y, M=[], savefile=False):
 
     **Note:** 
         SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-        which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
-        ](http://www.physics.umb.edu/Research/QBism/solutions.html).
+        which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
+        solutions.html).
     """
 
     para_num = len(x)

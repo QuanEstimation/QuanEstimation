@@ -297,8 +297,7 @@ class ComprehensiveSystem:
             is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
 
         > **target:** `string`
-            -- Objective functions for searching the minimum time to reach the given 
-            value of the objective function. Options are:  
+            -- Objective functions for comprehensive optimization. Options are:  
             "QFIM" (default) -- choose QFI (QFIM) as the objective function.  
             "CFIM" -- choose CFI (CFIM) as the objective function.  
             "HCRB" -- choose HCRB as the objective function.  
@@ -311,8 +310,8 @@ class ComprehensiveSystem:
 
         **Note:** 
             SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-            which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
-            ](http://www.physics.umb.edu/Research/QBism/solutions.html).
+            which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
+            solutions.html).
         """
 
         if self.dynamics_type != "dynamics":
@@ -331,7 +330,7 @@ class ComprehensiveSystem:
             if target == "HCRB":
                 if self.para_type == "single_para":
                     print(
-                        "Program exit. In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function for control optimization"
+                        "Program exit. In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function."
                     )
                 else:
                     self.obj = Main.QuanEstimation.HCRB_Obj(self.W, self.eps, self.para_type)

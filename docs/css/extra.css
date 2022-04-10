@@ -1,0 +1,13 @@
+:root > * {
+    --md-code-hl-number-color: #008000;
+    --md-code-hl-string-color: #BA2121;
+    --md-code-hl-comment-color: #007979;
+    --md-code-hl-keyword-color: #008000;
+    --md-code-hl-function-color: #000;
+    --md-code-hl-operator-color: #AA22FF;
+    --md-code-hl-constant-color: #008000;
+    --md-code-hl-variable-color: #008000;
+    --md-code-hl-name-color: #000000;
+  }
+
+  

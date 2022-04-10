@@ -23,10 +23,10 @@ class adaptive:
     > **savefile:** `bool`
         -- Whether or not to save all the posterior distributions.  
         If set `True` then three files "pout.npy", "xout.npy" and "y.npy" will be 
-        generated including the posterior distributions and the estimated values 
-        in the iterations. If set `False` the posterior distribution in the final 
-        iteration and the estimated values in all iterations will be saved in 
-        "pout.npy", "xout.npy" and "y.npy". 
+        generated including the posterior distributions, the estimated values, and
+        the experimental results in the iterations. If set `False` the posterior 
+        distribution in the final iteration, the estimated values and the experimental 
+        results in all iterations will be saved in "pout.npy", "xout.npy" and "y.npy". 
 
     > **max_episode:** `int`
         -- The number of episodes.
@@ -134,8 +134,8 @@ class adaptive:
 
         **Note:** 
             SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-            which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
-            ](http://www.physics.umb.edu/Research/QBism/solutions.html).
+            which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
+            solutions.html).
         """
 
         if M == []:
@@ -262,7 +262,7 @@ class adaptive:
                 F = []
                 for hi in range(len(self.K)):
                     rho_tp = sum(
-                        [np.dot(Ki, np.dot(self.rho0, Ki.conj().T)) for Ki in K[hi]]
+                        [np.dot(Ki, np.dot(self.rho0, Ki.conj().T)) for Ki in self.K[hi]]
                     )
                     drho_tp = sum(
                         [

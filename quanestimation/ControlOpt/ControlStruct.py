@@ -258,8 +258,8 @@ class ControlSystem:
 
         **Note:** 
             SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-            which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
-            ](http://www.physics.umb.edu/Research/QBism/solutions.html).
+            which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
+            solutions.html).
         """
 
         if M == []:
@@ -295,7 +295,7 @@ class ControlSystem:
         self.W = W
 
         if len(self.Hamiltonian_derivative) == 1:
-            print("Program exit. In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function for control optimization"
+            print("Program exit. In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function."
                     )
         else:
             if W == []:

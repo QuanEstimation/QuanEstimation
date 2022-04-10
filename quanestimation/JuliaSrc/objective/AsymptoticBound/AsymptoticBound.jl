@@ -145,9 +145,7 @@ end
 function objective(obj::QFIM_Obj{multi_para,SLD}, dynamics::Kraus)
     (; W, eps) = obj
     ρ, dρ = evolve(dynamics)
-    # f = tr(W * pinv(QFIM_SLD(ρ, dρ; eps = eps)))
-    F = QFIM_SLD(round.(ρ, digits=6), [round.(dρ[i], digits=6) for i in 1:length(dρ)]; eps = eps)
-    f = tr(W * pinv(round.(F, digits=6)./1e6)) # test
+    f = tr(W * pinv(QFIM_SLD(ρ, dρ; eps = eps)))
     return f, 1.0 / f
 end
 
