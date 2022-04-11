@@ -121,8 +121,8 @@ class NM_Sopt(State.StateSystem):
 
         **Note:** 
             SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-            which can be downloaded from [http://www.physics.umb.edu/Research/QBism/solutions.html
-            ](http://www.physics.umb.edu/Research/QBism/solutions.html).
+            which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
+            solutions.html).
         """
 
         super().CFIM(M, W)

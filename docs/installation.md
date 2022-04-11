@@ -1,9 +1,9 @@
 # **Installation**
-Run the command in the terminal to install QuanEstimation into your environment:  
+Run the command in the terminal to install QuanEstimation:  
 ```
 pip install quanestimation
 ```
-You can also run 
+The users can also run 
 ```
 git clone https://github.com/QuanEstimation/QuanEstimation.git
 ```
