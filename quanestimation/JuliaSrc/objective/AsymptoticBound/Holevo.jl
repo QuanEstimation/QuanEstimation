@@ -8,11 +8,11 @@ function HCRB(
     ρ::Matrix{T},
     ∂ρ_∂x::Vector{Matrix{T}},
     C::Matrix{Float64};
-    eps = 1e-6,
+    eps = 1e-8,
 ) where {T<:Complex}
     if length(∂ρ_∂x) == 1
         println(
-            "In single parameter scenario, HCRB is equivalent to QFI. This function will return the value of QFI",
+            "In the single-parameter scenario, the HCRB is equivalent to the QFI. This function will return the value of the QFI",
         )
         f = QFIM_SLD(ρ, ∂ρ_∂x[1]; eps=eps)
         return f
@@ -67,7 +67,7 @@ function Holevo_bound(
     end
     problem = minimize(tr(C * V), constraints)
     Convex.solve!(problem, SCS.Optimizer(verbose = false))
-    return evaluate(tr(C * V)), evaluate(X), evaluate(V)
+    return evaluate(tr(C * V))
 end
 
 function Holevo_bound_obj(

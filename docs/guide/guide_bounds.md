@@ -58,19 +58,26 @@ defined by $\partial_{a}\rho=\rho \mathcal{R}_a$ and $\partial_{a}\rho=\mathcal{
 
 In QuanEstimation, three types of the logarithmic derivatives can be solved by calling the 
 codes
-``` py
-SLD(rho, drho, rep="original", eps=1e-8)
-```
-``` py
-RLD(rho, drho, rep="original", eps=1e-8)
-```
-``` py
-LLD(rho, drho, rep="original", eps=1e-8)
-```
-<span style="color:red">(julia code) </span>
-``` jl
-julia code 
-```
+=== "Python"
+    ``` py
+    SLD(rho, drho, rep="original", eps=1e-8)
+    ```
+    ``` py
+    RLD(rho, drho, rep="original", eps=1e-8)
+    ```
+    ``` py
+    LLD(rho, drho, rep="original", eps=1e-8)
+    ```
+=== "Julia"
+    ``` jl
+    SLD(rho, drho; rep="original", eps=1e-8)
+    ```
+    ``` jl
+    RLD(rho, drho; rep="original", eps=1e-8)
+    ```
+    ``` jl
+    LLD(rho, drho; rep="original", eps=1e-8)
+    ```
 where `rho` and `drho` are the density matrix of the state and its derivatives on the unknown 
 parameters to be estimated. `drho` should be input as $[\partial_a{\rho}, \partial_b{\rho}, 
 \cdots]$. For single parameter estimation (the length of `drho` is equal to one), the output 
@@ -82,72 +89,78 @@ the eigenspace of `rho` by `rep="eigen"`. `eps` represents the machine epsilon w
 defaults to $10^{-8}$.
 
 In QuanEstimation, the QFI and QFIM can be calculated via
-``` py
-QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8)
-```
-<span style="color:red">(julia code) </span>
-``` jl
-julia code 
-```
+=== "Python"
+    ``` py
+    QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8)
+    ```
+=== "Julia"
+    ``` jl
+    QFIM(rho, drho; LDtype=:SLD, exportLD=false, eps=1e-8)
+    ```
 `LDtype` represents the types of QFI (QFIM) can be set. Options are `LDtype=SLD` (default), 
 `LDtype=RLD` and `LDtype=LLD`. This function will return QFI (QFIM) if `exportLD=False` and if 
 the users set `exportLD=True`, it will return logarithmic derivatives other than QFI (QFIM).
 
 If the parameterization process is via the Kraus operators, the QFI (QFIM) can be 
 calculated by calling the function
-``` py
-QFIM_Kraus(rho0, K, dK, LDtype="SLD", exportLD=False, eps=1e-8)
-```
-<span style="color:red">(julia code) </span>
-``` jl
-julia code 
-```
+=== "Python"
+    ``` py
+    QFIM_Kraus(rho0, K, dK, LDtype="SLD", exportLD=False, eps=1e-8)
+    ```
+=== "Julia"
+    ``` jl
+    QFIM_Kraus(rho0, K, dK; LDtype=:SLD, exportLD=false, eps=1e-8)
+    ```
 where `K` and `dK` are the Kraus operators and the derivatives on the unknown parameters to be 
 estimated.
 
 The FI (FIM) for a set of probabilities `p` can be calculated as
-``` py
-FIM(p, dp, eps=1e-8)
-```
-<span style="color:red">(julia code) </span>
-``` jl
-julia code 
-```
+=== "Python"
+    ``` py
+    FIM(p, dp, eps=1e-8)
+    ```
+=== "Julia"
+    ``` jl
+    FIM(p, dp; eps=1e-8)
+    ```
 where `dp` is a list representing the derivatives of probabilities `p` on the unknown 
 parameters.
 
 In quantum metrology, the CFI (CFIM) are solved by
-``` py
-CFIM(rho, drho, M=[], eps=1e-8)
-```
-<span style="color:red">(julia code) </span>
-``` jl
-julia code 
-```
+=== "Python"
+    ``` py
+    CFIM(rho, drho, M=[], eps=1e-8)
+    ```
+=== "Julia"
+    ``` jl
+    CFIM(rho, drho; M=nothing, eps=1e-8)
+    ```
 Here `M` represents a set of positive operator-valued measure (POVM) with default value `[]`. 
 In this function, a set of rank-one symmetric informationally complete POVM (SIC-POVM) is load 
 when `M=[]`. SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
 which can be downloaded from the website [[4]](#sic_state). 
 
 In Bloch representation, the SLD based QFI (QFIM) is calculated by
-``` py
-QFIM_Bloch(r, dr, eps=1e-8)
-```
-<span style="color:red">(julia code) </span>
-``` jl
-julia code 
-```
+=== "Python"
+    ``` py
+    QFIM_Bloch(r, dr, eps=1e-8)
+    ```
+=== "Julia"
+    ``` jl
+    QFIM_Bloch(r, dr; eps=1e-8)
+    ```
 `r` and `dr` are the parameterized Bloch vector and its derivatives of on the unknown 
 parameters to be estimated.
 
 The package can also calculte the SLD based QFI (QFIM) with Gaussian states. 
-``` py
-QFIM_Gauss(R, dR, D, dD)
-```
-<span style="color:red">(julia code) </span>
-``` jl
-julia code 
-```
+=== "Python"
+    ``` py
+    QFIM_Gauss(R, dR, D, dD)
+    ```
+=== "Julia"
+    ``` jl
+    QFIM_Gauss(R, dR, D, dD)
+    ```
 The variable `R` is expected value ($\mathrm{Tr}(\rho\textbf{R})$) of $\textbf{R}$, it is an 
 array epresenting the first-order moment. Here $\textbf{R}=(q_1,p_1,q_2,p_2,\dots)^{\mathrm{T}}$ 
 with $q_i=(a_i+a^{\dagger}_i)/\sqrt{2}$ and $p_i=(a_i-a^{\dagger}_i)/(i\sqrt{2})$ represents 
@@ -169,47 +182,46 @@ and $\gamma_{+}$, $\gamma_{-}$ are decay rates. The probe state is taken as $|+\
 measurement for CFI is $\{|+\rangle\langle+|, |-\rangle\langle-|\}$ with
 $|\pm\rangle:=\frac{1}{\sqrt{2}}(|0\rangle\pm|1\rangle)$. Here $|0\rangle$ and $|1\rangle$ are the
 eigenstates of $\sigma_3$ with respect to the eigenvalues $1$ and $-1$.
-``` py
-from quanestimation import *
-import numpy as np
+=== "Python"
+    ``` py
+    from quanestimation import *
+    import numpy as np
 
-# initial state
-rho0 = 0.5*np.array([[1.,1.],[1.,1.]])
-# free Hamiltonian
-omega0 = 1.0
-sz = np.array([[1., 0.],[0., -1.]])
-H0 = 0.5*omega0*sz
-# derivative of the free Hamiltonian on omega0
-dH = [0.5*sz]
-# dissipation
-sp = np.array([[0., 1.],[0., 0.]])
-sm = np.array([[0., 0.],[1., 0.]])
-decay = [[sp, 0.0],[sm, 0.1]]
-# measurement
-M1 = 0.5*np.array([[1.,1.],[1.,1.]])
-M2 = 0.5*np.array([[1.,-1.],[-1.,1.]])
-M = [M1, M2]
-# time length for the evolution
-tspan = np.linspace(0.0, 50.0, 2000)
-# dynamics
-dynamics = Lindblad(tspan, rho0, H0, dH, decay)
-rho, drho = dynamics.expm()
-# calculation of CFI and QFI
-I, F = [], []
-for ti in range(1,2000):
-    # CFI
-    I_tp = CFIM(rho[ti], drho[ti], M=M)
-    I.append(I_tp)
-    # QFI
-    F_tp = QFIM(rho[ti], drho[ti])
-    F.append(F_tp)
-```
-<span style="color:red">(julia example) </span>
-``` jl
-julia example 
-```
+    # initial state
+    rho0 = 0.5*np.array([[1.,1.],[1.,1.]])
+    # free Hamiltonian
+    omega0 = 1.0
+    sz = np.array([[1., 0.],[0., -1.]])
+    H0 = 0.5*omega0*sz
+    # derivative of the free Hamiltonian on omega0
+    dH = [0.5*sz]
+    # dissipation
+    sp = np.array([[0., 1.],[0., 0.]])
+    sm = np.array([[0., 0.],[1., 0.]])
+    decay = [[sp, 0.0],[sm, 0.1]]
+    # measurement
+    M1 = 0.5*np.array([[1.,1.],[1.,1.]])
+    M2 = 0.5*np.array([[1.,-1.],[-1.,1.]])
+    M = [M1, M2]
+    # time length for the evolution
+    tspan = np.linspace(0.0, 50.0, 2000)
+    # dynamics
+    dynamics = Lindblad(tspan, rho0, H0, dH, decay)
+    rho, drho = dynamics.expm()
+    # calculation of CFI and QFI
+    I, F = [], []
+    for ti in range(1,2000):
+        # CFI
+        I_tp = CFIM(rho[ti], drho[ti], M=M)
+        I.append(I_tp)
+        # QFI
+        F_tp = QFIM(rho[ti], drho[ti])
+        F.append(F_tp)
+    ```
+=== "Julia"
+    <span style="color:red">(julia example) </span>
+
 ---
-
 ## **Holevo Cramér-Rao bound**
 Holevo Cramér-Rao bound (HCRB) is of the form [[5,6]](#Holevo1973)
 \begin{align}
@@ -234,13 +246,14 @@ R\Lambda & I\\
 $X_i$ is expanded in a specific basis $\{\lambda_i\}$ as $X_i=\sum_j [\Lambda]_{ij}\lambda_j$, 
 the Hermitian matrix $Z(\textbf{X})$ satisfies $Z(\textbf{X})=\Lambda^{\mathrm{T}}R^{\dagger}
 R\Lambda$. In QuanEstimation, the HCRB can be solved by
-``` py
-HCRB(rho, drho, W, eps=1e-8)
-```
-<span style="color:red">(julia code) </span>
-``` jl
-julia code 
-```
+=== "Python"
+    ``` py
+    HCRB(rho, drho, W, eps=1e-8)
+    ```
+=== "Julia"
+    ``` jl
+    HCRB(rho, drho, W; eps=1e-8) 
+    ```
 where `rho` and `drho` are the density matrix of the state and its derivatives on the unknown 
 parameters to be estimated, respectively. `W` represents the weight matrix defaults to 
 identity matrix and `eps` is the machine epsilon with default value $10^{-8}$.
@@ -265,54 +278,52 @@ identity. The measurement for $\mathrm{Tr}(W\mathcal{I^{-1}})$ is $\{\Pi_1$, $\P
 with $\Pi_1=0.85|00\rangle\langle 00|$ and $\Pi_2=0.1|\!+\!+\rangle\langle+\!+\!|$. Here 
 $|\pm\rangle:=\frac{1}{\sqrt{2}}(|0\rangle\pm|1\rangle)$ with $|0\rangle$ $(|1\rangle)$ the eigenstate of 
 $\sigma_3$ with respect to the eigenvalue $1$ ($-1$).
+=== "Python"
+    ``` py 
+    from quanestimation import *
+    import numpy as np
 
-``` py 
-from quanestimation import *
-import numpy as np
-
-# initial state
-psi0 = np.array([1.0, 0.0, 0.0, 1.0])/np.sqrt(2)
-rho0 = np.dot(psi0.reshape(-1,1), psi0.reshape(1,-1).conj())
-# free Hamiltonian
-omega1, omega2, g = 1.0, 1.0, 0.1
-sx = np.array([[0., 1.],[1., 0.]])
-sy = np.array([[0., -1.j],[1.j, 0.]]) 
-sz = np.array([[1., 0.],[0., -1.]])
-ide = np.array([[1.,0.],[0.,1.]])   
-H0 = omega1*np.kron(sz, ide)+omega2*np.kron(ide, sz)+g*np.kron(sx, sx)
-# derivatives of the free Hamiltonian on omega2 and g
-dH = [np.kron(ide, sz), np.kron(sx, sx)] 
-# dissipation
-decay = [[np.kron(sz,ide), 0.05], [np.kron(ide,sz), 0.05]]
-# measurement
-m1 = np.array([0., 0., 0., 1.])
-M1 = 0.85*np.dot(m1.reshape(-1,1), m1.reshape(1,-1).conj())
-M2 = 0.1*np.array([[1.,1.,1.,1.],[1.,1.,1.,1.],[1.,1.,1.,1.],[1.,1.,1.,1.]])
-M = [M1, M2, np.identity(4)-M1-M2]
-# time length for the evolution
-tspan = np.linspace(0.0, 10.0, 1000)
-# dynamics
-dynamics = Lindblad(tspan, rho0, H0, dH, decay)
-rho, drho = dynamics.expm()
-# weight matrix
-W = [[1.0, 0.0],[0.0, 1.0]]
-# calculation of CFIM, QFIM and HCRB
-F, I, f = [], [], []
-for ti in range(1, 1000):
-    # CFIM
-    I_tp = CFIM(rho[ti], drho[ti], M=M)
-    I.append(I_tp)
-    # QFIM
-    F_tp = QFIM(rho[ti], drho[ti])
-    F.append(F_tp)
-    # HCRB
-    f_tp = HCRB(rho[ti], drho[ti], W, eps=1e-6)
-    f.append(f_tp)
-```
-<span style="color:red">(julia example) </span>
-``` jl
-julia example
-```
+    # initial state
+    psi0 = np.array([1.0, 0.0, 0.0, 1.0])/np.sqrt(2)
+    rho0 = np.dot(psi0.reshape(-1,1), psi0.reshape(1,-1).conj())
+    # free Hamiltonian
+    omega1, omega2, g = 1.0, 1.0, 0.1
+    sx = np.array([[0., 1.],[1., 0.]])
+    sy = np.array([[0., -1.j],[1.j, 0.]]) 
+    sz = np.array([[1., 0.],[0., -1.]])
+    ide = np.array([[1.,0.],[0.,1.]])   
+    H0 = omega1*np.kron(sz, ide)+omega2*np.kron(ide, sz)+g*np.kron(sx, sx)
+    # derivatives of the free Hamiltonian on omega2 and g
+    dH = [np.kron(ide, sz), np.kron(sx, sx)] 
+    # dissipation
+    decay = [[np.kron(sz,ide), 0.05], [np.kron(ide,sz), 0.05]]
+    # measurement
+    m1 = np.array([0., 0., 0., 1.])
+    M1 = 0.85*np.dot(m1.reshape(-1,1), m1.reshape(1,-1).conj())
+    M2 = 0.1*np.array([[1.,1.,1.,1.],[1.,1.,1.,1.],[1.,1.,1.,1.],[1.,1.,1.,1.]])
+    M = [M1, M2, np.identity(4)-M1-M2]
+    # time length for the evolution
+    tspan = np.linspace(0.0, 10.0, 1000)
+    # dynamics
+    dynamics = Lindblad(tspan, rho0, H0, dH, decay)
+    rho, drho = dynamics.expm()
+    # weight matrix
+    W = [[1.0, 0.0],[0.0, 1.0]]
+    # calculation of CFIM, QFIM and HCRB
+    F, I, f = [], [], []
+    for ti in range(1, 1000):
+        # CFIM
+        I_tp = CFIM(rho[ti], drho[ti], M=M)
+        I.append(I_tp)
+        # QFIM
+        F_tp = QFIM(rho[ti], drho[ti])
+        F.append(F_tp)
+        # HCRB
+        f_tp = HCRB(rho[ti], drho[ti], W, eps=1e-6)
+        f.append(f_tp)
+    ```
+=== "Julia"
+    <span style="color:red">(julia example) </span>
 
 ---
 
@@ -326,16 +337,20 @@ where $p(\textbf{x})$ is the prior distribution, $\mathcal{I}$ and $\mathcal{F}$
 (QFIM) of all types, respectively.
 
 In QuanEstimation, BCFI (BCFIM) and BQFI (BQFIM) can be solved via
-``` py
-BCFIM(x, p, rho, drho, M=[], eps=1e-8)
-```
-``` py
-BQFIM(x, p, rho, drho, LDtype="SLD", eps=1e-8)
-```
-<span style="color:red">(julia code) </span>
-``` jl
-julia code 
-```
+=== "Python"
+    ``` py
+    BCFIM(x, p, rho, drho, M=[], eps=1e-8)
+    ```
+    ``` py
+    BQFIM(x, p, rho, drho, LDtype="SLD", eps=1e-8)
+    ```
+=== "Julia"
+    ``` jl
+    BCFIM(x, p, rho, drho; M=nothing, eps=1e-8)
+    ```
+    ``` jl
+    BQFIM(x, p, rho, drho; LDtype=:SLD, eps=1e-8)
+    ```
 where `x` represents the regimes of the parameters for the integral, it should be input as a 
 list of arrays. `p` is an array representing the prior distribution. The input varibles `rho` 
 and `drho` are two multidimensional lists with the dimensions as `x`. For example, for three 
@@ -390,28 +405,36 @@ with $\mathcal{F}$ the QFIM for all types. The second one is
 with $\mathcal{F}_{\mathrm{Bayes}}$ the average of the QFIM.
 
 In QuanEstimation, the BCRB and BQCRB are calculated via
-``` py
-BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8)
-```
-``` py
-BQCRB(x, p, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8)
-```
-<span style="color:red">(julia code) </span>
-``` jl
-julia code 
-```
+=== "Python"
+    ``` py
+    BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8)
+    ```
+    ``` py
+    BQCRB(x, p, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8)
+    ```
+=== "Julia"
+    ``` jl
+    BCRB(x, p, rho, drho; M=nothing, b=nothing, db=nothing, 
+         btype=1, eps=1e-8)
+    ```
+    ``` jl
+    BQCRB(x, p, rho, drho; b=nothing, db=nothing, btype=1, 
+          LDtype=:SLD, eps=1e-8)
+    ```
+
 where `b` and `db` are the vectors of biases and its derivatives on the unknown parameters. 
 For unbiased estimates, `b=[]` and `db=[]`. In QuanEstimation, the users can set the types of 
 BCRB and BQCRB via the variable `btype`. For single parameter estimation, Ref [[7]](#Liu2016) 
 calculates the optimal biased bound based on the first type of the BQCRB, it can be realized 
 numerically via
-``` py
-OBB(x, p, dp, rho, drho, d2rho, LDtype="SLD", eps=1e-8)
-```
-<span style="color:red">(julia code) </span>
-``` jl
-julia code 
-```
+=== "Python"
+    ``` py
+    OBB(x, p, dp, rho, drho, d2rho, LDtype="SLD", eps=1e-8)
+    ```
+=== "Julia"
+    ``` jl
+    OBB(x, p, dp, rho, drho, d2rho; LDtype=:SLD, eps=1e-8)
+    ```
 `d2rho` is a list representing the second order derivatives of `rho` on `x`.
 
 Van Trees in 1968 [[8]](#vanTrees1968) provide a well used Bayesian version of Cramér-Rao 
@@ -445,16 +468,20 @@ The second one is
 with $\mathcal{F}_{\mathrm{Bayes}}$ the average of the QFIM.
 
 The functions to calculate the VTB and QVTB are
-``` py
-VTB(x, p, dp, rho, drho, M=[], btype=1, eps=1e-8)
-```
-``` py
-QVTB(x, p, dp, rho, drho, btype=1, LDtype="SLD", eps=1e-8)
-```
-<span style="color:red">(julia code) </span>
-``` jl
-julia code 
-```
+=== "Python"
+    ``` py
+    VTB(x, p, dp, rho, drho, M=[], btype=1, eps=1e-8)
+    ```
+    ``` py
+    QVTB(x, p, dp, rho, drho, btype=1, LDtype="SLD", eps=1e-8)
+    ```
+=== "Julia"
+    ``` jl
+    VTB(x, p, dp, rho, drho; M=nothing, btype=1, eps=1e-8)
+    ```
+    ``` jl
+    QVTB(x, p, dp, rho, drho; btype=1, LDtype=:SLD, eps=1e-8)
+    ```
 Here the variables in the codes are the same with `BCRB` and `BQCRB`.
 
 ## **Quantum Ziv-Zakai bound**
@@ -472,13 +499,14 @@ operator satisfying $\mathcal{V}f(\tau)=\max_{h\geq 0}f(\tau+h)$. $\rho(x)$ is t
 parameterized density matrix. 
 
 In QuanEstimation, the QZZB can be calculated via the function:
-``` py
-QZZB(x, p, rho, eps=1e-8)
-```
-<span style="color:red">(julia code) </span>
-``` jl
-julia code 
-```
+=== "Python"
+    ``` py
+    QZZB(x, p, rho, eps=1e-8)
+    ```
+=== "Julia"
+    ``` py
+    QZZB(x, p, rho; eps=1e-8)
+    ```
 where `x` is a list of array representing the regime of the parameter for the integral, `p` is 
 an array representing the prior distribution and `rho` is a multidimensional list representing 
 the density matrix. `eps` is the machine epsilon with default value $10^{-8}$.
@@ -501,68 +529,69 @@ Take the Gaussian prior distribution $p(x)=\frac{1}{c\eta\sqrt{2\pi}}\exp\left({
 Here $c=\frac{1}{2}\big[\mathrm{erf}(\frac{\pi-2\mu}{2\sqrt{2}\eta})+\mathrm{erf}(\frac{\pi+2\mu}
 {2\sqrt{2}\eta})\big]$ is the normalized coefficient with $\mathrm{erf}(x):=\frac{2}{\sqrt{\pi}}\int^x_0 
 e^{-t^2}\mathrm{d}t$ the error function.
-``` py
-from quanestimation import *
-import numpy as np
-from scipy.integrate import simps
+=== "Python"
+    ``` py
+    from quanestimation import *
+    import numpy as np
+    from scipy.integrate import simps
 
-# initial state
-rho0 = 0.5*np.array([[1., 1.],[1., 1.]])
-# free Hamiltonian
-B = np.pi/2.0
-sx = np.array([[0., 1.],[1., 0.]])
-sy = np.array([[0., -1.j],[1.j, 0.]]) 
-sz = np.array([[1., 0.],[0., -1.]])
-H0_func = lambda x: 0.5*B*(sx*np.cos(x)+sz*np.sin(x))
-# derivative of the free Hamiltonian on x
-dH_func = lambda x: [0.5*B*(-sx*np.sin(x)+sz*np.cos(x))]
-# prior distribution
-x = np.linspace(-0.5*np.pi, 0.5*np.pi, 100)
-mu, eta = 0.0, 0.2
-p_func = lambda x, mu, eta: np.exp(-(x-mu)**2/(2*eta**2))\
-                            /(eta*np.sqrt(2*np.pi))
-dp_func = lambda x, mu, eta: -(x-mu)*np.exp(-(x-mu)**2/(2*eta**2))\
-                             /(eta**3*np.sqrt(2*np.pi))
-p_tp = [p_func(x[i], mu, eta) for i in range(len(x))]
-dp_tp = [dp_func(x[i], mu, eta) for i in range(len(x))]
-# normalization of the distribution
-c = simps(p_tp, x)
-p, dp = p_tp/c, dp_tp/c
-# time length for the evolution
-tspan = np.linspace(0., 1.0, 1000)
-# dynamics
-rho = [np.zeros((len(rho0), len(rho0)), dtype=np.complex128)\
-       for i in range(len(x))]
-drho = [[np.zeros((len(rho0), len(rho0)), dtype=np.complex128)]\
-         for i in range(len(x))]
-for i in range(len(x)):
-    H0_tp = H0_func(x[i])
-    dH_tp = dH_func(x[i])
-    dynamics = Lindblad(tspan, rho0, H0_tp, dH_tp)
-    rho_tp, drho_tp = dynamics.expm()
-    rho[i] = rho_tp[-1]
-    drho[i] = drho_tp[-1]
+    # initial state
+    rho0 = 0.5*np.array([[1., 1.],[1., 1.]])
+    # free Hamiltonian
+    B = np.pi/2.0
+    sx = np.array([[0., 1.],[1., 0.]])
+    sy = np.array([[0., -1.j],[1.j, 0.]]) 
+    sz = np.array([[1., 0.],[0., -1.]])
+    H0_func = lambda x: 0.5*B*(sx*np.cos(x)+sz*np.sin(x))
+    # derivative of the free Hamiltonian on x
+    dH_func = lambda x: [0.5*B*(-sx*np.sin(x)+sz*np.cos(x))]
+    # prior distribution
+    x = np.linspace(-0.5*np.pi, 0.5*np.pi, 100)
+    mu, eta = 0.0, 0.2
+    p_func = lambda x, mu, eta: np.exp(-(x-mu)**2/(2*eta**2))\
+                                /(eta*np.sqrt(2*np.pi))
+    dp_func = lambda x, mu, eta: -(x-mu)*np.exp(-(x-mu)**2/(2*eta**2))\
+                                  /(eta**3*np.sqrt(2*np.pi))
+    p_tp = [p_func(x[i], mu, eta) for i in range(len(x))]
+    dp_tp = [dp_func(x[i], mu, eta) for i in range(len(x))]
+    # normalization of the distribution
+    c = simps(p_tp, x)
+    p, dp = p_tp/c, dp_tp/c
+    # time length for the evolution
+    tspan = np.linspace(0., 1.0, 1000)
+    # dynamics
+    rho = [np.zeros((len(rho0), len(rho0)), dtype=np.complex128)\
+           for i in range(len(x))]
+    drho = [[np.zeros((len(rho0), len(rho0)), dtype=np.complex128)]\
+             for i in range(len(x))]
+    for i in range(len(x)):
+        H0_tp = H0_func(x[i])
+        dH_tp = dH_func(x[i])
+        dynamics = Lindblad(tspan, rho0, H0_tp, dH_tp)
+        rho_tp, drho_tp = dynamics.expm()
+        rho[i] = rho_tp[-1]
+        drho[i] = drho_tp[-1]
+    ```
+    ``` py
+    # Classical Bayesian bounds
+    f_BCRB1 = BCRB([x], p, rho, drho, M=[], btype=1)
+    f_BCRB2 = BCRB([x], p, rho, drho, M=[], btype=2)
+    f_VTB1 = VTB([x], p, dp, rho, drho, M=[], btype=1)
+    f_VTB2 = VTB([x], p, dp, rho, drho, M=[], btype=2)
+    ```
+    ``` py
+    # Quantum Bayesian bounds
+    f_BQCRB1 = BQCRB([x], p, rho, drho, btype=1)
+    f_BQCRB2 = BQCRB([x], p, rho, drho, btype=2)
+    f_QVTB1 = QVTB([x], p, dp, rho, drho, btype=1)
+    f_QVTB2 = QVTB([x], p, dp, rho, drho, btype=2)
+    f_QZZB = QZZB([x], p, rho)
+    ```
 
-# Classical Bayesian bounds
-f_BCRB1 = BCRB([x], p, rho, drho, M=[], btype=1)
-f_BCRB2 = BCRB([x], p, rho, drho, M=[], btype=2)
-f_VTB1 = VTB([x], p, dp, rho, drho, M=[], btype=1)
-f_VTB2 = VTB([x], p, dp, rho, drho, M=[], btype=2)
-
-# Quantum Bayesian bounds
-f_BQCRB1 = BQCRB([x], p, rho, drho, btype=1)
-f_BQCRB2 = BQCRB([x], p, rho, drho, btype=2)
-f_QVTB1 = QVTB([x], p, dp, rho, drho, btype=1)
-f_QVTB2 = QVTB([x], p, dp, rho, drho, btype=2)
-f_QZZB = QZZB([x], p, rho)
-```
-<span style="color:red">(julia example) </span>
-``` jl
-julia example
-```
+=== "Julia"
+    <span style="color:red">(julia example) </span>
 
 ---
-
 ## **Bayesian estimation**
 In QuanEstimation, two types of Bayesian estimation are considered including maximum a posteriori 
 estimation (MAP) and maximum likelihood estimation (MLE). In Bayesian estimation, the prior distribution 
@@ -574,16 +603,20 @@ p(\textbf{x}|y)=\frac{p(y|\textbf{x})p(\textbf{x})}{\int p(y|\textbf{x})p(\textb
 with $p(\textbf{x})$ the current prior distribution and $y$ the outcome of the experiment. In practice, the 
 prior distribution is replaced with $p(\textbf{x}|y)$ and the estimated value of $\textbf{x}$ can be 
 evaluated by
-``` py
-Bayes(x, p, rho, y, M=[], savefile=False)
-```
-``` py
-MLE(x, rho, y, M=[], savefile=False)
-```
-<span style="color:red">(julia code) </span>
-``` jl
-julia code 
-```
+=== "Python"
+    ``` py
+    Bayes(x, p, rho, y, M=[], savefile=False)
+    ```
+    ``` py
+    MLE(x, rho, y, M=[], savefile=False)
+    ```
+=== "Julia"
+    ``` jl
+    Bayes(x, p, rho, y; M=nothing, savefile=false)
+    ```
+    ``` jl
+    MLE(x, rho, y; M=nothing, savefile=false)
+    ```
 where `x` is a list of arrays representing the regimes of the parameters for the integral and 
 `p` is an array representing the prior distribution. For multiparameter estimation, `p` is 
 multidimensional. The input varible `rho` is a multidimensional list with the dimensions as `x` 
@@ -607,58 +640,58 @@ are the Pauli matrices. The probe state is taken as $|\pm\rangle$. The measureme
 $\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}{\sqrt{2}}(|0\rangle\pm|
 1\rangle)$ with $|0\rangle$ $(|1\rangle)$ the eigenstate of $\sigma_3$ with respect to the eigenvalue $1$ 
 $(-1)$. In this example, the prior distribution $p(x)$ is uniform on $[0, \pi/2]$.
-``` py
-from quanestimation import *
-import numpy as np
-import random
+=== "Python"
+    ``` py
+    from quanestimation import *
+    import numpy as np
+    import random
 
-# initial state
-rho0 = 0.5*np.array([[1., 1.],[1., 1.]])
-# free Hamiltonian
-B = np.pi/2.0
-sx = np.array([[0., 1.],[1., 0.]])
-sy = np.array([[0., -1.j],[1.j, 0.]]) 
-sz = np.array([[1., 0.],[0., -1.]])
-H0_func = lambda x: 0.5*B*(sx*np.cos(x)+sz*np.sin(x))
-# derivative of the free Hamiltonian on x
-dH_func = lambda x: [0.5*B*(-sx*np.sin(x)+sz*np.cos(x))]
-# measurement
-M1 = 0.5*np.array([[1., 1.],[1., 1.]])
-M2 = 0.5*np.array([[1.,-1.],[-1., 1.]])
-M = [M1, M2]
-# prior distribution
-x = np.linspace(0.0, 0.5*np.pi, 1000)
-p = (1.0/(x[-1]-x[0]))*np.ones(len(x))
-# time length for the evolution
-tspan = np.linspace(0., 1.0, 1000)
-# dynamics
-rho = [np.zeros((len(rho0), len(rho0)), dtype=np.complex128) for i in range(len(x))]
-for i in range(len(x)):
-    H0 = H0_func(x[i])
-    dH = dH_func(x[i])
-    dynamics = Lindblad(tspan, rho0, H0, dH)
-    rho_tp, drho_tp = dynamics.expm()
-    rho[i] = rho_tp[-1]
+    # initial state
+    rho0 = 0.5*np.array([[1., 1.],[1., 1.]])
+    # free Hamiltonian
+    B = np.pi/2.0
+    sx = np.array([[0., 1.],[1., 0.]])
+    sy = np.array([[0., -1.j],[1.j, 0.]]) 
+    sz = np.array([[1., 0.],[0., -1.]])
+    H0_func = lambda x: 0.5*B*(sx*np.cos(x)+sz*np.sin(x))
+    # derivative of the free Hamiltonian on x
+    dH_func = lambda x: [0.5*B*(-sx*np.sin(x)+sz*np.cos(x))]
+    # measurement
+    M1 = 0.5*np.array([[1., 1.],[1., 1.]])
+    M2 = 0.5*np.array([[1.,-1.],[-1., 1.]])
+    M = [M1, M2]
+    # prior distribution
+    x = np.linspace(0.0, 0.5*np.pi, 1000)
+    p = (1.0/(x[-1]-x[0]))*np.ones(len(x))
+    # time length for the evolution
+    tspan = np.linspace(0., 1.0, 1000)
+    # dynamics
+    rho = [np.zeros((len(rho0), len(rho0)), dtype=np.complex128) for i in range(len(x))]
+    for i in range(len(x)):
+        H0 = H0_func(x[i])
+        dH = dH_func(x[i])
+        dynamics = Lindblad(tspan, rho0, H0, dH)
+        rho_tp, drho_tp = dynamics.expm()
+        rho[i] = rho_tp[-1]
 
-# Generation of the experimental results
-y = [0 for i in range(500)]
-res_rand = random.sample(range(0,len(y)), 125)
-for i in range(len(res_rand)):
-    y[res_rand[i]] = 1
-
-# Maximum a posteriori estimation
-pout, xout = Bayes([x], p, rho, y, M=M, savefile=False)
-
-# Maximum likelihood estimation
-Lout, xout = MLE([x], rho, y, M=M, savefile=False)
-```
-<span style="color:red">(julia example) </span>
-``` jl
-julia example
-```
+    # Generation of the experimental results
+    y = [0 for i in range(500)]
+    res_rand = random.sample(range(0,len(y)), 125)
+    for i in range(len(res_rand)):
+        y[res_rand[i]] = 1
+    ```
+    ``` py
+    # Maximum a posteriori estimation
+    pout, xout = Bayes([x], p, rho, y, M=M, savefile=False)
+    ```
+    ``` py
+    # Maximum likelihood estimation
+    Lout, xout = MLE([x], rho, y, M=M, savefile=False)
+    ```
+=== "Julia"
+    <span style="color:red">(julia example) </span>
 
 ---
-
 ## **Bibliography**
 <a id="Helstrom1976">[1]</a>
 C. W. Helstrom, 

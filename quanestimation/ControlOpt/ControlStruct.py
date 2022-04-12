@@ -376,8 +376,7 @@ class ControlSystem:
             if target == "HCRB":
                 if self.para_type == "single_para":
                     print(
-                        "Program exit. In single parameter scenario, HCRB is equivalent to QFI. Please choose QFIM as the target function for control optimization"
-                    )
+                        "Program exit. In the single-parameter scenario, the HCRB is equivalent to the QFI. Please choose 'QFIM' as the objective function"                    )
                 self.obj = Main.QuanEstimation.HCRB_Obj(
                     self.W, self.eps, self.para_type
                 )

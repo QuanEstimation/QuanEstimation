@@ -12,18 +12,22 @@ H = H_0(\textbf{x})+\sum_{k=1}^K u_k(t) H_k,
 where $H_0(\textbf{x})$ is the free evolution Hamiltonian with unknown parameters $\textbf{x}$ 
 and $H_k$ represents the $k$th control Hamiltonian with $u_k$ the correspong control 
 coefficient. In QuanEstimation, different algorithms are invoked to update the optimal 
-control coefficients. The control optimization algorithms are gradient ascent pulse 
+control coefficients. The control optimization algorithms are the gradient ascent pulse 
 engineering (GRAPE) [[1,2,3]](#Khaneja2005), GRAPE algorithm based on the automatic 
 differentiation (auto-GRAPE) [[4]](#Baydin2018), particle swarm optimization (PSO) 
 [[5]](#Kennedy1995), differential evolution (DE) [[6]](#Storn1997) and deep deterministic 
 policy gradients (DDPG) [[7]](#Lillicrap2015). The codes for control optimization are
-```py
-control = ControlOpt(savefile=False, method="auto-GRAPE", **kwargs)
-control.dynamics(tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[])
-control.QFIM(W=[], LDtype="SLD")
-control.CFIM(M=[], W=[])
-control.HCRB(W=[])
-```
+=== "Python"
+	```py
+	control = ControlOpt(savefile=False, method="auto-GRAPE", **kwargs)
+	control.dynamics(tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[])
+	control.QFIM(W=[], LDtype="SLD")
+	control.CFIM(M=[], W=[])
+	control.HCRB(W=[])
+	```
+=== "Julia"
+	<span style="color:red">(julia code) </span>
+
 In QuanEstimation, the optimization codes are executed in Julia and the data will be saved in
 the `.csv` file. The variable `savefile` indicates whether to save all the control 
 coefficients and its default value is `False` which means the control coefficients for the 
@@ -49,31 +53,35 @@ two elements representing the lower and upper bound of the control coefficients,
 The default value of `ctrl_bound=[]` which means the control coefficients are in the regime 
 $[-\infty,\infty]$.
 
-The code is `control.QFIM()` for the objective functions are QFI and $\mathrm{Tr}(W\mathcal{F}
-^{-1})$, `control.CFIM()` for CFI and $\mathrm{Tr}(W\mathcal{I}^{-1})$ and `control.HCRB()` for 
-HCRB. Here $F$ and $I$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight matrix which 
+The objective functions for control optimization can be set as QFI ($\mathrm{Tr}(W\mathcal{F}^
+{-1})$), CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$) and HCRB, the corresponding codes for them are
+`control.QFIM()` (default), `control.CFIM()` and `control.HCRB()`. Here $\mathcal{F}$ and 
+$\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight matrix which 
 defaults to the identity matrix. If the users call `control.HCRB()` for single parameter 
-scenario, the program will exit and print `"Program exit. In single parameter scenario, HCRB is 
-equivalent to QFI. Please choose QFIM as the target function"`. `LDtype` in `state.QFIM()` 
-represents the types of the QFIM, it can be set as `LDtype=SLD` (default), `LDtype=RLD`, and 
-`LDtype=LLD`. `M` in `control.CFIM()` represents a set of positive operator-valued measure 
-(POVM) with default value `[]` which means a set of rank-one symmetric informationally complete 
-POVM (SIC-POVM) is used.
+scenario, the program will exit and print `"Program exit. In the single-parameter scenario, the 
+HCRB is equivalent to the QFI. Please choose 'QFIM' as the objective function"`. `LDtype` in 
+`state.QFIM()` represents the types of the QFIM, it can be set as `LDtype=SLD` (default), 
+`LDtype=RLD`, and `LDtype=LLD`. `M` in `control.CFIM()` represents a set of positive 
+operator-valued measure (POVM) with default value `[]` which means a set of rank-one symmetric 
+informationally complete POVM (SIC-POVM) is used.
 
 ---
 ## **GRAPE and auto-GRAPE**
 The codes for control optimization with GRAPE and auto-GRAPE are as follows
-``` py
-control = ControlOpt(method="GRAPE", **kwargs)
-```
-``` py
-control = ControlOpt(method="auto-GRAPE", **kwargs)
-```
-where `kwargs` is of the form
-``` py
-kwargs = {"Adam":True, "ctrl0":[], "max_episode":300, "epsilon":0.01, 
-          "beta1":0.90, "beta2":0.99}
-```
+=== "Python"
+	``` py
+	control = ControlOpt(method="GRAPE", **kwargs)
+	```
+	``` py
+	control = ControlOpt(method="auto-GRAPE", **kwargs)
+	```
+	where `kwargs` is of the form
+	``` py
+	kwargs = {"Adam":True, "ctrl0":[], "max_episode":300, "epsilon":0.01, 
+          	  "beta1":0.90, "beta2":0.99}
+	```
+=== "Julia"
+	<span style="color:red">(julia code) </span>
 The keywords and the default values of GRAPE and auto-GRAPE can be seen in the following table
 
 | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
@@ -95,14 +103,17 @@ and `max_episode` is the the number of episodes.
 
 ## **PSO**
 The code for control optimization with PSO is as follows
-``` py
-control = ControlOpt(method="PSO", **kwargs)
-```
-where `kwargs` is of the form
-``` py
-kwargs = {"particle_num":10, "ctrl0":[], "max_episode":[1000,100], 
+=== "Python"
+	``` py
+	control = ControlOpt(method="PSO", **kwargs)
+	```
+	where `kwargs` is of the form
+	``` py
+	kwargs = {"particle_num":10, "ctrl0":[], "max_episode":[1000,100], 
           "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
-```
+	```
+=== "Julia"
+	<span style="color:red">(julia code) </span>
 
 | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
 | :----------:                     | :----------:               |
@@ -124,14 +135,17 @@ best every 100 episodes. `seed` is the random seed which can ensure the reproduc
 
 ## **DE**
 The code for control optimization with DE is as follows
-``` py
-control = ControlOpt(method="DE", **kwargs)
-```
-where `kwargs` is of the form
-``` py
-kwargs = {"popsize":10, "ctrl0":[], "max_episode":1000, "c":1.0, 
-          "cr":0.5, "seed":1234}
-```
+=== "Python"
+	``` py
+	control = ControlOpt(method="DE", **kwargs)
+	```
+	where `kwargs` is of the form
+	``` py
+	kwargs = {"popsize":10, "ctrl0":[], "max_episode":1000, "c":1.0, 
+          	  "cr":0.5, "seed":1234}
+	```
+=== "Julia"
+	<span style="color:red">(julia code) </span>
 
 | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
 | :----------:                     | :----------:               |
@@ -147,13 +161,16 @@ are the mutation constant and the crossover constant.
 
 ## **DDPG**
 The code for control optimization with DDPG is as follows
-``` py
-control = ControlOpt(method="DDPG", **kwargs)
-```
-where `kwargs` is of the form
-``` py
-kwargs = {"layer_num":3, "layer_dim":200, "max_episode":1000, "seed":1234}
-```
+=== "Python"
+	``` py
+	control = ControlOpt(method="DDPG", **kwargs)
+	```
+	where `kwargs` is of the form
+	``` py
+	kwargs = {"layer_num":3, "layer_dim":200, "max_episode":1000, "seed":1234}
+	```
+=== "Julia"
+	<span style="color:red">(julia code) </span>
 
 | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
 | :----------:                     | :----------:               |
@@ -188,47 +205,78 @@ H_\mathrm{c}=u_1(t)\sigma_1+u_2(t)\sigma_2+u_3(t)\sigma_3.
 
 Here $\sigma_{1}$, $\sigma_{2}$ are also Pauli matrices. The probe state is taken as $|+\rangle$ and the measurement for CFI is $\{|+\rangle\langle+|, |-\rangle\langle-|\}$ with
 $|\pm\rangle:=\frac{1}{\sqrt{2}}(|0\rangle\pm|1\rangle)$. Here $|0\rangle(|1\rangle)$ is the eigenstate of $\sigma_3$ with respect to the eigenvalue $1(-1)$.
+=== "Python"
+	``` py
+	from quanestimation import *
+	import numpy as np
 
-``` py
-from quanestimation import *
-import numpy as np
-
-# initial state
-rho0 = 0.5*np.array([[1., 1.],[1., 1.]])
-# free Hamiltonian
-omega0 = 1.0
-sx = np.array([[0., 1.],[1., 0.]])
-sy = np.array([[0., -1.j],[1.j, 0.]]) 
-sz = np.array([[1., 0.],[0., -1.]])
-H0 = 0.5*omega0*sz
-# derivative of the free Hamiltonian on omega0
-dH = [0.5*sz]
-# control Hamiltonians 
-Hc = [sx,sy,sz]
-# dissipation
-sp = np.array([[0., 1.],[0., 0.]])  
-sm = np.array([[0., 0.],[1., 0.]]) 
-decay = [[sp, 0.0],[sm, 0.1]]
-# measurement
-M1 = 0.5*np.array([[1., 1.],[1., 1.]])
-M2 = 0.5*np.array([[1.,-1.],[-1., 1.]])
-M = [M1, M2]
-# time length for the evolution
-tspan = np.linspace(0., 10.0, 2500)
-# guessed control coefficients
-cnum = len(tspan)-1
-ctrl0 = [np.array([np.zeros(cnum), np.zeros(cnum), np.zeros(cnum)])]
-```
-``` py
-# Control algorithm: auto-GRAPE
-GRAPE_paras = {"Adam":True, "ctrl0":ctrl0, "max_episode":300, "epsilon":0.01, "beta1":0.90, "beta2":0.99}
-control = ControlOpt(savefile=False, method="auto-GRAPE", **GRAPE_paras)
-control.dynamics(tspan, rho0, H0, dH, Hc, decay=decay, ctrl_bound=[-2.0, 2.0])
-# choose QFIM as the objective function
-control.QFIM()
-# choose CFIM as the objective function
-control.CFIM(M=M)
-```
+	# initial state
+	rho0 = 0.5*np.array([[1., 1.],[1., 1.]])
+	# free Hamiltonian
+	omega0 = 1.0
+	sx = np.array([[0., 1.],[1., 0.]])
+	sy = np.array([[0., -1.j],[1.j, 0.]]) 
+	sz = np.array([[1., 0.],[0., -1.]])
+	H0 = 0.5*omega0*sz
+	# derivative of the free Hamiltonian on omega0
+	dH = [0.5*sz]
+	# control Hamiltonians 
+	Hc = [sx,sy,sz]
+	# dissipation
+	sp = np.array([[0., 1.],[0., 0.]])  
+	sm = np.array([[0., 0.],[1., 0.]]) 
+	decay = [[sp, 0.0],[sm, 0.1]]
+	# measurement
+	M1 = 0.5*np.array([[1., 1.],[1., 1.]])
+	M2 = 0.5*np.array([[1.,-1.],[-1., 1.]])
+	M = [M1, M2]
+	# time length for the evolution
+	tspan = np.linspace(0., 10.0, 2500)
+	# guessed control coefficients
+	cnum = len(tspan)-1
+	ctrl0 = [np.array([np.zeros(cnum), np.zeros(cnum), np.zeros(cnum)])]
+	```
+	=== "auto-GRAPE"
+		``` py
+		GRAPE_paras = {"Adam":True, "ctrl0":ctrl0, "max_episode":300, \
+					   "epsilon":0.01, "beta1":0.90, "beta2":0.99}
+		control = ControlOpt(savefile=False, method="auto-GRAPE", **GRAPE_paras)
+		```
+	=== "GRAPE"
+		``` py
+		GRAPE_paras = {"Adam":True, "ctrl0":ctrl0, "max_episode":300, \
+					   "epsilon":0.01, "beta1":0.90, "beta2":0.99}
+		control = ControlOpt(savefile=False, method="GRAPE", **GRAPE_paras)
+		```
+	=== "PSO"
+		``` py
+		PSO_paras = {"particle_num":10, "ctrl0":ctrl0, "max_episode":[1000,100], \
+					 "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
+		control = ControlOpt(savefile=False, method="PSO", **PSO_paras)
+		```
+	=== "DE"
+		``` py
+		DE_paras = {"popsize":10, "ctrl0":ctrl0, "max_episode":1000, "c":1.0, \
+				    "cr":0.5, "seed":1234}
+		control = ControlOpt(savefile=False, method="DE", **DE_paras)
+		```
+	=== "DDPG"
+		``` py
+		DDPG_paras = {"layer_num":4, "layer_dim":250, "max_episode":500, \
+		              "seed":1234}
+		control = ControlOpt(savefile=False, method="DDPG", **DDPG_paras)
+		```
+	``` py
+	# input the dynamics data
+	control.dynamics(tspan, rho0, H0, dH, Hc, decay=decay, \
+	                 ctrl_bound=[-2.0, 2.0])
+	# choose QFIM as the objective function
+	control.QFIM()
+	# choose CFIM as the objective function
+	control.CFIM(M=M)
+	```
+=== "Julia"
+	<span style="color:red">(julia code) </span>
 
 **Example 2**  
 In the multiparameter scenario, the dynamics of electron and nuclear coupling in NV$^{-}$ can be expressed as
@@ -270,59 +318,90 @@ eigenstate of $s_3$ with respect to the eigenvalue $1$ ($-1$). $|\!\!\uparrow\ra
 the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be $I$.
 
 Here three types of measurement optimization are considerd, projective measurement, linear combination of a given set of positive operator-valued measure (POVM) and optimal rotated measurement of an input measurement.
+=== "Python"
+	``` py
+	from quanestimation import *
+	import numpy as np
 
-``` py
-from quanestimation import *
-import numpy as np
-
-# initial state
-rho0 = np.zeros((6,6), dtype=np.complex128)
-rho0[0][0], rho0[0][4], rho0[4][0], rho0[4][4] = 0.5, 0.5, 0.5, 0.5
-# free Hamiltonian
-sx = np.array([[0., 1.],[1., 0.]])
-sy = np.array([[0., -1.j],[1.j, 0.]]) 
-sz = np.array([[1., 0.],[0., -1.]])
-ide2 = np.array([[1., 0.],[0., 1.]])
-s1 = np.array([[0., 1., 0.],[1., 0., 1.],[0., 1., 0.]])/np.sqrt(2)
-s2 = np.array([[0., -1.j, 0.],[1.j, 0., -1.j],[0., 1.j, 0.]])/np.sqrt(2)
-s3 = np.array([[1., 0., 0.],[0., 0., 0.],[0., 0., -1.]])
-ide3 = np.array([[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]])
-I1, I2, I3 = np.kron(ide3, sx), np.kron(ide3, sy), np.kron(ide3, sz)
-S1, S2, S3 = np.kron(s1, ide2), np.kron(s2, ide2), np.kron(s3, ide2)
-B1, B2, B3 = 5.0e-4, 5.0e-4, 5.0e-4
-cons = 100
-D = (2*np.pi*2.87*1000)/cons
-gS = (2*np.pi*28.03*1000)/cons
-gI = (2*np.pi*4.32)/cons
-A1 = (2*np.pi*3.65)/cons
-A2 = (2*np.pi*3.03)/cons
-H0 = D*np.kron(np.dot(s3, s3), ide2)+gS*(B1*S1+B2*S2+B3*S3)+gI*(B1*I1+B2*I2+B3*I3)+\
-     + A1*(np.kron(s1, sx)+np.kron(s2, sy)) + A2*np.kron(s3, sz)
-# derivatives of the free Hamiltonian on B1, B2 and B3
-dH = [gS*S1+gI*I1, gS*S2+gI*I2, gS*S3+gI*I3]
-# control Hamiltonians 
-Hc = [S1, S2, S3]
-# dissipation
-decay = [[S3,2*np.pi/cons]]
-# generation of a set of POVM basis
-dim = len(rho0)
-povm_basis = []
-for i in range(dim):
-    M_tp = np.dot(basis(dim, i), basis(dim, i).conj().T)
-    povm_basis.append(M_tp)
-# time length for the evolution
-tspan = np.linspace(0.0, 2.0, 4000)
-```
-``` py
-# Control algorithm: auto-GRAPE
-GRAPE_paras = {"Adam":True, "ctrl0":ctrl0, "max_episode":300, "epsilon":0.01, "beta1":0.90, "beta2":0.99}
-control = ControlOpt(savefile=False, method="auto-GRAPE", **GRAPE_paras)
-control.dynamics(tspan, rho0, H0, dH, Hc, decay=decay, ctrl_bound=[-2.0, 2.0])
-# choose QFIM as the objective function
-control.QFIM()
-# choose CFIM as the objective function
-control.CFIM(M=M)
-```
+	# initial state
+	rho0 = np.zeros((6,6), dtype=np.complex128)
+	rho0[0][0], rho0[0][4], rho0[4][0], rho0[4][4] = 0.5, 0.5, 0.5, 0.5
+	# free Hamiltonian
+	sx = np.array([[0., 1.],[1., 0.]])
+	sy = np.array([[0., -1.j],[1.j, 0.]]) 
+	sz = np.array([[1., 0.],[0., -1.]])
+	ide2 = np.array([[1., 0.],[0., 1.]])
+	s1 = np.array([[0., 1., 0.],[1., 0., 1.],[0., 1., 0.]])/np.sqrt(2)
+	s2 = np.array([[0., -1.j, 0.],[1.j, 0., -1.j],[0., 1.j, 0.]])/np.sqrt(2)
+	s3 = np.array([[1., 0., 0.],[0., 0., 0.],[0., 0., -1.]])
+	ide3 = np.array([[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]])
+	I1, I2, I3 = np.kron(ide3, sx), np.kron(ide3, sy), np.kron(ide3, sz)
+	S1, S2, S3 = np.kron(s1, ide2), np.kron(s2, ide2), np.kron(s3, ide2)
+	B1, B2, B3 = 5.0e-4, 5.0e-4, 5.0e-4
+	cons = 100
+	D = (2*np.pi*2.87*1000)/cons
+	gS = (2*np.pi*28.03*1000)/cons
+	gI = (2*np.pi*4.32)/cons
+	A1 = (2*np.pi*3.65)/cons
+	A2 = (2*np.pi*3.03)/cons
+	H0 = D*np.kron(np.dot(s3, s3), ide2)+gS*(B1*S1+B2*S2+B3*S3)+gI*(B1*I1+B2*I2+B3*I3)+\
+     	+ A1*(np.kron(s1, sx)+np.kron(s2, sy)) + A2*np.kron(s3, sz)
+	# derivatives of the free Hamiltonian on B1, B2 and B3
+	dH = [gS*S1+gI*I1, gS*S2+gI*I2, gS*S3+gI*I3]
+	# control Hamiltonians 
+	Hc = [S1, S2, S3]
+	# dissipation
+	decay = [[S3,2*np.pi/cons]]
+	# generation of a set of POVM basis
+	dim = len(rho0)
+	povm_basis = []
+	for i in range(dim):
+    	M_tp = np.dot(basis(dim, i), basis(dim, i).conj().T)
+    	povm_basis.append(M_tp)
+	## time length for the evolution
+	tspan = np.linspace(0.0, 2.0, 4000)
+	```
+	=== "auto-GRAPE"
+		``` py
+		GRAPE_paras = {"Adam":True, "ctrl0":ctrl0, "max_episode":300, \
+					   "epsilon":0.01, "beta1":0.90, "beta2":0.99}
+		control = ControlOpt(savefile=False, method="auto-GRAPE", **GRAPE_paras)
+		```
+	=== "GRAPE"
+		``` py
+		GRAPE_paras = {"Adam":True, "ctrl0":ctrl0, "max_episode":300, \
+					   "epsilon":0.01, "beta1":0.90, "beta2":0.99}
+		control = ControlOpt(savefile=False, method="GRAPE", **GRAPE_paras)
+		```
+	=== "PSO"
+		``` py
+		PSO_paras = {"particle_num":10, "ctrl0":ctrl0, "max_episode":[1000,100], \
+					 "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
+		control = ControlOpt(savefile=False, method="PSO", **PSO_paras)
+		```
+	=== "DE"
+		``` py
+		DE_paras = {"popsize":10, "ctrl0":ctrl0, "max_episode":1000, "c":1.0, \
+				    "cr":0.5, "seed":1234}
+		control = ControlOpt(savefile=False, method="DE", **DE_paras)
+		```
+	=== "DDPG"
+		``` py
+		DDPG_paras = {"layer_num":4, "layer_dim":250, "max_episode":500, \
+		              "seed":1234}
+		control = ControlOpt(savefile=False, method="DDPG", **DDPG_paras)
+		```
+	``` py
+	# input the dynamics data
+	control.dynamics(tspan, rho0, H0, dH, Hc, decay=decay, \
+	                 ctrl_bound=[-2.0, 2.0])
+	# choose QFIM as the objective function
+	control.QFIM()
+	# choose CFIM as the objective function
+	control.CFIM(M=M)
+	```
+=== "Julia"
+	<span style="color:red">(julia code) </span>
 
 ---
 ## **Minimum parameterization time optimization**

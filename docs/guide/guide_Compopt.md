@@ -6,15 +6,17 @@ control and measurement (CM) and the probe state, control and measurement (SCM) 
 in QuanEstiamtion. In the package, the comprehensive optimization algorithms are particle 
 swarm optimization (PSO) [[1]](#Kennedy1995), differential evolution (DE) [[2]](#Storn1997), 
 and automatic differentiation (AD) [[3]](#Baydin2018).
-
-``` py
-com = ComprehensiveOpt(savefile=False, method="DE", **kwargs)
-com.dynamics(tspan, H0, dH, Hc=[], ctrl=[], decay=[], ctrl_bound=[])
-com.SM(W=[])
-com.SC(W=[], M=[], target="QFIM", LDtype="SLD")
-com.CM(rho0, W=[])
-com.SCM(W=[])  
-```
+=== "Python"
+    ``` py
+    com = ComprehensiveOpt(savefile=False, method="DE", **kwargs)
+    com.dynamics(tspan, H0, dH, Hc=[], ctrl=[], decay=[], ctrl_bound=[])
+    com.SM(W=[])
+    com.SC(W=[], M=[], target="QFIM", LDtype="SLD")
+    com.CM(rho0, W=[])
+    com.SCM(W=[])  
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 Here `savefile` means whether to save all the optimized variables (probe states, control 
 coefficients and measurements). If set `True` then the optimized variables and the values 
 of the objective function obtained in all episodes will be saved during the training, 
@@ -38,38 +40,43 @@ default value of `ctrl_bound=[]` which means the control coefficients are in the
 $[-\infty,\infty]$.
 
 QuanEstimation contains four comprehensive optimizations which are `com.SM()`, `com.SC()`,
-`com.CM()` and `com.SCM()`. The code in `com.SC()` can be set as `target="QFIM"` (default), 
-`target="CFIM` and `target="HCRB` for the objective functions are QFI ($\mathrm{Tr}(W\mathcal{F}
-^{-1})$), CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$) and HCRB, respectively. Here $F$ and $I$ are 
-the QFIM and CFIM, $W$ corresponds to `W` is the weight matrix which defaults to the identity 
-matrix. If the users set `target="HCRB` for single parameter scenario, the program will exit 
-and print `"Program exit. In single parameter scenario, HCRB is equivalent to QFI. Please 
-choose QFIM as the target function"`. `LDtype` represents the types of the QFIM, it can be 
-set as `LDtype=SLD` (default), `LDtype=RLD` and `LDtype=LLD`.
+`com.CM()` and `com.SCM()`. The `target` in `com.SC()` can be set as `target="QFIM"` (default), 
+`target="CFIM` and `target="HCRB` for the corresponding objective functions are QFI 
+($\mathrm{Tr}(W\mathcal{F}^{-1})$), CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$) and HCRB, 
+respectively. Here $\mathcal{F}$ and $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to 
+`W` is the weight matrix which defaults to the identity matrix. If the users set `target="HCRB` 
+for single parameter scenario, the program will exit and print `"Program exit. In the 
+single-parameter scenario, the HCRB is equivalent to the QFI. Please choose 'QFIM' as the 
+objective function"`. `LDtype` represents the types of the QFIM, it can be set as `LDtype=SLD` 
+(default), `LDtype=RLD` and `LDtype=LLD`.
 
 For optimization of probe state and measurement, the parameterization can also be implemented 
 with the Kraus operators which can be realized by
-``` py
-com = ComprehensiveOpt(savefile=False, method="DE", **kwargs)
-com.kraus(K, dK)
-com.SM(W=[])  
-```
+=== "Python"
+    ``` py
+    com = ComprehensiveOpt(savefile=False, method="DE", **kwargs)
+    com.kraus(K, dK)
+    com.SM(W=[])  
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 where `K` and `dK` are the Kraus operators and its derivatives on the unknown parameters.
-
-
 
 ---
 ## **PSO**
 The code for comprehensive optimization with PSO is as follows
-``` py
-com = ComprehensiveOpt(method="PSO", **kwargs)
-```
-where `kwargs` is of the form
-``` py
-kwargs = {"particle_num":10, "psi0":[], "ctrl0":[], "measurement0":[], 
-          "max_episode":[1000,100], "c0":1.0, "c1":2.0, "c2":2.0, 
-          "seed":1234}
-```
+=== "Python"
+    ``` py
+    com = ComprehensiveOpt(method="PSO", **kwargs)
+    ```
+    where `kwargs` is of the form
+    ``` py
+    kwargs = {"particle_num":10, "psi0":[], "ctrl0":[], "measurement0":[], 
+                "max_episode":[1000,100], "c0":1.0, "c1":2.0, "c2":2.0, 
+                "seed":1234}
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 
 | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
 | :----------:                     | :----------:               |
@@ -95,14 +102,17 @@ every 100 episodes.
 
 ## **DE**
 The code for comprehensive optimization with DE is as follows
-``` py
-com = ComprehensiveOpt(method="DE", **kwargs)
-```
-where `kwargs` is of the form
-``` py
-kwargs = {"popsize":10, "psi0":[], "ctrl0":[], "measurement0":[], 
-          "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
-```
+=== "Python"
+    ``` py
+    com = ComprehensiveOpt(method="DE", **kwargs)
+    ```
+    where `kwargs` is of the form
+    ``` py
+    kwargs = {"popsize":10, "psi0":[], "ctrl0":[], "measurement0":[], 
+            "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 
 | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
 | :----------:                     | :----------:               |
@@ -120,14 +130,17 @@ of populations. `c` and `cr` are constants for mutation and crossover.
 
 ## **AD**
 The code for comprehensive optimization with AD is as follows
-``` py
-com = ComprehensiveOpt(method="AD", **kwargs)
-```
-where `kwargs` is of the form
-``` py
-kwargs = {"Adam":True, "psi0":[], "ctrl0":[], "measurement0":[],
-         "max_episode":300, "epsilon":0.01, "beta1":0.90, "beta2":0.99}
-```
+=== "Python"
+    ``` py
+    com = ComprehensiveOpt(method="AD", **kwargs)
+    ```
+    where `kwargs` is of the form
+    ``` py
+    kwargs = {"Adam":True, "psi0":[], "ctrl0":[], "measurement0":[],
+            "max_episode":300, "epsilon":0.01, "beta1":0.90, "beta2":0.99}
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 The keywords and the default values of GRAPE and auto-GRAPE can be seen in the following 
 table
 
@@ -162,44 +175,47 @@ H_\mathrm{c}=u_1(t)\sigma_1+u_2(t)\sigma_2+u_3(t)\sigma_3
 with $u_i(t)$ $(i=1,2,3)$ the control field. Here $\sigma_{1}$, $\sigma_{2}$ are also Pauli matrices.
 
 In this case, we consider two types of comprehensive optimization, the first one is optimization of probe state and control (SC), and the other is optimization of probe state, control and measurement (SCM). QFI is taken as the target function for SC and CFI for SCM.
+=== "Python"
+    ``` py
+    from quanestimation import *
+    import numpy as np
 
-``` py
-from quanestimation import *
-import numpy as np
+    # free Hamiltonian
+    omega0 = 1.0
+    sx = np.array([[0., 1.],[1., 0.0j]])
+    sy = np.array([[0., -1.j],[1.j, 0.]]) 
+    sz = np.array([[1., 0.0j],[0., -1.]])
+    H0 = 0.5*omega0*sz
+    # derivative of the free Hamiltonian on omega0
+    dH = [0.5*sz]
+    # control Hamiltonians 
+    Hc = [sx,sy,sz]
+    # dissipation
+    sp = np.array([[0., 1.],[0., 0.0j]])  
+    sm = np.array([[0., 0.0j],[1., 0.]]) 
+    decay = [[sp, 0.0],[sm, 0.1]]
+    # measurement
+    M1 = 0.5*np.array([[1., 1.],[1., 1.]])
+    M2 = 0.5*np.array([[1.,-1.],[-1., 1.]])
+    M = [M1, M2]
+    # time length for the evolution
+    tspan = np.linspace(0., 20.0, 5000)
+    # guessed control coefficients
+    cnum = len(tspan)-1
+    ctrl0 = [np.array([np.zeros(cnum), np.zeros(cnum), np.zeros(cnum)])]
+    ```
+    ``` py
+    # Comprehensive optimization algorithm: DE
+    DE_paras = {"popsize":10, "psi0":[], "ctrl0":ctrl0, "measurement0":[], "max_episode":100, "c":1.0, "cr":0.5, "seed":1234}
+    com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
+    com.dynamics(tspan, H0, dH, Hc, decay=decay, ctrl_bound=[-2.0, 2.0])
+    # comprehensive optimization for state and control (SC)
+    com.SC(W=[], target="QFIM", LDtype="SLD")
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 
-# free Hamiltonian
-omega0 = 1.0
-sx = np.array([[0., 1.],[1., 0.0j]])
-sy = np.array([[0., -1.j],[1.j, 0.]]) 
-sz = np.array([[1., 0.0j],[0., -1.]])
-H0 = 0.5*omega0*sz
-# derivative of the free Hamiltonian on omega0
-dH = [0.5*sz]
-# control Hamiltonians 
-Hc = [sx,sy,sz]
-# dissipation
-sp = np.array([[0., 1.],[0., 0.0j]])  
-sm = np.array([[0., 0.0j],[1., 0.]]) 
-decay = [[sp, 0.0],[sm, 0.1]]
-# measurement
-M1 = 0.5*np.array([[1., 1.],[1., 1.]])
-M2 = 0.5*np.array([[1.,-1.],[-1., 1.]])
-M = [M1, M2]
-# time length for the evolution
-tspan = np.linspace(0., 20.0, 5000)
-# guessed control coefficients
-cnum = len(tspan)-1
-ctrl0 = [np.array([np.zeros(cnum), np.zeros(cnum), np.zeros(cnum)])]
-```
-``` py
-# Comprehensive optimization algorithm: DE
-DE_paras = {"popsize":10, "psi0":[], "ctrl0":ctrl0, "measurement0":[], "max_episode":100, "c":1.0, "cr":0.5, "seed":1234}
-com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
-com.dynamics(tspan, H0, dH, Hc, decay=decay, ctrl_bound=[-2.0, 2.0])
-# comprehensive optimization for state and control (SC)
-com.SC(W=[], target="QFIM", LDtype="SLD")
-```
-**Example 2**
+**Example 2**  
 The Hamiltonian of a controlled system can be written as
 \begin{align}
 H = H_0(\textbf{x})+\sum_{k=1}^K u_k(t) H_k,
@@ -233,70 +249,72 @@ In this case, the initial state is taken as $\frac{1}{\sqrt{2}}(|1\rangle+|\!-\!
 where $\frac{1}{\sqrt{2}}(|1\rangle+|\!-\!1\rangle)$ is an electron state with $|1\rangle$ $(|\!-\!1\rangle)$ the 
 eigenstate of $s_3$ with respect to the eigenvalue $1$ ($-1$). $|\!\!\uparrow\rangle$ is a nuclear state and 
 the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be $I$.
+=== "Python"
+    ``` py
+    from quanestimation import *
+    import numpy as np
 
-``` py
-from quanestimation import *
-import numpy as np
-
-# initial state
-rho0 = np.zeros((6,6), dtype=np.complex128)
-rho0[0][0], rho0[0][4], rho0[4][0], rho0[4][4] = 0.5, 0.5, 0.5, 0.5
-# free Hamiltonian
-sx = np.array([[0., 1.],[1., 0.]])
-sy = np.array([[0., -1.j],[1.j, 0.]]) 
-sz = np.array([[1., 0.],[0., -1.]])
-ide2 = np.array([[1., 0.],[0., 1.]])
-s1 = np.array([[0., 1., 0.],[1., 0., 1.],[0., 1., 0.]])/np.sqrt(2)
-s2 = np.array([[0., -1.j, 0.],[1.j, 0., -1.j],[0., 1.j, 0.]])/np.sqrt(2)
-s3 = np.array([[1., 0., 0.],[0., 0., 0.],[0., 0., -1.]])
-ide3 = np.array([[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]])
-I1, I2, I3 = np.kron(ide3, sx), np.kron(ide3, sy), np.kron(ide3, sz)
-S1, S2, S3 = np.kron(s1, ide2), np.kron(s2, ide2), np.kron(s3, ide2)
-B1, B2, B3 = 5.0e-4, 5.0e-4, 5.0e-4
-cons = 100
-D = (2*np.pi*2.87*1000)/cons
-gS = (2*np.pi*28.03*1000)/cons
-gI = (2*np.pi*4.32)/cons
-A1 = (2*np.pi*3.65)/cons
-A2 = (2*np.pi*3.03)/cons
-H0 = D*np.kron(np.dot(s3, s3), ide2)+gS*(B1*S1+B2*S2+B3*S3)+gI*(B1*I1+B2*I2+B3*I3)+\
-     + A1*(np.kron(s1, sx)+np.kron(s2, sy)) + A2*np.kron(s3, sz)
-# derivatives of the free Hamiltonian on B1, B2 and B3
-dH = [gS*S1+gI*I1, gS*S2+gI*I2, gS*S3+gI*I3]
-# control Hamiltonians 
-Hc = [S1, S2, S3]
-# dissipation
-decay = [[S3,2*np.pi/cons]]  
-# measurement
-M = []
-for i in range(len(rho0)):
-    M_tp = np.dot(basis(len(rho0), i), basis(len(rho0), i).conj().T)
-    M.append(M_tp)
-# time length for the evolution
-tspan = np.linspace(0.0, 2.0, 4000)
-# guessed control coefficients
-cnum = 10
-np.random.seed(1234)
-ini_1 = np.zeros((len(Hc), cnum))
-ini_2 = 0.2*np.ones((len(Hc), cnum))
-ini_3 = -0.2*np.ones((len(Hc), cnum))
-ini_4 = np.array([np.linspace(-0.2,0.2,cnum) for i in range(len(Hc))])
-ini_5 = np.array([np.linspace(-0.2,0.0,cnum) for i in range(len(Hc))])
-ini_6 = np.array([np.linspace(0,0.2,cnum) for i in range(len(Hc))])
-ini_7 = -0.2*np.ones((len(Hc), cnum))+0.01*np.random.random((len(Hc), cnum))
-ini_8 = -0.2*np.ones((len(Hc), cnum))+0.01*np.random.random((len(Hc), cnum))
-ini_9 = -0.2*np.ones((len(Hc), cnum))+0.05*np.random.random((len(Hc), cnum))
-ini_10 = -0.2*np.ones((len(Hc), cnum))+0.05*np.random.random((len(Hc), cnum))
-ctrl0 = [ini_1, ini_2, ini_3, ini_4, ini_5, ini_6, ini_7, ini_8, ini_9, ini_10]
-```
-``` py
-# Comprehensive optimization algorithm: DE
-DE_paras = {"popsize":10, "psi0":[], "ctrl0":ctrl0, "measurement0":[], "max_episode":100, "c":1.0, "cr":0.5, "seed":1234}
-com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
-com.dynamics(tspan, H0, dH, Hc, decay=decay, ctrl_bound=[-2.0, 2.0])
-# comprehensive optimization for state and control (SC)
-com.SC(W=[], target="QFIM", LDtype="SLD")
-```
+    # initial state
+    rho0 = np.zeros((6,6), dtype=np.complex128)
+    rho0[0][0], rho0[0][4], rho0[4][0], rho0[4][4] = 0.5, 0.5, 0.5, 0.5
+    # free Hamiltonian
+    sx = np.array([[0., 1.],[1., 0.]])
+    sy = np.array([[0., -1.j],[1.j, 0.]]) 
+    sz = np.array([[1., 0.],[0., -1.]])
+    ide2 = np.array([[1., 0.],[0., 1.]])
+    s1 = np.array([[0., 1., 0.],[1., 0., 1.],[0., 1., 0.]])/np.sqrt(2)
+    s2 = np.array([[0., -1.j, 0.],[1.j, 0., -1.j],[0., 1.j, 0.]])/np.sqrt(2)
+    s3 = np.array([[1., 0., 0.],[0., 0., 0.],[0., 0., -1.]])
+    ide3 = np.array([[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]])
+    I1, I2, I3 = np.kron(ide3, sx), np.kron(ide3, sy), np.kron(ide3, sz)
+    S1, S2, S3 = np.kron(s1, ide2), np.kron(s2, ide2), np.kron(s3, ide2)
+    B1, B2, B3 = 5.0e-4, 5.0e-4, 5.0e-4
+    cons = 100
+    D = (2*np.pi*2.87*1000)/cons
+    gS = (2*np.pi*28.03*1000)/cons
+    gI = (2*np.pi*4.32)/cons
+    A1 = (2*np.pi*3.65)/cons
+    A2 = (2*np.pi*3.03)/cons
+    H0 = D*np.kron(np.dot(s3, s3), ide2)+gS*(B1*S1+B2*S2+B3*S3)+gI*(B1*I1+B2*I2+B3*I3)+\
+         A1*(np.kron(s1, sx)+np.kron(s2, sy)) + A2*np.kron(s3, sz)
+    # derivatives of the free Hamiltonian on B1, B2 and B3
+    dH = [gS*S1+gI*I1, gS*S2+gI*I2, gS*S3+gI*I3]
+    # control Hamiltonians 
+    Hc = [S1, S2, S3]
+    # dissipation
+    decay = [[S3,2*np.pi/cons]]  
+    # measurement
+    M = []
+    for i in range(len(rho0)):
+        M_tp = np.dot(basis(len(rho0), i), basis(len(rho0), i).conj().T)
+        M.append(M_tp)
+    # time length for the evolution
+    tspan = np.linspace(0.0, 2.0, 4000)
+    # guessed control coefficients
+    cnum = 10
+    np.random.seed(1234)
+    ini_1 = np.zeros((len(Hc), cnum))
+    ini_2 = 0.2*np.ones((len(Hc), cnum))
+    ini_3 = -0.2*np.ones((len(Hc), cnum))
+    ini_4 = np.array([np.linspace(-0.2,0.2,cnum) for i in range(len(Hc))])
+    ini_5 = np.array([np.linspace(-0.2,0.0,cnum) for i in range(len(Hc))])
+    ini_6 = np.array([np.linspace(0,0.2,cnum) for i in range(len(Hc))])
+    ini_7 = -0.2*np.ones((len(Hc), cnum))+0.01*np.random.random((len(Hc), cnum))
+    ini_8 = -0.2*np.ones((len(Hc), cnum))+0.01*np.random.random((len(Hc), cnum))
+    ini_9 = -0.2*np.ones((len(Hc), cnum))+0.05*np.random.random((len(Hc), cnum))
+    ini_10 = -0.2*np.ones((len(Hc), cnum))+0.05*np.random.random((len(Hc), cnum))
+    ctrl0 = [ini_1, ini_2, ini_3, ini_4, ini_5, ini_6, ini_7, ini_8, ini_9, ini_10]
+    ```
+    ``` py
+    # Comprehensive optimization algorithm: DE
+    DE_paras = {"popsize":10, "psi0":[], "ctrl0":ctrl0, "measurement0":[], "max_episode":100, "c":1.0, "cr":0.5, "seed":1234}
+    com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
+    com.dynamics(tspan, H0, dH, Hc, decay=decay, ctrl_bound=[-2.0, 2.0])
+    # comprehensive optimization for state and control (SC)
+    com.SC(W=[], target="QFIM", LDtype="SLD")
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 
 ---
 ## **Bibliography**
