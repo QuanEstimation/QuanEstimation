@@ -1,6 +1,6 @@
-function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; decay::Union{Vector,Nothing}=nothing, 
-                Hc::Union{Vector,Nothing}=nothing, ctrl::Union{Vector,Nothing}=nothing, M::Union{AbstractVector,Nothing}=nothing, 
-                W::Union{Matrix,Nothing}=nothing, max_episode::Int=1000, eps::Float64=1e-8, save_file=false)
+function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; save_file=false, max_episode::Int=1000, eps::Float64=1e-8, 
+                  Hc::Union{Vector,Nothing}=nothing, ctrl::Union{Vector,Nothing}=nothing, decay::Union{Vector,Nothing}=nothing, 
+                  M::Union{AbstractVector,Nothing}=nothing, W::Union{Matrix,Nothing}=nothing)
     dim = size(rho0)[1]
     para_num = length(x)
     if M == nothing
@@ -193,8 +193,8 @@ function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; deca
 end
 
 
-function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; M::Union{AbstractVector,Nothing}=nothing, 
-    W::Union{Matrix,Nothing}=nothing, max_episode::Int=1000, eps::Float64=1e-8, save_file=false)
+function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; save_file=false, max_episode::Int=1000, 
+    eps::Float64=1e-8, M::Union{AbstractVector,Nothing}=nothing, W::Union{Matrix,Nothing}=nothing)
     dim = size(rho0)[1]
     para_num = length(x)
 

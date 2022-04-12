@@ -1,6 +1,55 @@
+########## Bayesian version of CFIM ##########
+function BCFIM(x, p, rho, drho; M::Union{AbstractVector,Nothing}=nothing, eps=1e-8)
+    para_num = length(x)
+    if para_num == 1
+        #### singleparameter scenario ####
+        p_num = length(p)
+        if M==nothing
+            M = SIC(size(rho[1])[1])
+        end
+        F_tp = zeros(p_num)
+        for i in 1:p_num
+            F_tp[i] = CFIM(rho[i], drho[i], M; eps=eps)
+        end
+        F = 0.0
+        arr = [p[i]*F_tp[i] for i in 1:p_num]
+        F = trapz(x[1], arr)
+    else
+        #### multiparameter scenario #### 
+        if M==nothing
+            M = SIC(size(vec(rho)[1])[1])
+        end
+
+        xnum = length(x)
+        trapzm(x, integrands, slice_dim) =  [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
+        Fs = [p*CFIM(rho,drho,M;eps=eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
+        F = trapzm(x, Fs, xnum^2) |> I->reshape(I,xnum,xnum)
+    end    
+end
+########## Bayesian version of QFIM ##########
+function BQFIM(x, p, rho, drho; LDtype=:SLD, eps=1e-8)
+    para_num = length(x)
+    if para_num == 1
+        #### singleparameter scenario ####
+        p_num = length(p)
+        F_tp = zeros(p_num)
+        for i in 1:p_num
+            F_tp[i] = QFIM(rho[i], drho[i]; LDtype=LDtype, eps=eps)
+        end
+        F = 0.0
+        arr = [p[i]*F_tp[i] for i in 1:p_num]
+        F = trapz(x[1], arr)
+    else
+        #### multiparameter scenario #### 
+        xnum = length(x)
+        trapzm(x, integrands, slice_dim) =  [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
+        Fs = [p*QFIM(rho,drho;LDtype=LDtype,eps=eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
+        F = trapzm(x, Fs, xnum^2) |> I->reshape(I,xnum,xnum)
+    end    
+end
 
 ########## Bayesian quantum Cramer-Rao bound ##########
-function BQCRB(x, p, rho, drho; b=nothing, db=nothing, LDtype="SLD", btype=1, eps=1e-8)
+function BQCRB(x, p, rho, drho; b=nothing, db=nothing, LDtype=:SLD, btype=1, eps=1e-8)
     para_num = length(x)
 
     if b==nothing
@@ -13,7 +62,7 @@ function BQCRB(x, p, rho, drho; b=nothing, db=nothing, LDtype="SLD", btype=1, ep
     
     if para_num == 1    
         
-        #### singleparameter senario ####
+        #### singleparameter scenario ####
         p_num = length(p)
 
         if typeof(drho[1]) == Vector{Matrix{ComplexF64}}
@@ -45,7 +94,7 @@ function BQCRB(x, p, rho, drho; b=nothing, db=nothing, LDtype="SLD", btype=1, ep
         end
         return F
     else
-        #### multiparameter senario ####
+        #### multiparameter scenario ####
 
         xnum = length(x)
         bs  =  Iterators.product(b...)
@@ -80,7 +129,7 @@ function BCRB(x, p, rho, drho; M::Union{AbstractVector,Nothing}=nothing, b=nothi
     end
 
     if para_num == 1
-        #### singleparameter senario ####
+        #### singleparameter scenario ####
         p_num = length(p)
         if M==nothing
             M = SIC(size(rho[1])[1])
@@ -114,7 +163,7 @@ function BCRB(x, p, rho, drho; M::Union{AbstractVector,Nothing}=nothing, b=nothi
         end
         return F
     else
-        #### multiparameter senario #### 
+        #### multiparameter scenario #### 
         if M==nothing
             M = SIC(size(vec(rho)[1])[1])
         end
@@ -140,10 +189,10 @@ function BCRB(x, p, rho, drho; M::Union{AbstractVector,Nothing}=nothing, b=nothi
     end
 end
 
-function QVTB(x, p, dp, rho, drho; LDtype="SLD", btype=1, eps=1e-8)
+function QVTB(x, p, dp, rho, drho; LDtype=:SLD, btype=1, eps=1e-8)
     para_num = length(x)
     if para_num == 1
-        #### singleparameter senario ####
+        #### singleparameter scenario ####
         p_num = length(p)
         if typeof(drho[1]) == Vector{Matrix{ComplexF64}}
             drho = [drho[i][1] for i in 1:p_num]
@@ -170,7 +219,7 @@ function QVTB(x, p, dp, rho, drho; LDtype="SLD", btype=1, eps=1e-8)
         end
         return I
     else
-        #### multiparameter senario ####
+        #### multiparameter scenario ####
         xnum = length(x)
         trapzm(x, integrands, slice_dim) =  [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
         Ip(p,dp) = dp*dp'/p^2
@@ -193,7 +242,7 @@ end
 function VTB(x, p, dp, rho, drho; M::Union{AbstractVector,Nothing}=nothing, btype=1, eps=1e-8)
     para_num = length(x)
     if para_num == 1
-        #### singleparameter senario ####
+        #### singleparameter scenario ####
         p_num = length(p)
         if M==nothing
             M = SIC(size(rho[1])[1])
@@ -222,7 +271,7 @@ function VTB(x, p, dp, rho, drho; M::Union{AbstractVector,Nothing}=nothing, btyp
         end
         return res
     else
-        #### multiparameter senario #### 
+        #### multiparameter scenario #### 
         if M==nothing
             M = SIC(size(vec(rho)[1])[1])
         end
@@ -267,7 +316,7 @@ function interp1(xspan, yspan, x)
     return y
 end
 
-function OBB(x, p, dp, rho, drho, d2rho; LDtype="SLD", eps=1e-8)
+function OBB(x, p, dp, rho, drho, d2rho; LDtype=:SLD, eps=1e-8)
     p_num = length(p)
     
     if typeof(drho[1]) == Vector{Matrix{ComplexF64}}

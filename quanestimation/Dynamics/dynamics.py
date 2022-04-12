@@ -176,7 +176,7 @@ class Lindblad:
         )
         return rho, drho, d2rho
 
-def kraus(rho0, K, dK):
+def kraus(K, dK, rho0):
     r"""
     The parameterization of a state is
     \begin{align}
@@ -187,9 +187,6 @@ def kraus(rho0, K, dK):
 
     Parameters
     ----------
-    > **rho0:** `matrix`
-        -- Initial state (density matrix).
-
     > **K:** `list`
         -- Kraus operators.
 
@@ -197,6 +194,9 @@ def kraus(rho0, K, dK):
         -- Derivatives of the Kraus operators on the unknown parameters to be 
         estimated. For example, dK[0] is the derivative vector on the first 
         parameter.
+
+    > **rho0:** `matrix`
+        -- Initial state (density matrix).
 
     Returns
     ----------

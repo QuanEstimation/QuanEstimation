@@ -12,13 +12,15 @@ to search a set of optimal coefficients $s_k$. Here different algorithms are inv
 search the optimal measurement include particle swarm optimization (PSO) [[1]](#Kennedy1995), 
 differential evolution (DE) [[2]](#Storn1997), and automatic differentiation (AD) [[3]]
 (#Baydin2018). The codes for execute measurement optimization are
-
-``` py
-m = MeasurementOpt(mtype="projection", minput=[], savefile=False, 
+=== "Python"
+    ``` py
+    m = MeasurementOpt(mtype="projection", minput=[], savefile=False, 
                    method="DE", **kwargs)
-m.dynamics(tspan, rho0, H0, dH, Hc=[], ctrl=[], decay=[])
-m.CFIM(W=[])
-```
+    m.dynamics(tspan, rho0, H0, dH, Hc=[], ctrl=[], decay=[])
+    m.CFIM(W=[])
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 `mtype` represents the type of measurement optimization which defaults to `"projection"`. 
 In this setting, rank-one projective measurement optimization will be performed `minput` will 
 keep empty in this scenario. For other two measurement optimization scenarios `mtype="input"`. 
@@ -54,14 +56,17 @@ which defaults to the identity matrix.
 ---
 ## **PSO**
 The code for measurement optimization with PSO is as follows
-``` py
-m = MeasurementOpt(method="PSO", **kwargs)
-```
-where `kwargs` is of the form
-``` py
-kwargs = {"particle_num":10, "measurement0":[], "max_episode":[1000,100], 
+=== "Python"
+    ``` py
+    m = MeasurementOpt(method="PSO", **kwargs)
+    ```
+    where `kwargs` is of the form
+    ``` py
+    kwargs = {"particle_num":10, "measurement0":[], "max_episode":[1000,100], 
           "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
-```
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 
 | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
 | :----------:                     | :----------:               |
@@ -84,14 +89,17 @@ coefficients of all the particles with global best every 100 episodes.
 
 ## **DE**
 The code for measurement optimization with DE is as follows
-``` py
-m = MeasurementOpt(method="DE", **kwargs)
-```
-where `kwargs` is of the form
-``` py
-kwargs = {"popsize":10, "measurement0":[], "max_episode":1000, "c":1.0, 
+=== "Python"
+    ``` py
+    m = MeasurementOpt(method="DE", **kwargs)
+    ```
+    where `kwargs` is of the form
+    ``` py
+    kwargs = {"popsize":10, "measurement0":[], "max_episode":1000, "c":1.0, 
           "cr":0.5, "seed":1234}
-```
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 
 | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
 | :----------:                     | :----------:               |
@@ -107,14 +115,17 @@ crossover constant. Here `max_episode` is an integer representing the number of 
 
 ## **AD**
 The code for measurement optimization with AD is as follows
-``` py
-com = MeasurementOpt(method="AD", **kwargs)
-```
-where `kwargs` is of the form
-``` py
-kwargs = {"Adam":False, "measurement0":[], "max_episode":300, "epsilon":0.01, 
+=== "Python"
+    ``` py
+    com = MeasurementOpt(method="AD", **kwargs)
+    ```
+    where `kwargs` is of the form
+    ``` py
+    kwargs = {"Adam":False, "measurement0":[], "max_episode":300, "epsilon":0.01, 
           "beta1":0.90, "beta2":0.99}
-```
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 The keywords and the default values of AD can be seen in the following 
 table
 
@@ -145,35 +156,50 @@ Here $\sigma_{i}$ for $(i=1,2,3)$ is the  Pauli matrix.
 In this case, the probe state is taken as $\frac{1}{\sqrt{2}}(|0\rangle +|1\rangle)$, $|0\rangle$ $(|1\rangle)$ is the 
 eigenstate of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$. Here we use algorithms to obtain the optimal 
 projective measurements.
+=== "Python"
+    ``` py
+    from quanestimation import *
+    import numpy as np
 
-``` py
-from quanestimation import *
-import numpy as np
-
-# initial state
-rho0 = 0.5*np.array([[1.,1.],[1.,1.]])
-# free Hamiltonian
-omega0 = 1.0
-sx = np.array([[0., 1.],[1., 0.]])
-sy = np.array([[0., -1.j],[1.j, 0.]]) 
-sz = np.array([[1., 0.],[0., -1.]])
-H0 = 0.5*omega0*sz
-# derivative of the free Hamiltonian on omega0
-dH = [0.5*sz]
-# dissipation
-sp = np.array([[0., 1.],[0., 0.]])  
-sm = np.array([[0., 0.],[1., 0.]]) 
-decay = [[sp, 0.0],[sm, 0.1]]
-# time length for the evolution
-tspan = np.linspace(0., 20.0, 5000)
-```
-``` py
-# Measurement optimization algorithm: DE
-DE_paras = {"popsize":10, "measurement0":[], "max_episode":10, "c":1.0, "cr":0.5, "seed":1234}
-m = MeasurementOpt(mtype='projection', minput=[], savefile=False, method="DE", **DE_paras)
-m.dynamics(tspan, rho0, H0, dH, decay=decay)
-m.CFIM()
-```
+    # initial state
+    rho0 = 0.5*np.array([[1.,1.],[1.,1.]])
+    # free Hamiltonian
+    omega0 = 1.0
+    sx = np.array([[0., 1.],[1., 0.]])
+    sy = np.array([[0., -1.j],[1.j, 0.]]) 
+    sz = np.array([[1., 0.],[0., -1.]])
+    H0 = 0.5*omega0*sz
+    # derivative of the free Hamiltonian on omega0
+    dH = [0.5*sz]
+    # dissipation
+    sp = np.array([[0., 1.],[0., 0.]])  
+    sm = np.array([[0., 0.],[1., 0.]]) 
+    decay = [[sp, 0.0],[sm, 0.1]]
+    # time length for the evolution
+    tspan = np.linspace(0., 20.0, 5000)
+    ```
+    === "DE"
+		``` py
+		DE_paras = {"popsize":10, "measurement0":[], "max_episode":1000, \
+                        "c":1.0, "cr":0.5, "seed":1234}
+		m = MeasurementOpt(mtype='projection', minput=[], savefile=False, \
+                            method="DE", **DE_paras)
+		```
+    === "PSO"
+		``` py
+		PSO_paras = {"particle_num":10, "measurement0":[], "max_episode":[1000,100], \
+					"c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
+		m = MeasurementOpt(mtype='projection', minput=[], savefile=False, \
+                            method="PSO", **PSO_paras)
+		```
+    ``` py
+    # input the dynamics data
+    m.dynamics(tspan, rho0, H0, dH, decay=decay)
+    # choose QFIM as the objective function
+    m.CFIM()
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 
 **Example 2**  
 In the multiparameter scenario, the dynamics of electron and nuclear coupling in NV$^{-}$ can be expressed as
@@ -215,56 +241,117 @@ eigenstate of $s_3$ with respect to the eigenvalue $1$ ($-1$). $|\!\!\uparrow\ra
 the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be $I$.
 
 Here three types of measurement optimization are considerd, projective measurement, linear combination of a given set of positive operator-valued measure (POVM) and optimal rotated measurement of an input measurement.
+=== "Python"
+    ``` py
+    from quanestimation import *
+    import numpy as np
 
-``` py
-from quanestimation import *
-import numpy as np
+    # initial state
+    rho0 = np.zeros((6,6), dtype=np.complex128)
+    rho0[0][0], rho0[0][4], rho0[4][0], rho0[4][4] = 0.5, 0.5, 0.5, 0.5
+    # free Hamiltonian
+    sx = np.array([[0., 1.],[1., 0.]])
+    sy = np.array([[0., -1.j],[1.j, 0.]]) 
+    sz = np.array([[1., 0.],[0., -1.]])
+    ide2 = np.array([[1., 0.],[0., 1.]])
+    s1 = np.array([[0., 1., 0.],[1., 0., 1.],[0., 1., 0.]])/np.sqrt(2)
+    s2 = np.array([[0., -1.j, 0.],[1.j, 0., -1.j],[0., 1.j, 0.]])/np.sqrt(2)
+    s3 = np.array([[1., 0., 0.],[0., 0., 0.],[0., 0., -1.]])
+    ide3 = np.array([[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]])
+    I1, I2, I3 = np.kron(ide3, sx), np.kron(ide3, sy), np.kron(ide3, sz)
+    S1, S2, S3 = np.kron(s1, ide2), np.kron(s2, ide2), np.kron(s3, ide2)
+    B1, B2, B3 = 5.0e-4, 5.0e-4, 5.0e-4
+    cons = 100
+    D = (2*np.pi*2.87*1000)/cons
+    gS = (2*np.pi*28.03*1000)/cons
+    gI = (2*np.pi*4.32)/cons
+    A1 = (2*np.pi*3.65)/cons
+    A2 = (2*np.pi*3.03)/cons
+    H0 = D*np.kron(np.dot(s3, s3), ide2)+gS*(B1*S1+B2*S2+B3*S3)+gI*(B1*I1+B2*I2+B3*I3)+\
+        + A1*(np.kron(s1, sx)+np.kron(s2, sy)) + A2*np.kron(s3, sz)
+    # derivatives of the free Hamiltonian on B1, B2 and B3
+    dH = [gS*S1+gI*I1, gS*S2+gI*I2, gS*S3+gI*I3]
+    # control Hamiltonians 
+    Hc = [S1, S2, S3]
+    # dissipation
+    decay = [[S3,2*np.pi/cons]]
+    # generation of a set of POVM basis
+    dim = len(rho0)
+    povm_basis = []
+    for i in range(dim):
+        M_tp = np.dot(basis(dim, i), basis(dim, i).conj().T)
+        povm_basis.append(M_tp)
+    # time length for the evolution
+    tspan = np.linspace(0.0, 2.0, 4000)
+    ```
+    === "projective measurement"
+        === "DE"
+		    ``` py
+		    DE_paras = {"popsize":10, "measurement0":[], "max_episode":1000, \
+                        "c":1.0, "cr":0.5, "seed":1234}
+		    m = MeasurementOpt(mtype='projection', minput=[], savefile=False, \
+                               method="DE", **DE_paras)
+		    ```
+        === "PSO"
+		    ``` py
+		    PSO_paras = {"particle_num":10, "measurement0":[], "max_episode":[1000,100], \
+					    "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
+		    m = MeasurementOpt(mtype='projection', minput=[], savefile=False, \
+                               method="PSO", **PSO_paras)
+		    ```
+    === "rotation"
+        === "DE"
+		    ``` py
+		    DE_paras = {"popsize":10, "measurement0":[], "max_episode":1000, \
+                        "c":1.0, "cr":0.5, "seed":1234}
+		    m = MeasurementOpt(mtype='input', minput=["rotation",[POVM_basis]], \
+                               savefile=False, method="DE", **DE_paras)
+		    ```
+        === "PSO"
+		    ``` py
+		    PSO_paras = {"particle_num":10, "measurement0":[], "max_episode":[1000,100], \
+					    "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
+		    m = MeasurementOpt(mtype='input', minput=["rotation",[POVM_basis]], \
+                               savefile=False, method="PSO", **PSO_paras)
+		    ```
+        === "AD"
+		    ``` py
+		    AD_paras = {"Adam":False, "psi0":psi0, "max_episode":300, \
+                    "epsilon":0.01, "beta1":0.90, "beta2":0.99}
+            m = MeasurementOpt(mtype='input', minput=["rotation",[POVM_basis]], \
+                               savefile=False, method="AD", **AD_paras)
+		    ```
+    === "linear combination"
+        === "DE"
+		    ``` py
+		    DE_paras = {"popsize":10, "measurement0":[], "max_episode":1000, "c":1.0, \
+				        "cr":0.5, "seed":1234}
+		    m = MeasurementOpt(mtype='input', minput=["LC",[POVM_basis]], \
+                               savefile=False, method="DE", **DE_paras)
+		    ```
+        === "PSO"
+		    ``` py
+		    PSO_paras = {"particle_num":10, "measurement0":[], "max_episode":[1000,100], \
+					    "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
+		    m = MeasurementOpt(mtype='input', minput=["LC",[POVM_basis, 4]], \
+                               savefile=False, method="PSO", **PSO_paras)
+		    ```
+        === "AD"
+		    ``` py
+		    AD_paras = {"Adam":False, "psi0":psi0, "max_episode":300, \
+                    "epsilon":0.01, "beta1":0.90, "beta2":0.99}
+            m = MeasurementOpt(mtype='input', minput=["LC",[POVM_basis, 4]], \
+                               savefile=False, method="AD", **AD_paras)
+		    ```
+    ``` py
+    # input the dynamics data
+    m.dynamics(tspan, rho0, H0, dH, decay=decay)
+    # choose QFIM as the objective function
+    m.CFIM()
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 
-# initial state
-rho0 = np.zeros((6,6), dtype=np.complex128)
-rho0[0][0], rho0[0][4], rho0[4][0], rho0[4][4] = 0.5, 0.5, 0.5, 0.5
-# free Hamiltonian
-sx = np.array([[0., 1.],[1., 0.]])
-sy = np.array([[0., -1.j],[1.j, 0.]]) 
-sz = np.array([[1., 0.],[0., -1.]])
-ide2 = np.array([[1., 0.],[0., 1.]])
-s1 = np.array([[0., 1., 0.],[1., 0., 1.],[0., 1., 0.]])/np.sqrt(2)
-s2 = np.array([[0., -1.j, 0.],[1.j, 0., -1.j],[0., 1.j, 0.]])/np.sqrt(2)
-s3 = np.array([[1., 0., 0.],[0., 0., 0.],[0., 0., -1.]])
-ide3 = np.array([[1., 0., 0.],[0., 1., 0.],[0., 0., 1.]])
-I1, I2, I3 = np.kron(ide3, sx), np.kron(ide3, sy), np.kron(ide3, sz)
-S1, S2, S3 = np.kron(s1, ide2), np.kron(s2, ide2), np.kron(s3, ide2)
-B1, B2, B3 = 5.0e-4, 5.0e-4, 5.0e-4
-cons = 100
-D = (2*np.pi*2.87*1000)/cons
-gS = (2*np.pi*28.03*1000)/cons
-gI = (2*np.pi*4.32)/cons
-A1 = (2*np.pi*3.65)/cons
-A2 = (2*np.pi*3.03)/cons
-H0 = D*np.kron(np.dot(s3, s3), ide2)+gS*(B1*S1+B2*S2+B3*S3)+gI*(B1*I1+B2*I2+B3*I3)+\
-     + A1*(np.kron(s1, sx)+np.kron(s2, sy)) + A2*np.kron(s3, sz)
-# derivatives of the free Hamiltonian on B1, B2 and B3
-dH = [gS*S1+gI*I1, gS*S2+gI*I2, gS*S3+gI*I3]
-# control Hamiltonians 
-Hc = [S1, S2, S3]
-# dissipation
-decay = [[S3,2*np.pi/cons]]
-# generation of a set of POVM basis
-dim = len(rho0)
-povm_basis = []
-for i in range(dim):
-    M_tp = np.dot(basis(dim, i), basis(dim, i).conj().T)
-    povm_basis.append(M_tp)
-# time length for the evolution
-tspan = np.linspace(0.0, 2.0, 4000)
-```
-``` py
-# Measurement optimization algorithm: DE
-DE_paras = {"popsize":10, "measurement0":[], "max_episode":10, "c":1.0, "cr":0.5, "seed":1234}
-m = MeasurementOpt(mtype='projection', minput=[], savefile=False, method="DE", **DE_paras)
-m.dynamics(tspan, rho0, H0, dH, decay=decay)
-m.CFIM()
-```
 
 ---
 ## **Bibliography**
