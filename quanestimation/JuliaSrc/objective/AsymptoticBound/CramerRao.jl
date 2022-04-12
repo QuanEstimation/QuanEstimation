@@ -8,8 +8,8 @@ const eps_default = 1e-8
 function SLD(
     ρ::Matrix{T},
     dρ::Matrix{T};
-    eps = eps_default,
     rep = "original",
+    eps = eps_default,
 ) where {T<:Complex}
 
     dim = size(ρ)[1]
@@ -33,6 +33,10 @@ function SLD(
         SLD = SLD_eig
     end
     SLD
+end
+
+function SLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; rep = "original", eps = eps_default) where {T<:Complex}
+    (x -> SLD(ρ, x; rep=rep, eps = eps)).(dρ)
 end
 
 @adjoint function SLD(ρ::Matrix{T}, dρ::Matrix{T}; eps = eps_default) where {T<:Complex}
@@ -68,12 +72,80 @@ function SLD_qr(ρ::Matrix{T}, ∂ρ_∂x::Matrix{T}) where {T<:Complex}
     vec2mat
 end
 
+function RLD(
+    ρ::Matrix{T},
+    dρ::Matrix{T};
+    rep = "original",
+    eps = eps_default,
+) where {T<:Complex}
+
+    dim = size(ρ)[1]
+    RLD = Matrix{ComplexF64}(undef, dim, dim)
+
+    val, vec = eigen(ρ)
+    val = val |> real
+    RLD_eig = zeros(T, dim, dim)
+    for fi = 1:dim
+        for fj = 1:dim
+            if abs(val[fi]) > eps
+                RLD_eig[fi, fj] = (vec[:, fi]' * dρ * vec[:, fj]) / val[fi]
+            end
+        end
+    end
+    RLD_eig[findall(RLD_eig == Inf)] .= 0.0
+
+    if rep == "original"
+        RLD = vec * (RLD_eig * vec')
+    elseif rep == "eigen"
+        RLD = RLD_eig
+    end
+    RLD
+end
+
+function RLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; rep = "original", eps = eps_default) where {T<:Complex}
+    (x -> RLD(ρ, x; rep=rep, eps = eps)).(dρ)
+end
+
 function RLD(ρ::Matrix{T}, dρ::Matrix{T}; eps = eps_default) where {T<:Complex}
     pinv(ρ, rtol = eps) * dρ
 end
 
 function RLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = eps_default) where {T<:Complex}
     (x -> RLD(ρ, x; eps = eps)).(dρ)
+end
+
+function LLD(
+    ρ::Matrix{T},
+    dρ::Matrix{T};
+    rep = "original",
+    eps = eps_default,
+) where {T<:Complex}
+
+    dim = size(ρ)[1]
+    LLD = Matrix{ComplexF64}(undef, dim, dim)
+
+    val, vec = eigen(ρ)
+    val = val |> real
+    LLD_eig = zeros(T, dim, dim)
+    for fi = 1:dim
+        for fj = 1:dim
+            if abs(val[fj]) > eps
+                LLD_eig[fj, fi] = (vec[:, fi]' * dρ * vec[:, fj]) / val[fj]
+            end
+        end
+    end
+    LLD_eig[findall(LLD_eig == Inf)] .= 0.0
+
+    if rep == "original"
+        LLD = vec * (LLD_eig * vec')
+    elseif rep == "eigen"
+        LLD = LLD_eig
+    end
+    LLD
+end
+
+function LLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; rep = "original", eps = eps_default) where {T<:Complex}
+    (x -> LLD(ρ, x; rep=rep, eps = eps)).(dρ)
 end
 
 function LLD(ρ::Matrix{T}, dρ::Matrix{T}; eps = eps_default) where {T<:Complex}
@@ -159,7 +231,7 @@ end
 
 #======================================================#
 #################### calculate CFIM ####################
-function CFIM(ρ::Matrix{T}, dρ::Matrix{T}; eps = eps_default) where {T<:Complex}
+function CFIM(ρ::Matrix{T}, dρ::Matrix{T}; M=nothing, eps = eps_default) where {T<:Complex}
     M = SIC(size(ρ)[1])
     m_num = length(M)
     F = 0.0
@@ -187,6 +259,22 @@ function CFIM(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = eps_default) where {T
     ] |>
     sum .|>
     real
+end
+
+function CFIM(ρ::Matrix{T}, dρ::Matrix{T}; M=M, eps = eps_default) where {T<:Complex}
+    m_num = length(M)
+    F = 0.0
+    for i = 1:m_num
+        mp = M[i]
+        p = real(tr(ρ * mp))
+        dp = real(tr(dρ * mp))
+        cadd = 0.0
+        if p > eps
+            cadd = (dp * dp) / p
+        end
+        F += cadd
+    end
+    real(F)
 end
 
 function CFIM(ρ::Matrix{T}, dρ::Matrix{T}, M; eps = eps_default) where {T<:Complex}

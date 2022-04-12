@@ -7,14 +7,17 @@ QuanEstimation, the state optimization algorithms are automatic differentiation 
 (DE) [[3]](#Storn1997), Nelder-Mead (NM) [[4]](#Nelder1965), and deep deterministic policy 
 gradients (DDPG) [[5]](#Lillicrap2015). The following codes can be used to perform state
 optimizaiton
+=== "Python"
+    ``` py
+    state = StateOpt(savefile=False, method="AD", **kwargs)
+    state.dynamics(tspan, H0, dH, Hc=[], ctrl=[], decay=[])
+    state.QFIM(W=[], LDtype="SLD")
+    state.CFIM(M=[], W=[])
+    state.HCRB(W=[])
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 
-``` py
-state = StateOpt(savefile=False, method="AD", **kwargs)
-state.dynamics(tspan, H0, dH, Hc=[], ctrl=[], decay=[])
-state.QFIM(W=[], LDtype="SLD")
-state.CFIM(M=[], W=[])
-state.HCRB(W=[])
-```
 `savefile` means whether to save all the states. If set `False` (default) the states in the 
 final episode and the values of the objective function in all episodes will be saved. If set 
 `True` then the states and the values of the objective function obtained in all episodes will 
@@ -34,35 +37,42 @@ decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...]. The default valu
 `decay`, `Hc` and `ctrl` are empty which means the dynamics is unitary and only governed by 
 the free Hamiltonian. 
 
-The code is `state.QFIM()` for the objective functions are QFI and $\mathrm{Tr}(W\mathcal{F}
-^{-1})$, `state.CFIM()` for CFI and $\mathrm{Tr}(W\mathcal{I}^{-1})$ and `state.HCRB()` for 
-HCRB. Here $F$ and $I$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight matrix which 
+he objective functions for state optimization can be set as QFI ($\mathrm{Tr}(W\mathcal{F}^
+{-1})$), CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$) and HCRB, the corresponding codes for them are
+`state.QFIM()` (default), `state.CFIM()` and `state.HCRB()`. Here $\mathcal{F}$ and 
+$\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight matrix which 
 defaults to the identity matrix. If the users call `state.HCRB()` for single parameter 
-scenario, the program will exit and print `"Program exit. In single parameter scenario, HCRB is 
-equivalent to QFI. Please choose QFIM as the target function"`. `LDtype` in `state.QFIM()` 
-represents the types of the QFIM, it can be set as `LDtype=SLD` (default), `LDtype=RLD`, and 
-`LDtype=LLD`. `M` represents a set of positive operator-valued measure (POVM) with default 
-value `[]`. In the package, a set of rank-one symmetric informationally complete POVM 
-(SIC-POVM) is used when `M=[]`.
+scenario, the program will exit and print `"Program exit. In the single-parameter scenario, the 
+HCRB is equivalent to the QFI. Please choose 'QFIM' as the objective function"`. `LDtype` in 
+`state.QFIM()` represents the types of the QFIM, it can be set as `LDtype=SLD` (default), 
+`LDtype=RLD`, and `LDtype=LLD`. `M` represents a set of positive operator-valued measure (POVM) 
+with default value `[]`. In the package, a set of rank-one symmetric informationally complete 
+POVM (SIC-POVM) is used when `M=[]`.
 
 If the parameterization is implemented with the Kraus operators, the code `state.dynamics()`
 becomes
-``` py
-state.kraus(K, dK)
-```
+=== "Python"
+    ``` py
+    state.kraus(K, dK)
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 where `K` and `dK` are the Kraus operators and its derivatives on the unknown parameters.
 
 ---
 ## **AD**
 The code for state optimization with AD is as follows
-``` py
-state = StateOpt(method="GRAPE", **kwargs)
-```
-where `kwargs` is of the form
-``` py
-kwargs = {"Adam":False, "psi0":[], "max_episode":300, "epsilon":0.01, 
-          "beta1":0.90, "beta2":0.99}
-```
+=== "Python"
+    ``` py
+    state = StateOpt(method="GRAPE", **kwargs)
+    ```
+    where `kwargs` is of the form
+    ``` py
+    kwargs = {"Adam":False, "psi0":[], "max_episode":300, "epsilon":0.01, 
+              "beta1":0.90, "beta2":0.99}
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 The keywords and the default values of GRAPE and auto-GRAPE can be seen in the following 
 table
 
@@ -83,14 +93,17 @@ rate for the first moment estimates and the second moment estimates can be set b
 
 ## **PSO**
 The code for state optimization with PSO is as follows
-``` py
-state = StateOpt(method="PSO", **kwargs)
-```
-where `kwargs` is of the form
-``` py
-kwargs = {"particle_num":10, "psi0":[], "max_episode":[1000,100], 
-          "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
-```
+=== "Python"
+    ``` py
+    state = StateOpt(method="PSO", **kwargs)
+    ```
+    where `kwargs` is of the form
+    ``` py
+    kwargs = {"particle_num":10, "psi0":[], "max_episode":[1000,100], 
+              "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 
 | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
 | :----------:                     | :----------:               |
@@ -112,14 +125,17 @@ factor, respectively.  `seed` is the random seed.
 
 ## **DE**
 The code for state optimization with DE is as follows
-``` py
-state = StateOpt(method="DE", **kwargs)
-```
-where `kwargs` is of the form
-``` py
-kwargs = {"popsize":10, "psi0":[], "max_episode":1000, "c":1.0, 
-          "cr":0.5, "seed":1234}
-```
+=== "Python"
+    ``` py
+    state = StateOpt(method="DE", **kwargs)
+    ```
+    where `kwargs` is of the form
+    ``` py
+    kwargs = {"popsize":10, "psi0":[], "max_episode":1000, "c":1.0, 
+              "cr":0.5, "seed":1234}
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 
 | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
 | :----------:                     | :----------:               |
@@ -135,14 +151,17 @@ crossover constant.
 
 ## **NM**
 The code for state optimization with NM is as follows
-``` py
-state = StateOpt(method="NM", **kwargs)
-```
-where `kwargs` is of the form
-``` py
-kwargs = {"state_num":10, "psi0":psi0, "max_episode":1000, "ar":1.0, 
+=== "Python"
+    ``` py
+    state = StateOpt(method="NM", **kwargs)
+    ```
+    where `kwargs` is of the form
+    ``` py
+    kwargs = {"state_num":10, "psi0":psi0, "max_episode":1000, "ar":1.0, 
           "ae":2.0, "ac":0.5, "as0":0.5, "seed":1234}
-```
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 
 | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
 | :----------:                     | :----------:               |
@@ -160,13 +179,16 @@ constants for reflection, expansion, constraction, and shrink, respectively.
 
 ## **DDPG**
 The code for state optimization with DDPG is as follows
-``` py
-state = StateOpt(method="DDPG", **kwargs)
-```
-where `kwargs` is of the form
-``` py
-kwargs = {"layer_num":3, "layer_dim":200, "max_episode":1000, "seed":1234}
-```
+=== "Python"
+    ``` py
+    state = StateOpt(method="DDPG", **kwargs)
+    ```
+    where `kwargs` is of the form
+    ``` py
+    kwargs = {"layer_num":3, "layer_dim":200, "max_episode":1000, "seed":1234}
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 
 | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
 | :----------:                     | :----------:               |
@@ -194,78 +216,140 @@ with $\gamma$ the decay rate.
 
 In this case, all searches with different algorithms start from the coherent spin state defined by
 $|\theta=\frac{\pi}{2},\phi=\frac{\pi}{2}\rangle=\exp(-\frac{\theta}{2}e^{-i\phi}J_{+}+\frac{\theta}{2}e^{i\phi}J_{-})|J,J\rangle$ with $J_{\pm}=J_1{\pm}iJ_2$.
+=== "Python"
+    ``` py
+    from quanestimation import *
+    import numpy as np
+    from qutip import *
 
-``` py
-from quanestimation import *
-import numpy as np
-from qutip import *
+    N = 8
+    # generation of coherent spin state
+    psi_css = spin_coherent(0.5*N, 0.5*np.pi, 0.5*np.pi, type="ket").full()
+    psi_css = psi_css.reshape(1, -1)[0]
+    # guessed state
+    psi0 = [psi_css]
+    # free Hamiltonian
+    Lambda = 1.0
+    g = 0.5
+    h = 0.1
+    Jx, Jy, Jz = jmat(0.5 * N)
+    Jx, Jy, Jz = Jx.full(), Jy.full(), Jz.full()
+    H0 = -Lambda*(np.dot(Jx, Jx) + g*np.dot(Jy, Jy))/N - h*Jz
+    # derivative of the free Hamiltonian on g
+    dH = [-Lambda*np.dot(Jy, Jy)/N]
+    # dissipation
+    decay = [[Jz, 0.1]]
+    # time length for the evolution
+    tspan = np.linspace(0.0, 10.0, 2500)
+    ```
+    === "AD"
+		``` py
+		AD_paras = {"Adam":False, "psi0":psi0, "max_episode":300, \
+                    "epsilon":0.01, "beta1":0.90, "beta2":0.99}
+        state = StateOpt(savefile=False, method="AD", **AD_paras)
+		```
+	=== "PSO"
+		``` py
+		PSO_paras = {"particle_num":10, "psi0":psi0, "max_episode":[1000,100], \
+					 "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
+		state = StateOpt(savefile=False, method="PSO", **PSO_paras)
+		```
+	=== "DE"
+		``` py
+		DE_paras = {"popsize":10, "psi0":psi0, "max_episode":1000, "c":1.0, \
+				    "cr":0.5, "seed":1234}
+		state = StateOpt(savefile=False, method="DE", **DE_paras)
+		```
+    === "NM"
+		``` py
+		NM_paras = {"state_num":20, "psi0":psi0, "max_episode":1000, \
+                    "ar":1.0, "ae":2.0, "ac":0.5, "as0":0.5, "seed":1234}
+        state = StateOpt(savefile=False, method="NM", **NM_paras)
+		```
+	=== "DDPG"
+		``` py
+		DDPG_paras = {"layer_num":4, "layer_dim":250, "max_episode":500, \
+		              "seed":1234}
+		state = StateOpt(savefile=False, method="DDPG", **DDPG_paras)
+		```
+    ``` py
+    # input the dynamics data
+    state.dynamics(tspan, H0, dH, decay=decay)
+    # choose QFIM as the objective function
+    state.QFIM()
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
 
-N = 8
-# generation of coherent spin state
-psi_css = spin_coherent(0.5*N, 0.5*np.pi, 0.5*np.pi, type="ket").full()
-psi_css = psi_css.reshape(1, -1)[0]
-# guessed state
-psi0 = [psi_css]
-# free Hamiltonian
-Lambda = 1.0
-g = 0.5
-h = 0.1
-Jx, Jy, Jz = jmat(0.5 * N)
-Jx, Jy, Jz = Jx.full(), Jy.full(), Jz.full()
-H0 = -Lambda*(np.dot(Jx, Jx) + g*np.dot(Jy, Jy))/N - h*Jz
-# derivative of the free Hamiltonian on g
-dH = [-Lambda*np.dot(Jy, Jy)/N]
-# dissipation
-decay = [[Jz, 0.1]]
-# time length for the evolution
-tspan = np.linspace(0.0, 10.0, 2500)
-```
-``` py
-# State optimization algorithm: PSO
-PSO_paras = {"particle_num":10, "psi0":psi0, "max_episode":[1000, 100], "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
-state = StateOpt(savefile=False, method="PSO", **PSO_paras)
-state.dynamics(tspan, H0, dH, decay=decay)
-# choose QFIM as the objective function
-state.QFIM()
-```
- 
 **Example 2**  
-In multi-parameter scenario, $g$ and $h$ are set to be the unknown parameters to be estimated.
-``` py
-from quanestimation import *
-import numpy as np
-from qutip import *
+In the multiparameter scenario, $g$ and $h$ are set to be the unknown parameters to be estimated.
+=== "Python"
+    ``` py
+    from quanestimation import *
+    import numpy as np
+    from qutip import *
 
-N = 8
-# generation of coherent spin state
-psi_css = spin_coherent(0.5*N, 0.5*np.pi, 0.5*np.pi, type="ket").full()
-psi_css = psi_css.reshape(1, -1)[0]
-# guessed state
-psi0 = [psi_css]
-# free Hamiltonian
-Lambda = 1.0
-g = 0.5
-h = 0.1
-Jx, Jy, Jz = jmat(0.5 * N)
-Jx, Jy, Jz = Jx.full(), Jy.full(), Jz.full()
-H0 = -Lambda*(np.dot(Jx, Jx) + g*np.dot(Jy, Jy))/N - h*Jz
-# derivatives of the free Hamiltonian on the g and h
-dH = [-Lambda * np.dot(Jy, Jy)/N, -Jz]
-# dissipation
-decay = [[Jz, 0.1]]
-# time length for the evolution
-tspan = np.linspace(0.0, 10.0, 2500)
-# weight matrix
-W = np.array([[1/3, 0.0], [0.0, 2/3]])
-```
-``` py
-# State optimization algorithm: PSO
-PSO_paras = {"particle_num":10, "psi0":psi0, "max_episode":[1000, 100], "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
-state = StateOpt(savefile=False, method="PSO", **PSO_paras)
-state.dynamics(tspan, H0, dH, decay=decay)
-# choose QFIM as the objective function
-state.QFIM()
-```
+    N = 8
+    # generation of coherent spin state
+    psi_css = spin_coherent(0.5*N, 0.5*np.pi, 0.5*np.pi, type="ket").full()
+    psi_css = psi_css.reshape(1, -1)[0]
+    # guessed state
+    psi0 = [psi_css]
+    # free Hamiltonian
+    Lambda = 1.0
+    g = 0.5
+    h = 0.1
+    Jx, Jy, Jz = jmat(0.5 * N)
+    Jx, Jy, Jz = Jx.full(), Jy.full(), Jz.full()
+    H0 = -Lambda*(np.dot(Jx, Jx) + g*np.dot(Jy, Jy))/N - h*Jz
+    # derivatives of the free Hamiltonian on the g and h
+    dH = [-Lambda * np.dot(Jy, Jy)/N, -Jz]
+    # dissipation
+    decay = [[Jz, 0.1]]
+    # time length for the evolution
+    tspan = np.linspace(0.0, 10.0, 2500)
+    # weight matrix
+    W = np.array([[1/3, 0.0], [0.0, 2/3]])
+    ```
+    === "AD"
+		``` py
+		AD_paras = {"Adam":False, "psi0":psi0, "max_episode":300, \
+                    "epsilon":0.01, "beta1":0.90, "beta2":0.99}
+        state = StateOpt(savefile=False, method="AD", **AD_paras)
+		```
+	=== "PSO"
+		``` py
+		PSO_paras = {"particle_num":10, "psi0":psi0, "max_episode":[1000,100], \
+					 "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
+		state = StateOpt(savefile=False, method="PSO", **PSO_paras)
+		```
+	=== "DE"
+		``` py
+		DE_paras = {"popsize":10, "psi0":psi0, "max_episode":1000, "c":1.0, \
+				    "cr":0.5, "seed":1234}
+		state = StateOpt(savefile=False, method="DE", **DE_paras)
+		```
+    === "NM"
+		``` py
+		NM_paras = {"state_num":20, "psi0":psi0, "max_episode":1000, \
+                    "ar":1.0, "ae":2.0, "ac":0.5, "as0":0.5, "seed":1234}
+        state = StateOpt(savefile=False, method="NM", **NM_paras)
+		```
+	=== "DDPG"
+		``` py
+		DDPG_paras = {"layer_num":4, "layer_dim":250, "max_episode":500, \
+		              "seed":1234}
+		state = StateOpt(savefile=False, method="DDPG", **DDPG_paras)
+		```
+    ``` py
+    # input the dynamics data
+    state.dynamics(tspan, H0, dH, decay=decay)
+    # choose QFIM as the objective function
+    state.QFIM()
+    ```
+=== "Julia"
+    <span style="color:red">(julia code) </span>
+
 
 ---
 ## **Bibliography**
