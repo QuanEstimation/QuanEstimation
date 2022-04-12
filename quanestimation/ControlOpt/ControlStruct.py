@@ -300,7 +300,7 @@ class ControlSystem:
         else:
             if W == []:
                 W = np.eye(len(self.Hamiltonian_derivative))
-            self.W = W
+            self.W = W  
 
             self.obj = Main.QuanEstimation.HCRB_Obj(self.W, self.eps, self.para_type)
             system = Main.QuanEstimation.QuanEstSystem(
@@ -360,7 +360,7 @@ class ControlSystem:
                     "savefile is set to be False",
                     DeprecationWarning,
                 )
-        self.output = Main.QuanEstimation.Output(self.opt, False)
+        self.output = Main.QuanEstimation.Output(self.opt)
 
         if len(self.Hamiltonian_derivative) > 1:
             f = 1 / f
