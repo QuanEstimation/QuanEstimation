@@ -361,7 +361,7 @@ class MeasurementSystem:
                 self.rho0,
                 self.tspan,
             )
-        self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
+        self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
         
         self.dynamics_type = "dynamics"
 
@@ -533,7 +533,7 @@ class MeasurementSystem:
             )
 
         self.dynamic = Main.QuanEstimation.Kraus(self.K, self.dK, self.rho0)
-        self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
+        self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
 
         self.dynamics_type = "kraus"
 

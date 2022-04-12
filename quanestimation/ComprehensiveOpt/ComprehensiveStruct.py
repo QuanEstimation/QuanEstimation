@@ -348,7 +348,7 @@ class ComprehensiveSystem:
         self.opt = Main.QuanEstimation.StateControlOpt(
             self.psi, self.control_coefficients, self.ctrl_bound
         )
-        self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
+        self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
 
         self.dynamic = Main.QuanEstimation.Lindblad(
             self.freeHamiltonian,
@@ -395,7 +395,7 @@ class ComprehensiveSystem:
         self.opt = Main.QuanEstimation.ControlMeasurementOpt(
             self.control_coefficients, self.C, self.ctrl_bound
         )
-        self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
+        self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
 
         self.dynamic = Main.QuanEstimation.Lindblad(
             self.freeHamiltonian,
@@ -561,7 +561,7 @@ class ComprehensiveSystem:
 
         self.obj = Main.QuanEstimation.CFIM_Obj([], self.W, self.eps, self.para_type)
         self.opt = Main.QuanEstimation.StateMeasurementOpt(self.psi, self.C)
-        self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
+        self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
 
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
@@ -593,7 +593,7 @@ class ComprehensiveSystem:
         self.opt = Main.QuanEstimation.StateControlMeasurementOpt(
             self.psi, self.control_coefficients, self.C, self.ctrl_bound
         )
-        self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
+        self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
 
         self.dynamic = Main.QuanEstimation.Lindblad(
             self.freeHamiltonian,
