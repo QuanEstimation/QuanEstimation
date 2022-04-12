@@ -229,7 +229,7 @@ class StateSystem:
                 self.psi0,
                 self.tspan,
             )
-        self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
+        self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
 
         self.dynamics_type = "dynamics"
         if len(self.Hamiltonian_derivative) == 1:
@@ -284,7 +284,7 @@ class StateSystem:
 
         self.opt = Main.QuanEstimation.StateOpt(self.psi0)
         self.dynamic = Main.QuanEstimation.Kraus(self.K, self.dK, self.psi0)
-        self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
+        self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
 
         self.dynamics_type = "kraus"
         if len(self.dK) == 1:

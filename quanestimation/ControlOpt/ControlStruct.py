@@ -200,7 +200,7 @@ class ControlSystem:
             self.decay_opt,
             self.gamma,
         )
-        self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
+        self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
 
         self.dynamics_type = "lindblad"
 

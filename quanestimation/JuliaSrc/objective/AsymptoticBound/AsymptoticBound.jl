@@ -24,6 +24,10 @@ QFIM_Obj(;W=missing, eps=GLOBAL_EPS, para_type::Symbol=:single_para, LD_type::Sy
 CFIM_Obj(;M=missing, W=missing, eps=GLOBAL_EPS, para_type::Symbol=:single_para) = CFIM_Obj{eval(para_type)}(M, W, eps)
 HCRB_Obj(;W=missing, eps=GLOBAL_EPS, para_type::Symbol=:single_para) = HCRB_Obj{eval(para_type)}(W, eps)
 
+QFIM_Obj(W, eps, para_type::Symbol, LD_type::Symbol) = QFIM_Obj{eval.([para_type, LD_type])...}(W, eps)
+CFIM_Obj(M, W, eps, para_type::Symbol) = CFIM_Obj{eval(para_type)}(M, W, eps)
+HCRB_Obj(W, eps, para_type::Symbol) = HCRB_Obj{eval(para_type)}(W, eps)
+
 QFIM_Obj(W::AbstractMatrix, eps::Number, para_type::String, LD_type::String) = QFIM_Obj(W, eps, Symbol.([para_type, LD_type])...)
 CFIM_Obj(M::AbstractVecOrMat, W::AbstractMatrix, eps::Number, para_type::String) = CFIM_Obj(M, W, eps, Symbol(para_type))
 HCRB_Obj(W::AbstractMatrix, eps::Number, para_type::String) = HCRB_Obj(W, eps, Symbol(para_type))
