@@ -1,5 +1,8 @@
 function update!(opt::StateOpt, alg::NM, obj, dynamics, output)
     (; max_episode, state_num, ini_state, ar, ae, ac, as0, rng) = alg
+    if ismissing(ini_state)
+        ini_state = [opt.ψ₀]
+    end
     dim = length(dynamics.data.ψ0)
     nelder_mead = repeat(dynamics, state_num)
 

@@ -1,281 +1,3 @@
-
-# dynamics in Lindblad form
-struct Lindblad{N,C,R,P} <: AbstractDynamics
-    data::AbstractDynamicsData
-    noise_type::Symbol
-    ctrl_type::Symbol
-    state_rep::Symbol
-    para_type::Symbol
-end
-
-Lindblad(data, N, C, R) =
-    para_type(data) |> P -> Lindblad{((N, C, R, P) .|> eval)...}(data, N, C, R, P)
-Lindblad(data, N, C) = Lindblad(data, N, C, :dm)
-
-mutable struct Lindblad_noiseless_free <: AbstractDynamicsData
-    H0::AbstractMatrix
-    dH::AbstractVector
-    ρ0::AbstractMatrix
-    tspan::AbstractVector
-end
-
-mutable struct Lindblad_noisy_free <: AbstractDynamicsData
-    H0::AbstractMatrix
-    dH::AbstractVector
-    ρ0::AbstractMatrix
-    tspan::AbstractVector
-    decay_opt::AbstractVector
-    γ::AbstractVector
-end
-
-
-mutable struct Lindblad_noiseless_timedepend <: AbstractDynamicsData
-    H0::AbstractVector
-    dH::AbstractVector
-    ρ0::AbstractMatrix
-    tspan::AbstractVector
-end
-
-mutable struct Lindblad_noisy_timedepend <: AbstractDynamicsData
-    H0::AbstractVector
-    dH::AbstractVector
-    ρ0::AbstractMatrix
-    tspan::AbstractVector
-    decay_opt::AbstractVector
-    γ::AbstractVector
-end
-
-mutable struct Lindblad_noiseless_controlled <: AbstractDynamicsData
-    H0::AbstractVecOrMat
-    dH::AbstractVector
-    ρ0::AbstractMatrix
-    tspan::AbstractVector
-    Hc::AbstractVector
-    ctrl::AbstractVector
-end
-
-mutable struct Lindblad_noisy_controlled <: AbstractDynamicsData
-    H0::AbstractVecOrMat
-    dH::AbstractVector
-    ρ0::AbstractMatrix
-    tspan::AbstractVector
-    decay_opt::AbstractVector
-    γ::AbstractVector
-    Hc::AbstractVector
-    ctrl::AbstractVector
-end
-
-
-mutable struct Lindblad_noiseless_free_pure <: AbstractDynamicsData
-    H0::AbstractMatrix
-    dH::AbstractVector
-    ψ0::AbstractVector
-    tspan::AbstractVector
-end
-
-mutable struct Lindblad_noisy_free_pure <: AbstractDynamicsData
-    H0::AbstractMatrix
-    dH::AbstractVector
-    ψ0::AbstractVector
-    tspan::AbstractVector
-    decay_opt::AbstractVector
-    γ::AbstractVector
-end
-
-mutable struct Lindblad_noiseless_timedepend_pure <: AbstractDynamicsData
-    H0::AbstractVector
-    dH::AbstractVector
-    ψ0::AbstractVector
-    tspan::AbstractVector
-end
-
-mutable struct Lindblad_noisy_timedepend_pure <: AbstractDynamicsData
-    H0::AbstractVector
-    dH::AbstractVector
-    ψ0::AbstractVector
-    tspan::AbstractVector
-    decay_opt::AbstractVector
-    γ::AbstractVector
-end
-mutable struct Lindblad_noiseless_controlled_pure <: AbstractDynamicsData
-    H0::AbstractVecOrMat
-    dH::AbstractVector
-    ψ0::AbstractVector
-    tspan::AbstractVector
-    Hc::AbstractVector
-    ctrl::AbstractVector
-end
-
-mutable struct Lindblad_noisy_controlled_pure <: AbstractDynamicsData
-    H0::AbstractVecOrMat
-    dH::AbstractVector
-    ψ0::AbstractVector
-    tspan::AbstractVector
-    decay_opt::AbstractVector
-    γ::AbstractVector
-    Hc::AbstractVector
-    ctrl::AbstractVector
-end
-
-
-para_type(data::AbstractDynamicsData) = length(data.dH) == 1 ? :single_para : :multi_para
-
-# Constructor of Lindblad dynamics
-Lindblad(
-    H0::AbstractMatrix,
-    dH::AbstractVector,
-    ρ0::AbstractMatrix,
-    tspan::AbstractVector,
-) = Lindblad(Lindblad_noiseless_free(H0, dH, ρ0, tspan), :noiseless, :free)
-
-Lindblad(
-    H0::AbstractMatrix,
-    dH::AbstractVector,
-    ρ0::AbstractMatrix,
-    tspan::AbstractVector,
-    decay_opt::AbstractVector,
-    γ::AbstractVector,
-) = Lindblad(Lindblad_noisy_free(H0, dH, ρ0, tspan, decay_opt, γ), :noisy, :free)
-
-Lindblad(
-    H0::AbstractVector,
-    dH::AbstractVector,
-    ρ0::AbstractMatrix,
-    tspan::AbstractVector,
-) = Lindblad(Lindblad_noiseless_timedepend(H0, dH, ρ0, tspan), :noiseless, :timedepend)
-
-Lindblad(
-    H0::AbstractVector,
-    dH::AbstractVector,
-    ρ0::AbstractMatrix,
-    tspan::AbstractVector,
-    decay_opt::AbstractVector,
-    γ::AbstractVector,
-) = Lindblad(
-    Lindblad_noisy_timedepend(H0, dH, ρ0, tspan, decay_opt, γ),
-    :noisy,
-    :timedepend,
-)
-
-Lindblad(
-    H0::AbstractVecOrMat,
-    dH::AbstractVector,
-    Hc::AbstractVector,
-    ctrl::AbstractVector,
-    ρ0::AbstractMatrix,
-    tspan::AbstractVector,
-) = Lindblad(
-    Lindblad_noiseless_controlled(H0, dH, ρ0, tspan, Hc, ctrl),
-    :noiseless,
-    :controlled,
-)
-
-Lindblad(
-    H0::AbstractVecOrMat,
-    dH::AbstractVector,
-    Hc::AbstractVector,
-    ctrl::AbstractVector,
-    ρ0::AbstractMatrix,
-    tspan::AbstractVector,
-    decay_opt::AbstractVector,
-    γ::AbstractVector,
-) = Lindblad(
-    Lindblad_noisy_controlled(H0, dH, ρ0, tspan, decay_opt, γ, Hc, ctrl),
-    :noisy,
-    :controlled,
-)
-
-Lindblad(
-    H0::AbstractMatrix,
-    dH::AbstractVector,
-    ψ0::AbstractVector,
-    tspan::AbstractVector,
-) = Lindblad(Lindblad_noiseless_free_pure(H0, dH, ψ0, tspan), :noiseless, :free, :ket)
-
-Lindblad(
-    H0::AbstractMatrix,
-    dH::AbstractVector,
-    ψ0::AbstractVector,
-    tspan::AbstractVector,
-    decay_opt::AbstractVector,
-    γ::AbstractVector,
-) = Lindblad(Lindblad_noisy_free_pure(H0, dH, ψ0, tspan, decay_opt, γ), :noisy, :free, :ket)
-
-Lindblad(
-    H0::AbstractVector,
-    dH::AbstractVector,
-    ψ0::AbstractVector,
-    tspan::AbstractVector,
-) = Lindblad(
-    Lindblad_noiseless_timedepend(H0, dH, ψ0, tspan),
-    :noiseless,
-    :timedepend,
-    :ket,
-)
-
-Lindblad(
-    H0::AbstractVector,
-    dH::AbstractVector,
-    ψ0::AbstractVector,
-    tspan::AbstractVector,
-    decay_opt::AbstractVector,
-    γ::AbstractVector,
-) = Lindblad(
-    Lindblad_noisy_timedepend_pure(H0, dH, ψ0, tspan, decay_opt, γ),
-    :noisy,
-    :timedepend,
-    :ket,
-)
-
-Lindblad(
-    H0::AbstractVecOrMat,
-    dH::AbstractVector,
-    Hc::AbstractVector,
-    ctrl::AbstractVector,
-    ψ0::AbstractVector,
-    tspan::AbstractVector,
-) = Lindblad(
-    Lindblad_noiseless_controlled(H0, dH, ψ0, tspan, Hc, ctrl),
-    :noiseless,
-    :controlled,
-    :ket,
-)
-
-Lindblad(
-    H0::AbstractVecOrMat,
-    dH::AbstractVector,
-    Hc::AbstractVector,
-    ctrl::AbstractVector,
-    ψ0::AbstractVector,
-    tspan::AbstractVector,
-    decay_opt::AbstractVector,
-    γ::AbstractVector,
-) = Lindblad(
-    Lindblad_noisy_controlled_pure(H0, dH, ψ0, tspan, decay_opt, γ, Hc, ctrl),
-    :noisy,
-    :controlled,
-    :ket,
-)
-
-function set_ctrl(dynamics::Lindblad, ctrl)
-    temp = deepcopy(dynamics)
-    temp.data.ctrl = ctrl
-    temp
-end
-
-function set_state(dynamics::Lindblad, state::AbstractVector)
-    temp = deepcopy(dynamics)
-    temp.data.ψ0 = state
-    temp
-end
-
-function set_state(dynamics::Lindblad, state::AbstractMatrix)
-    temp = deepcopy(dynamics)
-    temp.data.ρ0 = state
-    temp
-end
-
-# functions for evolve dynamics in Lindblad form
 function liouville_commu(H)
     kron(one(H), H) - kron(H |> transpose, one(H))
 end
@@ -498,7 +220,7 @@ function secondorder_derivative(
                 2 * im * Δt * dH_L[i] * ∂ρt_∂x[i] for i = 1:para_num
             ] + [exp_L] .* ∂2ρt_∂x
     end
-    ρt = exp(vec(H[end])' * zero(ρt)) * ρt
+    # ρt = exp(vec(H[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat, ∂2ρt_∂x |> vec2mat
 end
 
@@ -534,7 +256,7 @@ function evolve(dynamics::Lindblad{noiseless,timedepend,ket})
         ρt = exp_L * ρt
         ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
-    ρt = exp(vec(H0[end])' * zero(ρt)) * ρt
+    # ρt = exp(vec(H0[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
 end
 
@@ -552,7 +274,7 @@ function evolve(dynamics::Lindblad{noiseless,free,dm})
         ρt = exp_L * ρt
         ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
-    ρt = exp(vec(H[end])' * zero(ρt)) * ρt
+    # ρt = exp(vec(H[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
 end
 
@@ -588,7 +310,7 @@ function evolve(dynamics::Lindblad{noiseless,timedepend,ket})
         ρt = exp_L * ρt
         ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
-    ρt = exp(vec(H0[end])' * zero(ρt)) * ρt
+    # ρt = exp(vec(H0[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
 end
 
@@ -606,7 +328,7 @@ function evolve(dynamics::Lindblad{noiseless,free,dm})
         ρt = exp_L * ρt
         ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
-    ρt = exp(vec(H[end])' * zero(ρt)) * ρt
+    # ρt = exp(vec(H0[end])' * zero(ρt)) * ρt   
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
 end
 
@@ -624,7 +346,7 @@ function evolve(dynamics::Lindblad{noiseless,timedepend,dm})
         ρt = exp_L * ρt
         ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
-    ρt = exp(vec(H0[end])' * zero(ρt)) * ρt
+    # ρt = exp(vec(H0[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
 end
 
@@ -680,7 +402,7 @@ function evolve(dynamics::Lindblad{noisy,timedepend,ket})
         ρt = exp_L * ρt
         ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
-    ρt = exp(vec(H0[end])' * zero(ρt)) * ρt
+    # ρt = exp(vec(H0[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
 end
 
@@ -699,7 +421,7 @@ function evolve(dynamics::Lindblad{noisy,timedepend,dm})
         ρt = exp_L * ρt
         ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
-    ρt = exp(vec(H0[end])' * zero(ρt)) * ρt
+    # ρt = exp(vec(H0[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
 end
 
@@ -722,7 +444,7 @@ function evolve(dynamics::Lindblad{noiseless,controlled,dm})
         ρt = exp_L * ρt
         ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
-    ρt = exp(vec(H[end])' * zero(ρt)) * ρt
+    # ρt = exp(vec(H[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
 end
 
@@ -744,18 +466,18 @@ function evolve(dynamics::Lindblad{noisy,controlled,dm})
         ρt = exp_L * ρt
         ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
-    ρt = exp(vec(H[end])' * zero(ρt)) * ρt
+    # ρt = exp(vec(H[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
 end
 
 #### evolution of state under time-independent Hamiltonian with noise and controls #### 
 function evolve(dynamics::Lindblad{noisy,controlled,ket})
-    (; H0, dH, ψ0, tspan, decay_opt, γ, Hc, ctrl) = dynamics.data
+    (; H0, dH, ψ0, tspan, decay_opt, γ, ctrl, Hc) = dynamics.data
 
     para_num = length(dH)
     ctrl_num = length(Hc)
     ctrl_interval = ((length(tspan) - 1) / length(ctrl[1])) |> Int
-    ctrl = [repeat(ctrl[i], 1, ctrl_interval) |> transpose |> vec for i = 1:ctrl_num]
+    ctrl = [repeat(dynamics.data.ctrl[i], 1, ctrl_interval) |> transpose |> vec for i = 1:ctrl_num]
     H = Htot(H0, Hc, ctrl)
     dH_L = [liouville_commu(dH[i]) for i = 1:para_num]
     ρt = (ψ0 * ψ0') |> vec
@@ -766,7 +488,7 @@ function evolve(dynamics::Lindblad{noisy,controlled,ket})
         ρt = exp_L * ρt
         ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
     end
-    ρt = exp(vec(H[end])' * zero(ρt)) * ρt
+    # ρt = exp(vec(H[end])' * zero(ρt)) * ρt
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
 end
 

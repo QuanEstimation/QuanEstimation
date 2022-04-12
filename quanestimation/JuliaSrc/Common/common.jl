@@ -277,7 +277,7 @@ function initial_ctrl!(opt, ctrl0, dynamics, p_num, rng)
         ctrl0 = [ctrl0[i] for i in 1:p_num]
     end
     for pj in 1:length(ctrl0)
-        dynamics[pj].data.ctrl = [[ctrl0[pj][i,j] for j in 1:ctrl_length] for i in 1:ctrl_num]
+        dynamics[pj].data.ctrl = deepcopy(ctrl0[pj]) #[[ctrl0[pj][i, j] for j in 1:ctrl_length] for i in 1:ctrl_num]
     end
     if opt.ctrl_bound[1] == -Inf || opt.ctrl_bound[2] == Inf
         for pj in (length(ctrl0)+1):p_num
@@ -310,7 +310,7 @@ function initial_M!(measurement0, C_all, dim, p_num, M_num, rng)
         measurement0 = [measurement0[i] for i in 1:p_num]
     end 
     for pj in 1:length(measurement0)
-        C_all[pj] = [[measurement0[pj][i,j] for j in 1:dim] for i in 1:M_num]
+        C_all[pj] = deepcopy(measurement0[pj]) #[[measurement0[pj][i,j] for j in 1:dim] for i in 1:M_num]
     end
     for pj in (length(measurement0)+1):p_num
         M_tp = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
@@ -331,7 +331,7 @@ function initial_LinearComb!(measurement0, B_all, basis_num, M_num, p_num, rng)
         measurement0 = [measurement0[i] for i in 1:p_num]
     end 
     for pj in 1:length(measurement0)
-        B_all[pj] = [[measurement0[pj][i,j] for j in 1:basis_num] for i in 1:M_num]
+        B_all[pj] = deepcopy(measurement0[pj]) #[[measurement0[pj][i,j] for j in 1:basis_num] for i in 1:M_num]
     end
 
     for pj in (length(measurement0)+1):p_num
