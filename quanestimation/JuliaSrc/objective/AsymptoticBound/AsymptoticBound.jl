@@ -4,29 +4,29 @@ abstract type SLD <: AbstractLDtype end
 abstract type RLD <: AbstractLDtype end
 abstract type LLD <: AbstractLDtype end
 
-struct QFIM_Obj{P,D} <: AbstractObj
-    W::AbstractMatrix
-    eps::Number
+Base.@kwdef struct QFIM_Obj{P,D} <: AbstractObj
+    W::Union{AbstractMatrix, Missing}
+    eps::Number = GLOBAL_EPS
 end
 
-mutable struct CFIM_Obj{P} <: AbstractObj
-    M::AbstractVecOrMat
-    W::AbstractMatrix
-    eps::Number
+Base.@kwdef struct CFIM_Obj{P} <: AbstractObj
+    M::Union{AbstractVecOrMat, Missing}
+    W::Union{AbstractMatrix, Missing}
+    eps::Number = GLOBAL_EPS
 end
 
-struct HCRB_Obj{P} <: AbstractObj
-    W::AbstractMatrix
-    eps::Number
+Base.@kwdef struct HCRB_Obj{P} <: AbstractObj
+    W::Union{AbstractMatrix, Missing}
+    eps::Number = GLOBAL_EPS
 end
 
-QFIM_Obj(W, eps, syms::Symbol...) = QFIM_Obj{eval.(syms)...}(W, eps)
-CFIM_Obj(M, W, eps, syms::Symbol...) = CFIM_Obj{eval.(syms)...}(M, W, eps)
-HCRB_Obj(W, eps, syms::Symbol...) = HCRB_Obj{eval.(syms)...}(W, eps)
+QFIM_Obj(;W=missing, eps=GLOBAL_EPS, para_type::Symbol=:single_para, LD_type::Symbol=:SLD) = QFIM_Obj{eval.([para_type, LD_type])...}(W, eps)
+CFIM_Obj(;M=missing, W=missing, eps=GLOBAL_EPS, para_type::Symbol=:single_para) = CFIM_Obj{eval(para_type)}(M, W, eps)
+HCRB_Obj(;W=missing, eps=GLOBAL_EPS, para_type::Symbol=:single_para) = HCRB_Obj{eval(para_type)}(W, eps)
 
-QFIM_Obj(W, eps, str::String...) = QFIM_Obj(W, eps, Symbol.(str)...)
-CFIM_Obj(M, W, eps, str::String...) = CFIM_Obj(M, W, eps, Symbol.(str)...)
-HCRB_Obj(W, eps, str::String...) = HCRB_Obj(W, eps, Symbol.(str)...)
+QFIM_Obj(W::AbstractMatrix, eps::Number, para_type::String, LD_type::String) = QFIM_Obj(W, eps, Symbol.([para_type, LD_type])...)
+CFIM_Obj(M::AbstractVecOrMat, W::AbstractMatrix, eps::Number, para_type::String) = CFIM_Obj(M, W, eps, Symbol(para_type))
+HCRB_Obj(W::AbstractMatrix, eps::Number, para_type::String) = HCRB_Obj(W, eps, Symbol(para_type))
 
 obj_type(::QFIM_Obj) = :QFIM
 obj_type(::CFIM_Obj) = :CFIM
@@ -36,6 +36,7 @@ para_type(::QFIM_Obj{single_para,D}) where {D} = :single_para
 para_type(::QFIM_Obj{multi_para,D}) where {D} = :multi_para
 para_type(::CFIM_Obj{single_para}) = :single_para
 para_type(::CFIM_Obj{multi_para}) = :multi_para
+para_type(::HCRB_Obj{single_para}) = :single_para
 para_type(::HCRB_Obj{multi_para}) = :multi_para
 
 LD_type(::QFIM_Obj{P,SLD}) where {P} = :SLD
@@ -45,16 +46,14 @@ LD_type(::QFIM_Obj{P,LLD}) where {P} = :LLD
 QFIM_Obj(opt::CFIM_Obj{P}) where P = QFIM_Obj{P, SLD}(opt.W, opt.eps)
 QFIM_Obj(opt::CFIM_Obj{P}, LDtype::Symbol) where P = QFIM_Obj{P, eval(LDtype)}(opt.W, opt.eps)
 
-function set_M(obj::CFIM_Obj{single_para}, M::AbstractVector)
-    temp = deepcopy(obj)
-    temp.M = M
-    temp
-end
+const obj_idx = Dict(
+    :QFIM => QFIM_Obj,
+    :CFIM => CFIM_Obj,
+    :HCRB => HCRB_Obj
+)
 
-function set_M(obj::CFIM_Obj{multi_para}, M::AbstractVector)
-    temp = deepcopy(obj)
-    temp.M = M
-    temp
+function set_M(obj::CFIM_Obj{P}, M::AbstractVector) where P
+    CFIM_Obj{P}(M, obj.W, obj.eps)
 end
 
 function objective(obj::QFIM_Obj{single_para,SLD}, dynamics::Lindblad)
@@ -321,3 +320,4 @@ end
 
 include("CramerRao.jl")
 include("Holevo.jl")
+include("AsymptoticBoundWrapper.jl")

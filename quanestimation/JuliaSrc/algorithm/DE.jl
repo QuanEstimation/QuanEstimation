@@ -1,6 +1,9 @@
 #### control optimization ####
 function update!(opt::ControlOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    if ismissing(ini_population)
+        ini_population = ([opt.ctrl,],)
+    end
     ini_population = ini_population[1]
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
@@ -76,6 +79,9 @@ end
 #### state optimization ####
 function update!(opt::StateOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    if ismissing(ini_population)
+        ini_population = ([opt.ψ₀,],)
+    end
     ini_population = ini_population[1]
     dim = length(dynamics.data.ψ0)
     populations = repeat(dynamics, p_num)
@@ -136,6 +142,9 @@ end
 #### projective measurement optimization ####
 function update!(opt::Mopt_Projection, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    if ismissing(ini_population)
+        ini_population = ([opt.C], )
+    end
     ini_population = ini_population[1]
 
     dim = size(dynamics.data.ρ0)[1]
@@ -215,8 +224,11 @@ end
 #### find the optimal linear combination of a given set of POVM ####
 function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
-    ini_population = ini_population[1]
     (; B, POVM_basis, M_num) = opt
+    if ismissing(ini_population)
+        ini_population = ( [B], )
+    end
+    ini_population = ini_population[1]
     basis_num = length(POVM_basis)
     populations = [[zeros(basis_num) for j in 1:M_num] for i in 1:p_num]
 
@@ -295,12 +307,19 @@ end
 #### find the optimal rotated measurement of a given set of POVM ####
 function update!(opt::Mopt_Rotation, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
-    ini_population = ini_population[1]
     (; s, POVM_basis, Lambda) = opt
+    if ismissing(ini_population)
+        ini_population = ([s,],)
+    end
+    ini_population = ini_population[1]
     dim = size(dynamics.data.ρ0)[1]
     suN = suN_generator(dim)
-    append!(Lambda, [Matrix{ComplexF64}(I,dim,dim)])
-    append!(Lambda, [suN[i] for i in 1:length(suN)])
+    if ismissing(Lambda)
+        Lambda = Matrix{ComplexF64}[]
+        append!(Lambda, [Matrix{ComplexF64}(I,dim,dim)])
+        append!(Lambda, [suN[i] for i in 1:length(suN)])
+    end
+    
     M_num = length(POVM_basis)
     populations = [zeros(dim^2) for i in 1:p_num]
     # initialization  
@@ -377,6 +396,9 @@ end
 #### state and control optimization ####
 function update!(opt::StateControlOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    if ismissing(ini_population)
+        ini_population = ([opt.ψ₀], [opt.ctrl,])
+    end
     psi0, ctrl0 = ini_population
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
@@ -473,6 +495,9 @@ end
 #### state and measurement optimization ####
 function update!(opt::StateMeasurementOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    if ismissing(ini_population)
+        ini_population = ( [opt.ψ₀], [opt.C,])
+    end
     psi0, measurement0 = ini_population
     dim = length(dynamics.data.ψ0)
     M_num = length(opt.C)
@@ -573,6 +598,9 @@ end
 #### control and measurement optimization ####
 function update!(opt::ControlMeasurementOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    if ismissing(ini_population)
+        ini_population = ([opt.ctrl,], [opt.C])
+    end
     ctrl0, measurement0 = ini_population
     dim = size(dynamics.data.ρ0)[1]
     ctrl_length = length(dynamics.data.ctrl[1])
@@ -684,6 +712,9 @@ end
 #### state, control and measurement optimization ####
 function update!(opt::StateControlMeasurementOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    if ismissing(ini_population)
+        ini_population = ([opt.ψ₀], [opt.ctrl,], [opt.C])
+    end
     psi0, ctrl0, measurement0 = ini_population
     dim = length(dynamics.data.ψ0)
     ctrl_length = length(dynamics.data.ctrl[1])

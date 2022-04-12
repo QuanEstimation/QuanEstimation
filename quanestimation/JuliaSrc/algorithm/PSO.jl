@@ -1,6 +1,9 @@
 #### control optimization ####
 function update!(opt::ControlOpt, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
+    if ismissing(ini_particle)
+        ini_particle = ([opt.ctrl,],)
+    end
     ini_particle = ini_particle[1]
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
@@ -100,6 +103,9 @@ end
 #### state optimization ####
 function update!(opt::StateOpt, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
+    if ismissing(ini_particle)
+        ini_particle = ([opt.ψ₀], )
+    end
     ini_particle = ini_particle[1]
     dim = length(dynamics.data.ψ0)
     particles = repeat(dynamics, p_num)
@@ -174,6 +180,9 @@ end
 #### projective measurement optimization ####
 function update!(opt::Mopt_Projection, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
+    if ismissing(ini_particle)
+        ini_particle = ([opt.C], )
+    end
     ini_particle = ini_particle[1]  
     dim = size(dynamics.data.ρ0)[1] 
     M_num = length(opt.C)
@@ -197,7 +206,7 @@ function update!(opt::Mopt_Projection, alg::PSO, obj, dynamics, output)
     obj_copy = set_M(obj, M)
     f_ini, f_comp = objective(obj_copy, dynamics)
 
-    obj_QFIM = QFIM_Obj(obj)
+    obj_QFIM = QFIM_Obj(obj)   
     f_opt, f_comp = objective(obj_QFIM, dynamics)
 
     set_f!(output, f_ini)
@@ -264,9 +273,12 @@ end
 #### find the optimal linear combination of a given set of POVM ####
 function update!(opt::Mopt_LinearComb, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
-    ini_particle = ini_particle[1]
     (; B, POVM_basis, M_num) = opt
     basis_num = length(POVM_basis)
+    if ismissing(ini_particle)
+        ini_particle = ( [B], )
+    end
+    ini_particle = ini_particle[1]
     particles = [[zeros(basis_num) for j in 1:M_num] for i in 1:p_num]
 
     if typeof(max_episode) == Int
@@ -356,13 +368,21 @@ end
 #### find the optimal rotated measurement of a given set of POVM ####
 function update!(opt::Mopt_Rotation, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
+    if ismissing(ini_particle)
+        ini_particle = ([opt.s], )
+    end
     ini_particle = ini_particle[1]
     (; s, POVM_basis, Lambda) = opt
     M_num = length(POVM_basis)
     dim = size(dynamics.data.ρ0)[1]
     suN = suN_generator(dim)
-    append!(Lambda, [Matrix{ComplexF64}(I,dim,dim)])
-    append!(Lambda, [suN[i] for i in 1:length(suN)])
+    if ismissing(Lambda)
+        Lambda = Matrix{ComplexF64}[]
+        append!(Lambda, [Matrix{ComplexF64}(I,dim,dim)])
+        append!(Lambda, [suN[i] for i in 1:length(suN)])
+    end
+    
+    particles = repeat(s, p_num)
 
     if typeof(max_episode) == Int
         max_episode = [max_episode, max_episode]
@@ -447,6 +467,9 @@ end
 #### state and control optimization ####
 function update!(opt::StateControlOpt, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
+    if ismissing(ini_particle)
+        ini_particle = ([opt.ψ₀], [opt.ctrl,])
+    end
     psi0, ctrl0 = ini_particle
     dim = length(dynamics.data.ψ0)
     ctrl_length = length(dynamics.data.ctrl[1])
@@ -555,6 +578,9 @@ end
 #### state and measurement optimization ####
 function update!(opt::StateMeasurementOpt, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
+    if ismissing(ini_particle)
+        ini_particle = ([opt.ψ₀], [opt.C])
+    end
     psi0, measurement0 = ini_particle
     dim = length(dynamics.data.ψ0)
     M_num = length(opt.C)
@@ -667,6 +693,9 @@ end
 #### control and measurement optimization ####
 function update!(opt::ControlMeasurementOpt, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
+    if ismissing(ini_particle)
+        ini_particle = ([opt.ctrl,], [opt.C])
+    end
     ctrl0, measurement0 = ini_particle
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
@@ -787,6 +816,9 @@ end
 #### state, control and measurement optimization ####
 function update!(opt::StateControlMeasurementOpt, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
+    if ismissing(ini_particle)
+        ini_particle = ([opt.ψ₀], [opt.ctrl,], [opt.C])
+    end
     psi0, ctrl0, measurement0 = ini_particle
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)

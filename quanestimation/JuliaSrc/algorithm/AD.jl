@@ -129,9 +129,12 @@ function update!(opt::Mopt_Rotation, alg::AbstractAD, obj, dynamics, output)
     dim = size(dynamics.data.ρ0)[1]
     M_num = length(POVM_basis)
     suN = suN_generator(dim)
-    append!(opt.Lambda, [Matrix{ComplexF64}(I,dim,dim)])
-    append!(opt.Lambda, [suN[i] for i in 1:length(suN)])
-
+    if ismissing(opt.Lambda)
+        opt.Lambda = Matrix{ComplexF64}[]
+        append!(opt.Lambda, [Matrix{ComplexF64}(I,dim,dim)])
+        append!(opt.Lambda, [suN[i] for i in 1:length(suN)])
+    end
+    
     U = rotation_matrix(opt.s, opt.Lambda)
     M = [U*POVM_basis[i]*U' for i in 1:M_num]
     obj_QFIM = QFIM_Obj(obj)

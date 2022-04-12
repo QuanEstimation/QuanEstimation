@@ -16,6 +16,7 @@ using Interpolations
 const pkgpath = @__DIR__
 
 const GLOBAL_RNG = MersenneTwister(1234)
+const GLOBAL_EPS = 1e-8
 include("optim/optim.jl")
 include("common/common.jl")
 include("dynamics/dynamics.jl")

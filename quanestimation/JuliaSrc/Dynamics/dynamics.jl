@@ -24,5 +24,5 @@ isCtrl(::free) = false
 isCtrl(::controlled) = true
 isCtrl(dynamics::AbstractDynamics) = dynamics.ctrl_type |> eval |> isCtrl
 
-include("Lindblad.jl")
-include("Kraus.jl")
+include("lindblad/Lindblad.jl")
+include("kraus/Kraus.jl")

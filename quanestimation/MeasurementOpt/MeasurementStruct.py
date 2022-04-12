@@ -362,6 +362,8 @@ class MeasurementSystem:
                 self.tspan,
             )
         self.output = Main.QuanEstimation.Output(self.opt, self.savefile)
+        
+        self.dynamics_type = "dynamics"
 
 
     def kraus(self, rho0, K, dK):
