@@ -152,12 +152,12 @@ function AdaptiveInput(x, func, dfunc; channel="dynamics")
         H = [func(xi) for xi in x_list]
         dH = [dfunc(xi) for xi in x_list]
         return H, dH
-    elseif channel == "kraus"
+    elseif channel == "Kraus"
         K = [func(xi) for xi in x_list]
         dK = [dfunc(xi) for xi in x_list]
         return K, dK
     else
-        throw("Supported values for channel are 'dynamics' and 'kraus'")
+        throw("Supported values for channel are 'dynamics' and 'Kraus'")
     end
 end
 
@@ -176,13 +176,13 @@ function bound!(ctrl::Vector{Float64}, ctrl_bound)
     end
 end
 
-function Adam(gt, t, para, mt, vt, ϵ, beta1, beta2, eps)
+function Adam(gt, t, para, mt, vt, epsilon, beta1, beta2, eps)
     t = t+1
     mt = beta1*mt + (1-beta1)*gt
     vt = beta2*vt + (1-beta2)*(gt*gt)
     m_cap = mt/(1-(beta1^t))
     v_cap = vt/(1-(beta2^t))
-    para = para+(ϵ*m_cap)/(sqrt(v_cap)+eps)
+    para = para+(epsilon*m_cap)/(sqrt(v_cap)+eps)
     return para, mt, vt
 end
 
@@ -310,7 +310,7 @@ function initial_M!(measurement0, C_all, dim, p_num, M_num, rng)
         measurement0 = [measurement0[i] for i in 1:p_num]
     end 
     for pj in 1:length(measurement0)
-        C_all[pj] = measurement0 isa AbstractVector ? deepcopy(measurement0[pj]) : [[measurement0[pj][i,j] for j in 1:dim] for i in 1:M_num]
+        C_all[pj] = measurement0[pj] isa AbstractVector ? deepcopy(measurement0[pj]) : [[measurement0[pj][i,j] for j in 1:dim] for i in 1:M_num]
     end
     for pj in (length(measurement0)+1):p_num
         M_tp = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
@@ -331,7 +331,7 @@ function initial_LinearComb!(measurement0, B_all, basis_num, M_num, p_num, rng)
         measurement0 = [measurement0[i] for i in 1:p_num]
     end 
     for pj in 1:length(measurement0)
-        B_all[pj] = measurement0 isa AbstractVector ? deepcopy(measurement0[pj]) : [[measurement0[pj][i,j] for j in 1:dim] for i in 1:M_num]
+        B_all[pj] = measurement0[pj] isa AbstractVector ? deepcopy(measurement0[pj]) : [[measurement0[pj][i,j] for j in 1:dim] for i in 1:M_num]
     end
 
     for pj in (length(measurement0)+1):p_num

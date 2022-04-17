@@ -13,11 +13,11 @@ parameter estimation. It can be expressed as [[1,2,3]](#Helstrom1976)
 
 where $\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})=\sum_y\mathrm{Tr}(\rho\Pi_y)(\hat{\textbf{x}}
 -\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}$ is the covariance matrix for the 
-unknown parameters $\hat{\textbf{x}}=(\hat{x}_0,\hat{x}_1,\dots)^{\mathrm{T}}$. $\{\Pi_y\}$ 
-is a set of positive operator-valued measure (POVM) and $\rho$ represents the parameterized 
-density matrix. $n$ is the repetition of the experiment, $\mathcal{I}$ and $\mathcal{F}$ are 
-the classical Fisher information matrix (CFIM) and quantum Fisher information matrix 
-(QFIM), respectively. The $ab$th entry of CFIM is defined by
+unknown parameters $\hat{\textbf{x}}=(\hat{x}_0,\hat{x}_1,\dots)^{\mathrm{T}}$ to be estimated. 
+$\{\Pi_y\}$ is a set of positive operator-valued measure (POVM) and $\rho$ represents the 
+parameterized density matrix. $n$ is the repetition of the experiment, $\mathcal{I}$ and 
+$\mathcal{F}$ are the classical Fisher information matrix (CFIM) and quantum Fisher information 
+matrix (QFIM), respectively. The $ab$th entry of CFIM is defined by
 \begin{align}
 \mathcal{I}_{ab}=\sum_y\frac{1}{p(y|\textbf{x})}[\partial_a p(y|\textbf{x})][\partial_b 
 p(y|\textbf{x})]
@@ -35,14 +35,14 @@ logarithmic derivative (SLD) operator for $x_{a}(x_b)$. The SLD operator is dete
 \partial_{a}\rho=\frac{1}{2}(\rho L_{a}+L_{a}\rho).
 \end{align}
 
-The SLD is calculated by
+The $ij$th entry of SLD can be calculated by
 \begin{align}
 \langle\lambda_i|L_{a}|\lambda_j\rangle=\frac{2\langle\lambda_i| \partial_{a}\rho 
 |\lambda_j\rangle}
-{\lambda_i+\lambda_j}
+{\lambda_i+\lambda_j}, ~~\lambda_i (\lambda_j)\neq 0 .
 \end{align}
 
-for $\lambda_i (\lambda_j)\neq 0$ and for $\lambda_i=\lambda_j=0$, it is set to be zero.
+For $\lambda_i (\lambda_j)=0$, the above equation is set to be zero.
 
 Besides, there are right logarithmic derivative (RLD) and left logarithmic derivative (LLD) 
 defined by $\partial_{a}\rho=\rho \mathcal{R}_a$ and $\partial_{a}\rho=\mathcal{R}_a^{\dagger}
@@ -88,7 +88,7 @@ is the same with `rho` and the users can also request the logarithmic derivative
 the eigenspace of `rho` by `rep="eigen"`. `eps` represents the machine epsilon which 
 defaults to $10^{-8}$.
 
-In QuanEstimation, the QFI and QFIM can be calculated via
+In QuanEstimation, the QFI and QFIM can be calculated via the following function
 === "Python"
     ``` py
     QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8)
@@ -98,10 +98,11 @@ In QuanEstimation, the QFI and QFIM can be calculated via
     QFIM(rho, drho; LDtype=:SLD, exportLD=false, eps=1e-8)
     ```
 `LDtype` represents the types of QFI (QFIM) can be set. Options are `LDtype=SLD` (default), 
-`LDtype=RLD` and `LDtype=LLD`. This function will return QFI (QFIM) if `exportLD=False` and if 
-the users set `exportLD=True`, it will return logarithmic derivatives other than QFI (QFIM).
+`LDtype=RLD` and `LDtype=LLD`. This function will return QFI (QFIM) if `exportLD=False`,
+however, if the users set `exportLD=True`, it will return logarithmic derivatives apart 
+from QFI (QFIM).
 
-If the parameterization process is via the Kraus operators, the QFI (QFIM) can be 
+If the parameterization process is excuted via the Kraus operators, the QFI (QFIM) can be 
 calculated by calling the function
 === "Python"
     ``` py
@@ -114,7 +115,62 @@ calculated by calling the function
 where `K` and `dK` are the Kraus operators and the derivatives on the unknown parameters to be 
 estimated.
 
-The FI (FIM) for a set of probabilities `p` can be calculated as
+**Example**  
+The Kraus operators for the amplitude damping channel are
+
+\begin{eqnarray}
+K_1 = \left(\begin{array}{cc}
+1 & 0  \\
+0 & \sqrt{1-\gamma}
+\end{array}\right),
+K_2 = \left(\begin{array}{cc}
+0 & \sqrt{\gamma} \\
+0 & 0
+\end{array}\right), \nonumber
+\end{eqnarray}
+
+where $\gamma$ is the decay probability. The parameterized density matrix can be calculated
+via $\rho=\sum_i K_i\rho_0K_i^{\dagger}$ and corresponding derivatives on the unknown
+parameters are $\partial_{\textbf{x}}\rho=\sum_i \partial_{\textbf{x}}K_i\rho_0K_i^{\dagger}
++ K_i\rho_0\partial_{\textbf{x}}K_i^{\dagger}$ with $\rho_0$ the probe state. In this example,
+the probe state is taken as $|+\rangle\langle+|$ with $|+\rangle:=\frac{1}{\sqrt{2}}(|0\rangle+
+|1\rangle)$. $|0\rangle$ $(|1\rangle)$ is the eigenstate of $\sigma_3$ (Pauli matrix) with 
+respect to the eigenvalue $1$ $(-1)$.
+=== "Python"
+    ``` py
+    from quanestimation import *
+    import numpy as np
+
+    # initial state
+    rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
+    # Kraus operators for the amplitude damping channel
+    gamma = 0.1
+    K1 = np.array([[1., 0.], [0., np.sqrt(1-gamma)]])
+    K2 = np.array([[0., np.sqrt(gamma)], [0., 0.]])
+    K = [K1, K2]
+    # derivatives of Kraus operators on gamma
+    dK1 = np.array([[1., 0.], [0., -0.5/np.sqrt(1-gamma)]])
+    dK2 = np.array([[0., 0.5/np.sqrt(gamma)], [0., 0.]])
+    dK = [[dK1], [dK2]]
+    F = QFIM_Kraus(rho0, K, dK)
+    ```
+=== "Julia"
+    ``` jl
+    # initial state
+    rho0 = 0.5*ones(2,2)
+    # Kraus operators for the amplitude damping channel
+    gamma = 0.1
+    K1 = [1. 0.; 0. sqrt(1-gamma)]
+    K2 = [0. sqrt(gamma); 0. 0.]
+    K = [K1, K2]
+    # derivatives of Kraus operators on gamma
+    dK1 = [1. 0.; 0. -0.5/sqrt(1-gamma)]
+    dK2 = [0. 0.5/sqrt(gamma); 0. 0.]
+    dK = [[dK1], [dK2]]
+    F = QFIM_Kraus(rho0, K, dK)
+    ```
+
+The FI (FIM) for a set of the probabilities `p` can be calculated by
 === "Python"
     ``` py
     FIM(p, dp, eps=1e-8)
@@ -123,9 +179,22 @@ The FI (FIM) for a set of probabilities `p` can be calculated as
     ``` jl
     FIM(p, dp; eps=1e-8)
     ```
-where `dp` is a list representing the derivatives of probabilities `p` on the unknown 
+where `dp` is a list representing the derivatives of the probabilities `p` on the unknown 
 parameters.
 
+**Example**  
+    === "Python"
+        ``` py
+        p = [0.54, 0.46]
+        dp = [[0.54], [-0.54]]
+        F = FIM(p, dp)
+        ```
+    === "Julia"
+        ``` jl
+        p = [0.54, 0.46]
+        dp = [[0.54], [-0.54]]
+        F = FIM(p, dp)
+        ```
 In quantum metrology, the CFI (CFIM) are solved by
 === "Python"
     ``` py
@@ -136,7 +205,7 @@ In quantum metrology, the CFI (CFIM) are solved by
     CFIM(rho, drho; M=nothing, eps=1e-8)
     ```
 Here `M` represents a set of positive operator-valued measure (POVM) with default value `[]`. 
-In this function, a set of rank-one symmetric informationally complete POVM (SIC-POVM) is load 
+In this function, a set of rank-one symmetric informationally complete POVM (SIC-POVM) is used 
 when `M=[]`. SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
 which can be downloaded from the website [[4]](#sic_state). 
 
@@ -151,6 +220,30 @@ In Bloch representation, the SLD based QFI (QFIM) is calculated by
     ```
 `r` and `dr` are the parameterized Bloch vector and its derivatives of on the unknown 
 parameters to be estimated.
+
+**Example**  
+=== "Python"
+    ``` py
+    r = np.array([0., 0., 0.43, 0., 0., 0. ,0., 0.248, \
+                  -0.076, 0.079, 0., 0., 0., 0., -0.297])
+    dr_1 = np.array([0., 0., 0.03, 0., 0., 0., 0., \
+                     0.017, -1.571, -1.554, 0., 0., 0., 0., 0.049])
+    dr_2 = np.array([0., 0., 0.22, 0., 0., 0., 0., 0.127, \
+                     -0.039, -0.078, 0., 0., 0., 0., 0.359])
+    dr = [dr_1, dr_2]
+    f = QFIM_Bloch(r, dr)
+    ```
+=== "Julia"
+    ``` jl
+    r = [0. 0. 0.43 0. 0. 0. 0. 0.248 
+        -0.076 0.079 0. 0. 0. 0. -0.297]
+    dr_1 = [0. 0. 0.03 0. 0. 0. 0. 0.017
+            -1.571 -1.554 0. 0. 0. 0.0.049]
+    dr_2 = [0. 0. 0.22 0. 0. 0. 0. 0.127 
+            -0.039 -0.078 0. 0. 0. 0. 0.359]
+    dr = [dr_1, dr_2]
+    f = QFIM_Bloch(r, dr)
+    ```
 
 The package can also calculte the SLD based QFI (QFIM) with Gaussian states. 
 === "Python"
@@ -167,10 +260,61 @@ with $q_i=(a_i+a^{\dagger}_i)/\sqrt{2}$ and $p_i=(a_i-a^{\dagger}_i)/(i\sqrt{2})
 a vector of quadrature operators. `dR` is a list of derivatives of `R` on the unknown parameters 
 with $i$th entry $\partial_{\textbf{x}} \langle[\textbf{R}]_i\rangle$. `D` and `dD` represent 
 the second-order moment matrix with the $ij$th entry $D_{ij}=\langle [\textbf{R}]_i [\textbf{R}]
-_j\rangle$ and its derivatives on the unknown parameters, `dD` is a list.
+_j\rangle$ and its derivatives on the unknown parameters.
 
 **Example**  
-The Hamiltonian of a single qubit system is $H = \frac{1}{2}\omega_0 \sigma_3$ with 
+The first and second moments are
+
+\begin{eqnarray}
+R = \left(\begin{array}{cc}
+0   \\
+0  
+\end{array}\right),
+D = \lambda\left(\begin{array}{cc}
+\cosh 2r & -\sinh 2r \\
+-\sinh 2r & -\sinh 2r
+\end{array}\right), \nonumber
+\end{eqnarray}
+
+where $\lambda=\coth\frac{\beta}{2}$.  $r$ and $\beta$ are the parameters to be estimated.
+=== "Python"
+    ``` py
+    from quanestimation import *
+    import numpy as np
+
+    r, beta = 0.2, 1.0
+    Lambda = np.cosh(0.5*beta)/np.sinh(0.5*beta)
+    # the first-order moment
+    R = np.zeros(dim)
+    dR = [np.zeros(dim), np.zeros(dim)]
+    # the second-order moment
+    D = Lambda*np.array([[np.cosh(2*r), -np.sinh(2*r)], \
+                         [-np.sinh(2*r), np.cosh(2*r)]])
+    dD_r = 2*Lambda*np.array([[np.sinh(2*r), -np.cosh(2*r)], \
+                              [-np.cosh(2*r), np.sinh(2*r)]])
+    dD_Lambda = 0.5*(Lambda**2-1)*np.array([[-np.cosh(2*r), np.sinh(2*r)], \
+                                            [np.sinh(2*r), -np.cosh(2*r)]])
+    dD = np.array([dD_r, dD_Lambda])
+    F = QFIM_Gauss(R, dR, D, dD)
+    ```
+=== "Julia"
+    ``` py
+    using QuanEstimation
+
+    r, beta = 0.2, 1.0
+    Lambda = coth(0.5*beta)
+    # the first-order moment
+    R = zeros(2)
+    dR = [zeros(2), zeros(2)]
+    D = Lambda*[cosh(2*r) -sinh(2*r); -sinh(2*r) cosh(2*r)]
+    dD_r = 2*Lambda*[sinh(2*r) -cosh(2*r); -cosh(2*r) sinh(2*r)]
+    dD_Lambda = 0.5*(Lambda^2-1)*[-cosh(2*r) sinh(2*r); sinh(2*r) -cosh(2*r)]
+    dD = [dD_r, dD_Lambda]
+    F = QuanEstimation.QFIM_Gauss(R, dR, D, dD)
+    ```
+
+**Example**  
+The Hamiltonian of a single qubit system is $H=\frac{1}{2}\omega_0 \sigma_3$ with 
 $\omega_0$ the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system is governed by
 \begin{align}
 \partial_t\rho=-i[H, \rho]+ \gamma_{+}\left(\sigma_{+}\rho\sigma_{-}-\frac{1}{2}\{\sigma_{-}\sigma_{+},
@@ -188,27 +332,27 @@ eigenstates of $\sigma_3$ with respect to the eigenvalues $1$ and $-1$.
     import numpy as np
 
     # initial state
-    rho0 = 0.5*np.array([[1.,1.],[1.,1.]])
+    rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
     # free Hamiltonian
     omega0 = 1.0
-    sz = np.array([[1., 0.],[0., -1.]])
+    sz = np.array([[1., 0.], [0., -1.]])
     H0 = 0.5*omega0*sz
     # derivative of the free Hamiltonian on omega0
     dH = [0.5*sz]
     # dissipation
-    sp = np.array([[0., 1.],[0., 0.]])
-    sm = np.array([[0., 0.],[1., 0.]])
-    decay = [[sp, 0.0],[sm, 0.1]]
+    sp = np.array([[0., 1.], [0., 0.]])  
+	sm = np.array([[0., 0.], [1., 0.]]) 
+    decay = [[sp, 0.0], [sm, 0.1]]
     # measurement
-    M1 = 0.5*np.array([[1.,1.],[1.,1.]])
-    M2 = 0.5*np.array([[1.,-1.],[-1.,1.]])
+    M1 = 0.5*np.array([[1., 1.], [1., 1.]])
+	M2 = 0.5*np.array([[1., -1.], [-1., 1.]])
     M = [M1, M2]
     # time length for the evolution
-    tspan = np.linspace(0.0, 50.0, 2000)
+    tspan = np.linspace(0., 50., 2000)
     # dynamics
     dynamics = Lindblad(tspan, rho0, H0, dH, decay)
     rho, drho = dynamics.expm()
-    # calculation of CFI and QFI
+    # calculation of the CFI and QFI
     I, F = [], []
     for ti in range(1,2000):
         # CFI
@@ -219,8 +363,42 @@ eigenstates of $\sigma_3$ with respect to the eigenvalues $1$ and $-1$.
         F.append(F_tp)
     ```
 === "Julia"
-    <span style="color:red">(julia example) </span>
+    ``` jl
+    using QuanEstimation
 
+    # initial state
+    rho0 = 0.5*ones(2, 2)
+    # free Hamiltonian
+    omega0 = 1.0
+    sx = [0. 1.; 1. 0.0im]
+	sy = [0. -im; im 0.]
+	sz = [1. 0.0im; 0. -1.]
+    H0 = 0.5*omega0*sz
+    # derivative of the free Hamiltonian on omega0
+    dH = [0.5*sz]
+    # dissipation
+    sp = [0. 1.; 0. 0.0im]
+	sm = [0. 0.; 1. 0.0im]
+    decay = [[sp, 0.0], [sm, 0.1]]
+    # measurement
+    M1 = 0.5*[1.0+0.0im  1.; 1.  1.]
+	M2 = 0.5*[1.0+0.0im -1.; -1.  1.]
+    M = [M1, M2]
+    # time length for the evolution
+    tspan = range(0., 50., length=2000)
+    # dynamics
+    rho, drho = QuanEstimation.expm(tspan, rho0, H0, dH, decay)
+    # calculation of the CFI and QFI
+    I, F = Float64[], Float64[]
+    for ti in 2:length(tspan)
+        # CFI
+        I_tp = QuanEstimation.CFIM(rho[ti], drho[ti], M)
+        append!(I, I_tp)
+        # QFI
+        F_tp = QuanEstimation.QFIM(rho[ti], drho[ti])
+        append!(F, F_tp)
+    end
+    ```
 ---
 ## **Holevo Cramér-Rao bound**
 Holevo Cramér-Rao bound (HCRB) is of the form [[5,6]](#Holevo1973)
@@ -243,7 +421,7 @@ R\Lambda & I\\
 \end{cases}
 \end{align}
 
-$X_i$ is expanded in a specific basis $\{\lambda_i\}$ as $X_i=\sum_j [\Lambda]_{ij}\lambda_j$, 
+Here $X_i$ is expanded in a specific basis $\{\lambda_i\}$ as $X_i=\sum_j [\Lambda]_{ij}\lambda_j$, 
 the Hermitian matrix $Z(\textbf{X})$ satisfies $Z(\textbf{X})=\Lambda^{\mathrm{T}}R^{\dagger}
 R\Lambda$. In QuanEstimation, the HCRB can be solved by
 === "Python"
@@ -284,14 +462,14 @@ $\sigma_3$ with respect to the eigenvalue $1$ ($-1$).
     import numpy as np
 
     # initial state
-    psi0 = np.array([1.0, 0.0, 0.0, 1.0])/np.sqrt(2)
+    psi0 = np.array([1., 0., 0., 1.])/np.sqrt(2)
     rho0 = np.dot(psi0.reshape(-1,1), psi0.reshape(1,-1).conj())
     # free Hamiltonian
     omega1, omega2, g = 1.0, 1.0, 0.1
-    sx = np.array([[0., 1.],[1., 0.]])
-    sy = np.array([[0., -1.j],[1.j, 0.]]) 
-    sz = np.array([[1., 0.],[0., -1.]])
-    ide = np.array([[1.,0.],[0.,1.]])   
+    sx = np.array([[0., 1.], [1., 0.]])
+	sy = np.array([[0., -1.j], [1.j, 0.]]) 
+	sz = np.array([[1., 0.], [0., -1.]])
+    ide = np.array([[1., 0.], [0., 1.]])   
     H0 = omega1*np.kron(sz, ide)+omega2*np.kron(ide, sz)+g*np.kron(sx, sx)
     # derivatives of the free Hamiltonian on omega2 and g
     dH = [np.kron(ide, sz), np.kron(sx, sx)] 
@@ -300,16 +478,16 @@ $\sigma_3$ with respect to the eigenvalue $1$ ($-1$).
     # measurement
     m1 = np.array([0., 0., 0., 1.])
     M1 = 0.85*np.dot(m1.reshape(-1,1), m1.reshape(1,-1).conj())
-    M2 = 0.1*np.array([[1.,1.,1.,1.],[1.,1.,1.,1.],[1.,1.,1.,1.],[1.,1.,1.,1.]])
+    M2 = 0.1*np.ones((4, 4))
     M = [M1, M2, np.identity(4)-M1-M2]
     # time length for the evolution
-    tspan = np.linspace(0.0, 10.0, 1000)
+    tspan = np.linspace(0., 10., 1000)
     # dynamics
     dynamics = Lindblad(tspan, rho0, H0, dH, decay)
     rho, drho = dynamics.expm()
     # weight matrix
-    W = [[1.0, 0.0],[0.0, 1.0]]
-    # calculation of CFIM, QFIM and HCRB
+    W = np.identity(2)
+    # calculation of the CFIM, QFIM and HCRB
     F, I, f = [], [], []
     for ti in range(1, 1000):
         # CFIM
@@ -323,10 +501,49 @@ $\sigma_3$ with respect to the eigenvalue $1$ ($-1$).
         f.append(f_tp)
     ```
 === "Julia"
-    <span style="color:red">(julia example) </span>
+    ``` jl
+    using QuanEstimation
+    using LinearAlgebra
 
+    # initial state
+    psi0 = [1., 0., 0., 1.]/sqrt(2)
+    rho0 = psi0*psi0'
+    # free Hamiltonian
+    omega1, omega2, g = 1.0, 1.0, 0.1
+    sx = [0. 1.; 1. 0.0im]
+	sy = [0. -im; im 0.]
+	sz = [1. 0.0im; 0. -1.]
+    H0 = omega1*kron(sz, I(2)) + omega2*kron(I(2), sz) + g*kron(sx, sx)
+    # derivatives of the free Hamiltonian with respect to omega2 and g
+    dH = [kron(I(2), sz), kron(sx, sx)]
+    # dissipation
+    decay = [[kron(sz, I(2)), 0.05], [kron(I(2), sz), 0.05]]
+    # measurement
+    m1 = [0., 0., 0., 1.]
+    M1 = 0.85*m1*m1'
+    M2 = 0.1*ones(4, 4)
+    M = [M1, M2, I(4)-M1-M2]
+    # time length for the evolution
+    tspan = range(0., 10., length=1000)
+    # dynamics
+    rho, drho = QuanEstimation.expm(tspan, rho0, H0, dH, decay)
+    # weight matrix
+    W = one(zeros(2, 2))
+    # calculation of the CFIM, QFIM and HCRB
+    Im, F, f = [], [], Float64[]
+    for ti in 2:length(tspan)
+        #CFIM
+        I_tp = QuanEstimation.CFIM(rho[ti], drho[ti], M)
+        append!(Im, I_tp)
+        #QFIM
+        F_tp = QuanEstimation.QFIM(rho[ti], drho[ti])
+        append!(F, F_tp)
+        #HCRB
+        f_tp = QuanEstimation.HCRB(rho[ti], drho[ti], W)
+        append!(f, f_tp)
+    end
+    ```
 ---
-
 ## **Bayesian Cramér-Rao bounds**
 The Bayesion version of the classical Fisher information (matrix) and quantum Fisher information 
 (matrix) can be calculated by <br>
@@ -536,21 +753,21 @@ e^{-t^2}\mathrm{d}t$ the error function.
     from scipy.integrate import simps
 
     # initial state
-    rho0 = 0.5*np.array([[1., 1.],[1., 1.]])
+    rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
     # free Hamiltonian
-    B = np.pi/2.0
-    sx = np.array([[0., 1.],[1., 0.]])
-    sy = np.array([[0., -1.j],[1.j, 0.]]) 
-    sz = np.array([[1., 0.],[0., -1.]])
+    B = 0.5*np.pi
+    sx = np.array([[0., 1.], [1., 0.]])
+    sy = np.array([[0., -1.j], [1.j, 0.]]) 
+    sz = np.array([[1., 0.], [0., -1.]])
     H0_func = lambda x: 0.5*B*(sx*np.cos(x)+sz*np.sin(x))
     # derivative of the free Hamiltonian on x
     dH_func = lambda x: [0.5*B*(-sx*np.sin(x)+sz*np.cos(x))]
     # prior distribution
     x = np.linspace(-0.5*np.pi, 0.5*np.pi, 100)
     mu, eta = 0.0, 0.2
-    p_func = lambda x, mu, eta: np.exp(-(x-mu)**2/(2*eta**2))\
+    p_func = lambda x, mu, eta: np.exp(-(x-mu)**2/(2*eta**2)) \
                                 /(eta*np.sqrt(2*np.pi))
-    dp_func = lambda x, mu, eta: -(x-mu)*np.exp(-(x-mu)**2/(2*eta**2))\
+    dp_func = lambda x, mu, eta: -(x-mu)*np.exp(-(x-mu)**2/(2*eta**2)) \
                                   /(eta**3*np.sqrt(2*np.pi))
     p_tp = [p_func(x[i], mu, eta) for i in range(len(x))]
     dp_tp = [dp_func(x[i], mu, eta) for i in range(len(x))]
@@ -558,11 +775,11 @@ e^{-t^2}\mathrm{d}t$ the error function.
     c = simps(p_tp, x)
     p, dp = p_tp/c, dp_tp/c
     # time length for the evolution
-    tspan = np.linspace(0., 1.0, 1000)
+    tspan = np.linspace(0., 1., 1000)
     # dynamics
-    rho = [np.zeros((len(rho0), len(rho0)), dtype=np.complex128)\
+    rho = [np.zeros((len(rho0), len(rho0)), dtype=np.complex128) \
            for i in range(len(x))]
-    drho = [[np.zeros((len(rho0), len(rho0)), dtype=np.complex128)]\
+    drho = [[np.zeros((len(rho0), len(rho0)), dtype=np.complex128)] \
              for i in range(len(x))]
     for i in range(len(x)):
         H0_tp = H0_func(x[i])
@@ -587,10 +804,69 @@ e^{-t^2}\mathrm{d}t$ the error function.
     f_QVTB2 = QVTB([x], p, dp, rho, drho, btype=2)
     f_QZZB = QZZB([x], p, rho)
     ```
-
 === "Julia"
-    <span style="color:red">(julia example) </span>
+    ``` jl
+    using QuanEstimation
+    using Trapz
 
+    # free Hamiltonian
+    function H0_func(x)
+        return 0.5*B*(sx*cos(x)+sz*sin(x))
+    end
+    # derivative of the free Hamiltonian on x
+    function dH_func(x)
+        return [0.5*B*(-sx*sin(x)+sz*cos(x))]
+    end
+    # prior distribution
+    function p_func(x, mu, eta)
+        return exp(-(x-mu)^2/(2*eta^2))/(eta*sqrt(2*pi))
+    end
+    function dp_func(x, mu, eta)
+        return -(x-mu)*exp(-(x-mu)^2/(2*eta^2))/(eta^3*sqrt(2*pi))
+    end
+
+    B = 0.5*pi
+    sx = [0. 1.; 1. 0.0im]
+	sy = [0. -im; im 0.]
+	sz = [1. 0.0im; 0. -1.]
+    # initial state
+    rho0 = 0.5*ones(2, 2)
+    # prior distribution
+    x = range(-0.5*pi, stop=0.5*pi, length=100) |>Vector
+    mu, eta = 0.0, 0.2
+    p_tp = [p_func(x[i], mu, eta) for i in 1:length(x)]
+    dp_tp = [dp_func(x[i], mu, eta) for i in 1:length(x)]
+    # normalization of the distribution
+    c = trapz(x, p_tp)
+    p = p_tp/c
+    dp = dp_tp/c
+    # time length for the evolution
+    tspan = range(0., stop=1., length=1000)
+    # dynamics
+    rho = Vector{Matrix{ComplexF64}}(undef, length(x))
+    drho = Vector{Vector{Matrix{ComplexF64}}}(undef, length(x))
+    for i = 1:length(x) 
+        H0_tp = H0_func(x[i])
+        dH_tp = dH_func(x[i])
+        rho_tp, drho_tp = QuanEstimation.expm(tspan, rho0, H0_tp, dH_tp)
+        rho[i], drho[i] = rho_tp[end], drho_tp[end]
+    end
+    ```
+    ``` jl
+    # Classical Bayesian bounds
+    f_BCRB1 = QuanEstimation.BCRB([x], p, rho, drho, M=nothing, btype=1)
+    f_BCRB2 = QuanEstimation.BCRB([x], p, rho, drho, M=nothing, btype=2)
+    f_VTB1 = QuanEstimation.VTB([x], p, dp, rho, drho, M=nothing, btype=1)
+    f_VTB2 = QuanEstimation.VTB([x], p, dp, rho, drho, M=nothing, btype=2)
+    ```
+    ``` jl
+    # Quantum Bayesian bounds
+    f_BQCRB1 = QuanEstimation.BQCRB([x], p, rho, drho, btype=1)
+    f_BQCRB2 = QuanEstimation.BQCRB([x], p, rho, drho, btype=2)
+    f_QVTB1 = QuanEstimation.QVTB([x], p, dp, rho, drho, btype=1)
+    f_QVTB2 = QuanEstimation.QVTB([x], p, dp, rho, drho, btype=2)
+    f_QZZB = QuanEstimation.QZZB([x], p, rho)
+    ```
 ---
 ## **Bayesian estimation**
 In QuanEstimation, two types of Bayesian estimation are considered including maximum a posteriori 
@@ -647,36 +923,38 @@ $(-1)$. In this example, the prior distribution $p(x)$ is uniform on $[0, \pi/2]
     import random
 
     # initial state
-    rho0 = 0.5*np.array([[1., 1.],[1., 1.]])
+    rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
     # free Hamiltonian
     B = np.pi/2.0
-    sx = np.array([[0., 1.],[1., 0.]])
-    sy = np.array([[0., -1.j],[1.j, 0.]]) 
-    sz = np.array([[1., 0.],[0., -1.]])
+    sx = np.array([[0., 1.], [1., 0.]])
+    sy = np.array([[0., -1.j], [1.j, 0.]]) 
+    sz = np.array([[1., 0.], [0., -1.]])
     H0_func = lambda x: 0.5*B*(sx*np.cos(x)+sz*np.sin(x))
     # derivative of the free Hamiltonian on x
     dH_func = lambda x: [0.5*B*(-sx*np.sin(x)+sz*np.cos(x))]
     # measurement
-    M1 = 0.5*np.array([[1., 1.],[1., 1.]])
-    M2 = 0.5*np.array([[1.,-1.],[-1., 1.]])
+    M1 = 0.5*np.array([[1., 1.], [1., 1.]])
+    M2 = 0.5*np.array([[1.,-1.], [-1., 1.]])
     M = [M1, M2]
     # prior distribution
-    x = np.linspace(0.0, 0.5*np.pi, 1000)
+    x = np.linspace(0., 0.5*np.pi, 1000)
     p = (1.0/(x[-1]-x[0]))*np.ones(len(x))
     # time length for the evolution
-    tspan = np.linspace(0., 1.0, 1000)
+    tspan = np.linspace(0., 1., 1000)
     # dynamics
-    rho = [np.zeros((len(rho0), len(rho0)), dtype=np.complex128) for i in range(len(x))]
+    rho = [np.zeros((len(rho0), len(rho0)), dtype=np.complex128) \
+           for i in range(len(x))]
     for i in range(len(x)):
         H0 = H0_func(x[i])
         dH = dH_func(x[i])
         dynamics = Lindblad(tspan, rho0, H0, dH)
         rho_tp, drho_tp = dynamics.expm()
         rho[i] = rho_tp[-1]
-
+    ```
+    ``` py
     # Generation of the experimental results
     y = [0 for i in range(500)]
-    res_rand = random.sample(range(0,len(y)), 125)
+    res_rand = random.sample(range(0, len(y)), 125)
     for i in range(len(res_rand)):
         y[res_rand[i]] = 1
     ```
@@ -689,8 +967,61 @@ $(-1)$. In this example, the prior distribution $p(x)$ is uniform on $[0, \pi/2]
     Lout, xout = MLE([x], rho, y, M=M, savefile=False)
     ```
 === "Julia"
-    <span style="color:red">(julia example) </span>
+    ``` jl
+    using QuanEstimation
+    using Random
+    using StatsBase
 
+    # free Hamiltonian
+    function H0_func(x)
+        return 0.5*B*(sx*cos(x)+sz*sin(x))
+    end
+    # derivative of the free Hamiltonian on x
+    function dH_func(x)
+        return [0.5*B*(-sx*sin(x)+sz*cos(x))]
+    end
+
+    B = pi/2.0
+    sx = [0. 1.; 1. 0.0im]
+	sy = [0. -im; im 0.]
+	sz = [1. 0.0im; 0. -1.]
+    # initial state
+    rho0 = 0.5*ones(2, 2)
+    # measurement 
+    M1 = 0.5*[1.0+0.0im  1.; 1.  1.]
+	M2 = 0.5*[1.0+0.0im -1.; -1.  1.]
+    M = [M1, M2]
+    # prior distribution
+    x = range(0., stop=0.5*pi, length=100) |>Vector
+    p = (1.0/(x[end]-x[1]))*ones(length(x))
+    # time length for the evolution
+    tspan = range(0., stop=1., length=1000)
+    # dynamics
+    rho = Vector{Matrix{ComplexF64}}(undef, length(x))
+    for i = 1:length(x) 
+        H0_tp = H0_func(x[i])
+        dH_tp = dH_func(x[i])
+        rho_tp, drho_tp = QuanEstimation.expm(tspan, rho0, H0_tp, dH_tp)
+        rho[i] = rho_tp[end]
+    end
+    ```
+    ``` jl
+    # Generation of the experimental results
+    Random.seed!(1234)
+    y = [0 for i in 1:500]
+    res_rand = sample(1:length(y), 125, replace=false)
+    for i in 1:length(res_rand)
+        y[res_rand[i]] = 1
+    end
+    ```
+    ``` jl
+    # Maximum a posteriori estimation
+    pout, xout = QuanEstimation.Bayes([x], p, rho, y; M=M, savefile=false)
+    ```
+    ``` jl
+    # Maximum likelihood estimation
+    Lout, xout = QuanEstimation.MLE([x], rho, y, M=M; savefile=false)
+    ```
 ---
 ## **Bibliography**
 <a id="Helstrom1976">[1]</a>

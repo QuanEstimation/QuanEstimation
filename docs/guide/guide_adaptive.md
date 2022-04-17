@@ -46,13 +46,13 @@ $(\Gamma_1, \Gamma_2, \cdots)$ and the corresponding decay rates $(\gamma_1, \ga
 with the input rule decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...].  
 
 The objective function for adaptive estimation are CFI and $\mathrm{Tr}(W\mathcal{I}^
-{-1})$ with $I$ the CFIM. `W` is the weight matrix which defaults to the identity matrix.
+{-1})$ with $\mathcal{I}$ the CFIM. `W` is the weight matrix which defaults to the identity matrix.
 
 If the parameterization is implemented with the Kraus operators, the codes become
 === "Python"
     ``` py
     apt = adaptive(x, p, rho0, savefile=False, max_episode=1000, eps=1e-8)
-    apt.kraus(K, dK)               
+    apt.Kraus(K, dK)               
     apt.CFIM(M=[], W=[]) 
     ```
 === "Julia"
@@ -63,11 +63,11 @@ If the parameterization is implemented with the Kraus operators, the codes becom
 and 
 === "Python"
     ``` py
-    K, dK = AdaptiveInput(x, func, dfunc, channel="kraus")
+    K, dK = AdaptiveInput(x, func, dfunc, channel="Kraus")
     ```
 === "Julia"
     ``` jl
-    K, dK = AdaptiveInput(x, func, dfunc; channel="kraus")
+    K, dK = AdaptiveInput(x, func, dfunc; channel="Kraus")
     ```
 where `K` and `dK` are the Kraus operators and its derivatives on the unknown parameters.
 
@@ -83,62 +83,104 @@ The probe state is taken as $|\pm\rangle$. The measurement is
 $\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}{\sqrt{2}}(|0\rangle\pm|1\rangle)$ with $|0\rangle$ $(|1\rangle)$ the eigenstate of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$. In this example, the prior distribution $p(x)$ is uniform on $[0, \pi/2]$.
 === "Python"
     ``` py
-    import numpy as np
     from quanestimation import *
+    import numpy as np
     import random
-    from itertools import product
 
     # initial state
-    rho0 = 0.5 * np.array([[1.0 + 0.0j, 1.0], [1.0, 1.0]])
+    rho0 = 0.5 * np.array([[1., 1.], [1., 1.]])
     # free Hamiltonian
     B = 0.5 * np.pi
-    sx = np.array([[0.0j, 1.0], [1.0, 0.0]])
-    sy = np.array([[0.0, -1.0j], [1.0j, 0.0]])
-    sz = np.array([[1.0, 0.0j], [0.0, -1.0]])
-    H0_func = lambda x: 0.5 * x[1] * (sx * np.cos(x[0]) + sz * np.sin(x[0]))
-    dH_func = lambda x: [0.5 * x[1] * (-sx * np.sin(x[0]) + sz * np.cos(x[0])), \
-                         0.5 * (sx * np.cos(x[0]) + sz * np.sin(x[0]))]
+    sx = np.array([[0., 1.], [1., 0.]])
+	sy = np.array([[0., -1.j], [1.j, 0.]]) 
+	sz = np.array([[1., 0.], [0., -1.]])
+    H0_func = lambda x: 0.5*B*(sx*np.cos(x[0])+sz*np.sin(x[0]))
+    # derivative of free Hamiltonian in x
+    dH_func = lambda x: [0.5*B*(-sx*np.sin(x[0])+sz*np.cos(x[0]))]
     # measurement
-    M1 = 0.5 * np.array([[1.0 + 0.0j, 1.0], [1.0, 1.0]])
-    M2 = 0.5 * np.array([[1.0 + 0.0j, -1.0], [-1.0, 1.0]])
+    M1 = 0.5*np.array([[1., 1.], [1., 1.]])
+	M2 = 0.5*np.array([[1., -1.], [-1., 1.]])
     M = [M1, M2]
+    # time length for the evolution
+    tspan = np.linspace(0., 1., 1000)
+    # prior distribution
+    x = np.linspace(-0.25*np.pi+0.1, 3.0*np.pi/4.0-0.1, 100)
+    p = (1.0/(x[-1]-x[0]))*np.ones(len(x))
     # dynamics
-    tspan = np.linspace(0.0, 1.0, 1000)
-
+    rho = [np.zeros((len(rho0), len(rho0)), dtype=np.complex128) for \
+           i in range(len(x))]
+    for xi in range(len(x)):
+        H_tp = H0_func([x[xi]])
+        dH_tp = dH_func([x[xi]])
+        dynamics = Lindblad(tspan, rho0, H_tp, dH_tp)
+        rho_tp, drho_tp = dynamics.expm()
+        rho[xi] = rho_tp[-1]
     # Bayesian estimation
-    x = [np.linspace(0.0, 0.5 * np.pi, 100),
-         np.linspace(0.5 * np.pi - 0.1, 0.5 * np.pi + 0.1, 10)]
-    p = ((1.0 / (x[0][-1] - x[0][0]))* (1.0 / (x[1][-1] - x[1][0]))* \
-          np.ones((len(x[0]), len(x[1]))))
-    dp = np.zeros((len(x[0]), len(x[1])))
-
-    rho = [[[] for j in range(len(x[1]))] for i in range(len(x[0]))]
-    for i in range(len(x[0])):
-        for j in range(len(x[1])):
-            x_tp = [x[0][i], x[1][j]]
-            H0_tp = H0_func(x_tp)
-            dH_tp = dH_func(x_tp)
-            dynamics = Lindblad(tspan, rho0, H0_tp, dH_tp)
-            rho_tp, drho_tp = dynamics.expm()
-            rho[i][j] = rho_tp[-1]
-    # Generation of the experimental results
     np.random.seed(1234)
     y = [0 for i in range(500)]
     res_rand = random.sample(range(0, len(y)), 125)
     for i in range(len(res_rand)):
         y[res_rand[i]] = 1
-    pout, xout = Bayes(x, p, rho, y, M=M, savefile=False)
-
+    pout, xout = Bayes([x], p, rho, y, M=M, savefile=False)
+    # generation of H and dH
+    H, dH = AdaptiveInput([x], H0_func, dH_func, channel="dynamics")
     # adaptive measurement
-    p = pout
-    H, dH = AdaptiveInput(x, H0_func, dH_func, channel="dynamics")
-    apt = adaptive(x, p, rho0, max_episode=10, eps=1e-8)
+    apt = adaptive([x], pout, rho0, savefile=False, max_episode=10, eps=1e-8)
     apt.dynamics(tspan, H, dH)
-    apt.CFIM(M=M, W=[], savefile=False)
+    apt.CFIM(M=M, W=[])
     ```
 === "Julia"
-    <span style="color:red">(julia code) </span>
+    ``` jl
+    using QuanEstimation
+    using Random
+    using StatsBase
 
+    # free Hamiltonian
+    function H0_func(x)
+        return 0.5*B*(sx*cos(x[1])+sz*sin(x[1]))
+    end
+    # derivative of free Hamiltonian in x
+    function dH_func(x)
+        return [0.5*B*(-sx*sin(x[1])+sz*cos(x[1]))]
+    end
+
+    B = pi/2.0
+    sx = [0. 1.; 1. 0.0im]
+	sy = [0. -im; im 0.]
+	sz = [1. 0.0im; 0. -1.]
+    # initial state
+    rho0 = 0.5*ones(2, 2)
+    # measurement 
+    M1 = 0.5*[1.0+0.0im  1.; 1.  1.]
+	M2 = 0.5*[1.0+0.0im -1.; -1.  1.]
+    M = [M1, M2]
+    # time length for the evolution
+    tspan = range(0., stop=1., length=1000) |>Vector
+    # prior distribution
+    x = range(-0.25*pi+0.1, stop=3.0*pi/4.0-0.1, length=100) |>Vector
+    p = (1.0/(x[end]-x[1]))*ones(length(x))
+    # dynamics
+    rho = Vector{Matrix{ComplexF64}}(undef, length(x))
+    for i = 1:length(x) 
+        H0_tp = H0_func(x[i])
+        dH_tp = dH_func(x[i])
+        rho_tp, drho_tp = QuanEstimation.expm(tspan, rho0, H0_tp, dH_tp)
+        rho[i] = rho_tp[end]
+    end
+    # Bayesian estimation
+    Random.seed!(1234)
+    y = [0 for i in 1:500]
+    res_rand = sample(1:length(y), 125, replace=false)
+    for i in 1:length(res_rand)
+        y[res_rand[i]] = 1
+    end
+    pout, xout = QuanEstimation.Bayes([x], p, rho, y, M=M, savefile=false)
+    # adaptive measurement
+    H, dH = QuanEstimation.AdaptiveInput([x], H0_func, dH_func; 
+                                         channel="dynamics")
+    QuanEstimation.adaptive([x], pout, rho0, tspan, H, dH; M=M, 
+                            max_episode=1000)
+    ```
 ---
 Berry et al. [[1,2]](#Berry2000) introduced a famous adaptive scheme in phase estimation. The 
 phase for the $(n+1)$th round is updated via $\Phi_{n+1}=\Phi_{n}-(-1)^{y^{(n)}}\Delta
@@ -151,62 +193,194 @@ in QuanEstimation by
     apt.general()
     apt.online(output="phi")
     ```
+    Here `x`, `p`, and `rho0` are the same with `adaptive`. The output can be set through 
+    `output="phi"` (default) and `output="dphi"` representing the phase and phase difference, 
+    respectively. Online and offline strategies are both available in the package and the code 
+    for calling offline stratege becomes `apt.offline(method="DE", **kwargs)` or 
+    `apt.offline(method="PSO", **kwargs)`. 
 === "Julia"
-    <span style="color:red">(julia code) </span>
-Here `x`, `p`, and `rho0` are the same with `adaptive`. The output can be set through 
-`output="phi"` (default) and `output="dphi"` representing the phase and phase difference, 
-respectively. Online and offline strategies are both available in the package and the code for 
-calling offline stratege becomes `apt.offline(method="DE", **kwargs)` or 
-`apt.offline(method="PSO", **kwargs)`. If `method="DE"`, `**kwargs` is
+    ``` jl
+    apt = adaptMZI(x, p, rho0)
+    online(apt, output="phi")
+    ```
+    Here `x`, `p`, and `rho0` are the same with `adaptive`. The output can be set through 
+    `output="phi"` (default) and `output="dphi"` representing the phase and phase difference, 
+    respectively. Online and offline strategies are both available in the package and the code 
+    for calling offline stratege becomes `alg = QuanEstimation.DE(kwargs...)` 
+    (`alg = QuanEstimation.PSO(kwargs...)`) and `offline(apt, alg)`. 
+
+If the optimization algorithm is PSO, the keywords and the default values are
+=== "Python"
+    ``` py
+    kwargs = {"particle_num":10, "DeltaPhi0":[], "max_episode":[1000,100], 
+              "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
+    ```
+    The keywords and the default values of PSO can be seen in the following table
+
+    | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
+    | :----------:                     | :----------:               |
+    | "particle_num"                   | 10                         |
+    | "DeltaPhi0"                      | [ ]                        |
+    | "max_episode"                    | [1000,100]                 |
+    | "c0"                             | 1.0                        |
+    | "c1"                             | 2.0                        |
+    | "c2"                             | 2.0                        |
+    | "seed"                           | 1234                       |
+
+    Here `particle_num` is the number of particles, `DeltaPhi0` represents the initial 
+    guesses of phase difference. `max_episode` accepts both integer and array with two 
+    elements. If it is an integer, for example `max_episode=1000`, it means the 
+    program will continuously run 1000 episodes. However, if it is an array, for example 
+    `max_episode=[1000,100]`, the program will run 1000 episodes in total but replace the data 
+    of all the particles with global best every 100 episodes. `c0`, `c1`, and `c2` are the PSO 
+    parameters representing the inertia weight, cognitive learning factor and social 
+    learning factor, respectively. 
+=== "Julia"
+    ``` jl
+    alg = PSO(p_num=10, ini_particle=missing, max_episode=[1000,100], 
+              c0=1.0, c1=2.0, c2=2.0, seed=1234)
+    ```
+    The keywords and the default values of PSO can be seen in the following table
+
+    | $~~~~~~~~~~$keywords$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
+    | :----------:                     | :----------:               |
+    | "p_num"                          | 10                         |
+    | "ini_particle"                   | missing                    |
+    | "max_episode"                    | [1000,100]                 |
+    | "c0"                             | 1.0                        |
+    | "c1"                             | 2.0                        |
+    | "c2"                             | 2.0                        |
+    | "seed"                           | 1234                       |
+
+    Here `p_num` is the number of particles, `ini_particle` represents the initial guesses 
+    of phase difference. `max_episode` accepts both integer and array with two elements. 
+    If it is an integer, for example `max_episode=1000`, it means the program will 
+    continuously run 1000 episodes. However, if it is an array, for example 
+    `max_episode=[1000,100]`, the program will run 1000 episodes in total but replace the 
+    data of all the particles with global best every 100 episodes. `c0`, `c1`, and `c2` are 
+    the PSO parameters representing the inertia weight, cognitive learning factor and 
+    social learning factor, respectively. 
+
+If the optimization algorithm is DE, the keywords and the default values are
 === "Python"
     ``` py
     kwargs = {"popsize":10, "DeltaPhi0":[], "max_episode":1000, "c":1.0, 
               "cr":0.5, "seed":1234}
     ```
+    The keywords and the default values of DE can be seen in the following table
+
+    | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
+    | :----------:                     | :----------:               |
+    | "popsize"                        | 10                         |
+    | "DeltaPhi0"                      | [ ]                        |
+    | "max_episode"                    | 1000                       |
+    | "c"                              | 1.0                        |
+    | "cr"                             | 0.5                        |
+    | "seed"                           | 1234                       |
+
+    `popsize` and `max_episode` are the number of populations and training episodes. 
+    `c` and `cr` are DE parameters representing the mutation and crossover constants, 
+    `seed` is the random seed which can ensure the reproducibility of results.
 === "Julia"
-    <span style="color:red">(julia code) </span>
+    ```jl
+    alg = DE(p_num=10, ini_population=missing, max_episode=1000, 
+             c=1.0, cr=0.5, seed=1234)
+    ``` 
+    The keywords and the default values of DE can be seen in the following table
 
-| $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
-| :----------:                     | :----------:               |
-| "popsize"                        | 10                         |
-| "DeltaPhi0"                      | [ ]                        |
-| "max_episode"                    | 1000                       |
-| "c"                              | 1.0                        |
-| "cr"                             | 0.5                        |
-| "seed"                           | 1234                       |
+    | $~~~~~~~~~~$keywords$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
+    | :----------:                     | :----------:               |
+    | "p_num"                          | 10                         |
+    | "ini_particle"                   | missin                     |
+    | "max_episode"                    | 1000                       |
+    | "c"                              | 1.0                        |
+    | "cr"                             | 0.5                        |
+    | "seed"                           | 1234                       |
 
-`DeltaPhi0` represents the initial guesses of phase difference. `popsize` and `max_episode` 
-are the number of populations and training episodes. `c` and `cr` are DE parameters 
-representing the mutation and crossover constants, `seed` is the random seed which can
-ensure the reproducibility of results.
+    `ini_particle` represents the initial guesses of phase difference. `popsize` and 
+    `max_episode` are the number of populations and training episodes. `c` and `cr` are 
+    DE parameters representing the mutation and crossover constants, `seed` is the random 
+    seed which can ensure the reproducibility of results.
 
-If `method="PSO"`, `**kwargs` becomes
+**Example**  
+In this example, the adaptive measurement shcemes is design for the MZI. The input state is 
+\begin{align}
+\sqrt{\frac{2}{N+2}}\sum^{N/2}_{m=-N/2}\sin\left(\frac{(2m+N+2)\pi}{2(N+2)}\right)|m\rangle,
+\end{align}
+
+where $N$ is the number of photon, $|m\rangle$ is the eigenstate of $J_y$ with the eigenvalue 
+$m$.
 === "Python"
     ``` py
-    kwargs = {"particle_num":10, "DeltaPhi0":[], "max_episode":[1000,100], 
-          "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
+    from quanestimation import *
+    import numpy as np
+
+    # the number of photons
+    N = 8
+    # probe state
+    psi = np.zeros((N+1)**2).reshape(-1, 1)
+    for k in range(N + 1):
+        psi += np.sin((k+1)*np.pi/(N+2))* \
+               np.kron(basis(N+1, k), basis(N+1, N-k))
+    psi = np.sqrt(2/(2+N))*psi
+    rho0 = np.dot(psi, psi.conj().T)
+    # prior distribution
+    x = np.linspace(-np.pi, np.pi, 100)
+    p = (1.0/(x[-1]-x[0]))*np.ones(len(x))
+    apt = adaptMZI(x, p, rho0)
+    apt.general()
     ```
+    === "online"
+        ``` py
+        apt.online(output="phi")
+        ```
+    === "offline"
+        === "DE"
+            ``` py
+            DE_para = {"popsize":10, "DeltaPhi0":[], "max_episode":1000, "c":1.0, 
+                       "cr":0.5, "seed":1234}
+            apt.offline(**DE_para)
+            ```
+        === "PSO"
+            ``` py
+            PSO_para = {"particle_num":10, "DeltaPhi0":[], "max_episode":[1000,100], 
+                        "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
+            apt.offline(**PSO_para)
+            ```
 === "Julia"
-    <span style="color:red">(julia code) </span>
+    ``` jl
+    using QuanEstimation
 
-| $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
-| :----------:                     | :----------:               |
-| "particle_num"                   | 10                         |
-| "DeltaPhi0"                          | [ ]                        |
-| "max_episode"                    | [1000,100]                 |
-| "c0"                             | 1.0                        |
-| "c1"                             | 2.0                        |
-| "c2"                             | 2.0                        |
-| "seed"                           | 1234                       |
-
-Here `particle_num` is the number of particles, `max_episode` accepts both integer and 
-array with two elements. If it is an integer, for example `max_episode=1000`, it means the 
-program will continuously run 1000 episodes. However, if it is an array, for example 
-`max_episode=[1000,100]`, the program will run 1000 episodes in total but replace the data 
-of all the particles with global best every 100 episodes. `c0`, `c1`, and `c2` are the PSO 
-parameters representing the inertia weight, cognitive learning factor and social 
-learning factor, respectively. 
-
+    # the number of photons
+    N = 8
+    # probe state
+    psi = sum([sin((k+1)pi/(N+2))*kron(QuanEstimation.basis(N+1,k), 
+          QuanEstimation.basis(N+1, N-k+2)) for k in 1:(N+1)]) |> sparse
+    psi = psi*sqrt(2/(2+N))
+    rho0 = psi*psi'
+    # prior distribution
+    x = range(-pi, pi, length=100)
+    p = (1.0/(x[end]-x[1]))*ones(length(x))
+    apt = QuanEstimation.adaptMZI(x, p, rho0)
+    ```
+    === "online"
+        ``` py
+        QuanEstimation.online(apt, output="phi")
+        ```
+    === "offline"
+        === "DE"
+            ``` jl
+            alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
+                                    max_episode=1000, c=1.0, cr=0.5, seed=1234)
+            QuanEstimation.offline(apt, alg)
+            ```
+        === "PSO"
+            ``` jl
+            alg = QuanEstimation.PSO(p_num=10, ini_particle=missing,  
+                                     max_episode=[1000,100], c0=1.0, 
+                                     c1=2.0, c2=2.0, seed=1234)
+            QuanEstimation.offline(apt, alg)
+            ```
 ---
 
 ## **Bibliography**

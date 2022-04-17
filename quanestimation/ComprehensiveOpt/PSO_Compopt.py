@@ -78,17 +78,6 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         self.c2 = c2
         self.seed = seed
 
-        ini_particle = (self.psi0, self.ctrl0)
-        self.alg = Main.QuanEstimation.PSO(
-            self.max_episode,
-            self.p_num,
-            ini_particle,
-            self.c0,
-            self.c1,
-            self.c2,
-            self.seed,
-        )
-
     def SC(self, W=[], M=[], target="QFIM", LDtype="SLD"):
         """
         Comprehensive optimization of the probe state and control (SC).
@@ -120,7 +109,16 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
             solutions.html).
         """
-
+        ini_particle = (self.psi0, self.ctrl0)
+        self.alg = Main.QuanEstimation.PSO(
+            self.max_episode,
+            self.p_num,
+            ini_particle,
+            self.c0,
+            self.c1,
+            self.c2,
+            self.seed,
+        )
         super().SC(W, M, target, LDtype)
 
     def CM(self, rho0, W=[]):
@@ -135,6 +133,16 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
+        ini_particle = (self.ctrl0, self.measurement0)
+        self.alg = Main.QuanEstimation.PSO(
+            self.max_episode,
+            self.p_num,
+            ini_particle,
+            self.c0,
+            self.c1,
+            self.c2,
+            self.seed,
+        )
 
         super().CM(rho0, W)
 
@@ -147,6 +155,16 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
+        ini_particle = (self.psi0, self.measurement0)
+        self.alg = Main.QuanEstimation.PSO(
+            self.max_episode,
+            self.p_num,
+            ini_particle,
+            self.c0,
+            self.c1,
+            self.c2,
+            self.seed,
+        )
 
         super().SM(W)
 
@@ -159,5 +177,15 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
-
+        ini_particle = (self.psi0, self.ctrl0, self.measurement0)
+        self.alg = Main.QuanEstimation.PSO(
+            self.max_episode,
+            self.p_num,
+            ini_particle,
+            self.c0,
+            self.c1,
+            self.c2,
+            self.seed,
+        )
+        
         super().SCM(W)

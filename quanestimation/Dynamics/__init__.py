@@ -1,10 +1,10 @@
 from quanestimation.Dynamics.dynamics import (
-    Lindblad, kraus
+    Lindblad, Kraus
 )
 
 __all__ = [
     "dynamics",
     "Lindblad",
     "secondorder_derivative",
-    "kraus", 
+    "Kraus", 
 ]

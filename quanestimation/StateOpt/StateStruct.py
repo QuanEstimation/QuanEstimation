@@ -237,7 +237,7 @@ class StateSystem:
         else:
             self.para_type = "multi_para"
 
-    def kraus(self, K, dK):
+    def Kraus(self, K, dK):
         r"""
         The parameterization of a state is
         \begin{align}
@@ -286,7 +286,7 @@ class StateSystem:
         self.dynamic = Main.QuanEstimation.Kraus(self.K, self.dK, self.psi0)
         self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
 
-        self.dynamics_type = "kraus"
+        self.dynamics_type = "Kraus"
         if len(self.dK) == 1:
             self.para_type = "single_para"
         else:
@@ -322,14 +322,14 @@ class StateSystem:
                 W = np.eye(len(self.Hamiltonian_derivative))
             self.W = W
 
-        elif self.dynamics_type == "kraus":
+        elif self.dynamics_type == "Kraus":
             if W == []:
                 W = np.eye(len(self.dK))
             self.W = W
         else:
             pass
 
-        self.obj = Main.QuanEstimation.QFIM_Obj(
+        self.obj = Main.QuanEstimation.QFIM_obj(
             self.W, self.eps, self.para_type, LDtype
         )
         system = Main.QuanEstimation.QuanEstSystem(
@@ -369,12 +369,12 @@ class StateSystem:
                 W = np.eye(len(self.Hamiltonian_derivative))
             self.W = W
 
-        elif self.dynamics_type == "kraus":
+        elif self.dynamics_type == "Kraus":
             if W == []:
                 W = np.eye(len(self.dK))
             self.W = W
 
-        self.obj = Main.QuanEstimation.CFIM_Obj(M, self.W, self.eps, self.para_type)
+        self.obj = Main.QuanEstimation.CFIM_obj(M, self.W, self.eps, self.para_type)
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
@@ -405,7 +405,7 @@ class StateSystem:
                     )
             else: pass
 
-        elif self.dynamics_type == "kraus":
+        elif self.dynamics_type == "Kraus":
             if W == []:
                 W = np.eye(len(self.dK))
             self.W = W
@@ -419,7 +419,7 @@ class StateSystem:
                 "Supported type of dynamics are Lindblad and Kraus."
                 )
 
-        self.obj = Main.QuanEstimation.HCRB_Obj(self.W, self.eps, self.para_type)
+        self.obj = Main.QuanEstimation.HCRB_obj(self.W, self.eps, self.para_type)
         system = Main.QuanEstimation.QuanEstSystem(
                 self.opt, self.alg, self.obj, self.dynamic, self.output
         )

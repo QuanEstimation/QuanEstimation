@@ -7,7 +7,7 @@ end
 function HCRB(
     ρ::Matrix{T},
     ∂ρ_∂x::Vector{Matrix{T}},
-    C::Matrix{Float64};
+    C::AbstractMatrix;
     eps = 1e-8,
 ) where {T<:Complex}
     if length(∂ρ_∂x) == 1
@@ -24,7 +24,7 @@ end
 function Holevo_bound(
     ρ::Matrix{T},
     ∂ρ_∂x::Vector{Matrix{T}},
-    C::Matrix{Float64};
+    C::AbstractMatrix;
     eps = eps_default,
 ) where {T<:Complex}
 
@@ -73,7 +73,7 @@ end
 function Holevo_bound_obj(
     ρ::Matrix{T},
     ∂ρ_∂x::Vector{Matrix{T}},
-    C::Matrix{Float64};
+    C::AbstractMatrix;
     eps = eps_default,
 ) where {T<:Complex}
     return Holevo_bound(ρ, ∂ρ_∂x, C; eps = eps)[1]

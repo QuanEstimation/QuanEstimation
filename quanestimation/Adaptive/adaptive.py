@@ -93,7 +93,7 @@ class adaptive:
 
         self.dynamic_type = "dynamics"
 
-    def kraus(self, K, dK):
+    def Kraus(self, K, dK):
         r"""
         Dynamics of the density matrix of the form 
         \begin{align}
@@ -115,7 +115,7 @@ class adaptive:
         self.K = K
         self.dK = dK
 
-        self.dynamic_type = "kraus"
+        self.dynamic_type = "Kraus"
 
     def CFIM(self, M=[], W=[]):
         r"""
@@ -161,8 +161,8 @@ class adaptive:
                 self.eps,
                 self.savefile,
             )
-        elif self.dynamic_type == "kraus":
-            adaptive_kraus(
+        elif self.dynamic_type == "Kraus":
+            adaptive_Kraus(
                 self.x,
                 self.p,
                 M,
@@ -176,7 +176,7 @@ class adaptive:
             )
         else:
             raise ValueError(
-                "{!r} is not a valid value for type of dynamics, supported values are 'dynamics' and 'kraus'.".format(
+                "{!r} is not a valid value for type of dynamics, supported values are 'dynamics' and 'Kraus'.".format(
                     self.dynamic_type
                 )
             )
@@ -257,7 +257,7 @@ class adaptive:
                 decay=self.decay,
             )
             m.CFIM(W=W)
-        elif self.dynamic_type == "kraus":
+        elif self.dynamic_type == "Kraus":
             if self.para_num == 1:
                 F = []
                 for hi in range(len(self.K)):
@@ -316,11 +316,11 @@ class adaptive:
                 idx = np.where(np.array(F) == np.max(np.array(F)))
                 K_res, dK_res = self.K_list[idx], self.dK_list[idx]
             m = MeasurementOpt(mtype="projection", minput=[], method="DE")
-            m.kraus(self.rho0, K_res, dK_res, decay=self.decay)
+            m.Kraus(self.rho0, K_res, dK_res, decay=self.decay)
             m.CFIM(W=W)
         else:
             raise ValueError(
-                "{!r} is not a valid value for type of dynamics, supported values are 'dynamics' and 'kraus'.".format(
+                "{!r} is not a valid value for type of dynamics, supported values are 'dynamics' and 'Kraus'.".format(
                     self.dynamic_type
                 )
             )
@@ -494,7 +494,7 @@ def adaptive_dynamics(
             np.save("pout", pout)
 
 
-def adaptive_kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
+def adaptive_Kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
     para_num = len(x)
     dim = np.shape(rho0)[0]
     if para_num == 1:

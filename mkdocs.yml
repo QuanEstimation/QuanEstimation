@@ -64,7 +64,7 @@ theme:
             - media: "(prefers-color-scheme: dark)"
               scheme: slate
               primary: black
-              accent: lime
+              accent: grey
               toggle:
                     icon: material/weather-night
                     name: Switch to light mode

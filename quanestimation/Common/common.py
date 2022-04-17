@@ -223,7 +223,7 @@ def AdaptiveInput(x, func, dfunc, channel="dynamics"):
     > **channel:** `string`
         -- Seeting the output of this function. Options are:  
         "dynamics" (default) --  The output of this function is H and dH.  
-        "kraus" (default) --  The output of this function is K and dHK.
+        "Kraus" (default) --  The output of this function is K and dHK.
 
     Returns
     ----------
@@ -242,7 +242,7 @@ def AdaptiveInput(x, func, dfunc, channel="dynamics"):
         H_res = np.reshape(H_list, [*size, *[dim, dim]])
         dH_res = np.reshape(dH_list, [*size, *[para_num, dim, dim]])
         return H_res, dH_res
-    elif channel == "kraus":
+    elif channel == "Kraus":
         k_num = len(func([0 for i in range(para_num)]))
         dim = len(func([0 for i in range(para_num)])[0])
         K_list, dK_list = [], []
@@ -261,7 +261,7 @@ def AdaptiveInput(x, func, dfunc, channel="dynamics"):
         return K_res, dK_res
     else:
         raise ValueError(
-            "{!r} is not a valid value for channel, supported values are 'dynamics' and 'kraus'.".format(
+            "{!r} is not a valid value for channel, supported values are 'dynamics' and 'Kraus'.".format(
                 channel
             )
         )

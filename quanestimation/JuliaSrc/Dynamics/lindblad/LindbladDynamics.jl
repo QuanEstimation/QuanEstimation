@@ -51,7 +51,7 @@ function liouville_dissip_py(A::Array{T}) where {T<:Complex}
 end
 
 function dissipation(
-    Γ::Vector{Matrix{T}},
+    Γ::AbstractVector,
     γ::Vector{R},
     t::Int = 0,
 ) where {T<:Complex,R<:Real}
@@ -59,7 +59,7 @@ function dissipation(
 end
 
 function dissipation(
-    Γ::Vector{Matrix{T}},
+    Γ::AbstractVector,
     γ::Vector{Vector{R}},
     t::Int = 0,
 ) where {T<:Complex,R<:Real}
@@ -72,7 +72,7 @@ end
 
 function liouvillian(
     H::Matrix{T},
-    decay_opt::Vector{Matrix{T}},
+    decay_opt::AbstractVector,
     γ,
     t = 1,
 ) where {T<:Complex}
@@ -131,8 +131,9 @@ function expm(
         Hc = [zeros(ComplexF64, dim, dim)]
         ctrl = [zeros(tnum-1)]
     elseif ismissing(ctrl)
-        ctrl = [zeros(tnum-1) for _ in 1:ctrl_num]
+        ctrl = [zeros(tnum-1)]
     else
+        ctrl_num = length(Hc)
         ctrl_length = length(ctrl)
         if ctrl_num < ctrl_length
             throw(ArgumentError(
@@ -150,7 +151,6 @@ function expm(
             tspan = range(tspan[1], tspan[end], length=tnum+1)
         end
     end
-
     ctrl_num = length(Hc)
     ctrl_interval = ((length(tspan) - 1) / length(ctrl[1])) |> Int
     ctrl = [repeat(ctrl[i], 1, ctrl_interval) |> transpose |> vec for i = 1:ctrl_num]
@@ -197,8 +197,9 @@ function expm(
         Hc = [zeros(ComplexF64, dim, dim)]
         ctrl0 = [zeros(tnum-1)]
     elseif ismissing(ctrl)
-        ctrl0 = [zeros(tnum-1) for _ in 1:ctrl_num]
+        ctrl0 = [zeros(tnum-1)]
     else
+        ctrl_num = length(Hc)
         ctrl_length = length(ctrl)
         if ctrl_num < ctrl_length
             throw(ArgumentError(
@@ -217,11 +218,84 @@ function expm(
         end
         ctrl0 = ctrl
     end
-
     para_num = length(dH)
     ctrl_num = length(Hc)
     ctrl_interval = ((length(tspan) - 1) / length(ctrl0[1])) |> Int
     ctrl = [repeat(ctrl0[i], 1, ctrl_interval) |> transpose |> vec for i = 1:ctrl_num]
+
+    H = Htot(H0, Hc, ctrl)
+    dH_L = [liouville_commu(dH[i]) for i = 1:para_num]
+
+    Δt = tspan[2] - tspan[1]
+
+    ρt_all = [Vector{ComplexF64}(undef, (length(H0))^2) for i = 1:length(tspan)]
+    ∂ρt_∂x_all = [
+        [Vector{ComplexF64}(undef, (length(H0))^2) for j = 1:para_num] for
+        i = 1:length(tspan)
+    ]
+    ρt_all[1] = ρ0 |> vec
+    for pj = 1:para_num
+        ∂ρt_∂x_all[1][pj] = ρt_all[1] |> zero
+    end
+
+    for t = 2:length(tspan)
+        exp_L = expL(H[t-1], decay_opt, γ, Δt, t)
+        ρt_all[t] = exp_L * ρt_all[t-1]
+        for pj = 1:para_num
+            ∂ρt_∂x_all[t][pj] = -im * Δt * dH_L[pj] * ρt_all[t] + exp_L * ∂ρt_∂x_all[t-1][pj]
+        end
+    end
+    ρt_all |> vec2mat, ∂ρt_∂x_all |> vec2mat
+end
+
+function expm_py(
+    tspan,
+    ρ0::AbstractMatrix,
+    H0::AbstractMatrix,
+    dH::AbstractMatrix,
+    Hc::AbstractVector,
+    decay_opt::AbstractVector,
+    γ,
+    ctrl::AbstractVector,
+) where {T<:Complex,R<:Real}
+
+    ctrl_num = length(Hc)
+    ctrl_interval = ((length(tspan) - 1) / length(ctrl[1])) |> Int
+    ctrl = [repeat(ctrl[i], 1, ctrl_interval) |> transpose |> vec for i = 1:ctrl_num]
+
+    H = Htot(H0, Hc, ctrl)
+    dH_L = liouville_commu(dH)
+
+    Δt = tspan[2] - tspan[1]
+
+    ρt_all = [Vector{ComplexF64}(undef, (length(H0))^2) for i = 1:length(tspan)]
+    ∂ρt_∂x_all = [Vector{ComplexF64}(undef, (length(H0))^2) for i = 1:length(tspan)]
+    ρt_all[1] = ρ0 |> vec
+    ∂ρt_∂x_all[1] = ρt_all[1] |> zero
+
+    for t = 2:length(tspan)
+        exp_L = expL(H[t-1], decay_opt, γ, Δt, t)
+        ρt_all[t] = exp_L * ρt_all[t-1]
+        ∂ρt_∂x_all[t] = -im * Δt * dH_L * ρt_all[t] + exp_L * ∂ρt_∂x_all[t-1]
+    end
+    ρt_all |> vec2mat, ∂ρt_∂x_all |> vec2mat
+end
+
+function expm_py(
+    tspan,
+    ρ0::AbstractMatrix,
+    H0::AbstractMatrix,
+    dH::AbstractVector,
+    decay_opt::AbstractVector,
+    γ,
+    Hc::AbstractVector,
+    ctrl::AbstractVector,
+)
+
+    para_num = length(dH)
+    ctrl_num = length(Hc)
+    ctrl_interval = ((length(tspan) - 1) / length(ctrl[1])) |> Int
+    ctrl = [repeat(ctrl[i], 1, ctrl_interval) |> transpose |> vec for i = 1:ctrl_num]
 
     H = Htot(H0, Hc, ctrl)
     dH_L = [liouville_commu(dH[i]) for i = 1:para_num]

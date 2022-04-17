@@ -140,6 +140,7 @@ class MeasurementSystem:
                 ]
             else:
                 self.C = [self.measurement0[0][i] for i in range(len(self.rho0))]
+                self.C = [np.array(x, dtype=np.complex128) for x in self.C]
             self.opt = Main.QuanEstimation.Mopt_Projection(self.C)
 
         elif self.mtype == "input":
@@ -366,7 +367,7 @@ class MeasurementSystem:
         self.dynamics_type = "dynamics"
 
 
-    def kraus(self, rho0, K, dK):
+    def Kraus(self, rho0, K, dK):
         r"""
         The parameterization of a state is
         \begin{align}
@@ -419,6 +420,7 @@ class MeasurementSystem:
                 ]
             else:
                 self.C = [self.measurement0[0][i] for i in range(len(self.rho0))]
+                self.C = [np.array(x, dtype=np.complex128) for x in self.C]
             self.opt = Main.QuanEstimation.Mopt_Projection(self.C)
 
         elif self.mtype == "input":
@@ -535,7 +537,7 @@ class MeasurementSystem:
         self.dynamic = Main.QuanEstimation.Kraus(self.K, self.dK, self.rho0)
         self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
 
-        self.dynamics_type = "kraus"
+        self.dynamics_type = "Kraus"
 
     def CFIM(self, W=[]):
         r"""
@@ -553,7 +555,7 @@ class MeasurementSystem:
             if W == []:
                 W = np.eye(len(self.Hamiltonian_derivative))
             self.W = W
-        elif self.dynamics_type == "kraus":
+        elif self.dynamics_type == "Kraus":
             if W == []:
                 W = np.eye(len(self.dK))
             self.W = W
@@ -562,7 +564,7 @@ class MeasurementSystem:
                 "Supported type of dynamics are Lindblad and Kraus."
                 )
 
-        self.obj = Main.QuanEstimation.CFIM_Obj(
+        self.obj = Main.QuanEstimation.CFIM_obj(
             [], self.W, self.eps, self.para_type
         )  #### m=[]
         system = Main.QuanEstimation.QuanEstSystem(

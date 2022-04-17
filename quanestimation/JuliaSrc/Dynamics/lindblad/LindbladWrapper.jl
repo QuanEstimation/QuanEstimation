@@ -1,5 +1,5 @@
 # wrapper for Lindblad dynamics with ControlOpt
-function Lindblad(opt::ControlOpt, tspan, ρ₀, H0, dH, Hc=missing, decay=missing; rng=GLOBAL_RNG, eps=GLOBAL_EPS)
+function Lindblad(opt::ControlOpt, tspan, ρ₀, H0, dH, Hc; decay=missing, rng=GLOBAL_RNG, eps=GLOBAL_EPS)
 	(;ctrl) = opt
 	dim = size(ρ₀, 1)
 	if ismissing(dH)
@@ -20,7 +20,7 @@ function Lindblad(opt::ControlOpt, tspan, ρ₀, H0, dH, Hc=missing, decay=missi
 		Hc = [zeros(ComplexF64, dim, dim)]
 		ctrl = [zeros(tnum-1)]
 	elseif ismissing(ctrl)
-		opt.ctrl = [zeros(tnum-1) for _ in 1:ctrl_num]
+		ctrl = [zeros(tnum-1) for _ in 1:ctrl_num]
 		opt.ctrl = ctrl
 	else
 		ctrl_length = length(ctrl)
@@ -47,15 +47,18 @@ function Lindblad(opt::ControlOpt, tspan, ρ₀, H0, dH, Hc=missing, decay=missi
 	Lindblad(H0, dH, Hc, ctrl, ρ₀, tspan, decay_opt, γ)
 end
 
-function Lindblad(opt::StateOpt, tspan, H0, dH, Hc=missing, ctrl=missing, decay=missing;rng=GLOBAL_RNG)
-	(;ψ₀) = opt
+Lindblad(opt::ControlOpt, tspan, ρ₀, H0, dH, Hc, decay; rng=GLOBAL_RNG, eps=GLOBAL_EPS) = 
+	Lindblad(opt, tspan, ρ₀, H0, dH, Hc; decay=decay, rng=rng, eps=eps)
+
+function Lindblad(opt::StateOpt, tspan, H0, dH; Hc=missing, ctrl=missing, decay=missing, rng=GLOBAL_RNG, eps=GLOBAL_EPS)
+	(;psi) = opt
 	dim = H0 isa AbstractVector ? size(H0[1], 1) : size(H0, 1)
-	if ismissing(ψ₀) 
+	if ismissing(psi) 
 		r_ini = 2*rand(rng, dim) - ones(dim)
 		r = r_ini ./ norm(r_ini)
 		ϕ = 2pi*rand(rng, dim)
-		ψ₀ = [r*exp(im*ϕ) for (r, ϕ) in zip(r, ϕ)]
-		opt.ψ₀ = ψ₀ 
+		psi = [r*exp(im*ϕ) for (r, ϕ) in zip(r, ϕ)]
+		opt.psi = psi 
 	end
 
 	if ismissing(dH)
@@ -116,19 +119,22 @@ function Lindblad(opt::StateOpt, tspan, H0, dH, Hc=missing, ctrl=missing, decay=
 	end
 
 	dH = complex.(dH)
-	ψ₀ = complex(ψ₀)
+	psi = complex(psi)
 
 	if all(iszero.(γ)) #  if any non-zero decay rate
-		return Lindblad(H0, dH, ψ₀, tspan)
+		return Lindblad(H0, dH, psi, tspan)
 	else
-		return Lindblad(H0, dH, ψ₀, tspan, decay_opt, γ)
+		return Lindblad(H0, dH, psi, tspan, decay_opt, γ)
 	end
 end
 
+Lindblad(opt::StateOpt, tspan, H0, dH, Hc, ctrl, decay; rng=GLOBAL_RNG, eps=GLOBAL_EPS) =
+	Lindblad(opt, tspan, H0, dH; Hc=Hc, ctrl=ctrl, decay=decay, rng=rng, eps=eps)
+
 function _ini_measurement!(opt::Mopt_Projection, dim::Int, rng; eps=GLOBAL_EPS)
-	(;C) = opt
-	## initialize the Mopt target C
-	if ismissing(C)
+	(; M) = opt
+	## initialize the Mopt target M
+	if ismissing(M)
 		M = [ComplexF64[] for _ in 1:dim]
 		for i in 1:dim
 			r_ini = 2*rand(rng, dim) - ones(dim)
@@ -136,10 +142,10 @@ function _ini_measurement!(opt::Mopt_Projection, dim::Int, rng; eps=GLOBAL_EPS)
 			ϕ = 2pi*rand(rng, dim)
 			M[i] = [r*exp(im*ϕ) for (r,ϕ) in zip(r,ϕ)] 
 		end
-		C = gramschmidt(M)
+		M = gramschmidt(M)
 	end
 
-	opt.C = complex.(C)
+	opt.M = complex.(M)
 end
 
 function _ini_measurement!(opt::Mopt_LinearComb, dim::Int, rng; eps=GLOBAL_EPS)
@@ -163,7 +169,6 @@ function _ini_measurement!(opt::Mopt_LinearComb, dim::Int, rng; eps=GLOBAL_EPS)
 	end
 end
 
-
 function _ini_measurement!(opt::Mopt_Rotation, dim::Int, rng; eps=GLOBAL_EPS)
 	(;s, POVM_basis, Lambda) = opt
 	if ismissing(POVM_basis)
@@ -185,7 +190,7 @@ function _ini_measurement!(opt::Mopt_Rotation, dim::Int, rng; eps=GLOBAL_EPS)
 	end
 end
 
-function Lindblad(opt::AbstractMopt, tspan, ρ₀, H0, dH, Hc=missing, ctrl=missing, decay=missing; rng=GLOBAL_RNG, eps=GLOBAL_EPS)
+function Lindblad(opt::AbstractMopt, tspan, ρ₀, H0, dH; Hc=missing, ctrl=missing, decay=missing, rng=GLOBAL_RNG, eps=GLOBAL_EPS)
 	dim = size(ρ₀, 1)
 	_ini_measurement!(opt, dim, rng; eps=eps)
 	
@@ -256,30 +261,33 @@ function Lindblad(opt::AbstractMopt, tspan, ρ₀, H0, dH, Hc=missing, ctrl=miss
 	end
 end
 
+Lindblad(opt::AbstractMopt, tspan, ρ₀, H0, dH, Hc, ctrl, decay; rng=GLOBAL_RNG, eps=GLOBAL_EPS) =
+	Lindblad(opt, tspan, ρ₀, H0, dH; Hc=Hc, ctrl=ctrl, decay=decay, rng=rng, eps=eps)
+
 function _ini_measurement!(opt::CompOpt, dim::Int, rng; eps=GLOBAL_EPS)
-	(;C) = opt
-	## initialize the Mopt target C
+	(; M) = opt
+	## initialize the Mopt target M
 	M = [ComplexF64[] for _ in 1:dim]
-	if ismissing(C)
+	if ismissing(M)
 		for i in 1:dim
 			r_ini = 2*rand(rng, dim) - ones(dim)
 			r = r_ini/norm(r_ini)
 			ϕ = 2pi*rand(rng, dim)
 			M[i] = [r*exp(im*ϕ) for (r,ϕ) in zip(r,ϕ)] 
 		end
-		opt.C = gramschmidt(M)
+		opt.M = gramschmidt(M)
 	end
 end
 
-function Lindblad(opt::StateControlOpt, tspan, H0, dH, Hc=missing, decay=missing; rng=GLOBAL_RNG, eps=GLOBAL_EPS)
-	(;ψ₀, ctrl) = opt
+function Lindblad(opt::StateControlOpt, tspan, H0, dH, Hc; decay=missing, rng=GLOBAL_RNG, eps=GLOBAL_EPS)
+	(;psi, ctrl) = opt
 	dim = H0 isa AbstractVector ? size(H0[1], 1) : size(H0, 1)
-	if ismissing(ψ₀) 
+	if ismissing(psi) 
 		r_ini = 2*rand(rng, dim) - ones(dim)
 		r = r_ini ./ norm(r_ini)
 		ϕ = 2pi*rand(rng, dim)
-		ψ₀ = [r*exp(im*ϕ) for (r, ϕ) in zip(r, ϕ)]
-		opt.ψ₀ = ψ₀ 
+		psi = [r*exp(im*ϕ) for (r, ϕ) in zip(r, ϕ)]
+		opt.psi = psi 
 	end
 	if ismissing(dH)
 		dH = [zeros(ComplexF64, dim, dim)]
@@ -321,11 +329,14 @@ function Lindblad(opt::StateControlOpt, tspan, H0, dH, Hc=missing, decay=missing
 	end
 	H0 = complex(H0)
 	dH = complex.(dH)
-	ψ₀ = complex(ψ₀)
-	Lindblad(H0, dH, Hc, ctrl, ψ₀, tspan, decay_opt, γ)
+	psi = complex(psi)
+	Lindblad(H0, dH, Hc, ctrl, psi, tspan, decay_opt, γ)
 end
 
-function Lindblad(opt::ControlMeasurementOpt, tspan, ρ₀, H0, dH, Hc=missing, decay=missing; rng=GLOBAL_RNG, eps=GLOBAL_EPS)
+Lindblad(opt::StateControlOpt, tspan, H0, dH, Hc, decay; rng=GLOBAL_RNG, eps=GLOBAL_EPS) = 
+	Lindblad(opt, tspan, H0, dH, Hc; decay=decay, rng=rng, eps=eps)
+
+function Lindblad(opt::ControlMeasurementOpt, tspan, ρ₀, H0, dH, Hc; decay=missing, rng=GLOBAL_RNG, eps=GLOBAL_EPS)
 	(;ctrl) = opt
 	dim = size(ρ₀, 1)
 	_ini_measurement!(opt, dim, rng; eps=eps)
@@ -374,16 +385,19 @@ function Lindblad(opt::ControlMeasurementOpt, tspan, ρ₀, H0, dH, Hc=missing, 
 	Lindblad(H0, dH, Hc, ctrl, ρ₀, tspan, decay_opt, γ)
 end
 
-function Lindblad(opt::StateMeasurementOpt, tspan, H0, dH, Hc=missing, ctrl=missing, decay=missing;rng=GLOBAL_RNG)
-	(;ψ₀) = opt
+Lindblad(opt::ControlMeasurementOpt, tspan, ρ₀, H0, dH, Hc, decay; rng=GLOBAL_RNG, eps=GLOBAL_EPS) = 
+	Lindblad(opt, tspan, ρ₀, H0, dH, Hc; decay=decay, rng=rng, eps=eps)
+
+function Lindblad(opt::StateMeasurementOpt, tspan, H0, dH; Hc=missing, ctrl=missing, decay=missing, rng=GLOBAL_RNG)
+	(;psi) = opt
 	dim = H0 isa AbstractVector ? size(H0[1], 1) : size(H0, 1)
 	_ini_measurement!(opt, dim, rng; eps=eps)
-	if ismissing(ψ₀) 
+	if ismissing(psi) 
 		r_ini = 2*rand(rng, dim) - ones(dim)
 		r = r_ini ./ norm(r_ini)
 		ϕ = 2pi*rand(rng, dim)
-		ψ₀ = [r*exp(im*ϕ) for (r, ϕ) in zip(r, ϕ)]
-		opt.ψ₀ = ψ₀ 
+		psi = [r*exp(im*ϕ) for (r, ϕ) in zip(r, ϕ)]
+		opt.psi = psi 
 	end
 
 	if ismissing(dH)
@@ -444,26 +458,29 @@ function Lindblad(opt::StateMeasurementOpt, tspan, H0, dH, Hc=missing, ctrl=miss
 	end
 
 	dH = complex.(dH)
-	ψ₀ = complex(ψ₀)
+	psi = complex(psi)
 
 	if all(iszero.(γ)) #  if any non-zero decay rate
-		return Lindblad(H0, dH, ψ₀, tspan)
+		return Lindblad(H0, dH, psi, tspan)
 	else
-		return Lindblad(H0, dH, ψ₀, tspan, decay_opt, γ)
+		return Lindblad(H0, dH, psi, tspan, decay_opt, γ)
 	end
 end
 
-function Lindblad(opt::StateControlMeasurementOpt, tspan, H0, dH, Hc=missing, decay=missing; rng=GLOBAL_RNG, eps=GLOBAL_EPS)
-	(;ctrl, ψ₀) = opt
+Lindblad(opt::StateMeasurementOpt, tspan, H0, dH, Hc, ctrl, decay; rng=GLOBAL_RNG, eps=GLOBAL_EPS) = 
+	Lindblad(opt, tspan, H0, dH; Hc=Hc, ctrl=ctrl, decay=decay, rng=rng, eps=eps)
+
+function Lindblad(opt::StateControlMeasurementOpt, tspan, H0, dH, Hc; decay=missing, rng=GLOBAL_RNG, eps=GLOBAL_EPS)
+	(;ctrl, psi) = opt
 	dim = H0 isa AbstractVector ? size(H0[1], 1) : size(H0, 1)
 	_ini_measurement!(opt, dim, rng; eps=eps)
 
-	if ismissing(ψ₀) 
+	if ismissing(psi) 
 		r_ini = 2*rand(rng, dim) - ones(dim)
 		r = r_ini ./ norm(r_ini)
 		ϕ = 2pi*rand(rng, dim)
-		ψ₀ = [r*exp(im*ϕ) for (r, ϕ) in zip(r, ϕ)]
-		opt.ψ₀ = ψ₀ 
+		psi = [r*exp(im*ϕ) for (r, ϕ) in zip(r, ϕ)]
+		opt.psi = psi 
 	end
 
 	if ismissing(dH)
@@ -506,7 +523,10 @@ function Lindblad(opt::StateControlMeasurementOpt, tspan, H0, dH, Hc=missing, de
 	end
 	H0 = complex(H0)
 	dH = complex.(dH)
-	ψ₀ = complex(ψ₀)
+	psi = complex(psi)
 	
-	Lindblad(H0, dH, Hc, ctrl, ψ₀, tspan, decay_opt, γ)
+	Lindblad(H0, dH, Hc, ctrl, psi, tspan, decay_opt, γ)
 end
+
+Lindblad(opt::StateControlMeasurementOpt, tspan, H0, dH, Hc, decay; rng=GLOBAL_RNG, eps=GLOBAL_EPS) = 
+	Lindblad(opt, tspan, H0, dH, Hc; decay=decay, rng=rng, eps=eps)

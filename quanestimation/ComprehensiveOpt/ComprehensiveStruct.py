@@ -114,14 +114,14 @@ class ComprehensiveSystem:
             self.psi = np.array(self.psi0[0], dtype=np.complex128)
 
         if Hc == []:
-            Hc = [np.zeros((len(self.dim), len(self.dim)))]
+            Hc = [np.zeros((self.dim, self.dim))]
         self.control_Hamiltonian = [np.array(x, dtype=np.complex128) for x in Hc]
 
         if type(dH) != list:
             raise TypeError("The derivative of Hamiltonian should be a list!")
 
         if dH == []:
-            dH = [np.zeros((len(self.dim), len(self.dim)))]
+            dH = [np.zeros((self.dim, self.dim))]
         self.Hamiltonian_derivative = [np.array(x, dtype=np.complex128) for x in dH]
 
         if len(dH) == 1:
@@ -130,17 +130,17 @@ class ComprehensiveSystem:
             self.para_type = "multi_para"
 
         if decay == []:
-            decay_opt = [np.zeros((len(self.dim), len(self.dim)))]
+            decay_opt = [np.zeros((self.dim, self.dim))]
             self.gamma = [0.0]
         else:
             decay_opt = [decay[i][0] for i in range(len(decay))]
             self.gamma = [decay[i][1] for i in range(len(decay))]
         self.decay_opt = [np.array(x, dtype=np.complex128) for x in decay_opt]
 
-        ctrl_bound = [float(ctrl_bound[0]), float(ctrl_bound[1])]
         if ctrl_bound == []:
-            ctrl_bound = [-np.inf, np.inf]
-        self.ctrl_bound = ctrl_bound
+            self.ctrl_bound = [-np.inf, np.inf]
+        else:
+            self.ctrl_bound = [float(ctrl_bound[0]), float(ctrl_bound[1])]
 
         if self.ctrl0 == []:
             if ctrl_bound == []:
@@ -158,7 +158,7 @@ class ComprehensiveSystem:
                     for i in range(len(self.control_Hamiltonian))
                 ]
             self.control_coefficients = ctrl0
-            self.ctrl0 = [ctrl0]
+            self.ctrl0 = [np.array(ctrl0)]
 
         elif len(self.ctrl0) >= 1:
             self.control_coefficients = [
@@ -199,9 +199,9 @@ class ComprehensiveSystem:
                 phi = 2 * np.pi * np.random.random(self.dim)
                 M[i] = [r[j] * np.exp(1.0j * phi[j]) for j in range(self.dim)]
             self.C = gramschmidt(np.array(M))
-            self.measurement0 = [np.array([self.C[i] for i in range(len(self.psi))])]
+            self.measurement0 = [np.array([self.C[i] for i in range(self.dim)])]
         elif len(self.measurement0) >= 1:
-            self.C = [self.measurement0[0][i] for i in range(len(self.psi))]
+            self.C = [self.measurement0[0][i] for i in range(self.dim)]
             self.C = [np.array(x, dtype=np.complex128) for x in self.C]
 
         if type(H0) != np.ndarray:
@@ -220,7 +220,7 @@ class ComprehensiveSystem:
 
         self.dynamics_type = "dynamics"
 
-    def kraus(self, K, dK):
+    def Kraus(self, K, dK):
         r"""
         The parameterization of a state is
         \begin{align}
@@ -281,7 +281,7 @@ class ComprehensiveSystem:
 
         self.dynamic = Main.QuanEstimation.Kraus(self.K, self.dK, self.psi)
 
-        self.dynamics_type = "kraus"
+        self.dynamics_type = "Kraus"
 
     def SC(self, W=[], M=[], target="QFIM", LDtype="SLD"):
         """
@@ -325,7 +325,7 @@ class ComprehensiveSystem:
 
         if M != []:
             M = [np.array(x, dtype=np.complex128) for x in M]
-            self.obj = Main.QuanEstimation.CFIM_Obj(M, self.W, self.eps, self.para_type)
+            self.obj = Main.QuanEstimation.CFIM_obj(M, self.W, self.eps, self.para_type)
         else:
             if target == "HCRB":
                 if self.para_type == "single_para":
@@ -333,11 +333,11 @@ class ComprehensiveSystem:
                         "Program exit. In the single-parameter scenario, the HCRB is equivalent to the QFI. Please choose 'QFIM' as the objective function"
                     )
                 else:
-                    self.obj = Main.QuanEstimation.HCRB_Obj(self.W, self.eps, self.para_type)
+                    self.obj = Main.QuanEstimation.HCRB_obj(self.W, self.eps, self.para_type)
             elif target == "QFIM" and (
                 LDtype == "SLD" or LDtype == "RLD" or LDtype == "LLD"
             ):
-                self.obj = Main.QuanEstimation.QFIM_Obj(
+                self.obj = Main.QuanEstimation.QFIM_obj(
                     self.W, self.eps, self.para_type, LDtype
                 )
             else:
@@ -391,7 +391,7 @@ class ComprehensiveSystem:
 
         self.rho0 = np.array(rho0, dtype=np.complex128)
 
-        self.obj = Main.QuanEstimation.CFIM_Obj([], self.W, self.eps, self.para_type)
+        self.obj = Main.QuanEstimation.CFIM_obj([], self.W, self.eps, self.para_type)
         self.opt = Main.QuanEstimation.ControlMeasurementOpt(
             self.control_coefficients, self.C, self.ctrl_bound
         )
@@ -550,7 +550,7 @@ class ComprehensiveSystem:
                 self.decay_opt,
                 self.gamma,
             )
-        elif self.dynamics_type == "kraus":
+        elif self.dynamics_type == "Kraus":
             if W == []:
                 W = np.eye(len(self.dK))
             self.W = W
@@ -559,7 +559,7 @@ class ComprehensiveSystem:
                 "Supported type of dynamics are Lindblad and Kraus."
                 )
 
-        self.obj = Main.QuanEstimation.CFIM_Obj([], self.W, self.eps, self.para_type)
+        self.obj = Main.QuanEstimation.CFIM_obj([], self.W, self.eps, self.para_type)
         self.opt = Main.QuanEstimation.StateMeasurementOpt(self.psi, self.C)
         self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
 
@@ -589,7 +589,7 @@ class ComprehensiveSystem:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
 
-        self.obj = Main.QuanEstimation.CFIM_Obj([], self.W, self.eps, self.para_type)
+        self.obj = Main.QuanEstimation.CFIM_obj([], self.W, self.eps, self.para_type)
         self.opt = Main.QuanEstimation.StateControlMeasurementOpt(
             self.psi, self.control_coefficients, self.C, self.ctrl_bound
         )

@@ -1,5 +1,5 @@
 # **Kraus** #
-::: quanestimation.kraus
+::: quanestimation.Kraus
 
 ---
 

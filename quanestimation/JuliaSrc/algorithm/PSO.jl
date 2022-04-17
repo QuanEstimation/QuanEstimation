@@ -104,7 +104,7 @@ end
 function update!(opt::StateOpt, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
     if ismissing(ini_particle)
-        ini_particle = ([opt.ψ₀], )
+        ini_particle = ([opt.psi], )
     end
     ini_particle = ini_particle[1]
     dim = length(dynamics.data.ψ0)
@@ -181,11 +181,11 @@ end
 function update!(opt::Mopt_Projection, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
     if ismissing(ini_particle)
-        ini_particle = ([opt.C], )
+        ini_particle = ([opt.M], )
     end
     ini_particle = ini_particle[1]  
     dim = size(dynamics.data.ρ0)[1] 
-    M_num = length(opt.C)
+    M_num = length(opt.M)
     particles = [[zeros(ComplexF64, dim) for j in 1:M_num] for i in 1:p_num]
 
     if typeof(max_episode) == Int
@@ -206,7 +206,7 @@ function update!(opt::Mopt_Projection, alg::PSO, obj, dynamics, output)
     obj_copy = set_M(obj, M)
     f_ini, f_comp = objective(obj_copy, dynamics)
 
-    obj_QFIM = QFIM_Obj(obj)   
+    obj_QFIM = QFIM_obj(obj)   
     f_opt, f_comp = objective(obj_QFIM, dynamics)
 
     set_f!(output, f_ini)
@@ -295,7 +295,7 @@ function update!(opt::Mopt_LinearComb, alg::PSO, obj, dynamics, output)
     # initialization  
     initial_LinearComb!(ini_particle, particles, basis_num, M_num, p_num, rng)
 
-    obj_QFIM = QFIM_Obj(obj)
+    obj_QFIM = QFIM_obj(obj)
     f_opt, f_comp = objective(obj_QFIM, dynamics)
     obj_POVM = set_M(obj, POVM_basis)
     f_povm, f_comp = objective(obj_POVM, dynamics)
@@ -376,11 +376,15 @@ function update!(opt::Mopt_Rotation, alg::PSO, obj, dynamics, output)
     M_num = length(POVM_basis)
     dim = size(dynamics.data.ρ0)[1]
     suN = suN_generator(dim)
-    if ismissing(Lambda)
-        Lambda = Matrix{ComplexF64}[]
-        append!(Lambda, [Matrix{ComplexF64}(I,dim,dim)])
-        append!(Lambda, [suN[i] for i in 1:length(suN)])
-    end
+    Lambda = Matrix{ComplexF64}[]
+    append!(Lambda, [Matrix{ComplexF64}(I,dim,dim)])
+    append!(Lambda, [suN[i] for i in 1:length(suN)])
+
+    # if ismissing(Lambda)
+    #     Lambda = Matrix{ComplexF64}[]
+    #     append!(Lambda, [Matrix{ComplexF64}(I,dim,dim)])
+    #     append!(Lambda, [suN[i] for i in 1:length(suN)])
+    # end
     
     particles = repeat(s, p_num)
 
@@ -399,7 +403,7 @@ function update!(opt::Mopt_Rotation, alg::PSO, obj, dynamics, output)
     particles = [zeros(dim^2) for i in 1:p_num]
     initial_Rotation!(ini_particle, particles, dim, p_num, rng)
     
-    obj_QFIM = QFIM_Obj(obj)
+    obj_QFIM = QFIM_obj(obj)
     f_opt, f_comp = objective(obj_QFIM, dynamics)
     obj_POVM = set_M(obj, POVM_basis)
     f_povm, f_comp = objective(obj_POVM, dynamics)
@@ -468,7 +472,7 @@ end
 function update!(opt::StateControlOpt, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
     if ismissing(ini_particle)
-        ini_particle = ([opt.ψ₀], [opt.ctrl,])
+        ini_particle = ([opt.psi], [opt.ctrl,])
     end
     psi0, ctrl0 = ini_particle
     dim = length(dynamics.data.ψ0)
@@ -579,11 +583,11 @@ end
 function update!(opt::StateMeasurementOpt, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
     if ismissing(ini_particle)
-        ini_particle = ([opt.ψ₀], [opt.C])
+        ini_particle = ([opt.psi], [opt.M])
     end
     psi0, measurement0 = ini_particle
     dim = length(dynamics.data.ψ0)
-    M_num = length(opt.C)
+    M_num = length(opt.M)
     particles = repeat(dynamics, p_num)
 
     if typeof(max_episode) == Int
@@ -694,13 +698,13 @@ end
 function update!(opt::ControlMeasurementOpt, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
     if ismissing(ini_particle)
-        ini_particle = ([opt.ctrl,], [opt.C])
+        ini_particle = ([opt.ctrl,], [opt.M])
     end
     ctrl0, measurement0 = ini_particle
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
     dim = size(dynamics.data.ρ0)[1]
-    M_num = length(opt.C)
+    M_num = length(opt.M)
     particles = repeat(dynamics, p_num)
 
     if typeof(max_episode) == Int
@@ -817,13 +821,13 @@ end
 function update!(opt::StateControlMeasurementOpt, alg::PSO, obj, dynamics, output)
     (; max_episode, p_num, ini_particle, c0, c1, c2, rng) = alg
     if ismissing(ini_particle)
-        ini_particle = ([opt.ψ₀], [opt.ctrl,], [opt.C])
+        ini_particle = ([opt.psi], [opt.ctrl,], [opt.M])
     end
     psi0, ctrl0, measurement0 = ini_particle
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
     dim = length(dynamics.data.ψ0)
-    M_num = length(opt.C)
+    M_num = length(opt.M)
     particles = repeat(dynamics, p_num)
 
     if typeof(max_episode) == Int

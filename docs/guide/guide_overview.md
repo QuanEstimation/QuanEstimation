@@ -8,7 +8,7 @@ To import QuanEstimation, the users can call the code
     ``` jl
     using quanestimation
     ```
-
+    
 ---
 ## **Dynamics**
 In QuanEstimation, two types of parameterization processes are considered. The first one is the 
@@ -21,7 +21,7 @@ master equation of the form
 \end{align}
 
 where $\rho$ is the evolved density matrix, H is the Hamiltonian of the system, $\Gamma_i$ and 
-$\gamma_i$ are the $i\mathrm{th}$ decay operator and corresponding decay rate. Numerically, 
+$\gamma_i$ are the $i\mathrm{th}$ decay operator and the corresponding decay rate. Numerically, 
 the evolved state at $j$th time interval is obtained by $\rho_j=e^{\Delta t\mathcal{L}}
 \rho_{j-1}$ with $\Delta t$ the time interval. The derivatives of $\rho_j$ on $\textbf{x}$ is 
 calculated as
@@ -37,9 +37,12 @@ $\textbf{x}$  can be calculated via the codes
     rho, drho = dynamics.expm()
     ```
 === "Julia"
-    <span style="color:red">(julia code) </span>
+    ``` jl
+    rho, drho = expm(tspan, rho0, H0, dH, decay=missing, Hc=missing, 
+                     ctrl=missing)
+    ```
 Here `tspan` is the time length for the evolution, `rho0` represents the density matrix of the
-initial state, `H0` and `dH` are the free Hamiltonian and its derivatives on the unknown 
+probe state, `H0` and `dH` are the free Hamiltonian and its derivatives on the unknown 
 parameters to be estimated. `H0` is a matrix when the free Hamiltonian is time-independent and 
 a list with the length equal to `tspan` when it is time-dependent. `dH` should be input as 
 $[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. `decay` contains decay operators 
@@ -55,30 +58,54 @@ corresponding derivatives on all the parameters, the $i$th entry of `drho` is
 $[\partial_a{\rho},\partial_b{\rho},\cdots].$
 
 **Example**  
+In this example, the free evolution Hamiltonian of a single qubit system is $H_0=\frac{1}{2}
+\omega_0 \sigma_3$ with $\omega_0$ the frequency and $\sigma_3$ a Pauli matrix. 
+The dynamics of the system is governed by
+\begin{align}
+\partial_t\rho=-i[H_0, \rho],
+\end{align}
+
+where $\rho$ is the parameterized density matrix. The probe state is taken as $|+\rangle\langle+|$ 
+with $|+\rangle=\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)$. Here $|0\rangle$ $(|1\rangle)$ is the 
+eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $(-1)$.
+
 === "Python"
     ``` py
     from quanestimation import *
     import numpy as np
 
     # initial state
-    rho0 = 0.5*np.array([[1., 1.],[1., 1.]])
+    rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
     # free Hamiltonian
     omega0 = 1.0
-    sx = np.array([[0., 1.],[1., 0.]])
-    sy = np.array([[0., -1.j],[1.j, 0.]]) 
-    sz = np.array([[1., 0.],[0., -1.]])
+    sz = np.array([[1., 0.], [0., -1.]])
     H0 = 0.5*omega0*sz
     # derivative of the free Hamiltonian on omega0
     dH = [0.5*sz]
     # time length for the evolution
-    tspan = np.linspace(0., 10.0, 2500)
+    tspan = np.linspace(0., 10., 2500)
+    # dynamics
     dynamics = Lindblad(tspan, rho0, H0, dH)
     rho, drho = dynamics.expm()
     ```
 === "Julia"
-    <span style="color:red">(julia example) </span>
+    ``` jl
+    using QuanEstimation
 
-If the parameterization is implemented with the Kraus operators
+    # initial state
+    rho0 = 0.5*ones(2, 2)
+    # free Hamiltonian
+    omega0 = 1.0
+    sz = [1. 0.0im; 0. -1.]
+	H0 = 0.5*omega0*sz
+    # derivative of the free Hamiltonian on omega0
+    dH = [0.5*sz]
+    # time length for the evolution
+    tspan = range(0., 10., length=2500)
+    # dynamics
+    rho, drho = QuanEstimation.expm(tspan, rho0, H0, dH)
+    ```
+If the parameterization process is implemented with the Kraus operators
 \begin{align}  
 \rho=\sum_i K_i\rho_0K_i^{\dagger},
 \end{align}
@@ -87,40 +114,77 @@ where $K_i$ is a Kraus operator satisfying $\sum_{i}K^{\dagger}_i K_i=I$ with $I
 the identity operator. $\rho$ and $\partial_{\textbf{x}}\rho$ can be solved by
 === "Python"
     ``` py
-    rho, drho = kraus(K, dK, rho0)
+    rho, drho = Kraus(K, dK, rho0)
     ```
 === "Julia"
     ``` jl
-    dynamics = Kraus(K, dK, rho0)
-    rho, drho = evolve(dynamics)
+    Kraus = Kraus(K, dK, rho0)
+    rho, drho = evolve(Kraus)
     ```
 where `K` and `dK` are the Kraus operators and its derivatives on the unknown parameters.
 
-**Example**
+**Example**  
+The Kraus operators for the amplitude damping channel are
+
+\begin{eqnarray}
+K_1 = \left(\begin{array}{cc}
+1 & 0  \\
+0 & \sqrt{1-\gamma}
+\end{array}\right),
+K_2 = \left(\begin{array}{cc}
+0 & \sqrt{\gamma} \\
+0 & 0
+\end{array}\right), \nonumber
+\end{eqnarray}
+
+where $\gamma$ is the decay probability. The parameterized density matrix can be calculated
+via $\rho=\sum_i K_i\rho_0K_i^{\dagger}$ and corresponding derivatives on the unknown
+parameters are $\partial_{\textbf{x}}\rho=\sum_i \partial_{\textbf{x}}K_i\rho_0K_i^{\dagger}
++ K_i\rho_0\partial_{\textbf{x}}K_i^{\dagger}$ with $\rho_0$ the probe state. In this example,
+the probe state is taken as $|+\rangle\langle+|$ with $|+\rangle=\frac{1}{\sqrt{2}}(|0\rangle+
+|1\rangle)$. Here $|0\rangle$ $(|1\rangle)$ is the eigenstate of $\sigma_3$ (Pauli matrix) with 
+respect to the eigenvalue $1$ $(-1)$.
+
 === "Python"
     ``` py
     from quanestimation import *
     import numpy as np
 
     # initial state
-    rho0 = 0.5 * np.array([[1.0, 1.0], [1.0, 1.0]])
+    rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
     # Kraus operators for the amplitude damping channel
     gamma = 0.1
-    K1 = np.array([[1.0, 0.0], [0.0, np.sqrt(1 - gamma)]])
-    K2 = np.array([[0.0, np.sqrt(gamma)], [0.0, 0.0]])
+    K1 = np.array([[1., 0.], [0., np.sqrt(1-gamma)]])
+    K2 = np.array([[0., np.sqrt(gamma)], [0., 0.]])
     K = [K1, K2]
     # derivatives of Kraus operators on gamma
-    dK1 = np.array([[1.0, 0.0], [0.0, -0.5 / np.sqrt(1 - gamma)]])
-    dK2 = np.array([[0.0, 0.5 / np.sqrt(gamma)], [0.0, 0.0]])
+    dK1 = np.array([[1., 0.], [0., -0.5/np.sqrt(1-gamma)]])
+    dK2 = np.array([[0., 0.5/np.sqrt(gamma)], [0., 0.]])
     dK = [[dK1], [dK2]]
-
+    # parameterization process
     rho, drho = Kraus(K, dK, rho0)
     ```
 === "Julia"
-    <span style="color:red">(julia example) </span>
+    ``` jl
+    using QuanEstimation
+
+    # initial state
+    rho0 = 0.5*ones(2, 2)
+    # Kraus operators for the amplitude damping channel
+    gamma = 0.1
+    K1 = [1. 0.; 0. sqrt(1-gamma)]
+    K2 = [0. sqrt(gamma); 0. 0.]
+    K = [K1, K2]
+    # derivatives of Kraus operators on gamma
+    dK1 = [1. 0.; 0. -0.5/sqrt(1-gamma)]
+    dK2 = [0. 0.5/sqrt(gamma); 0. 0.]
+    dK = [[dK1], [dK2]]
+    # parameterization process
+    Kraus = QuanEstimation.Kraus(K, dK, rho0)
+    rho, drho = QuanEstimation.evolve(Kraus)
+    ```
 
 ---
-
 ## **Metrological resources**
 The metrological resources that QuanEstimation can calculate are spin squeezing and the 
 minimum time to reach the given target. The spin squeezing can be calculated via the function: 
@@ -130,31 +194,42 @@ minimum time to reach the given target. The spin squeezing can be calculated via
     ```
 === "Julia"
     ``` jl
-    SpinSqueezing(rho; basis="Dicke", output = "KU")
+    SpinSqueezing(rho; basis="Dicke", output="KU")
     ```
 `rho` represents the density matrix of the state. In this function, the basis of the state can 
 be Dicke basis or the original basis of each spin, which can be adjusted by setting 
 `basis="Dicke"` or `basis="Pauli"`. The variable `output` represents the type of spin squeezing 
 calculation. `output="KU"` represents the spin squeezing defined by Kitagawa and Ueda 
-[[1]](#Kitagawa1993) and `output="WBIMH"` returns the spin squeezing defined by Wineland 
+[[1]](#Kitagawa1993) and `output="WBIMH"` calculates the spin squeezing defined by Wineland 
 et al. [[2]](#Wineland1992).
 
-**Example** 
+**Example**  
+In this example, QuTip [[3,4]](#Johansson2012) is used to generate spin coherent state.
 === "Python"
     ``` py
     from quanestimation import *
     import numpy as np
-    N = 4
+    from qutip import spin_coherent
+    
+    # generation of spin coherent state with QuTip
+    j = 2
     theta = 0.5*np.pi
     phi = 0.5*np.pi
-    rho_CSS = spin_coherent(int(0.5*N), theta, phi, type='dm').full()
+    rho_CSS = spin_coherent(j, theta, phi, type='dm').full()
     xi = SpinSqueezing(rho_CSS, basis="Dicke", output="KU")
     ```
 === "Julia"
-    <span style="color:red">(julia example) </span>
+    ``` jl
+    using QuanEstimation
+
+    rho = [0.25 -0.35355339im -0.25; 
+           0.35355339im 0.5 -0.35355339im;
+           -0.25 0.35355339im 0.25]
+    xi = QuanEstimation.SpinSqueezing(rho; basis="Dicke", output="KU")
+    ```
 
 Calculation of the time to reach a given precision limit with
-=== "Julia"
+=== "Python"
     ``` py
     TargetTime(f, tspan, func, *args, **kwargs)
     ```
@@ -167,20 +242,32 @@ evolution. `func` represents the function for calculating the objective function
 `**kwargs` are the corresponding input parameters and the keyword arguments.
 
 **Example**  
+In this example, the free evolution Hamiltonian of a single qubit system is $H_0=\frac{1}{2}
+\omega_0 \sigma_3$ with $\omega_0$ the frequency and $\sigma_3$ a Pauli matrix. 
+The dynamics of the system is governed by
+\begin{align}
+\partial_t\rho=-i[H_0, \rho],
+\end{align}
+
+where $\rho$ is the parameterized density matrix. The probe state is taken as $|+\rangle\langle+|$ 
+with $|+\rangle=\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)$. Here $|0\rangle$ $(|1\rangle)$ is the 
+eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $(-1)$.
 === "Python"
     ``` py
     from quanestimation import *
     import numpy as np
 
     # initial state
-    rho0 = 0.5 * np.array([[1.0, 1.0], [1.0, 1.0]])
+    rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
     # free Hamiltonian
     omega0 = 1.0
-    sz = np.array([[1.0, 0.0], [0.0, -1.0]])
-    H0 = 0.5 * omega0 * sz
-    dH = [0.5 * sz]
+    sz = np.array([[1., 0.], [0., -1.]])
+    H0 = 0.5*omega0*sz
+    # derivative of the free Hamiltonian on omega0
+    dH = [0.5*sz]
+    # time length for the evolution
+    tspan = np.linspace(0., 50., 2000)
     # dynamics
-    tspan = np.linspace(0, 50.0, 2000)
     dynamics = Lindblad(tspan, rho0, H0, dH)
     rho, drho = dynamics.expm()
     # the value of the objective function
@@ -188,7 +275,27 @@ evolution. `func` represents the function for calculating the objective function
     t = TargetTime(f, tspan, QFIM, rho, drho)
     ```
 === "Julia"
-    <span style="color:red">(julia example) </span>
+    ``` jl
+    using QuanEstimation
+
+    # initial state
+    rho0 = 0.5*ones(2, 2)
+    # free Hamiltonian
+    omega0 = 1.0
+    sx = [0. 1.; 1. 0.0im]
+	sy = [0. -im; im 0.]
+	sz = [1. 0.0im; 0. -1.]
+	H0 = 0.5*omega0*sz
+    # derivative of the free Hamiltonian on omega0
+    dH = [0.5*sz]
+    # time length for the evolution
+    tspan = range(0., 50., length=2000)
+    # dynamics
+    rho, drho = QuanEstimation.expm(tspan, rho0, H0, dH)
+    # the value of the objective function
+    f = 20
+    t = QuanEstimaion.TargetTime(f, tspan, QuanEstimation.QFIM, rho, drho)
+    ```
 
 ---
 ## **Bibliography**
@@ -200,3 +307,13 @@ M. Kitagawa and M. Ueda, Squeezed spin states,
 D. J. Wineland, J. J. Bollinger, W. M. Itano, F. L. Moore, and D. J. Heinzen, 
 Spin squeezing and reduced quantum noise in spectroscopy, 
 [Phys. Rev. A **46**, R6797(R) (1992).](https://doi.org/10.1103/PhysRevA.46.R6797)
+
+<a id="Johansson2012">[3]</a>
+J. R. Johansson, P. D. Nation, and F. Nori,
+QuTiP: An open-source Python framework for the dynamics of open quantum systems,
+[Comp. Phys. Comm. **183**, 1760 (2012).](https://doi.org/10.1016/j.cpc.2012.02.021)
+
+<a id="Johansson2013">[4]</a>
+J. R. Johansson, P. D. Nation, and F. Nori,
+QuTiP 2: A Python framework for the dynamics of open quantum systems,
+[Comp. Phys. Comm. **184**, 1234 (2013).](https://doi.org/10.1016/j.cpc.2012.11.019)

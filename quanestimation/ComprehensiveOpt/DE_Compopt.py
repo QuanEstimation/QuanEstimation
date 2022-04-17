@@ -66,16 +66,6 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         self.cr = cr
         self.seed = seed
 
-        ini_population = (self.psi0, self.ctrl0)
-        self.alg = Main.QuanEstimation.DE(
-            self.max_episode,
-            self.p_num,
-            ini_population,
-            self.c,
-            self.cr,
-            self.seed,
-        )
-
     def SC(self, W=[], M=[], target="QFIM", LDtype="SLD"):
         """
         Comprehensive optimization of the probe state and control (SC).
@@ -107,6 +97,15 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
             solutions.html).
         """
+        ini_population = (self.psi0, self.ctrl0)
+        self.alg = Main.QuanEstimation.DE(
+            self.max_episode,
+            self.p_num,
+            ini_population,
+            self.c,
+            self.cr,
+            self.seed,
+        )
         
         super().SC(W, M, target, LDtype)
 
@@ -122,6 +121,15 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
+        ini_population = (self.ctrl0, self.measurement0)
+        self.alg = Main.QuanEstimation.DE(
+            self.max_episode,
+            self.p_num,
+            ini_population,
+            self.c,
+            self.cr,
+            self.seed,
+        )
 
         super().CM(rho0, W)
 
@@ -134,6 +142,15 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
+        ini_population = (self.psi0, self.measurement0)
+        self.alg = Main.QuanEstimation.DE(
+            self.max_episode,
+            self.p_num,
+            ini_population,
+            self.c,
+            self.cr,
+            self.seed,
+        )
 
         super().SM(W)
 
@@ -146,5 +163,14 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
+        ini_population = (self.psi0, self.ctrl0, self.measurement0)
+        self.alg = Main.QuanEstimation.DE(
+            self.max_episode,
+            self.p_num,
+            ini_population,
+            self.c,
+            self.cr,
+            self.seed,
+        )
 
         super().SCM(W)
