@@ -1,4 +1,4 @@
-function update!(opt::ControlOpt, alg::AbstractGRAPE, obj::QFIM_Obj, dynamics, output)
+function update!(opt::ControlOpt, alg::AbstractGRAPE, obj::QFIM_obj, dynamics, output)
     (; max_episode) = alg
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
@@ -22,7 +22,7 @@ function update!(opt::ControlOpt, alg::AbstractGRAPE, obj::QFIM_Obj, dynamics, o
     set_io!(output, output.f_list[end])
 end
 
-function update!(opt::ControlOpt, alg::AbstractGRAPE, obj::CFIM_Obj, dynamics, output)
+function update!(opt::ControlOpt, alg::AbstractGRAPE, obj::CFIM_obj, dynamics, output)
     (; max_episode) = alg
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
@@ -124,7 +124,7 @@ function gradient_QFIM_analy(opt, alg::GRAPE_Adam, obj, dynamics)
                 term1 = tr(∂xδρt_T_δV*Lx[1])
                 term2 = tr(∂ρt_T_δV*anti_commu)
                 δF = ((2*term1-0.5*term2) |> real)
-                dynamics.data.ctrl[cm][tm], mt, vt = Adam(δF, tm, dynamics.data.ctrl[cm][tm], mt, vt, alg.ϵ, alg.beta1, alg.beta2, obj.eps)
+                dynamics.data.ctrl[cm][tm], mt, vt = Adam(δF, tm, dynamics.data.ctrl[cm][tm], mt, vt, alg.epsilon, alg.beta1, alg.beta2, obj.eps)
             end
         end
     elseif para_num == 2
@@ -151,7 +151,7 @@ function gradient_QFIM_analy(opt, alg::GRAPE_Adam, obj, dynamics)
                 item1 = -coeff2*(F_T[2,2]*δF_all[1][1]+F_T[1,1]*δF_all[2][2]-F_T[2,1]*δF_all[1][2]-F_T[1,2]*δF_all[2][1])/coeff1^2
                 item2 = (obj.W[1,1]*δF_all[2][2]+obj.W[2,2]*δF_all[1][1]-obj.W[1,2]*δF_all[2][1]-obj.W[2,1]*δF_all[1][2])/coeff1
                 δF = -(item1+item2)*cost_function^2
-                dynamics.data.ctrl[cm][tm], mt, vt = Adam(δF, tm, dynamics.data.ctrl[cm][tm], mt, vt, alg.ϵ, alg.beta1, alg.beta2, obj.eps)
+                dynamics.data.ctrl[cm][tm], mt, vt = Adam(δF, tm, dynamics.data.ctrl[cm][tm], mt, vt, alg.epsilon, alg.beta1, alg.beta2, obj.eps)
             end
         end
     else       
@@ -171,7 +171,7 @@ function gradient_QFIM_analy(opt, alg::GRAPE_Adam, obj, dynamics)
                     δF = δF + obj.W[pm,pm]*(1.0/F_T[pm,pm]/F_T[pm,pm])*((2*term1-0.5*term2) |> real)
                 end
                 δF = δF*coeff
-                dynamics.data.ctrl[cm][tm], mt, vt = Adam(δF, tm, dynamics.data.ctrl[cm][tm], mt, vt, alg.ϵ, alg.beta1, alg.beta2, obj.eps)
+                dynamics.data.ctrl[cm][tm], mt, vt = Adam(δF, tm, dynamics.data.ctrl[cm][tm], mt, vt, alg.epsilon, alg.beta1, alg.beta2, obj.eps)
             end
         end
     end
@@ -199,7 +199,7 @@ function gradient_QFIM_analy(opt, alg::GRAPE, obj, dynamics)
                 term1 = tr(∂xδρt_T_δV*Lx[1])
                 term2 = tr(∂ρt_T_δV*anti_commu)
                 δF = ((2*term1-0.5*term2) |> real)
-                dynamics.data.ctrl[cm][tm] = dynamics.data.ctrl[cm][tm] + alg.ϵ*δF
+                dynamics.data.ctrl[cm][tm] = dynamics.data.ctrl[cm][tm] + alg.epsilon*δF
             end
         end
     elseif para_num == 2
@@ -225,7 +225,7 @@ function gradient_QFIM_analy(opt, alg::GRAPE, obj, dynamics)
                 item1 = -coeff2*(F_T[2,2]*δF_all[1][1]+F_T[1,1]*δF_all[2][2]-F_T[2,1]*δF_all[1][2]-F_T[1,2]*δF_all[2][1])/coeff1^2
                 item2 = (obj.W[1,1]*δF_all[2][2]+obj.W[2,2]*δF_all[1][1]-obj.W[1,2]*δF_all[2][1]-obj.W[2,1]*δF_all[1][2])/coeff1
                 δF = -(item1+item2)*cost_function^2
-                dynamics.data.ctrl[cm][tm] = dynamics.data.ctrl[cm][tm] + alg.ϵ*δF
+                dynamics.data.ctrl[cm][tm] = dynamics.data.ctrl[cm][tm] + alg.epsilon*δF
             end
         end
     else
@@ -244,7 +244,7 @@ function gradient_QFIM_analy(opt, alg::GRAPE, obj, dynamics)
                     δF = δF + obj.W[pm,pm]*(1.0/F_T[pm,pm]/F_T[pm,pm])*((2*term1-0.5*term2) |> real)
                 end
                 δF = δF*coeff
-                dynamics.data.ctrl[cm][tm] = dynamics.data.ctrl[cm][tm] + alg.ϵ*δF
+                dynamics.data.ctrl[cm][tm] = dynamics.data.ctrl[cm][tm] + alg.epsilon*δF
             end
         end
     end
@@ -281,7 +281,7 @@ function gradient_CFIM_analy_Adam(opt, alg, obj, dynamics)
                 term1 = tr(∂xδρt_T_δV*L1_tidle)
                 term2 = tr(∂ρt_T_δV*L2_tidle)
                 δF = ((2*term1-term2) |> real)
-                dynamics.data.ctrl[cm][tm], mt, vt = Adam(δF, tm, dynamics.data.ctrl[cm][tm], mt, vt, alg.ϵ, alg.beta1, alg.beta2, obj.eps)
+                dynamics.data.ctrl[cm][tm], mt, vt = Adam(δF, tm, dynamics.data.ctrl[cm][tm], mt, vt, alg.epsilon, alg.beta1, alg.beta2, obj.eps)
             end
         end
     elseif para_num == 2
@@ -332,7 +332,7 @@ function gradient_CFIM_analy_Adam(opt, alg, obj, dynamics)
                 item1 = -coeff2*(F_T[2,2]*δF_all[1][1]+F_T[1,1]*δF_all[2][2]-F_T[2,1]*δF_all[1][2]-F_T[1,2]*δF_all[2][1])/coeff1^2
                 item2 = (obj.W[1,1]*δF_all[2][2]+obj.W[2,2]*δF_all[1][1]-obj.W[1,2]*δF_all[2][1]-obj.W[2,1]*δF_all[1][2])/coeff1
                 δF = -(item1+item2)*cost_function^2
-                dynamics.data.ctrl[cm][tm], mt, vt = Adam(δF, tm, dynamics.data.ctrl[cm][tm], mt, vt, alg.ϵ, alg.beta1, alg.beta2, obj.eps)
+                dynamics.data.ctrl[cm][tm], mt, vt = Adam(δF, tm, dynamics.data.ctrl[cm][tm], mt, vt, alg.epsilon, alg.beta1, alg.beta2, obj.eps)
             end
         end
     else
@@ -367,7 +367,7 @@ function gradient_CFIM_analy_Adam(opt, alg, obj, dynamics)
                     δF = δF + obj.W[pm,pm]*(1.0/F_T[pm,pm]/F_T[pm,pm])*((2*term1-term2) |> real)
                 end
                 δF = δF*coeff
-                dynamics.data.ctrl[cm][tm], mt, vt = Adam(δF, tm, dynamics.data.ctrl[cm][tm], mt, vt, alg.ϵ, alg.beta1, alg.beta2, obj.eps)
+                dynamics.data.ctrl[cm][tm], mt, vt = Adam(δF, tm, dynamics.data.ctrl[cm][tm], mt, vt, alg.epsilon, alg.beta1, alg.beta2, obj.eps)
             end
         end
     end
@@ -403,7 +403,7 @@ function gradient_CFIM_analy(opt, alg, obj, dynamics)
                 term1 = tr(∂xδρt_T_δV*L1_tidle)
                 term2 = tr(∂ρt_T_δV*L2_tidle)
                 δF = ((2*term1-term2) |> real)
-                dynamics.data.ctrl[cm][tm] = dynamics.data.ctrl[cm][tm] + alg.ϵ*δF
+                dynamics.data.ctrl[cm][tm] = dynamics.data.ctrl[cm][tm] + alg.epsilon*δF
             end
         end
     elseif para_num == 2
@@ -453,7 +453,7 @@ function gradient_CFIM_analy(opt, alg, obj, dynamics)
                 item1 = -coeff2*(F_T[2,2]*δF_all[1][1]+F_T[1,1]*δF_all[2][2]-F_T[2,1]*δF_all[1][2]-F_T[1,2]*δF_all[2][1])/coeff1^2
                 item2 = (obj.W[1,1]*δF_all[2][2]+obj.W[2,2]*δF_all[1][1]-obj.W[1,2]*δF_all[2][1]-obj.W[2,1]*δF_all[1][2])/coeff1
                 δF = -(item1+item2)*cost_function^2
-                dynamics.data.ctrl[cm][tm] = dynamics.data.ctrl[cm][tm] + alg.ϵ*δF
+                dynamics.data.ctrl[cm][tm] = dynamics.data.ctrl[cm][tm] + alg.epsilon*δF
             end
         end
     else
@@ -486,7 +486,7 @@ function gradient_CFIM_analy(opt, alg, obj, dynamics)
                     δF = δF + obj.W[pm,pm]*(1.0/F_T[pm,pm]/F_T[pm,pm])*((2*term1-term2) |> real)
                 end
                 δF = δF*coeff
-                dynamics.data.ctrl[cm][tm] = dynamics.data.ctrl[cm][tm] + alg.ϵ*δF
+                dynamics.data.ctrl[cm][tm] = dynamics.data.ctrl[cm][tm] + alg.epsilon*δF
             end
         end
     end

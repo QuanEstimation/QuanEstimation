@@ -122,15 +122,15 @@ class Lindblad:
 
         """
 
-        rho, drho = Main.QuanEstimation.expm(
+        rho, drho = Main.QuanEstimation.expm_py(
+            self.tspan,
+            self.rho0,
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
-            self.control_Hamiltonian,
-            self.control_coefficients,
-            self.rho0,
-            self.tspan,
             self.decay_opt,
             self.gamma,
+            self.control_Hamiltonian,
+            self.control_coefficients,
         )
         return rho, drho
 
@@ -176,7 +176,7 @@ class Lindblad:
         )
         return rho, drho, d2rho
 
-def kraus(K, dK, rho0):
+def Kraus(K, dK, rho0):
     r"""
     The parameterization of a state is
     \begin{align}

@@ -359,6 +359,50 @@ function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; save_file=f
     end
 end
 
+mutable struct adaptMZI
+    x
+    p
+    rho0
+end
+
+function online(apt::adaptMZI; output::String = "phi")
+    (;x, p, rho0) = apt
+    N = Int(sqrt(size(rho0,1))) - 1
+    a = destroy(N+1)' |> sparse
+    adaptMZI_online(x, p, rho0, a, output)
+end
+
+function brgd(n)
+    if n == 1
+        return ["0", "1"]
+    end
+    L0 = brgd(n-1)
+    L1 = deepcopy(L0)
+    reverse!(L1)
+    L0 = ["0"*l for l in L0]
+    L1 = ["1"*l for l in L1]
+    return deepcopy(vcat(L0,L1))
+end
+
+function offline(apt::adaptMZI, alg;eps = GLOBAL_EPS)
+    (;x,p,rho0) = apt
+    N = Int(sqrt(size(rho0,1))) - 1
+    a = destroy(N+1)' |> sparse
+    comb = brgd(N)|>x->[[parse(Int, s) for s in ss] for ss in x]
+    if alg isa DE
+        (;p_num,ini_population,c,cr,rng,max_episode) = alg
+        if ismissing(ini_population)
+            ini_population = ([apt.rho0],)
+        end
+        DE_DeltaPhiOpt(x,p,rho0,a,comb,p_num,ini_population[1],c,cr,rng.seed,max_episode,eps)
+    elseif alg isa PSO
+        (;p_num,ini_particle,c0,c1,c2,rng,max_episode) = alg
+        if ismissing(ini_particle)
+            ini_particle = ([apt.rho0],)
+        end
+        PSO_DeltaPhiOpt(x,p,rho0,a,comb,p_num,ini_particle[1],c0,c1,c2,rng.seed,max_episode,eps)
+    end
+end
 
 function adaptMZI_online(x, p, rho0, a, output)
     
@@ -376,7 +420,7 @@ function adaptMZI_online(x, p, rho0, a, output)
             enter = readline()
             u = parse(Int64, enter)
             
-            pyx = zeros(length(x))
+            pyx = zeros(length(x))|>sparse
             for xi in 1:length(x)
                 a_res_tp = a_res[xi]*a_u(a, x[xi], phi, u)
                 pyx[xi] = real(tr(rho0*a_res_tp'*a_res_tp))*(factorial(N-ei)/factorial(N))
@@ -462,7 +506,7 @@ function adaptMZI_offline(delta_phi, x, p, rho0, a, comb, eps)
     exp_ix = [exp(1.0im*xi) for xi in x]
     
     M_res = zeros(length(comb))
-    Threads.@threads for ui in 1:length(comb)
+    for ui in 1:length(comb)
         u = comb[ui]
         phi = 0.0
 

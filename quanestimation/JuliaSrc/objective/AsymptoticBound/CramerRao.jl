@@ -130,7 +130,7 @@ function LLD(
     for fi = 1:dim
         for fj = 1:dim
             if abs(val[fj]) > eps
-                LLD_eig[fj, fi] = (vec[:, fi]' * dρ * vec[:, fj]) / val[fj]
+                LLD_eig[fj, fi] = ((vec[:, fi]' * dρ * vec[:, fj]) / val[fj]) |> conj()
             end
         end
     end
@@ -149,7 +149,7 @@ function LLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; rep = "original", eps = eps_
 end
 
 function LLD(ρ::Matrix{T}, dρ::Matrix{T}; eps = eps_default) where {T<:Complex}
-    (dρ * pinv(ρ, rtol = eps))
+    (dρ * pinv(ρ, rtol = eps))'
 end
 
 function LLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = eps_default) where {T<:Complex}
@@ -291,6 +291,18 @@ function CFIM(ρ::Matrix{T}, dρ::Matrix{T}, M; eps = eps_default) where {T<:Com
         F += cadd
     end
     real(F)
+end
+
+function CFIM(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; M=M, eps = eps_default) where {T<:Complex}
+    m_num = length(M)
+    p_num = length(dρ)
+    [
+        real(tr(ρ * M[i])) < eps ? zeros(ComplexF64, p_num, p_num) :
+        (kron(tr.(dρ .* [M[i]]), reshape(tr.(dρ .* [M[i]]), 1, p_num)) / tr(ρ * M[i])) for
+        i = 1:m_num
+    ] |>
+    sum .|>
+    real
 end
 
 function CFIM(ρ::Matrix{T}, dρ::Vector{Matrix{T}}, M; eps = eps_default) where {T<:Complex}

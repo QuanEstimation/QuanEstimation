@@ -78,7 +78,7 @@ from quanestimation.ControlOpt.DDPG_Copt import (
 )
 
 from quanestimation.Dynamics.dynamics import (
-    Lindblad, kraus, 
+    Lindblad, Kraus, 
 )
 
 from quanestimation.MeasurementOpt.MeasurementStruct import (
@@ -154,7 +154,7 @@ __all__ = [
     "Bayes",
     "MLE",
     "Lindblad",
-    "kraus",
+    "Kraus",
     "SpinSqueezing",
     "TargetTime",
     "GRAPE_Copt",

@@ -116,10 +116,10 @@ class ControlSystem:
             self.gamma = [decay[i][1] for i in range(len(decay))]
         self.decay_opt = [np.array(x, dtype=np.complex128) for x in decay_opt]
 
-        ctrl_bound = [float(ctrl_bound[0]), float(ctrl_bound[1])]
         if ctrl_bound == []:
-            ctrl_bound = [-np.inf, np.inf]
-        self.ctrl_bound = ctrl_bound
+            self.ctrl_bound = [-np.inf, np.inf]
+        else:
+            self.ctrl_bound = [float(ctrl_bound[0]), float(ctrl_bound[1])]
 
         if self.ctrl0 == []:
             if ctrl_bound == []:
@@ -233,7 +233,7 @@ class ControlSystem:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
 
-        self.obj = Main.QuanEstimation.QFIM_Obj(
+        self.obj = Main.QuanEstimation.QFIM_obj(
             self.W, self.eps, self.para_type, LDtype
         )
         system = Main.QuanEstimation.QuanEstSystem(
@@ -270,7 +270,7 @@ class ControlSystem:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
 
-        self.obj = Main.QuanEstimation.CFIM_Obj(M, self.W, self.eps, self.para_type)
+        self.obj = Main.QuanEstimation.CFIM_obj(M, self.W, self.eps, self.para_type)
         system = Main.QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
@@ -302,7 +302,7 @@ class ControlSystem:
                 W = np.eye(len(self.Hamiltonian_derivative))
             self.W = W  
 
-            self.obj = Main.QuanEstimation.HCRB_Obj(self.W, self.eps, self.para_type)
+            self.obj = Main.QuanEstimation.HCRB_obj(self.W, self.eps, self.para_type)
             system = Main.QuanEstimation.QuanEstSystem(
                 self.opt, self.alg, self.obj, self.dynamic, self.output
             )
@@ -371,19 +371,19 @@ class ControlSystem:
 
         if M != []:
             M = [np.array(x, dtype=np.complex128) for x in M]
-            self.obj = Main.QuanEstimation.CFIM_Obj(M, self.W, self.eps, self.para_type)
+            self.obj = Main.QuanEstimation.CFIM_obj(M, self.W, self.eps, self.para_type)
         else:
             if target == "HCRB":
                 if self.para_type == "single_para":
                     print(
                         "Program exit. In the single-parameter scenario, the HCRB is equivalent to the QFI. Please choose 'QFIM' as the objective function"                    )
-                self.obj = Main.QuanEstimation.HCRB_Obj(
+                self.obj = Main.QuanEstimation.HCRB_obj(
                     self.W, self.eps, self.para_type
                 )
             elif target == "QFIM" or (
                 LDtype == "SLD" and LDtype == "LLD" and LDtype == "RLD"
             ):
-                self.obj = Main.QuanEstimation.QFIM_Obj(
+                self.obj = Main.QuanEstimation.QFIM_obj(
                     self.W, self.eps, self.para_type, LDtype
                 )
             else:

@@ -80,7 +80,7 @@ end
 function update!(opt::StateOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     if ismissing(ini_population)
-        ini_population = ([opt.ψ₀,],)
+        ini_population = ([opt.psi,],)
     end
     ini_population = ini_population[1]
     dim = length(dynamics.data.ψ0)
@@ -143,12 +143,12 @@ end
 function update!(opt::Mopt_Projection, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     if ismissing(ini_population)
-        ini_population = ([opt.C], )
+        ini_population = ([opt.M], )
     end
     ini_population = ini_population[1]
 
     dim = size(dynamics.data.ρ0)[1]
-    M_num = length(opt.C)
+    M_num = length(opt.M)
 
     populations = [[zeros(ComplexF64, dim) for j in 1:M_num] for i in 1:p_num]
     # initialization  
@@ -161,7 +161,7 @@ function update!(opt::Mopt_Projection, alg::DE, obj, dynamics, output)
         p_out[pj], p_fit[pj] = objective(obj_copy, dynamics)
     end
 
-    obj_QFIM = QFIM_Obj(obj)
+    obj_QFIM = QFIM_obj(obj)
     f_opt, f_comp = objective(obj_QFIM, dynamics)
 
     M = [populations[1][i]*(populations[1][i])' for i in 1:M_num]
@@ -242,7 +242,7 @@ function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
         p_out[pj], p_fit[pj] = objective(obj_copy, dynamics)
     end
 
-    obj_QFIM = QFIM_Obj(obj)
+    obj_QFIM = QFIM_obj(obj)
     f_opt, f_comp = objective(obj_QFIM, dynamics)
     obj_POVM = set_M(obj, POVM_basis)
     f_povm, f_comp = objective(obj_POVM, dynamics)
@@ -314,11 +314,15 @@ function update!(opt::Mopt_Rotation, alg::DE, obj, dynamics, output)
     ini_population = ini_population[1]
     dim = size(dynamics.data.ρ0)[1]
     suN = suN_generator(dim)
-    if ismissing(Lambda)
-        Lambda = Matrix{ComplexF64}[]
-        append!(Lambda, [Matrix{ComplexF64}(I,dim,dim)])
-        append!(Lambda, [suN[i] for i in 1:length(suN)])
-    end
+    Lambda = Matrix{ComplexF64}[]
+    append!(Lambda, [Matrix{ComplexF64}(I,dim,dim)])
+    append!(Lambda, [suN[i] for i in 1:length(suN)])
+
+    # if ismissing(Lambda)
+    #     Lambda = Matrix{ComplexF64}[]
+    #     append!(Lambda, [Matrix{ComplexF64}(I,dim,dim)])
+    #     append!(Lambda, [suN[i] for i in 1:length(suN)])
+    # end
     
     M_num = length(POVM_basis)
     populations = [zeros(dim^2) for i in 1:p_num]
@@ -333,7 +337,7 @@ function update!(opt::Mopt_Rotation, alg::DE, obj, dynamics, output)
         p_out[pj], p_fit[pj] = objective(obj_copy, dynamics)
     end
 
-    obj_QFIM = QFIM_Obj(obj)
+    obj_QFIM = QFIM_obj(obj)
     f_opt, f_comp = objective(obj_QFIM, dynamics)
     obj_POVM = set_M(obj, POVM_basis)
     f_povm, f_comp = objective(obj_POVM, dynamics)
@@ -397,7 +401,7 @@ end
 function update!(opt::StateControlOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     if ismissing(ini_population)
-        ini_population = ([opt.ψ₀], [opt.ctrl,])
+        ini_population = ([opt.psi], [opt.ctrl,])
     end
     psi0, ctrl0 = ini_population
     ctrl_length = length(dynamics.data.ctrl[1])
@@ -496,11 +500,11 @@ end
 function update!(opt::StateMeasurementOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     if ismissing(ini_population)
-        ini_population = ( [opt.ψ₀], [opt.C,])
+        ini_population = ([opt.psi], [opt.M,])
     end
     psi0, measurement0 = ini_population
     dim = length(dynamics.data.ψ0)
-    M_num = length(opt.C)
+    M_num = length(opt.M)
     populations = repeat(dynamics, p_num)
 
     # initialization 
@@ -599,13 +603,13 @@ end
 function update!(opt::ControlMeasurementOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     if ismissing(ini_population)
-        ini_population = ([opt.ctrl,], [opt.C])
+        ini_population = ([opt.ctrl,], [opt.M])
     end
     ctrl0, measurement0 = ini_population
     dim = size(dynamics.data.ρ0)[1]
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
-    M_num = length(opt.C)
+    M_num = length(opt.M)
     populations = repeat(dynamics, p_num)
 
     # initialization 
@@ -713,13 +717,13 @@ end
 function update!(opt::StateControlMeasurementOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     if ismissing(ini_population)
-        ini_population = ([opt.ψ₀], [opt.ctrl,], [opt.C])
+        ini_population = ([opt.psi], [opt.ctrl,], [opt.M])
     end
     psi0, ctrl0, measurement0 = ini_population
     dim = length(dynamics.data.ψ0)
     ctrl_length = length(dynamics.data.ctrl[1])
     ctrl_num = length(dynamics.data.Hc)
-    M_num = length(opt.C)
+    M_num = length(opt.M)
     populations = repeat(dynamics, p_num)
 
     # initialization 
