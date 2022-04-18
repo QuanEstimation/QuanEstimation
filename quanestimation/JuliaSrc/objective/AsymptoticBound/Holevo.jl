@@ -4,33 +4,48 @@ function decomposition(A)
     return R
 end
 
+"""
+
+    HCRB(ρ::Matrix{T},dρ::Vector{Matrix{T}},C::Matrix{Float64};eps = 1e-8,) where {T<:Complex}
+
+Caltulate the Holevo Cramer-Rao bound (HCRB) via the semidefinite program (SDP).
+
+- `ρ`: Density matrix.
+
+- `dρ`: Derivatives of the density matrix on the unknown parameters to be estimated. For example, drho[0] is the derivative vector on the first parameter.
+
+- `W`: Weight matrix.
+
+- `eps`: Machine epsilon.
+
+"""
 function HCRB(
     ρ::Matrix{T},
-    ∂ρ_∂x::Vector{Matrix{T}},
-    C::AbstractMatrix;
+    dρ::Vector{Matrix{T}},
+    C::Matrix{Float64};
     eps = 1e-8,
 ) where {T<:Complex}
-    if length(∂ρ_∂x) == 1
+    if length(dρ) == 1
         println(
             "In the single-parameter scenario, the HCRB is equivalent to the QFI. This function will return the value of the QFI",
         )
-        f = QFIM_SLD(ρ, ∂ρ_∂x[1]; eps=eps)
+        f = QFIM_SLD(ρ, dρ[1]; eps=eps)
         return f
     else
-        Holevo_bound(ρ, ∂ρ_∂x, C; eps = eps)
+        Holevo_bound(ρ, dρ, C; eps = eps)
     end
 end
 
 function Holevo_bound(
     ρ::Matrix{T},
-    ∂ρ_∂x::Vector{Matrix{T}},
-    C::AbstractMatrix;
+    dρ::Vector{Matrix{T}},
+    C::Matrix{Float64};
     eps = eps_default,
 ) where {T<:Complex}
 
     dim = size(ρ)[1]
     num = dim * dim
-    para_num = length(∂ρ_∂x)
+    para_num = length(dρ)
     suN = suN_generator(dim) / sqrt(2)
     Lambda = [Matrix{ComplexF64}(I, dim, dim) / sqrt(2)]
     append!(Lambda, [suN[i] for i = 1:length(suN)])
@@ -38,7 +53,7 @@ function Holevo_bound(
 
     for pa = 1:para_num
         for ra = 2:num
-            vec_∂ρ[pa][ra] = (∂ρ_∂x[pa] * Lambda[ra]) |> tr |> real
+            vec_∂ρ[pa][ra] = (dρ[pa] * Lambda[ra]) |> tr |> real
         end
     end
     S = zeros(ComplexF64, num, num)
@@ -66,15 +81,15 @@ function Holevo_bound(
         end
     end
     problem = minimize(tr(C * V), constraints)
-    Convex.solve!(problem, SCS.Optimizer(verbose = false))
+    Convex.solve!(problem, SCS.Optimizer, silent_solver=true)
     return evaluate(tr(C * V))
 end
 
 function Holevo_bound_obj(
     ρ::Matrix{T},
-    ∂ρ_∂x::Vector{Matrix{T}},
-    C::AbstractMatrix;
+    dρ::Vector{Matrix{T}},
+    C::Matrix{Float64};
     eps = eps_default,
 ) where {T<:Complex}
-    return Holevo_bound(ρ, ∂ρ_∂x, C; eps = eps)[1]
+    return Holevo_bound(ρ, dρ, C; eps = eps)[1]
 end
