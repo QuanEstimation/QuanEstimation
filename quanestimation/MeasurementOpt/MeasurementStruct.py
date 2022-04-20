@@ -193,9 +193,7 @@ class MeasurementSystem:
                     ]
                     self.measurement0 = [np.array(self.B)]
                 elif len(self.measurement0) >= 1:
-                    self.B = [
-                        self.measurement0[0][i] for i in range(len(self.povm_basis))
-                    ]
+                    self.B = [self.measurement0[0][i] for i in range(self.M_num)]
                 self.opt = Main.QuanEstimation.Mopt_LinearComb(
                     self.B, self.povm_basis, self.M_num
                 )

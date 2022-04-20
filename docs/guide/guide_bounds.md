@@ -102,6 +102,79 @@ In QuanEstimation, the QFI and QFIM can be calculated via the following function
 however, if the users set `exportLD=True`, it will return logarithmic derivatives apart 
 from QFI (QFIM).
 
+**Example 2.1**  
+<a id="example2_1"></a>
+The Hamiltonian of a single qubit system is $H=\frac{1}{2}\omega_0 \sigma_3$ with $\omega_0$ 
+the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system is governed by
+\begin{align}
+\partial_t\rho=-i[H, \rho]+ \gamma_{+}\left(\sigma_{+}\rho\sigma_{-}-\frac{1}{2}\{\sigma_{-}
+\sigma_{+},\rho\}\right)+ \gamma_{-}\left(\sigma_{-}\rho\sigma_{+}-\frac{1}{2}\{\sigma_{+}
+\sigma_{-},\rho\}\right),
+\end{align}
+
+where $\sigma_{\pm}=\frac{1}{2}(\sigma_1 \pm \sigma_2)$ with $\sigma_{1}$, $\sigma_{2}$ Pauli 
+matrices and $\gamma_{+}$, $\gamma_{-}$ are decay rates. The probe state is taken as $|+\rangle$ 
+with $|+\rangle=\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)$. Here $|0\rangle$ and $|1\rangle$ are 
+the eigenstates of $\sigma_3$ with respect to the eigenvalues $1$ and $-1$.
+=== "Python"
+    ``` py
+    from quanestimation import *
+    import numpy as np
+
+    # initial state
+    rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
+    # free Hamiltonian
+    omega0 = 1.0
+    sz = np.array([[1., 0.], [0., -1.]])
+    H0 = 0.5*omega0*sz
+    # derivative of the free Hamiltonian on omega0
+    dH = [0.5*sz]
+    # dissipation
+    sp = np.array([[0., 1.], [0., 0.]])  
+	sm = np.array([[0., 0.], [1., 0.]]) 
+    decay = [[sp, 0.0], [sm, 0.1]]
+    # time length for the evolution
+    tspan = np.linspace(0., 50., 2000)
+    # dynamics
+    dynamics = Lindblad(tspan, rho0, H0, dH, decay)
+    rho, drho = dynamics.expm()
+    # calculation of the QFI
+    F = []
+    for ti in range(1,2000):
+        # QFI
+        F_tp = QFIM(rho[ti], drho[ti])
+        F.append(F_tp)
+    ```
+=== "Julia"
+    ``` jl
+    using QuanEstimation
+
+    # initial state
+    rho0 = 0.5*ones(2, 2)
+    # free Hamiltonian
+    omega0 = 1.0
+    sx = [0. 1.; 1. 0.0im]
+	sy = [0. -im; im 0.]
+	sz = [1. 0.0im; 0. -1.]
+    H0 = 0.5*omega0*sz
+    # derivative of the free Hamiltonian on omega0
+    dH = [0.5*sz]
+    # dissipation
+    sp = [0. 1.; 0. 0.0im]
+	sm = [0. 0.; 1. 0.0im]
+    decay = [[sp, 0.0], [sm, 0.1]]
+    # time length for the evolution
+    tspan = range(0., 50., length=2000)
+    # dynamics
+    rho, drho = QuanEstimation.expm(tspan, rho0, H0, dH, decay)
+    # calculation of the QFI
+    F = Float64[]
+    for ti in 2:length(tspan)
+        # QFI
+        F_tp = QuanEstimation.QFIM(rho[ti], drho[ti])
+        append!(F, F_tp)
+    end
+    ```
 If the parameterization process is excuted via the Kraus operators, the QFI (QFIM) can be 
 calculated by calling the function
 === "Python"
@@ -112,10 +185,10 @@ calculated by calling the function
     ``` jl
     QFIM_Kraus(rho0, K, dK; LDtype=:SLD, exportLD=false, eps=1e-8)
     ```
-where `K` and `dK` are the Kraus operators and the derivatives on the unknown parameters to be 
-estimated.
+where `K` and `dK` are the Kraus operators and the derivatives on the unknown parameters to 
+be estimated.
 
-**Example**  
+**Example 2.2**  
 The Kraus operators for the amplitude damping channel are
 
 \begin{eqnarray}
@@ -129,13 +202,13 @@ K_2 = \left(\begin{array}{cc}
 \end{array}\right), \nonumber
 \end{eqnarray}
 
-where $\gamma$ is the decay probability. The parameterized density matrix can be calculated
-via $\rho=\sum_i K_i\rho_0K_i^{\dagger}$ and corresponding derivatives on the unknown
-parameters are $\partial_{\textbf{x}}\rho=\sum_i \partial_{\textbf{x}}K_i\rho_0K_i^{\dagger}
-+ K_i\rho_0\partial_{\textbf{x}}K_i^{\dagger}$ with $\rho_0$ the probe state. In this example,
-the probe state is taken as $|+\rangle\langle+|$ with $|+\rangle:=\frac{1}{\sqrt{2}}(|0\rangle+
-|1\rangle)$. $|0\rangle$ $(|1\rangle)$ is the eigenstate of $\sigma_3$ (Pauli matrix) with 
-respect to the eigenvalue $1$ $(-1)$.
+where $\gamma$ is unknown parameter to be estimated which represents the decay probability. 
+The parameterized density matrix can be calculated via $\rho=\sum_i K_i\rho_0K_i^{\dagger}$ 
+and corresponding derivatives on the unknown parameters are $\partial_{\textbf{x}}\rho=
+\sum_i \partial_{\textbf{x}}K_i\rho_0K_i^{\dagger} + K_i\rho_0\partial_{\textbf{x}}K_i^{\dagger}$ 
+with $\rho_0$ the probe state. In this example, the probe state is taken as $|+\rangle\langle+|$ 
+with $|+\rangle:=\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)$. $|0\rangle$ $(|1\rangle)$ is the 
+eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $(-1)$.
 === "Python"
     ``` py
     from quanestimation import *
@@ -156,6 +229,8 @@ respect to the eigenvalue $1$ $(-1)$.
     ```
 === "Julia"
     ``` jl
+    using QuanEstimation
+
     # initial state
     rho0 = 0.5*ones(2,2)
     # Kraus operators for the amplitude damping channel
@@ -167,7 +242,7 @@ respect to the eigenvalue $1$ $(-1)$.
     dK1 = [1. 0.; 0. -0.5/sqrt(1-gamma)]
     dK2 = [0. 0.5/sqrt(gamma); 0. 0.]
     dK = [[dK1], [dK2]]
-    F = QFIM_Kraus(rho0, K, dK)
+    F = QuanEstimation.QFIM_Kraus(rho0, K, dK)
     ```
 
 The FI (FIM) for a set of the probabilities `p` can be calculated by
@@ -182,19 +257,23 @@ The FI (FIM) for a set of the probabilities `p` can be calculated by
 where `dp` is a list representing the derivatives of the probabilities `p` on the unknown 
 parameters.
 
-**Example**  
-    === "Python"
-        ``` py
-        p = [0.54, 0.46]
-        dp = [[0.54], [-0.54]]
-        F = FIM(p, dp)
-        ```
-    === "Julia"
-        ``` jl
-        p = [0.54, 0.46]
-        dp = [[0.54], [-0.54]]
-        F = FIM(p, dp)
-        ```
+**Example 2.3**  
+=== "Python"
+    ``` py
+    from quanestimation import *
+
+    p = [0.54, 0.46]
+    dp = [[0.54], [-0.54]]
+    F = FIM(p, dp)
+    ```
+=== "Julia"
+    ``` jl
+    using QuanEstimation
+
+    p = [0.54, 0.46]
+    dp = [[0.54], [-0.54]]
+    F = QuanEstimation.FIM(p, dp)
+    ```
 In quantum metrology, the CFI (CFIM) are solved by
 === "Python"
     ``` py
@@ -209,6 +288,89 @@ In this function, a set of rank-one symmetric informationally complete POVM (SIC
 when `M=[]`. SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
 which can be downloaded from the website [[4]](#sic_state). 
 
+**Example 2.4**  
+<a id="example2_4"></a>
+The Hamiltonian of a single qubit system is $H=\frac{1}{2}\omega_0 \sigma_3$ with $\omega_0$ 
+the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system is governed by
+\begin{align}
+\partial_t\rho=-i[H, \rho]+ \gamma_{+}\left(\sigma_{+}\rho\sigma_{-}-\frac{1}{2}\{\sigma_{-}
+\sigma_{+}, \rho\}\right)+ \gamma_{-}\left(\sigma_{-}\rho\sigma_{+}-\frac{1}{2}\{\sigma_{+}
+\sigma_{-},\rho\}\right),
+\end{align}
+
+where $\sigma_{\pm}=\frac{1}{2}(\sigma_1 \pm \sigma_2)$ with $\sigma_{1}$, $\sigma_{2}$ Pauli 
+matrices and $\gamma_{+}$, $\gamma_{-}$ are decay rates. The probe state is taken as $|+\rangle$ 
+and the measurement for CFI is $\{|+\rangle\langle+|, |-\rangle\langle-|\}$ with
+$|\pm\rangle=\frac{1}{\sqrt{2}}(|0\rangle\pm|1\rangle)$. Here $|0\rangle$ and $|1\rangle$ are 
+the eigenstates of $\sigma_3$ with respect to the eigenvalues $1$ and $-1$.
+=== "Python"
+    ``` py
+    from quanestimation import *
+    import numpy as np
+
+    # initial state
+    rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
+    # free Hamiltonian
+    omega0 = 1.0
+    sz = np.array([[1., 0.], [0., -1.]])
+    H0 = 0.5*omega0*sz
+    # derivative of the free Hamiltonian on omega0
+    dH = [0.5*sz]
+    # dissipation
+    sp = np.array([[0., 1.], [0., 0.]])  
+	sm = np.array([[0., 0.], [1., 0.]]) 
+    decay = [[sp, 0.0], [sm, 0.1]]
+    # measurement
+    M1 = 0.5*np.array([[1., 1.], [1., 1.]])
+	M2 = 0.5*np.array([[1., -1.], [-1., 1.]])
+    M = [M1, M2]
+    # time length for the evolution
+    tspan = np.linspace(0., 50., 2000)
+    # dynamics
+    dynamics = Lindblad(tspan, rho0, H0, dH, decay)
+    rho, drho = dynamics.expm()
+    # calculation of the CFI
+    I = []
+    for ti in range(1,2000):
+        # CFI
+        I_tp = CFIM(rho[ti], drho[ti], M=M)
+        I.append(I_tp)
+    ```
+=== "Julia"
+    ``` jl
+    using QuanEstimation
+
+    # initial state
+    rho0 = 0.5*ones(2, 2)
+    # free Hamiltonian
+    omega0 = 1.0
+    sx = [0. 1.; 1. 0.0im]
+	sy = [0. -im; im 0.]
+	sz = [1. 0.0im; 0. -1.]
+    H0 = 0.5*omega0*sz
+    # derivative of the free Hamiltonian on omega0
+    dH = [0.5*sz]
+    # dissipation
+    sp = [0. 1.; 0. 0.0im]
+	sm = [0. 0.; 1. 0.0im]
+    decay = [[sp, 0.0], [sm, 0.1]]
+    # measurement
+    M1 = 0.5*[1.0+0.0im  1.; 1.  1.]
+	M2 = 0.5*[1.0+0.0im -1.; -1.  1.]
+    M = [M1, M2]
+    # time length for the evolution
+    tspan = range(0., 50., length=2000)
+    # dynamics
+    rho, drho = QuanEstimation.expm(tspan, rho0, H0, dH, decay)
+    # calculation of the CFI
+    I = Float64[]
+    for ti in 2:length(tspan)
+        # CFI
+        I_tp = QuanEstimation.CFIM(rho[ti], drho[ti], M)
+        append!(I, I_tp)
+    end
+    ```
+
 In Bloch representation, the SLD based QFI (QFIM) is calculated by
 === "Python"
     ``` py
@@ -221,28 +383,46 @@ In Bloch representation, the SLD based QFI (QFIM) is calculated by
 `r` and `dr` are the parameterized Bloch vector and its derivatives of on the unknown 
 parameters to be estimated.
 
-**Example**  
+**Example 2.5**  
+The arbitrary single-qubit state can be written as 
+\begin{align}
+|\psi\rangle=\cos\frac{\theta}{2}|0\rangle+e^{i\phi}\sin\frac{\theta}{2}|1\rangle
+\end{align}
+
+with $\theta$ and $\phi$ the parameters to be estimated. The Bloch vector for this state is
+$r=(\sin\theta\cos\phi, \sin\theta\sin\phi, \cos\theta)^{\mathrm{T}}$ and the derivatives 
+with respect to $\theta$ and $\phi$ are 
+$\partial_\theta r=(\cos\theta\cos\phi, \cos\theta\sin\phi, -\sin\theta)^{\mathrm{T}}$ and 
+$\partial_\phi r=(-\sin\theta\sin\phi, \sin\theta\cos\phi, 0)^{\mathrm{T}}$
 === "Python"
     ``` py
-    r = np.array([0., 0., 0.43, 0., 0., 0. ,0., 0.248, \
-                  -0.076, 0.079, 0., 0., 0., 0., -0.297])
-    dr_1 = np.array([0., 0., 0.03, 0., 0., 0., 0., \
-                     0.017, -1.571, -1.554, 0., 0., 0., 0., 0.049])
-    dr_2 = np.array([0., 0., 0.22, 0., 0., 0., 0., 0.127, \
-                     -0.039, -0.078, 0., 0., 0., 0., 0.359])
-    dr = [dr_1, dr_2]
+    from quanestimation import *
+    import numpy as np
+
+    theta, phi = 0.25*np.pi, 0.25*np.pi
+    r = np.array([np.sin(theta)*np.cos(phi), \
+                  np.sin(theta)*np.sin(phi), \
+                  np.cos(theta)])
+    dr_theta = np.array([np.cos(theta)*np.cos(phi), \
+                         np.cos(theta)*np.sin(phi), \
+                         -np.sin(theta)])
+    dr_phi = np.array([-np.sin(theta)*np.sin(phi), \
+                       np.sin(theta)*np.cos(phi), \
+                       0.])
+    dr = [dr_theta, dr_phi]
     f = QFIM_Bloch(r, dr)
     ```
 === "Julia"
     ``` jl
-    r = [0. 0. 0.43 0. 0. 0. 0. 0.248 
-        -0.076 0.079 0. 0. 0. 0. -0.297]
-    dr_1 = [0. 0. 0.03 0. 0. 0. 0. 0.017
-            -1.571 -1.554 0. 0. 0. 0.0.049]
-    dr_2 = [0. 0. 0.22 0. 0. 0. 0. 0.127 
-            -0.039 -0.078 0. 0. 0. 0. 0.359]
-    dr = [dr_1, dr_2]
-    f = QFIM_Bloch(r, dr)
+    using QuanEstimation
+    using LinearAlgebra
+
+    theta, phi = 0.25*pi, 0.25*pi
+    r = [sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta)])
+    dr_theta = [cos(theta)*cos(phi), cos(theta)*sin(phi), -sin(theta)])
+    dr_phi = [-sin(theta)*sin(phi), sin(theta)*cos(phi), 0.])
+    dr = [dr_theta, dr_phi]
+    f = QuanEstimation.QFIM_Bloch(r, dr)
     ```
 
 The package can also calculte the SLD based QFI (QFIM) with Gaussian states. 
@@ -254,19 +434,20 @@ The package can also calculte the SLD based QFI (QFIM) with Gaussian states.
     ``` jl
     QFIM_Gauss(R, dR, D, dD)
     ```
-The variable `R` is expected value ($\mathrm{Tr}(\rho\textbf{R})$) of $\textbf{R}$, it is an 
-array epresenting the first-order moment. Here $\textbf{R}=(q_1,p_1,q_2,p_2,\dots)^{\mathrm{T}}$ 
-with $q_i=(a_i+a^{\dagger}_i)/\sqrt{2}$ and $p_i=(a_i-a^{\dagger}_i)/(i\sqrt{2})$ represents 
-a vector of quadrature operators. `dR` is a list of derivatives of `R` on the unknown parameters 
+The variable `R` is the expected value $\left(\langle[\textbf{R}]_i\rangle\right)$ of 
+$\textbf{R}$ with respect to $\rho$, it is an array epresenting the first-order moment. 
+Here $\textbf{R}=(q_1,p_1,q_2,p_2,\dots)^{\mathrm{T}}$ with $q_i=\frac{1}{\sqrt{2}}
+(a_i+a^{\dagger}_i)$ and $p_i=\frac{1}{i\sqrt{2}}(a_i-a^{\dagger}_i)$ represents a vector 
+of quadrature operators. `dR` is a list of derivatives of `R` on the unknown parameters 
 with $i$th entry $\partial_{\textbf{x}} \langle[\textbf{R}]_i\rangle$. `D` and `dD` represent 
-the second-order moment matrix with the $ij$th entry $D_{ij}=\langle [\textbf{R}]_i [\textbf{R}]
-_j\rangle$ and its derivatives on the unknown parameters.
+the second-order moment matrix with the $ij$th entry $D_{ij}=\langle [\textbf{R}]_i 
+[\textbf{R}]_j\rangle$ and its derivatives on the unknown parameters.
 
-**Example**  
-The first and second moments are
+**Example 2.6**  
+The first and second moments [[11]] (#Safranek2019) are
 
 \begin{eqnarray}
-R = \left(\begin{array}{cc}
+\langle[\textbf{R}]_i\rangle = \left(\begin{array}{cc}
 0   \\
 0  
 \end{array}\right),
@@ -298,7 +479,7 @@ where $\lambda=\coth\frac{\beta}{2}$.  $r$ and $\beta$ are the parameters to be 
     F = QFIM_Gauss(R, dR, D, dD)
     ```
 === "Julia"
-    ``` py
+    ``` jl
     using QuanEstimation
 
     r, beta = 0.2, 1.0
@@ -312,93 +493,6 @@ where $\lambda=\coth\frac{\beta}{2}$.  $r$ and $\beta$ are the parameters to be 
     dD = [dD_r, dD_Lambda]
     F = QuanEstimation.QFIM_Gauss(R, dR, D, dD)
     ```
-
-**Example**  
-The Hamiltonian of a single qubit system is $H=\frac{1}{2}\omega_0 \sigma_3$ with 
-$\omega_0$ the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system is governed by
-\begin{align}
-\partial_t\rho=-i[H, \rho]+ \gamma_{+}\left(\sigma_{+}\rho\sigma_{-}-\frac{1}{2}\{\sigma_{-}\sigma_{+},
-\rho\}\right)+ \gamma_{-}\left(\sigma_{-}\rho\sigma_{+}-\frac{1}{2}\{\sigma_{+}\sigma_{-},\rho\}\right),
-\end{align}
-
-where $\sigma_{\pm}=\frac{1}{2}(\sigma_1 \pm \sigma_2)$ with $\sigma_{1}$, $\sigma_{2}$ Pauli matrices 
-and $\gamma_{+}$, $\gamma_{-}$ are decay rates. The probe state is taken as $|+\rangle$ and the 
-measurement for CFI is $\{|+\rangle\langle+|, |-\rangle\langle-|\}$ with
-$|\pm\rangle:=\frac{1}{\sqrt{2}}(|0\rangle\pm|1\rangle)$. Here $|0\rangle$ and $|1\rangle$ are the
-eigenstates of $\sigma_3$ with respect to the eigenvalues $1$ and $-1$.
-=== "Python"
-    ``` py
-    from quanestimation import *
-    import numpy as np
-
-    # initial state
-    rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
-    # free Hamiltonian
-    omega0 = 1.0
-    sz = np.array([[1., 0.], [0., -1.]])
-    H0 = 0.5*omega0*sz
-    # derivative of the free Hamiltonian on omega0
-    dH = [0.5*sz]
-    # dissipation
-    sp = np.array([[0., 1.], [0., 0.]])  
-	sm = np.array([[0., 0.], [1., 0.]]) 
-    decay = [[sp, 0.0], [sm, 0.1]]
-    # measurement
-    M1 = 0.5*np.array([[1., 1.], [1., 1.]])
-	M2 = 0.5*np.array([[1., -1.], [-1., 1.]])
-    M = [M1, M2]
-    # time length for the evolution
-    tspan = np.linspace(0., 50., 2000)
-    # dynamics
-    dynamics = Lindblad(tspan, rho0, H0, dH, decay)
-    rho, drho = dynamics.expm()
-    # calculation of the CFI and QFI
-    I, F = [], []
-    for ti in range(1,2000):
-        # CFI
-        I_tp = CFIM(rho[ti], drho[ti], M=M)
-        I.append(I_tp)
-        # QFI
-        F_tp = QFIM(rho[ti], drho[ti])
-        F.append(F_tp)
-    ```
-=== "Julia"
-    ``` jl
-    using QuanEstimation
-
-    # initial state
-    rho0 = 0.5*ones(2, 2)
-    # free Hamiltonian
-    omega0 = 1.0
-    sx = [0. 1.; 1. 0.0im]
-	sy = [0. -im; im 0.]
-	sz = [1. 0.0im; 0. -1.]
-    H0 = 0.5*omega0*sz
-    # derivative of the free Hamiltonian on omega0
-    dH = [0.5*sz]
-    # dissipation
-    sp = [0. 1.; 0. 0.0im]
-	sm = [0. 0.; 1. 0.0im]
-    decay = [[sp, 0.0], [sm, 0.1]]
-    # measurement
-    M1 = 0.5*[1.0+0.0im  1.; 1.  1.]
-	M2 = 0.5*[1.0+0.0im -1.; -1.  1.]
-    M = [M1, M2]
-    # time length for the evolution
-    tspan = range(0., 50., length=2000)
-    # dynamics
-    rho, drho = QuanEstimation.expm(tspan, rho0, H0, dH, decay)
-    # calculation of the CFI and QFI
-    I, F = Float64[], Float64[]
-    for ti in 2:length(tspan)
-        # CFI
-        I_tp = QuanEstimation.CFIM(rho[ti], drho[ti], M)
-        append!(I, I_tp)
-        # QFI
-        F_tp = QuanEstimation.QFIM(rho[ti], drho[ti])
-        append!(F, F_tp)
-    end
-    ```
 ---
 ## **Holevo Cramér-Rao bound**
 Holevo Cramér-Rao bound (HCRB) is of the form [[5,6]](#Holevo1973)
@@ -406,8 +500,8 @@ Holevo Cramér-Rao bound (HCRB) is of the form [[5,6]](#Holevo1973)
 \mathrm{Tr}(W\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\}))\geq \min_{\textbf{X},V} \mathrm{Tr}(WV),
 \end{align}
 where $W$ is the weight matrix and $V\geq Z(\textbf{X})$ with $[Z(\textbf{X})]_{ab}=\mathrm{Tr}
-(\rho X_a X_b)$. $\textbf{X}=[X_0,X_1,\cdots]$ with $X_i:=\sum_y (\hat{x}_i(y)-x_i)\Pi_y$. The HCRB can
-be calculated via semidefinite programming as 
+(\rho X_a X_b)$. $\textbf{X}=[X_0,X_1,\cdots]$ with $X_i:=\sum_y (\hat{x}_i(y)-x_i)\Pi_y$. 
+The HCRB can be calculated via semidefinite programming as 
 
 \begin{align}
 & \min_{\textbf{X},V}~\mathrm{Tr}(WV),  \nonumber \\
@@ -436,26 +530,28 @@ where `rho` and `drho` are the density matrix of the state and its derivatives o
 parameters to be estimated, respectively. `W` represents the weight matrix defaults to 
 identity matrix and `eps` is the machine epsilon with default value $10^{-8}$.
 
-**Example**  
+**Example 2.7**  
+<a id="example2_7"></a>
 The Hamiltonian of a two-qubit system with $XX$ coupling is 
 \begin{align}
 H=\omega_1\sigma_3^{(1)}+\omega_2\sigma_3^{(2)}+g\sigma_1^{(1)}\sigma_1^{(2)},
 \end{align}
 
-where $\omega_1$, $\omega_2$ are the frequencies of the first and second qubit, $\sigma_i^{(1)}=
-\sigma_i\otimes I$ and $\sigma_i^{(2)}=I\otimes\sigma_i$ for $i=1,2,3$. $\sigma_1$, $\sigma_2$, $\sigma_3$ 
-are Pauli matrices and $I$ denotes the identity matrix. The dynamics is described by the master equation 
+where $\omega_1$, $\omega_2$ are the frequencies of the first and second qubit, $\sigma_i^{(1)}
+=\sigma_i\otimes I$ and $\sigma_i^{(2)}=I\otimes\sigma_i$ for $i=1,2,3$. $\sigma_1$, 
+$\sigma_2$, $\sigma_3$ are Pauli matrices and $I$ denotes the identity matrix. The dynamics 
+is described by the master equation 
 \begin{align}
 \partial_t\rho=-i[H, \rho]+\sum_{i=1,2}\gamma_i\left(\sigma_3^{(i)}\rho\sigma_3^{(i)}-\rho\right)
 \end{align}
 
 with $\gamma_i$ the decay rate for the $i$th qubit.
 
-The probe state is taken as $\frac{1}{\sqrt{2}}(|00\rangle+|11\rangle)$ and the weight matrix is set to be
-identity. The measurement for $\mathrm{Tr}(W\mathcal{I^{-1}})$ is $\{\Pi_1$, $\Pi_2$, $I-\Pi_1-\Pi_2\}$ 
-with $\Pi_1=0.85|00\rangle\langle 00|$ and $\Pi_2=0.1|\!+\!+\rangle\langle+\!+\!|$. Here 
-$|\pm\rangle:=\frac{1}{\sqrt{2}}(|0\rangle\pm|1\rangle)$ with $|0\rangle$ $(|1\rangle)$ the eigenstate of 
-$\sigma_3$ with respect to the eigenvalue $1$ ($-1$).
+The probe state is taken as $\frac{1}{\sqrt{2}}(|00\rangle+|11\rangle)$ and the weight matrix 
+is set to be identity. The measurement for $\mathrm{Tr}(W\mathcal{I^{-1}})$ is $\{\Pi_1$, 
+$\Pi_2$, $I-\Pi_1-\Pi_2\}$ with $\Pi_1=0.85|00\rangle\langle 00|$ and $\Pi_2=0.1|\!+
+\!+\rangle\langle+\!+\!|$. Here $|\pm\rangle:=\frac{1}{\sqrt{2}}(|0\rangle\pm|1\rangle)$ with 
+$|0\rangle$ $(|1\rangle)$ the eigenstate of $\sigma_3$ with respect to the eigenvalue $1$ ($-1$).
 === "Python"
     ``` py 
     from quanestimation import *
@@ -532,13 +628,13 @@ $\sigma_3$ with respect to the eigenvalue $1$ ($-1$).
     # calculation of the CFIM, QFIM and HCRB
     Im, F, f = [], [], Float64[]
     for ti in 2:length(tspan)
-        #CFIM
+        # CFIM
         I_tp = QuanEstimation.CFIM(rho[ti], drho[ti], M)
-        append!(Im, I_tp)
-        #QFIM
+        append!(Im, [I_tp])
+        # QFIM
         F_tp = QuanEstimation.QFIM(rho[ti], drho[ti])
-        append!(F, F_tp)
-        #HCRB
+        append!(F, [F_tp])
+        # HCRB
         f_tp = QuanEstimation.HCRB(rho[ti], drho[ti], W)
         append!(f, f_tp)
     end
@@ -550,8 +646,8 @@ The Bayesion version of the classical Fisher information (matrix) and quantum Fi
 <center> $\mathcal{I}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{I}\mathrm{d}\textbf{x}$ </center> <br>
 and <br>
 <center> $\mathcal{F}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{F}\mathrm{d}\textbf{x},$</center> <br>
-where $p(\textbf{x})$ is the prior distribution, $\mathcal{I}$ and $\mathcal{F}$ are CFI (CFIM) and QFI
-(QFIM) of all types, respectively.
+where $p(\textbf{x})$ is the prior distribution, $\mathcal{I}$ and $\mathcal{F}$ are CFI (CFIM) 
+and QFI (QFIM) of all types, respectively.
 
 In QuanEstimation, BCFI (BCFIM) and BQFI (BQFIM) can be solved via
 === "Python"
@@ -656,7 +752,7 @@ numerically via
 
 Van Trees in 1968 [[8]](#vanTrees1968) provide a well used Bayesian version of Cramér-Rao 
 bound known as Van Trees bound (VTB). The quantum version (QVTB) provided by Tsang, Wiseman 
-and Caves [[9]](#Tsang2011). Two types of VTB are contained in QuanEstimation, the first one is 
+and Caves [[10]](#Tsang2011). Two types of VTB are contained in QuanEstimation, the first one is 
 \begin{align}        
 \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})\left(\mathcal{I}_p
 +\mathcal{I}\right)^{-1}\mathrm{d}\textbf{x},
@@ -729,23 +825,24 @@ an array representing the prior distribution and `rho` is a multidimensional lis
 the density matrix. `eps` is the machine epsilon with default value $10^{-8}$.
 
 ---
-
-**Example**  
+**Example 2.8**  
+<a id="example2_8"></a>
 The Hamiltonian of a qubit system under a magnetic field $B$ in the XZ plane is
 \begin{align}
 H=\frac{B}{2}(\sigma_1\cos{x}+\sigma_3\sin{x})
 \end{align}
 
-with $x$ the unknown parameter and $\sigma_{1}$, $\sigma_{3}$ Pauli matrices. The probe state is taken as 
-$\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)$ with $|0\rangle$ and $|1\rangle$ the eigenvstates of $\sigma_3$ 
-with respect to the eigenvalues $1$ and $-1$. The measurement for classical bounds is a set of rank-one 
-symmetric informationally complete positive operator-valued measure (SIC-POVM).
+with $x$ the unknown parameter and $\sigma_{1}$, $\sigma_{3}$ Pauli matrices. The probe state 
+is taken as $\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)$ with $|0\rangle$ and $|1\rangle$ the 
+eigenvstates of $\sigma_3$ with respect to the eigenvalues $1$ and $-1$. The measurement 
+for classical bounds is a set of rank-one symmetric informationally complete positive 
+operator-valued measure (SIC-POVM).
 
-Take the Gaussian prior distribution $p(x)=\frac{1}{c\eta\sqrt{2\pi}}\exp\left({-\frac{(x-\mu)^2}{2\eta^2}}
-\right)$ on $[-\pi/2, \pi/2]$ with $\mu$ and $\eta$ the expectation and standard deviation, respectively. 
-Here $c=\frac{1}{2}\big[\mathrm{erf}(\frac{\pi-2\mu}{2\sqrt{2}\eta})+\mathrm{erf}(\frac{\pi+2\mu}
-{2\sqrt{2}\eta})\big]$ is the normalized coefficient with $\mathrm{erf}(x):=\frac{2}{\sqrt{\pi}}\int^x_0 
-e^{-t^2}\mathrm{d}t$ the error function.
+Take the Gaussian prior distribution $p(x)=\frac{1}{c\eta\sqrt{2\pi}}\exp\left({-\frac{(x-\mu)^2}
+{2\eta^2}}\right)$ on $[-\pi/2, \pi/2]$ with $\mu$ and $\eta$ the expectation and standard 
+deviation, respectively. Here $c=\frac{1}{2}\big[\mathrm{erf}(\frac{\pi-2\mu}{2\sqrt{2}\eta})
++\mathrm{erf}(\frac{\pi+2\mu}{2\sqrt{2}\eta})\big]$ is the normalized coefficient with 
+$\mathrm{erf}(x):=\frac{2}{\sqrt{\pi}}\int^x_0 e^{-t^2}\mathrm{d}t$ the error function.
 === "Python"
     ``` py
     from quanestimation import *
@@ -869,16 +966,18 @@ e^{-t^2}\mathrm{d}t$ the error function.
     ```
 ---
 ## **Bayesian estimation**
-In QuanEstimation, two types of Bayesian estimation are considered including maximum a posteriori 
-estimation (MAP) and maximum likelihood estimation (MLE). In Bayesian estimation, the prior distribution 
+In QuanEstimation, two types of Bayesian estimation are considered including maximum a 
+posteriori estimation (MAP) and maximum likelihood estimation (MLE). In Bayesian estimation, 
+the prior distribution 
 is updated as
 \begin{align}
-p(\textbf{x}|y)=\frac{p(y|\textbf{x})p(\textbf{x})}{\int p(y|\textbf{x})p(\textbf{x})\mathrm{d}\textbf{x}}
+p(\textbf{x}|y)=\frac{p(y|\textbf{x})p(\textbf{x})}{\int p(y|\textbf{x})p(\textbf{x})
+\mathrm{d}\textbf{x}}
 \end{align}
 
-with $p(\textbf{x})$ the current prior distribution and $y$ the outcome of the experiment. In practice, the 
-prior distribution is replaced with $p(\textbf{x}|y)$ and the estimated value of $\textbf{x}$ can be 
-evaluated by
+with $p(\textbf{x})$ the current prior distribution and $y$ the outcome of the experiment. 
+In practice, the prior distribution is replaced with $p(\textbf{x}|y)$ and the estimated 
+value of $\textbf{x}$ can be evaluated by
 === "Python"
     ``` py
     Bayes(x, p, rho, y, M=[], savefile=False)
@@ -905,17 +1004,19 @@ iterations will be saved in "pout.npy" ("Lout.npy") and "xout.npy" if `savefile=
 if the users want to save all the posterior distributions (likelihood function) and the 
 estimated values in all iterations, the variable `savefile` needs to be set to `True`.
 
-**Example**  
+**Example 2.9**  
+<a id="example2_9"></a>
 The Hamiltonian of a qubit system is 
 \begin{align}
 H=\frac{B}{2}(\sigma_1\cos{x}+\sigma_3\sin{x}),
 \end{align}
 
-where $B$ is the magnetic field in the XZ plane, $x$ is the unknown parameter and $\sigma_{1}$, $\sigma_{3}$ 
-are the Pauli matrices. The probe state is taken as $|\pm\rangle$. The measurement is 
-$\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}{\sqrt{2}}(|0\rangle\pm|
-1\rangle)$ with $|0\rangle$ $(|1\rangle)$ the eigenstate of $\sigma_3$ with respect to the eigenvalue $1$ 
-$(-1)$. In this example, the prior distribution $p(x)$ is uniform on $[0, \pi/2]$.
+where $B$ is the magnetic field in the XZ plane, $x$ is the unknown parameter and $\sigma_{1}$, 
+$\sigma_{3}$ are the Pauli matrices. The probe state is taken as $|\pm\rangle$. The measurement 
+is $\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}{\sqrt{2}}
+(|0\rangle\pm|1\rangle)$ with $|0\rangle$ $(|1\rangle)$ the eigenstate of $\sigma_3$ with respect 
+to the eigenvalue $1$ $(-1)$. In this example, the prior distribution $p(x)$ is uniform on 
+$[0, \pi/2]$.
 === "Python"
     ``` py
     from quanestimation import *
@@ -1062,8 +1163,17 @@ H. L. Van Trees,
 *Detection, estimation, and modulation theory: Part I*
 (Wiley, New York, 1968).
 
-<a id="Tsang2011">[9]</a> 
+<a id="Zhong2013">[9]</a> 
+W. Zhong, Z. Sun, J. Ma, X. Wang, and F. Nori,
+Fisher information under decoherence in Bloch representation, 
+[Phys. Rev. A **87**, 022337 (2013).](https://doi.org/10.1103/PhysRevA.87.022337)
+
+<a id="Tsang2011">[10]</a> 
 M. Tsang, H. M. Wiseman, and C. M. Caves, 
 Fundamental quantum limit to waveform estimation, 
 [Phys. Rev. Lett. **106**, 090401 (2011).](https://doi.org/10.1103/PhysRevLett.106.090401)
 
+<a id="Safranek2019">[11]</a> 
+D. Šafránek,
+Estimation of Gaussian quantum states,
+[J. Phys. A: Math. Theor. **52**, 035304 (2019).](https://doi.org/10.1088/1751-8121/aaf068)

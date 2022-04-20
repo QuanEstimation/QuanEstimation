@@ -2,11 +2,11 @@
 For state optimization in QuanEstimation, the probe state is expanded as 
 $|\psi\rangle=\sum_i c_i|i\rangle$ in a specific basis $\{|i\rangle\}$. Search of the optimal 
 probe states is equal to search of the normalized complex coefficients $\{c_i\}$. In 
-QuanEstimation, the state optimization algorithms are automatic differentiation (AD) 
+QuanEstimation, the state optimization algorithms are the automatic differentiation (AD) 
 [[1]](#Baydin2018), particle swarm optimization (PSO) [[2]](#Kennedy1995), differential 
 evolution (DE) [[3]](#Storn1997), Nelder-Mead (NM) [[4]](#Nelder1965), and deep deterministic 
-policy gradients (DDPG) [[5]](#Lillicrap2015). The following codes can be used to perform 
-state optimizaiton
+policy gradients (DDPG) [[5]](#Lillicrap2015). Call the following codes to perform state 
+optimizaiton
 === "Python"
     ``` py
     state = StateOpt(savefile=False, method="AD", **kwargs)
@@ -24,16 +24,16 @@ state optimizaiton
         ``` py
         state.HCRB(W=[])
         ```
-    `savefile` means whether to save all the states. If set `False` (default) the states in the 
-    final episode and the values of the objective function in all episodes will be saved. If set 
-    `True` then the states and the values of the objective function obtained in all episodes will 
-    be saved during the training. `method` represents the algorithm used to optimize the states, 
-    options are: "AD", "PSO", "DE", "DDPG", and "NM". `**kwargs` contains the keyword and 
-    default value corresponding to the optimization algorithm which will be introduced in 
-    detail below.
+    The variable `savefile` means whether to save all the states. If set `False` (default) the 
+    states in the final episode and the values of the objective function in all episodes will 
+    be saved. If set `True` then the states and the values of the objective function obtained 
+    in all episodes will be saved during the training. `method` represents the algorithm used 
+    to optimize the states, options are: "AD", "PSO", "DE", "DDPG", and "NM". `**kwargs` contains 
+    the keywords and default values corresponding to the optimization algorithm which will be 
+    introduced in detail below.
 
     `tspan` is the time length for the evolution, `H0` and `dH` are the free Hamiltonian and its
-    derivatives on the unknown parameters to be estimated. `H0` accepts both matrix 
+    derivatives with respect to the unknown parameters to be estimated. `H0` accepts both matrix 
     (time-independent evolution) and list (time-dependent evolution) with the length equal to 
     `tspan`. `dH` should be input as $[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. `Hc` 
     and `ctrl` are two lists represent the control Hamiltonians and the corresponding control 
@@ -43,17 +43,18 @@ state optimizaiton
     `decay`, `Hc` and `ctrl` are empty which means the dynamics is unitary and only governed by 
     the free Hamiltonian. 
 
-    The objective functions for state optimization can be set as QFI ($\mathrm{Tr}(W\mathcal{F}^
-    {-1})$), CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$) and HCRB, the corresponding codes for them are
-    `state.QFIM()` (default), `state.CFIM()` and `state.HCRB()`. Here $\mathcal{F}$ and 
-    $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight matrix which 
-    defaults to the identity matrix. If the users call `state.HCRB()` for single parameter 
-    scenario, the program will exit and print `"Program exit. In the single-parameter scenario, the 
-    HCRB is equivalent to the QFI. Please choose 'QFIM' as the objective function"`. `LDtype` in 
-    `state.QFIM()` represents the types of the QFIM, it can be set as `LDtype="SLD"` (default), 
-    `LDtype="RLD"`, and `LDtype="LLD"`. `M` represents a set of positive operator-valued measure 
-    (POVM) with default value `[]`. In the package, a set of rank-one symmetric informationally 
-    complete POVM (SIC-POVM) is used when `M=[]`.
+    The objective functions for state optimization can be chosen as QFI $\left[\mathrm{Tr}
+    (W\mathcal{F}^{-1})\right]$, CFI $\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]$ and HCRB, 
+    the corresponding codes for them are `state.QFIM()` (default), `state.CFIM()` and 
+    `state.HCRB()`. Here $\mathcal{F}$ and $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds 
+    to `W` represents the weight matrix, the default value for `W` is the identity matrix. If 
+    the users call `state.HCRB()` for single parameter scenario, the program will exit and print 
+    `"Program exit. In the single-parameter scenario, the HCRB is equivalent to the QFI. Please 
+    choose 'QFIM' as the objective function"`. `LDtype` in `state.QFIM()` represents the types 
+    of the QFIM, it can be set as `LDtype="SLD"` (default), `LDtype="RLD"`, and `LDtype="LLD"`. 
+    `M` represents a set of positive operator-valued measure (POVM) with default value `[]`. 
+    In the package, a set of rank-one symmetric informationally complete POVM (SIC-POVM) is 
+    used when `M=[]`.
 === "Julia"
     ``` jl
     opt = StateOpt(psi=psi)
@@ -79,7 +80,7 @@ state optimizaiton
     The initial state (optimization variable) can be input via `psi=psi` in `StateOpt()` for 
     constructing a state optimization problem. `psi` is an array representing the state. 
     `Lindblad` accepts the dynamics parameters. `tspan` is the time length for the evolution, 
-    `H0` and `dH` are the free Hamiltonian and its derivatives on the unknown parameters to be 
+    `H0` and `dH` are the free Hamiltonian and its derivatives with respect to the unknown parameters to be 
     estimated. `H0` accepts both matrix (time-independent evolution) and list (time-dependent 
     evolution) with the length equal to `tspan`. `dH` should be input as $[\partial_a{H_0}, 
     \partial_b{H_0}, \cdots]$. `Hc` and `ctrl` are two lists represent the control Hamiltonians 
@@ -107,78 +108,6 @@ state optimizaiton
     be saved during the training. The algorithm used to optimize the states in QuanEstimation 
     are AD, PSO, DE, DDPG and NM. `kwargs...` contains the keywords and default values corresponding 
     to the optimization algorithm which will be introduced in detail below.
-
-If the parameterization process is implemented with the Kraus operators, then the corresponding 
-parameters should be input via
-=== "Python"
-    ``` py
-    state.Kraus(K, dK)
-    ```
-=== "Julia"
-    ``` jl
-    dynamics = Kraus(opt, K, dK)
-    ```
-where `K` and `dK` are the Kraus operators and its derivatives on the unknown parameters.
-
-**Example**  
-The Kraus operators for the amplitude damping channel are
-
-\begin{eqnarray}
-K_1 = \left(\begin{array}{cc}
-1 & 0  \\
-0 & \sqrt{1-\gamma}
-\end{array}\right),
-K_2 = \left(\begin{array}{cc}
-0 & \sqrt{\gamma} \\
-0 & 0
-\end{array}\right), \nonumber
-\end{eqnarray}
-
-where $\gamma$ is the decay probability.
-
-=== "Python"
-    ``` py
-    from quanestimation import *
-    import numpy as np
-
-    # initial state
-    rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
-    # Kraus operators for the amplitude damping channel
-    gamma = 0.1
-    K1 = np.array([[1., 0.], [0., np.sqrt(1-gamma)]])
-    K2 = np.array([[0., np.sqrt(gamma)], [0., 0.]])
-    K = [K1, K2]
-    # derivatives of Kraus operators on gamma
-    dK1 = np.array([[1., 0.], [0., -0.5/np.sqrt(1-gamma)]])
-    dK2 = np.array([[0., 0.5/np.sqrt(gamma)], [0., 0.]])
-    dK = [[dK1], [dK2]]
-    # state optimization 
-    state = StateOpt(savefile=False, method="AD", **kwargs)
-    state.Kraus(K, dK)
-    state.QFIM()
-    ```
-=== "Julia"
-    ``` jl
-    using QuanEstimation
-
-    # initial state
-    rho0 = 0.5*ones(2, 2)
-    # Kraus operators for the amplitude damping channel
-    gamma = 0.1
-    K1 = [1. 0.; 0. sqrt(1-gamma)]
-    K2 = [0. sqrt(gamma); 0. 0.]
-    K = [K1, K2]
-    # derivatives of Kraus operators on gamma
-    dK1 = [1. 0.; 0. -0.5/sqrt(1-gamma)]
-    dK2 = [0. 0.5/sqrt(gamma); 0. 0.]
-    dK = [[dK1], [dK2]]
-    # state optimization
-    opt = QuanEstimation.Sopt()
-    alg = QuanEstimation.AD()
-    dynamics = QuanEstimation.Kraus(opt, K, dK)
-    obj = QuanEstimation.QFIM_obj()
-    QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
-    ```
 
 ---
 ## **AD**
@@ -424,7 +353,8 @@ The code for state optimization with DDPG is as follows
     `layer_num` and `layer_dim` represent the number of layers (include the input and output layer) 
     and the number of neurons in the hidden layer.
 
-**Example**  
+**Example 4.1**  
+<a id="example4_1"></a>
 The Hamiltonian of the Lipkin–Meshkov–Glick (LMG) model is
 \begin{align}
 H_{\mathrm{LMG}}=-\frac{\lambda}{N}(J_1^2+gJ_2^2)-hJ_3,
@@ -446,6 +376,7 @@ for generation of the spin coherent state.
     import numpy as np
     from qutip import *
 
+    # the dimension of the system
     N = 8
     # generation of the coherent spin state
     psi_css = spin_coherent(0.5*N, 0.5*np.pi, 0.5*np.pi, type="ket").full()
@@ -521,6 +452,7 @@ for generation of the spin coherent state.
     using LinearAlgebra
     using SparseArrays
 
+    # the dimension of the system
     N = 8
     # generation of the coherent spin state
     j, theta, phi = N÷2, 0.5pi, 0.5pi
@@ -542,7 +474,7 @@ for generation of the spin coherent state.
     # time length for the evolution
     tspan = range(0., 10., length=2500)
     # set the optimization type
-    opt = QuanEstimation.Sopt(psi=psi0) 
+    opt = QuanEstimation.StateOpt(psi=psi0) 
     ```
     === "AD"
         ``` jl
@@ -592,7 +524,8 @@ for generation of the spin coherent state.
     # run the state optimization problem
     QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
     ```
-**Example**  
+**Example 4.2**  
+<a id="example4_2"></a>
 In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown parameters to be estimated.
 === "Python"
     ``` py
@@ -600,6 +533,7 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
     import numpy as np
     from qutip import *
 
+    # the dimension of the system
     N = 8
     # generation of coherent spin state
     psi_css = spin_coherent(0.5*N, 0.5*np.pi, 0.5*np.pi, type="ket").full()
@@ -682,6 +616,7 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
     using LinearAlgebra
     using SparseArrays
 
+    # the dimension of the system
     N = 8
     # generation of the coherent spin state
     j, theta, phi = N÷2, 0.5pi, 0.5pi
@@ -705,7 +640,7 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
     # weight matrix
     W = [1/3 0.; 0. 2/3]
     # set the optimization type
-    opt = QuanEstimation.Sopt(psi=psi0)
+    opt = QuanEstimation.StateOpt(psi=psi0)
     ```
     === "AD"
         ``` jl
@@ -749,6 +684,207 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
     === "CFIM"
         ``` jl
         # objective function: tr(WI^{-1})
+        obj = QuanEstimation.CFIM_obj()
+        ```
+    === "HCRB"
+        ``` jl
+        # objective function: HCRB
+        obj = QuanEstimation.HCRB_obj()
+        ```
+    ``` jl
+    # run the state optimization problem
+    QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+    ```
+
+If the parameterization process is implemented with the Kraus operators, then the corresponding 
+codes are
+=== "Python"
+    ``` py
+    state = StateOpt(savefile=False, method="AD", **kwargs)
+    state.state.Kraus(K, dK)
+    ```
+    === "QFIM"
+        ``` py
+        state.QFIM(W=[], LDtype="SLD")
+        ```
+    === "CFIM"
+        ``` py
+        state.CFIM(M=[], W=[])
+        ```
+    === "HCRB"
+        ``` py
+        state.HCRB(W=[])
+        ```
+=== "Julia"
+    ``` jl
+    opt = StateOpt(psi=psi)
+    alg = AD(kwargs...)
+    dynamics = Kraus(opt, K, dK)
+    ```
+    === "QFIM"
+        ``` jl
+        obj = QFIM_obj(W=missing, LDtype=:SLD)
+        ```
+    === "CFIM"
+        ``` jl
+        obj = CFIM_obj(M=missing, W=missing)
+        ```
+    === "HCRB"
+        ``` jl
+        obj = HCRB_obj(W=missing)
+        ```
+    ``` jl
+    run(opt, alg, obj, dynamics; savefile=false)
+    ```
+
+where `K` and `dK` are the Kraus operators and its derivatives with respect to the 
+unknown parameters.
+
+**Example 4.3**  
+The Kraus operators for the amplitude damping channel are
+
+\begin{eqnarray}
+K_1 = \left(\begin{array}{cc}
+1 & 0  \\
+0 & \sqrt{1-\gamma}
+\end{array}\right),
+K_2 = \left(\begin{array}{cc}
+0 & \sqrt{\gamma} \\
+0 & 0
+\end{array}\right), \nonumber
+\end{eqnarray}
+
+where $\gamma$ is the unknown parameter to be estimated which represents the decay probability.
+
+=== "Python"
+    ``` py
+    from quanestimation import *
+    import numpy as np
+
+    # initial state
+    rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
+    # Kraus operators for the amplitude damping channel
+    gamma = 0.1
+    K1 = np.array([[1., 0.], [0., np.sqrt(1-gamma)]])
+    K2 = np.array([[0., np.sqrt(gamma)], [0., 0.]])
+    K = [K1, K2]
+    # derivatives of Kraus operators on gamma
+    dK1 = np.array([[1., 0.], [0., -0.5/np.sqrt(1-gamma)]])
+    dK2 = np.array([[0., 0.5/np.sqrt(gamma)], [0., 0.]])
+    dK = [[dK1], [dK2]]
+    ```
+    === "AD"
+		``` py
+        # state optimization algorithm: AD
+		AD_paras = {"Adam":False, "psi0":psi0, "max_episode":300, \
+                    "epsilon":0.01, "beta1":0.90, "beta2":0.99}
+        state = StateOpt(savefile=False, method="AD", **AD_paras)
+		```
+	=== "PSO"
+		``` py
+        # state optimization algorithm: PSO
+		PSO_paras = {"particle_num":10, "psi0":psi0, "max_episode":[1000,100], \
+					 "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
+		state = StateOpt(savefile=False, method="PSO", **PSO_paras)
+		```
+	=== "DE"
+		``` py
+        # state optimization algorithm: DE
+		DE_paras = {"popsize":10, "psi0":psi0, "max_episode":1000, "c":1.0, \
+				    "cr":0.5, "seed":1234}
+		state = StateOpt(savefile=False, method="DE", **DE_paras)
+		```
+    === "NM"
+		``` py
+        # state optimization algorithm: NM
+		NM_paras = {"state_num":20, "psi0":psi0, "max_episode":1000, \
+                    "ar":1.0, "ae":2.0, "ac":0.5, "as0":0.5, "seed":1234}
+        state = StateOpt(savefile=False, method="NM", **NM_paras)
+		```
+	=== "DDPG"
+		``` py
+        # state optimization algorithm: DDPG
+		DDPG_paras = {"layer_num":4, "layer_dim":250, "max_episode":500, \
+		              "seed":1234}
+		state = StateOpt(savefile=False, method="DDPG", **DDPG_paras)
+		```
+    ``` py
+    # input the dynamics data
+    state.Kraus(K, dK)
+    ```
+    === "QFIM"
+        ``` py
+        # objective function: QFI
+        state.QFIM()
+        ```
+    === "CFIM"
+        ``` py
+        # objective function: CFI
+        state.CFIM()
+        ```
+    === "HCRB"
+        ``` py
+        # objective function: HCRB
+        state.HCRB()
+        ```
+=== "Julia"
+    ``` jl
+    using QuanEstimation
+
+    # initial state
+    rho0 = 0.5*ones(2, 2)
+    # Kraus operators for the amplitude damping channel
+    gamma = 0.1
+    K1 = [1. 0.; 0. sqrt(1-gamma)]
+    K2 = [0. sqrt(gamma); 0. 0.]
+    K = [K1, K2]
+    # derivatives of Kraus operators on gamma
+    dK1 = [1. 0.; 0. -0.5/sqrt(1-gamma)]
+    dK2 = [0. 0.5/sqrt(gamma); 0. 0.]
+    dK = [[dK1], [dK2]]
+    ```
+    === "AD"
+        ``` jl
+        # state optimization algorithm: AD
+        alg = QuanEstimation.AD(Adam=false, max_episode=300, epsilon=0.01, 
+                                beta1=0.90, beta2=0.99)
+        ```
+    === "PSO"
+        ``` jl
+        # state optimization algorithm: PSO
+        alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
+                                 c1=2.0, c2=2.0, seed=1234)
+        ```
+    === "DE"
+        ``` jl
+        # state optimization algorithm: DE
+        alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5, 
+                                seed=1234)
+        ```
+    === "NM"
+        ``` jl
+        # state optimization algorithm: NM
+        alg = QuanEstimation.NM(state_num=10, max_episode=1000, ar=1.0, 
+                                ae=2.0, ac=0.5, as0=0.5, seed=1234)
+        ```
+    === "DDPG"
+        ``` jl
+        # state optimization algorithm: DDPG
+        alg = QuanEstimation.DDPG(max_episode=500, layer_num=3, layer_dim=200, 
+                                  seed=1234)
+        ```
+    ``` jl
+    # input the dynamics data
+    dynamics = QuanEstimation.Kraus(opt, K, dK) 
+    ```
+    === "QFIM"
+        ``` jl
+        # objective function: QFI
+        obj = QuanEstimation.QFIM_obj()
+        ```
+    === "CFIM"
+        ``` jl
+        # objective function: CFI
         obj = QuanEstimation.CFIM_obj()
         ```
     === "HCRB"

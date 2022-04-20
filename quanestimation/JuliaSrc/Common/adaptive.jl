@@ -368,7 +368,7 @@ end
 function online(apt::adaptMZI; output::String = "phi")
     (;x, p, rho0) = apt
     N = Int(sqrt(size(rho0,1))) - 1
-    a = destroy(N+1)' |> sparse
+    a = destroy(N+1) |> sparse
     adaptMZI_online(x, p, rho0, a, output)
 end
 
@@ -384,23 +384,23 @@ function brgd(n)
     return deepcopy(vcat(L0,L1))
 end
 
-function offline(apt::adaptMZI, alg;eps = GLOBAL_EPS)
+function offline(apt::adaptMZI, alg; eps = GLOBAL_EPS)
     (;x,p,rho0) = apt
     N = Int(sqrt(size(rho0,1))) - 1
-    a = destroy(N+1)' |> sparse
+    a = destroy(N+1) |> sparse
     comb = brgd(N)|>x->[[parse(Int, s) for s in ss] for ss in x]
     if alg isa DE
         (;p_num,ini_population,c,cr,rng,max_episode) = alg
         if ismissing(ini_population)
             ini_population = ([apt.rho0],)
         end
-        DE_DeltaPhiOpt(x,p,rho0,a,comb,p_num,ini_population[1],c,cr,rng.seed,max_episode,eps)
+        DE_deltaphiOpt(x,p,rho0,a,comb,p_num,ini_population[1],c,cr,rng.seed,max_episode,eps)
     elseif alg isa PSO
         (;p_num,ini_particle,c0,c1,c2,rng,max_episode) = alg
         if ismissing(ini_particle)
             ini_particle = ([apt.rho0],)
         end
-        PSO_DeltaPhiOpt(x,p,rho0,a,comb,p_num,ini_particle[1],c0,c1,c2,rng.seed,max_episode,eps)
+        PSO_deltaphiOpt(x,p,rho0,a,comb,p_num,ini_particle[1],c0,c1,c2,rng.seed,max_episode,eps)
     end
 end
 
@@ -546,25 +546,25 @@ function logarithmic(number, N)
     return res
 end
 
-function DE_DeltaPhiOpt(x, p, rho0, a, comb, popsize, ini_population, c, cr, seed, max_episode, eps)
+function DE_deltaphiOpt(x, p, rho0, a, comb, popsize, ini_population, c, cr, seed, max_episode, eps)
     Random.seed!(seed)
     N = size(a)[1] - 1
-    DeltaPhi = [zeros(N) for i in 1:popsize]
+    deltaphi = [zeros(N) for i in 1:popsize]
     # initialize
     res = logarithmic(2.0*pi, N)
     if length(ini_population) > popsize
         ini_population = [ini_population[i] for i in 1:popsize]
     end
     for pj in 1:length(ini_population)
-        DeltaPhi[pj] = [ini_population[pj][i] for i in 1:N]
+        deltaphi[pj] = [ini_population[pj][i] for i in 1:N]
     end
     for pk in (length(ini_population)+1):popsize
-        DeltaPhi[pk] = [res[i]+rand() for i in 1:N]
+        deltaphi[pk] = [res[i]+rand() for i in 1:N]
     end
 
     p_fit = [0.0 for i in 1:popsize]
     for pl in 1:N
-        p_fit[pl] = adaptMZI_offline(DeltaPhi[pl], x, p, rho0, a, comb, eps)
+        p_fit[pl] = adaptMZI_offline(deltaphi[pl], x, p, rho0, a, comb, eps)
     end
     
     f_ini = maximum(p_fit)
@@ -573,42 +573,46 @@ function DE_DeltaPhiOpt(x, p, rho0, a, comb, popsize, ini_population, c, cr, see
         for pm in 1:popsize
             #mutations
             mut_num = sample(1:popsize, 3, replace=false)
-            DeltaPhi_mut = [0.0 for i in 1:N]
+            deltaphi_mut = [0.0 for i in 1:N]
             for ci in 1:N
-                DeltaPhi_mut[ci] = DeltaPhi[mut_num[1]][ci]+c*(DeltaPhi[mut_num[2]][ci]-DeltaPhi[mut_num[3]][ci])
+                deltaphi_mut[ci] = deltaphi[mut_num[1]][ci]+c*(deltaphi[mut_num[2]][ci]-deltaphi[mut_num[3]][ci])
             end
             #crossover
-            DeltaPhi_cross = [0.0 for i in 1:N]
+            deltaphi_cross = [0.0 for i in 1:N]
             cross_int = sample(1:N, 1, replace=false)[1]
             for cj in 1:N
                 rand_num = rand()
                 if rand_num <= cr
-                    DeltaPhi_cross[cj] = DeltaPhi_mut[cj]
+                    deltaphi_cross[cj] = deltaphi_mut[cj]
                 else
-                    DeltaPhi_cross[cj] = DeltaPhi[pm][cj]
+                    deltaphi_cross[cj] = deltaphi[pm][cj]
                 end
-                DeltaPhi_cross[cross_int] = DeltaPhi_mut[cross_int]
+                deltaphi_cross[cross_int] = deltaphi_mut[cross_int]
             end
             #selection
             for cm in 1:N
-                DeltaPhi_cross[cm] = (x-> x < 0.0 ? 0.0 : x > pi ? pi : x)(DeltaPhi_cross[cm])
+                deltaphi_cross[cm] = (x-> x < 0.0 ? 0.0 : x > pi ? pi : x)(deltaphi_cross[cm])
             end
-            f_cross = adaptMZI_offline(DeltaPhi_cross, x, p, rho0, a, comb, eps)
+            f_cross = adaptMZI_offline(deltaphi_cross, x, p, rho0, a, comb, eps)
             if f_cross > p_fit[pm]
                 p_fit[pm] = f_cross
                 for ck in 1:N
-                    DeltaPhi[pm][ck] = DeltaPhi_cross[ck]
+                    deltaphi[pm][ck] = deltaphi_cross[ck]
                 end
             end
         end
-        println(maximum(p_fit))
-        println(DeltaPhi[findmax(p_fit)[2]])
         append!(f_list, maximum(p_fit))
     end
-    return DeltaPhi[findmax(p_fit)[2]]
+    open("deltaphi.csv","w") do m
+        writedlm(m, deltaphi[findmax(p_fit)[2]])
+    end
+    open("f.csv","w") do n
+        writedlm(n, f_list)
+    end
+    return deltaphi[findmax(p_fit)[2]]
 end
 
-function PSO_DeltaPhiOpt(x, p, rho0, a, comb, particle_num, ini_particle, c0, c1, c2, seed, max_episode, eps)   
+function PSO_deltaphiOpt(x, p, rho0, a, comb, particle_num, ini_particle, c0, c1, c2, seed, max_episode, eps)   
     Random.seed!(seed)
     N = size(a)[1] - 1
     n = size(a)[1]
@@ -617,7 +621,7 @@ function PSO_DeltaPhiOpt(x, p, rho0, a, comb, particle_num, ini_particle, c0, c1
         max_episode = [max_episode, max_episode]
     end
 
-    DeltaPhi = [zeros(N) for i in 1:particle_num]
+    deltaphi = [zeros(N) for i in 1:particle_num]
     velocity = [zeros(N) for i in 1:particle_num]
     # initialize
     res = logarithmic(2.0*pi, N)
@@ -625,10 +629,10 @@ function PSO_DeltaPhiOpt(x, p, rho0, a, comb, particle_num, ini_particle, c0, c1
         ini_particle = [ini_particle[i] for i in 1:particle_num]
     end
     for pj in 1:length(ini_particle)
-        DeltaPhi[pj] = [ini_particle[pj][i] for i in 1:N]
+        deltaphi[pj] = [ini_particle[pj][i] for i in 1:N]
     end
     for pk in (length(ini_particle)+1):particle_num
-        DeltaPhi[pk] = [res[i]+rand() for i in 1:N]
+        deltaphi[pk] = [res[i]+rand() for i in 1:N]
     end
     for pl in 1:particle_num
         velocity[pl] = [0.1*rand() for i in 1:N]
@@ -641,11 +645,11 @@ function PSO_DeltaPhiOpt(x, p, rho0, a, comb, particle_num, ini_particle, c0, c1
     f_list = []
     for ei in 1:(max_episode[1]-1)
         for pm in 1:particle_num
-            f_now = adaptMZI_offline(DeltaPhi[pm], x, p, rho0, a, comb, eps)
+            f_now = adaptMZI_offline(deltaphi[pm], x, p, rho0, a, comb, eps)
             if f_now > p_fit[pm]
                 p_fit[pm] = f_now
                 for ci in 1:N
-                    pbest[pm][ci] = DeltaPhi[pm][ci]
+                    pbest[pm][ci] = deltaphi[pm][ci]
                 end
             end
         end
@@ -660,27 +664,31 @@ function PSO_DeltaPhiOpt(x, p, rho0, a, comb, particle_num, ini_particle, c0, c1
         end
 
         for pa in 1:particle_num
-            DeltaPhi_pre = [0.0 for i in 1:N]
+            deltaphi_pre = [0.0 for i in 1:N]
             for ck in 1:N
-                DeltaPhi_pre[ck] = DeltaPhi[pa][ck]
-                velocity[pa][ck] = c0*velocity[pa][ck] + c1*rand()*(pbest[pa][ck] - DeltaPhi[pa][ck]) 
-                                    + c2*rand()*(gbest[ck] - DeltaPhi[pa][ck])
-                DeltaPhi[pa][ck] += velocity[pa][ck]
+                deltaphi_pre[ck] = deltaphi[pa][ck]
+                velocity[pa][ck] = c0*velocity[pa][ck] + c1*rand()*(pbest[pa][ck] - deltaphi[pa][ck]) 
+                                    + c2*rand()*(gbest[ck] - deltaphi[pa][ck])
+                deltaphi[pa][ck] += velocity[pa][ck]
             end
 
             for cn in 1:N
-                DeltaPhi[pa][cn] = (x-> x < 0.0 ? 0.0 : x > pi ? pi : x)(DeltaPhi[pa][cn])
-                velocity[pa][cn] = DeltaPhi[pa][cn] - DeltaPhi_pre[cn]
+                deltaphi[pa][cn] = (x-> x < 0.0 ? 0.0 : x > pi ? pi : x)(deltaphi[pa][cn])
+                velocity[pa][cn] = deltaphi[pa][cn] - deltaphi_pre[cn]
             end
         end
-        println(fit)
-        println(gbest)
         append!(f_list, fit)
         if ei%max_episode[2] == 0
             for pb in 1:particle_num
-                DeltaPhi[pb] = [gbest[i] for i in 1:N]
+                deltaphi[pb] = [gbest[i] for i in 1:N]
             end
         end
+    end
+    open("deltaphi.csv","w") do m
+        writedlm(m, gbest)
+    end
+    open("f.csv","w") do n
+        writedlm(n, f_list)
     end
     return gbest
 end

@@ -149,80 +149,6 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
     comprehensive optimizaiton are PSO, DE and AD. `kwargs...` is the keywords and the default 
     values corresponding to the optimization algorithm which will be introduced in detail below.
 
-For optimization of probe state and measurement, the parameterization can also be implemented 
-with the Kraus operators which can be realized by
-=== "Python"
-    ``` py
-    com = ComprehensiveOpt(savefile=False, method="DE", **kwargs)
-    com.Kraus(K, dK)
-    com.SM(W=[])  
-    ```
-=== "Julia"
-    ``` jl
-    dynamics = Kraus(opt, K, dK)
-    ```
-where `K` and `dK` are the Kraus operators and its derivatives on the unknown parameters.
-The Kraus operators for the amplitude damping channel are
-
-\begin{eqnarray}
-K_1 = \left(\begin{array}{cc}
-1 & 0  \\
-0 & \sqrt{1-\gamma}
-\end{array}\right),
-K_2 = \left(\begin{array}{cc}
-0 & \sqrt{\gamma} \\
-0 & 0
-\end{array}\right), \nonumber
-\end{eqnarray}
-
-where $\gamma$ is the decay probability. In this example, the probe state is taken as 
-$|+\rangle\langle+|$ with $|+\rangle=\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)$. 
-Here $|0\rangle$ $(|1\rangle)$ is the eigenstate of $\sigma_3$ (Pauli matrix) with respect 
-to the eigenvalue $1$ $(-1)$.
-
-=== "Python"
-    ``` py
-    from quanestimation import *
-    import numpy as np
-
-    # initial state
-    rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
-    # Kraus operators for the amplitude damping channel
-    gamma = 0.1
-    K1 = np.array([[1., 0.], [0., np.sqrt(1-gamma)]])
-    K2 = np.array([[0., np.sqrt(gamma)], [0., 0.]])
-    K = [K1, K2]
-    # derivatives of Kraus operators on gamma
-    dK1 = np.array([[1., 0.], [0., -0.5/np.sqrt(1-gamma)]])
-    dK2 = np.array([[0., 0.5/np.sqrt(gamma)], [0., 0.]])
-    dK = [[dK1], [dK2]]
-    # comprehensive optimization 
-    com = ComprehensiveOpt(savefile=False, method="DE", **kwargs)
-    com.Kraus(K, dK)
-    com.SM()
-    ```
-=== "Julia"
-    ``` jl
-    using QuanEstimation
-
-    # initial state
-    rho0 = 0.5*ones(2, 2)
-    # Kraus operators for the amplitude damping channel
-    gamma = 0.1
-    K1 = [1. 0.; 0. sqrt(1-gamma)]
-    K2 = [0. sqrt(gamma); 0. 0.]
-    K = [K1, K2]
-    # derivatives of Kraus operators on gamma
-    dK1 = [1. 0.; 0. -0.5/sqrt(1-gamma)]
-    dK2 = [0. 0.5/sqrt(gamma); 0. 0.]
-    dK = [[dK1], [dK2]]
-    # comprehensive optimization 
-    opt = QuanEstimation.SMopt()
-    alg = QuanEstimation.DE()
-    dynamics = QuanEstimation.Kraus(opt, K, dK)
-    obj = QuanEstimation.QFIM_obj()
-    QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
-    ```
 ---
 ## **PSO**
 The code for comprehensive optimization with PSO is as follows
@@ -378,7 +304,7 @@ The code for comprehensive optimization with AD is as follows
     `epsilon`, `beta1` and `beta2`.
 === "Julia"
     ``` jl
-    alg =AD(Adam=false, max_episode=300, epsilon=0.01, beta1=0.90, 
+    alg = AD(Adam=false, max_episode=300, epsilon=0.01, beta1=0.90, 
             beta2=0.99)
     ```
     The keywords and the default values of AD can be seen in the 
@@ -398,7 +324,8 @@ The code for comprehensive optimization with AD is as follows
     moment estimates and the second moment estimates can be set by the user via 
     `epsilon`, `beta1` and `beta2`.
 
-**Example**  
+**Example 6.1**  
+<a id="example6_1"></a>
 A single qubit system whose free evolution Hamiltonian is $H_0 = \frac{1}{2}\omega_0 \sigma_3$ with 
 $\omega_0$ the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system is governed by
 \begin{align}
@@ -720,7 +647,8 @@ In this case, we consider two types of comprehensive optimization, the first one
     # run the comprehensive optimization problem
     QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
     ```
-**Example**  
+**Example 6.2**  
+<a id="example6_2"></a>
 The Hamiltonian of a controlled system can be written as
 \begin{align}
 H = H_0(\textbf{x})+\sum_{k=1}^K u_k(t) H_k,
@@ -1122,6 +1050,126 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj(M=M) 
             ```
+    ``` jl
+    # run the comprehensive optimization problem
+    QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+    ```
+For optimization of probe state and measurement, the parameterization can also be implemented 
+with the Kraus operators which can be realized by
+=== "Python"
+    ``` py
+    com = ComprehensiveOpt(savefile=False, method="DE", **kwargs)
+    com.Kraus(K, dK)
+    com.SM(W=[])
+    ```
+=== "Julia"
+    ``` jl
+    opt = SMopt(psi=psi, M=M)
+    alg = DE(kwargs...)
+    dynamics = Kraus(opt, K, dK) 
+    obj = CFIM_obj(W=missing)
+    run(opt, alg, obj, dynamics; savefile=false)
+    ```
+where `K` and `dK` are the Kraus operators and its derivatives with respect to the 
+unknown parameters.
+
+**Example 6.3**  
+The Kraus operators for the amplitude damping channel are
+
+\begin{eqnarray}
+K_1 = \left(\begin{array}{cc}
+1 & 0  \\
+0 & \sqrt{1-\gamma}
+\end{array}\right),
+K_2 = \left(\begin{array}{cc}
+0 & \sqrt{\gamma} \\
+0 & 0
+\end{array}\right), \nonumber
+\end{eqnarray}
+
+where $\gamma$ is the unknown parameter to be estimated which represents the decay 
+probability. In this example, the probe state is taken as $|+\rangle\langle+|$ with 
+$|+\rangle=\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)$. Here $|0\rangle$ $(|1\rangle)$ is 
+the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $(-1)$.
+
+=== "Python"
+    ``` py
+    from quanestimation import *
+    import numpy as np
+
+    # initial state
+    rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
+    # Kraus operators for the amplitude damping channel
+    gamma = 0.1
+    K1 = np.array([[1., 0.], [0., np.sqrt(1-gamma)]])
+    K2 = np.array([[0., np.sqrt(gamma)], [0., 0.]])
+    K = [K1, K2]
+    # derivatives of Kraus operators on gamma
+    dK1 = np.array([[1., 0.], [0., -0.5/np.sqrt(1-gamma)]])
+    dK2 = np.array([[0., 0.5/np.sqrt(gamma)], [0., 0.]])
+    dK = [[dK1], [dK2]]
+    ```
+    === "DE"
+        ``` py
+        # comprehensive optimization algorithm: DE
+        DE_paras = {"popsize":10, "psi0":[], "ctrl0":[], "measurement0":[], \
+                    "max_episode":100, "c":1.0, "cr":0.5, "seed":1234}
+        com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
+        com.Kraus(K, dK)
+        com.SM()
+        ```
+    === "PSO"
+        ``` py
+        # comprehensive optimization algorithm: PSO
+        PSO_paras = {"particle_num":10, "psi0":[], "ctrl0":[], \
+                     "measurement0":[], "max_episode":[1000,100], "c0":1.0, \
+                     "c1":2.0, "c2":2.0, "seed":1234}
+        com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
+        com.Kraus(K, dK)
+        com.SM()
+        ```
+    ``` py
+    com = ComprehensiveOpt(savefile=False, method="DE", **kwargs)
+    com.SM()
+    ```
+=== "Julia"
+    ``` jl
+    using QuanEstimation
+
+    # initial state
+    rho0 = 0.5*ones(2, 2)
+    # Kraus operators for the amplitude damping channel
+    gamma = 0.1
+    K1 = [1. 0.; 0. sqrt(1-gamma)]
+    K2 = [0. sqrt(gamma); 0. 0.]
+    K = [K1, K2]
+    # derivatives of Kraus operators on gamma
+    dK1 = [1. 0.; 0. -0.5/sqrt(1-gamma)]
+    dK2 = [0. 0.5/sqrt(gamma); 0. 0.]
+    dK = [[dK1], [dK2]]
+    # comprehensive optimization 
+    opt = QuanEstimation.SMopt()
+    ```
+    === "DE"
+        ``` jl
+        # comprehensive optimization algorithm: DE
+        alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5, 
+                                    seed=1234)
+        # input the dynamics data
+        dynamics = QuanEstimation.Kraus(opt, K, dK)  
+        # objective function: CFI
+        obj = QuanEstimation.CFIM_obj(M=M) 
+        ```
+    === "PSO"
+        ``` jl
+        # comprehensive optimization algorithm: PSO
+        alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
+                                     c1=2.0, c2=2.0, seed=1234)
+        # input the dynamics data
+        dynamics = QuanEstimation.Kraus(opt, K, dK)   
+        # objective function: CFI
+        obj = QuanEstimation.CFIM_obj(M=M) 
+        ```
     ``` jl
     # run the comprehensive optimization problem
     QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)

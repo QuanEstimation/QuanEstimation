@@ -92,81 +92,7 @@ differential evolution (DE) [[2]](#Storn1997), and automatic differentiation (AD
     training. The algorithm used for optimizing the measurements are PSO, DE and AD. `kwargs...` 
     is the keywords and default values corresponding to the optimization algorithm which will be 
     introduced in detail below.
-If the parameterization process is implemented with the Kraus operators, then the corresponding 
-parameters should be input via
 
-=== "Python"
-    ``` py
-    m.Kraus(K, dK)
-    ```
-=== "Julia"
-    ``` jl
-    dynamics = Kraus(opt, K, dK)
-    ```
-where `K` and `dK` are the Kraus operators and its derivatives on the unknown parameters.
-
-**Example**  
-The Kraus operators for the amplitude damping channel are
-
-\begin{eqnarray}
-K_1 = \left(\begin{array}{cc}
-1 & 0  \\
-0 & \sqrt{1-\gamma}
-\end{array}\right),
-K_2 = \left(\begin{array}{cc}
-0 & \sqrt{\gamma} \\
-0 & 0
-\end{array}\right), \nonumber
-\end{eqnarray}
-
-where $\gamma$ is the decay probability. In this example, the probe state is taken as 
-$|+\rangle\langle+|$ with $|+\rangle=\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)$. 
-Here $|0\rangle$ $(|1\rangle)$ is the eigenstate of $\sigma_3$ (Pauli matrix) with respect 
-to the eigenvalue $1$ $(-1)$.
-
-=== "Python"
-    ``` py
-    from quanestimation import *
-    import numpy as np
-
-    # initial state
-    rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
-    # Kraus operators for the amplitude damping channel
-    gamma = 0.1
-    K1 = np.array([[1., 0.], [0., np.sqrt(1-gamma)]])
-    K2 = np.array([[0., np.sqrt(gamma)], [0., 0.]])
-    K = [K1, K2]
-    # derivatives of Kraus operators on gamma
-    dK1 = np.array([[1., 0.], [0.0, -0.5/np.sqrt(1-gamma)]])
-    dK2 = np.array([[0., 0.5/np.sqrt(gamma)], [0., 0.]])
-    dK = [[dK1], [dK2]]
-    # measurement optimization 
-    m = MeasurementOpt(savefile=False, method="DE", **kwargs)
-    m.Kraus(rho0, K, dK)
-    m.QFIM()
-    ```
-=== "Julia"
-    ``` jl
-    using QuanEstimation
-
-    # initial state
-    rho0 = 0.5*ones(2, 2)
-    # Kraus operators for the amplitude damping channel
-    gamma = 0.1
-    K1 = [1. 0.; 0. sqrt(1-gamma)]
-    K2 = [0. sqrt(gamma); 0. 0.]
-    K = [K1, K2]
-    # derivatives of Kraus operators on gamma
-    dK1 = [1. 0.; 0. -0.5/sqrt(1-gamma)]
-    dK2 = [0. 0.5/sqrt(gamma); 0. 0.]
-    dK = [[dK1], [dK2]]
-    # measurement optimization
-    opt = QuanEstimation.Mopt()
-    alg = QuanEstimation.AD()
-    dynamics = QuanEstimation.Kraus(opt, rho0, K, dK)
-    obj = QuanEstimation.QFIM_obj()
-    QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
-    ```
 ---
 ## **PSO**
 The code for measurement optimization with PSO is as follows
@@ -191,14 +117,68 @@ The code for measurement optimization with PSO is as follows
     | "c2"                             | 2.0                        |
     | "seed"                           | 1234                       |
 
-    `measurement0` in the algorithms is a list representing the initial guesses of measurements, 
-    `seed` is the random seed. `particle_num` is the number of particles, `c0`, `c1` and `c2` 
-    are the PSO parameters representing the inertia weight, cognitive learning factor and social 
-    learning factor, respectively. `max_episode` accepts both integers and arrays with two 
-    elements. If it is an integer, for example `max_episode=1000`, it means the program will 
-    continuously run 1000 episodes. However, if it is an array, for example 
-    `max_episode=[1000,100]`, the program will run 1000 episodes in total but replace control 
-    coefficients of all the particles with global best every 100 episodes. 
+    `particle_num` is the number of particles, `c0`, `c1` and `c2` are the PSO parameters 
+    representing the inertia weight, cognitive learning factor and social learning factor, 
+    respectively. `max_episode` accepts both integers and arrays with two elements. If it is 
+    an integer, for example `max_episode=1000`, it means the program will continuously run 
+    1000 episodes. However, if it is an array, for example `max_episode=[1000,100]`, the 
+    program will run 1000 episodes in total but replace control coefficients of all the 
+    particles with global best every 100 episodes. `seed` is the random seed which can 
+    ensure the reproducibility of the results. `measurement0` in the algorithm is a list 
+    representing the initial guesses of measurements. In the case of projective measurement 
+    optimization, the entry of `measurement0` is a list of arrays with the length equal to 
+    the dimension of the system. In the cases of finding the optimal linear combination and 
+    the optimal rotation of a given set of measurement, the entry of `measurement0` is a 
+    2D-array and array, respectively. Here, an example of generating `measurement0` is given 
+    as follows
+    
+    **Example 5.1**
+    === "projection"
+        ``` py
+        from quanestimation import *
+        from numpy import *
+
+        # the dimension of the system
+        dim = 6
+        # generation of the entry of `measurement0`
+        C = [[] for i in range(dim)] 
+        for i in range(dim):
+            r_ini = 2*np.random.random(dim)-np.ones(dim)
+            r = r_ini/np.linalg.norm(r_ini)
+            phi = 2*np.pi*np.random.random(dim)
+            C[i] = [r[j]*np.exp(1.0j*phi[j]) for j in range(dim)]
+        C = np.array(gramschmidt(C))
+        measurement0 = [C]
+        ```
+    === "LC"
+        ``` py
+        from quanestimation import *
+        from numpy import *
+
+        # the dimension of the system
+        dim = 6
+        # a given set of measurement
+        POVM_basis = SIC(dim)
+        # the number of operators of the output measurement
+        m = 4
+        # generation of the entry of `measurement0`
+        B = np.array([np.random.random(len(POVM_basis)) for i in range(m)])
+        measurement0 = [B]
+        ```
+    === "rotation"
+        ``` py
+        from quanestimation import *
+        from numpy import *
+
+        # the dimension of the system
+        dim = 6
+        # a given set of measurement
+        POVM_basis = SIC(dim)
+        # generation of the entry of `measurement0`
+        s = np.random.random(dim**2)
+        measurement0 = [s]
+        ```
+    In this algorithm, the length of `measurement0` should be less than or equal to `particle_num`.
 === "Julia"
     ``` jl
     alg = PSO(p_num=10, ini_particle=missing, max_episode=[1000,100], 
@@ -216,14 +196,65 @@ The code for measurement optimization with PSO is as follows
     | "c2"                             | 2.0                        |
     | "seed"                           | 1234                       |
 
-    `ini_particle` in the algorithms is a list representing the initial guesses of measurements, 
-    `seed` is the random seed. `p_num` is the number of particles, `c0`, `c1` and `c2` 
-    are the PSO parameters representing the inertia weight, cognitive learning factor and social 
-    learning factor, respectively. `max_episode` accepts both integers and arrays with two 
-    elements. If it is an integer, for example `max_episode=1000`, it means the program will 
-    continuously run 1000 episodes. However, if it is an array, for example 
-    `max_episode=[1000,100]`, the program will run 1000 episodes in total but replace control 
-    coefficients of all the particles with global best every 100 episodes. 
+    `p_num` is the number of particles, `c0`, `c1` and `c2` are the PSO parameters representing 
+    the inertia weight, cognitive learning factor and social learning factor, respectively. 
+    `max_episode` accepts both integers and arrays with two elements. If it is an integer, 
+    for example `max_episode=1000`, it means the program will continuously run 1000 episodes. 
+    However, if it is an array, for example `max_episode=[1000,100]`, the program will run 1000 
+    episodes in total but replace control coefficients of all the particles with global best 
+    every 100 episodes. `seed` is the random seed which can ensure the reproducibility of the 
+    results. `ini_particle` in the algorithm is a list representing the initial guesses of 
+    measurements, In the case of projective measurement optimization, the entry of `ini_particle` 
+    is a list of arrays with the length equal to the dimension of the system. In the cases of 
+    finding the optimal linear combination and the optimal rotation of a given set of measurement, 
+    the entry of `ini_particle` is a 2D-array and array, respectively. Here, an example of 
+    generating `ini_particle` is given as follows
+
+    **Example 5.1**
+    === "Projection"
+        ``` jl
+        using QuanEstimation
+
+        # the dimension of the system
+        dim = 6
+        # generation of the entry of `measurement0`
+        C = [ComplexF64[] for _ in 1:dim]
+		for i in 1:dim
+			r_ini = 2*rand(dim) - ones(dim)
+			r = r_ini/norm(r_ini)
+			ϕ = 2pi*rand(dim)
+			C[i] = [r*exp(im*ϕ) for (r,ϕ) in zip(r,ϕ)] 
+		end
+        C = QuanEstimation.gramschmidt(C)
+        measurement0 = ([C],)
+        ```
+    === "LC"
+        ``` jl
+        using QuanEstimation
+
+        # the dimension of the system
+        dim = 6
+        # a given set of measurement
+        POVM_basis = QuanEstimation.SIC(dim)
+        # the number of operators of the output measurement
+        m = 4
+        # generation of the entry of `measurement0`
+        B = [rand(length(POVM_basis)) for _ in 1:m]
+        measurement0 = ([B],)
+        ```
+    === "Rotation"
+        ``` jl
+        using QuanEstimation
+
+        # the dimension of the system
+        dim = 6
+        # a given set of measurement
+        POVM_basis = QuanEstimation.SIC(dim)
+        # generation of the entry of `measurement0`
+        s = rand(dim^2)
+        measurement0 = ([s],)
+        ```
+    In this algorithm, the length of `measurement0` should be less than or equal to `p_num`.
 
 ## **DE**
 The code for measurement optimization with DE is as follows
@@ -248,7 +279,8 @@ The code for measurement optimization with DE is as follows
     | "seed"                           | 1234                       |
 
     `popsize` represents the number of populations, `c` and `cr` are the mutation constant and the 
-    crossover constant. Here `max_episode` is an integer representing the number of episodes.
+    crossover constant. Here `max_episode` is an integer representing the number of episodes, 
+    the variable `measurement0` is the same with `measurement0` in PSO.
 === "Julia"
     ``` jl
     alg = DE(p_num=10, ini_population=missing, max_episode=1000, 
@@ -256,7 +288,7 @@ The code for measurement optimization with DE is as follows
     ```
         The keywords and the default values of DE can be seen in the following table
 
-    | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
+    | $~~~~~~~~~~$keywords$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
     | :----------:                     | :----------:               |
     | "p_num"                          | 10                         |
     | "ini_population"                 | [ ]                        |
@@ -265,10 +297,9 @@ The code for measurement optimization with DE is as follows
     | "cr"                             | 0.5                        |
     | "seed"                           | 1234                       |
 
-    `p_num` represents the number of populations, `ini_particle` in the algorithms is a list 
-    representing the initial guesses of measurements, `c` and `cr` are the mutation constant 
+    `p_num` represents the number of populations, `c` and `cr` are the mutation constant 
     and the crossover constant. Here `max_episode` is an integer representing the number of 
-    episodes.
+    episodes, the variable `ini_population` is the same with `ini_particle` in PSO.
 
 ## **AD**
 The code for measurement optimization with AD is as follows
@@ -297,7 +328,8 @@ The code for measurement optimization with AD is as follows
     However,  Adam algorithm can be introduced to update the measurements which can be realized by 
     setting `Adam=True`. In this case, the Adam parameters include learning rate, the exponential 
     decay rate for the first moment estimates and the second moment estimates can be set by the 
-    user via `epsilon`, `beta1` and `beta2`.
+    user via `epsilon`, `beta1` and `beta2`. The input rule of `measurement0` is the same with 
+    that in PSO, but the length of `measurement0` is equal to one.
 === "Julia"
     ``` jl
     alg = AD(Adam=false, max_episode=300, epsilon=0.01, beta1=0.90, 
@@ -320,7 +352,8 @@ The code for measurement optimization with AD is as follows
     decay rate for the first moment estimates and the second moment estimates can be set by the 
     user via `epsilon`, `beta1` and `beta2`.
 
-**Example**  
+**Example 5.2**  
+<a id="example5_2"></a>
 A single qubit system whose dynamics is governed by
 \begin{align}
 \partial_t\rho=-i[H, \rho]+ \gamma_{+}\left(\sigma_{+}\rho\sigma_{-}-\frac{1}{2}\{\sigma_{-}
@@ -464,7 +497,7 @@ $1$ $(-1)$.
     ```
     === "Projection"
         ``` jl
-        opt = QuanEstimation.Mopt(method=:Projection)
+        opt = QuanEstimation.MeasurementOpt(method=:Projection)
         ```
         === "DE"
             ``` jl
@@ -481,8 +514,8 @@ $1$ $(-1)$.
             ```
     === "LC"
         ``` jl
-        opt = QuanEstimation.Mopt(method=:LC, 
-                                  POVM_basis=POVM_basis, M_num=2)
+        opt = QuanEstimation.MeasurementOpt(method=:LC, 
+                                            POVM_basis=POVM_basis, M_num=2)
         ```
         === "DE"
             ``` jl
@@ -505,7 +538,8 @@ $1$ $(-1)$.
             ```
     === "Rotation"
         ``` jl
-        opt = QuanEstimation.Mopt(method=:Rotation, POVM_basis=POVM_basis)
+        opt = QuanEstimation.MeasurementOpt(method=:Rotation, 
+                                            POVM_basis=POVM_basis)
         ```
         === "DE"
             ``` jl
@@ -535,7 +569,8 @@ $1$ $(-1)$.
     QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
     ```
 
-**Example**  
+**Example 5.3**  
+<a id="example5_3"></a>
 In the multiparameter scenario, the dynamics of electron and nuclear coupling in NV$^{-}$ can be expressed as
 \begin{align}
 \partial_t\rho=-i[H_0,\rho]+\frac{\gamma}{2}(S_3\rho S_3-S^2_3\rho-\rho S^2_3)
@@ -738,7 +773,7 @@ Here three types of measurement optimization are considerd, projective measureme
     ```
     === "Projection"
         ``` jl
-        opt = QuanEstimation.Mopt(method=:Projection)
+        opt = QuanEstimation.MeasurementOpt(method=:Projection)
         ```
         === "DE"
             ``` jl
@@ -755,8 +790,8 @@ Here three types of measurement optimization are considerd, projective measureme
             ```
     === "LC"
         ``` jl
-        opt = QuanEstimation.Mopt(method=:LC, 
-                                  POVM_basis=POVM_basis, M_num=4)
+        opt = QuanEstimation.MeasurementOpt(method=:LC, 
+                                            POVM_basis=POVM_basis, M_num=4)
         ```
         === "DE"
             ``` jl
@@ -779,7 +814,8 @@ Here three types of measurement optimization are considerd, projective measureme
             ```
     === "Rotation"
         ``` jl
-        opt = QuanEstimation.Mopt(method=:Rotation, POVM_basis=POVM_basis)
+        opt = QuanEstimation.MeasurementOpt(method=:Rotation, 
+                                            POVM_basis=POVM_basis)
         ```
         === "DE"
             ``` jl
@@ -803,6 +839,227 @@ Here three types of measurement optimization are considerd, projective measureme
     ``` jl
     # input the dynamics data
     dynamics = QuanEstimation.Lindblad(opt, tspan ,rho0, H0, dH, decay=decay)
+    # objective function: CFI
+    obj = QuanEstimation.CFIM_obj()
+    # run the measurement optimization problem
+    QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+    ```
+If the parameterization process is implemented with the Kraus operators, then the corresponding 
+parameters should be input via
+
+=== "Python"
+    ``` py
+    m = MeasurementOpt(mtype="projection", minput=[], savefile=False, 
+                       method="DE", **kwargs)
+    m.Kraus(K, dK)
+    m.CFIM(W=[])
+    ```
+=== "Julia"
+    ``` jl
+    opt = MeasurementOpt(mtype=:Projection)
+    alg = DE(kwargs...)
+    dynamics = Kraus(opt, K, dK)
+    obj = CFIM_obj(W=missing)
+    run(opt, alg, obj, dynamics; savefile=false)
+    ```
+where `K` and `dK` are the Kraus operators and its derivatives with respect to the 
+unknown parameters.
+
+**Example 5.4**  
+The Kraus operators for the amplitude damping channel are
+
+\begin{eqnarray}
+K_1 = \left(\begin{array}{cc}
+1 & 0  \\
+0 & \sqrt{1-\gamma}
+\end{array}\right),
+K_2 = \left(\begin{array}{cc}
+0 & \sqrt{\gamma} \\
+0 & 0
+\end{array}\right), \nonumber
+\end{eqnarray}
+
+where $\gamma$ is the unknown parameter to be estimated which represents the decay 
+probability. In this example, the probe state is taken as $|+\rangle\langle+|$ with 
+$|+\rangle=\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)$. Here $|0\rangle$ $(|1\rangle)$ is 
+the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $(-1)$.
+
+=== "Python"
+    ``` py
+    from quanestimation import *
+    import numpy as np
+
+    # initial state
+    rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
+    # Kraus operators for the amplitude damping channel
+    gamma = 0.1
+    K1 = np.array([[1., 0.], [0., np.sqrt(1-gamma)]])
+    K2 = np.array([[0., np.sqrt(gamma)], [0., 0.]])
+    K = [K1, K2]
+    # derivatives of Kraus operators on gamma
+    dK1 = np.array([[1., 0.], [0.0, -0.5/np.sqrt(1-gamma)]])
+    dK2 = np.array([[0., 0.5/np.sqrt(gamma)], [0., 0.]])
+    dK = [[dK1], [dK2]]
+    ```
+        === "projection"
+        === "DE"
+		    ``` py
+            # measurement optimization algorithm: DE
+		    DE_paras = {"popsize":10, "measurement0":[], "max_episode":1000, \
+                        "c":1.0, "cr":0.5, "seed":1234}
+		    m = MeasurementOpt(mtype="projection", minput=[], savefile=False, \
+                               method="DE", **DE_paras)
+		    ```
+        === "PSO"
+		    ``` py
+            # measurement optimization algorithm: PSO
+		    PSO_paras = {"particle_num":10, "measurement0":[], \
+                         "max_episode":[1000,100], "c0":1.0, \
+					    "c1":2.0, "c2":2.0, "seed":1234}
+		    m = MeasurementOpt(mtype="projection", minput=[], savefile=False, \
+                               method="PSO", **PSO_paras)
+		    ```
+    === "LC"
+        === "DE"
+		    ``` py
+            # measurement optimization algorithm: DE
+		    DE_paras = {"popsize":10, "measurement0":[], "max_episode":1000, \
+				        "c":1.0, "cr":0.5, "seed":1234}
+		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 4], \
+                               savefile=False, method="DE", **DE_paras)
+		    ```
+        === "PSO"
+		    ``` py
+            # measurement optimization algorithm: PSO
+		    PSO_paras = {"particle_num":10, "measurement0":[], "max_episode":[1000,100], \
+					     "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
+		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 4], \
+                               savefile=False, method="PSO", **PSO_paras)
+		    ```
+        === "AD"
+		    ``` py
+            # measurement optimization algorithm: AD
+		    AD_paras = {"Adam":False, "measurement0":[], "max_episode":300, \
+                        "epsilon":0.01, "beta1":0.90, "beta2":0.99}
+            m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 4], \
+                               savefile=False, method="AD", **AD_paras)
+		    ```
+    === "rotation"
+        === "DE"
+		    ``` py
+            # measurement optimization algorithm: DE
+		    DE_paras = {"popsize":10, "measurement0":[], "max_episode":1000, \
+                        "c":1.0, "cr":0.5, "seed":1234}
+		    m = MeasurementOpt(mtype="input", minput=["rotation", POVM_basis], \
+                               savefile=False, method="DE", **DE_paras)
+		    ```
+        === "PSO"
+		    ``` py
+            # measurement optimization algorithm: PSO
+		    PSO_paras = {"particle_num":10, "measurement0":[], \
+                         "max_episode":[1000,100], "c0":1.0, \
+					     "c1":2.0, "c2":2.0, "seed":1234}
+		    m = MeasurementOpt(mtype="input", minput=["rotation", POVM_basis], \
+                               savefile=False, method="PSO", **PSO_paras)
+		    ```
+        === "AD"
+		    ``` py
+            # measurement optimization algorithm: AD
+		    AD_paras = {"Adam":False, "measurement0":[], "max_episode":300, \
+                        "epsilon":0.01, "beta1":0.90, "beta2":0.99}
+            m = MeasurementOpt(mtype="input", minput=["rotation", POVM_basis], \
+                               savefile=False, method="AD", **AD_paras)
+		    ```
+    ``` py
+    # input the dynamics data
+    m.Kraus(rho0, K, dK)
+    # objective function: CFI
+    m.CFIM()
+    ```
+=== "Julia"
+    ``` jl
+    using QuanEstimation
+
+    # initial state
+    rho0 = 0.5*ones(2, 2)
+    # Kraus operators for the amplitude damping channel
+    gamma = 0.1
+    K1 = [1. 0.; 0. sqrt(1-gamma)]
+    K2 = [0. sqrt(gamma); 0. 0.]
+    K = [K1, K2]
+    # derivatives of Kraus operators on gamma
+    dK1 = [1. 0.; 0. -0.5/sqrt(1-gamma)]
+    dK2 = [0. 0.5/sqrt(gamma); 0. 0.]
+    dK = [[dK1], [dK2]]
+    ```
+    === "Projection"
+        ``` jl
+        opt = QuanEstimation.MeasurementOpt(method=:Projection)
+        ```
+        === "DE"
+            ``` jl
+            # measurement optimization algorithm: DE
+            alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
+                                    max_episode=1000, c=1.0, cr=0.5, seed=1234)
+            ```
+        === "PSO"
+            ``` jl
+            # measurement optimization algorithm: PSO
+            alg = QuanEstimation.PSO(p_num=10, ini_particle=missing, 
+                                     max_episode=[1000,100], c0=1.0, c1=2.0, 
+                                     c2=2.0, seed=1234)
+            ```
+    === "LC"
+        ``` jl
+        opt = QuanEstimation.MeasurementOpt(method=:LC, 
+                                            POVM_basis=POVM_basis, M_num=2)
+        ```
+        === "DE"
+            ``` jl
+            # measurement optimization algorithm: DE
+            alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
+                                    max_episode=1000, c=1.0, cr=0.5, seed=1234)
+            ```
+        === "PSO"
+            ``` jl
+            # measurement optimization algorithm: PSO
+            alg = QuanEstimation.PSO(p_num=10, ini_particle=missing, 
+                                     max_episode=[1000,100], c0=1.0, c1=2.0, 
+                                     c2=2.0, seed=1234)
+            ```
+        === "AD"
+            ``` jl
+            # measurement optimization algorithm: AD
+            alg = QuanEstimation.AD(Adam=true, max_episode=300, epsilon=0.01, 
+                                    beta1=0.90, beta2=0.99)
+            ```
+    === "Rotation"
+        ``` jl
+        opt = QuanEstimation.MeasurementOpt(method=:Rotation, 
+                                            POVM_basis=POVM_basis)
+        ```
+        === "DE"
+            ``` jl
+            # measurement optimization algorithm: DE
+            alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
+                                    max_episode=1000, c=1.0, cr=0.5, seed=1234)
+            ```
+        === "PSO"
+            ``` jl
+            # measurement optimization algorithm: PSO
+            alg = QuanEstimation.PSO(p_num=10, ini_particle=missing, 
+                                     max_episode=[1000,100], c0=1.0, c1=2.0, 
+                                     c2=2.0, seed=1234)
+            ```
+        === "AD"
+            ``` jl
+            # measurement optimization algorithm: AD
+            alg = QuanEstimation.AD(Adam=true, max_episode=300, epsilon=0.01, 
+                                    beta1=0.90, beta2=0.99)
+            ```
+    ``` jl
+    # input the dynamics data
+    dynamics = QuanEstimation.Kraus(opt, rho0, K, dK)
     # objective function: CFI
     obj = QuanEstimation.CFIM_obj()
     # run the measurement optimization problem

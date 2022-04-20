@@ -46,7 +46,7 @@ class adaptMZI:
         method="DE",
         popsize=10,
         particle_num=10,
-        DeltaPhi0=[],
+        deltaphi0=[],
         c=1.0,
         cr=0.5,
         c0=1.0,
@@ -68,7 +68,7 @@ class adaptMZI:
         > **popsize:** `int`
             -- The number of populations.
 
-        > **DeltaPhi0:** `list`
+        > **deltaphi0:** `list`
             -- Initial guesses of phase difference.
 
         > **max_episode:** `int`
@@ -90,7 +90,7 @@ class adaptMZI:
         > **particle_num:** `int`
             -- The number of particles.
 
-        > **DeltaPhi0:** `list`
+        > **deltaphi0:** `list`
             -- Initial guesses of phase difference.
 
         > **max_episode:** `int or list`
@@ -123,14 +123,14 @@ class adaptMZI:
             for i in range(2**self.N)
         ]
         if method == "DE":
-            Main.QuanEstimation.DE_DeltaPhiOpt(
+            Main.QuanEstimation.DE_deltaphiOpt(
                 self.x,
                 self.p,
                 self.rho0,
                 self.a,
                 comb,
                 popsize,
-                DeltaPhi0,
+                deltaphi0,
                 c,
                 cr,
                 seed,
@@ -138,14 +138,14 @@ class adaptMZI:
                 eps,
             )
         elif method == "PSO":
-            Main.QuanEstimation.PSO_DeltaPhiOpt(
+            Main.QuanEstimation.PSO_deltaphiOpt(
                 self.x,
                 self.p,
                 self.rho0,
                 self.a,
                 comb,
                 particle_num,
-                DeltaPhi0,
+                deltaphi0,
                 c0,
                 c1,
                 c2,
