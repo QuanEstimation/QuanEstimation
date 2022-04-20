@@ -41,6 +41,10 @@ mutable struct ControlEnv <: AbstractEnv
 end
 
 #### control optimization ####
+"""
+Control optimization with DDPG.
+
+"""
 function update!(opt::ControlOpt, alg::DDPG, obj, dynamics, output)
     (; max_episode, layer_num, layer_dim, rng) = alg
     #### environment of DDPG ####
@@ -243,6 +247,10 @@ RLBase.reward(env::StateEnv) = env.reward
 RLBase.is_terminated(env::StateEnv) = env.done 
 RLBase.state(env::StateEnv) = env.state
 
+"""
+State optimization with DDPG. 
+
+"""
 function update!(Sopt::StateOpt, alg::DDPG, obj, dynamics::Lindblad, output)
     (; max_episode, layer_num, layer_dim, rng) = alg
     episode = 1
