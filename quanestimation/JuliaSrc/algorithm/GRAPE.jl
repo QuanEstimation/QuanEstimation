@@ -1,3 +1,9 @@
+"""
+	update!(opt::ControlOpt, alg::AbstractGRAPE, obj::QFIM_obj, dynamics, output)
+
+Control optimization with GRAPE, where the objective is QFIM.
+
+"""
 function update!(opt::ControlOpt, alg::AbstractGRAPE, obj::QFIM_obj, dynamics, output)
     (; max_episode) = alg
     ctrl_length = length(dynamics.data.ctrl[1])
@@ -22,6 +28,10 @@ function update!(opt::ControlOpt, alg::AbstractGRAPE, obj::QFIM_obj, dynamics, o
     set_io!(output, output.f_list[end])
 end
 
+"""
+Control optimization with GRAPE, where the objective is CFIM.
+
+"""
 function update!(opt::ControlOpt, alg::AbstractGRAPE, obj::CFIM_obj, dynamics, output)
     (; max_episode) = alg
     ctrl_length = length(dynamics.data.ctrl[1])

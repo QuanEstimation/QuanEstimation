@@ -1,4 +1,8 @@
 #### control optimization ####
+"""
+Control optimization with autoGRAPE.
+
+"""
 function update!(opt::ControlOpt, alg::AbstractautoGRAPE, obj, dynamics, output)
     (; max_episode) = alg
     ctrl_length = length(dynamics.data.ctrl[1])
@@ -43,6 +47,10 @@ function update_ctrl!(alg::autoGRAPE, obj, dynamics, δ)
 end
 
 #### state optimization ####
+"""
+State optimization with AD.
+
+"""
 function update!(opt::StateOpt, alg::AbstractAD, obj, dynamics, output)
     (; max_episode) = alg
     f_ini, f_comp = objective(obj, dynamics)
@@ -76,6 +84,10 @@ function update_state!(alg::AD, obj, dynamics, δ)
 end
 
 #### find the optimal linear combination of a given set of POVM ####
+"""
+Measurement optimization (method: linear combination) with AD.
+
+"""
 function update!(opt::Mopt_LinearComb, alg::AbstractAD, obj, dynamics, output)
     (; max_episode) = alg
     (; POVM_basis, M_num) = opt
@@ -123,6 +135,10 @@ function update_M!(opt::Mopt_LinearComb, alg::AD, obj, δ)
 end
 
 #### find the optimal rotated measurement of a given set of POVM ####
+"""
+Measurement optimization (method: rotation) with AD.
+
+"""
 function update!(opt::Mopt_Rotation, alg::AbstractAD, obj, dynamics, output)
     (; max_episode) = alg
     (; POVM_basis) = opt
@@ -180,6 +196,10 @@ function update_M!(opt::Mopt_Rotation, alg::AD, obj, δ)
 end
 
 #### state abd control optimization ####
+"""
+Comprehensive optimization on state and control with AD.
+
+"""
 function update!(opt::StateControlOpt, alg::AbstractAD, obj, dynamics, output)
     (; max_episode) = alg
     ctrl_length = length(dynamics.data.ctrl[1])

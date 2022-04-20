@@ -1,4 +1,8 @@
 #### control optimization ####
+"""
+Control optimization with DE. 
+
+"""
 function update!(opt::ControlOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     if ismissing(ini_population)
@@ -77,6 +81,10 @@ function update!(opt::ControlOpt, alg::DE, obj, dynamics, output)
 end
 
 #### state optimization ####
+"""
+State optimization with DE. 
+
+"""
 function update!(opt::StateOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     if ismissing(ini_population)
@@ -140,6 +148,10 @@ function update!(opt::StateOpt, alg::DE, obj, dynamics, output)
 end
     
 #### projective measurement optimization ####
+"""
+Measurement optimization (method: projection) with DE. 
+
+"""
 function update!(opt::Mopt_Projection, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     if ismissing(ini_population)
@@ -222,6 +234,10 @@ function update!(opt::Mopt_Projection, alg::DE, obj, dynamics, output)
 end 
 
 #### find the optimal linear combination of a given set of POVM ####
+"""
+Measurement optimization (method: linear combination) with DE. 
+
+"""
 function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     (; B, POVM_basis, M_num) = opt
@@ -306,6 +322,10 @@ function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
 end
 
 #### find the optimal rotated measurement of a given set of POVM ####
+"""
+Measurement optimization (method: rotation) with DE. 
+
+"""
 function update!(opt::Mopt_Rotation, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     (; s, POVM_basis, Lambda) = opt
@@ -399,6 +419,10 @@ function update!(opt::Mopt_Rotation, alg::DE, obj, dynamics, output)
 end
 
 #### state and control optimization ####
+"""
+Comprehensive optimization on state and control with DE. 
+
+"""
 function update!(opt::StateControlOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     if ismissing(ini_population)
@@ -498,6 +522,10 @@ function update!(opt::StateControlOpt, alg::DE, obj, dynamics, output)
 end
 
 #### state and measurement optimization ####
+"""
+Comprehensive optimization on state and measurement with DE. 
+
+"""
 function update!(opt::StateMeasurementOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     if ismissing(ini_population)
@@ -601,6 +629,10 @@ function update!(opt::StateMeasurementOpt, alg::DE, obj, dynamics, output)
 end
 
 #### control and measurement optimization ####
+"""
+Comprehensive optimization on control and measurement with DE.
+
+"""
 function update!(opt::ControlMeasurementOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     if ismissing(ini_population)
@@ -715,6 +747,10 @@ function update!(opt::ControlMeasurementOpt, alg::DE, obj, dynamics, output)
 end
 
 #### state, control and measurement optimization ####
+"""
+Comprehensive optimization on state, control and measurement with DE.
+
+"""
 function update!(opt::StateControlMeasurementOpt, alg::DE, obj, dynamics, output)
     (; max_episode, p_num, ini_population, c, cr, rng) = alg
     if ismissing(ini_population)
