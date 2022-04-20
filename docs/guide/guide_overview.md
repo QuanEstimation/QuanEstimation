@@ -57,7 +57,7 @@ the length equal to `tspan`. Here `rho` represents the density matrix and `drho`
 corresponding derivatives on all the parameters, the $i$th entry of `drho` is 
 $[\partial_a{\rho},\partial_b{\rho},\cdots].$
 
-**Example**  
+**Example 1.1**  
 In this example, the free evolution Hamiltonian of a single qubit system is $H_0=\frac{1}{2}
 \omega_0 \sigma_3$ with $\omega_0$ the frequency and $\sigma_3$ a Pauli matrix. 
 The dynamics of the system is governed by
@@ -123,7 +123,7 @@ the identity operator. $\rho$ and $\partial_{\textbf{x}}\rho$ can be solved by
     ```
 where `K` and `dK` are the Kraus operators and its derivatives on the unknown parameters.
 
-**Example**  
+**Example 1.2**  
 The Kraus operators for the amplitude damping channel are
 
 \begin{eqnarray}
@@ -203,7 +203,7 @@ calculation. `output="KU"` represents the spin squeezing defined by Kitagawa and
 [[1]](#Kitagawa1993) and `output="WBIMH"` calculates the spin squeezing defined by Wineland 
 et al. [[2]](#Wineland1992).
 
-**Example**  
+**Example 1.3**  
 In this example, QuTip [[3,4]](#Johansson2012) is used to generate spin coherent state.
 === "Python"
     ``` py
@@ -222,12 +222,15 @@ In this example, QuTip [[3,4]](#Johansson2012) is used to generate spin coherent
     ``` jl
     using QuanEstimation
 
-    rho = [0.25 -0.35355339im -0.25; 
-           0.35355339im 0.5 -0.35355339im;
-           -0.25 0.35355339im 0.25]
+    # generation of the coherent spin state
+    j, theta, phi = 2, 0.5pi, 0.5pi
+    Jp = Matrix(spdiagm(1=>[sqrt(j*(j+1)-m*(m+1)) for m in j:-1:-j][2:end]))
+    Jm = Jp'
+    psi0 = exp(0.5*theta*exp(im*phi)*Jm - 0.5*theta*exp(-im*phi)*Jp)*
+           QuanEstimation.basis(Int(2*j+1), 1)
+    rho = psi0*psi0'
     xi = QuanEstimation.SpinSqueezing(rho; basis="Dicke", output="KU")
     ```
-
 Calculation of the time to reach a given precision limit with
 === "Python"
     ``` py
@@ -241,7 +244,7 @@ where `f` is the given value of the objective function and `tspan` is the time l
 evolution. `func` represents the function for calculating the objective function, `*args` and 
 `**kwargs` are the corresponding input parameters and the keyword arguments.
 
-**Example**  
+**Example 1.4**  
 In this example, the free evolution Hamiltonian of a single qubit system is $H_0=\frac{1}{2}
 \omega_0 \sigma_3$ with $\omega_0$ the frequency and $\sigma_3$ a Pauli matrix. 
 The dynamics of the system is governed by

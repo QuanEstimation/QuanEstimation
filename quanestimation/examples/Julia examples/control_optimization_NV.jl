@@ -1,6 +1,7 @@
-using QuanEstimation
+# using QuanEstimation
 using Random
 using LinearAlgebra
+include("quanestimation/JuliaSrc/QuanEstimation.jl")
 
 # initial state
 rho0 = zeros(ComplexF64, 6, 6)
@@ -52,41 +53,48 @@ ini_8 = [-0.2*ones(cnum)+0.01*rand(rng,cnum) for _ in 1:cnum]
 ini_9 = [-0.2*ones(cnum)+0.05*rand(rng,cnum) for _ in 1:cnum]
 ini_10 = [-0.2*ones(cnum)+0.05*rand(rng,cnum) for _ in 1:cnum]
 ctrl0 = [Symbol("ini_", i)|>eval for i in 1:10]
-# set the optimization type
-opt = QuanEstimation.Copt(ctrl=ini_1, ctrl_bound=[-0.2, 0.2])
+# choose the optimization type
+opt = QuanEstimation.ControlOpt(ctrl=ini_1, ctrl_bound=[-0.2, 0.2])
 
-##----------------------choose the control algorithm------------------------##
-# control algorithm: auto-GRAPE
-alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=300, epsilon=0.01, 
+##==========choose measurement optimization algorithm==========##
+##-------------algorithm: auto-GRAPE---------------------##
+alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=30, epsilon=0.01, 
                                beta1=0.90, beta2=0.99)
 
-# # control algorithm: PSO
+##-------------algorithm: PSO---------------------##
 # alg = QuanEstimation.PSO(p_num=10, ini_particle=(ctrl0,), 
-#                          max_episode=[1000, 100], c0=1.0, 
+#                          max_episode=[100,100], c0=1.0, 
 #                          c1=2.0, c2=2.0, seed=1234)
 
-# # control algorithm: DE
+##-------------algorithm: DE---------------------##
 # alg = QuanEstimation.DE(p_num=10, ini_population=(ctrl0,), 
-#                         max_episode=1000, c=1.0, cr=0.5, seed=1234)
+#                         max_episode=100, c=1.0, cr=0.5, seed=1234)
 
-# # control algorithm: DDPG
-# alg = QuanEstimation.DDPG(max_episode=500, layer_num=4, layer_dim=220, 
+##-------------algorithm: DDPG---------------------##
+# alg = QuanEstimation.DDPG(max_episode=200, layer_num=4, layer_dim=220, 
 #                           seed=1234)
-##---------------------------------------------------------------------------##
 
-# input the dynamics data
-dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay)  
-
-##----------------------choose the objective function------------------------##
+##===================choose objective function===================##
+##-------------objective function: QFI---------------------##
 # objective function: tr(WF^{-1})
 obj = QuanEstimation.QFIM_obj()
-
-# # objective function: tr(WI^{-1})
-# obj = QuanEstimation.CFIM_obj(M=M)
-
-# # objective function: HCRB
-# obj = QuanEstimation.HCRB_obj()
-##---------------------------------------------------------------------------##
-
+# input the dynamics data
+dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay)
 # run the control optimization problem
 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+
+##-------------objective function: CFI---------------------##
+# # objective function: tr(WI^{-1})
+# obj = QuanEstimation.CFIM_obj(M=M)
+# # input the dynamics data
+# dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay)  
+# # run the control optimization problem
+# QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+
+##-------------objective function: HCRB---------------------##
+# # objective function: HCRB
+# obj = QuanEstimation.HCRB_obj()
+# # input the dynamics data
+# dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay)  
+# # run the control optimization problem
+# QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)

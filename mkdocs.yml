@@ -11,6 +11,7 @@ extra_css:
       - css/material.css
       - css/mkdocstrings.css
       - css/extra.css
+      - css/julia_api.css
 
 dev_addr: 0.0.0.0:8000
 
@@ -34,12 +35,13 @@ markdown_extensions:
       - pymdownx.snippets
       - pymdownx.superfences
       - toc:
-            toc_depth: 2
+            toc_depth: 3
             permalink: true
 
 
 extra_javascript:
       - javascripts/mathjax.js
+      - javascripts/mathjaxhelper.js
       - https://polyfill.io/v3/polyfill.min.js?features=es6
       - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
@@ -91,6 +93,7 @@ nav:
       - "API documentation": 
             - "Classes": API/classes.md
             - "Functions": API/functions.md
+            - "Julia": API/api_jl.md
       - "Examples": examples.md
       - "Citing": citing.md
       - "Developers": developers.md

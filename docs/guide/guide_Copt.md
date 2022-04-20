@@ -336,7 +336,8 @@ The code for control optimization with DDPG is as follows
 	`layer_num` and `layer_dim` represent the number of layers (include the input and output layer) 
 	and the number of neurons in the hidden layer.
 
-**Example 1**  
+**Example 3.1**  
+<a id="example3_1"></a>
 In this example, the free evolution Hamiltonian of a single qubit system is $H_0=\frac{1}{2}\omega_0 
 \sigma_3$ with $\omega_0$ the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system 
 is governed by
@@ -469,7 +470,7 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
 	ctrl = [zeros(cnum) for _ in 1:length(Hc)]
 	ctrl_bound = [-2., 2.]
 	# set the optimization type
-	opt = QuanEstimation.Copt(ctrl=ctrl, ctrl_bound=ctrl_bound)
+	opt = QuanEstimation.ControlOpt(ctrl=ctrl, ctrl_bound=ctrl_bound)
 	```
 	=== "auto-GRAPE"
 		``` jl
@@ -521,20 +522,23 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
 	QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 	```
 
-**Example 2**  
-In the multiparameter scenario, the dynamics of electron and nuclear coupling in NV$^{-}$ can be expressed as
+**Example 3.2**  
+<a id="example3_2"></a>
+In the multiparameter scenario, the dynamics of electron and nuclear coupling in NV$^{-}$ can 
+be expressed as
 \begin{align}
 \partial_t\rho=-i[H_0,\rho]+\frac{\gamma}{2}(S_3\rho S_3-S^2_3\rho-\rho S^2_3)
 \end{align}
 
 with $\gamma$ the dephasing rate. And
 \begin{align}
-H_0/\hbar=DS^2_3+g_{\mathrm{S}}\vec{B}\cdot\vec{S}+g_{\mathrm{I}}\vec{B}\cdot\vec{I}+\vec{S}^{\,\mathrm{T}}\mathcal{A}\vec{I}
+H_0/\hbar=DS^2_3+g_{\mathrm{S}}\vec{B}\cdot\vec{S}+g_{\mathrm{I}}\vec{B}\cdot\vec{I}+\vec{S}^
+{\,\mathrm{T}}\mathcal{A}\vec{I}
 \end{align}
 
-is the free evolution Hamiltonian, where $\vec{S}=(S_1,S_2,S_3)^{\mathrm{T}}$ and $\vec{I}=(I_1,I_2,I_3)^{\mathrm{T}}$ 
-with $S_i=s_i\otimes I$ and $I_i=I\otimes \sigma_i$ $(i=1,2,3)$ the electron and nuclear operators. 
-$s_1, s_2, s_3$ are spin-1 operators with 
+is the free evolution Hamiltonian, where $\vec{S}=(S_1,S_2,S_3)^{\mathrm{T}}$ and 
+$\vec{I}=(I_1,I_2,I_3)^{\mathrm{T}}$ with $S_i=s_i\otimes I$ and $I_i=I\otimes \sigma_i$ 
+$(i=1,2,3)$ the electron and nuclear operators. $s_1, s_2, s_3$ are spin-1 operators with 
 
 \begin{eqnarray}
 s_1 = \frac{1}{\sqrt{2}}\left(\begin{array}{ccc}
@@ -550,15 +554,17 @@ i & 0 & -i\\
 \end{eqnarray}
 
 and $s_3=\mathrm{diag}(1,0,-1)$ and $\sigma_i (i=1,2,3)$ is Pauli matrix. $\mathcal{A}=\mathrm{diag}
-(A_1,A_1,A_2)$ is the hyperfine tensor with $A_1$ and $A_2$ the axial and transverse magnetic hyperfine coupling coefficients.
-The coefficients $g_{\mathrm{S}}=g_\mathrm{e}\mu_\mathrm{B}/\hbar$ and $g_{\mathrm{I}}=g_\mathrm{n}\mu_\mathrm{n}/\hbar$, 
-where $g_\mathrm{e}$ ($g_\mathrm{n}$) is the $g$ factor of the electron (nuclear), $\mu_\mathrm{B}$ ($\mu_\mathrm{n}$) is 
-the Bohr (nuclear) magneton and $\hbar$ is the Plank's constant. $\vec{B}$ is the magnetic field which be estimated.
+(A_1,A_1,A_2)$ is the hyperfine tensor with $A_1$ and $A_2$ the axial and transverse magnetic 
+hyperfine coupling coefficients. The coefficients $g_{\mathrm{S}}=g_\mathrm{e}\mu_\mathrm{B}/\hbar$ 
+and $g_{\mathrm{I}}=g_\mathrm{n}\mu_\mathrm{n}/\hbar$, where $g_\mathrm{e}$ ($g_\mathrm{n}$) is 
+the $g$ factor of the electron (nuclear), $\mu_\mathrm{B}$ ($\mu_\mathrm{n}$) is the Bohr (nuclear) 
+magneton and $\hbar$ is the Plank's constant. $\vec{B}$ is the magnetic field which be estimated.
 
-In this case,the initial state is taken as $\frac{1}{\sqrt{2}}(|1\rangle+|\!-\!1\rangle)\otimes|\!\!\uparrow\rangle$, 
-where $\frac{1}{\sqrt{2}}(|1\rangle+|\!-\!1\rangle)$ is an electron state with $|1\rangle$ ($|\!-\!1\rangle$) the 
-eigenstate of $s_3$ with respect to the eigenvalue $1$ ($-1$). $|\!\!\uparrow\rangle$ is a nuclear state and 
-the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be identity.
+In this case,the initial state is taken as $\frac{1}{\sqrt{2}}(|1\rangle+|\!-\!1\rangle)\otimes
+|\!\!\uparrow\rangle$, where $\frac{1}{\sqrt{2}}(|1\rangle+|\!-\!1\rangle)$ is an electron state 
+with $|1\rangle$ ($|\!-\!1\rangle$) the eigenstate of $s_3$ with respect to the eigenvalue $1$ 
+($-1$). $|\!\!\uparrow\rangle$ is a nuclear state and the eigenstate of $\sigma_3$ with respect 
+to the eigenvalue 1. $W$ is set to be identity.
 
 Here three types of measurement optimization are considerd, projective measurement, linear combination of a given set of positive operator-valued measure (POVM) and optimal rotated measurement of an input measurement.
 === "Python"
@@ -725,7 +731,7 @@ Here three types of measurement optimization are considerd, projective measureme
 	ini_10 = [-0.2*ones(cnum)+0.05*rand(rng,cnum) for _ in 1:cnum]
 	ctrl0 = [Symbol("ini_", i)|>eval for i in 1:10]
 	# set the optimization type
-	opt = QuanEstimation.Copt(ctrl=ini_1, ctrl_bound=[-0.2, 0.2])
+	opt = QuanEstimation.ControlOpt(ctrl=ini_1, ctrl_bound=[-0.2, 0.2])
 	```
 	=== "auto-GRAPE"
 		``` jl
@@ -784,10 +790,15 @@ Here three types of measurement optimization are considerd, projective measureme
 ---
 ## **Minimum parameterization time optimization**
 Search of the minimum time to reach a given value of the objective function.
-``` py
-control.mintime(f, W=[], M=[], method="binary", target="QFIM", 
-				LDtype="SLD")
-```
+=== "Python"
+	``` py
+	control.mintime(f, W=[], M=[], method="binary", target="QFIM", 
+				    LDtype="SLD")
+	```
+=== "Julia"
+	``` jl
+	mintime(f, opt, alg, obj, dynamics; method="binary", savefile=false)
+	```
 `f` is the given value of the objective function. In the package, two methods for searching 
 the minimum time are provided which are logarithmic search and forward search from the 
 beginning of time. It can be realized by setting `method=binary` (default) and 

@@ -8,16 +8,25 @@ function Bayes(x, p, rho, y; M=nothing, savefile=false)
             M = SIC(size(rho[1])[1])
         end
         if savefile == false
+            x_out = []
             for mi in 1:max_episode
                 res_exp = y[mi] |> Int
                 pyx = real.(tr.(rho.*[M[res_exp]]))
                 py = trapz(x[1], pyx.*p)
                 p_update = pyx.*p/py
                 p = p_update
+
+                indx = findmax(p)[2]
+                append!(x_out, x[1][indx])
             end
-            indx = findmax(p)[2]
-            x_out = x[1][indx]
-            return p, x_out
+            
+            open("pout.csv","w") do f
+                writedlm(f, [p])
+            end
+            open("xout.csv","w") do m
+                writedlm(m, x_out)
+            end
+            return p, x_out[end]
         else
             p_out, x_out = [], []
             for mi in 1:max_episode
@@ -33,7 +42,7 @@ function Bayes(x, p, rho, y; M=nothing, savefile=false)
             end
             
             open("pout.csv","w") do f
-                writedlm(f, p_out)
+                writedlm(f, [p_out])
             end
             open("xout.csv","w") do m
                 writedlm(m, x_out)
@@ -46,6 +55,7 @@ function Bayes(x, p, rho, y; M=nothing, savefile=false)
             M = SIC(size(vec(rho)[1])[1])
         end
         if savefile == false
+            x_out = []
             for mi in 1:max_episode
                 res_exp = y[mi] |> Int
                 pyx = real.(tr.(rho.*[M[res_exp]]))
@@ -54,10 +64,18 @@ function Bayes(x, p, rho, y; M=nothing, savefile=false)
 
                 p_update = p.*pyx/py
                 p = p_update
+
+                indx = findmax(p)[2]
+                append!(x_out, [[x[i][indx[i]] for i in 1:para_num]])
             end
-            indx = findmax(p)[2]
-            x_out = [x[i][indx[i]] for i in 1:para_num]
-            return p, x_out
+            
+            open("pout.csv","w") do f
+                writedlm(f, [p])
+            end
+            open("xout.csv","w") do m
+                writedlm(m, x_out)
+            end
+            return p, x_out[end]
         else
             p_out, x_out = [], []
             for mi in 1:max_episode
@@ -93,15 +111,23 @@ function MLE(x, rho, y; M::Union{AbstractVector,Nothing}=nothing, savefile=false
             M = SIC(size(rho[1])[1])
         end
         if savefile == false
+            x_out = []
             L_out = ones(length(x[1]))
             for mi in 1:max_episode
                 res_exp = y[mi] |> Int
                 p_tp = real.(tr.(rho.*[M[res_exp]]))
                 L_out = L_out.*p_tp
+                indx = findmax(L_out)[2]
+                append!(x_out, x[1][indx])
             end
-            indx = findmax(L_out)[2]
-            x_out = x[1][indx] 
-            return L_out, x_out
+             
+            open("Lout.csv","w") do f
+                writedlm(f, [L_out])
+            end
+            open("xout.csv","w") do m
+                writedlm(m, x_out)
+            end
+            return L_out, x_out[end]
         else
             L_out, x_out = [], []
             L_tp = ones(length(x[1]))
@@ -135,15 +161,22 @@ function MLE(x, rho, y; M::Union{AbstractVector,Nothing}=nothing, savefile=false
         end
 
         if savefile == false
+            x_out = []
             L_out = ones(p_shape...)
             for mi in 1:max_episode
                 res_exp = y[mi] |> Int
                 p_tp = real.(tr.(rho.*[M[res_exp]]))
                 L_out = L_out.*p_tp
+                indx = findmax(L_out)[2]
+                append!(x_out, [[x[i][indx[i]] for i in 1:para_num]])
             end
-            indx = findmax(L_out)[2]
-            x_out = [x[i][indx[i]] for i in 1:para_num]
-            return L_out, x_out
+            open("Lout.csv","w") do f
+                writedlm(f, [L_out])
+            end
+            open("xout.csv","w") do m
+                writedlm(m, x_out)
+            end
+            return L_out, x_out[end]
         else
             L_out, x_out = [], []
             L_tp = ones(p_shape...)

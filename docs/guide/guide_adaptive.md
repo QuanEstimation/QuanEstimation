@@ -71,7 +71,7 @@ and
     ```
 where `K` and `dK` are the Kraus operators and its derivatives on the unknown parameters.
 
-**Example**  
+**Example 7.1**  
 The Hamiltonian of a qubit system is
 \begin{align}
 H=\frac{B}{2}(\sigma_1\cos{x}+\sigma_3\sin{x}),
@@ -125,7 +125,7 @@ $\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}
     # generation of H and dH
     H, dH = AdaptiveInput([x], H0_func, dH_func, channel="dynamics")
     # adaptive measurement
-    apt = adaptive([x], pout, rho0, savefile=False, max_episode=10, eps=1e-8)
+    apt = adaptive([x], pout, rho0, savefile=False, max_episode=1000, eps=1e-8)
     apt.dynamics(tspan, H, dH)
     apt.CFIM(M=M, W=[])
     ```
@@ -175,9 +175,10 @@ $\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}
         y[res_rand[i]] = 1
     end
     pout, xout = QuanEstimation.Bayes([x], p, rho, y, M=M, savefile=false)
-    # adaptive measurement
+    # generation of H and dH
     H, dH = QuanEstimation.AdaptiveInput([x], H0_func, dH_func; 
                                          channel="dynamics")
+    # adaptive measurement
     QuanEstimation.adaptive([x], pout, rho0, tspan, H, dH; M=M, 
                             max_episode=1000)
     ```
@@ -212,7 +213,7 @@ in QuanEstimation by
 If the optimization algorithm is PSO, the keywords and the default values are
 === "Python"
     ``` py
-    kwargs = {"particle_num":10, "DeltaPhi0":[], "max_episode":[1000,100], 
+    kwargs = {"particle_num":10, "deltaphi0":[], "max_episode":[1000,100], 
               "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
     ```
     The keywords and the default values of PSO can be seen in the following table
@@ -220,14 +221,14 @@ If the optimization algorithm is PSO, the keywords and the default values are
     | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
     | :----------:                     | :----------:               |
     | "particle_num"                   | 10                         |
-    | "DeltaPhi0"                      | [ ]                        |
+    | "deltaphi0"                      | [ ]                        |
     | "max_episode"                    | [1000,100]                 |
     | "c0"                             | 1.0                        |
     | "c1"                             | 2.0                        |
     | "c2"                             | 2.0                        |
     | "seed"                           | 1234                       |
 
-    Here `particle_num` is the number of particles, `DeltaPhi0` represents the initial 
+    Here `particle_num` is the number of particles, `deltaphi0` represents the initial 
     guesses of phase difference. `max_episode` accepts both integer and array with two 
     elements. If it is an integer, for example `max_episode=1000`, it means the 
     program will continuously run 1000 episodes. However, if it is an array, for example 
@@ -264,7 +265,7 @@ If the optimization algorithm is PSO, the keywords and the default values are
 If the optimization algorithm is DE, the keywords and the default values are
 === "Python"
     ``` py
-    kwargs = {"popsize":10, "DeltaPhi0":[], "max_episode":1000, "c":1.0, 
+    kwargs = {"popsize":10, "deltaphi0":[], "max_episode":1000, "c":1.0, 
               "cr":0.5, "seed":1234}
     ```
     The keywords and the default values of DE can be seen in the following table
@@ -272,7 +273,7 @@ If the optimization algorithm is DE, the keywords and the default values are
     | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
     | :----------:                     | :----------:               |
     | "popsize"                        | 10                         |
-    | "DeltaPhi0"                      | [ ]                        |
+    | "deltaphi0"                      | [ ]                        |
     | "max_episode"                    | 1000                       |
     | "c"                              | 1.0                        |
     | "cr"                             | 0.5                        |
@@ -302,8 +303,9 @@ If the optimization algorithm is DE, the keywords and the default values are
     DE parameters representing the mutation and crossover constants, `seed` is the random 
     seed which can ensure the reproducibility of results.
 
-**Example**  
-In this example, the adaptive measurement shcemes is design for the MZI. The input state is 
+**Example 7.2**  
+In this example, the adaptive measurement shcemes is design for the MZI [[3,4]](#Hentschel2010). 
+The input state is 
 \begin{align}
 \sqrt{\frac{2}{N+2}}\sum^{N/2}_{m=-N/2}\sin\left(\frac{(2m+N+2)\pi}{2(N+2)}\right)|m\rangle,
 \end{align}
@@ -319,7 +321,7 @@ $m$.
     N = 8
     # probe state
     psi = np.zeros((N+1)**2).reshape(-1, 1)
-    for k in range(N + 1):
+    for k in range(N+1):
         psi += np.sin((k+1)*np.pi/(N+2))* \
                np.kron(basis(N+1, k), basis(N+1, N-k))
     psi = np.sqrt(2/(2+N))*psi
@@ -337,15 +339,15 @@ $m$.
     === "offline"
         === "DE"
             ``` py
-            DE_para = {"popsize":10, "DeltaPhi0":[], "max_episode":1000, "c":1.0, 
+            DE_para = {"popsize":10, "deltaphi0":[], "max_episode":1000, "c":1.0, 
                        "cr":0.5, "seed":1234}
-            apt.offline(**DE_para)
+            apt.offline(method="DE", **DE_para)
             ```
         === "PSO"
             ``` py
-            PSO_para = {"particle_num":10, "DeltaPhi0":[], "max_episode":[1000,100], 
+            PSO_para = {"particle_num":10, "deltaphi0":[], "max_episode":[1000,100], 
                         "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
-            apt.offline(**PSO_para)
+            apt.offline(method="PSO", **PSO_para)
             ```
 === "Julia"
     ``` jl
@@ -354,7 +356,7 @@ $m$.
     # the number of photons
     N = 8
     # probe state
-    psi = sum([sin((k+1)pi/(N+2))*kron(QuanEstimation.basis(N+1,k), 
+    psi = sum([sin(k*pi/(N+2))*kron(QuanEstimation.basis(N+1,k), 
           QuanEstimation.basis(N+1, N-k+2)) for k in 1:(N+1)]) |> sparse
     psi = psi*sqrt(2/(2+N))
     rho0 = psi*psi'
@@ -393,3 +395,14 @@ Optimal States and Almost Optimal Adaptive Measurements for Quantum Interferomet
 D. W. Berry, H. M. Wiseman, and J. K. Breslin, 
 Optimal input states and feedback for interferometric phase estimation, 
 [Phys. Rev. A **63**, 053804 (2001).](https://doi.org/10.1103/PhysRevA.63.053804)
+
+<a id="Hentschel2010">[3]</a>
+A. Hentschel and B. C. Sanders,
+Machine Learning for Precise Quantum Measurement,
+[Phys. Rev. Lett. **104**, 063603 (2010).](https://doi.org/10.1103/PhysRevLett.104.063603)
+
+<a id="Hentschel2011">[4]</a>
+A. Hentschel and B. C. Sanders,
+Efficient Algorithm for Optimizing Adaptive Quantum Metrology Processes,
+[Phys. Rev. Lett. **104**, 063603 (2011).](https://doi.org/10.1103/PhysRevLett.107.233601)
+

@@ -15,11 +15,15 @@
     --md-code-hl-number-color: #0ba224;
     --md-code-hl-string-color: #BA2121;
     --md-code-hl-comment-color: #029999;
-    --md-code-hl-keyword-color: #008000;
-    --md-code-hl-function-color: rgba(0, 0, 0, 0.805);
+    --md-code-hl-keyword-color: #0ba224;
+    --md-code-hl-function-color: #e9ebfc;
     --md-code-hl-operator-color: #AA22FF;
-    --md-code-hl-constant-color: #008000;
-    --md-code-hl-variable-color: #008000;
+    --md-code-hl-constant-color: #0ba224;
+    --md-code-hl-variable-color: #0ba224;
     --md-code-hl-name-color: #e9ebfc;
 
   }
+
+  .md-typeset pre > code {
+      white-space: pre-wrap;
+      }

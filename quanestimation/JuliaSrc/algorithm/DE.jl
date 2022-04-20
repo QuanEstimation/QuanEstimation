@@ -229,6 +229,7 @@ function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
         ini_population = ( [B], )
     end
     ini_population = ini_population[1]
+    dim = size(dynamics.data.ρ0)[1]
     basis_num = length(POVM_basis)
     populations = [[zeros(basis_num) for j in 1:M_num] for i in 1:p_num]
 

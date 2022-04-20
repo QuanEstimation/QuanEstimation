@@ -1,7 +1,7 @@
 include("mintime.jl")
 include("BayesEstimation.jl")
 
-destroy(N) = diagm(1 => [1/sqrt(n) for n in 1:N-1])
+destroy(N) = diagm(1 => [sqrt(n)+0.0im for n in 1:N-1])
 
 bases(dim; T=ComplexF64) = [e for e in I(dim).|>T|>eachrow]
 
@@ -331,7 +331,7 @@ function initial_LinearComb!(measurement0, B_all, basis_num, M_num, p_num, rng)
         measurement0 = [measurement0[i] for i in 1:p_num]
     end 
     for pj in 1:length(measurement0)
-        B_all[pj] = measurement0[pj] isa AbstractVector ? deepcopy(measurement0[pj]) : [[measurement0[pj][i,j] for j in 1:dim] for i in 1:M_num]
+        B_all[pj] = measurement0[pj] isa AbstractVector ? deepcopy(measurement0[pj]) : [[measurement0[pj][i,j] for j in 1:basis_num] for i in 1:M_num]
     end
 
     for pj in (length(measurement0)+1):p_num

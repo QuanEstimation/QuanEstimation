@@ -20,15 +20,15 @@ Base.@kwdef struct HCRB_obj{P} <: AbstractObj
     eps::Number = GLOBAL_EPS
 end
 
-QFIM_obj(;W=missing, eps=GLOBAL_EPS, para_type::Symbol=:single_para, LD_type::Symbol=:SLD) = QFIM_obj{eval.([para_type, LD_type])...}(W, eps)
+QFIM_obj(;W=missing, eps=GLOBAL_EPS, para_type::Symbol=:single_para, LDtype::Symbol=:SLD) = QFIM_obj{eval.([para_type, LDtype])...}(W, eps)
 CFIM_obj(;M=missing, W=missing, eps=GLOBAL_EPS, para_type::Symbol=:single_para) = CFIM_obj{eval(para_type)}(M, W, eps)
 HCRB_obj(;W=missing, eps=GLOBAL_EPS, para_type::Symbol=:single_para) = HCRB_obj{eval(para_type)}(W, eps)
 
-QFIM_obj(W, eps, para_type::Symbol, LD_type::Symbol) = QFIM_obj{eval.([para_type, LD_type])...}(W, eps)
+QFIM_obj(W, eps, para_type::Symbol, LDtype::Symbol) = QFIM_obj{eval.([para_type, LDtype])...}(W, eps)
 CFIM_obj(M, W, eps, para_type::Symbol) = CFIM_obj{eval(para_type)}(M, W, eps)
 HCRB_obj(W, eps, para_type::Symbol) = HCRB_obj{eval(para_type)}(W, eps)
 
-QFIM_obj(W::AbstractMatrix, eps::Number, para_type::String, LD_type::String) = QFIM_obj(W, eps, Symbol.([para_type, LD_type])...)
+QFIM_obj(W::AbstractMatrix, eps::Number, para_type::String, LDtype::String) = QFIM_obj(W, eps, Symbol.([para_type, LDtype])...)
 CFIM_obj(M::AbstractVecOrMat, W::AbstractMatrix, eps::Number, para_type::String) = CFIM_obj(M, W, eps, Symbol(para_type))
 HCRB_obj(W::AbstractMatrix, eps::Number, para_type::String) = HCRB_obj(W, eps, Symbol(para_type))
 
@@ -43,9 +43,9 @@ para_type(::CFIM_obj{multi_para}) = :multi_para
 para_type(::HCRB_obj{single_para}) = :single_para
 para_type(::HCRB_obj{multi_para}) = :multi_para
 
-LD_type(::QFIM_obj{P,SLD}) where {P} = :SLD
-LD_type(::QFIM_obj{P,RLD}) where {P} = :RLD
-LD_type(::QFIM_obj{P,LLD}) where {P} = :LLD
+LDtype(::QFIM_obj{P,SLD}) where {P} = :SLD
+LDtype(::QFIM_obj{P,RLD}) where {P} = :RLD
+LDtype(::QFIM_obj{P,LLD}) where {P} = :LLD
 
 QFIM_obj(opt::CFIM_obj{P}) where P = QFIM_obj{P, SLD}(opt.W, opt.eps)
 QFIM_obj(opt::CFIM_obj{P}, LDtype::Symbol) where P = QFIM_obj{P, eval(LDtype)}(opt.W, opt.eps)
