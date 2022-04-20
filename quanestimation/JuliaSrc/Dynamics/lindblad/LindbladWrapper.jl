@@ -1,4 +1,10 @@
 # wrapper for Lindblad dynamics with ControlOpt
+"""
+
+	Lindblad(opt::ControlOpt, tspan, ρ₀, H0, dH, Hc; decay=missing, rng=GLOBAL_RNG, eps=GLOBAL_EPS)
+	
+Initialize the parameterization described by the Lindblad master equation governed dynamics for the control optimization.
+"""
 function Lindblad(opt::ControlOpt, tspan, ρ₀, H0, dH, Hc; decay=missing, rng=GLOBAL_RNG, eps=GLOBAL_EPS)
 	(;ctrl) = opt
 	dim = size(ρ₀, 1)
@@ -49,7 +55,13 @@ end
 
 Lindblad(opt::ControlOpt, tspan, ρ₀, H0, dH, Hc, decay; rng=GLOBAL_RNG, eps=GLOBAL_EPS) = 
 	Lindblad(opt, tspan, ρ₀, H0, dH, Hc; decay=decay, rng=rng, eps=eps)
+	
+"""
 
+	Lindblad(opt::StateOpt, tspan, H0, dH; Hc=missing, ctrl=missing, decay=missing, rng=GLOBAL_RNG, eps=GLOBAL_EPS)
+	
+Initialize the parameterization described by the Lindblad master equation governed dynamics for the state optimization.
+"""
 function Lindblad(opt::StateOpt, tspan, H0, dH; Hc=missing, ctrl=missing, decay=missing, rng=GLOBAL_RNG, eps=GLOBAL_EPS)
 	(;psi) = opt
 	dim = H0 isa AbstractVector ? size(H0[1], 1) : size(H0, 1)
@@ -190,6 +202,12 @@ function _ini_measurement!(opt::Mopt_Rotation, dim::Int, rng; eps=GLOBAL_EPS)
 	end
 end
 
+"""
+
+	Lindblad(opt::AbstractMopt, tspan, ρ₀, H0, dH; Hc=missing, ctrl=missing, decay=missing, rng=GLOBAL_RNG, eps=GLOBAL_EPS)
+	
+Initialize the parameterization described by the Lindblad master equation governed dynamics for the measurement optimization.
+"""
 function Lindblad(opt::AbstractMopt, tspan, ρ₀, H0, dH; Hc=missing, ctrl=missing, decay=missing, rng=GLOBAL_RNG, eps=GLOBAL_EPS)
 	dim = size(ρ₀, 1)
 	_ini_measurement!(opt, dim, rng; eps=eps)
@@ -279,6 +297,12 @@ function _ini_measurement!(opt::CompOpt, dim::Int, rng; eps=GLOBAL_EPS)
 	end
 end
 
+"""
+
+	Lindblad(opt::StateControlOpt, tspan, H0, dH, Hc; decay=missing, rng=GLOBAL_RNG, eps=GLOBAL_EPS)
+	
+Initialize the parameterization described by the Lindblad master equation governed dynamics for the comprehensive optimization on state and control.
+"""
 function Lindblad(opt::StateControlOpt, tspan, H0, dH, Hc; decay=missing, rng=GLOBAL_RNG, eps=GLOBAL_EPS)
 	(;psi, ctrl) = opt
 	dim = H0 isa AbstractVector ? size(H0[1], 1) : size(H0, 1)
@@ -335,7 +359,13 @@ end
 
 Lindblad(opt::StateControlOpt, tspan, H0, dH, Hc, decay; rng=GLOBAL_RNG, eps=GLOBAL_EPS) = 
 	Lindblad(opt, tspan, H0, dH, Hc; decay=decay, rng=rng, eps=eps)
+	
+"""
 
+	Lindblad(opt::ControlMeasurementOpt, tspan, ρ₀, H0, dH, Hc; decay=missing, rng=GLOBAL_RNG, eps=GLOBAL_EPS)
+	
+Initialize the parameterization described by the Lindblad master equation governed dynamics for the comprehensive optimization on control and measurement.
+"""
 function Lindblad(opt::ControlMeasurementOpt, tspan, ρ₀, H0, dH, Hc; decay=missing, rng=GLOBAL_RNG, eps=GLOBAL_EPS)
 	(;ctrl) = opt
 	dim = size(ρ₀, 1)
@@ -387,7 +417,13 @@ end
 
 Lindblad(opt::ControlMeasurementOpt, tspan, ρ₀, H0, dH, Hc, decay; rng=GLOBAL_RNG, eps=GLOBAL_EPS) = 
 	Lindblad(opt, tspan, ρ₀, H0, dH, Hc; decay=decay, rng=rng, eps=eps)
+	
+"""
 
+	Lindblad(opt::StateMeasurementOpt, tspan, H0, dH; Hc=missing, ctrl=missing, decay=missing, rng=GLOBAL_RNG)
+	
+Initialize the parameterization described by the Lindblad master equation governed dynamics for the comprehensive optimization on state and measurement.
+"""
 function Lindblad(opt::StateMeasurementOpt, tspan, H0, dH; Hc=missing, ctrl=missing, decay=missing, rng=GLOBAL_RNG)
 	(;psi) = opt
 	dim = H0 isa AbstractVector ? size(H0[1], 1) : size(H0, 1)
@@ -470,6 +506,12 @@ end
 Lindblad(opt::StateMeasurementOpt, tspan, H0, dH, Hc, ctrl, decay; rng=GLOBAL_RNG, eps=GLOBAL_EPS) = 
 	Lindblad(opt, tspan, H0, dH; Hc=Hc, ctrl=ctrl, decay=decay, rng=rng, eps=eps)
 
+"""
+
+	Lindblad(opt::StateControlMeasurementOpt, tspan, H0, dH, Hc; decay=missing, rng=GLOBAL_RNG, eps=GLOBAL_EPS)
+	
+Initialize the parameterization described by the Lindblad master equation governed dynamics for the comprehensive optimization on state, control and measurement.
+"""
 function Lindblad(opt::StateControlMeasurementOpt, tspan, H0, dH, Hc; decay=missing, rng=GLOBAL_RNG, eps=GLOBAL_EPS)
 	(;ctrl, psi) = opt
 	dim = H0 isa AbstractVector ? size(H0[1], 1) : size(H0, 1)

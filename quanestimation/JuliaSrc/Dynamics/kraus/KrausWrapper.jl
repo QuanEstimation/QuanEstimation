@@ -1,3 +1,10 @@
+"""
+
+    Kraus(opt::StateOpt, K, dK;rng=GLOBAL_RNG)
+    
+Initialize the parameterization described by the Kraus operators for the state optimization. 
+"""
+
 function Kraus(opt::StateOpt, K, dK;rng=GLOBAL_RNG)
     (;psi) = opt
     dim = size(K[1], 1)
@@ -15,7 +22,12 @@ function Kraus(opt::StateOpt, K, dK;rng=GLOBAL_RNG)
 
     Kraus(K, dK, psi)
 end
+"""
 
+    Kraus(opt::AbstractMopt, ρ₀::AbstractMatrix, K, dK;rng=GLOBAL_RNG, eps=GLOBAL_EPS)
+    
+Initialize the parameterization described by the Kraus operators for the measurement optimization. 
+"""
 function Kraus(opt::AbstractMopt, ρ₀::AbstractMatrix, K, dK;rng=GLOBAL_RNG, eps=GLOBAL_EPS)
     dim = size(ρ₀, 1)
     _ini_measurement!(opt, dim, rng; eps=eps)
@@ -26,7 +38,12 @@ function Kraus(opt::AbstractMopt, ρ₀::AbstractMatrix, K, dK;rng=GLOBAL_RNG, e
     Kraus(K, dK, ρ₀)
 end
 
+"""
 
+    Kraus(opt::CompOpt, K, dK;rng=GLOBAL_RNG, eps=GLOBAL_EPS)
+    
+Initialize the parameterization described by the Kraus operators for the comprehensive optimization. 
+"""
 function Kraus(opt::CompOpt, K, dK;rng=GLOBAL_RNG, eps=GLOBAL_EPS)
     (;psi) = opt
     dim = size(K[1], 1)
