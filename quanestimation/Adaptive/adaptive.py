@@ -68,8 +68,8 @@ class adaptive:
             -- Free Hamiltonian with respect to the values in x.
 
         > **dH:** `multidimensional list`
-            -- Derivatives of the free Hamiltonian on the unknown parameters to be 
-            estimated.
+            -- Derivatives of the free Hamiltonian with respect to the unknown parameters 
+            to be estimated.
 
         > **Hc:** `list`
             -- Control Hamiltonians.
@@ -108,8 +108,8 @@ class adaptive:
             -- Kraus operator(s) with respect to the values in x.
 
         > **dK:** `multidimensional list`
-            -- Derivatives of the Kraus operator(s) on the unknown parameters to be 
-            estimated.
+            -- Derivatives of the Kraus operator(s) with respect to the unknown parameters 
+            to be estimated.
         """
 
         self.K = K
@@ -134,7 +134,7 @@ class adaptive:
 
         **Note:** 
             SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-            which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
+            which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
             solutions.html).
         """
 

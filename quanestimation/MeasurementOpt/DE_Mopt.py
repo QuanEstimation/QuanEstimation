@@ -64,16 +64,6 @@ class DE_Mopt(Measurement.MeasurementSystem):
         self.max_episode = max_episode
         self.c = c
         self.cr = cr
-        
-        ini_population = ([self.measurement0],)
-        self.alg = Main.QuanEstimation.DE(
-            self.max_episode,
-            self.p_num,
-            ini_population,
-            self.c,
-            self.cr,
-            self.seed,
-        )
 
     def CFIM(self, W=[]):
         r"""
@@ -86,5 +76,13 @@ class DE_Mopt(Measurement.MeasurementSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
-        
+        ini_population = ([self.measurement0],)
+        self.alg = Main.QuanEstimation.DE(
+            self.max_episode,
+            self.p_num,
+            ini_population,
+            self.c,
+            self.cr,
+            self.seed,
+        )
         super().CFIM(W)

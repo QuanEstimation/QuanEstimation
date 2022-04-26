@@ -1,5 +1,18 @@
 ########## Bayesian version of CFIM ##########
-function BCFIM(x, p, rho, drho; M::Union{AbstractVector,Nothing}=nothing, eps=1e-8)
+@doc raw"""
+
+    BCFIM(x::V, p::V, rho::V, drho::V; M::Union{V,Nothing}=nothing, eps=GLOBAL_EPS) where{V<:AbstractVector}
+
+Calculation of the Bayesian classical Fisher information (BCFI) and the Bayesian classical Fisher information matrix (BCFIM) of the form
+``\mathcal{I}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{I}\mathrm{d}\textbf{x}`` with ``\mathcal{I}`` the CFIM and ``p(\textbf{x})`` the prior distribution.
+- `x`: The regimes of the parameters for the integral.
+- `p`: The prior distribution.
+- `rho`: Parameterized density matrix.
+- `drho`: Derivatives of the parameterized density matrix (rho) with respect to the unknown parameters to be estimated.
+- `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+- `eps`: Machine epsilon.
+"""
+function BCFIM(x::V, p::V, rho::V, drho::V; M::Union{V,Nothing}=nothing, eps=GLOBAL_EPS) where{V<:AbstractVector}
     para_num = length(x)
     if para_num == 1
         #### singleparameter scenario ####
@@ -26,8 +39,22 @@ function BCFIM(x, p, rho, drho; M::Union{AbstractVector,Nothing}=nothing, eps=1e
         F = trapzm(x, Fs, xnum^2) |> I->reshape(I,xnum,xnum)
     end    
 end
+
 ########## Bayesian version of QFIM ##########
-function BQFIM(x, p, rho, drho; LDtype=:SLD, eps=1e-8)
+@doc raw"""
+
+    BQFIM(x::V, p::V, rho::V, drho::V; LDtype=:SLD, eps=GLOBAL_EPS) where{V<:AbstractVector}
+
+Calculation of the Bayesian quantum Fisher information (BQFI) and the Bayesian quantum Fisher information matrix (BQFIM) of the form
+``\mathcal{F}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{F}\mathrm{d}\textbf{x}`` with ``\mathcal{F}`` the QFIM of all types and ``p(\textbf{x})`` the prior distribution.
+- `x`: The regimes of the parameters for the integral.
+- `p`: The prior distribution.
+- `rho`: Parameterized density matrix.
+- `drho`: Derivatives of the parameterized density matrix (rho) with respect to the unknown parameters to be estimated.
+- `LDtype`: Types of QFI (QFIM) can be set as the objective function. Options are "SLD" (default), "RLD" and "LLD".
+- `eps`: Machine epsilon.
+"""
+function BQFIM(x::V, p::V, rho::V, drho::V; LDtype=:SLD, eps=GLOBAL_EPS) where{V<:AbstractVector}
     para_num = length(x)
     if para_num == 1
         #### singleparameter scenario ####
@@ -49,7 +76,22 @@ function BQFIM(x, p, rho, drho; LDtype=:SLD, eps=1e-8)
 end
 
 ########## Bayesian quantum Cramer-Rao bound ##########
-function BQCRB(x, p, rho, drho; b=nothing, db=nothing, LDtype=:SLD, btype=1, eps=1e-8)
+@doc raw"""
+
+    BQCRB(x::V, p::V, rho::V, drho::V; b::Union{V,Nothing}=nothing, db::Union{V,Nothing}=nothing, LDtype=:SLD, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
+
+Calculation of the Bayesian quantum Cramer-Rao bound (BQCRB).
+- `x`: The regimes of the parameters for the integral.
+- `p`: The prior distribution.
+- `rho`: Parameterized density matrix.
+- `drho`: Derivatives of the parameterized density matrix (rho) with respect to the unknown parameters to be estimated.
+- `b`: Vector of biases of the form ``\textbf{b}=(b(x_0),b(x_1),\dots)^{\mathrm{T}}``.
+- `db`: Derivatives of b on the unknown parameters to be estimated, It should be expressed as ``\textbf{b}'=(\partial_0 b(x_0),\partial_1 b(x_1),\dots)^{\mathrm{T}}``.
+- `LDtype`: Types of QFI (QFIM) can be set as the objective function. Options are "SLD" (default), "RLD" and "LLD".
+- `btype`: Types of the BCRB. Options are 1 and 2.
+- `eps`: Machine epsilon.
+"""
+function BQCRB(x::V, p::V, rho::V, drho::V; b::Union{V,Nothing}=nothing, db::Union{V,Nothing}=nothing, LDtype=:SLD, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
     para_num = length(x)
 
     if b==nothing
@@ -117,7 +159,22 @@ function BQCRB(x, p, rho, drho; b=nothing, db=nothing, LDtype=:SLD, btype=1, eps
     end
 end
 
-function BCRB(x, p, rho, drho; M::Union{AbstractVector,Nothing}=nothing, b=nothing, db=nothing, btype=1, eps=1e-8)
+@doc raw"""
+
+    BCRB(x::V, p::V, rho::V, drho::V; M::Union{V,Nothing}=nothing, b::Union{V,Nothing}=nothing, db::Union{V,Nothing}=nothing, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
+
+Calculation of the Bayesian Cramer-Rao bound (BCRB).
+- `x`: The regimes of the parameters for the integral.
+- `p`: The prior distribution.
+- `rho`: Parameterized density matrix.
+- `drho`: Derivatives of the parameterized density matrix (rho) with respect to the unknown parameters to be estimated.
+- `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+- `b`: Vector of biases of the form ``\textbf{b}=(b(x_0),b(x_1),\dots)^{\mathrm{T}}``.
+- `db`: Derivatives of b on the unknown parameters to be estimated, It should be expressed as ``\textbf{b}'=(\partial_0 b(x_0),\partial_1 b(x_1),\dots)^{\mathrm{T}}``.
+- `btype`: Types of the BCRB. Options are 1 and 2.
+- `eps`: Machine epsilon.
+"""
+function BCRB(x::V, p::V, rho::V, drho::V; M::Union{V,Nothing}=nothing, b::Union{V,Nothing}=nothing, db::Union{V,Nothing}=nothing, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
     para_num = length(x)
      
     if b==nothing
@@ -189,7 +246,21 @@ function BCRB(x, p, rho, drho; M::Union{AbstractVector,Nothing}=nothing, b=nothi
     end
 end
 
-function QVTB(x, p, dp, rho, drho; LDtype=:SLD, btype=1, eps=1e-8)
+"""
+
+    QVTB(x::V, p::V, dp::V, rho::V, drho::V; LDtype=:SLD, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
+
+Calculation of the Bayesian version of Cramer-Rao bound in troduced by Van Trees (VTB).
+- `x`: The regimes of the parameters for the integral.
+- `p`: The prior distribution.
+- `dp`: Derivatives of the prior distribution with respect to the unknown parameters to be estimated. For example, dp[0] is the derivative vector on the first parameter.
+- `rho`: Parameterized density matrix.
+- `drho`: Derivatives of the parameterized density matrix (rho) with respect to the unknown parameters to be estimated.
+- `LDtype`: Types of QFI (QFIM) can be set as the objective function. Options are "SLD" (default), "RLD" and "LLD".
+- `btype`: Types of the BCRB. Options are 1 and 2.
+- `eps`: Machine epsilon.
+"""
+function QVTB(x::V, p::V, dp::V, rho::V, drho::V; LDtype=:SLD, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
     para_num = length(x)
     if para_num == 1
         #### singleparameter scenario ####
@@ -239,7 +310,21 @@ function QVTB(x, p, dp, rho, drho; LDtype=:SLD, btype=1, eps=1e-8)
     end
 end
 
-function VTB(x, p, dp, rho, drho; M::Union{AbstractVector,Nothing}=nothing, btype=1, eps=1e-8)
+"""
+
+    VTB(x::V, p::V, dp::V, rho::V, drho::V; M::Union{V,Nothing}=nothing, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
+
+Calculation of the Bayesian version of Cramer-Rao bound introduced by Van Trees (VTB).
+- `x`: The regimes of the parameters for the integral.
+- `p`: The prior distribution.
+- `dp`: Derivatives of the prior distribution with respect to the unknown parameters to be estimated. For example, dp[0] is the derivative vector on the first parameter.
+- `rho`: Parameterized density matrix.
+- `drho`: Derivatives of the parameterized density matrix (rho) with respect to the unknown parameters to be estimated.
+- `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+- `btype`: Types of the BCRB. Options are 1 and 2.
+- `eps`: Machine epsilon.
+"""
+function VTB(x::V, p::V, dp::V, rho::V, drho::V; M::Union{V,Nothing}=nothing, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
     para_num = length(x)
     if para_num == 1
         #### singleparameter scenario ####
@@ -316,7 +401,21 @@ function interp1(xspan, yspan, x)
     return y
 end
 
-function OBB(x, p, dp, rho, drho, d2rho; LDtype=:SLD, eps=1e-8)
+"""
+
+    OBB(x::V, p::V, dp::V, rho::V, drho::V, d2rho::V; LDtype=:SLD, eps=GLOBAL_EPS) where {V<:AbstractVector}
+
+Calculation of the Bayesian version of Cramer-Rao bound introduced by Van Trees (VTB).
+- `x`: The regimes of the parameters for the integral.
+- `p`: The prior distribution.
+- `dp`: Derivatives of the prior distribution with respect to the unknown parameters to be estimated. For example, dp[0] is the derivative vector on the first parameter.
+- `rho`: Parameterized density matrix.
+- `drho`: Derivatives of the parameterized density matrix (rho) with respect to the unknown parameters to be estimated.
+- `d2rho`: Second order Derivatives of the parameterized density matrix (rho) with respect to the unknown parameters to be estimated.
+- `LDtype`: Types of QFI (QFIM) can be set as the objective function. Options are "SLD" (default), "RLD" and "LLD".
+- `eps`: Machine epsilon.
+"""
+function OBB(x::V, p::V, dp::V, rho::V, drho::V, d2rho::V; LDtype=:SLD, eps=GLOBAL_EPS) where {V<:AbstractVector}
     p_num = length(p)
     
     if typeof(drho[1]) == Vector{Matrix{ComplexF64}}

@@ -1,7 +1,6 @@
-# using QuanEstimation
+using QuanEstimation
 using Random
 using LinearAlgebra
-include("quanestimation/JuliaSrc/QuanEstimation.jl")
 
 # initial state
 rho0 = zeros(ComplexF64, 6, 6)
@@ -58,20 +57,20 @@ opt = QuanEstimation.ControlOpt(ctrl=ini_1, ctrl_bound=[-0.2, 0.2])
 
 ##==========choose measurement optimization algorithm==========##
 ##-------------algorithm: auto-GRAPE---------------------##
-alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=30, epsilon=0.01, 
+alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=300, epsilon=0.01, 
                                beta1=0.90, beta2=0.99)
 
 ##-------------algorithm: PSO---------------------##
 # alg = QuanEstimation.PSO(p_num=10, ini_particle=(ctrl0,), 
-#                          max_episode=[100,100], c0=1.0, 
+#                          max_episode=[1000,100], c0=1.0, 
 #                          c1=2.0, c2=2.0, seed=1234)
 
 ##-------------algorithm: DE---------------------##
 # alg = QuanEstimation.DE(p_num=10, ini_population=(ctrl0,), 
-#                         max_episode=100, c=1.0, cr=0.5, seed=1234)
+#                         max_episode=1000, c=1.0, cr=0.5, seed=1234)
 
 ##-------------algorithm: DDPG---------------------##
-# alg = QuanEstimation.DDPG(max_episode=200, layer_num=4, layer_dim=220, 
+# alg = QuanEstimation.DDPG(max_episode=500, layer_num=4, layer_dim=220, 
 #                           seed=1234)
 
 ##===================choose objective function===================##

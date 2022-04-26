@@ -261,8 +261,8 @@ class StateSystem:
         para_num = len(dK[0])
         self.K = [np.array(x, dtype=np.complex128) for x in K]
         self.dK = [
-            [np.array(dK[i][j], dtype=np.complex128) for i in range(k_num)]
-            for j in range(para_num)
+            [np.array(dK[i][j], dtype=np.complex128) for j in range(para_num)]
+            for i in range(k_num)
         ]
 
         self.dim = len(self.K[0])
@@ -273,13 +273,10 @@ class StateSystem:
             r = r_ini / np.linalg.norm(r_ini)
             phi = 2 * np.pi * np.random.random(self.dim)
             psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
-            self.psi0 = np.array(psi0)
+            self.psi0 = np.array(psi0)  # Initial state (an array)
+            self.psi = [self.psi0] # Initial guesses of states (a list of arrays)
         else:
             self.psi0 = np.array(self.psi0[0], dtype=np.complex128)
-
-        if self.psi == []:
-            self.psi = [self.psi0]
-        else:
             self.psi = [np.array(psi, dtype=np.complex128) for psi in self.psi]
 
         self.opt = Main.QuanEstimation.StateOpt(self.psi0)
@@ -287,7 +284,7 @@ class StateSystem:
         self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
 
         self.dynamics_type = "Kraus"
-        if len(self.dK) == 1:
+        if para_num == 1:
             self.para_type = "single_para"
         else:
             self.para_type = "multi_para"
@@ -356,7 +353,7 @@ class StateSystem:
 
         **Note:** 
             SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-            which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
+            which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
             solutions.html).
         """
 

@@ -146,18 +146,16 @@ Lindblad(opt::StateOpt, tspan, H0, dH, Hc, ctrl, decay; rng=GLOBAL_RNG, eps=GLOB
 function _ini_measurement!(opt::Mopt_Projection, dim::Int, rng; eps=GLOBAL_EPS)
 	(; M) = opt
 	## initialize the Mopt target M
+	C = [ComplexF64[] for _ in 1:dim]
 	if ismissing(M)
-		M = [ComplexF64[] for _ in 1:dim]
 		for i in 1:dim
 			r_ini = 2*rand(rng, dim) - ones(dim)
 			r = r_ini/norm(r_ini)
 			ϕ = 2pi*rand(rng, dim)
-			M[i] = [r*exp(im*ϕ) for (r,ϕ) in zip(r,ϕ)] 
+			C[i] = [r*exp(im*ϕ) for (r,ϕ) in zip(r,ϕ)] 
 		end
-		M = gramschmidt(M)
+		opt.M = gramschmidt(C)
 	end
-
-	opt.M = complex.(M)
 end
 
 function _ini_measurement!(opt::Mopt_LinearComb, dim::Int, rng; eps=GLOBAL_EPS)
@@ -285,15 +283,15 @@ Lindblad(opt::AbstractMopt, tspan, ρ₀, H0, dH, Hc, ctrl, decay; rng=GLOBAL_RN
 function _ini_measurement!(opt::CompOpt, dim::Int, rng; eps=GLOBAL_EPS)
 	(; M) = opt
 	## initialize the Mopt target M
-	M = [ComplexF64[] for _ in 1:dim]
+	C = [ComplexF64[] for _ in 1:dim]
 	if ismissing(M)
 		for i in 1:dim
 			r_ini = 2*rand(rng, dim) - ones(dim)
 			r = r_ini/norm(r_ini)
 			ϕ = 2pi*rand(rng, dim)
-			M[i] = [r*exp(im*ϕ) for (r,ϕ) in zip(r,ϕ)] 
+			C[i] = [r*exp(im*ϕ) for (r,ϕ) in zip(r,ϕ)] 
 		end
-		opt.M = gramschmidt(M)
+		opt.M = gramschmidt(C)
 	end
 end
 

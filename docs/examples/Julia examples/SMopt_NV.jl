@@ -1,6 +1,7 @@
-using QuanEstimation
+# using QuanEstimation
 using Random
 using LinearAlgebra
+include("quanestimation/JuliaSrc/QuanEstimation.jl")
 
 # initial state
 rho0 = zeros(ComplexF64, 6, 6)
@@ -37,37 +38,26 @@ POVM_basis = [QuanEstimation.basis(dim, i)*QuanEstimation.basis(dim, i)'
               for i in 1:dim]
 # time length for the evolution
 tspan = range(0., 2., length=4000)
-# find the optimal rotated measurement of an input measurement
-opt = QuanEstimation.MeasurementOpt(mtype=:Rotation, POVM_basis=POVM_basis)
+# choose the optimization type
+opt = QuanEstimation.SMopt()
 
-##==========choose measurement optimization algorithm==========##
+##==========choose comprehensive optimization algorithm==========##
 ##-------------algorithm: DE---------------------##
-alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
-                        max_episode=1000, c=1.0, cr=0.5, seed=1234)
+alg = QuanEstimation.DE(p_num=10, max_episode=100, c=1.0, cr=0.5, 
+                        seed=1234)
 # input the dynamics data
-dynamics = QuanEstimation.Lindblad(opt, tspan ,rho0, H0, dH, decay=decay)
-# objective function: tr(WI^{-1})
-obj = QuanEstimation.CFIM_obj()
-# run the measurement optimization problem
+dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)   
+# objective function: CFI
+obj = QuanEstimation.CFIM_obj(M=M) 
+# run the comprehensive optimization problem
 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 
 ##-------------algorithm: PSO---------------------##
-# alg = QuanEstimation.PSO(p_num=10, ini_particle=missing, 
-#                          max_episode=[1000,100], c0=1.0, c1=2.0, 
-#                          c2=2.0, seed=1234)
+# alg = QuanEstimation.PSO(p_num=10, max_episode=[100,100], c0=1.0, 
+#                          c1=2.0, c2=2.0, seed=1234)
 # # input the dynamics data
-# dynamics = QuanEstimation.Lindblad(opt, tspan ,rho0, H0, dH, decay=decay)
-# # objective function: tr(WI^{-1})
-# obj = QuanEstimation.CFIM_obj()
-# # run the measurement optimization problem
-# QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
-
-##-------------algorithm: AD---------------------##
-# alg = QuanEstimation.AD(Adam=false, max_episode=300, epsilon=0.01, 
-#                         beta1=0.90, beta2=0.99)
-# # input the dynamics data
-# dynamics = QuanEstimation.Lindblad(opt, tspan ,rho0, H0, dH, decay=decay)
-# # objective function: tr(WI^{-1})
-# obj = QuanEstimation.CFIM_obj()
-# # run the measurement optimization problem
+# dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)   
+# # objective function: CFI
+# obj = QuanEstimation.CFIM_obj(M=M) 
+# # run the comprehensive optimization problem
 # QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)

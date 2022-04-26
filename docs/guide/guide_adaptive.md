@@ -71,7 +71,7 @@ and
     ```
 where `K` and `dK` are the Kraus operators and its derivatives on the unknown parameters.
 
-**Example 7.1**  
+**Example 9.1**  
 The Hamiltonian of a qubit system is
 \begin{align}
 H=\frac{B}{2}(\sigma_1\cos{x}+\sigma_3\sin{x}),
@@ -303,7 +303,7 @@ If the optimization algorithm is DE, the keywords and the default values are
     DE parameters representing the mutation and crossover constants, `seed` is the random 
     seed which can ensure the reproducibility of results.
 
-**Example 7.2**  
+**Example 9.2**  
 In this example, the adaptive measurement shcemes is design for the MZI [[3,4]](#Hentschel2010). 
 The input state is 
 \begin{align}

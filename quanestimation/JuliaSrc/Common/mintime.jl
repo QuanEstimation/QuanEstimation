@@ -1,5 +1,5 @@
 ###################### mintime opt #############################
-function mintime(::Val{:binary}, f, system)
+function mintime(::Val{:binary}, f::Number, system)
     (; dynamics, output, obj) = system
     (; tspan, ctrl) = deepcopy(dynamics.data)
     low, high = 1, length(tspan)
@@ -38,7 +38,7 @@ function mintime(::Val{:binary}, f, system)
     println("The minimum time to reach target is ", dynamics.data.tspan[end],", data saved.")
 end
 
-function mintime(::Val{:forward}, f, system)
+function mintime(::Val{:forward}, f::Number, system)
     (; dynamics, output, obj) = system
     (; tspan, ctrl) = deepcopy(dynamics.data)
     idx = 2

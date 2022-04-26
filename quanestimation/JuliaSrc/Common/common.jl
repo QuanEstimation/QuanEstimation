@@ -70,7 +70,14 @@ function suN_generatorW(n, k)
     return spdiagm(n,n,diagw)
 end
 
-function suN_generator(n)
+@doc raw"""
+
+    suN_generator(n::Int64)
+
+Generation of the SU(``N``) generators with ``N`` the dimension of the system.
+- `N`: The dimension of the system.
+"""
+function suN_generator(n::Int64)
     result = Vector{SparseMatrixCSC{ComplexF64, Int64}}(undef, n^2-1)
     idx = 2
     itr = 1
@@ -98,10 +105,8 @@ end
 function sic_povm(fiducial)
     """
     Generate a set of POVMs by applying the d^2 Weyl-Heisenberg displacement operators to a
-    fiducial state. 
-    The Weyl-Heisenberg displacement operators are constructioned by Fuchs et al. in the article
-    https://doi.org/10.3390/axioms6030021 and it is realized in QBism.
-    
+    fiducial state. The Weyl-Heisenberg displacement operators are constructioned by Fuchs 
+    et al. in the article https://doi.org/10.3390/axioms6030021 and it is realized in QBism.
     """
     d = length(fiducial)
     w = exp(2.0*pi*1.0im/d)
@@ -137,8 +142,16 @@ function sic_povm(fiducial)
     end
     return res
 end
- 
-function SIC(dim)
+
+"""
+
+    SIC(dim::Int64)
+
+Generation of a set of rank-one symmetric informationally complete positive operator-valued measure (SIC-POVM).
+- `dim`: The dimension of the system.
+Note: SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html).
+"""
+function SIC(dim::Int64)
     data = readdlm("$(pkgpath)/sic_fiducial_vectors/d$(dim).txt", '\t', Float64, '\n')
     fiducial = data[:,1]+1.0im*data[:,2]
     M = sic_povm(fiducial)

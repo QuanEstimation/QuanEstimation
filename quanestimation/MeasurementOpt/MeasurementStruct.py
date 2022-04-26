@@ -390,8 +390,8 @@ class MeasurementSystem:
         k_num = len(K)
         para_num = len(dK[0])
         self.dK = [
-            [np.array(dK[i][j], dtype=np.complex128) for i in range(k_num)]
-            for j in range(para_num)
+            [np.array(dK[i][j], dtype=np.complex128) for j in range(para_num)]
+            for i in range(k_num)
         ]
         self.rho0 = np.array(rho0, dtype=np.complex128)
         self.K = [np.array(x, dtype=np.complex128) for x in K]

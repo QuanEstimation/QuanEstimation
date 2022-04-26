@@ -243,8 +243,8 @@ class ComprehensiveSystem:
         k_num = len(K)
         para_num = len(dK[0])
         dK_tp = [
-            [np.array(dK[i][j], dtype=np.complex128) for i in range(k_num)]
-            for j in range(para_num)
+            [np.array(dK[i][j], dtype=np.complex128) for j in range(para_num)]
+            for i in range(k_num)
         ]
         self.K = [np.array(x, dtype=np.complex128) for x in K]
         self.dK = dK_tp
@@ -310,7 +310,7 @@ class ComprehensiveSystem:
 
         **Note:** 
             SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-            which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
+            which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
             solutions.html).
         """
 

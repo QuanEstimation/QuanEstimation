@@ -83,17 +83,20 @@ nav:
       - "Home": index.md
       - "Installation": installation.md
       - "Users Guide": 
-            - "Overview": guide/guide_overview.md
+            - "Getting started": guide/guide_import.md
+            - "Dynamics": guide/guide_dynamics.md
             - "Quantum metrological tools": guide/guide_bounds.md
+            - "Metrological resources": guide/guide_resources.md
             - "Control optimization": guide/guide_Copt.md
             - "State optimization": guide/guide_Sopt.md
             - "Measurement optimization": guide/guide_Mopt.md
             - "Comprehensive optimization": guide/guide_Compopt.md
             - "Adaptive measurement schemes": guide/guide_adaptive.md
       - "API documentation": 
-            - "Classes": API/classes.md
-            - "Functions": API/functions.md
-            - "Julia": API/api_jl.md
+            - "Python": 
+                  - "Classes": API/python/classes.md
+                  - "Functions": API/python/functions.md
+            - "Julia": API/julia/api.md
       - "Examples": examples.md
       - "Citing": citing.md
       - "Developers": developers.md

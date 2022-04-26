@@ -94,7 +94,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
 
         **Note:** 
             SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-            which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
+            which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
             solutions.html).
         """
         ini_population = (self.psi0, self.ctrl0)

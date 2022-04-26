@@ -14,7 +14,7 @@ class Lindblad:
     \left\{\rho,\Gamma^{\dagger}_i \Gamma_i \right\}\right),
     \end{align}
 
-    where $\rho$ is the evolved density matrix, H is the Hamiltonian of the 
+    where $\rho$ is the evolved density matrix, $H$ is the Hamiltonian of the 
     system, $\Gamma_i$ and $\gamma_i$ are the $i\mathrm{th}$ decay 
     operator and the corresponding decay rate.
 
@@ -32,13 +32,13 @@ class Lindblad:
         time-dependent.
 
     > **dH:** `list`
-        -- Derivatives of the free Hamiltonian on the unknown parameters to be 
+        -- Derivatives of the free Hamiltonian with respect to the unknown parameters to be 
         estimated. For example, dH[0] is the derivative vector on the first 
         parameter.
 
     > **decay:** `list`
         -- Decay operators and the corresponding decay rates. Its input rule is 
-        decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$,$\gamma_2$],...], where $\Gamma_1$ 
+        decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...], where $\Gamma_1$ 
         $(\Gamma_2)$ represents the decay operator and $\gamma_1$ $(\gamma_2)$ is the 
         corresponding decay rate.
 
@@ -191,7 +191,7 @@ def Kraus(K, dK, rho0):
         -- Kraus operators.
 
     > **dK:** `list`
-        -- Derivatives of the Kraus operators on the unknown parameters to be 
+        -- Derivatives of the Kraus operators with respect to the unknown parameters to be 
         estimated. For example, dK[0] is the derivative vector on the first 
         parameter.
 

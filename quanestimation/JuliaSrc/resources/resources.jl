@@ -22,12 +22,12 @@ end
 
 """
 
-    SpinSqueezing(ρ::AbstractMatrix; basis="Dicke", output = "KU")
+    SpinSqueezing(ρ::AbstractMatrix; basis="Dicke", output="KU")
     
 Calculate the spin squeezing parameter for the input density matrix. The `basis` can be `"Dicke"` for the Dicke basis, or `"Pauli"` for the Pauli basis. The `output` can be both `"KU"`(for spin squeezing defined by Kitagawa and Ueda) and `"WBIMH"`(for spin squeezing defined by Wineland et al.).
 
 """
-function SpinSqueezing(ρ::AbstractMatrix; basis="Dicke", output = "KU")
+function SpinSqueezing(ρ::AbstractMatrix; basis="Dicke", output="KU")
     N = size(ρ)[1] - 1
     coef = 4.0/N
     j = N/2
@@ -71,12 +71,12 @@ function SpinSqueezing(ρ::AbstractMatrix; basis="Dicke", output = "KU")
 end
 
 """
-    TargetTime(f::Number, tspan::AbstractVector, func::Function, args...;kwargs...)
+    TargetTime(f::Number, tspan::AbstractVector, func::Function, args...; kwargs...)
 
 Calculate the minimum time to reach a precision limit of given level. The `func` can be any objective function during the control optimization, e.g. QFIM, CFIM, HCRB, etc.
 
 """
-function TargetTime(f::Number, tspan::AbstractVector, func::Function, args...;kwargs...)
+function TargetTime(f::Number, tspan::AbstractVector, func::Function, args...; kwargs...)
     args = zip.(args...)|>a->[[x for x in x] for x in unzip(a)][1]
     tnum = length(tspan)
 

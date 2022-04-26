@@ -22,7 +22,17 @@ end
 
 prior_uniform(W=1., μ=0.) = x -> abs(x-μ)>abs(W/2) ? 0 : 1/W
 
-function QZZB(x::AbstractVector, p::AbstractVector, rho::AbstractVecOrMat; eps=1e-8, ν::Number=1)
+"""
+
+    QZZB(x::AbstractVector, p::AbstractVector, rho::AbstractVecOrMat; eps=GLOBAL_EPS)
+
+Calculation of the quantum Ziv-Zakai bound (QZZB).
+- `x`: The regimes of the parameters for the integral.
+- `p`: The prior distribution.
+- `rho`: Parameterized density matrix.
+- `eps`: Machine epsilon.
+"""
+function QZZB(x::AbstractVector, p::AbstractVector, rho::AbstractVecOrMat; eps=GLOBAL_EPS, ν::Number=1)
     if typeof(x[1]) == Vector{Float64} || typeof(x[1]) == Vector{Int64}
         x = x[1]
     end
