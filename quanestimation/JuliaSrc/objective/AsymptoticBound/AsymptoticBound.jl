@@ -20,8 +20,36 @@ Base.@kwdef struct HCRB_obj{P} <: AbstractObj
     eps::Number = GLOBAL_EPS
 end
 
+@doc raw"""
+
+    QFIM_obj(;W=missing, eps=GLOBAL_EPS, LDtype::Symbol=:SLD)
+
+Choose QFI [``\mathrm{Tr}(WF^{-1})``] as the objective function with ``W`` the weight matrix and ``F`` the QFIM.
+- `W`: Weight matrix.
+- `eps`: Machine epsilon.
+- `LDtype`: Types of QFI (QFIM) can be set as the objective function. Options are `:SLD` (default), `:RLD` and `:LLD`.
+"""
 QFIM_obj(;W=missing, eps=GLOBAL_EPS, para_type::Symbol=:single_para, LDtype::Symbol=:SLD) = QFIM_obj{eval.([para_type, LDtype])...}(W, eps)
+
+@doc raw"""
+
+    CFIM_obj(;M=missing, W=missing, eps=GLOBAL_EPS)
+
+Choose CFI [``\mathrm{Tr}(WI^{-1})``] as the objective function with ``W`` the weight matrix and ``I`` the CFIM.
+- `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+- `W`: Weight matrix.
+- `eps`: Machine epsilon.
+"""
 CFIM_obj(;M=missing, W=missing, eps=GLOBAL_EPS, para_type::Symbol=:single_para) = CFIM_obj{eval(para_type)}(M, W, eps)
+
+@doc raw"""
+
+    HCRB_obj(;W=missing, eps=GLOBAL_EPS)
+
+Choose HCRB as the objective function. 
+- `W`: Weight matrix.
+- `eps`: Machine epsilon.
+"""
 HCRB_obj(;W=missing, eps=GLOBAL_EPS, para_type::Symbol=:single_para) = HCRB_obj{eval(para_type)}(W, eps)
 
 QFIM_obj(W, eps, para_type::Symbol, LDtype::Symbol) = QFIM_obj{eval.([para_type, LDtype])...}(W, eps)

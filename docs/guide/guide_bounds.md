@@ -102,8 +102,8 @@ In QuanEstimation, the QFI and QFIM can be calculated via the following function
 however, if the users set `exportLD=True`, it will return logarithmic derivatives apart 
 from QFI (QFIM).
 
-**Example 2.1**  
-<a id="example2_1"></a>
+**Example 3.1**  
+<a id="example3_1"></a>
 The Hamiltonian of a single qubit system is $H=\frac{1}{2}\omega_0 \sigma_3$ with $\omega_0$ 
 the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system is governed by
 \begin{align}
@@ -188,7 +188,7 @@ calculated by calling the function
 where `K` and `dK` are the Kraus operators and the derivatives on the unknown parameters to 
 be estimated.
 
-**Example 2.2**  
+**Example 3.2**  
 The Kraus operators for the amplitude damping channel are
 
 \begin{eqnarray}
@@ -257,7 +257,7 @@ The FI (FIM) for a set of the probabilities `p` can be calculated by
 where `dp` is a list representing the derivatives of the probabilities `p` on the unknown 
 parameters.
 
-**Example 2.3**  
+**Example 3.3**  
 === "Python"
     ``` py
     from quanestimation import *
@@ -286,9 +286,9 @@ In quantum metrology, the CFI (CFIM) are solved by
 Here `M` represents a set of positive operator-valued measure (POVM) with default value `[]`. 
 In this function, a set of rank-one symmetric informationally complete POVM (SIC-POVM) is used 
 when `M=[]`. SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-which can be downloaded from the website [[4]](#sic_state). 
+which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html). 
 
-**Example 2.4**  
+**Example 3.4**  
 <a id="example2_4"></a>
 The Hamiltonian of a single qubit system is $H=\frac{1}{2}\omega_0 \sigma_3$ with $\omega_0$ 
 the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system is governed by
@@ -383,7 +383,7 @@ In Bloch representation, the SLD based QFI (QFIM) is calculated by
 `r` and `dr` are the parameterized Bloch vector and its derivatives of on the unknown 
 parameters to be estimated.
 
-**Example 2.5**  
+**Example 3.5**  
 The arbitrary single-qubit state can be written as 
 \begin{align}
 |\psi\rangle=\cos\frac{\theta}{2}|0\rangle+e^{i\phi}\sin\frac{\theta}{2}|1\rangle
@@ -443,8 +443,8 @@ with $i$th entry $\partial_{\textbf{x}} \langle[\textbf{R}]_i\rangle$. `D` and `
 the second-order moment matrix with the $ij$th entry $D_{ij}=\langle [\textbf{R}]_i 
 [\textbf{R}]_j\rangle$ and its derivatives on the unknown parameters.
 
-**Example 2.6**  
-The first and second moments [[11]] (#Safranek2019) are
+**Example 3.6**  
+The first and second moments [[10]] (#Safranek2019) are
 
 \begin{eqnarray}
 \langle[\textbf{R}]_i\rangle = \left(\begin{array}{cc}
@@ -495,7 +495,7 @@ where $\lambda=\coth\frac{\beta}{2}$.  $r$ and $\beta$ are the parameters to be 
     ```
 ---
 ## **Holevo Cramér-Rao bound**
-Holevo Cramér-Rao bound (HCRB) is of the form [[5,6]](#Holevo1973)
+Holevo Cramér-Rao bound (HCRB) is of the form [[4,5]](#Holevo1973)
 \begin{align}
 \mathrm{Tr}(W\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\}))\geq \min_{\textbf{X},V} \mathrm{Tr}(WV),
 \end{align}
@@ -530,8 +530,8 @@ where `rho` and `drho` are the density matrix of the state and its derivatives o
 parameters to be estimated, respectively. `W` represents the weight matrix defaults to 
 identity matrix and `eps` is the machine epsilon with default value $10^{-8}$.
 
-**Example 2.7**  
-<a id="example2_7"></a>
+**Example 3.7**  
+<a id="example3_7"></a>
 The Hamiltonian of a two-qubit system with $XX$ coupling is 
 \begin{align}
 H=\omega_1\sigma_3^{(1)}+\omega_2\sigma_3^{(2)}+g\sigma_1^{(1)}\sigma_1^{(2)},
@@ -674,7 +674,7 @@ options are `LDtype=SLD` (default), `LDtype=RLD` and `LDtype=LLD`. `M` represent
 positive operator-valued measure (POVM) with default value `[]`. In QuanEstimation, a set of 
 rank-one symmetric informationally complete POVM (SIC-POVM) is load when `M=[]`. SIC-POVM is 
 calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state which can be downloaded 
-from the website [[4]](#sic_state).
+from [here](http://www.physics.umb.edu/Research/QBism/solutions.html).
 
 In the Bayesian scenarios, the covariance matrix with a prior distribution $p(\textbf{x})$ is 
 defined as
@@ -737,7 +737,7 @@ In QuanEstimation, the BCRB and BQCRB are calculated via
 
 where `b` and `db` are the vectors of biases and its derivatives on the unknown parameters. 
 For unbiased estimates, `b=[]` and `db=[]`. In QuanEstimation, the users can set the types of 
-BCRB and BQCRB via the variable `btype`. For single parameter estimation, Ref [[7]](#Liu2016) 
+BCRB and BQCRB via the variable `btype`. For single parameter estimation, Ref [[6]](#Liu2016) 
 calculates the optimal biased bound based on the first type of the BQCRB, it can be realized 
 numerically via
 === "Python"
@@ -750,9 +750,9 @@ numerically via
     ```
 `d2rho` is a list representing the second order derivatives of `rho` on `x`.
 
-Van Trees in 1968 [[8]](#vanTrees1968) provide a well used Bayesian version of Cramér-Rao 
+Van Trees in 1968 [[7]](#vanTrees1968) provide a well used Bayesian version of Cramér-Rao 
 bound known as Van Trees bound (VTB). The quantum version (QVTB) provided by Tsang, Wiseman 
-and Caves [[10]](#Tsang2011). Two types of VTB are contained in QuanEstimation, the first one is 
+and Caves [[9]](#Tsang2011). Two types of VTB are contained in QuanEstimation, the first one is 
 \begin{align}        
 \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})\left(\mathcal{I}_p
 +\mathcal{I}\right)^{-1}\mathrm{d}\textbf{x},
@@ -825,8 +825,8 @@ an array representing the prior distribution and `rho` is a multidimensional lis
 the density matrix. `eps` is the machine epsilon with default value $10^{-8}$.
 
 ---
-**Example 2.8**  
-<a id="example2_8"></a>
+**Example 3.8**  
+<a id="example3_8"></a>
 The Hamiltonian of a qubit system under a magnetic field $B$ in the XZ plane is
 \begin{align}
 H=\frac{B}{2}(\sigma_1\cos{x}+\sigma_3\sin{x})
@@ -998,14 +998,14 @@ multidimensional. The input varible `rho` is a multidimensional list with the di
 representing the parameterized density matrix. `M` contains a set of positive operator-valued 
 measure (POVM). In QuanEstimation, a set of rank-one symmetric informationally complete POVM 
 (SIC-POVM) is used when `M=[]`. SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM 
-fiducial state which can be downloaded from the website [[4]](#sic_state). The posterior 
+fiducial state which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html). The posterior 
 distributions (likelihood function) in the final iteration and the estimated values in all 
 iterations will be saved in "pout.npy" ("Lout.npy") and "xout.npy" if `savefile=False`. However,
 if the users want to save all the posterior distributions (likelihood function) and the 
 estimated values in all iterations, the variable `savefile` needs to be set to `True`.
 
-**Example 2.9**  
-<a id="example2_9"></a>
+**Example 3.9**  
+<a id="example3_9"></a>
 The Hamiltonian of a qubit system is 
 \begin{align}
 H=\frac{B}{2}(\sigma_1\cos{x}+\sigma_3\sin{x}),
@@ -1140,40 +1140,37 @@ J. Liu, H. Yuan, X.-M. Lu, and X. Wang,
 Quantum Fisher information matrix and multiparameter estimation,
 [J. Phys. A: Math. Theor. **53**, 023001 (2020).](\href{https://doi.org/10.1088/1751-8121/ab5d4d})
 
-<a id="sic_state">[4]</a> 
-[http://www.physics.umb.edu/Research/QBism/solutions.html](http://www.physics.umb.edu/Research/QBism/solutions.html)
-
-<a id="Holevo1973">[5]</a> 
+<a id="Holevo1973">[4]</a> 
 A. S Holevo,
 Statistical decision theory for quantum systems,
 [J. Multivariate Anal. **3**, 337-394 (1973).](https://doi.org/10.1016/0047-259X(73)90028-6)
 
-<a id="Rafal2020">[6]</a> 
+<a id="Rafal2020">[5]</a> 
 R. Demkowicz-Dobrzański, W. Górecki, and M. Guţă,
 Multi-parameter estimation beyond Quantum Fisher Information,
 [J. Phys. A: Math. Theor. **53**, 363001 (2020).](https://doi.org/10.1088/1751-8121/ab8ef3)
 
-<a id="Liu2016">[7]</a>
+<a id="Liu2016">[6]</a>
 J. Liu and H. Yuan, 
 Valid lower bound for all estimators in quantum parameter estimation, 
 [New J. Phys. **18**, 093009 (2016).](https://doi.org/10.1088/1367-2630/18/9/093009)
 
-<a id="vanTrees1968">[8]</a> 
+<a id="vanTrees1968">[7]</a> 
 H. L. Van Trees, 
 *Detection, estimation, and modulation theory: Part I*
 (Wiley, New York, 1968).
 
-<a id="Zhong2013">[9]</a> 
+<a id="Zhong2013">[8]</a> 
 W. Zhong, Z. Sun, J. Ma, X. Wang, and F. Nori,
 Fisher information under decoherence in Bloch representation, 
 [Phys. Rev. A **87**, 022337 (2013).](https://doi.org/10.1103/PhysRevA.87.022337)
 
-<a id="Tsang2011">[10]</a> 
+<a id="Tsang2011">[9]</a> 
 M. Tsang, H. M. Wiseman, and C. M. Caves, 
 Fundamental quantum limit to waveform estimation, 
 [Phys. Rev. Lett. **106**, 090401 (2011).](https://doi.org/10.1103/PhysRevLett.106.090401)
 
-<a id="Safranek2019">[11]</a> 
+<a id="Safranek2019">[10]</a> 
 D. Šafránek,
 Estimation of Gaussian quantum states,
 [J. Phys. A: Math. Theor. **52**, 035304 (2019).](https://doi.org/10.1088/1751-8121/aaf068)

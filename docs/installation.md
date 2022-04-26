@@ -21,12 +21,12 @@ Run the command in the terminal to install QuanEstimation:
 QuanEstimation requires several open-source packages in Python and Julia. The versions 
 of Python and Julia should be above 3.6 and 1.7, respectively.
 ## **Python packages**
-| $~~~~~~~~~~~~~~~~$Package$~~~~~~~~~~~~$| Version      |
-| :----------:                           | :----------: |
-| numpy                                  | >=1.22       |
-| sympy                                  | >=1.10       |
-| scipy                                  | >=1.8        |
-| cvxpy                                  | >=1.2        |
+| $~~~~~~~~~~~$Package$~~~~~~~$| Version      |
+| :----------:                 | :----------: |
+| numpy                        | >=1.22       |
+| sympy                        | >=1.10       |
+| scipy                        | >=1.8        |
+| cvxpy                        | >=1.2        |
 
 ## **Julia packages**
 | $~~~~~~~~~~~~~~~~$Package$~~~~~~~~~~~~$| Version     |$~~~~~~~~~~~~~~~~$Package$~~~~~~~~~~~~$| Version     |

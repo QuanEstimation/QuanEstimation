@@ -6,24 +6,19 @@ end
 
 """
 
-    HCRB(ρ::Matrix{T},dρ::Vector{Matrix{T}},C::Matrix{Float64};eps = 1e-8,) where {T<:Complex}
+    HCRB(ρ::Matrix{T}, dρ::Vector{Matrix{T}}, C::Matrix{Float64}; eps=GLOBAL_EPS) where {T<:Complex}
 
 Caltulate the Holevo Cramer-Rao bound (HCRB) via the semidefinite program (SDP).
-
 - `ρ`: Density matrix.
-
 - `dρ`: Derivatives of the density matrix on the unknown parameters to be estimated. For example, drho[0] is the derivative vector on the first parameter.
-
 - `W`: Weight matrix.
-
 - `eps`: Machine epsilon.
-
 """
 function HCRB(
     ρ::Matrix{T},
     dρ::Vector{Matrix{T}},
     C::Matrix{Float64};
-    eps = 1e-8,
+    eps=GLOBAL_EPS,
 ) where {T<:Complex}
     if length(dρ) == 1
         println(
@@ -40,7 +35,7 @@ function Holevo_bound(
     ρ::Matrix{T},
     dρ::Vector{Matrix{T}},
     C::Matrix{Float64};
-    eps = eps_default,
+    eps = GLOBAL_EPS,
 ) where {T<:Complex}
 
     dim = size(ρ)[1]
@@ -89,7 +84,7 @@ function Holevo_bound_obj(
     ρ::Matrix{T},
     dρ::Vector{Matrix{T}},
     C::Matrix{Float64};
-    eps = eps_default,
+    eps = GLOBAL_EPS,
 ) where {T<:Complex}
     return Holevo_bound(ρ, dρ, C; eps = eps)[1]
 end

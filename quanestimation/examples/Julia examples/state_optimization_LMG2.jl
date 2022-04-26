@@ -55,14 +55,14 @@ alg = QuanEstimation.AD(Adam=false, max_episode=300, epsilon=0.01,
 dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay) 
 
 ##====================choose the objective function====================##
-# # objective function: tr(WF^{-1})
-# obj = QuanEstimation.QFIM_obj(W=W)
+# objective function: tr(WF^{-1})
+obj = QuanEstimation.QFIM_obj(W=W)
 
 # # objective function: tr(WI^{-1})
 # obj = QuanEstimation.CFIM_obj(W=W)
 
-# objective function: HCRB
-obj = QuanEstimation.HCRB_obj(W=W)
+# # objective function: HCRB
+# obj = QuanEstimation.HCRB_obj(W=W)
 
 # run the state optimization problem
 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)

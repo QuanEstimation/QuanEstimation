@@ -6,24 +6,22 @@ const σ_z = [1.0 0.0im; 0.0 -1.0]
 ############## logarrithmic derivative ###############
 @doc raw"""
 
-	SLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; rep = "original", eps = GLOBAL_EPS) Complex}
+	SLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; rep="original", eps=GLOBAL_EPS) where {T<:Complex}
 
-Calculate the symmetric logarrithmic derivatives (SLDs).The SLD operator $L_a$ is defined as``\partial_{a}\rho=\frac{1}{2}(\rho L_{a}+L_{a}\rho)``, where ρ is the parameterized density matrix.
-
+Calculate the symmetric logarrithmic derivatives (SLDs). The SLD operator ``L_a`` is defined 
+as``\partial_{a}\rho=\frac{1}{2}(\rho L_{a}+L_{a}\rho)``, where ``\rho`` is the parameterized density matrix. 
 - `ρ`: Density matrix.
-- `dρ`:  Derivatives of the density matrix with respect to the unknown parameters to be estimated. For example, drho[1] is the derivative vector with respect to the first parameter.
-- `rep`: Representation of the SLD operator. Options can be:
-	- "original" (default) -- The SLD matrix will be written in terms of the same basis as the input density matrix (ρ).
-	- "eigen" -- The SLD matrix will be written in terms of the eigenbasis of the input ρ.
-- `eps`: Machine epsilon
+- `dρ`: Derivatives of the density matrix with respect to the unknown parameters to be estimated. For example, drho[1] is the derivative vector with respect to the first parameter.
+- `rep`: Representation of the SLD operator. Options can be: "original" (default) and "eigen" .
+- `eps`: Machine epsilon.
 """
-function SLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; rep = "original", eps = GLOBAL_EPS) where {T<:Complex}
+function SLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; rep="original", eps=GLOBAL_EPS) where {T<:Complex}
     (x -> SLD(ρ, x; rep=rep, eps = eps)).(dρ)
 end
 
 """
 
-	SLD(ρ::Matrix{T},dρ::Matrix{T};rep = "original",eps = GLOBAL_EPS,) where {T<:Complex}
+	SLD(ρ::Matrix{T}, dρ::Matrix{T}; rep="original", eps=GLOBAL_EPS) where {T<:Complex}
 
 When applied to the case of single parameter.
 """
@@ -94,25 +92,22 @@ end
 
 @doc raw"""
 
-RLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; rep = "original", eps = GLOBAL_EPS) where {T<:Complex}
+    RLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; rep="original", eps=GLOBAL_EPS) where {T<:Complex}
 
-Calculate the right logarrithmic derivatives (RLDs). The RLD operator is defined as ``\partial_{a}\rho=\rho \mathcal{R}_a``, where ρ is the parameterized density matrix.
-
+Calculate the right logarrithmic derivatives (RLDs). The RLD operator is defined as 
+``\partial_{a}\rho=\rho \mathcal{R}_a``, where ``\rho`` is the parameterized density matrix.  
 - `ρ`: Density matrix.
 - `dρ`: Derivatives of the density matrix with respect to the unknown parameters to be estimated. For example, drho[1] is the derivative vector with respect to the first parameter.
-- `rep`: Representation of the RLD operator. Options can be:
-	- "original" (default) -- The RLD matrix will be written in terms of the same basis as the input density matrix (ρ).
-	- "eigen" -- The RLD matrix will be written in terms of the eigenbasis of the input ρ.
-- `eps`: Machine epsilon
-
+- `rep`: Representation of the RLD operator. Options can be: "original" (default) and "eigen".
+- `eps`: Machine epsilon.
 """
-function RLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; rep = "original", eps = GLOBAL_EPS) where {T<:Complex}
+function RLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; rep="original", eps=GLOBAL_EPS) where {T<:Complex}
 (x -> RLD(ρ, x; rep=rep, eps = eps)).(dρ)
 end
 
 """
 
-	RLD(ρ::Matrix{T},dρ::Matrix{T};rep = "original",eps = GLOBAL_EPS,) where {T<:Complex}
+	RLD(ρ::Matrix{T}, dρ::Matrix{T}; rep="original", eps=GLOBAL_EPS) where {T<:Complex}
 
 When applied to the case of single parameter.
 """
@@ -123,7 +118,7 @@ function RLD(
 	eps = GLOBAL_EPS,
 ) where {T<:Complex}
 
-dim = size(ρ)[1]
+    dim = size(ρ)[1]
     RLD = Matrix{ComplexF64}(undef, dim, dim)
 
     val, vec = eigen(ρ)
@@ -156,24 +151,21 @@ end
 
 @doc raw"""
 
-LLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; rep = "original", eps = GLOBAL_EPS) where {T<:Complex}
+    LLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; rep="original", eps=GLOBAL_EPS) where {T<:Complex}
 
-Calculate the left logarrithmic derivatives (LLDs). The LLD operator is defined as ``\partial_{a}\rho=\mathcal{R}_a^{\dagger}\rho``, where ρ is the parameterized density matrix.
+Calculate the left logarrithmic derivatives (LLDs). The LLD operator is defined as ``\partial_{a}\rho=\mathcal{R}_a^{\dagger}\rho``, where ρ is the parameterized density matrix.    
 - `ρ`: Density matrix.
 - `dρ`: Derivatives of the density matrix with respect to the unknown parameters to be estimated. For example, drho[1] is the derivative vector with respect to the first parameter.
-- `rep`: Representation of the LLD operator. Options can be:
-	- "original" (default) -- The RLD matrix will be written in terms of the same basis as the input density matrix (ρ).
-	- "eigen" -- The RLD matrix will be written in terms of the eigenbasis of the input ρ.
-- `eps`: Machine epsilon
-
+- `rep`: Representation of the LLD operator. Options can be: "original" (default) and "eigen".
+- `eps`: Machine epsilon.
 """
-function LLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; rep = "original", eps = GLOBAL_EPS) where {T<:Complex}
+function LLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; rep="original", eps=GLOBAL_EPS) where {T<:Complex}
     (x -> LLD(ρ, x; rep=rep, eps = eps)).(dρ)
 end
 
 """
 
-LLD(ρ::Matrix{T},dρ::Matrix{T};rep = "original",eps = GLOBAL_EPS,) where {T<:Complex}
+    LLD(ρ::Matrix{T}, dρ::Matrix{T}; rep="original", eps=GLOBAL_EPS) where {T<:Complex}
 
 When applied to the case of single parameter.
 """
@@ -208,7 +200,7 @@ function LLD(
 end
 
 function LLD(ρ::Matrix{T}, dρ::Matrix{T}; eps = GLOBAL_EPS) where {T<:Complex}
-    (dρ * pinv(ρ, rtol = eps))
+    (dρ * pinv(ρ, rtol = eps))'
 end
 
 function LLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = GLOBAL_EPS) where {T<:Complex}
@@ -258,19 +250,20 @@ function QFIM_RLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = GLOBAL_EPS) where
     p_num = length(dρ)
     LD_tp = RLD(ρ, dρ; eps = eps)
     LD_dag = [LD_tp[i]' for i = 1:p_num]
-    ([ρ] .* (kron(LD_tp, reshape(LD_dag, 1, p_num)))) .|> tr .|> real
+    ([ρ] .* (kron(LD_tp, reshape(LD_dag, 1, p_num)))) .|> tr
 end
 
 function QFIM_LLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = GLOBAL_EPS) where {T<:Complex}
     p_num = length(dρ)
     LD_tp = LLD(ρ, dρ; eps = eps)
     LD_dag = [LD_tp[i]' for i = 1:p_num]
-    ([ρ] .* (kron(LD_tp, reshape(LD_dag, 1, p_num)))) .|> tr .|> real
+    ([ρ] .* (kron(LD_tp, reshape(LD_dag, 1, p_num)))) .|> tr
 end
 
 function QFIM_liouville(ρ, dρ)
     p_num = length(dρ)
-    LD_tp = SLD_liouville(ρ, dρ)
+    LD_tp = SLD_lio
+    uville(ρ, dρ)
     (
         [0.5 * ρ] .*
         (kron(LD_tp, reshape(LD_tp, 1, p_num)) + kron(reshape(LD_tp, 1, p_num), LD_tp))
@@ -292,16 +285,15 @@ end
 #################### calculate CFIM ####################
 @doc raw"""
 
-	CFIM(ρ::Matrix{T}, dρ::Vector{Matrix{T}}, M; eps = GLOBAL_EPS) where {T<:Complex}
+	CFIM(ρ::Matrix{T}, dρ::Vector{Matrix{T}}, M; eps=GLOBAL_EPS) where {T<:Complex}
 
 Calculate the classical Fisher information matrix (CFIM). 
-
 - `ρ`: Density matrix.
-- `dρ`:  Derivatives of the density matrix with respect to the unknown parameters to be estimated. For example, drho[1] is the derivative vector with respect to the first parameter.
+- `dρ`: Derivatives of the density matrix with respect to the unknown parameters to be estimated. For example, drho[1] is the derivative vector with respect to the first parameter.
 - `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
 - `eps`: Machine epsilon.
 """
-function CFIM(ρ::Matrix{T}, dρ::Vector{Matrix{T}}, M; eps = GLOBAL_EPS) where {T<:Complex}
+function CFIM(ρ::Matrix{T}, dρ::Vector{Matrix{T}}, M; eps=GLOBAL_EPS) where {T<:Complex}
     m_num = length(M)
     p_num = length(dρ)
     [
@@ -315,9 +307,9 @@ end
 
 """
 
-	CFIM(ρ::Matrix{T}, dρ::Matrix{T}, M; eps = GLOBAL_EPS) where {T<:Complex}
+	CFIM(ρ::Matrix{T}, dρ::Matrix{T}, M; eps=GLOBAL_EPS) where {T<:Complex}
 
-When applied to the case of single parameter. Calculate the classical Fisher information(CFI). 
+When applied to the case of single parameter. Calculate the classical Fisher information (CFI). 
 """
 function CFIM(ρ::Matrix{T}, dρ::Matrix{T}, M; eps = GLOBAL_EPS) where {T<:Complex}
     m_num = length(M)
@@ -337,11 +329,11 @@ end
 
 """
 
-	CFIM(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = GLOBAL_EPS) where {T<:Complex}
+	CFIM(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; M=nothing, eps=GLOBAL_EPS) where {T<:Complex}
 
-When the set of POVM is not given. Calculate the CFIM with SIC-POVM. The SIC-POVM is generated from the Weyl-Heisenberg covariant SIC-POVM fiducial state which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/solutions.html).
+When the set of POVM is not given. Calculate the CFIM with SIC-POVM. The SIC-POVM is generated from the Weyl-Heisenberg covariant SIC-POVM fiducial state which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html).
 """
-function CFIM(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = GLOBAL_EPS) where {T<:Complex}
+function CFIM(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; M=nothing, eps = GLOBAL_EPS) where {T<:Complex}
     M = SIC(size(ρ)[1])
     m_num = length(M)
     p_num = length(dρ)
@@ -356,11 +348,11 @@ end
 
 """
 
-	CFIM(ρ::Matrix{T}, dρ::Matrix{T}; eps = GLOBAL_EPS) where {T<:Complex}
+	CFIM(ρ::Matrix{T}, dρ::Matrix{T}; eps=GLOBAL_EPS) where {T<:Complex}
 
 When applied to the case of single parameter and the set of POVM is not given. Calculate the CFI with SIC-POVM. 
 """
-function CFIM(ρ::Matrix{T}, dρ::Matrix{T}; eps = GLOBAL_EPS) where {T<:Complex}
+function CFIM(ρ::Matrix{T}, dρ::Matrix{T}; M=nothing, eps=GLOBAL_EPS) where {T<:Complex}
     M = SIC(size(ρ)[1])
     m_num = length(M)
     F = 0.0
@@ -379,6 +371,9 @@ end
 
 """
 
+    QFIM(ρ::Matrix{T}, dρ::Matrix{T}; LDtype=:SLD, eps=GLOBAL_EPS) where {T<:Complex}
+
+When applied to the case of single parameter. Calculation of the quantum Fisher information (QFI) for all types.
 """
 function QFIM(
     ρ::Matrix{T},
@@ -390,7 +385,17 @@ function QFIM(
     eval(Symbol("QFIM_" * string(LDtype)))(ρ, dρ; eps = eps)
 end
 
-## QFIM 
+"""
+
+    QFIM(ρ::Matrix{T}, dρ::Matrix{T}; LDtype=:SLD, eps=GLOBAL_EPS) where {T<:Complex}
+
+Calculation of the quantum Fisher information (QFI) for all types. 
+- `ρ`: Density matrix.
+- `dρ`: Derivatives of the density matrix with respect to the unknown parameters to be estimated. For example, drho[1] is the derivative vector with respect to the first parameter.
+- `LDtype`: Types of QFI (QFIM) can be set as the objective function. Options are `:SLD` (default), `:RLD` and `:LLD`.
+- `eps`: Machine epsilon.
+"""
+
 function QFIM(
     ρ::Matrix{T},
     dρ::Vector{Matrix{T}};
@@ -403,54 +408,75 @@ end
 
 
 QFIM(sym::Symbol, args...; kwargs...) = QFIM(Val{sym}, args...; kwargs...)
+QFIM(ρ, dρ; LDtype=LDtype, exportLD=false, eps=GLOBAL_EPS) = QFIM(ρ, dρ; LDtype=LDtype, eps=GLOBAL_EPS)
+
 
 ## QFI with exportLD
 function QFIM(
-    ::Val{:exportLD},
     ρ::Matrix{T},
-    dρ::Matrix{T};
+    dρ::Vector{Matrix{T}};
     LDtype = :SLD,
+    exportLD ::Bool= false,
     eps = GLOBAL_EPS,
 ) where {T<:Complex}
 
-    F = QFIM(ρ, dρ; LDtype = LDtype, eps = eps)
-    LD = eval(LDtype)(ρ, dρ; eps = eps)
-    return F, LD
+    F = eval(Symbol("QFIM_" * string(LDtype)))(ρ, dρ; eps = eps)
+    if exportLD == false
+        return F
+    else
+        LD = eval(Symbol(LDtype))(ρ, dρ; eps = eps)
+        return F, LD
+    end
+end
+
+"""
+
+    QFIM_Kraus(ρ0::Matrix{T}, K::Vector{Matrix{T}}, dK::Vector{Vector{Matrix{T}}}; LDtype=:SLD, exportLD::Bool=false, eps=GLOBAL_EPS) where {T<:Complex}
+
+Calculation of the quantum Fisher information (QFI) and quantum Fisher information matrix (QFIM) with Kraus operator(s) for all types.
+- `ρ0`: Density matrix.
+- `K`: Kraus operator(s).
+- `dK`: Derivatives of the Kraus operator(s) on the unknown parameters to be estimated. For example, dK[0] is the derivative vector on the first parameter.
+- `LDtype`: Types of QFI (QFIM) can be set as the objective function. Options are `:SLD` (default), `:RLD` and `:LLD`.
+- `exportLD`: Whether or not to export the values of logarithmic derivatives. If set True then the the values of logarithmic derivatives will be exported.
+- `eps`: Machine epsilon.
+"""
+function QFIM_Kraus(ρ0::Matrix{T}, K::Vector{Matrix{T}}, dK::Vector{Vector{Matrix{T}}}; LDtype=:SLD, exportLD::Bool=false, eps=GLOBAL_EPS) where {T<:Complex}
+    dK = [[dK[i][j] for i in 1:length(K)] for j in 1:length(dK[1])]
+    ρ = [K * ρ0 * K' for K in K] |> sum
+    dρ = [[dK * ρ0 * K' + K * ρ0 * dK' for (K,dK) in zip(K,dK)] |> sum for dK in dK]
+    return QFIM(ρ, dρ; LDtype=LDtype, exportLD=exportLD, eps=eps)
 end
 
 ## QFIM with exportLD
 function QFIM(
-    ::Val{:exportLD},
     ρ::Matrix{T},
     dρ::Vector{Matrix{T}};
     LDtype = :SLD,
+    exportLD ::Bool= false,
     eps = GLOBAL_EPS,
 ) where {T<:Complex}
 
-    F = QFIM(ρ, dρ; LDtype = LDtype, eps = eps)
-    LD = eval(LDtype)(ρ, dρ; eps = eps)
-    return F, LD
+    F = eval(Symbol("QFIM_" * string(LDtype)))(ρ, dρ; eps = eps)
+    if exportLD == false
+        return F
+    else
+        LD = eval(Symbol(LDtype))(ρ, dρ; eps = eps)
+        return F, LD
+    end
 end
 
-
 """
 
-	QFIM_Bloch(r, dr; eps = 1e-8)
+	QFIM_Bloch(r, dr; eps=GLOBAL_EPS)
 
-Calculate the SLD based quantum Fisher information (QFI) or quantum  
-Fisher information matrix (QFIM) in Bloch representation.
-
+Calculate the SLD based quantum Fisher information (QFI) or quantum Fisher information matrix (QFIM) in Bloch representation.
 - `r`: Parameterized Bloch vector.
-
-- `dr`: Derivative(s) of the Bloch vector with respect to the unknown parameters to be 
-	estimated. For example, dr[1] is the derivative vector with respect to the first 
-	parameter.
-
+- `dr`: Derivative(s) of the Bloch vector with respect to the unknown parameters to be estimated. For example, dr[1] is the derivative vector with respect to the first parameter.
 - `eps`: Machine epsilon.
-
 """
 ## TODO: 👇 check type stability
-function QFIM_Bloch(r, dr; eps = 1e-8)
+function QFIM_Bloch(r, dr; eps=GLOBAL_EPS)
     para_num = length(dr)
     QFIM_res = zeros(para_num, para_num)
 
@@ -461,7 +487,7 @@ function QFIM_Bloch(r, dr; eps = 1e-8)
         if abs(r_norm - 1.0) < eps
             for para_i = 1:para_num
                 for para_j = para_i:para_num
-                    QFIM_res[para_i, para_j] = dr[para_i]' * dr[para_j]
+                    QFIM_res[para_i, para_j] = real(dr[para_i]' * dr[para_j])
                     QFIM_res[para_j, para_i] = QFIM_res[para_i, para_j]
                 end
             end
@@ -469,8 +495,8 @@ function QFIM_Bloch(r, dr; eps = 1e-8)
             for para_i = 1:para_num
                 for para_j = para_i:para_num
                     QFIM_res[para_i, para_j] =
-                        dr[para_i]' * dr[para_j] +
-                        (r' * dr[para_i]) * (r' * dr[para_j]) / (1 - r_norm)
+                        real(dr[para_i]' * dr[para_j] +
+                        (r' * dr[para_i]) * (r' * dr[para_j]) / (1 - r_norm))
                     QFIM_res[para_j, para_i] = QFIM_res[para_i, para_j]
                 end
             end
@@ -491,8 +517,7 @@ function QFIM_Bloch(r, dr; eps = 1e-8)
 
         for para_m = 1:para_num
             for para_n = para_m:para_num
-                # println(dr[para_n]*mat_inv*dr[para_m]')
-                QFIM_res[para_m, para_n] = dr[para_n]' * mat_inv * dr[para_m]
+                QFIM_res[para_m, para_n] = real(dr[para_n]' * mat_inv * dr[para_m])
                 QFIM_res[para_n, para_m] = QFIM_res[para_m, para_n]
             end
         end
@@ -502,6 +527,59 @@ function QFIM_Bloch(r, dr; eps = 1e-8)
     else
         return QFIM_res
     end
+end
+
+"""
+
+    FIM(p::Vector{R}, dp::Vector{R}; eps=GLOBAL_EPS) where {R<:Real}
+
+When applied to the case of single parameter and the set of POVM is not given. Calculate the classical Fisher information for classical scenarios. 
+"""
+function FIM(p::Vector{R}, dp::Vector{R}; eps=GLOBAL_EPS) where {R<:Real}
+    m_num = length(p)
+    F = 0.0
+    for i = 1:m_num
+        p_tp = p[i]
+        dp_tp = dp[i]
+        cadd = 0.0
+        if p_tp > eps
+            cadd = (dp_tp * dp_tp) / p_tp
+        end
+        F += cadd
+    end
+    real(F)
+end
+
+"""
+
+    FIM(p::Vector{R}, dp::Vector{R}; eps=GLOBAL_EPS) where {R<:Real}
+
+Calculation of the classical Fisher information matrix for classical scenarios. 
+- `p`: The probability distribution.
+- `dp`: Derivatives of the probability distribution on the unknown parameters to be estimated. For example, dp[0] is the derivative vector on the first parameter.
+- `eps`: Machine epsilon.
+"""
+function FIM(p::Vector{R}, dp::Vector{Vector{R}}; eps=GLOBAL_EPS) where {R<:Real}
+    m_num = length(p)
+    para_num = length(dp[1])
+
+    FIM_res = zeros(para_num, para_num)
+    for pj in 1:m_num
+        p_tp = p[pj]
+        Cadd = zeros(para_num, para_num)
+        if p_tp > eps
+            for para_i in 1:para_num
+                dp_i = dp[pj][para_i]
+                for para_j in para_i:para_num
+                    dp_j = dp[pj][para_j]
+                    Cadd[para_i,para_j] = real(dp_i * dp_j / p_tp)
+                    Cadd[para_j,para_i] = real(dp_i * dp_j / p_tp)
+                end
+            end
+            FIM_res += Cadd
+        end
+    end
+    FIM_res
 end
 
 #======================================================#
@@ -521,7 +599,7 @@ function Williamson_form(A::AbstractMatrix)
     return S, c
 end
 
-# const a_Gauss = [im*σ_y,σ_z,σ_x|>one, σ_x]
+const a_Gauss = [im*σ_y,σ_z,σ_x|>one, σ_x]
 
 function A_Gauss(m::Int)
     e = bases(m)
@@ -536,7 +614,6 @@ function G_Gauss(S::M, dC::VM, c::V) where {M<:AbstractMatrix,V,VM<:AbstractVect
     gs = [
         [[inv(S) * ∂ₓC * inv(transpose(S)) * a' |> tr for a in A] for A in As] for ∂ₓC in dC
     ]
-    #[[inv(S)*∂ₓC*inv(transpose(S))*As[l][j,k]|>tr for j in 1:m, k in 1:m] for l in 1:4]
     G = [zero(S) for _ = 1:para_num]
 
     for i = 1:para_num
@@ -559,21 +636,12 @@ end
 
 	QFIM_Gauss(R̄::V, dR̄::VV, D::M, dD::VM) where {V,VV,M,VM<:AbstractVecOrMat}
 
-Calculate the SLD based quantum Fisher information matrix (QFIM) with gaussian states.
-
+Calculate the SLD based quantum Fisher information matrix (QFIM) with gaussian states.  
 - `R̄` : First-order moment.
-
-- `dR̄`: Derivatives of the first-order moment with respect to the unknown parameters to be 
-estimated. For example, dR[1] is the derivative vector on the first 
-parameter.
-
+- `dR̄`: Derivatives of the first-order moment with respect to the unknown parameters to be estimated. For example, dR[1] is the derivative vector on the first parameter. 
 - `D`: Second-order moment.
-
-- `dD`: Derivatives of the second-order moment with respect to the unknown parameters to be 
-estimated. 
-
-- `eps`: Machine epsilon
-
+- `dD`: Derivatives of the second-order moment with respect to the unknown parameters to be estimated. 
+- `eps`: Machine epsilon.
 """
 function QFIM_Gauss(R̄::V, dR̄::VV, D::M, dD::VM) where {V,VV,M,VM<:AbstractVecOrMat}
     para_num = length(dR̄)

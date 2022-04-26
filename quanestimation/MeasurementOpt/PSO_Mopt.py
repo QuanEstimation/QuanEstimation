@@ -76,17 +76,6 @@ class PSO_Mopt(Measurement.MeasurementSystem):
         self.c1 = c1
         self.c2 = c2
         self.seed = seed
-        
-        ini_particle = ([self.measurement0],)
-        self.alg = Main.QuanEstimation.PSO(
-            self.max_episode,
-            self.p_num,
-            ini_particle,
-            self.c0,
-            self.c1,
-            self.c2,
-            self.seed,
-        )
 
     def CFIM(self, W=[]):
         r"""
@@ -99,5 +88,15 @@ class PSO_Mopt(Measurement.MeasurementSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
-
+        ini_particle = ([self.measurement0],)
+        self.alg = Main.QuanEstimation.PSO(
+            self.max_episode,
+            self.p_num,
+            ini_particle,
+            self.c0,
+            self.c1,
+            self.c2,
+            self.seed,
+        )
+        
         super().CFIM(W)

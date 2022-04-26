@@ -7,6 +7,14 @@ abstract type Rotation <: AbstractMeasurementType end
 
 abstract type Opt <: AbstractOpt end
 
+"""
+
+	ControlOpt(ctrl::Union{AbstractVector, Missing}=missing, ctrl_bound::AbstractVector=[-Inf, Inf])
+	
+Control optimization.
+- `ctrl`: Guessed control coefficients.
+- `ctrl_bound`: Lower and upper bounds of the control coefficients.
+"""
 Base.@kwdef mutable struct ControlOpt <: Opt
 	ctrl::Union{AbstractVector, Missing} = missing
 	ctrl_bound::AbstractVector = [-Inf, Inf]
@@ -15,6 +23,13 @@ end
 Copt = ControlOpt
 ControlOpt(ctrl::Matrix{R}, ctrl_bound::AbstractVector) where R<:Number = ControlOpt([c[:] for c in eachrow(ctrl)], ctrl_bound)  
 
+"""
+
+	StateOpt(psi::Union{AbstractVector, Missing} = missing)
+	
+State optimization.
+- `psi`: Guessed probe state.
+"""
 Base.@kwdef mutable struct StateOpt <: Opt
 	psi::Union{AbstractVector, Missing} = missing
 end
@@ -37,6 +52,14 @@ Base.@kwdef mutable struct Mopt_Rotation <: AbstractMopt
 	Lambda::Union{AbstractVector, Missing} = missing
 end
 
+"""
+
+	MeasurementOpt(mtype=:Projection, kwargs...)
+	
+Measurement optimization.
+- `mtype`: The type of scenarios for the measurement optimization. Options are `:Projection` (default), `:LC` and `:Rotation`.
+- `kwargs...`: keywords and the correponding default vaules. `mtype=:Projection`, `mtype=:LC` and `mtype=:Rotation`, the `kwargs...` are `M=missing`, `B=missing, POVM_basis=missing`, and `s=missing, POVM_basis=missing`, respectively.
+"""
 function MeasurementOpt(;mtype=:Projection, kwargs...)
 	if mtype==:Projection
 		return Mopt_Projection(;kwargs...)
@@ -57,6 +80,15 @@ Base.@kwdef mutable struct StateControlOpt <: CompOpt
 	ctrl_bound::AbstractVector = [-Inf, Inf]
 end
 
+"""
+
+	SCopt(psi::Union{AbstractVector, Missing}=missing, ctrl::Union{AbstractVector, Missing}=missing, ctrl_bound::AbstractVector=[-Inf, Inf])
+	
+State and control optimization.
+- `psi`: Guessed probe state.
+- `ctrl`: Guessed control coefficients.
+- `ctrl_bound`: Lower and upper bounds of the control coefficients.
+"""
 SCopt = StateControlOpt
 
 Base.@kwdef mutable struct ControlMeasurementOpt <: CompOpt
@@ -65,6 +97,15 @@ Base.@kwdef mutable struct ControlMeasurementOpt <: CompOpt
 	ctrl_bound::AbstractVector = [-Inf, Inf]
 end 
 
+"""
+
+	CMopt(ctrl::Union{AbstractVector, Missing}=missing, M::Union{AbstractVector, Missing}=missing, ctrl_bound::AbstractVector=[-Inf, Inf])
+	
+Control and measurement optimization.
+- `ctrl`: Guessed control coefficients.
+- `M`: Guessed projective measurement (a set of basis)
+- `ctrl_bound`: Lower and upper bounds of the control coefficients.
+"""
 CMopt = ControlMeasurementOpt
 
 Base.@kwdef mutable struct StateMeasurementOpt <: CompOpt 
@@ -72,15 +113,32 @@ Base.@kwdef mutable struct StateMeasurementOpt <: CompOpt
 	M::Union{AbstractVector, Missing} = missing
 end
 
+"""
+
+	SMopt(psi::Union{AbstractVector, Missing}=missing, M::Union{AbstractVector, Missing}=missing)
+	
+State and control optimization.
+- `psi`: Guessed probe state.
+- `M`: Guessed projective measurement (a set of basis).
+"""
 SMopt = StateMeasurementOpt
 
 Base.@kwdef mutable struct StateControlMeasurementOpt <: CompOpt
-	ctrl::Union{AbstractVector, Missing} = missing
 	psi::Union{AbstractVector, Missing} = missing
+	ctrl::Union{AbstractVector, Missing} = missing
 	M::Union{AbstractVector, Missing} = missing
 	ctrl_bound::AbstractVector = [-Inf, Inf]
 end
+"""
 
+	SCMopt(psi::Union{AbstractVector, Missing}=missing, ctrl::Union{AbstractVector, Missing}=missing, M::Union{AbstractVector, Missing}=missing, ctrl_bound::AbstractVector=[-Inf, Inf])
+	
+State, control and measurement optimization.
+- `psi`: Guessed probe state.
+- `ctrl`: Guessed control coefficients.
+- `M`: Guessed projective measurement (a set of basis).
+- `ctrl_bound`:  Lower and upper bounds of the control coefficients.
+"""
 SCMopt = StateControlMeasurementOpt
 
 opt_target(::ControlOpt) = :Copt

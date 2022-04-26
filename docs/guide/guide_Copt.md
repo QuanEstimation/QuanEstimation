@@ -336,8 +336,8 @@ The code for control optimization with DDPG is as follows
 	`layer_num` and `layer_dim` represent the number of layers (include the input and output layer) 
 	and the number of neurons in the hidden layer.
 
-**Example 3.1**  
-<a id="example3_1"></a>
+**Example 5.1**  
+<a id="example5_1"></a>
 In this example, the free evolution Hamiltonian of a single qubit system is $H_0=\frac{1}{2}\omega_0 
 \sigma_3$ with $\omega_0$ the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system 
 is governed by
@@ -522,8 +522,8 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
 	QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 	```
 
-**Example 3.2**  
-<a id="example3_2"></a>
+**Example 5.2**  
+<a id="example5_2"></a>
 In the multiparameter scenario, the dynamics of electron and nuclear coupling in NV$^{-}$ can 
 be expressed as
 \begin{align}

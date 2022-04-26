@@ -132,7 +132,7 @@ The code for measurement optimization with PSO is as follows
     2D-array and array, respectively. Here, an example of generating `measurement0` is given 
     as follows
     
-    **Example 5.1**
+    **Example 7.1**
     === "projection"
         ``` py
         from quanestimation import *
@@ -210,7 +210,7 @@ The code for measurement optimization with PSO is as follows
     the entry of `ini_particle` is a 2D-array and array, respectively. Here, an example of 
     generating `ini_particle` is given as follows
 
-    **Example 5.1**
+    **Example 7.1**
     === "Projection"
         ``` jl
         using QuanEstimation
@@ -352,8 +352,8 @@ The code for measurement optimization with AD is as follows
     decay rate for the first moment estimates and the second moment estimates can be set by the 
     user via `epsilon`, `beta1` and `beta2`.
 
-**Example 5.2**  
-<a id="example5_2"></a>
+**Example 7.2**  
+<a id="example7_2"></a>
 A single qubit system whose dynamics is governed by
 \begin{align}
 \partial_t\rho=-i[H, \rho]+ \gamma_{+}\left(\sigma_{+}\rho\sigma_{-}-\frac{1}{2}\{\sigma_{-}
@@ -569,8 +569,8 @@ $1$ $(-1)$.
     QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
     ```
 
-**Example 5.3**  
-<a id="example5_3"></a>
+**Example 7.3**  
+<a id="example7_3"></a>
 In the multiparameter scenario, the dynamics of electron and nuclear coupling in NV$^{-}$ can be expressed as
 \begin{align}
 \partial_t\rho=-i[H_0,\rho]+\frac{\gamma}{2}(S_3\rho S_3-S^2_3\rho-\rho S^2_3)
@@ -865,7 +865,7 @@ parameters should be input via
 where `K` and `dK` are the Kraus operators and its derivatives with respect to the 
 unknown parameters.
 
-**Example 5.4**  
+**Example 7.4**  
 The Kraus operators for the amplitude damping channel are
 
 \begin{eqnarray}

@@ -72,18 +72,6 @@ class NM_Sopt(State.StateSystem):
         self.as0 = as0
         self.seed = seed
 
-        ini_state = Main.vec(self.psi)
-        self.alg = Main.QuanEstimation.NM(
-            self.max_episode,
-            self.state_num,
-            ini_state,
-            self.ar,
-            self.ae,
-            self.ac,
-            self.as0,
-            self.seed,
-        )
-
     def QFIM(self, W=[], LDtype="SLD"):
         r"""
         Choose QFI or $\mathrm{Tr}(WF^{-1})$ as the objective function. 
@@ -101,6 +89,17 @@ class NM_Sopt(State.StateSystem):
             "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
             "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
         """
+        ini_state = Main.vec(self.psi)
+        self.alg = Main.QuanEstimation.NM(
+            self.max_episode,
+            self.state_num,
+            ini_state,
+            self.ar,
+            self.ae,
+            self.ac,
+            self.as0,
+            self.seed,
+        )
 
         super().QFIM(W, LDtype)
 
@@ -121,9 +120,20 @@ class NM_Sopt(State.StateSystem):
 
         **Note:** 
             SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-            which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
+            which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
             solutions.html).
         """
+        ini_state = Main.vec(self.psi)
+        self.alg = Main.QuanEstimation.NM(
+            self.max_episode,
+            self.state_num,
+            ini_state,
+            self.ar,
+            self.ae,
+            self.ac,
+            self.as0,
+            self.seed,
+        )
 
         super().CFIM(M, W)
 
@@ -139,5 +149,16 @@ class NM_Sopt(State.StateSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
+        ini_state = Main.vec(self.psi)
+        self.alg = Main.QuanEstimation.NM(
+            self.max_episode,
+            self.state_num,
+            ini_state,
+            self.ar,
+            self.ae,
+            self.ac,
+            self.as0,
+            self.seed,
+        )
 
         super().HCRB(W)

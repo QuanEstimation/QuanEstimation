@@ -42,7 +42,7 @@ def CFIM(rho, drho, M=[], eps=1e-8):
     
     **Note:** 
         SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-        which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
+        which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
         solutions.html).
     """
 
@@ -496,7 +496,7 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
                                 np.dot(LD_tp[para_i], LD_tp[para_j].conj().transpose()),
                             )
                         )
-                    QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
+                    QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j].conj()
         elif LDtype == "LLD":
             QFIM_res = np.zeros((para_num, para_num), dtype=np.complex128)
             LD_tp = LLD(rho, drho, eps=eps)
@@ -508,7 +508,7 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
                                 np.dot(LD_tp[para_i], LD_tp[para_j].conj().transpose()),
                             )
                         )
-                    QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
+                    QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j].conj()
         else:
             raise NameError(
                 "NameError: LDtype should be choosen in {'SLD', 'RLD', 'LLD'}"

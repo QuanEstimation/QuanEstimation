@@ -1,3 +1,26 @@
+@doc raw"""
+
+    adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; save_file=false, max_episode::Int=1000, eps::Float64=1e-8, Hc::Union{Vector,Nothing}=nothing, ctrl::Union{Vector,Nothing}=nothing, decay::Union{Vector,Nothing}=nothing, M::Union{AbstractVector,Nothing}=nothing, W::Union{Matrix,Nothing}=nothing)
+
+In QuanEstimation, the Hamiltonian of the adaptive system should be written as
+``H(\textbf{x}+\textbf{u})`` with ``\textbf{x}`` the unknown parameters and ``\textbf{u}``
+the tunable parameters. The tunable parameters ``\textbf{u}`` are used to let the 
+Hamiltonian work at the optimal point ``\textbf{x}_{\mathrm{opt}}``. 
+- `x`: The regimes of the parameters for the integral.
+- `p`: The prior distribution.
+- `rho0`: Density matrix.
+- `tspan`: The experimental results obtained in practice.
+- `H`: Free Hamiltonian with respect to the values in x.
+- `dH`: Derivatives of the free Hamiltonian with respect to the unknown parameters to be estimated.
+- `savefile`: Whether or not to save all the posterior distributions. 
+- `max_episode`: The number of episodes.
+- `eps`: Machine epsilon.
+- `Hc`: Control Hamiltonians.
+- `ctrl`: Control coefficients.
+- `decay`: Decay operators and the corresponding decay rates.
+- `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+- `W`: Whether or not to save all the posterior distributions. 
+"""
 function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; save_file=false, max_episode::Int=1000, eps::Float64=1e-8, 
                   Hc::Union{Vector,Nothing}=nothing, ctrl::Union{Vector,Nothing}=nothing, decay::Union{Vector,Nothing}=nothing, 
                   M::Union{AbstractVector,Nothing}=nothing, W::Union{Matrix,Nothing}=nothing)
@@ -192,7 +215,25 @@ function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; save
     end
 end
 
+@doc raw"""
 
+    adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; save_file=false, max_episode::Int=1000, eps::Float64=1e-8, M::Union{AbstractVector,Nothing}=nothing, W::Union{Matrix,Nothing}=nothing)
+
+In QuanEstimation, the Hamiltonian of the adaptive system should be written as
+``H(\textbf{x}+\textbf{u})`` with ``\textbf{x}`` the unknown parameters and ``\textbf{u}``
+the tunable parameters. The tunable parameters ``\textbf{u}`` are used to let the 
+Hamiltonian work at the optimal point ``\textbf{x}_{\mathrm{opt}}``. 
+- `x`: The regimes of the parameters for the integral.
+- `p`: The prior distribution.
+- `rho0`: Density matrix.
+- `K`: Kraus operator(s) with respect to the values in x.
+- `dK`: Derivatives of the Kraus operator(s) with respect to the unknown parameters to be estimated.
+- `savefile`: Whether or not to save all the posterior distributions. 
+- `max_episode`: The number of episodes.
+- `eps`: Machine epsilon.
+- `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+- `W`: Whether or not to save all the posterior distributions. 
+"""
 function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; save_file=false, max_episode::Int=1000, 
     eps::Float64=1e-8, M::Union{AbstractVector,Nothing}=nothing, W::Union{Matrix,Nothing}=nothing)
     dim = size(rho0)[1]

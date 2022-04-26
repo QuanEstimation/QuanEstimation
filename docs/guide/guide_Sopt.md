@@ -353,8 +353,8 @@ The code for state optimization with DDPG is as follows
     `layer_num` and `layer_dim` represent the number of layers (include the input and output layer) 
     and the number of neurons in the hidden layer.
 
-**Example 4.1**  
-<a id="example4_1"></a>
+**Example 6.1**  
+<a id="example6_1"></a>
 The Hamiltonian of the Lipkin–Meshkov–Glick (LMG) model is
 \begin{align}
 H_{\mathrm{LMG}}=-\frac{\lambda}{N}(J_1^2+gJ_2^2)-hJ_3,
@@ -524,8 +524,8 @@ for generation of the spin coherent state.
     # run the state optimization problem
     QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
     ```
-**Example 4.2**  
-<a id="example4_2"></a>
+**Example 6.2**  
+<a id="example6_2"></a>
 In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown parameters to be estimated.
 === "Python"
     ``` py
@@ -740,7 +740,7 @@ codes are
 where `K` and `dK` are the Kraus operators and its derivatives with respect to the 
 unknown parameters.
 
-**Example 4.3**  
+**Example 6.3**  
 The Kraus operators for the amplitude damping channel are
 
 \begin{eqnarray}

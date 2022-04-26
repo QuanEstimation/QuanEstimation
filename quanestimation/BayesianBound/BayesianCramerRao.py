@@ -28,7 +28,7 @@ def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
         -- Parameterized density matrix.
 
     > **drho:** `multidimensional list`
-        -- Derivatives of the parameterized density matrix (rho) on the unknown
+        -- Derivatives of the parameterized density matrix (rho) with respect to the unknown
         parameters to be estimated.
 
     > **M:** `list of matrices`
@@ -47,7 +47,7 @@ def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
 
     **Note:** 
         SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-        which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
+        which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
         solutions.html).
     """
 
@@ -134,7 +134,7 @@ def BQFIM(x, p, rho, drho, LDtype="SLD", eps=1e-8):
         -- Parameterized density matrix.
 
     > **drho:** `multidimensional list`
-        -- Derivatives of the parameterized density matrix (rho) on the unknown
+        -- Derivatives of the parameterized density matrix (rho) with respect to the unknown
         parameters to be estimated.
 
     > **LDtype:** `string`
@@ -248,7 +248,7 @@ def BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
         -- Parameterized density matrix.
 
     > **drho:** `multidimensional list`
-        -- Derivatives of the parameterized density matrix (rho) on the unknown
+        -- Derivatives of the parameterized density matrix (rho) with respect to the unknown
         parameters to be estimated.
 
     > **M:** `list of matrices`
@@ -259,7 +259,7 @@ def BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
         -- Vector of biases of the form $\textbf{b}=(b(x_0),b(x_1),\dots)^{\mathrm{T}}$.
         
     > **db:** `list`
-        -- Derivatives of b on the unknown parameters to be estimated, It should be 
+        -- Derivatives of b with respect to the unknown parameters to be estimated, It should be 
         expressed as $\textbf{b}'=(\partial_0 b(x_0),\partial_1 b(x_1),\dots)^{\mathrm{T}}$.
 
     > **btype:** `int (1 or 2)`
@@ -279,7 +279,7 @@ def BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
 
     **Note:** 
         SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-        which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
+        which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
         solutions.html).
     """
 
@@ -492,14 +492,14 @@ def BQCRB(x, p, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
         -- Parameterized density matrix.
 
     > **drho:** `multidimensional list`
-        -- Derivatives of the parameterized density matrix (rho) on the unknown
+        -- Derivatives of the parameterized density matrix (rho) with respect to the unknown
         parameters to be estimated.
 
     > **b:** `list`
         -- Vector of biases of the form $\textbf{b}=(b(x_0),b(x_1),\dots)^{\mathrm{T}}$.
         
     > **db:** `list`
-        -- Derivatives of b on the unknown parameters to be estimated, It should be 
+        -- Derivatives of b with respect to the unknown parameters to be estimated, It should be 
         expressed as $\textbf{b}'=(\partial_0 b(x_0),\partial_1 b(x_1),\dots)^{\mathrm{T}}$.
 
     > **btype:** `int (1 or 2)`
@@ -678,7 +678,7 @@ def BQCRB(x, p, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
 
 def VTB(x, p, dp, rho, drho, M=[], btype=1, eps=1e-8):
     r"""
-    Calculation of the Bayesian version of Cramer-Rao bound in troduced by
+    Calculation of the Bayesian version of Cramer-Rao bound introduced by
     Van Trees (VTB). The covariance matrix with a prior distribution $p(\textbf{x})$ 
     is defined as
     \begin{align}
@@ -721,16 +721,16 @@ def VTB(x, p, dp, rho, drho, M=[], btype=1, eps=1e-8):
         -- The prior distribution.
 
     > **dp:** `list`
-        -- Derivatives of the prior distribution on the unknown parameters to to
-        estimated. For example, dp[0] is the derivative vector on the first 
+        -- Derivatives of the prior distribution with respect to the unknown parameters 
+        to be estimated. For example, dp[0] is the derivative vector with respect to the first 
         parameter.
 
     > **rho:** `multidimensional list`
         -- Parameterized density matrix.
 
     > **drho:** `multidimensional list`
-        -- Derivatives of the parameterized density matrix (rho) on the unknown
-        parameters to be estimated.
+        -- Derivatives of the parameterized density matrix (rho) with respect to the 
+        unknown parameters to be estimated.
 
     > **M:** `list of matrices`
         -- A set of positive operator-valued measure (POVM). The default measurement 
@@ -753,7 +753,7 @@ def VTB(x, p, dp, rho, drho, M=[], btype=1, eps=1e-8):
 
     **Note:** 
         SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-        which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
+        which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
         solutions.html).
     """
 
@@ -877,7 +877,7 @@ def VTB(x, p, dp, rho, drho, M=[], btype=1, eps=1e-8):
 
 def QVTB(x, p, dp, rho, drho, btype=1, LDtype="SLD", eps=1e-8):
     r"""
-    Calculation of the Bayesian version of quantum Cramer-Rao bound in troduced 
+    Calculation of the Bayesian version of quantum Cramer-Rao bound introduced 
     by Van Trees (QVTB). The covariance matrix with a prior distribution p(\textbf{x}) 
     is defined as
     \begin{align}
@@ -920,15 +920,15 @@ def QVTB(x, p, dp, rho, drho, btype=1, LDtype="SLD", eps=1e-8):
         -- The prior distribution.
 
     > **dp:** `list`
-        -- Derivatives of the prior distribution on the unknown parameters to to
-        estimated. For example, dp[0] is the derivative vector on the first 
+        -- Derivatives of the prior distribution with respect to the unknown parameters to to
+        estimated. For example, dp[0] is the derivative vector with respect to the first 
         parameter.
 
     > **rho:** `multidimensional list`
         -- Parameterized density matrix.
 
     > **drho:** `multidimensional list`
-        -- Derivatives of the parameterized density matrix (rho) on the unknown
+        -- Derivatives of the parameterized density matrix (rho) with respect to the unknown
         parameters to be estimated.
 
     > **btype:** `int (1 or 2)`
@@ -1099,19 +1099,19 @@ def OBB(x, p, dp, rho, drho, d2rho, LDtype="SLD", eps=1e-8):
         -- The prior distribution.
 
     > **dp:** `list`
-        -- Derivatives of the prior distribution on the unknown parameters to to
-        estimated. For example, dp[0] is the derivative vector on the first 
+        -- Derivatives of the prior distribution with respect to the unknown parameters to to
+        estimated. For example, dp[0] is the derivative vector with respect to the first 
         parameter.
 
     > **rho:** `list`
         -- Parameterized density matrix.
 
     > **drho:** `list`
-        -- Derivatives of the parameterized density matrix (rho) on the unknown
+        -- Derivatives of the parameterized density matrix (rho) with respect to the unknown
         parameters to be estimated.
 
     > **drho:** `list`
-        -- Second order Derivatives of the parameterized density matrix (rho) on the 
+        -- Second order Derivatives of the parameterized density matrix (rho) with respect to the 
         unknown parameters to be estimated.
 
     > **LDtype:** `string`

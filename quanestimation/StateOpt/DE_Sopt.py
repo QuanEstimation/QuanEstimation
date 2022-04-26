@@ -62,16 +62,6 @@ class DE_Sopt(State.StateSystem):
         self.cr = cr
         self.seed = seed
 
-        ini_population = ([self.psi],)
-        self.alg = Main.QuanEstimation.DE(
-            self.max_episode,
-            self.p_num,
-            ini_population,
-            self.c,
-            self.cr,
-            self.seed,
-        )
-
     def QFIM(self, W=[], LDtype="SLD"):
         r"""
         Choose QFI or $\mathrm{Tr}(WF^{-1})$ as the objective function. 
@@ -89,7 +79,15 @@ class DE_Sopt(State.StateSystem):
             "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
             "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
         """
-
+        ini_population = ([self.psi],)
+        self.alg = Main.QuanEstimation.DE(
+            self.max_episode,
+            self.p_num,
+            ini_population,
+            self.c,
+            self.cr,
+            self.seed,
+        )
         super().QFIM(W, LDtype)
 
     def CFIM(self, M=[], W=[]):
@@ -109,10 +107,18 @@ class DE_Sopt(State.StateSystem):
 
         **Note:** 
             SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-            which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
+            which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
             solutions.html).
         """
-
+        ini_population = ([self.psi],)
+        self.alg = Main.QuanEstimation.DE(
+            self.max_episode,
+            self.p_num,
+            ini_population,
+            self.c,
+            self.cr,
+            self.seed,
+        )
         super().CFIM(M, W)
 
     def HCRB(self, W=[]):
@@ -127,5 +133,13 @@ class DE_Sopt(State.StateSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
-        
+        ini_population = ([self.psi],)
+        self.alg = Main.QuanEstimation.DE(
+            self.max_episode,
+            self.p_num,
+            ini_population,
+            self.c,
+            self.cr,
+            self.seed,
+        )
         super().HCRB(W)

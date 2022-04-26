@@ -1,6 +1,5 @@
-# using QuanEstimation
+using QuanEstimation
 using Random
-include("quanestimation/JuliaSrc/QuanEstimation.jl")
 
 # initial state
 rho0 = 0.5*ones(2, 2)
@@ -33,21 +32,21 @@ opt = QuanEstimation.ControlOpt(ctrl=ctrl, ctrl_bound=ctrl_bound)
 
 ##==========choose measurement optimization algorithm==========##
 ##-------------algorithm: auto-GRAPE---------------------##
-# alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=30, epsilon=0.01, 
-#                                beta1=0.90, beta2=0.99)
+alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=300, epsilon=0.01, 
+                               beta1=0.90, beta2=0.99)
 
 ##-------------algorithm: GRAPE---------------------##
-# alg = QuanEstimation.GRAPE(Adam=true, max_episode=30, epsilon=0.01, 
+# alg = QuanEstimation.GRAPE(Adam=true, max_episode=300, epsilon=0.01, 
 #                            beta1=0.90, beta2=0.99)
 
 ##-------------algorithm: PSO---------------------##
 # alg = QuanEstimation.PSO(p_num=10, ini_particle=([ctrl],), 
-#                          max_episode=[100,100], c0=1.0, 
+#                          max_episode=[1000,100], c0=1.0, 
 #                          c1=2.0, c2=2.0, seed=1234)
 
 ##-------------algorithm: DE---------------------##
 # alg = QuanEstimation.DE(p_num=10, ini_population=([ctrl],), 
-#                         max_episode=100, c=1.0, cr=0.5, seed=1234)
+#                         max_episode=1000, c=1.0, cr=0.5, seed=1234)
 
 ##-------------algorithm: DDPG---------------------##
 # alg = QuanEstimation.DDPG(max_episode=500, layer_num=4, layer_dim=220, 

@@ -74,17 +74,6 @@ class PSO_Copt(Control.ControlSystem):
         self.c2 = c2
         self.seed = seed
 
-        ini_particle = ([self.ctrl0],)
-        self.alg = Main.QuanEstimation.PSO(
-            self.max_episode,
-            self.p_num,
-            ini_particle,
-            self.c0,
-            self.c1,
-            self.c2,
-            self.seed,
-        )
-
     def QFIM(self, W=[], LDtype="SLD"):
         r"""
         Choose QFI or $\mathrm{Tr}(WF^{-1})$ as the objective function. 
@@ -102,6 +91,16 @@ class PSO_Copt(Control.ControlSystem):
             "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
             "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
         """
+        ini_particle = ([self.ctrl0],)
+        self.alg = Main.QuanEstimation.PSO(
+            self.max_episode,
+            self.p_num,
+            ini_particle,
+            self.c0,
+            self.c1,
+            self.c2,
+            self.seed,
+        )
 
         super().QFIM(W, LDtype)
 
@@ -122,9 +121,19 @@ class PSO_Copt(Control.ControlSystem):
 
         **Note:** 
             SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-            which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
+            which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
             solutions.html).
         """
+        ini_particle = ([self.ctrl0],)
+        self.alg = Main.QuanEstimation.PSO(
+            self.max_episode,
+            self.p_num,
+            ini_particle,
+            self.c0,
+            self.c1,
+            self.c2,
+            self.seed,
+        )
 
         super().CFIM(M, W)
 
@@ -140,6 +149,16 @@ class PSO_Copt(Control.ControlSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
+        ini_particle = ([self.ctrl0],)
+        self.alg = Main.QuanEstimation.PSO(
+            self.max_episode,
+            self.p_num,
+            ini_particle,
+            self.c0,
+            self.c1,
+            self.c2,
+            self.seed,
+        )
 
         super().HCRB(W)
 
@@ -180,8 +199,18 @@ class PSO_Copt(Control.ControlSystem):
 
         **Note:** 
             SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-            which can be downloaded from the [website](http://www.physics.umb.edu/Research/QBism/
+            which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
             solutions.html).
         """
-
+        ini_particle = ([self.ctrl0],)
+        self.alg = Main.QuanEstimation.PSO(
+            self.max_episode,
+            self.p_num,
+            ini_particle,
+            self.c0,
+            self.c1,
+            self.c2,
+            self.seed,
+        )
+        
         super().mintime(f, W, M, method, target, LDtype)

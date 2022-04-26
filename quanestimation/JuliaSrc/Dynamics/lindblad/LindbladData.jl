@@ -155,7 +155,6 @@ Lindblad(
     :noiseless,
     :controlled,
 )
-
 Lindblad(
     H0::AbstractVecOrMat,
     dH::AbstractVector,
