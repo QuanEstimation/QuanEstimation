@@ -157,7 +157,7 @@ function SIC(dim::Int64)
     M = sic_povm(fiducial)
 end
 
-function AdaptiveInput(x, func, dfunc; channel="dynamics")
+function BayesInput(x, func, dfunc; channel="dynamics")
     para_num = length(x)
     x_size = [x[i] for i in 1:para_num]
     x_list  =  Iterators.product(x...)

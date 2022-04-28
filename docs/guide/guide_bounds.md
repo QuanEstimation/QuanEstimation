@@ -980,14 +980,14 @@ In practice, the prior distribution is replaced with $p(\textbf{x}|y)$ and the e
 value of $\textbf{x}$ can be evaluated by
 === "Python"
     ``` py
-    Bayes(x, p, rho, y, M=[], savefile=False)
+    Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False)
     ```
     ``` py
     MLE(x, rho, y, M=[], savefile=False)
     ```
 === "Julia"
     ``` jl
-    Bayes(x, p, rho, y; M=nothing, savefile=false)
+    Bayes(x, p, rho, y; M=nothing, estimator="mean", savefile=false)
     ```
     ``` jl
     MLE(x, rho, y; M=nothing, savefile=false)
@@ -1061,7 +1061,8 @@ $[0, \pi/2]$.
     ```
     ``` py
     # Maximum a posteriori estimation
-    pout, xout = Bayes([x], p, rho, y, M=M, savefile=False)
+    pout, xout = Bayes([x], p, rho, y, M=M, estimator="MAP", \
+                       savefile=False)
     ```
     ``` py
     # Maximum likelihood estimation
@@ -1117,7 +1118,8 @@ $[0, \pi/2]$.
     ```
     ``` jl
     # Maximum a posteriori estimation
-    pout, xout = QuanEstimation.Bayes([x], p, rho, y; M=M, savefile=false)
+    pout, xout = QuanEstimation.Bayes([x], p, rho, y; M=M, estimator="MAP",
+                                      savefile=false)
     ```
     ``` jl
     # Maximum likelihood estimation

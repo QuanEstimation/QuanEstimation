@@ -3,7 +3,7 @@ from scipy import interpolate
 from scipy.integrate import simps, solve_bvp
 from itertools import product
 from quanestimation.AsymptoticBound.CramerRao import CFIM, QFIM
-from quanestimation.Common.common import SIC, extract_ele
+from quanestimation.Common.Common import SIC, extract_ele
 
 
 def BCFIM(x, p, rho, drho, M=[], eps=1e-8):

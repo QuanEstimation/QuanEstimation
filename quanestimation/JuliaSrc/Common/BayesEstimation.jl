@@ -10,7 +10,7 @@ Bayesian estimation. The prior distribution is updated via the posterior distrib
 - `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
 - `savefile`: Whether or not to save all the posterior distributions. 
 """
-function Bayes(x, p, rho, y; M=nothing, savefile=false)
+function Bayes(x, p, rho, y; M=nothing, estimator="mean", savefile=false)
     y = y .+ 1
     para_num = length(x)
     max_episode = length(y)
@@ -21,15 +21,29 @@ function Bayes(x, p, rho, y; M=nothing, savefile=false)
         end
         if savefile == false
             x_out = []
-            for mi in 1:max_episode
-                res_exp = y[mi] |> Int
-                pyx = real.(tr.(rho.*[M[res_exp]]))
-                py = trapz(x[1], pyx.*p)
-                p_update = pyx.*p/py
-                p = p_update
-
-                indx = findmax(p)[2]
-                append!(x_out, x[1][indx])
+            if estimator == "mean"
+                for mi in 1:max_episode
+                    res_exp = y[mi] |> Int
+                    pyx = real.(tr.(rho.*[M[res_exp]]))
+                    py = trapz(x[1], pyx.*p)
+                    p_update = pyx.*p/py
+                    p = p_update
+                    append!(x_out, trapz(x[1], p.*x[1]))
+                end
+            elseif estimator == "MAP"
+                for mi in 1:max_episode
+                    res_exp = y[mi] |> Int
+                    pyx = real.(tr.(rho.*[M[res_exp]]))
+                    py = trapz(x[1], pyx.*p)
+                    p_update = pyx.*p/py
+                    p = p_update
+    
+                    indx = findmax(p)[2]
+                    append!(x_out, x[1][indx])
+                end
+            else
+               println(
+                "The input is not a valid value for estimator, supported values are 'mean' and 'MAP'.")
             end
             
             open("pout.csv","w") do f
@@ -41,16 +55,32 @@ function Bayes(x, p, rho, y; M=nothing, savefile=false)
             return p, x_out[end]
         else
             p_out, x_out = [], []
-            for mi in 1:max_episode
-                res_exp = y[mi] |> Int
-                pyx = real.(tr.(rho.*[M[res_exp]]))
-                py = trapz(x[1], pyx.*p)
-                p_update = pyx.*p/py
-                p = p_update
-                
-                indx = findmax(p)[2]
-                append!(p_out, [p])
-                append!(x_out, x[1][indx])
+            if estimator == "mean"
+                for mi in 1:max_episode
+                    res_exp = y[mi] |> Int
+                    pyx = real.(tr.(rho.*[M[res_exp]]))
+                    py = trapz(x[1], pyx.*p)
+                    p_update = pyx.*p/py
+                    p = p_update
+                    
+                    append!(p_out, [p])
+                    append!(x_out, trapz(x[1], p.*x[1]))
+                end
+            elseif estimator == "MAP"
+                for mi in 1:max_episode
+                    res_exp = y[mi] |> Int
+                    pyx = real.(tr.(rho.*[M[res_exp]]))
+                    py = trapz(x[1], pyx.*p)
+                    p_update = pyx.*p/py
+                    p = p_update
+                    
+                    indx = findmax(p)[2]
+                    append!(p_out, [p])
+                    append!(x_out, x[1][indx])
+                end
+            else
+               println(
+                "The input is not a valid value for estimator, supported values are 'mean' and 'MAP'.")
             end
             
             open("pout.csv","w") do f
@@ -68,17 +98,33 @@ function Bayes(x, p, rho, y; M=nothing, savefile=false)
         end
         if savefile == false
             x_out = []
-            for mi in 1:max_episode
-                res_exp = y[mi] |> Int
-                pyx = real.(tr.(rho.*[M[res_exp]]))
-                arr = p.*pyx
-                py = trapz(tuple(x...), arr)
-
-                p_update = p.*pyx/py
-                p = p_update
-
-                indx = findmax(p)[2]
-                append!(x_out, [[x[i][indx[i]] for i in 1:para_num]])
+            if estimator == "mean"
+                for mi in 1:max_episode
+                    res_exp = y[mi] |> Int
+                    pyx = real.(tr.(rho.*[M[res_exp]]))
+                    arr = p.*pyx
+                    py = trapz(tuple(x...), arr)
+    
+                    p_update = p.*pyx/py
+                    p = p_update
+                    append!(x_out, [integ(x, p)])
+                end
+            elseif estimator == "MAP"
+                for mi in 1:max_episode
+                    res_exp = y[mi] |> Int
+                    pyx = real.(tr.(rho.*[M[res_exp]]))
+                    arr = p.*pyx
+                    py = trapz(tuple(x...), arr)
+    
+                    p_update = p.*pyx/py
+                    p = p_update
+    
+                    indx = findmax(p)[2]
+                    append!(x_out, [[x[i][indx[i]] for i in 1:para_num]])
+                end
+            else
+               println(
+                "The input is not a valid value for estimator, supported values are 'mean' and 'MAP'.")
             end
             
             open("pout.csv","w") do f
@@ -90,17 +136,34 @@ function Bayes(x, p, rho, y; M=nothing, savefile=false)
             return p, x_out[end]
         else
             p_out, x_out = [], []
-            for mi in 1:max_episode
-                res_exp = y[mi] |> Int
-                pyx = real.(tr.(rho.*[M[res_exp]]))
-                arr = p.*pyx
-                py = trapz(tuple(x...), arr)
-                p_update = p.*pyx/py
-                p = p_update
-                
-                indx = findmax(p)[2]
-                append!(p_out, [p])
-                append!(x_out, [[x[i][indx[i]] for i in 1:para_num]])
+            if estimator == "mean"
+                for mi in 1:max_episode
+                    res_exp = y[mi] |> Int
+                    pyx = real.(tr.(rho.*[M[res_exp]]))
+                    arr = p.*pyx
+                    py = trapz(tuple(x...), arr)
+                    p_update = p.*pyx/py
+                    p = p_update
+                    
+                    append!(p_out, [p])
+                    append!(x_out, [integ(x,p)])
+                end
+            elseif estimator == "MAP"
+                for mi in 1:max_episode
+                    res_exp = y[mi] |> Int
+                    pyx = real.(tr.(rho.*[M[res_exp]]))
+                    arr = p.*pyx
+                    py = trapz(tuple(x...), arr)
+                    p_update = p.*pyx/py
+                    p = p_update
+                    
+                    indx = findmax(p)[2]
+                    append!(p_out, [p])
+                    append!(x_out, [[x[i][indx[i]] for i in 1:para_num]])
+                end
+            else
+               println(
+                "The input is not a valid value for estimator, supported values are 'mean' and 'MAP'.")
             end
             
             open("pout.csv","w") do f
@@ -223,3 +286,29 @@ function MLE(x, rho, y; M::Union{AbstractVector,Nothing}=nothing, savefile=false
         end
     end
 end
+
+function integ(x, p)
+    para_num = length(x)
+    mean = [0.0 for i in 1:para_num]
+    for i in 1:para_num
+        p_tp = p
+        if i == para_num
+            for si = 1:para_num-1
+                p_tp = trapz(x[si], p_tp, Val(1))
+            end
+        
+        elseif i == 1
+            for si = para_num:2 
+                p_tp = trapz(x[si], p_tp)
+            end
+        else
+            p_tp = trapz(x[end], p_tp)
+            for si = 1:para_num-1
+                p_tp = trapz(x[si], p_tp, Val(1))
+            end
+        end
+        mean[i] = trapz(x[i], x[i].*p_tp)
+    end
+    mean
+end
+        

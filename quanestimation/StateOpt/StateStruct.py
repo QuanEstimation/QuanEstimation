@@ -5,7 +5,7 @@ import math
 import warnings
 from julia import Main
 import quanestimation.StateOpt as stateoptimize
-from quanestimation.Common.common import SIC
+from quanestimation.Common.Common import SIC
 
 
 class StateSystem:

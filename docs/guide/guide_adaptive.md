@@ -32,11 +32,11 @@ If the dynamics of the system can be described by the master equation, then the 
 parameters to be estimated, they can be generated via
 === "Python"
     ``` py
-    H, dH = AdaptiveInput(x, func, dfunc, channel="dynamics")
+    H, dH = BayesInput(x, func, dfunc, channel="dynamics")
     ```
 === "Julia"
     ``` jl
-    H, dH = AdaptiveInput(x, func, dfunc; channel="dynamics")
+    H, dH = BayesInput(x, func, dfunc; channel="dynamics")
     ```
 Here `func` and `dfunc` are the function defined by the users which return `H` and `dH`, 
 respectively. Futhermore, for the systems with noise and controls, the variables `decay`, 
@@ -63,11 +63,11 @@ If the parameterization is implemented with the Kraus operators, the codes becom
 and 
 === "Python"
     ``` py
-    K, dK = AdaptiveInput(x, func, dfunc, channel="Kraus")
+    K, dK = BayesInput(x, func, dfunc, channel="Kraus")
     ```
 === "Julia"
     ``` jl
-    K, dK = AdaptiveInput(x, func, dfunc; channel="Kraus")
+    K, dK = BayesInput(x, func, dfunc; channel="Kraus")
     ```
 where `K` and `dK` are the Kraus operators and its derivatives on the unknown parameters.
 
@@ -121,9 +121,9 @@ $\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}
     res_rand = random.sample(range(0, len(y)), 125)
     for i in range(len(res_rand)):
         y[res_rand[i]] = 1
-    pout, xout = Bayes([x], p, rho, y, M=M, savefile=False)
+    pout, xout = Bayes([x], p, rho, y, M=M, estimator="MAP", savefile=False)
     # generation of H and dH
-    H, dH = AdaptiveInput([x], H0_func, dH_func, channel="dynamics")
+    H, dH = BayesInput([x], H0_func, dH_func, channel="dynamics")
     # adaptive measurement
     apt = adaptive([x], pout, rho0, savefile=False, max_episode=1000, eps=1e-8)
     apt.dynamics(tspan, H, dH)
@@ -174,10 +174,10 @@ $\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}
     for i in 1:length(res_rand)
         y[res_rand[i]] = 1
     end
-    pout, xout = QuanEstimation.Bayes([x], p, rho, y, M=M, savefile=false)
+    pout, xout = QuanEstimation.Bayes([x], p, rho, y, M=M, estimator="MAP", savefile=false)
     # generation of H and dH
-    H, dH = QuanEstimation.AdaptiveInput([x], H0_func, dH_func; 
-                                         channel="dynamics")
+    H, dH = QuanEstimation.BayesInput([x], H0_func, dH_func; 
+                                      channel="dynamics")
     # adaptive measurement
     QuanEstimation.adaptive([x], pout, rho0, tspan, H, dH; M=M, 
                             max_episode=1000)

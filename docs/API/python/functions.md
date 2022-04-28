@@ -72,8 +72,8 @@ This part is the functions of the Python-Julia package which written in Python.
 ---
 
 # **Common**
-## **Adaptive input**
-::: quanestimation.AdaptiveInput
+## **Bayes input**
+::: quanestimation.BayesInput
 ## **SIC-POVM**
 ::: quanestimation.SIC
 ## **SU($N$) generators**

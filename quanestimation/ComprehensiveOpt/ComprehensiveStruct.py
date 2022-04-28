@@ -5,7 +5,7 @@ import math
 import os
 from julia import Main
 import quanestimation.ComprehensiveOpt as compopt
-from quanestimation.Common.common import gramschmidt
+from quanestimation.Common.Common import gramschmidt
 
 
 class ComprehensiveSystem:

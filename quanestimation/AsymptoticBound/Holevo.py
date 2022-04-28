@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sp
 import cvxpy as cp
-from quanestimation.Common import suN_generator
+from quanestimation.Common.Common import suN_generator
 from quanestimation.AsymptoticBound.CramerRao import QFIM
 
 

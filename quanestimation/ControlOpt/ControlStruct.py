@@ -5,7 +5,7 @@ import math
 import os
 import quanestimation.ControlOpt as ctrl
 from julia import Main
-from quanestimation.Common.common import SIC
+from quanestimation.Common.Common import SIC
 
 
 class ControlSystem:

@@ -1,11 +1,11 @@
-from quanestimation.Common.common import (
+from quanestimation.Common.Common import (
     mat_vec_convert,
     suN_generator,
     gramschmidt,
     basis,
     SIC,
     annihilation,
-    AdaptiveInput,
+    BayesInput,
 )
 
 __all__ = [
@@ -15,5 +15,5 @@ __all__ = [
     "basis",
     "SIC",
     "annihilation",
-    "AdaptiveInput",
+    "BayesInput",
 ]

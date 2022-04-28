@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.linalg import inv
 from scipy.linalg import sqrtm, schur, eigvals
-from quanestimation.Common.common import SIC, suN_generator
+from quanestimation.Common.Common import SIC, suN_generator
 
 
 def CFIM(rho, drho, M=[], eps=1e-8):

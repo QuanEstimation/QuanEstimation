@@ -43,7 +43,7 @@ for i in 1:length(res_rand)
 end
 pout, xout = QuanEstimation.Bayes([x], p, rho, y, M=M, savefile=false)
 # generation of H and dH
-H, dH = QuanEstimation.AdaptiveInput([x], H0_func, dH_func; 
+H, dH = QuanEstimation.BayesInput([x], H0_func, dH_func; 
                                      channel="dynamics")
 # adaptive measurement
 QuanEstimation.adaptive([x], pout, rho0, tspan, H, dH; M=M, 

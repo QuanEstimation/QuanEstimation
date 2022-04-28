@@ -205,7 +205,7 @@ def brgd(n):
     return res
 
 
-def AdaptiveInput(x, func, dfunc, channel="dynamics"):
+def BayesInput(x, func, dfunc, channel="dynamics"):
     """
     Generation of the input variables H, dH (or K, dK).
 
