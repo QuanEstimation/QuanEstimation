@@ -20,7 +20,7 @@ function Kraus(opt::StateOpt, K, dK;rng=GLOBAL_RNG)
     dK = [complex.(dk) for dk in dK]
     psi = complex(psi)
 
-    Kraus(K, dK, psi)
+    Kraus(psi, K, dK)
 end
 """
 
@@ -35,7 +35,7 @@ function Kraus(opt::AbstractMopt, ρ₀::AbstractMatrix, K, dK;rng=GLOBAL_RNG, e
     K = complex.(K)
     dK = [complex.(dk) for dk in dK]
     ρ₀ = complex(ρ₀)
-    Kraus(K, dK, ρ₀)
+    Kraus(ρ₀, K, dK)
 end
 
 """
@@ -59,5 +59,5 @@ function Kraus(opt::CompOpt, K, dK;rng=GLOBAL_RNG, eps=GLOBAL_EPS)
     K = complex.(K)
     dK = [complex.(dk) for dk in dK]
     psi = complex(psi)
-    Kraus(K, dK, psi)
+    Kraus(psi, K, dK)
 end

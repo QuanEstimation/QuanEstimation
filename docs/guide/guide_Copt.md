@@ -63,7 +63,7 @@ policy gradients (DDPG) [[7]](#Lillicrap2015). The codes for control optimizatio
 	`control.QFIM()` (default), `control.CFIM()` and `control.HCRB()`. Here $\mathcal{F}$ and 
 	$\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight matrix which 
 	defaults to the identity matrix. If the users call `control.HCRB()` for single parameter 
-	scenario, the program will exit and print `"Program exit. In the single-parameter scenario, 
+	scenario, the program will exit and print `"Program terminated. In the single-parameter scenario, 
 	the HCRB is equivalent to the QFI. Please choose 'QFIM' as the objective function"`. `LDtype` 
 	in `control.QFIM()` represents the types of the QFIM, it can be set as `LDtype="SLD"` (default), 
 	`LDtype="RLD"`, and `LDtype="LLD"`. `M` in `control.CFIM()` represents a set of positive 
@@ -116,7 +116,7 @@ policy gradients (DDPG) [[7]](#Lillicrap2015). The codes for control optimizatio
 	`QFIM_obj()` (default), `CFIM_obj()` and `HCRB_obj()`. Here $\mathcal{F}$ and 
 	$\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight matrix which 
 	defaults to the identity matrix. If the users call `HCRB_obj()` for single parameter 
-	scenario, the program will exit and print `"Program exit. In the single-parameter scenario, 
+	scenario, the program will exit and print `"Program terminated. In the single-parameter scenario, 
 	the HCRB is equivalent to the QFI. Please choose 'QFIM_obj' as the objective function"`. 
 	`LDtype` in `QFIM_obj()` represents the types of the QFIM, it can be set as `LDtype=:SLD` 
 	(default), `LDtype=:RLD`, and `LDtype=:LLD`. `M` in `CFIM_obj()` represents a set of positive 

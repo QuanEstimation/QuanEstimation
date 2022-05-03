@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def Kraus(K, dK, rho0):
+def Kraus(rho0, K, dK):
     r"""
     The parameterization of a state is
     \begin{align}

@@ -398,7 +398,7 @@ class StateSystem:
                 W = np.eye(len(self.Hamiltonian_derivative))
             self.W = W
             if len(self.Hamiltonian_derivative) == 1:
-                print("Program exit. In the single-parameter scenario, the HCRB is equivalent to the QFI. Please choose 'QFIM' as the objective function"
+                print("Program terminated. In the single-parameter scenario, the HCRB is equivalent to the QFI. Please choose 'QFIM' as the objective function"
                     )
             else: pass
 

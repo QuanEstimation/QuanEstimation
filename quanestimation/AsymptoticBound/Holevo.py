@@ -3,6 +3,7 @@ import scipy as sp
 import cvxpy as cp
 from quanestimation.Common.Common import suN_generator
 from quanestimation.AsymptoticBound.CramerRao import QFIM
+from numpy.linalg import matrix_rank
 
 
 def HCRB(rho, drho, W, eps=1e-8):
@@ -40,6 +41,12 @@ def HCRB(rho, drho, W, eps=1e-8):
         )
         f = QFIM(rho, drho, eps=eps)
         return f
+    elif matrix_rank(W) == 1:
+        print(
+            "For rank-one weight matrix, the HCRB is equivalent to QFIM. This function will return the value of Tr(WF^{-1})"
+        )
+        F = QFIM(rho, drho, eps=eps)
+        return np.trace(np.dot(W, np.linalg.pinv(F)))
     else:
         dim = len(rho)
         num = dim * dim

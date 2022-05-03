@@ -1,7 +1,7 @@
 ########## Bayesian version of CFIM ##########
 @doc raw"""
 
-    BCFIM(x::V, p::V, rho::V, drho::V; M::Union{V,Nothing}=nothing, eps=GLOBAL_EPS) where{V<:AbstractVector}
+    BCFIM(x::AbstractVector, p, rho, drho; M=missing, eps=GLOBAL_EPS)
 
 Calculation of the Bayesian classical Fisher information (BCFI) and the Bayesian classical Fisher information matrix (BCFIM) of the form
 ``\mathcal{I}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{I}\mathrm{d}\textbf{x}`` with ``\mathcal{I}`` the CFIM and ``p(\textbf{x})`` the prior distribution.
@@ -12,29 +12,29 @@ Calculation of the Bayesian classical Fisher information (BCFI) and the Bayesian
 - `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
 - `eps`: Machine epsilon.
 """
-function BCFIM(x::V, p::V, rho::V, drho::V; M::Union{V,Nothing}=nothing, eps=GLOBAL_EPS) where{V<:AbstractVector}
+function BCFIM(x::AbstractVector, p, rho, drho; M=missing, eps=GLOBAL_EPS)
     para_num = length(x)
     if para_num == 1
         #### singleparameter scenario ####
         p_num = length(p)
-        if M==nothing
+        if ismissing(M)
             M = SIC(size(rho[1])[1])
         end
         F_tp = zeros(p_num)
         for i in 1:p_num
-            F_tp[i] = CFIM(rho[i], drho[i], M; eps=eps)
+            F_tp[i] = CFIM(rho[i], drho[i][1], M; eps=eps)
         end
         F = 0.0
         arr = [p[i]*F_tp[i] for i in 1:p_num]
         F = trapz(x[1], arr)
     else
         #### multiparameter scenario #### 
-        if M==nothing
+        if ismissing(M)
             M = SIC(size(vec(rho)[1])[1])
         end
 
         xnum = length(x)
-        trapzm(x, integrands, slice_dim) =  [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
+        trapzm(x, integrands, slice_dim) = [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
         Fs = [p*CFIM(rho,drho,M;eps=eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
         F = trapzm(x, Fs, xnum^2) |> I->reshape(I,xnum,xnum)
     end    
@@ -43,7 +43,7 @@ end
 ########## Bayesian version of QFIM ##########
 @doc raw"""
 
-    BQFIM(x::V, p::V, rho::V, drho::V; LDtype=:SLD, eps=GLOBAL_EPS) where{V<:AbstractVector}
+    BQFIM(x::AbstractVector, p, rho, drho; LDtype=:SLD, eps=GLOBAL_EPS)
 
 Calculation of the Bayesian quantum Fisher information (BQFI) and the Bayesian quantum Fisher information matrix (BQFIM) of the form
 ``\mathcal{F}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{F}\mathrm{d}\textbf{x}`` with ``\mathcal{F}`` the QFIM of all types and ``p(\textbf{x})`` the prior distribution.
@@ -54,14 +54,14 @@ Calculation of the Bayesian quantum Fisher information (BQFI) and the Bayesian q
 - `LDtype`: Types of QFI (QFIM) can be set as the objective function. Options are "SLD" (default), "RLD" and "LLD".
 - `eps`: Machine epsilon.
 """
-function BQFIM(x::V, p::V, rho::V, drho::V; LDtype=:SLD, eps=GLOBAL_EPS) where{V<:AbstractVector}
+function BQFIM(x::AbstractVector, p, rho, drho; LDtype=:SLD, eps=GLOBAL_EPS) 
     para_num = length(x)
     if para_num == 1
         #### singleparameter scenario ####
         p_num = length(p)
         F_tp = zeros(p_num)
         for i in 1:p_num
-            F_tp[i] = QFIM(rho[i], drho[i]; LDtype=LDtype, eps=eps)
+            F_tp[i] = QFIM(rho[i], drho[i][1]; LDtype=LDtype, eps=eps)
         end
         F = 0.0
         arr = [p[i]*F_tp[i] for i in 1:p_num]
@@ -78,7 +78,7 @@ end
 ########## Bayesian quantum Cramer-Rao bound ##########
 @doc raw"""
 
-    BQCRB(x::V, p::V, rho::V, drho::V; b::Union{V,Nothing}=nothing, db::Union{V,Nothing}=nothing, LDtype=:SLD, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
+    BQCRB(x::AbstractVector, p, rho, drho; b=missing, db=missing, LDtype=:SLD, btype=1, eps=GLOBAL_EPS)
 
 Calculation of the Bayesian quantum Cramer-Rao bound (BQCRB).
 - `x`: The regimes of the parameters for the integral.
@@ -91,14 +91,14 @@ Calculation of the Bayesian quantum Cramer-Rao bound (BQCRB).
 - `btype`: Types of the BCRB. Options are 1 and 2.
 - `eps`: Machine epsilon.
 """
-function BQCRB(x::V, p::V, rho::V, drho::V; b::Union{V,Nothing}=nothing, db::Union{V,Nothing}=nothing, LDtype=:SLD, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
+function BQCRB(x::AbstractVector, p, rho, drho; b=missing, db=missing, LDtype=:SLD, btype=1, eps=GLOBAL_EPS)
     para_num = length(x)
 
-    if b==nothing
+    if ismissing(b)
         b =  [zero(x) for x in x]
         db =  [zero(x) for x in x]
     end
-    if b!=nothing && db==nothing 
+    if ismissing(db)
         db = [zero(x) for x in x]
     end
     
@@ -161,7 +161,7 @@ end
 
 @doc raw"""
 
-    BCRB(x::V, p::V, rho::V, drho::V; M::Union{V,Nothing}=nothing, b::Union{V,Nothing}=nothing, db::Union{V,Nothing}=nothing, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
+    BCRB(x::AbstractVector, p, rho, drho; M=missing, b=missing, db=missing, btype=1, eps=GLOBAL_EPS)
 
 Calculation of the Bayesian Cramer-Rao bound (BCRB).
 - `x`: The regimes of the parameters for the integral.
@@ -174,21 +174,21 @@ Calculation of the Bayesian Cramer-Rao bound (BCRB).
 - `btype`: Types of the BCRB. Options are 1 and 2.
 - `eps`: Machine epsilon.
 """
-function BCRB(x::V, p::V, rho::V, drho::V; M::Union{V,Nothing}=nothing, b::Union{V,Nothing}=nothing, db::Union{V,Nothing}=nothing, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
+function BCRB(x::AbstractVector, p, rho, drho; M=missing, b=missing, db=missing, btype=1, eps=GLOBAL_EPS)
     para_num = length(x)
      
-    if b==nothing
+    if ismissing(b)
         b =  [zero(x) for x in x]
         db =  [zero(x) for x in x]
     end
-    if b!=nothing && db==nothing 
+    if ismissing(db)
         db = [zero(x) for x in x]
     end
 
     if para_num == 1
         #### singleparameter scenario ####
         p_num = length(p)
-        if M==nothing
+        if ismissing(M)
             M = SIC(size(rho[1])[1])
         end
         if typeof(drho[1]) == Vector{Matrix{ComplexF64}}
@@ -221,7 +221,7 @@ function BCRB(x::V, p::V, rho::V, drho::V; M::Union{V,Nothing}=nothing, b::Union
         return F
     else
         #### multiparameter scenario #### 
-        if M==nothing
+        if ismissing(M)
             M = SIC(size(vec(rho)[1])[1])
         end
 
@@ -248,7 +248,7 @@ end
 
 """
 
-    QVTB(x::V, p::V, dp::V, rho::V, drho::V; LDtype=:SLD, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
+    QVTB(x::AbstractVector, p, dp, rho, drho; LDtype=:SLD, btype=1, eps=GLOBAL_EPS)
 
 Calculation of the Bayesian version of Cramer-Rao bound in troduced by Van Trees (VTB).
 - `x`: The regimes of the parameters for the integral.
@@ -260,7 +260,7 @@ Calculation of the Bayesian version of Cramer-Rao bound in troduced by Van Trees
 - `btype`: Types of the BCRB. Options are 1 and 2.
 - `eps`: Machine epsilon.
 """
-function QVTB(x::V, p::V, dp::V, rho::V, drho::V; LDtype=:SLD, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
+function QVTB(x::AbstractVector, p, dp, rho, drho; LDtype=:SLD, btype=1, eps=GLOBAL_EPS)
     para_num = length(x)
     if para_num == 1
         #### singleparameter scenario ####
@@ -312,7 +312,7 @@ end
 
 """
 
-    VTB(x::V, p::V, dp::V, rho::V, drho::V; M::Union{V,Nothing}=nothing, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
+    VTB(x::AbstractVector, p, dp, rho, drho; M=missing, btype=1, eps=GLOBAL_EPS)
 
 Calculation of the Bayesian version of Cramer-Rao bound introduced by Van Trees (VTB).
 - `x`: The regimes of the parameters for the integral.
@@ -324,12 +324,12 @@ Calculation of the Bayesian version of Cramer-Rao bound introduced by Van Trees 
 - `btype`: Types of the BCRB. Options are 1 and 2.
 - `eps`: Machine epsilon.
 """
-function VTB(x::V, p::V, dp::V, rho::V, drho::V; M::Union{V,Nothing}=nothing, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
+function VTB(x::AbstractVector, p, dp, rho, drho; M=missing, btype=1, eps=GLOBAL_EPS)
     para_num = length(x)
     if para_num == 1
         #### singleparameter scenario ####
         p_num = length(p)
-        if M==nothing
+        if ismissing(M)
             M = SIC(size(rho[1])[1])
         end
         if typeof(drho[1]) == Vector{Matrix{ComplexF64}}
@@ -357,7 +357,7 @@ function VTB(x::V, p::V, dp::V, rho::V, drho::V; M::Union{V,Nothing}=nothing, bt
         return res
     else
         #### multiparameter scenario #### 
-        if M==nothing
+        if ismissing(M)
             M = SIC(size(vec(rho)[1])[1])
         end
         xnum = length(x)
@@ -403,7 +403,7 @@ end
 
 """
 
-    OBB(x::V, p::V, dp::V, rho::V, drho::V, d2rho::V; LDtype=:SLD, eps=GLOBAL_EPS) where {V<:AbstractVector}
+    OBB(x::AbstractVector, p, dp, rho, drho, d2rho; LDtype=:SLD, eps=GLOBAL_EPS)
 
 Calculation of the Bayesian version of Cramer-Rao bound introduced by Van Trees (VTB).
 - `x`: The regimes of the parameters for the integral.
@@ -415,7 +415,7 @@ Calculation of the Bayesian version of Cramer-Rao bound introduced by Van Trees 
 - `LDtype`: Types of QFI (QFIM) can be set as the objective function. Options are "SLD" (default), "RLD" and "LLD".
 - `eps`: Machine epsilon.
 """
-function OBB(x::V, p::V, dp::V, rho::V, drho::V, d2rho::V; LDtype=:SLD, eps=GLOBAL_EPS) where {V<:AbstractVector}
+function OBB(x::AbstractVector, p, dp, rho, drho, d2rho; LDtype=:SLD, eps=GLOBAL_EPS)
     p_num = length(p)
     
     if typeof(drho[1]) == Vector{Matrix{ComplexF64}}

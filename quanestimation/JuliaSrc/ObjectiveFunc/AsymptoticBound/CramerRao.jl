@@ -126,8 +126,14 @@ function RLD(
     RLD_eig = zeros(T, dim, dim)
     for fi = 1:dim
         for fj = 1:dim
+            term_tp = (vec[:, fi]' * dρ * vec[:, fj])
             if abs(val[fi]) > eps
-                RLD_eig[fi, fj] = (vec[:, fi]' * dρ * vec[:, fj]) / val[fi]
+                RLD_eig[fi, fj] = term_tp / val[fi]
+            else
+                if abs(term_tp) < eps
+                    println("RLD does not exist. It only exist when the support of drho is contained in the support of rho.")
+                    return nothing
+                end
             end
         end
     end
@@ -184,8 +190,14 @@ function LLD(
     LLD_eig = zeros(T, dim, dim)
     for fi = 1:dim
         for fj = 1:dim
+            term_tp = (vec[:, fi]' * dρ * vec[:, fj])
             if abs(val[fj]) > eps
-                LLD_eig[fj, fi] = ((vec[:, fi]' * dρ * vec[:, fj]) / val[fj]) |> conj()
+                LLD_eig[fj, fi] = (term_tp / val[fj]) |> conj()
+            else
+                if abs(term_tp) < eps
+                    println("LLD does not exist. It only exist when the support of drho is contained in the support of rho.")
+                    return nothing
+                end
             end
         end
     end
@@ -431,7 +443,7 @@ end
 
 """
 
-    QFIM_Kraus(ρ0::Matrix{T}, K::Vector{Matrix{T}}, dK::Vector{Vector{Matrix{T}}}; LDtype=:SLD, exportLD::Bool=false, eps=GLOBAL_EPS) where {T<:Complex}
+    QFIM_Kraus(ρ0::AbstractMatrix, K::AbstractVector, dK::AbstractVector; LDtype=:SLD, exportLD::Bool=false, eps=GLOBAL_EPS)
 
 Calculation of the quantum Fisher information (QFI) and quantum Fisher information matrix (QFIM) with Kraus operator(s) for all types.
 - `ρ0`: Density matrix.
@@ -441,11 +453,19 @@ Calculation of the quantum Fisher information (QFI) and quantum Fisher informati
 - `exportLD`: Whether or not to export the values of logarithmic derivatives. If set True then the the values of logarithmic derivatives will be exported.
 - `eps`: Machine epsilon.
 """
-function QFIM_Kraus(ρ0::Matrix{T}, K::Vector{Matrix{T}}, dK::Vector{Vector{Matrix{T}}}; LDtype=:SLD, exportLD::Bool=false, eps=GLOBAL_EPS) where {T<:Complex}
-    dK = [[dK[i][j] for i in 1:length(K)] for j in 1:length(dK[1])]
+function QFIM_Kraus(ρ0::AbstractMatrix, K::AbstractVector, dK::AbstractVector; LDtype=:SLD, exportLD::Bool=false, eps=GLOBAL_EPS)
+    para_num = length(dK[1])
+    dK = [[dK[i][j] for i in 1:length(K)] for j in 1:para_num]
     ρ = [K * ρ0 * K' for K in K] |> sum
     dρ = [[dK * ρ0 * K' + K * ρ0 * dK' for (K,dK) in zip(K,dK)] |> sum for dK in dK]
-    return QFIM(ρ, dρ; LDtype=LDtype, exportLD=exportLD, eps=eps)
+    F = QFIM(ρ, dρ; LDtype=LDtype, exportLD=exportLD, eps=eps)
+    if para_num == 1
+        # single-parameter scenario
+        return F[1,1]
+    else
+        # multiparameter scenario
+        return F
+    end
 end
 
 ## QFIM with exportLD
@@ -579,7 +599,14 @@ function FIM(p::Vector{R}, dp::Vector{Vector{R}}; eps=GLOBAL_EPS) where {R<:Real
             FIM_res += Cadd
         end
     end
-    FIM_res
+    if length(dp[1]) == 1
+        # single-parameter scenario
+        return FIM_res[1,1]
+    else
+        # multiparameter scenario
+        return FIM_res
+    end
+    
 end
 
 #======================================================#
@@ -661,5 +688,9 @@ function QFIM_Gauss(R̄::V, dR̄::VV, D::M, dD::VM) where {V,VV,M,VM<:AbstractVe
         j = 1:para_num
     ]
 
-    F |> real
+    if para_num == 1
+        return F[1,1] |> real
+    else
+        return F |> real
+    end
 end

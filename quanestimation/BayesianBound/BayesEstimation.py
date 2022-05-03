@@ -2,6 +2,7 @@ import numpy as np
 from scipy.integrate import simps
 from quanestimation.Common.Common import extract_ele
 from quanestimation.Common.Common import SIC
+from itertools import product
 
 
 def Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False):
@@ -382,3 +383,119 @@ def integ(x, p):
                 p_tp = np.trapz(p_tp, x[si], axis=0)
         mean[i] = np.trapz(x[i]*p_tp, x[i])
     return mean
+
+def MBC(x, p, rho, W=[], eps=1e-8):
+    """
+    Calculation of the minimum Bayesian cost with a quadratic cost function.
+
+    Parameters
+    ----------
+    > **x:** `list`
+        -- The regimes of the parameters for the integral.
+
+    > **p:** `multidimensional array`
+        -- The prior distribution.
+
+    > **rho:** `multidimensional list`
+        -- Parameterized density matrix.
+
+    > **W:** `array`
+        -- Weight matrix.
+
+    > **eps:** `float`
+        -- Machine epsilon.
+
+    Returns
+    ----------
+    **MBC:** `float`
+        -- The value of the minimum Bayesian cost.
+    """
+    para_num = len(x)
+    if para_num == 1:
+        # single-parameter scenario
+        dim = len(rho[0])
+        p_num = len(x[0])
+        value = [p[i]*x[0][i]**2 for i in range(p_num)]
+        delta2_x = simps(value, x[0])
+        rho_avg = np.zeros((dim, dim), dtype=np.complex128)
+        rho_pri = np.zeros((dim, dim), dtype=np.complex128)
+        for di in range(dim):
+            for dj in range(dim):
+                rho_avg_arr = [p[m]*rho[m][di][dj] for m in range(p_num)]
+                rho_pri_arr = [p[n]*x[0][n]*rho[n][di][dj] for n in range(p_num)]
+                rho_avg[di][dj] = simps(rho_avg_arr, x[0])
+                rho_pri[di][dj] = simps(rho_pri_arr, x[0])
+        Lambda = Lambda_avg(rho_avg, [rho_pri], eps=eps)
+        minBC = delta2_x-np.real(np.trace(np.dot(np.dot(rho_avg, Lambda[0]), Lambda[0])))
+        return minBC
+    else:
+        # multi-parameter scenario
+        p_shape = np.shape(p)
+        p_ext = extract_ele(p, para_num)
+        rho_ext = extract_ele(rho, para_num)
+
+        p_list, rho_list = [], []
+        for p_ele, rho_ele in zip(p_ext, rho_ext):
+            p_list.append(p_ele)
+            rho_list.append(rho_ele)
+
+        dim = len(rho_list[0])
+        p_num = len(p_list)
+
+        x_pro = product(*x)
+        x_list = []
+        for x_ele in x_pro:
+            x_list.append([x_ele[i] for i in range(para_num)])
+        
+        if W == []:
+            W = np.identity(para_num)
+        
+        value = [0.0 for i in range(p_num)]
+        for i in range(p_num):
+            x_tp = np.array(x_list[i])
+            xCx = np.dot(x_tp.reshape(1, -1), np.dot(W, x_tp.reshape(-1, 1)))[0][0]
+            value[i] = p_list[i]*xCx
+        delta2_x = np.array(value).reshape(p_shape)
+        for si in reversed(range(para_num)):
+            delta2_x = simps(delta2_x, x[si])
+        rho_avg = np.zeros((dim, dim), dtype=np.complex128)
+        rho_pri = [np.zeros((dim, dim), dtype=np.complex128) for i in range(para_num)]
+        for di in range(dim):
+            for dj in range(dim):
+                rho_avg_arr = [p_list[m]*rho_list[m][di][dj] for m in range(p_num)]
+                rho_avg_tp = np.array(rho_avg_arr).reshape(p_shape)
+                for si in reversed(range(para_num)):
+                    rho_avg_tp = simps(rho_avg_tp, x[si])
+                rho_avg[di][dj] = rho_avg_tp
+
+                for para_i in range(para_num):
+                    rho_pri_arr = [p_list[n]*x_list[n][para_i]*rho_list[n][di][dj] for n in range(p_num)]
+                    rho_pri_tp = np.array(rho_pri_arr).reshape(p_shape)
+                    for si in reversed(range(para_num)):
+                        rho_pri_tp = simps(rho_pri_tp, x[si])
+
+                    rho_pri[para_i][di][dj] = rho_pri_tp
+        Lambda = Lambda_avg(rho_avg, rho_pri, eps=eps)
+        Mat = np.zeros((para_num, para_num), dtype=np.complex128)
+        for para_m in range(para_num):
+            for para_n in range(para_num):
+                Mat[para_m][para_n] = np.trace(np.dot(np.dot(rho_avg, Lambda[para_m]), Lambda[para_n]))
+                
+        minBC = delta2_x-np.real(np.trace(np.dot(W, Mat)))
+        return minBC
+        
+def Lambda_avg(rho_avg, rho_pri, eps=1e-8):
+    para_num = len(rho_pri)
+    dim = len(rho_avg)
+    Lambda = [[] for i in range(0, para_num)]
+    val, vec = np.linalg.eig(rho_avg)
+    val = np.real(val)
+    for para_i in range(0, para_num):
+        Lambda_eig = np.array([[0.0 + 0.0 * 1.0j for i in range(0, dim)] for i in range(0, dim)])
+        for fi in range(0, dim):
+            for fj in range(0, dim):
+                if np.abs(val[fi] + val[fj]) > eps:
+                    Lambda_eig[fi][fj] = (2* np.dot(vec[:, fi].conj().transpose(),np.dot(rho_pri[para_i], vec[:, fj]))/ (val[fi] + val[fj]))
+        Lambda_eig[Lambda_eig == np.inf] = 0.0
+        Lambda[para_i] = np.dot(vec, np.dot(Lambda_eig, vec.conj().transpose()))
+    return Lambda

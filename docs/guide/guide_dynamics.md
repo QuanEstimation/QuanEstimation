@@ -101,11 +101,11 @@ where $K_i$ is a Kraus operator satisfying $\sum_{i}K^{\dagger}_i K_i=I$ with $I
 the identity operator. $\rho$ and $\partial_{\textbf{x}}\rho$ can be solved by
 === "Python"
     ``` py
-    rho, drho = Kraus(K, dK, rho0)
+    rho, drho = Kraus(rho0, K, dK)
     ```
 === "Julia"
     ``` jl
-    Kraus = Kraus(K, dK, rho0)
+    Kraus = Kraus(rho0, K, dK)
     rho, drho = evolve(Kraus)
     ```
 where `K` and `dK` are the Kraus operators and its derivatives on the unknown parameters.
@@ -149,7 +149,7 @@ respect to the eigenvalue $1$ $(-1)$.
     dK2 = np.array([[0., 0.5/np.sqrt(gamma)], [0., 0.]])
     dK = [[dK1], [dK2]]
     # parameterization process
-    rho, drho = Kraus(K, dK, rho0)
+    rho, drho = Kraus(rho0, K, dK)
     ```
 === "Julia"
     ``` jl
@@ -167,7 +167,7 @@ respect to the eigenvalue $1$ $(-1)$.
     dK2 = [0. 0.5/sqrt(gamma); 0. 0.]
     dK = [[dK1], [dK2]]
     # parameterization process
-    Kraus = QuanEstimation.Kraus(K, dK, rho0)
+    Kraus = QuanEstimation.Kraus(rho0, K, dK)
     rho, drho = QuanEstimation.evolve(Kraus)
     ```
 

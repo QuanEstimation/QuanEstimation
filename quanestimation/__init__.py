@@ -33,6 +33,7 @@ from quanestimation.BayesianBound.ZivZakai import (
 from quanestimation.BayesianBound.BayesEstimation import (
     Bayes,
     MLE,
+    MBC,
 )
 
 from quanestimation.Common.Common import (
@@ -156,6 +157,7 @@ __all__ = [
     "QZZB",
     "Bayes",
     "MLE",
+    "MBC",
     "Lindblad",
     "Kraus",
     "SpinSqueezing",
