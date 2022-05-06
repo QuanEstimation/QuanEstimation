@@ -33,16 +33,17 @@ from quanestimation.BayesianBound.ZivZakai import (
 from quanestimation.BayesianBound.BayesEstimation import (
     Bayes,
     MLE,
+    MBC,
 )
 
-from quanestimation.Common.common import (
+from quanestimation.Common.Common import (
     mat_vec_convert,
     suN_generator,
     gramschmidt,
     basis,
     SIC,
     annihilation,
-    AdaptiveInput,
+    BayesInput,
 )
 
 from quanestimation.ComprehensiveOpt.ComprehensiveStruct import (
@@ -77,8 +78,11 @@ from quanestimation.ControlOpt.DDPG_Copt import (
     DDPG_Copt,
 )
 
-from quanestimation.Dynamics.dynamics import (
-    Lindblad, Kraus, 
+from quanestimation.Parameterization.GeneralDynamics import (
+    Lindblad,
+)
+from quanestimation.Parameterization.NonDynamics import (
+    Kraus,
 )
 
 from quanestimation.MeasurementOpt.MeasurementStruct import (
@@ -122,8 +126,8 @@ from quanestimation.StateOpt.NM_Sopt import (
     NM_Sopt,
 )
 
-from quanestimation.Adaptive.adaptive import adaptive
-from quanestimation.Adaptive.adaptMZI import adaptMZI
+from quanestimation.AdaptiveScheme.adaptive import adaptive
+from quanestimation.AdaptiveScheme.adapt_MZI import adapt_MZI
 
 pkgpath = os.path.abspath(os.path.dirname(__file__))
 Main.include(pkgpath + "/JuliaSrc/QuanEstimation.jl")
@@ -153,6 +157,7 @@ __all__ = [
     "QZZB",
     "Bayes",
     "MLE",
+    "MBC",
     "Lindblad",
     "Kraus",
     "SpinSqueezing",
@@ -175,7 +180,7 @@ __all__ = [
     "basis",
     "SIC",
     "annihilation",
-    "AdaptiveInput",
+    "BayesInput",
     "csv2npy_controls",
     "csv2npy_states",
     "csv2npy_measurements",
@@ -183,5 +188,5 @@ __all__ = [
     "DE_Compopt",
     "PSO_Compopt",
     "adaptive",
-    "adaptMZI",
+    "adapt_MZI",
 ]

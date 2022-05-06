@@ -232,7 +232,7 @@ eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $(-1)
     using QuanEstimation
 
     # initial state
-    rho0 = 0.5*ones(2,2)
+    rho0 = [0.5+0im 0.5; 0.5 0.5]
     # Kraus operators for the amplitude damping channel
     gamma = 0.1
     K1 = [1. 0.; 0. sqrt(1-gamma)]
@@ -281,7 +281,7 @@ In quantum metrology, the CFI (CFIM) are solved by
     ```
 === "Julia"
     ``` jl
-    CFIM(rho, drho; M=nothing, eps=1e-8)
+    CFIM(rho, drho; M=missing, eps=1e-8)
     ```
 Here `M` represents a set of positive operator-valued measure (POVM) with default value `[]`. 
 In this function, a set of rank-one symmetric informationally complete POVM (SIC-POVM) is used 
@@ -410,7 +410,7 @@ $\partial_\phi r=(-\sin\theta\sin\phi, \sin\theta\cos\phi, 0)^{\mathrm{T}}$
                        np.sin(theta)*np.cos(phi), \
                        0.])
     dr = [dr_theta, dr_phi]
-    f = QFIM_Bloch(r, dr)
+    F = QFIM_Bloch(r, dr)
     ```
 === "Julia"
     ``` jl
@@ -418,11 +418,11 @@ $\partial_\phi r=(-\sin\theta\sin\phi, \sin\theta\cos\phi, 0)^{\mathrm{T}}$
     using LinearAlgebra
 
     theta, phi = 0.25*pi, 0.25*pi
-    r = [sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta)])
-    dr_theta = [cos(theta)*cos(phi), cos(theta)*sin(phi), -sin(theta)])
-    dr_phi = [-sin(theta)*sin(phi), sin(theta)*cos(phi), 0.])
+    r = [sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta)]
+    dr_theta = [cos(theta)*cos(phi), cos(theta)*sin(phi), -sin(theta)]
+    dr_phi = [-sin(theta)*sin(phi), sin(theta)*cos(phi), 0.]
     dr = [dr_theta, dr_phi]
-    f = QuanEstimation.QFIM_Bloch(r, dr)
+    F = QuanEstimation.QFIM_Bloch(r, dr)
     ```
 
 The package can also calculte the SLD based QFI (QFIM) with Gaussian states. 
@@ -463,6 +463,7 @@ where $\lambda=\coth\frac{\beta}{2}$.  $r$ and $\beta$ are the parameters to be 
     from quanestimation import *
     import numpy as np
 
+    dim = 2
     r, beta = 0.2, 1.0
     Lambda = np.cosh(0.5*beta)/np.sinh(0.5*beta)
     # the first-order moment
@@ -482,11 +483,12 @@ where $\lambda=\coth\frac{\beta}{2}$.  $r$ and $\beta$ are the parameters to be 
     ``` jl
     using QuanEstimation
 
+    dim = 2
     r, beta = 0.2, 1.0
     Lambda = coth(0.5*beta)
     # the first-order moment
-    R = zeros(2)
-    dR = [zeros(2), zeros(2)]
+    R = zeros(dim)
+    dR = [zeros(dim), zeros(dim)]
     D = Lambda*[cosh(2*r) -sinh(2*r); -sinh(2*r) cosh(2*r)]
     dD_r = 2*Lambda*[sinh(2*r) -cosh(2*r); -cosh(2*r) sinh(2*r)]
     dD_Lambda = 0.5*(Lambda^2-1)*[-cosh(2*r) sinh(2*r); sinh(2*r) -cosh(2*r)]
@@ -659,7 +661,7 @@ In QuanEstimation, BCFI (BCFIM) and BQFI (BQFIM) can be solved via
     ```
 === "Julia"
     ``` jl
-    BCFIM(x, p, rho, drho; M=nothing, eps=1e-8)
+    BCFIM(x, p, rho, drho; M=missing, eps=1e-8)
     ```
     ``` jl
     BQFIM(x, p, rho, drho; LDtype=:SLD, eps=1e-8)
@@ -727,11 +729,11 @@ In QuanEstimation, the BCRB and BQCRB are calculated via
     ```
 === "Julia"
     ``` jl
-    BCRB(x, p, rho, drho; M=nothing, b=nothing, db=nothing, 
+    BCRB(x, p, rho, drho; M=missing, b=missing, db=missing, 
          btype=1, eps=1e-8)
     ```
     ``` jl
-    BQCRB(x, p, rho, drho; b=nothing, db=nothing, btype=1, 
+    BQCRB(x, p, rho, drho; b=missing, db=missing, btype=1, 
           LDtype=:SLD, eps=1e-8)
     ```
 
@@ -790,7 +792,7 @@ The functions to calculate the VTB and QVTB are
     ```
 === "Julia"
     ``` jl
-    VTB(x, p, dp, rho, drho; M=nothing, btype=1, eps=1e-8)
+    VTB(x, p, dp, rho, drho; M=missing, btype=1, eps=1e-8)
     ```
     ``` jl
     QVTB(x, p, dp, rho, drho; btype=1, LDtype=:SLD, eps=1e-8)
@@ -951,10 +953,10 @@ $\mathrm{erf}(x):=\frac{2}{\sqrt{\pi}}\int^x_0 e^{-t^2}\mathrm{d}t$ the error fu
     ```
     ``` jl
     # Classical Bayesian bounds
-    f_BCRB1 = QuanEstimation.BCRB([x], p, rho, drho, M=nothing, btype=1)
-    f_BCRB2 = QuanEstimation.BCRB([x], p, rho, drho, M=nothing, btype=2)
-    f_VTB1 = QuanEstimation.VTB([x], p, dp, rho, drho, M=nothing, btype=1)
-    f_VTB2 = QuanEstimation.VTB([x], p, dp, rho, drho, M=nothing, btype=2)
+    f_BCRB1 = QuanEstimation.BCRB([x], p, rho, drho; btype=1)
+    f_BCRB2 = QuanEstimation.BCRB([x], p, rho, drho; btype=2)
+    f_VTB1 = QuanEstimation.VTB([x], p, dp, rho, drho; btype=1)
+    f_VTB2 = QuanEstimation.VTB([x], p, dp, rho, drho; btype=2)
     ```
     ``` jl
     # Quantum Bayesian bounds
@@ -980,17 +982,17 @@ In practice, the prior distribution is replaced with $p(\textbf{x}|y)$ and the e
 value of $\textbf{x}$ can be evaluated by
 === "Python"
     ``` py
-    Bayes(x, p, rho, y, M=[], savefile=False)
+    Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False)
     ```
     ``` py
     MLE(x, rho, y, M=[], savefile=False)
     ```
 === "Julia"
     ``` jl
-    Bayes(x, p, rho, y; M=nothing, savefile=false)
+    Bayes(x, p, rho, y; M=missing, estimator="mean", savefile=false)
     ```
     ``` jl
-    MLE(x, rho, y; M=nothing, savefile=false)
+    MLE(x, rho, y; M=missing, savefile=false)
     ```
 where `x` is a list of arrays representing the regimes of the parameters for the integral and 
 `p` is an array representing the prior distribution. For multiparameter estimation, `p` is 
@@ -1061,7 +1063,8 @@ $[0, \pi/2]$.
     ```
     ``` py
     # Maximum a posteriori estimation
-    pout, xout = Bayes([x], p, rho, y, M=M, savefile=False)
+    pout, xout = Bayes([x], p, rho, y, M=M, estimator="MAP", \
+                       savefile=False)
     ```
     ``` py
     # Maximum likelihood estimation
@@ -1117,7 +1120,8 @@ $[0, \pi/2]$.
     ```
     ``` jl
     # Maximum a posteriori estimation
-    pout, xout = QuanEstimation.Bayes([x], p, rho, y; M=M, savefile=false)
+    pout, xout = QuanEstimation.Bayes([x], p, rho, y; M=M, estimator="MAP",
+                                      savefile=false)
     ```
     ``` jl
     # Maximum likelihood estimation

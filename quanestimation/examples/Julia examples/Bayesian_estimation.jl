@@ -44,7 +44,8 @@ for i in 1:length(res_rand)
 end
 
 #===============Maximum a posteriori estimation===============#
-pout, xout = QuanEstimation.Bayes([x], p, rho, y; M=M, savefile=false)
+pout, xout = QuanEstimation.Bayes([x], p, rho, y; M=M, estimator="MAP",
+                                  savefile=false)
 
 #===============Maximum likelihood estimation===============#
 Lout, xout = QuanEstimation.MLE([x], rho, y, M=M; savefile=false)

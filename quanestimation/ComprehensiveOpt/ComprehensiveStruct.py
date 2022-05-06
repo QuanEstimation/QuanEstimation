@@ -5,7 +5,7 @@ import math
 import os
 from julia import Main
 import quanestimation.ComprehensiveOpt as compopt
-from quanestimation.Common.common import gramschmidt
+from quanestimation.Common.Common import gramschmidt
 
 
 class ComprehensiveSystem:
@@ -330,7 +330,7 @@ class ComprehensiveSystem:
             if target == "HCRB":
                 if self.para_type == "single_para":
                     print(
-                        "Program exit. In the single-parameter scenario, the HCRB is equivalent to the QFI. Please choose 'QFIM' as the objective function"
+                        "Program terminated. In the single-parameter scenario, the HCRB is equivalent to the QFI. Please choose 'QFIM' as the objective function"
                     )
                 else:
                     self.obj = Main.QuanEstimation.HCRB_obj(self.W, self.eps, self.para_type)

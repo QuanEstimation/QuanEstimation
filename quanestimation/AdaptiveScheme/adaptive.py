@@ -1,9 +1,9 @@
 import numpy as np
 from scipy.integrate import simps
 from itertools import product
-from quanestimation.Common.common import extract_ele, SIC
+from quanestimation.Common.Common import extract_ele, SIC
 from quanestimation.MeasurementOpt.MeasurementStruct import MeasurementOpt
-from quanestimation.Dynamics.dynamics import Lindblad
+from quanestimation.Parameterization.GeneralDynamics import Lindblad
 from quanestimation.AsymptoticBound.CramerRao import QFIM, CFIM
 
 

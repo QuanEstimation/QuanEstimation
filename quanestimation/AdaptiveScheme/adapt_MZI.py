@@ -1,9 +1,9 @@
 import numpy as np
 from julia import Main
-from quanestimation.Common.common import brgd, annihilation
+from quanestimation.Common.Common import brgd, annihilation
 
 
-class adaptMZI:
+class adapt_MZI:
     """
     Attributes
     ----------

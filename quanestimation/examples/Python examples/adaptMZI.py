@@ -13,7 +13,7 @@ rho0 = np.dot(psi, psi.conj().T)
 # prior distribution
 x = np.linspace(-np.pi, np.pi, 100)
 p = (1.0/(x[-1]-x[0]))*np.ones(len(x))
-apt = adaptMZI(x, p, rho0)
+apt = adapt_MZI(x, p, rho0)
 apt.general()
 #================online strategy=================#
 apt.online(output="phi")

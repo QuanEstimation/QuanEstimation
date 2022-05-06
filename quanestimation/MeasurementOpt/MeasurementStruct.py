@@ -6,7 +6,7 @@ import math
 import warnings
 from julia import Main
 import quanestimation.MeasurementOpt as Measure
-from quanestimation.Common.common import gramschmidt, sic_povm
+from quanestimation.Common.Common import gramschmidt, sic_povm
 
 
 class MeasurementSystem:

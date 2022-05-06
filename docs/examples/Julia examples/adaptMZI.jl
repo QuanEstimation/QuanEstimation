@@ -10,7 +10,7 @@ rho0 = psi*psi'
 # prior distribution
 x = range(-pi, pi, length=100)
 p = (1.0/(x[end]-x[1]))*ones(length(x))
-apt = QuanEstimation.adaptMZI(x, p, rho0)
+apt = QuanEstimation.adapt_MZI(x, p, rho0)
 
 #================online strategy=========================#
 QuanEstimation.online(apt, output="phi")

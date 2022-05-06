@@ -84,7 +84,7 @@ nav:
       - "Installation": installation.md
       - "Users Guide": 
             - "Getting started": guide/guide_import.md
-            - "Dynamics": guide/guide_dynamics.md
+            - "Parameterization process": guide/guide_dynamics.md
             - "Quantum metrological tools": guide/guide_bounds.md
             - "Metrological resources": guide/guide_resources.md
             - "Control optimization": guide/guide_Copt.md

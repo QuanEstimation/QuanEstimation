@@ -56,7 +56,7 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
     ($\mathrm{Tr}(W\mathcal{F}^{-1})$), CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$) and HCRB, 
     respectively. Here $\mathcal{F}$ and $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to 
     `W` is the weight matrix which defaults to the identity matrix. If the users set `target="HCRB` 
-    for single parameter scenario, the program will exit and print `"Program exit. In the 
+    for single parameter scenario, the program will exit and print `"Program terminated. In the 
     single-parameter scenario, the HCRB is equivalent to the QFI. Please choose 'QFIM' as the 
     objective function"`. `LDtype` represents the types of the QFIM, it can be set as 
     `LDtype="SLD"` (default), `LDtype="RLD"` and `LDtype="LLD"`. For the other three scenarios, 
@@ -125,7 +125,7 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
     {-1})$), CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$) and HCRB, respectively. Here $\mathcal{F}$ 
     and $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight matrix which 
     defaults to the identity matrix. If the users set `HCRB_obj()` for single parameter scenario, 
-    the program will exit and print `"Program exit. In the single-parameter scenario, the HCRB is 
+    the program will exit and print `"Program terminated. In the single-parameter scenario, the HCRB is 
     equivalent to the QFI. Please choose 'QFIM_obj()' as the objective function"`. `LDtype` 
     represents the types of the QFIM, it can be set as `LDtype=:SLD` (default), `LDtype=:RLD` 
     and `LDtype=:LLD`. For the other three scenarios, the objective function is `CFIM_obj()`.

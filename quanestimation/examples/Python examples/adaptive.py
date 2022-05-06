@@ -38,7 +38,7 @@ for i in range(len(res_rand)):
     y[res_rand[i]] = 1
 pout, xout = Bayes([x], p, rho, y, M=M, savefile=False)
 # generation of H and dH
-H, dH = AdaptiveInput([x], H0_func, dH_func, channel="dynamics")
+H, dH = BayesInput([x], H0_func, dH_func, channel="dynamics")
 # adaptive measurement
 apt = adaptive([x], pout, rho0, savefile=False, max_episode=100, eps=1e-8)
 apt.dynamics(tspan, H, dH)

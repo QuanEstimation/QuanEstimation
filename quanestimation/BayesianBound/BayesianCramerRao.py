@@ -3,7 +3,7 @@ from scipy import interpolate
 from scipy.integrate import simps, solve_bvp
 from itertools import product
 from quanestimation.AsymptoticBound.CramerRao import CFIM, QFIM
-from quanestimation.Common.common import SIC, extract_ele
+from quanestimation.Common.Common import SIC, extract_ele
 
 
 def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
@@ -105,7 +105,7 @@ def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
             for para_j in range(para_i, para_num):
                 F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
                 arr = p * F_ij
-                for si in range(para_num):
+                for si in reversed(range(para_num)):
                     arr = simps(arr, x[si])
                 BCFIM_res[para_i][para_j] = arr
                 BCFIM_res[para_j][para_i] = arr
@@ -194,7 +194,7 @@ def BQFIM(x, p, rho, drho, LDtype="SLD", eps=1e-8):
             for para_j in range(para_i, para_num):
                 F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
                 arr = p * F_ij
-                for si in range(para_num):
+                for si in reversed(range(para_num)):
                     arr = simps(arr, x[si])
                 BQFIM_res[para_i][para_j] = arr
                 BQFIM_res[para_j][para_i] = arr

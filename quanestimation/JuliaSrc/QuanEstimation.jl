@@ -17,17 +17,15 @@ const pkgpath = @__DIR__
 
 const GLOBAL_RNG = MersenneTwister(1234)
 const GLOBAL_EPS = 1e-8
-include("optim/optim.jl")
-include("common/common.jl")
-include("dynamics/dynamics.jl")
-include("objective/objective.jl")
-include("common/adaptive.jl")
+include("OptScenario/OptScenario.jl")
+include("Common/Common.jl")
+include("Parameterization/Parameterization.jl")
+include("ObjectiveFunc/ObjectiveFunc.jl")
+include("Common/AdaptiveScheme.jl")
 include("output.jl")
-include("algorithm/algorithm.jl")
+include("Algorithm/Algorithm.jl")
 include("run.jl")
 include("io.jl")
-include("resources/resources.jl")
-
-
+include("Resources/Resources.jl")
 
 end

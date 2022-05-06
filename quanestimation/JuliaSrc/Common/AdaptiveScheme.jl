@@ -1,6 +1,6 @@
 @doc raw"""
 
-    adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; save_file=false, max_episode::Int=1000, eps::Float64=1e-8, Hc::Union{Vector,Nothing}=nothing, ctrl::Union{Vector,Nothing}=nothing, decay::Union{Vector,Nothing}=nothing, M::Union{AbstractVector,Nothing}=nothing, W::Union{Matrix,Nothing}=nothing)
+    adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; save_file=false, max_episode::Int=1000, eps::Float64=1e-8, Hc=missing, ctrl=missing, decay=missing, M=missing, W=missing)
 
 In QuanEstimation, the Hamiltonian of the adaptive system should be written as
 ``H(\textbf{x}+\textbf{u})`` with ``\textbf{x}`` the unknown parameters and ``\textbf{u}``
@@ -22,24 +22,23 @@ Hamiltonian work at the optimal point ``\textbf{x}_{\mathrm{opt}}``.
 - `W`: Whether or not to save all the posterior distributions. 
 """
 function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; save_file=false, max_episode::Int=1000, eps::Float64=1e-8, 
-                  Hc::Union{Vector,Nothing}=nothing, ctrl::Union{Vector,Nothing}=nothing, decay::Union{Vector,Nothing}=nothing, 
-                  M::Union{AbstractVector,Nothing}=nothing, W::Union{Matrix,Nothing}=nothing)
+                  Hc=missing, ctrl=missing, decay=missing, M=missing, W=missing)
     dim = size(rho0)[1]
     para_num = length(x)
-    if M == nothing
+    if ismissing(M)
         M = SIC(size(rho0)[1])
     end
-    if decay == nothing
+    if ismissing(decay)
         decay_opt = [zeros(ComplexF64, dim, dim)]
         gamma = [0.0]
     else
         decay_opt = [decay[i][1] for i in 1:len(decay)]
         gamma = [decay[i][2] for i in 1:len(decay)]
     end
-    if Hc == nothing
+    if ismissing(Hc)
         Hc = [zeros(ComplexF64, dim, dim)]
         ctrl = [zeros(length(tspan)-1)]
-    elseif ctrl == nothing
+    elseif ismissing(ctrl)
         ctrl = [zeros(length(tspan)-1) for j in range(length(Hc))]
     else
         ctrl_length = length(ctrl)
@@ -56,7 +55,7 @@ function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; save
             end
         end
     end
-    if W == nothing
+    if ismissing(W)
         W = zeros(para_num, para_num)
     end    
 
@@ -217,7 +216,7 @@ end
 
 @doc raw"""
 
-    adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; save_file=false, max_episode::Int=1000, eps::Float64=1e-8, M::Union{AbstractVector,Nothing}=nothing, W::Union{Matrix,Nothing}=nothing)
+    adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; save_file=false, max_episode::Int=1000, eps::Float64=1e-8, M=missing, W=missing)
 
 In QuanEstimation, the Hamiltonian of the adaptive system should be written as
 ``H(\textbf{x}+\textbf{u})`` with ``\textbf{x}`` the unknown parameters and ``\textbf{u}``
@@ -235,15 +234,15 @@ Hamiltonian work at the optimal point ``\textbf{x}_{\mathrm{opt}}``.
 - `W`: Whether or not to save all the posterior distributions. 
 """
 function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; save_file=false, max_episode::Int=1000, 
-    eps::Float64=1e-8, M::Union{AbstractVector,Nothing}=nothing, W::Union{Matrix,Nothing}=nothing)
+    eps::Float64=1e-8, M=missing, W=missing)
     dim = size(rho0)[1]
     para_num = length(x)
 
-    if W == nothing
+    if ismissing(W)
         W = zeros(para_num, para_num)
     end
 
-    if M == nothing
+    if ismissing(M)
         M = SIC(size(rho0)[1])
     end
     
@@ -400,13 +399,13 @@ function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; save_file=f
     end
 end
 
-mutable struct adaptMZI
+mutable struct adapt_MZI
     x
     p
     rho0
 end
 
-function online(apt::adaptMZI; output::String = "phi")
+function online(apt::adapt_MZI; output::String = "phi")
     (;x, p, rho0) = apt
     N = Int(sqrt(size(rho0,1))) - 1
     a = destroy(N+1) |> sparse
@@ -425,7 +424,7 @@ function brgd(n)
     return deepcopy(vcat(L0,L1))
 end
 
-function offline(apt::adaptMZI, alg; eps = GLOBAL_EPS)
+function offline(apt::adapt_MZI, alg; eps = GLOBAL_EPS)
     (;x,p,rho0) = apt
     N = Int(sqrt(size(rho0,1))) - 1
     a = destroy(N+1) |> sparse

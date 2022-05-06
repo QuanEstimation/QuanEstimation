@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.linalg import inv
 from scipy.linalg import sqrtm, schur, eigvals
-from quanestimation.Common.common import SIC, suN_generator
+from quanestimation.Common.Common import SIC, suN_generator
 
 
 def CFIM(rho, drho, M=[], eps=1e-8):
@@ -199,9 +199,7 @@ def SLD(rho, drho, rep="original", eps=1e-8):
                     vec.conj().transpose(), np.dot(SLD_org[para_i], vec)
                 )
             else:
-                raise NameError(
-                    "NameError: rep should be choosen in {'original', 'eigen'}"
-                )
+                raise ValueError("{!r} is not a valid value for rep, supported values are 'original' and 'eigen'.".format(rep))
         if para_num == 1:
             return SLD[0]
         else:
@@ -231,9 +229,7 @@ def SLD(rho, drho, rep="original", eps=1e-8):
             elif rep == "eigen":
                 SLD[para_i] = SLD_eig
             else:
-                raise NameError(
-                    "NameError: rep should be choosen in {'original', 'eigen'}"
-                )
+                raise ValueError("{!r} is not a valid value for rep, supported values are 'original' and 'eigen'.".format(rep))
 
         if para_num == 1:
             return SLD[0]
@@ -244,7 +240,7 @@ def SLD(rho, drho, rep="original", eps=1e-8):
 def RLD(rho, drho, rep="original", eps=1e-8):
     r"""
     Calculation of the right logarithmic derivative (RLD) for a density matrix.
-    The RLD opertator defined by $\partial_{a}\rho=\rho \mathcal{R}_a$
+    The RLD operator defined by $\partial_{a}\rho=\rho \mathcal{R}_a$
     with $\rho$ the parameterized density matrix. 
     \begin{align}
     \langle\lambda_i| \mathcal{R}_{a} |\lambda_j\rangle=\frac{1}{\lambda_i}\langle\lambda_i| 
@@ -296,14 +292,13 @@ def RLD(rho, drho, rep="original", eps=1e-8):
         )
         for fi in range(0, dim):
             for fj in range(0, dim):
+                term_tp = np.dot(vec[:, fi].conj().transpose(),np.dot(drho[para_i], vec[:, fj]))
                 if np.abs(val[fi]) > eps:
-                    RLD_eig[fi][fj] = (
-                        np.dot(
-                            vec[:, fi].conj().transpose(),
-                            np.dot(drho[para_i], vec[:, fj]),
-                        )
-                        / val[fi]
-                    )
+                    RLD_eig[fi][fj] = (term_tp/val[fi])
+                else:
+                    if np.abs(term_tp) < eps:
+                        print("RLD does not exist. It only exist when the support of drho is contained in the support of rho.")
+                        return None
         RLD_eig[RLD_eig == np.inf] = 0.0
 
         if rep == "original":
@@ -311,7 +306,7 @@ def RLD(rho, drho, rep="original", eps=1e-8):
         elif rep == "eigen":
             RLD[para_i] = RLD_eig
         else:
-            raise NameError("NameError: rep should be choosen in {'original', 'eigen'}")
+            raise ValueError("{!r} is not a valid value for rep, supported values are 'original' and 'eigen'.".format(rep))
     if para_num == 1:
         return RLD[0]
     else:
@@ -321,7 +316,7 @@ def RLD(rho, drho, rep="original", eps=1e-8):
 def LLD(rho, drho, rep="original", eps=1e-8):
     r"""
     Calculation of the left logarithmic derivative (LLD) for a density matrix $\rho$.
-    The LLD opertator is defined by $\partial_{a}\rho=\mathcal{R}_a^{\dagger}\rho$. 
+    The LLD operator is defined by $\partial_{a}\rho=\mathcal{R}_a^{\dagger}\rho$. 
     The entries of LLD can be calculated as 
     \begin{align}
     \langle\lambda_i| \mathcal{R}_{a}^{\dagger} |\lambda_j\rangle=\frac{1}{\lambda_j}\langle\lambda_i| 
@@ -373,15 +368,14 @@ def LLD(rho, drho, rep="original", eps=1e-8):
         )
         for fi in range(0, dim):
             for fj in range(0, dim):
+                term_tp = np.dot(vec[:, fi].conj().transpose(), np.dot(drho[para_i], vec[:, fj]),)
                 if np.abs(val[fj]) > eps:
-                    LLD_eig_tp = (
-                        np.dot(
-                            vec[:, fi].conj().transpose(),
-                            np.dot(drho[para_i], vec[:, fj]),
-                        )
-                        / val[fj]
-                    )
+                    LLD_eig_tp = (term_tp/val[fj])
                     LLD_eig[fj][fi] = LLD_eig_tp.conj()
+                else: 
+                    if np.abs(term_tp) < eps:
+                        print("LLD does not exist. It only exist when the support of drho is contained in the support of rho.")
+                        return None
         LLD_eig[LLD_eig == np.inf] = 0.0
 
         if rep == "original":
@@ -389,7 +383,7 @@ def LLD(rho, drho, rep="original", eps=1e-8):
         elif rep == "eigen":
             LLD[para_i] = LLD_eig
         else:
-            raise NameError("NameError: rep should be choosen in {'original', 'eigen'}")
+            raise ValueError("{!r} is not a valid value for rep, supported values are 'original' and 'eigen'.".format(rep))
 
     if para_num == 1:
         return LLD[0]
@@ -468,9 +462,8 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
                 np.trace(np.dot(rho, np.dot(LD_tp, LD_tp.conj().transpose())))
             )
         else:
-            raise NameError(
-                "NameError: LDtype should be choosen in {'SLD', 'RLD', 'LLD'}"
-            )
+            raise ValueError("{!r} is not a valid value for LDtype, supported values are 'SLD', 'RLD' and 'LLD'.".format(LDtype))
+
     # multiparameter estimation
     else:
         if LDtype == "SLD":
@@ -510,9 +503,7 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
                         )
                     QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j].conj()
         else:
-            raise NameError(
-                "NameError: LDtype should be choosen in {'SLD', 'RLD', 'LLD'}"
-            )
+            raise ValueError("{!r} is not a valid value for LDtype, supported values are 'SLD', 'RLD' and 'LLD'.".format(LDtype))
 
     if exportLD == False:
         return QFIM_res

@@ -2,6 +2,8 @@ This part contains the methods and structs in Julia that are called by the Pytho
 
 ##  **`Main.QuanEstimation.AD`** &mdash; *Method*.
 
+
+
 ```julia
 AD(;max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99, Adam::Bool=true)
 ```
@@ -15,7 +17,7 @@ Optimization algorithm: AD.
   * `Adam`: Whether or not to use Adam for updating control coefficients.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/algorithm/algorithm.jl#L75-L85' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Algorithm/Algorithm.jl#L75-L85' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.CFIM_obj`** &mdash; *Method*.
 
@@ -32,7 +34,7 @@ Choose CFI [$\mathrm{Tr}(WI^{-1})$] as the objective function with $W$ the weigh
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/AsymptoticBound.jl#L34-L42' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/AsymptoticBound.jl#L34-L42' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.CMopt`** &mdash; *Type*.
 
@@ -49,7 +51,7 @@ Control and measurement optimization.
   * `ctrl_bound`: Lower and upper bounds of the control coefficients.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/optim/optim.jl#L100-L108' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/OptScenario/OptScenario.jl#L100-L108' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.ControlOpt`** &mdash; *Type*.
 
@@ -65,7 +67,7 @@ Control optimization.
   * `ctrl_bound`: Lower and upper bounds of the control coefficients.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/optim/optim.jl#L10-L17' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/OptScenario/OptScenario.jl#L10-L17' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.DDPG`** &mdash; *Method*.
 
@@ -83,7 +85,7 @@ Optimization algorithm: DE.
   * `seed`: Random seed.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/algorithm/algorithm.jl#L157-L166' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Algorithm/Algorithm.jl#L157-L166' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.DE`** &mdash; *Method*.
 
@@ -103,7 +105,7 @@ Optimization algorithm: DE.
   * `seed`: Random seed.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/algorithm/algorithm.jl#L131-L142' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Algorithm/Algorithm.jl#L131-L142' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.GRAPE`** &mdash; *Method*.
 
@@ -122,7 +124,7 @@ Control optimization algorithm: GRAPE.
   * `Adam`: Whether or not to use Adam for updating control coefficients.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/algorithm/algorithm.jl#L20-L30' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Algorithm/Algorithm.jl#L20-L30' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.HCRB_obj`** &mdash; *Method*.
 
@@ -138,41 +140,41 @@ Choose HCRB as the objective function.
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/AsymptoticBound.jl#L45-L52' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/AsymptoticBound.jl#L45-L52' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.Kraus`** &mdash; *Method*.
 
 
 
 ```julia
-Kraus(K::AbstractVector, dK::AbstractVector, ρ0::AbstractMatrix)
+Kraus(ρ0::AbstractMatrix, K::AbstractVector, dK::AbstractVector)
 ```
 
 The parameterization of a state is $\rho=\sum_i K_i\rho_0K_i^{\dagger}$ with $\rho$ the evolved density matrix and $K_i$ the Kraus operator.
 
+  * `ρ0`: Initial state (density matrix).
   * `K`: Kraus operators.
   * `dK`: Derivatives of the Kraus operators with respect to the unknown parameters to be estimated. For example, dK[0] is the derivative vector on the first parameter.
-  * `ρ0`: Initial state (density matrix).
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/dynamics/kraus/KrausData.jl#L16-L24' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Parameterization/Kraus/KrausData.jl#L16-L24' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.Kraus`** &mdash; *Method*.
 
 
 
 ```julia
-Kraus(K::AbstractVector, dK::AbstractVector, ψ0::AbstractMatrix)
+Kraus(ψ0::AbstractMatrix, K::AbstractVector, dK::AbstractVector)
 ```
 
 The parameterization of a state is $\psi\rangle=\sum_i K_i|\psi_0\rangle$ with $\psi$ the evolved state and $K_i$ the Kraus operator.
 
+  * `ψ0`: Initial state (ket).
   * `K`: Kraus operators.
   * `dK`: Derivatives of the Kraus operators with respect to the unknown parameters to be estimated. For example, dK[0] is the derivative vector on the first parameter.
-  * `ψ0`: Initial state (ket).
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/dynamics/kraus/KrausData.jl#L27-L35' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Parameterization/Kraus/KrausData.jl#L27-L35' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.Kraus`** &mdash; *Method*.
 
@@ -185,7 +187,7 @@ Kraus(opt::AbstractMopt, ρ₀::AbstractMatrix, K, dK;rng=GLOBAL_RNG, eps=GLOBAL
 Initialize the parameterization described by the Kraus operators for the measurement optimization. 
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/dynamics/kraus/KrausWrapper.jl#L25-L30' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Parameterization/Kraus/KrausWrapper.jl#L25-L30' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.Kraus`** &mdash; *Method*.
 
@@ -198,7 +200,7 @@ Kraus(opt::CompOpt, K, dK;rng=GLOBAL_RNG, eps=GLOBAL_EPS)
 Initialize the parameterization described by the Kraus operators for the comprehensive optimization. 
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/dynamics/kraus/KrausWrapper.jl#L41-L46' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Parameterization/Kraus/KrausWrapper.jl#L41-L46' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.LLD`** &mdash; *Method*.
 
@@ -216,7 +218,7 @@ Calculate the left logarrithmic derivatives (LLDs). The LLD operator is defined 
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/CramerRao.jl#L152-L161' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/CramerRao.jl#L158-L167' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.LLD`** &mdash; *Method*.
 
@@ -229,7 +231,7 @@ LLD(ρ::Matrix{T}, dρ::Matrix{T}; rep="original", eps=GLOBAL_EPS) where {T<:Com
 When applied to the case of single parameter.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/CramerRao.jl#L166-L171' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/CramerRao.jl#L172-L177' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.Lindblad`** &mdash; *Method*.
 
@@ -242,7 +244,7 @@ Lindblad(opt::AbstractMopt, tspan, ρ₀, H0, dH; Hc=missing, ctrl=missing, deca
 Initialize the parameterization described by the Lindblad master equation governed dynamics for the measurement optimization.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/dynamics/lindblad/LindbladWrapper.jl#L205-L210' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Parameterization/Lindblad/LindbladWrapper.jl#L203-L208' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.Lindblad`** &mdash; *Method*.
 
@@ -255,7 +257,7 @@ Lindblad(opt::ControlMeasurementOpt, tspan, ρ₀, H0, dH, Hc; decay=missing, rn
 Initialize the parameterization described by the Lindblad master equation governed dynamics for the comprehensive optimization on control and measurement.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/dynamics/lindblad/LindbladWrapper.jl#L363-L368' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Parameterization/Lindblad/LindbladWrapper.jl#L361-L366' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.Lindblad`** &mdash; *Method*.
 
@@ -268,7 +270,7 @@ Lindblad(opt::ControlOpt, tspan, ρ₀, H0, dH, Hc; decay=missing, rng=GLOBAL_RN
 Initialize the parameterization described by the Lindblad master equation governed dynamics for the control optimization.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/dynamics/lindblad/LindbladWrapper.jl#L2-L7' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Parameterization/Lindblad/LindbladWrapper.jl#L2-L7' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.Lindblad`** &mdash; *Method*.
 
@@ -281,7 +283,7 @@ Lindblad(opt::StateControlMeasurementOpt, tspan, H0, dH, Hc; decay=missing, rng=
 Initialize the parameterization described by the Lindblad master equation governed dynamics for the comprehensive optimization on state, control and measurement.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/dynamics/lindblad/LindbladWrapper.jl#L509-L514' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Parameterization/Lindblad/LindbladWrapper.jl#L507-L512' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.Lindblad`** &mdash; *Method*.
 
@@ -294,7 +296,7 @@ Lindblad(opt::StateControlOpt, tspan, H0, dH, Hc; decay=missing, rng=GLOBAL_RNG,
 Initialize the parameterization described by the Lindblad master equation governed dynamics for the comprehensive optimization on state and control.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/dynamics/lindblad/LindbladWrapper.jl#L300-L305' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Parameterization/Lindblad/LindbladWrapper.jl#L298-L303' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.Lindblad`** &mdash; *Method*.
 
@@ -307,7 +309,7 @@ Lindblad(opt::StateMeasurementOpt, tspan, H0, dH; Hc=missing, ctrl=missing, deca
 Initialize the parameterization described by the Lindblad master equation governed dynamics for the comprehensive optimization on state and measurement.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/dynamics/lindblad/LindbladWrapper.jl#L421-L426' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Parameterization/Lindblad/LindbladWrapper.jl#L419-L424' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.Lindblad`** &mdash; *Method*.
 
@@ -320,7 +322,7 @@ Lindblad(opt::StateOpt, tspan, H0, dH; Hc=missing, ctrl=missing, decay=missing, 
 Initialize the parameterization described by the Lindblad master equation governed dynamics for the state optimization.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/dynamics/lindblad/LindbladWrapper.jl#L59-L64' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Parameterization/Lindblad/LindbladWrapper.jl#L59-L64' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.NM`** &mdash; *Method*.
 
@@ -342,7 +344,7 @@ State optimization algorithm: NM.
   * `seed`: Random seed.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/algorithm/algorithm.jl#L185-L198' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Algorithm/Algorithm.jl#L185-L198' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.PSO`** &mdash; *Method*.
 
@@ -363,7 +365,7 @@ Optimization algorithm: PSO.
   * `seed`: Random seed.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/algorithm/algorithm.jl#L102-L114' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Algorithm/Algorithm.jl#L102-L114' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.QFIM_obj`** &mdash; *Method*.
 
@@ -380,7 +382,7 @@ Choose QFI [$\mathrm{Tr}(WF^{-1})$] as the objective function with $W$ the weigh
   * `LDtype`: Types of QFI (QFIM) can be set as the objective function. Options are `:SLD` (default), `:RLD` and `:LLD`.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/AsymptoticBound.jl#L23-L31' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/AsymptoticBound.jl#L23-L31' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.RLD`** &mdash; *Method*.
 
@@ -398,7 +400,7 @@ Calculate the right logarrithmic derivatives (RLDs). The RLD operator is defined
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/CramerRao.jl#L93-L103' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/CramerRao.jl#L93-L103' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.RLD`** &mdash; *Method*.
 
@@ -411,7 +413,7 @@ RLD(ρ::Matrix{T}, dρ::Matrix{T}; rep="original", eps=GLOBAL_EPS) where {T<:Com
 When applied to the case of single parameter.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/CramerRao.jl#L108-L113' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/CramerRao.jl#L108-L113' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.SCMopt`** &mdash; *Type*.
 
@@ -429,7 +431,7 @@ State, control and measurement optimization.
   * `ctrl_bound`:  Lower and upper bounds of the control coefficients.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/optim/optim.jl#L132-L141' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/OptScenario/OptScenario.jl#L132-L141' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.SCopt`** &mdash; *Type*.
 
@@ -446,7 +448,7 @@ State and control optimization.
   * `ctrl_bound`: Lower and upper bounds of the control coefficients.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/optim/optim.jl#L83-L91' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/OptScenario/OptScenario.jl#L83-L91' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.SLD`** &mdash; *Method*.
 
@@ -464,7 +466,7 @@ Calculate the symmetric logarrithmic derivatives (SLDs). The SLD operator $L_a$ 
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/CramerRao.jl#L7-L17' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/CramerRao.jl#L7-L17' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.SLD`** &mdash; *Method*.
 
@@ -477,7 +479,7 @@ SLD(ρ::Matrix{T}, dρ::Matrix{T}; rep="original", eps=GLOBAL_EPS) where {T<:Com
 When applied to the case of single parameter.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/CramerRao.jl#L22-L27' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/CramerRao.jl#L22-L27' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.SMopt`** &mdash; *Type*.
 
@@ -493,7 +495,7 @@ State and control optimization.
   * `M`: Guessed projective measurement (a set of basis).
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/optim/optim.jl#L116-L123' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/OptScenario/OptScenario.jl#L116-L123' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.StateOpt`** &mdash; *Type*.
 
@@ -508,7 +510,7 @@ State optimization.
   * `psi`: Guessed probe state.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/optim/optim.jl#L26-L32' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/OptScenario/OptScenario.jl#L26-L32' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.autoGRAPE`** &mdash; *Method*.
 
@@ -527,14 +529,14 @@ Control optimization algorithm: auto-GRAPE.
   * `Adam`: Whether or not to use Adam for updating control coefficients.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/algorithm/algorithm.jl#L48-L58' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Algorithm/Algorithm.jl#L48-L58' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.BCFIM`** &mdash; *Method*.
 
 
 
 ```julia
-BCFIM(x::V, p::V, rho::V, drho::V; M::Union{V,Nothing}=nothing, eps=GLOBAL_EPS) where{V<:AbstractVector}
+BCFIM(x::AbstractVector, p, rho, drho; M=missing, eps=GLOBAL_EPS)
 ```
 
 Calculation of the Bayesian classical Fisher information (BCFI) and the Bayesian classical Fisher information matrix (BCFIM) of the form $\mathcal{I}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{I}\mathrm{d}\textbf{x}$ with $\mathcal{I}$ the CFIM and $p(\textbf{x})$ the prior distribution.
@@ -547,14 +549,14 @@ Calculation of the Bayesian classical Fisher information (BCFI) and the Bayesian
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/BayesianBound/BayesianCramerRao.jl#L2-L14' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/BayesianBound/BayesianCramerRao.jl#L2-L14' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.BCRB`** &mdash; *Method*.
 
 
 
 ```julia
-BCRB(x::V, p::V, rho::V, drho::V; M::Union{V,Nothing}=nothing, b::Union{V,Nothing}=nothing, db::Union{V,Nothing}=nothing, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
+BCRB(x::AbstractVector, p, rho, drho; M=missing, b=missing, db=missing, btype=1, eps=GLOBAL_EPS)
 ```
 
 Calculation of the Bayesian Cramer-Rao bound (BCRB).
@@ -570,14 +572,14 @@ Calculation of the Bayesian Cramer-Rao bound (BCRB).
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/BayesianBound/BayesianCramerRao.jl#L162-L176' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/BayesianBound/BayesianCramerRao.jl#L162-L176' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.BQCRB`** &mdash; *Method*.
 
 
 
 ```julia
-BQCRB(x::V, p::V, rho::V, drho::V; b::Union{V,Nothing}=nothing, db::Union{V,Nothing}=nothing, LDtype=:SLD, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
+BQCRB(x::AbstractVector, p, rho, drho; b=missing, db=missing, LDtype=:SLD, btype=1, eps=GLOBAL_EPS)
 ```
 
 Calculation of the Bayesian quantum Cramer-Rao bound (BQCRB).
@@ -593,14 +595,14 @@ Calculation of the Bayesian quantum Cramer-Rao bound (BQCRB).
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/BayesianBound/BayesianCramerRao.jl#L79-L93' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/BayesianBound/BayesianCramerRao.jl#L79-L93' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.BQFIM`** &mdash; *Method*.
 
 
 
 ```julia
-BQFIM(x::V, p::V, rho::V, drho::V; LDtype=:SLD, eps=GLOBAL_EPS) where{V<:AbstractVector}
+BQFIM(x::AbstractVector, p, rho, drho; LDtype=:SLD, eps=GLOBAL_EPS)
 ```
 
 Calculation of the Bayesian quantum Fisher information (BQFI) and the Bayesian quantum Fisher information matrix (BQFIM) of the form $\mathcal{F}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{F}\mathrm{d}\textbf{x}$ with $\mathcal{F}$ the QFIM of all types and $p(\textbf{x})$ the prior distribution.
@@ -613,14 +615,14 @@ Calculation of the Bayesian quantum Fisher information (BQFI) and the Bayesian q
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/BayesianBound/BayesianCramerRao.jl#L44-L56' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/BayesianBound/BayesianCramerRao.jl#L44-L56' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.Bayes`** &mdash; *Method*.
 
 
 
 ```julia
-Bayes(x, p, rho, y; M=nothing, savefile=false)
+Bayes(x, p, rho, y; M=missing, savefile=false)
 ```
 
 Bayesian estimation. The prior distribution is updated via the posterior distribution obtained by the Bayes’ rule and the estimated value of parameters obtained via the maximum a posteriori probability (MAP).
@@ -633,7 +635,7 @@ Bayesian estimation. The prior distribution is updated via the posterior distrib
   * `savefile`: Whether or not to save all the posterior distributions.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/common/BayesEstimation.jl#L1-L12' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Common/BayesEstimation.jl#L1-L12' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.CFIM`** &mdash; *Method*.
 
@@ -651,7 +653,7 @@ Calculate the classical Fisher information matrix (CFIM).
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/CramerRao.jl#L285-L294' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/CramerRao.jl#L298-L307' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.CFIM`** &mdash; *Method*.
 
@@ -664,7 +666,7 @@ CFIM(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; M=nothing, eps=GLOBAL_EPS) where {T<
 When the set of POVM is not given. Calculate the CFIM with SIC-POVM. The SIC-POVM is generated from the Weyl-Heisenberg covariant SIC-POVM fiducial state which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html).
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/CramerRao.jl#L329-L334' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/CramerRao.jl#L342-L347' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.CFIM`** &mdash; *Method*.
 
@@ -677,7 +679,7 @@ CFIM(ρ::Matrix{T}, dρ::Matrix{T}, M; eps=GLOBAL_EPS) where {T<:Complex}
 When applied to the case of single parameter. Calculate the classical Fisher information (CFI). 
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/CramerRao.jl#L307-L312' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/CramerRao.jl#L320-L325' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.CFIM`** &mdash; *Method*.
 
@@ -690,7 +692,7 @@ CFIM(ρ::Matrix{T}, dρ::Matrix{T}; eps=GLOBAL_EPS) where {T<:Complex}
 When applied to the case of single parameter and the set of POVM is not given. Calculate the CFI with SIC-POVM. 
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/CramerRao.jl#L348-L353' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/CramerRao.jl#L361-L366' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.FIM`** &mdash; *Method*.
 
@@ -707,7 +709,7 @@ Calculation of the classical Fisher information matrix for classical scenarios.
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/CramerRao.jl#L553-L561' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/CramerRao.jl#L573-L581' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.FIM`** &mdash; *Method*.
 
@@ -720,7 +722,7 @@ FIM(p::Vector{R}, dp::Vector{R}; eps=GLOBAL_EPS) where {R<:Real}
 When applied to the case of single parameter and the set of POVM is not given. Calculate the classical Fisher information for classical scenarios. 
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/CramerRao.jl#L532-L537' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/CramerRao.jl#L552-L557' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.HCRB`** &mdash; *Method*.
 
@@ -738,27 +740,45 @@ Caltulate the Holevo Cramer-Rao bound (HCRB) via the semidefinite program (SDP).
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/Holevo.jl#L7-L16' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/Holevo.jl#L7-L16' class='documenter-source'>source</a><br>
+
+##  **`Main.QuanEstimation.MBC`** &mdash; *Method*.
+
+
+
+```julia
+MBC(x, p, rho; W=missing, eps=GLOBAL_EPS)
+```
+
+Calculation of the minimum Bayesian cost with a quadratic cost function.
+
+  * `x`: The regimes of the parameters for the integral.
+  * `p`: The prior distribution.
+  * `rho`: Parameterized density matrix.
+  * `W`: Weight matrix.
+  * `eps`: Machine epsilon.
+
+
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Common/BayesEstimation.jl#L314-L324' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.MLE`** &mdash; *Method*.
 
 
 
 ```julia
-Bayes(x, p, rho, y; M=nothing, savefile=false)
+MLE(x, rho, y; M=missing, savefile=false)
 ```
 
 Bayesian estimation. The estimated value of parameters obtained via the maximum likelihood estimation (MLE).
 
   * `x`: The regimes of the parameters for the integral.
-  * `p`: The prior distribution.
   * `rho`: Parameterized density matrix.
   * `y`: The experimental results obtained in practice.
   * `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
   * `savefile`: Whether or not to save all the posterior distributions.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/common/BayesEstimation.jl#L117-L128' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Common/BayesEstimation.jl#L180-L190' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.MeasurementOpt`** &mdash; *Method*.
 
@@ -774,14 +794,14 @@ Measurement optimization.
   * `kwargs...`: keywords and the correponding default vaules. `mtype=:Projection`, `mtype=:LC` and `mtype=:Rotation`, the `kwargs...` are `M=missing`, `B=missing, POVM_basis=missing`, and `s=missing, POVM_basis=missing`, respectively.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/optim/optim.jl#L55-L62' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/OptScenario/OptScenario.jl#L55-L62' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.OBB`** &mdash; *Method*.
 
 
 
 ```julia
-OBB(x::V, p::V, dp::V, rho::V, drho::V, d2rho::V; LDtype=:SLD, eps=GLOBAL_EPS) where {V<:AbstractVector}
+OBB(x::AbstractVector, p, dp, rho, drho, d2rho; LDtype=:SLD, eps=GLOBAL_EPS)
 ```
 
 Calculation of the Bayesian version of Cramer-Rao bound introduced by Van Trees (VTB).
@@ -796,7 +816,7 @@ Calculation of the Bayesian version of Cramer-Rao bound introduced by Van Trees 
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/BayesianBound/BayesianCramerRao.jl#L404-L417' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/BayesianBound/BayesianCramerRao.jl#L404-L417' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.QFIM`** &mdash; *Method*.
 
@@ -809,7 +829,7 @@ QFIM(ρ::Matrix{T}, dρ::Matrix{T}; LDtype=:SLD, eps=GLOBAL_EPS) where {T<:Compl
 When applied to the case of single parameter. Calculation of the quantum Fisher information (QFI) for all types.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/CramerRao.jl#L371-L376' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/CramerRao.jl#L384-L389' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.QFIM_Gauss`** &mdash; *Method*.
 
@@ -828,19 +848,19 @@ Calculate the SLD based quantum Fisher information matrix (QFIM) with gaussian s
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/CramerRao.jl#L635-L645' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/CramerRao.jl#L662-L672' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.QFIM_Kraus`** &mdash; *Method*.
 
 
 
 ```julia
-QFIM_Kraus(ρ0::Matrix{T}, K::Vector{Matrix{T}}, dK::Vector{Vector{Matrix{T}}}; LDtype=:SLD, exportLD::Bool=false, eps=eps_default) where {T<:Complex}
+QFIM_Kraus(ρ0::AbstractMatrix, K::AbstractVector, dK::AbstractVector; LDtype=:SLD, exportLD::Bool=false, eps=GLOBAL_EPS)
 ```
 
 Calculation of the quantum Fisher information (QFI) and quantum Fisher information matrix (QFIM) with Kraus operator(s) for all types.
 
-  * `ρ`: Density matrix.
+  * `ρ0`: Density matrix.
   * `K`: Kraus operator(s).
   * `dK`: Derivatives of the Kraus operator(s) on the unknown parameters to be estimated. For example, dK[0] is the derivative vector on the first parameter.
   * `LDtype`: Types of QFI (QFIM) can be set as the objective function. Options are `:SLD` (default), `:RLD` and `:LLD`.
@@ -848,14 +868,14 @@ Calculation of the quantum Fisher information (QFI) and quantum Fisher informati
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/AsymptoticBound/CramerRao.jl#L431-L443' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/CramerRao.jl#L444-L455' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.QVTB`** &mdash; *Method*.
 
 
 
 ```julia
-QVTB(x::V, p::V, dp::V, rho::V, drho::V; LDtype=:SLD, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
+QVTB(x::AbstractVector, p, dp, rho, drho; LDtype=:SLD, btype=1, eps=GLOBAL_EPS)
 ```
 
 Calculation of the Bayesian version of Cramer-Rao bound in troduced by Van Trees (VTB).
@@ -870,7 +890,7 @@ Calculation of the Bayesian version of Cramer-Rao bound in troduced by Van Trees
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/BayesianBound/BayesianCramerRao.jl#L249-L262' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/BayesianBound/BayesianCramerRao.jl#L249-L262' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.QZZB`** &mdash; *Method*.
 
@@ -888,7 +908,7 @@ Calculation of the quantum Ziv-Zakai bound (QZZB).
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/BayesianBound/ZivZakai.jl#L25-L34' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/BayesianBound/ZivZakai.jl#L25-L34' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.SIC`** &mdash; *Method*.
 
@@ -905,7 +925,7 @@ Generation of a set of rank-one symmetric informationally complete positive oper
 Note: SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html).
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/common/common.jl#L146-L153' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Common/Common.jl#L146-L153' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.SpinSqueezing`** &mdash; *Method*.
 
@@ -918,7 +938,7 @@ SpinSqueezing(ρ::AbstractMatrix; basis="Dicke", output="KU")
 Calculate the spin squeezing parameter for the input density matrix. The `basis` can be `"Dicke"` for the Dicke basis, or `"Pauli"` for the Pauli basis. The `output` can be both `"KU"`(for spin squeezing defined by Kitagawa and Ueda) and `"WBIMH"`(for spin squeezing defined by Wineland et al.).
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/resources/resources.jl#L23-L29' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Resources/Resources.jl#L23-L29' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.TargetTime`** &mdash; *Method*.
 
@@ -931,14 +951,14 @@ TargetTime(f::Number, tspan::AbstractVector, func::Function, args...; kwargs...)
 Calculate the minimum time to reach a precision limit of given level. The `func` can be any objective function during the control optimization, e.g. QFIM, CFIM, HCRB, etc.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/resources/resources.jl#L73-L78' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Resources/Resources.jl#L73-L78' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.VTB`** &mdash; *Method*.
 
 
 
 ```julia
-VTB(x::V, p::V, dp::V, rho::V, drho::V; M::Union{V,Nothing}=nothing, btype=1, eps=GLOBAL_EPS) where{V<:AbstractVector}
+VTB(x::AbstractVector, p, dp, rho, drho; M=missing, btype=1, eps=GLOBAL_EPS)
 ```
 
 Calculation of the Bayesian version of Cramer-Rao bound introduced by Van Trees (VTB).
@@ -953,14 +973,14 @@ Calculation of the Bayesian version of Cramer-Rao bound introduced by Van Trees 
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/objective/BayesianBound/BayesianCramerRao.jl#L313-L326' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/BayesianBound/BayesianCramerRao.jl#L313-L326' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.adaptive`** &mdash; *Method*.
 
 
 
 ```julia
-adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; save_file=false, max_episode::Int=1000, eps::Float64=1e-8, Hc::Union{Vector,Nothing}=nothing, ctrl::Union{Vector,Nothing}=nothing, decay::Union{Vector,Nothing}=nothing, M::Union{AbstractVector,Nothing}=nothing, W::Union{Matrix,Nothing}=nothing)
+adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; save_file=false, max_episode::Int=1000, eps::Float64=1e-8, Hc=missing, ctrl=missing, decay=missing, M=missing, W=missing)
 ```
 
 In QuanEstimation, the Hamiltonian of the adaptive system should be written as $H(\textbf{x}+\textbf{u})$ with $\textbf{x}$ the unknown parameters and $\textbf{u}$ the tunable parameters. The tunable parameters $\textbf{u}$ are used to let the  Hamiltonian work at the optimal point $\textbf{x}_{\mathrm{opt}}$. 
@@ -981,14 +1001,14 @@ In QuanEstimation, the Hamiltonian of the adaptive system should be written as $
   * `W`: Whether or not to save all the posterior distributions.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/common/adaptive.jl#L1-L23' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Common/AdaptiveScheme.jl#L1-L23' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.adaptive`** &mdash; *Method*.
 
 
 
 ```julia
-adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; save_file=false, max_episode::Int=1000, eps::Float64=1e-8, M::Union{AbstractVector,Nothing}=nothing, W::Union{Matrix,Nothing}=nothing)
+adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; save_file=false, max_episode::Int=1000, eps::Float64=1e-8, M=missing, W=missing)
 ```
 
 In QuanEstimation, the Hamiltonian of the adaptive system should be written as $H(\textbf{x}+\textbf{u})$ with $\textbf{x}$ the unknown parameters and $\textbf{u}$ the tunable parameters. The tunable parameters $\textbf{u}$ are used to let the  Hamiltonian work at the optimal point $\textbf{x}_{\mathrm{opt}}$. 
@@ -1005,7 +1025,7 @@ In QuanEstimation, the Hamiltonian of the adaptive system should be written as $
   * `W`: Whether or not to save all the posterior distributions.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/common/adaptive.jl#L218-L236' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Common/AdaptiveScheme.jl#L217-L235' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.evolve`** &mdash; *Method*.
 
@@ -1018,7 +1038,7 @@ evolve(dynamics::Kraus{dm})
 Evolution of density matrix under time-independent Hamiltonian without noise and controls.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/dynamics/kraus/KrausDynamics.jl#L20-L25' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Parameterization/Kraus/KrausDynamics.jl#L20-L25' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.evolve`** &mdash; *Method*.
 
@@ -1031,7 +1051,7 @@ evolve(dynamics::Kraus{ket})
 Evolution of pure states under time-independent Hamiltonian without noise and controls
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/dynamics/kraus/KrausDynamics.jl#L2-L7' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Parameterization/Kraus/KrausDynamics.jl#L2-L7' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.expm`** &mdash; *Function*.
 
@@ -1050,7 +1070,7 @@ The dynamics of a density matrix is of the form  $\partial_t\rho=-i[H,\rho]+\sum
   * `ctrl`: Control coefficients.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/dynamics/lindblad/LindbladDynamics.jl#L177-L189' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Parameterization/Lindblad/LindbladDynamics.jl#L177-L189' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.mintime`** &mdash; *Method*.
 
@@ -1072,14 +1092,14 @@ Search of the minimum time to reach a given value of the objective function.
   * `system`: control system.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/run.jl#L43-L57' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/run.jl#L52-L66' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.run`** &mdash; *Method*.
 
 
 
 ```julia
-run(opt::AbstractOpt, alg::AbstractAlgorithm, obj::AbstractObj, dynamics::AbstractDynamics;savefile::Bool=false)
+run(opt::AbstractOpt, alg::AbstractAlgorithm, obj::AbstractObj, dynamics::AbstractDynamics; savefile::Bool=false)
 ```
 
 Run the optimization problem.
@@ -1106,5 +1126,5 @@ Generation of the SU($N$) generators with $N$ the dimension of the system.
   * `N`: The dimension of the system.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/common/common.jl#L73-L79' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Common/Common.jl#L73-L79' class='documenter-source'>source</a><br>
 
