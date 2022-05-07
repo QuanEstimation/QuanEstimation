@@ -1,7 +1,7 @@
-from quanestimation.AdaptiveScheme.adaptive import adaptive
-from quanestimation.AdaptiveScheme.adapt_MZI import adapt_MZI
+from quanestimation.AdaptiveScheme.Adaptive import Adaptive
+from quanestimation.AdaptiveScheme.Adapt_MZI import Adapt_MZI
 
 __all__ = [
-    "adaptive",
-    "adapt_MZI",
+    "Adaptive",
+    "Adapt_MZI",
 ]

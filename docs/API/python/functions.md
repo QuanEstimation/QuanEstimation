@@ -68,8 +68,10 @@ This part is the functions of the Python-Julia package which written in Python.
 ::: quanestimation.Bayes
 <!-- ### **Maximum likelihood estimation (MLE)** -->
 ::: quanestimation.MLE
-<!-- ### **Minimum Bayesian cost (MBC)** -->
-::: quanestimation.MBC
+<!-- ### **Average Bayesian cost (BayesCost)** -->
+::: quanestimation.BayesCost
+<!-- ### **Bayesian cost bound(BCB)** -->
+::: quanestimation.BCB
 
 ---
 

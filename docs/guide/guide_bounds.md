@@ -1127,6 +1127,153 @@ $[0, \pi/2]$.
     # Maximum likelihood estimation
     Lout, xout = QuanEstimation.MLE([x], rho, y, M=M; savefile=false)
     ```
+
+The average Bayesian cost [[11]](#Robert2007) for a quadratic cost function can be 
+calculated via
+\begin{equation}
+\bar{C}:=\int p(\textbf{x})\sum_y p(y|\textbf{x})(\textbf{x}-\hat{\textbf{x}})^{\mathrm{T}}
+W(\textbf{x}-\hat{\textbf{x}})\,\mathrm{d}\textbf{x}
+\end{equation}
+
+In QuanEstimation, this can be realized by calling
+=== "Python"
+    ``` py
+    BayesCost(x, p, xest, rho, y, M, W=[], eps=1e-8)
+    ```
+=== "Julia"
+    ``` jl
+    BayesCost(x, p, xest, rho, y, M; W=missing, eps=1e-8)
+    ```
+`xest` represents the estimator.
+
+Besides, the average Bayesian cost bounded by [[5]](#Rafal2020) 
+\begin{equation}
+\bar{C}\geq\int p(\textbf{x})\left(\textbf{x}^{\mathrm{T}}W\textbf{x}\right)\mathrm{d}\textbf{x}
+-\sum_{ab}W_{ab}\mathrm{Tr}\left(\bar{\rho}\bar{L}_a \bar{L}_b\right),  
+\label{eq:BCB}
+\end{equation}
+
+and for single-parameter scenario, this inequality reduces to
+\begin{equation}
+\bar{C}\geq \int p(x) x^2\,\mathrm{d}x-\mathrm{Tr}(\bar{\rho}\bar{L}^2). 
+\end{equation}
+
+The function for calculating the Bayesian cost bound (BCB) is
+=== "Python"
+    ``` py
+    BCB(x, p, rho, W=[], eps=1e-8)
+    ```
+=== "Julia"
+    ``` jl
+    BCB(x, p, rho; W=missing, eps=1e-8)
+    ```
+**Example 3.10**  
+<a id="example3_10"></a>
+The Hamiltonian of a qubit system is 
+\begin{align}
+H=\frac{B}{2}(\sigma_1\cos{x}+\sigma_3\sin{x}),
+\end{align}
+
+where $B$ is the magnetic field in the XZ plane, $x$ is the unknown parameter and $\sigma_{1}$, 
+$\sigma_{3}$ are the Pauli matrices. The probe state is taken as $|\pm\rangle$. The measurement 
+is $\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}{\sqrt{2}}
+(|0\rangle\pm|1\rangle)$ with $|0\rangle$ $(|1\rangle)$ the eigenstate of $\sigma_3$ with respect 
+to the eigenvalue $1$ $(-1)$. In this example, the prior distribution $p(x)$ is uniform on 
+$[0, \pi/2]$.
+=== "Python"
+    ``` py
+    from quanestimation import *
+    import numpy as np
+    import random
+
+    # initial state
+    rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
+    # free Hamiltonian
+    B = np.pi/2.0
+    sx = np.array([[0., 1.], [1., 0.]])
+    sy = np.array([[0., -1.j], [1.j, 0.]]) 
+    sz = np.array([[1., 0.], [0., -1.]])
+    H0_func = lambda x: 0.5*B*(sx*np.cos(x)+sz*np.sin(x))
+    # derivative of the free Hamiltonian on x
+    dH_func = lambda x: [0.5*B*(-sx*np.sin(x)+sz*np.cos(x))]
+    # measurement
+    M1 = 0.5*np.array([[1., 1.], [1., 1.]])
+    M2 = 0.5*np.array([[1.,-1.], [-1., 1.]])
+    M = [M1, M2]
+    # prior distribution
+    x = np.linspace(0., 0.5*np.pi, 1000)
+    p = (1.0/(x[-1]-x[0]))*np.ones(len(x))
+    # time length for the evolution
+    tspan = np.linspace(0., 1., 1000)
+    # dynamics
+    rho = [np.zeros((len(rho0), len(rho0)), dtype=np.complex128) \
+           for i in range(len(x))]
+    for i in range(len(x)):
+        H0 = H0_func(x[i])
+        dH = dH_func(x[i])
+        dynamics = Lindblad(tspan, rho0, H0, dH)
+        rho_tp, drho_tp = dynamics.expm()
+        rho[i] = rho_tp[-1]
+    ```
+    ``` py
+    # average Bayesian cost
+    M = SIC(2)
+    xest = [np.array([0.8]), np.array([0.9]),np.array([1.0]),np.array([1.2])]
+    C = BayesCost([x], p, xest, rho, M, eps=1e-8)
+    ```
+    ``` py
+    # Bayesian cost Bound
+    C = BCB([x], p, rho, eps=1e-8)
+    ```
+=== "Julia"
+    ``` jl
+    using QuanEstimation
+    using Random
+    using StatsBase
+
+    # free Hamiltonian
+    function H0_func(x)
+        return 0.5*B*(sx*cos(x)+sz*sin(x))
+    end
+    # derivative of the free Hamiltonian on x
+    function dH_func(x)
+        return [0.5*B*(-sx*sin(x)+sz*cos(x))]
+    end
+
+    B = pi/2.0
+    sx = [0. 1.; 1. 0.0im]
+	sy = [0. -im; im 0.]
+	sz = [1. 0.0im; 0. -1.]
+    # initial state
+    rho0 = 0.5*ones(2, 2)
+    # measurement 
+    M1 = 0.5*[1.0+0.0im  1.; 1.  1.]
+	M2 = 0.5*[1.0+0.0im -1.; -1.  1.]
+    M = [M1, M2]
+    # prior distribution
+    x = range(0., stop=0.5*pi, length=100) |>Vector
+    p = (1.0/(x[end]-x[1]))*ones(length(x))
+    # time length for the evolution
+    tspan = range(0., stop=1., length=1000)
+    # dynamics
+    rho = Vector{Matrix{ComplexF64}}(undef, length(x))
+    for i = 1:length(x) 
+        H0_tp = H0_func(x[i])
+        dH_tp = dH_func(x[i])
+        rho_tp, drho_tp = QuanEstimation.expm(tspan, rho0, H0_tp, dH_tp)
+        rho[i] = rho_tp[end]
+    end
+    ```
+    ``` py
+    # average Bayesian cost
+    M = QuanEstimation.SIC(2)
+    xest = [[0.8], [0.9], [1.0], [1.2]]
+    C = QuanEstimation.BayesCost([x], p, xest, rho, M, eps=1e-8)
+    ```
+    ``` py
+    # Bayesian cost Bound
+    C = QuanEstimation.BCB([x], p, rho, eps=1e-8)
+    ```
 ---
 ## **Bibliography**
 <a id="Helstrom1976">[1]</a>
@@ -1178,3 +1325,7 @@ Fundamental quantum limit to waveform estimation,
 D. Šafránek,
 Estimation of Gaussian quantum states,
 [J. Phys. A: Math. Theor. **52**, 035304 (2019).](https://doi.org/10.1088/1751-8121/aaf068)
+
+<a id="Robert2007">[11]</a> 
+C. P. Robert,
+*The Bayesian Choice* (Berlin: Springer, 2007).

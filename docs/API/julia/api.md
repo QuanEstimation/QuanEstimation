@@ -531,6 +531,25 @@ Control optimization algorithm: auto-GRAPE.
 
 <a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Algorithm/Algorithm.jl#L48-L58' class='documenter-source'>source</a><br>
 
+##  **`Main.QuanEstimation.BCB`** &mdash; *Method*.
+
+
+
+```julia
+BCB(x, p, rho; W=missing, eps=GLOBAL_EPS)
+```
+
+Calculation of the minimum Bayesian cost with a quadratic cost function.
+
+  * `x`: The regimes of the parameters for the integral.
+  * `p`: The prior distribution.
+  * `rho`: Parameterized density matrix.
+  * `W`: Weight matrix.
+  * `eps`: Machine epsilon.
+
+
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Common/BayesEstimation.jl#L363-L373' class='documenter-source'>source</a><br>
+
 ##  **`Main.QuanEstimation.BCFIM`** &mdash; *Method*.
 
 
@@ -637,6 +656,27 @@ Bayesian estimation. The prior distribution is updated via the posterior distrib
 
 <a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Common/BayesEstimation.jl#L1-L12' class='documenter-source'>source</a><br>
 
+##  **`Main.QuanEstimation.BayesCost`** &mdash; *Method*.
+
+
+
+```julia
+BayesCost(x, p, xest, rho, M; W=missing, eps=GLOBAL_EPS)
+```
+
+Calculation of the average Bayesian cost with a quadratic cost function.
+
+  * `x`: The regimes of the parameters for the integral.
+  * `p`: The prior distribution.
+  * `xest`: The estimators.
+  * `rho`: Parameterized density matrix.
+  * `M`: A set of POVM.
+  * `W`: Weight matrix.
+  * `eps`: Machine epsilon.
+
+
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Common/BayesEstimation.jl#L314-L326' class='documenter-source'>source</a><br>
+
 ##  **`Main.QuanEstimation.CFIM`** &mdash; *Method*.
 
 
@@ -741,25 +781,6 @@ Caltulate the Holevo Cramer-Rao bound (HCRB) via the semidefinite program (SDP).
 
 
 <a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/Holevo.jl#L7-L16' class='documenter-source'>source</a><br>
-
-##  **`Main.QuanEstimation.MBC`** &mdash; *Method*.
-
-
-
-```julia
-MBC(x, p, rho; W=missing, eps=GLOBAL_EPS)
-```
-
-Calculation of the minimum Bayesian cost with a quadratic cost function.
-
-  * `x`: The regimes of the parameters for the integral.
-  * `p`: The prior distribution.
-  * `rho`: Parameterized density matrix.
-  * `W`: Weight matrix.
-  * `eps`: Machine epsilon.
-
-
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Common/BayesEstimation.jl#L314-L324' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.MLE`** &mdash; *Method*.
 

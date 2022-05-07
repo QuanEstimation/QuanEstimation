@@ -3,7 +3,7 @@ from julia import Main
 from quanestimation.Common.Common import brgd, annihilation
 
 
-class adapt_MZI:
+class Adapt_MZI:
     """
     Attributes
     ----------

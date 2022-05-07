@@ -384,9 +384,94 @@ def integ(x, p):
         mean[i] = np.trapz(x[i]*p_tp, x[i])
     return mean
 
-def MBC(x, p, rho, W=[], eps=1e-8):
+def BayesCost(x, p, xest, rho, M, W=[], eps=1e-8):
     """
-    Calculation of the minimum Bayesian cost with a quadratic cost function.
+    Calculation of the average Bayesian cost with a quadratic cost function.
+
+    Parameters
+    ----------
+    > **x:** `list`
+        -- The regimes of the parameters for the integral.
+
+    > **p:** `multidimensional array`
+        -- The prior distribution.
+        
+    > **xest:** `list`
+        -- The estimators.
+
+    > **rho:** `multidimensional list`
+        -- Parameterized density matrix.
+
+    > **M:** `array`
+        -- A set of POVM.
+    
+    > **W:** `array`
+        -- Weight matrix.
+
+    > **eps:** `float`
+        -- Machine epsilon.
+
+    Returns
+    ----------
+    **The average Bayesian cost:** `float`
+        -- The average Bayesian cost.
+    """
+    para_num = len(x)
+    if para_num == 1:
+        # single-parameter scenario
+        if M == []:
+            M = SIC(len(rho[0]))
+        else:
+            if type(M) != list:
+                raise TypeError("Please make sure M is a list!")
+        p_num = len(x[0])
+        value = [p[i]*sum([np.trace(np.dot(rho[i], M[mi]))*(x[0][i]-xest[mi][0])**2 for mi in range(len(M))]) for i in range(p_num)]
+        C = simps(value, x[0])
+        return np.real(C)
+    else:
+        # multi-parameter scenario
+        p_shape = np.shape(p)
+        p_ext = extract_ele(p, para_num)
+        rho_ext = extract_ele(rho, para_num)
+
+        p_list, rho_list = [], []
+        for p_ele, rho_ele in zip(p_ext, rho_ext):
+            p_list.append(p_ele)
+            rho_list.append(rho_ele)
+
+        x_pro = product(*x)
+        x_list = []
+        for x_ele in x_pro:
+            x_list.append([x_ele[i] for i in range(para_num)])
+            
+        dim = len(rho_list[0])
+        p_num = len(p_list)
+        
+        if W == []:
+            W = np.identity(para_num)
+            
+        if M == []:
+            M = SIC(dim)
+        else:
+            if type(M) != list:
+                raise TypeError("Please make sure M is a list!")
+
+        value = [0.0 for i in range(p_num)]
+        for i in range(p_num):
+            x_tp = np.array(x_list[i])
+            xCx = 0.0
+            for mi in range(len(M)):
+                xCx += np.trace(np.dot(rho_list[i], M[mi]))*np.dot((x_tp-xest[mi]).reshape(1, -1), np.dot(W, (x_tp-xest[mi]).reshape(-1, 1)))[0][0]
+            value[i] = p_list[i]*xCx
+        C = np.array(value).reshape(p_shape)
+        for si in reversed(range(para_num)):
+            C = simps(C, x[si])
+        return np.real(C)
+    
+    
+def BCB(x, p, rho, W=[], eps=1e-8):
+    """
+    Calculation of the Bayesian cost bound with a quadratic cost function.
 
     Parameters
     ----------
@@ -407,7 +492,7 @@ def MBC(x, p, rho, W=[], eps=1e-8):
 
     Returns
     ----------
-    **MBC:** `float`
+    **BCB:** `float`
         -- The value of the minimum Bayesian cost.
     """
     para_num = len(x)
@@ -479,9 +564,9 @@ def MBC(x, p, rho, W=[], eps=1e-8):
         Mat = np.zeros((para_num, para_num), dtype=np.complex128)
         for para_m in range(para_num):
             for para_n in range(para_num):
-                Mat[para_m][para_n] = np.trace(np.dot(np.dot(rho_avg, Lambda[para_m]), Lambda[para_n]))
+                Mat += W[para_m][para_n]*np.dot(Lambda[para_m], Lambda[para_n])
                 
-        minBC = delta2_x-np.real(np.trace(np.dot(W, Mat)))
+        minBC = delta2_x-np.real(np.trace(np.dot(rho_avg, Mat)))
         return minBC
         
 def Lambda_avg(rho_avg, rho_pri, eps=1e-8):
