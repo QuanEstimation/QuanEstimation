@@ -13,7 +13,8 @@ from quanestimation.BayesianBound.ZivZakai import (
 from quanestimation.BayesianBound.BayesEstimation import (
     Bayes,
     MLE,
-    MBC
+    BCB,
+    BayesCost
 )
 
 __all__ = [
@@ -27,5 +28,6 @@ __all__ = [
     "QZZB",
     "Bayes",
     "MLE",
-    "MBC",
+    "BCB",
+    "BayesCost",
 ]

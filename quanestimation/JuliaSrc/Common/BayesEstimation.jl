@@ -313,7 +313,56 @@ end
 
 """
 
-    MBC(x, p, rho; W=missing, eps=GLOBAL_EPS)
+    BayesCost(x, p, xest, rho, M; W=missing, eps=GLOBAL_EPS)
+
+Calculation of the average Bayesian cost with a quadratic cost function.
+- `x`: The regimes of the parameters for the integral.
+- `p`: The prior distribution.
+- `xest`: The estimators.
+- `rho`: Parameterized density matrix.
+- `M`: A set of POVM.
+- `W`: Weight matrix.
+- `eps`: Machine epsilon.
+"""
+function BayesCost(x, p, xest, rho, M; W=missing, eps=GLOBAL_EPS)
+    para_num = length(x)
+    trapzm(x, integrands, slice_dim) = [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
+
+    if para_num == 1
+        # single-parameter scenario
+        if ismissing(M)
+            M = SIC(size(rho[1])[1])
+        end
+
+        p_num = length(x[1])
+        value = [p[i]*sum([tr(rho[i]*M[mi])*(x[1][i]-xest[mi][1])^2 for mi in 1:length(M)]) for i in 1:p_num]
+        return real(trapz(x[1], value))
+    else
+        # multi-parameter scenario
+        if ismissing(W) 
+            W = Matrix(I, para_num, para_num)
+        end
+
+        if ismissing(M)
+            M = SIC(size(vec(rho)[1])[1])
+        end
+
+        x_list = Iterators.product(x...)
+        p_num = length(x_list)
+        xCx = [sum([tr(rho_i*M[mi])*([xi...]-xest[mi])'*W*([xi...]-xest[mi]) for mi in 1:length(M)]) for (xi,rho_i) in zip(x_list,rho)]
+        xCx = reshape(xCx, size(p))
+
+        value = p.*xCx
+        for si in reverse(1:para_num)
+            value = trapz(x[si], value)
+        end
+        return real(value)
+    end
+end
+
+"""
+
+    BCB(x, p, rho; W=missing, eps=GLOBAL_EPS)
 
 Calculation of the minimum Bayesian cost with a quadratic cost function.
 - `x`: The regimes of the parameters for the integral.
@@ -322,7 +371,7 @@ Calculation of the minimum Bayesian cost with a quadratic cost function.
 - `W`: Weight matrix.
 - `eps`: Machine epsilon.
 """
-function MBC(x, p, rho; W=missing, eps=GLOBAL_EPS)
+function BCB(x, p, rho; W=missing, eps=GLOBAL_EPS)
     para_num = length(x)
     trapzm(x, integrands, slice_dim) = [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
 
@@ -377,11 +426,11 @@ function MBC(x, p, rho; W=missing, eps=GLOBAL_EPS)
         Mat = zeros(ComplexF64, para_num, para_num)
         for para_m in 1:para_num
             for para_n in 1:para_num
-                Mat[para_m, para_n] = tr(rho_avg*Lambda[para_m]*Lambda[para_n])
+                Mat += W[para_m, para_n]*(Lambda[para_m]*Lambda[para_n])
             end
         end
 
-        minBC = delta2_x-real(tr(W*Mat))
+        minBC = delta2_x-real(tr(rho_avg*Mat))
         return minBC
     end
 end

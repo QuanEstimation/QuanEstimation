@@ -33,7 +33,8 @@ from quanestimation.BayesianBound.ZivZakai import (
 from quanestimation.BayesianBound.BayesEstimation import (
     Bayes,
     MLE,
-    MBC,
+    BCB,
+    BayesCost
 )
 
 from quanestimation.Common.Common import (
@@ -100,7 +101,7 @@ from quanestimation.MeasurementOpt.DE_Mopt import (
     DE_Mopt,
 )
 
-from quanestimation.Resources.Resources import (
+from quanestimation.Resource.Resource import (
     SpinSqueezing,
     TargetTime,
 )
@@ -126,8 +127,8 @@ from quanestimation.StateOpt.NM_Sopt import (
     NM_Sopt,
 )
 
-from quanestimation.AdaptiveScheme.adaptive import adaptive
-from quanestimation.AdaptiveScheme.adapt_MZI import adapt_MZI
+from quanestimation.AdaptiveScheme.Adaptive import Adaptive
+from quanestimation.AdaptiveScheme.Adapt_MZI import Adapt_MZI
 
 pkgpath = os.path.abspath(os.path.dirname(__file__))
 Main.include(pkgpath + "/JuliaSrc/QuanEstimation.jl")
@@ -157,7 +158,8 @@ __all__ = [
     "QZZB",
     "Bayes",
     "MLE",
-    "MBC",
+    "BCB",
+    "BayesCost",
     "Lindblad",
     "Kraus",
     "SpinSqueezing",
@@ -187,6 +189,6 @@ __all__ = [
     "AD_Compopt",
     "DE_Compopt",
     "PSO_Compopt",
-    "adaptive",
-    "adapt_MZI",
+    "Adaptive",
+    "Adapt_MZI",
 ]
