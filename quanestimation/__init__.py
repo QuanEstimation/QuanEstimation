@@ -101,7 +101,7 @@ from quanestimation.MeasurementOpt.DE_Mopt import (
     DE_Mopt,
 )
 
-from quanestimation.Resources.Resource import (
+from quanestimation.Resource.Resource import (
     SpinSqueezing,
     TargetTime,
 )
