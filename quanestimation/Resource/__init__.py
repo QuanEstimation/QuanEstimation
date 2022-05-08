@@ -1,3 +1,3 @@
-from quanestimation.Resources.Resource import SpinSqueezing, TargetTime
+from quanestimation.Resource.Resource import SpinSqueezing, TargetTime
 
 __all__ = ["SpinSqueezing", "TargetTime"]
