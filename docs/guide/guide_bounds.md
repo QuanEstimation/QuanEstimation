@@ -574,7 +574,7 @@ $|0\rangle$ $(|1\rangle)$ the eigenstate of $\sigma_3$ with respect to the eigen
     # dissipation
     decay = [[np.kron(sz,ide), 0.05], [np.kron(ide,sz), 0.05]]
     # measurement
-    m1 = np.array([0., 0., 0., 1.])
+    m1 = np.array([1., 0., 0., 0.])
     M1 = 0.85*np.dot(m1.reshape(-1,1), m1.reshape(1,-1).conj())
     M2 = 0.1*np.ones((4, 4))
     M = [M1, M2, np.identity(4)-M1-M2]
@@ -617,7 +617,7 @@ $|0\rangle$ $(|1\rangle)$ the eigenstate of $\sigma_3$ with respect to the eigen
     # dissipation
     decay = [[kron(sz, I(2)), 0.05], [kron(I(2), sz), 0.05]]
     # measurement
-    m1 = [0., 0., 0., 1.]
+    m1 = [1., 0., 0., 0.]
     M1 = 0.85*m1*m1'
     M2 = 0.1*ones(4, 4)
     M = [M1, M2, I(4)-M1-M2]

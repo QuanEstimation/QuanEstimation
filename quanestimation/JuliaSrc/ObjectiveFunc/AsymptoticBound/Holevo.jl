@@ -22,13 +22,13 @@ function HCRB(
 ) where {T<:Complex}
     if length(dρ) == 1
         println(
-            "In the single-parameter scenario, the HCRB is equivalent to the QFI. This function will return the value of the QFI",
+            "In the single-parameter scenario, the HCRB is equivalent to the QFI. This function will return the value of the QFI.",
         )
         f = QFIM_SLD(ρ, dρ[1]; eps=eps)
         return f
     elseif rank(C) == 1
         println(
-            "For rank-one wight matrix, the HCRB is equivalent to QFIM. This function will return the value of Tr(WF^{-1})"
+            "For rank-one wight matrix, the HCRB is equivalent to QFIM. This function will return the value of Tr(WF^{-1})."
         )
         F = QFIM_SLD(ρ, dρ; eps=eps)
         return tr(C*pinv(F))
