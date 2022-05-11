@@ -37,13 +37,13 @@ def HCRB(rho, drho, W, eps=1e-8):
 
     if len(drho) == 1:
         print(
-            "In single parameter scenario, HCRB is equivalent to QFI. This function will return the value of QFI"
+            "In single parameter scenario, HCRB is equivalent to QFI. This function will return the value of QFI."
         )
         f = QFIM(rho, drho, eps=eps)
         return f
     elif matrix_rank(W) == 1:
         print(
-            "For rank-one weight matrix, the HCRB is equivalent to QFIM. This function will return the value of Tr(WF^{-1})"
+            "For rank-one weight matrix, the HCRB is equivalent to QFIM. This function will return the value of Tr(WF^{-1})."
         )
         F = QFIM(rho, drho, eps=eps)
         return np.trace(np.dot(W, np.linalg.pinv(F)))
