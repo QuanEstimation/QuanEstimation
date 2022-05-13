@@ -673,10 +673,10 @@ Calculate the SLD based quantum Fisher information matrix (QFIM) with gaussian s
 function QFIM_Gauss(R̄::V, dR̄::VV, D::M, dD::VM) where {V,VV,M,VM<:AbstractVecOrMat}
     para_num = length(dR̄)
     quad_num = length(R̄)
-    C = [(D[i, j] + D[j, i]) / 2 - R̄[i]R̄[j] for i = 1:quad_num, j = 1:quad_num]
+    C = [D[i, j] - R̄[i]R̄[j] for i = 1:quad_num, j = 1:quad_num]
     dC = [
         [
-            (dD[k][i, j] + dD[k][j, i]) / 2 - dR̄[k][i]R̄[j] - R̄[i]dR̄[k][j] for
+            dD[k][i, j] - dR̄[k][i]R̄[j] - R̄[i]dR̄[k][j] for
             i = 1:quad_num, j = 1:quad_num
         ] for k = 1:para_num
     ]

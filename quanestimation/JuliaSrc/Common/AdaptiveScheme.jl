@@ -612,14 +612,14 @@ function DE_deltaphiOpt(x, p, rho0, a, comb, popsize, ini_population, c, cr, see
     for ei in 1:(max_episode-1)
         for pm in 1:popsize
             #mutations
-            mut_num = sample(1:popsize, 3, replace=false)
+            mut_num = sample(rng, 1:popsize, 3, replace=false)
             deltaphi_mut = [0.0 for i in 1:N]
             for ci in 1:N
                 deltaphi_mut[ci] = deltaphi[mut_num[1]][ci]+c*(deltaphi[mut_num[2]][ci]-deltaphi[mut_num[3]][ci])
             end
             #crossover
             deltaphi_cross = [0.0 for i in 1:N]
-            cross_int = sample(1:N, 1, replace=false)[1]
+            cross_int = sample(rng, 1:N, 1, replace=false)[1]
             for cj in 1:N
                 rand_num = rand()
                 if rand_num <= cr

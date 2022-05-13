@@ -695,7 +695,7 @@ def QFIM_Gauss(R, dR, D, dD):
 
     C = np.array(
         [
-            [(D[i][j] + D[i][j]) / 2 - R[i] * R[j] for j in range(2 * m)]
+            [D[i][j] - R[i] * R[j] for j in range(2 * m)]
             for i in range(2 * m)
         ]
     )
@@ -703,7 +703,7 @@ def QFIM_Gauss(R, dR, D, dD):
         np.array(
             [
                 [
-                    (dD[k][i][j] + dD[k][i][j]) / 2 - dR[k][i] * R[j] - R[i] * dR[k][j]
+                    dD[k][i][j] - dR[k][i] * R[j] - R[i] * dR[k][j]
                     for j in range(2 * m)
                 ]
                 for i in range(2 * m)
@@ -720,8 +720,8 @@ def QFIM_Gauss(R, dR, D, dD):
     T, Q = schur(B)
     vals = eigvals(B)
     c = vals[::2].imag
-    D = np.diagflat(c**-0.5)
-    S = inv(J @ C_sqrt @ Q @ P @ np.kron([[0, 1], [-1, 0]], -D)).T @ P.T
+    Diag = np.diagflat(c**-0.5)
+    S = inv(J @ C_sqrt @ Q @ P @ np.kron([[0, 1], [-1, 0]], -Diag)).T @ P.T
 
     sx = np.array([[0.0, 1.0], [1.0, 0.0]])
     sy = np.array([[0.0, -1.0j], [1.0j, 0.0]])

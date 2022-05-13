@@ -212,7 +212,7 @@ function bound_LC_coeff!(coefficients::Vector{Vector{Float64}})
     Sum_col = [sum([coefficients[m][n] for m in 1:M_num])  for n in 1:basis_num]
     for si in 1:basis_num
         if Sum_col[si] == 0.0
-            int_num = sample(1:M_num, 1, replace=false)[1]
+            int_num = sample(rng, 1:M_num, 1, replace=false)[1]
             coefficients[int_num][si] = 1.0
         end
     end
@@ -220,7 +220,7 @@ function bound_LC_coeff!(coefficients::Vector{Vector{Float64}})
     Sum_row = [sum([coefficients[m][n] for n in 1:basis_num])  for m in 1:M_num]
     for mi in 1:M_num
         if Sum_row[mi] == 0.0
-            int_num = sample(1:basis_num, 1, replace=false)[1]
+            int_num = sample(rng, 1:basis_num, 1, replace=false)[1]
             coefficients[mi][int_num] = rand()
         end
     end 
