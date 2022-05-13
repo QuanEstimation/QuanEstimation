@@ -27,7 +27,7 @@ function update!(opt::ControlOpt, alg::DE, obj, dynamics, output)
     for ei = 1:(max_episode-1)
         for pj = 1:p_num
             #mutations
-            mut_num = sample(1:p_num, 3, replace = false)
+            mut_num = sample(rng, 1:p_num, 3, replace = false)
             ctrl_mut = [Vector{Float64}(undef, ctrl_length) for i = 1:ctrl_num]
             for ci = 1:ctrl_num
                 for ti = 1:ctrl_length
@@ -42,7 +42,7 @@ function update!(opt::ControlOpt, alg::DE, obj, dynamics, output)
             #crossover 
             ctrl_cross = [Vector{Float64}(undef, ctrl_length) for i = 1:ctrl_num]
             for cj = 1:ctrl_num
-                cross_int = sample(1:ctrl_length, 1, replace = false)[1]
+                cross_int = sample(rng, 1:ctrl_length, 1, replace = false)[1]
                 for tj = 1:ctrl_length
                     rand_num = rand(rng)
                     if rand_num <= cr
@@ -101,14 +101,14 @@ function update!(opt::StateOpt, alg::DE, obj, dynamics, output)
     for ei in 1:(max_episode-1)
         for pj in 1:p_num
             #mutations
-            mut_num = sample(1:p_num, 3, replace=false)
+            mut_num = sample(rng, 1:p_num, 3, replace=false)
             state_mut = zeros(ComplexF64, dim)
             for ci in 1:dim
                 state_mut[ci] = populations[mut_num[1]].data.ψ0[ci]+c*(populations[mut_num[2]].data.ψ0[ci]-populations[mut_num[3]].data.ψ0[ci])
             end
             #crossover
             state_cross = zeros(ComplexF64, dim)
-            cross_int = sample(1:dim, 1, replace=false)[1]
+            cross_int = sample(rng, 1:dim, 1, replace=false)[1]
             for cj in 1:dim
                 rand_num = rand(rng)
                 if rand_num <= cr
@@ -173,7 +173,7 @@ function update!(opt::Mopt_Projection, alg::DE, obj, dynamics, output)
     for ei in 1:(max_episode-1)
         for pj in 1:p_num
             #mutations
-            mut_num = sample(1:p_num, 3, replace=false)
+            mut_num = sample(rng, 1:p_num, 3, replace=false)
             M_mut = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
             for ci in 1:M_num
                 for ti in 1:dim
@@ -184,7 +184,7 @@ function update!(opt::Mopt_Projection, alg::DE, obj, dynamics, output)
             #crossover
             M_cross = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
             for cj in 1:M_num
-                cross_int = sample(1:dim, 1, replace=false)[1]
+                cross_int = sample(rng, 1:dim, 1, replace=false)[1]
                 for tj in 1:dim
                     rand_num = rand(rng)
                     if rand_num <= cr
@@ -257,7 +257,7 @@ function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
     for ei in 1:(max_episode-1)
         for pj in 1:p_num
             #mutations
-            mut_num = sample(1:p_num, 3, replace=false)
+            mut_num = sample(rng, 1:p_num, 3, replace=false)
             M_mut = [Vector{Float64}(undef, basis_num) for i in 1:M_num]
             for ci in 1:M_num
                 for ti in 1:basis_num
@@ -267,7 +267,7 @@ function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
             #crossover
             M_cross = [Vector{Float64}(undef, basis_num) for i in 1:M_num]
             for cj in 1:M_num
-                cross_int = sample(1:basis_num, 1, replace=false)[1]
+                cross_int = sample(rng, 1:basis_num, 1, replace=false)[1]
                 for tj in 1:basis_num
                     rand_num = rand(rng)
                     if rand_num <= cr
@@ -353,7 +353,7 @@ function update!(opt::Mopt_Rotation, alg::DE, obj, dynamics, output)
     for ei in 1:(max_episode-1)
         for pj in 1:p_num
             #mutations
-            mut_num = sample(1:p_num, 3, replace=false)
+            mut_num = sample(rng, 1:p_num, 3, replace=false)
             M_mut = Vector{Float64}(undef, dim^2)
             for ti in 1:dim^2
                 M_mut[ti] = populations[mut_num[1]][ti] + c*(populations[mut_num[2]][ti]-populations[mut_num[3]][ti])
@@ -361,7 +361,7 @@ function update!(opt::Mopt_Rotation, alg::DE, obj, dynamics, output)
     
             #crossover
             M_cross = Vector{Float64}(undef, dim^2)
-            cross_int = sample(1:dim^2, 1, replace=false)[1]
+            cross_int = sample(rng, 1:dim^2, 1, replace=false)[1]
             for tj in 1:dim^2
                 rand_num = rand(rng)
                 if rand_num <= cr
@@ -430,7 +430,7 @@ function update!(opt::StateControlOpt, alg::DE, obj, dynamics, output)
     for ei in 1:(max_episode-1)
         for pj in 1:p_num
             #mutations
-            mut_num = sample(1:p_num, 3, replace = false)
+            mut_num = sample(rng, 1:p_num, 3, replace = false)
             state_mut = zeros(ComplexF64, dim)
             for ci in 1:dim
                 state_mut[ci] = populations[mut_num[1]].data.ψ0[ci] + c * (populations[mut_num[2]].data.ψ0[ci] - populations[mut_num[3]].data.ψ0[ci])
@@ -445,7 +445,7 @@ function update!(opt::StateControlOpt, alg::DE, obj, dynamics, output)
             end
             #crossover
             state_cross = zeros(ComplexF64, dim)
-            cross_int1 = sample(1:dim, 1, replace = false)[1]
+            cross_int1 = sample(rng, 1:dim, 1, replace = false)[1]
             for cj in 1:dim
                 rand_num = rand(rng)
                 if rand_num <= cr
@@ -458,7 +458,7 @@ function update!(opt::StateControlOpt, alg::DE, obj, dynamics, output)
             psi_cross = state_cross / norm(state_cross)
             ctrl_cross = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
             for cj in 1:ctrl_num
-                cross_int2 = sample(1:ctrl_length, 1, replace = false)[1]
+                cross_int2 = sample(rng, 1:ctrl_length, 1, replace = false)[1]
                 for tj in 1:ctrl_length
                     rand_num = rand(rng)
                     if rand_num <= cr
@@ -529,7 +529,7 @@ function update!(opt::StateMeasurementOpt, alg::DE, obj, dynamics, output)
     for ei in 1:(max_episode-1)
         for pj in 1:p_num
             #mutations
-            mut_num = sample(1:p_num, 3, replace = false)
+            mut_num = sample(rng, 1:p_num, 3, replace = false)
             state_mut = zeros(ComplexF64, dim)
             for ci in 1:dim
                 state_mut[ci] = populations[mut_num[1]].data.ψ0[ci] + c * (populations[mut_num[2]].data.ψ0[ci] - populations[mut_num[3]].data.ψ0[ci])
@@ -544,7 +544,7 @@ function update!(opt::StateMeasurementOpt, alg::DE, obj, dynamics, output)
             end
             #crossover
             state_cross = zeros(ComplexF64, dim)
-            cross_int1 = sample(1:dim, 1, replace = false)[1]
+            cross_int1 = sample(rng, 1:dim, 1, replace = false)[1]
             for cj in 1:dim
                 rand_num = rand(rng)
                 if rand_num <= cr
@@ -558,7 +558,7 @@ function update!(opt::StateMeasurementOpt, alg::DE, obj, dynamics, output)
     
             M_cross = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
             for cj in 1:M_num
-                cross_int = sample(1:dim, 1, replace = false)[1]
+                cross_int = sample(rng, 1:dim, 1, replace = false)[1]
                 for tj in 1:dim
                     rand_num = rand(rng)
                     if rand_num <= cr
@@ -634,7 +634,7 @@ function update!(opt::ControlMeasurementOpt, alg::DE, obj, dynamics, output)
     for ei in 1:(max_episode-1)
         for pj in 1:p_num
             #mutations
-            mut_num = sample(1:p_num, 3, replace = false)
+            mut_num = sample(rng, 1:p_num, 3, replace = false)
             ctrl_mut = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
             for ci in 1:ctrl_num
                 for ti in 1:ctrl_length
@@ -655,7 +655,7 @@ function update!(opt::ControlMeasurementOpt, alg::DE, obj, dynamics, output)
             #crossover   
             ctrl_cross = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
             for cj in 1:ctrl_num
-                cross_int2 = sample(1:ctrl_length, 1, replace = false)[1]
+                cross_int2 = sample(rng, 1:ctrl_length, 1, replace = false)[1]
                 for tj in 1:ctrl_length
                     rand_num = rand(rng)
                     if rand_num <= cr
@@ -670,7 +670,7 @@ function update!(opt::ControlMeasurementOpt, alg::DE, obj, dynamics, output)
     
             M_cross = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
             for cj in 1:M_num
-                cross_int = sample(1:dim, 1, replace = false)[1]
+                cross_int = sample(rng, 1:dim, 1, replace = false)[1]
                 for tj in 1:dim
                     rand_num = rand(rng)
                     if rand_num <= cr
@@ -749,7 +749,7 @@ function update!(opt::StateControlMeasurementOpt, alg::DE, obj, dynamics, output
     for ei in 1:(max_episode-1)
         for pj in 1:p_num
             #mutations
-            mut_num = sample(1:p_num, 3, replace = false)
+            mut_num = sample(rng, 1:p_num, 3, replace = false)
             state_mut = zeros(ComplexF64, dim)
             for ci in 1:dim
                 state_mut[ci] = populations[mut_num[1]].data.ψ0[ci] + c * (populations[mut_num[2]].data.ψ0[ci] - populations[mut_num[3]].data.ψ0[ci])
@@ -771,7 +771,7 @@ function update!(opt::StateControlMeasurementOpt, alg::DE, obj, dynamics, output
             end
             #crossover
             state_cross = zeros(ComplexF64, dim)
-            cross_int1 = sample(1:dim, 1, replace = false)[1]
+            cross_int1 = sample(rng, 1:dim, 1, replace = false)[1]
             for cj in 1:dim
                 rand_num = rand(rng)
                 if rand_num <= cr
@@ -784,7 +784,7 @@ function update!(opt::StateControlMeasurementOpt, alg::DE, obj, dynamics, output
             psi_cross = state_cross / norm(state_cross)
             ctrl_cross = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
             for cj in 1:ctrl_num
-                cross_int2 = sample(1:ctrl_length, 1, replace = false)[1]
+                cross_int2 = sample(rng, 1:ctrl_length, 1, replace = false)[1]
                 for tj in 1:ctrl_length
                     rand_num = rand(rng)
                     if rand_num <= cr
@@ -799,7 +799,7 @@ function update!(opt::StateControlMeasurementOpt, alg::DE, obj, dynamics, output
     
             M_cross = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
             for cj in 1:M_num
-                cross_int = sample(1:dim, 1, replace = false)[1]
+                cross_int = sample(rng, 1:dim, 1, replace = false)[1]
                 for tj in 1:dim
                     rand_num = rand(rng)
                     if rand_num <= cr

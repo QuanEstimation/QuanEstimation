@@ -26,6 +26,6 @@ include("output.jl")
 include("Algorithm/Algorithm.jl")
 include("run.jl")
 include("io.jl")
-include("Resources/Resources.jl")
+include("Resource/Resource.jl")
 
 end

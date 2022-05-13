@@ -280,7 +280,7 @@ class StateSystem:
             self.psi = [np.array(psi, dtype=np.complex128) for psi in self.psi]
 
         self.opt = Main.QuanEstimation.StateOpt(self.psi0)
-        self.dynamic = Main.QuanEstimation.Kraus(self.K, self.dK, self.psi0)
+        self.dynamic = Main.QuanEstimation.Kraus(self.psi0, self.K, self.dK)
         self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
 
         self.dynamics_type = "Kraus"

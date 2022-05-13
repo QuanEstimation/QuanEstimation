@@ -15,7 +15,7 @@ dH = [kron(I(2), sz), kron(sx, sx)]
 # dissipation
 decay = [[kron(sz, I(2)), 0.05], [kron(I(2), sz), 0.05]]
 # measurement
-m1 = [0., 0., 0., 1.]
+m1 = [1., 0., 0., 0.]
 M1 = 0.85*m1*m1'
 M2 = 0.1*ones(4, 4)
 M = [M1, M2, I(4)-M1-M2]
