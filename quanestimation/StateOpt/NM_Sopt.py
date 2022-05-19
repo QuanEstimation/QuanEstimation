@@ -14,7 +14,7 @@ class NM_Sopt(State.StateSystem):
         episode and the values of the objective function in all episodes 
         will be saved.
 
-    > **state_num:** `int`
+    > **p_num:** `int`
         -- The number of the input states.
 
     > **psi0:** `list of arrays`
@@ -50,7 +50,7 @@ class NM_Sopt(State.StateSystem):
     def __init__(
         self,
         savefile=False,
-        state_num=10,
+        p_num=10,
         psi0=[],
         max_episode=1000,
         ar=1.0,
@@ -64,7 +64,7 @@ class NM_Sopt(State.StateSystem):
 
         State.StateSystem.__init__(self, savefile, psi0, seed, eps, load)
 
-        self.state_num = state_num
+        self.p_num = p_num
         self.max_episode = max_episode
         self.ar = ar
         self.ae = ae
@@ -92,7 +92,7 @@ class NM_Sopt(State.StateSystem):
         ini_state = Main.vec(self.psi)
         self.alg = Main.QuanEstimation.NM(
             self.max_episode,
-            self.state_num,
+            self.p_num,
             ini_state,
             self.ar,
             self.ae,
@@ -126,7 +126,7 @@ class NM_Sopt(State.StateSystem):
         ini_state = Main.vec(self.psi)
         self.alg = Main.QuanEstimation.NM(
             self.max_episode,
-            self.state_num,
+            self.p_num,
             ini_state,
             self.ar,
             self.ae,
@@ -152,7 +152,7 @@ class NM_Sopt(State.StateSystem):
         ini_state = Main.vec(self.psi)
         self.alg = Main.QuanEstimation.NM(
             self.max_episode,
-            self.state_num,
+            self.p_num,
             ini_state,
             self.ar,
             self.ae,

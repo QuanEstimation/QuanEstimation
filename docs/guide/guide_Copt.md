@@ -11,12 +11,12 @@ H = H_0(\textbf{x})+\sum_{k=1}^K u_k(t) H_k,
 
 where $H_0(\textbf{x})$ is the free evolution Hamiltonian with unknown parameters $\textbf{x}$ 
 and $H_k$ represents the $k$th control Hamiltonian with $u_k$ the corresponding control 
-coefficient. In QuanEstimation, different algorithms are invoked to update the optimal 
-control coefficients. The control optimization algorithms are the gradient ascent pulse 
-engineering (GRAPE) [[1,2,3]](#Khaneja2005), GRAPE algorithm based on the automatic 
-differentiation (auto-GRAPE) [[4]](#Baydin2018), particle swarm optimization (PSO) 
-[[5]](#Kennedy1995), differential evolution (DE) [[6]](#Storn1997) and deep deterministic 
-policy gradients (DDPG) [[7]](#Lillicrap2015). The codes for control optimization are
+coefficients. In QuanEstimation, different algorithms are invoked to update the control 
+coefficients. The control optimization algorithms are the gradient ascent pulse engineering 
+(GRAPE) [[1,2,3]](#Khaneja2005), GRAPE algorithm based on the automatic differentiation 
+(auto-GRAPE) [[4]](#Baydin2018), particle swarm optimization (PSO) [[5]](#Kennedy1995), 
+differential evolution (DE) [[6]](#Storn1997) and deep deterministic policy gradients 
+(DDPG) [[7]](#Lillicrap2015). The codes for control optimization are
 === "Python"
 	```py
 	control = ControlOpt(savefile=False, method="auto-GRAPE", **kwargs)
@@ -45,30 +45,30 @@ policy gradients (DDPG) [[7]](#Lillicrap2015). The codes for control optimizatio
 
 	After calling `control = ControlOpt()`, the dynamics parameters shoule be input. Here `tspan` 
 	is the time length for the evolution and `rho0` represents the density matrix of the initial 
-	state. `H0` and `dH` are the free Hamiltonian and its derivatives on the unknown 
+	state. `H0` and `dH` are the free Hamiltonian and its derivatives with respect to the unknown 
 	parameters to be estimated. `H0` is a matrix when the free Hamiltonian is time-independent and 
 	a list with the length equal to `tspan` when it is time-dependent. `dH` should be input as 
 	$[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. `Hc` is a list representing the control 
 	Hamiltonians. `decay` contains decay operators $(\Gamma_1, \Gamma_2, \cdots)$ and the 
-	corresponding decay rates $(\gamma_1, \gamma_2, \cdots)$ with the input rule 
+	corresponding decay rates $(\gamma_1, \gamma_2, \cdots)$, its input rule is
 	decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...]. The default value for 
 	`decay` is empty which means the dynamics is unitary. The package can be used to optimize 
 	bounded control problems by setting lower and upper bounds of the control coefficients via 
 	`ctrl_bound`, which is an array with two elements representing the lower and upper bound of 
-	the control coefficients, respectively. The default value of `ctrl_bound=[]` which means the 
+	each control coefficient, respectively. The default value of `ctrl_bound=[]` which means the 
 	control coefficients are in the regime $[-\infty,\infty]$.
 
-	The objective functions for control optimization can be set as QFI ($\mathrm{Tr}(W\mathcal{F}^
-	{-1})$), CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$) and HCRB, the corresponding codes for them are
-	`control.QFIM()` (default), `control.CFIM()` and `control.HCRB()`. Here $\mathcal{F}$ and 
-	$\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight matrix which 
-	defaults to the identity matrix. If the users call `control.HCRB()` for single parameter 
-	scenario, the program will exit and print `"Program terminated. In the single-parameter scenario, 
-	the HCRB is equivalent to the QFI. Please choose 'QFIM' as the objective function"`. `LDtype` 
-	in `control.QFIM()` represents the types of the QFIM, it can be set as `LDtype="SLD"` (default), 
-	`LDtype="RLD"`, and `LDtype="LLD"`. `M` in `control.CFIM()` represents a set of positive 
-	operator-valued measure (POVM) with default value `[]` which means a set of rank-one symmetric 
-	informationally complete POVM (SIC-POVM) is used in the calculation.
+	The objective functions for control optimization can be set as QFI $\left[\mathrm{Tr}(W
+	\mathcal{F}^{-1})\right]$, CFI $\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]$ and HCRB, the 
+	corresponding codes for them are `control.QFIM()` (default), `control.CFIM()` and `control.HCRB()`. 
+	Here $\mathcal{F}$ and $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight 
+	matrix which defaults to the identity matrix. If the users call `control.HCRB()` for single 
+	parameter scenario, the program will exit and print `"Program terminated. In the single-parameter 
+	scenario, the HCRB is equivalent to the QFI. Please choose 'QFIM' as the objective function"`. 
+	`LDtype` in `control.QFIM()` represents the types of the QFIM, it can be set as `LDtype="SLD"` 
+	(default), `LDtype="RLD"`, and `LDtype="LLD"`. `M` in `control.CFIM()` represents a set of 
+	positive operator-valued measure (POVM) with default value `[]` which means a set of rank-one 
+	symmetric informationally complete POVM (SIC-POVM) is used in the calculation.
 
 === "Julia"
 	``` jl
@@ -92,8 +92,8 @@ policy gradients (DDPG) [[7]](#Lillicrap2015). The codes for control optimizatio
 	``` jl
 	run(opt, alg, obj, dynamics; savefile=false)
 	```
-	A set of control coefficients (optimization variable) and its boundary value can be input 
-	via `ctrl=ctrl` and `ctrl_bound=ctrl_bound` in `ControlOpt()` for control optimization. 
+	In control optimization, a set of control coefficients (optimization variable) and its boundary 
+	value can be input via `ctrl=ctrl` and `ctrl_bound=ctrl_bound` in `ControlOpt()`.
 	`ctrl` is a list of arrays with the length equal to control Hamiltonians, 
 	`ctrl_bound` is an array with two elements representing the lower and upper bound of the 
 	control coefficients, respectively. The default value of `ctrl_bound=missing` which means 
@@ -102,20 +102,20 @@ policy gradients (DDPG) [[7]](#Lillicrap2015). The codes for control optimizatio
 	The package can deal with the parameterization process in the form of master equation, the 
 	dynamics parameters shoule be input via `Lindblad()`. Here `tspan` is the time length for 
 	the evolution and `rho0` represents the density matrix of the initial state. `H0` and `dH` 
-	are the free Hamiltonian and its derivatives on the unknown parameters to be estimated.
-	`H0` is a matrix when the free Hamiltonian is time-independent and a list with the length 
-	equal to `tspan` when it is time-dependent. `dH` should be input as $[\partial_a{H_0}, 
+	are the free Hamiltonian and its derivatives with respect to the unknown parameters to be 
+	estimated. `H0` is a matrix when the free Hamiltonian is time-independent and a list with the 
+	length equal to `tspan` when it is time-dependent. `dH` should be input as $[\partial_a{H_0}, 
 	\partial_b{H_0}, \cdots]$. `Hc` is a list representing the control Hamiltonians. `decay` 
 	contains decay operators $(\Gamma_1, \Gamma_2, \cdots)$ and the corresponding decay rates 
 	$(\gamma_1, \gamma_2, \cdots)$ with the input rule decay=[[$\Gamma_1$, $\gamma_1$], 
 	[$\Gamma_2$, $\gamma_2$],...]. The default value `decay` is `missing` which means the 
 	dynamics is unitary.
 
-	The objective functions for control optimization can be set as QFI ($\mathrm{Tr}(W\mathcal{F}^
-	{-1})$), CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$) and HCRB, the corresponding codes for them are
-	`QFIM_obj()` (default), `CFIM_obj()` and `HCRB_obj()`. Here $\mathcal{F}$ and 
-	$\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight matrix which 
-	defaults to the identity matrix. If the users call `HCRB_obj()` for single parameter 
+	The objective functions for control optimization can be set as QFI $\left[\mathrm{Tr}(W
+	\mathcal{F}^{-1})\right]$, CFI $\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]$ and HCRB, the 
+	corresponding codes for them are `QFIM_obj()` (default), `CFIM_obj()` and `HCRB_obj()`. Here 
+	$\mathcal{F}$ and $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight 
+	matrix which defaults to the identity matrix. If the users call `HCRB_obj()` for single parameter 
 	scenario, the program will exit and print `"Program terminated. In the single-parameter scenario, 
 	the HCRB is equivalent to the QFI. Please choose 'QFIM_obj' as the objective function"`. 
 	`LDtype` in `QFIM_obj()` represents the types of the QFIM, it can be set as `LDtype=:SLD` 
@@ -200,14 +200,14 @@ The code for control optimization with PSO is as follows
 	```
 	where `kwargs` is of the form
 	``` py
-	kwargs = {"particle_num":10, "ctrl0":[], "max_episode":[1000,100], \
+	kwargs = {"p_num":10, "ctrl0":[], "max_episode":[1000,100], \
               "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
 	```
 	The keywords and the default values of PSO can be seen in the following table
 
 	| $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
 	| :----------:                     | :----------:               |
-	| "particle_num"                   | 10                         |
+	| "p_num"                   | 10                         |
 	| "ctrl0"                          | [ ]                        |
 	| "max_episode"                    | [1000,100]                 |
 	| "c0"                             | 1.0                        |
@@ -215,7 +215,7 @@ The code for control optimization with PSO is as follows
 	| "c2"                             | 2.0                        |
 	| "seed"                           | 1234                       |
 
-	Here `particle_num` is the number of particles. `c0`, `c1` and `c2` are the PSO parameters 
+	Here `p_num` is the number of particles. `c0`, `c1` and `c2` are the PSO parameters 
 	representing the inertia weight, cognitive learning factor and social learning factor, 
 	respectively. `max_episode` accepts both integer and array with two elements. If it is an 
 	integer, for example `max_episode=1000`, it means the program will continuously run 1000 
@@ -260,21 +260,21 @@ The code for control optimization with DE is as follows
 	```
 	where `kwargs` is of the form
 	``` py
-	kwargs = {"popsize":10, "ctrl0":[], "max_episode":1000, "c":1.0, \
+	kwargs = {"p_num":10, "ctrl0":[], "max_episode":1000, "c":1.0, \
           	  "cr":0.5, "seed":1234}
 	```
 	The keywords and the default values of DE can be seen in the following table
 
 	| $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
 	| :----------:                     | :----------:               |
-	| "popsize"                        | 10                         |
+	| "p_num"                        | 10                         |
 	| "ctrl0"                          | [ ]                        |
 	| "max_episode"                    | 1000                       |
 	| "c"                              | 1.0                        |
 	| "cr"                             | 0.5                        |
 	| "seed"                           | 1234                       |
 
-	`popsize` and `max_episode` represent the number of populations and episodes. `c` and `cr` 
+	`p_num` and `max_episode` represent the number of populations and episodes. `c` and `cr` 
 	are the mutation constant and the crossover constant.
 
 === "Julia"
@@ -338,8 +338,8 @@ The code for control optimization with DDPG is as follows
 
 **Example 5.1**  
 <a id="example5_1"></a>
-In this example, the free evolution Hamiltonian of a single qubit system is $H_0=\frac{1}{2}\omega_0 
-\sigma_3$ with $\omega_0$ the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system 
+In this example, the free evolution Hamiltonian of a single qubit system is $H_0=\frac{1}{2}\omega 
+\sigma_3$ with $\omega$ the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system 
 is governed by
 \begin{align}
 \partial_t\rho=-i[H_0, \rho]+ \gamma_{+}\left(\sigma_{+}\rho\sigma_{-}-\frac{1}{2}\{\sigma_{-}
@@ -365,12 +365,12 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
 	# initial state
 	rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
 	# free Hamiltonian
-	omega0 = 1.0
+	omega = 1.0
 	sx = np.array([[0., 1.], [1., 0.]])
 	sy = np.array([[0., -1.j], [1.j, 0.]]) 
 	sz = np.array([[1., 0.], [0., -1.]])
-	H0 = 0.5*omega0*sz
-	# derivative of the free Hamiltonian on omega0
+	H0 = 0.5*omega*sz
+	# derivative of the free Hamiltonian on omega
 	dH = [0.5*sz]
 	# control Hamiltonians 
 	Hc = [sx, sy, sz]
@@ -405,14 +405,14 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
 	=== "PSO"
 		``` py
 		# control algorithm: PSO
-		PSO_paras = {"particle_num":10, "ctrl0":ctrl0, "max_episode":[1000,100], \
+		PSO_paras = {"p_num":10, "ctrl0":ctrl0, "max_episode":[1000,100], \
 					 "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
 		control = ControlOpt(savefile=False, method="PSO", **PSO_paras)
 		```
 	=== "DE"
 		``` py
 		# control algorithm: DE
-		DE_paras = {"popsize":10, "ctrl0":ctrl0, "max_episode":1000, "c":1.0, \
+		DE_paras = {"p_num":10, "ctrl0":ctrl0, "max_episode":1000, "c":1.0, \
 				    "cr":0.5, "seed":1234}
 		control = ControlOpt(savefile=False, method="DE", **DE_paras)
 		```
@@ -446,12 +446,12 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
 	# initial state
 	rho0 = 0.5*ones(2, 2)
 	# free Hamiltonian
-	omega0 = 1.0
+	omega = 1.0
 	sx = [0. 1.; 1. 0.0im]
 	sy = [0. -im; im 0.]
 	sz = [1. 0.0im; 0. -1.]
-	H0 = 0.5*omega0*sz
-	# derivative of the free Hamiltonian on omega0
+	H0 = 0.5*omega*sz
+	# derivative of the free Hamiltonian on omega
 	dH = [0.5*sz]
 	# control Hamiltonians 
 	Hc = [sx, sy, sz]
@@ -636,14 +636,14 @@ Here three types of measurement optimization are considerd, projective measureme
 	=== "PSO"
 		``` py
 		# control algorithm: PSO
-		PSO_paras = {"particle_num":10, "ctrl0":ctrl0, "max_episode":[1000,100], \
+		PSO_paras = {"p_num":10, "ctrl0":ctrl0, "max_episode":[1000,100], \
 					 "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
 		control = ControlOpt(savefile=False, method="PSO", **PSO_paras)
 		```
 	=== "DE"
 		``` py
 		# control algorithm: DE
-		DE_paras = {"popsize":10, "ctrl0":ctrl0, "max_episode":1000, "c":1.0, \
+		DE_paras = {"p_num":10, "ctrl0":ctrl0, "max_episode":1000, "c":1.0, \
 				    "cr":0.5, "seed":1234}
 		control = ControlOpt(savefile=False, method="DE", **DE_paras)
 		```
@@ -803,9 +803,9 @@ Search of the minimum time to reach a given value of the objective function.
 the minimum time are provided which are logarithmic search and forward search from the 
 beginning of time. It can be realized by setting `method=binary` (default) and 
 `method=forward`. `target` represents the objective function for searching the minimum time, 
-the users can choose QFI ($\mathrm{Tr}(WF^{-1})$), CFI ($\mathrm{Tr}(WI^{-1})$), and HCRB for 
-the objective functions. If `target="QFIM"`, the types for the logarithmic derivatives can be 
-set via `LDtype`.
+the users can choose QFI $\left[\mathrm{Tr}(WF^{-1})\right]$, CFI $\left[\mathrm{Tr}(WI^{-1})\right]$ 
+and HCRB for the objective functions. If `target="QFIM"`, the types for the logarithmic derivatives 
+can be set via `LDtype`.
 
 ---
 ## **Bibliography**

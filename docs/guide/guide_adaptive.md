@@ -2,7 +2,7 @@
 In QuanEstimation, the Hamiltonian of the adaptive system should be written as
 $H(\textbf{x}+\textbf{u})$ with $\textbf{x}$ the unknown parameters and $\textbf{u}$ 
 the tunable parameters. The tunable parameters $\textbf{u}$ are used to let the 
-Hamiltonian work at the optimal point $\textbf{x}_{\mathrm{opt}}$. For this scenario,
+Hamiltonian work at the optimal point $\textbf{x}_{\mathrm{opt}}$. In this scenario,
 the adaptive estimation can be excuted through
 === "Python"
     ``` py
@@ -10,26 +10,34 @@ the adaptive estimation can be excuted through
     apt.dynamics(tspan, H, dH, Hc=[], ctrl=[], decay=[])               
     apt.CFIM(M=[], W=[]) 
     ```
+    where `x` is a list of arrays representing the regime of the parameters for the integral, 
+    `p` is an array representing the prior distribution, it is multidimensional for multiparameter
+    estimation.`rho0` is the density matrix of the probe state. The number of iterations can be 
+    set via `max_episode` with the default value 1000. `eps` represents the machine epsilon which 
+    defaults to $10^{-8}$. At the end of the program, three files "pout.npy", "xout.npy", and "y.npy"  
+    including the posterior distributions, the estimated values and the experimental results will be 
+    generated. If `savefile=True`, these files will be generated during the training and "pout.npy" 
+    will save all the posterior distributions, otherwise, the posterior distribution in the final 
+    iteration will be saved. 
 === "Julia"
     ``` jl
     adaptive(x, p, rho0, tspan, H, dH; savefile=false, max_episode=1000, 
              eps=1e-8, Hc=missing, ctrl=missing, decay=missing, M=missing, 
              W=missing)
     ```
-where `x` is a list of arrays representing the regime of the parameters for the integral, 
-`p` is an array representing the prior distribution, it is multidimensional for multiparameter
-estimation.`rho` is a density matrix of the probe state.  The number of iterations can be 
-set via `max_episode` with the default value 1000. `eps` represents the machine epsilon which 
-defaults to $10^{-8}$. Three files "pout.npy", "xout.npy", and "y.npy" will be generated 
-including the posterior distributions, the estimated values, and the experimental results. 
-If `savefile=True`, these files will be generated during the training and "pout.npy" will save
-all the posterior distributions, otherwise, the posterior distribution in the final iteration 
-will be saved at the end of the program. 
-
+    where `x` is a list of arrays representing the regime of the parameters for the integral, 
+    `p` is an array representing the prior distribution, it is multidimensional for multiparameter
+    estimation.`rho0` is the density matrix of the probe state. The number of iterations can be 
+    set via `max_episode` with the default value 1000. `eps` represents the machine epsilon which 
+    defaults to $10^{-8}$. At the end of the program, three files "pout.csv", "xout.csv", and "y.csv"  
+    including the posterior distributions, the estimated values and the experimental results will be 
+    generated. If `savefile=true`, these files will be generated during the training and "pout.csv" 
+    will save all the posterior distributions, otherwise, the posterior distribution in the final 
+    iteration will be saved. 
 If the dynamics of the system can be described by the master equation, then the dynamics data 
-`tspan`, `H`, and `dH` shoule be input, `tspan` is the time length for the evolution, `H` and 
-`dH` are multidimensional lists representing the Hamiltonian and its derivatives on the unknown 
-parameters to be estimated, they can be generated via
+`tspan`, `H`, and `dH` shoule be input. `tspan` is the time length for the evolution, `H` and 
+`dH` are multidimensional lists representing the Hamiltonian and its derivatives with respect to
+the unknown parameters to be estimated, they can be generated via
 === "Python"
     ``` py
     H, dH = BayesInput(x, func, dfunc, channel="dynamics")
@@ -38,14 +46,14 @@ parameters to be estimated, they can be generated via
     ``` jl
     H, dH = BayesInput(x, func, dfunc; channel="dynamics")
     ```
-Here `func` and `dfunc` are the function defined by the users which return `H` and `dH`, 
+Here `func` and `dfunc` are the functions defined by the users which return `H` and `dH`, 
 respectively. Futhermore, for the systems with noise and controls, the variables `decay`, 
-`Hc`, and `ctrl` should be input. Here `Hc` and `ctrl` are two lists representing the control 
+`Hc` and `ctrl` should be input. Here `Hc` and `ctrl` are two lists representing the control 
 Hamiltonians and the corresponding control coefficients. `decay` contains decay operators 
 $(\Gamma_1, \Gamma_2, \cdots)$ and the corresponding decay rates $(\gamma_1, \gamma_2, \cdots)$
 with the input rule decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...].  
 
-The objective function for adaptive estimation are CFI and $\mathrm{Tr}(W\mathcal{I}^
+The objective function for adaptive measurement are CFI and $\mathrm{Tr}(W\mathcal{I}^
 {-1})$ with $\mathcal{I}$ the CFIM. `W` is the weight matrix which defaults to the identity matrix.
 
 If the parameterization is implemented with the Kraus operators, the codes become
@@ -69,18 +77,18 @@ and
     ``` jl
     K, dK = BayesInput(x, func, dfunc; channel="Kraus")
     ```
-where `K` and `dK` are the Kraus operators and its derivatives on the unknown parameters.
+where `K` and `dK` are the Kraus operators and its derivatives with respect to the unknown parameters.
 
 **Example 9.1**  
 The Hamiltonian of a qubit system is
 \begin{align}
-H=\frac{B}{2}(\sigma_1\cos{x}+\sigma_3\sin{x}),
+H=\frac{B\omega_0}{2}(\sigma_1\cos{x}+\sigma_3\sin{x}),
 \end{align}
 
 where $B$ is the magnetic field in the XZ plane, $x$ is the unknown parameter and $\sigma_{1}$, $\sigma_{3}$ are the Pauli matrices.
 
 The probe state is taken as $|\pm\rangle$. The measurement is 
-$\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}{\sqrt{2}}(|0\rangle\pm|1\rangle)$ with $|0\rangle$ $(|1\rangle)$ the eigenstate of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$. In this example, the prior distribution $p(x)$ is uniform on $[0, \pi/2]$.
+$\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}{\sqrt{2}}(|0\rangle\pm|1\rangle)$ with $|0\rangle$ $(|1\rangle)$ the eigenstate of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$. In this example, the prior distribution $p(x)$ is uniform.
 === "Python"
     ``` py
     from quanestimation import *
@@ -90,13 +98,13 @@ $\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}
     # initial state
     rho0 = 0.5 * np.array([[1., 1.], [1., 1.]])
     # free Hamiltonian
-    B = 0.5 * np.pi
+    B, omega0 = 0.5 * np.pi, 1.0
     sx = np.array([[0., 1.], [1., 0.]])
 	sy = np.array([[0., -1.j], [1.j, 0.]]) 
 	sz = np.array([[1., 0.], [0., -1.]])
-    H0_func = lambda x: 0.5*B*(sx*np.cos(x[0])+sz*np.sin(x[0]))
+    H0_func = lambda x: 0.5*B*omega0*(sx*np.cos(x[0])+sz*np.sin(x[0]))
     # derivative of free Hamiltonian in x
-    dH_func = lambda x: [0.5*B*(-sx*np.sin(x[0])+sz*np.cos(x[0]))]
+    dH_func = lambda x: [0.5*B*omega0*(-sx*np.sin(x[0])+sz*np.cos(x[0]))]
     # measurement
     M1 = 0.5*np.array([[1., 1.], [1., 1.]])
 	M2 = 0.5*np.array([[1., -1.], [-1., 1.]])
@@ -137,14 +145,14 @@ $\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}
 
     # free Hamiltonian
     function H0_func(x)
-        return 0.5*B*(sx*cos(x[1])+sz*sin(x[1]))
+        return 0.5*B*omega0*(sx*cos(x[1])+sz*sin(x[1]))
     end
     # derivative of free Hamiltonian in x
     function dH_func(x)
-        return [0.5*B*(-sx*sin(x[1])+sz*cos(x[1]))]
+        return [0.5*B*omega0*(-sx*sin(x[1])+sz*cos(x[1]))]
     end
 
-    B = pi/2.0
+    B, omega0 = pi/2.0, 1.0
     sx = [0. 1.; 1. 0.0im]
 	sy = [0. -im; im 0.]
 	sz = [1. 0.0im; 0. -1.]
@@ -187,7 +195,7 @@ Berry et al. [[1,2]](#Berry2000) introduced a famous adaptive scheme in phase es
 phase for the $(n+1)$th round is updated via $\Phi_{n+1}=\Phi_{n}-(-1)^{y^{(n)}}\Delta
 \Phi_{n+1}$ with $y^{(n)}$ the experimental result in the $n$th round and $\Delta\Phi_{n+1}$ 
 the phase difference generated by the proper algorithms. This adaptive scheme can be performed
-in QuanEstimation by
+in QuanEstimation via
 === "Python"
     ``` py
     apt = adapt_MZI(x, p, rho0)
@@ -213,14 +221,14 @@ in QuanEstimation by
 If the optimization algorithm is PSO, the keywords and the default values are
 === "Python"
     ``` py
-    kwargs = {"particle_num":10, "deltaphi0":[], "max_episode":[1000,100], 
+    kwargs = {"p_num":10, "deltaphi0":[], "max_episode":[1000,100], 
               "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
     ```
     The keywords and the default values of PSO can be seen in the following table
 
     | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
     | :----------:                     | :----------:               |
-    | "particle_num"                   | 10                         |
+    | "p_num"                   | 10                         |
     | "deltaphi0"                      | [ ]                        |
     | "max_episode"                    | [1000,100]                 |
     | "c0"                             | 1.0                        |
@@ -228,12 +236,12 @@ If the optimization algorithm is PSO, the keywords and the default values are
     | "c2"                             | 2.0                        |
     | "seed"                           | 1234                       |
 
-    Here `particle_num` is the number of particles, `deltaphi0` represents the initial 
+    Here `p_num` is the number of particles, `deltaphi0` represents the initial 
     guesses of phase difference. `max_episode` accepts both integer and array with two 
     elements. If it is an integer, for example `max_episode=1000`, it means the 
     program will continuously run 1000 episodes. However, if it is an array, for example 
     `max_episode=[1000,100]`, the program will run 1000 episodes in total but replace the data 
-    of all the particles with global best every 100 episodes. `c0`, `c1`, and `c2` are the PSO 
+    of all the particles with global best every 100 episodes. `c0`, `c1` and `c2` are the PSO 
     parameters representing the inertia weight, cognitive learning factor and social 
     learning factor, respectively. 
 === "Julia"
@@ -258,28 +266,28 @@ If the optimization algorithm is PSO, the keywords and the default values are
     If it is an integer, for example `max_episode=1000`, it means the program will 
     continuously run 1000 episodes. However, if it is an array, for example 
     `max_episode=[1000,100]`, the program will run 1000 episodes in total but replace the 
-    data of all the particles with global best every 100 episodes. `c0`, `c1`, and `c2` are 
+    data of all the particles with global best every 100 episodes. `c0`, `c1` and `c2` are 
     the PSO parameters representing the inertia weight, cognitive learning factor and 
     social learning factor, respectively. 
 
 If the optimization algorithm is DE, the keywords and the default values are
 === "Python"
     ``` py
-    kwargs = {"popsize":10, "deltaphi0":[], "max_episode":1000, "c":1.0, 
+    kwargs = {"p_num":10, "deltaphi0":[], "max_episode":1000, "c":1.0, 
               "cr":0.5, "seed":1234}
     ```
     The keywords and the default values of DE can be seen in the following table
 
     | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
     | :----------:                     | :----------:               |
-    | "popsize"                        | 10                         |
+    | "p_num"                        | 10                         |
     | "deltaphi0"                      | [ ]                        |
     | "max_episode"                    | 1000                       |
     | "c"                              | 1.0                        |
     | "cr"                             | 0.5                        |
     | "seed"                           | 1234                       |
 
-    `popsize` and `max_episode` are the number of populations and training episodes. 
+    `p_num` and `max_episode` are the number of populations and training episodes. 
     `c` and `cr` are DE parameters representing the mutation and crossover constants, 
     `seed` is the random seed which can ensure the reproducibility of results.
 === "Julia"
@@ -292,19 +300,19 @@ If the optimization algorithm is DE, the keywords and the default values are
     | $~~~~~~~~~~$keywords$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
     | :----------:                     | :----------:               |
     | "p_num"                          | 10                         |
-    | "ini_particle"                   | missin                     |
+    | "ini_population"                 | missing                    |
     | "max_episode"                    | 1000                       |
     | "c"                              | 1.0                        |
     | "cr"                             | 0.5                        |
     | "seed"                           | 1234                       |
 
-    `ini_particle` represents the initial guesses of phase difference. `popsize` and 
+    `ini_population` represents the initial guesses of phase difference. `p_num` and 
     `max_episode` are the number of populations and training episodes. `c` and `cr` are 
     DE parameters representing the mutation and crossover constants, `seed` is the random 
     seed which can ensure the reproducibility of results.
 
 **Example 9.2**  
-In this example, the adaptive measurement shcemes is design for the MZI [[3,4]](#Hentschel2010). 
+In this example, the adaptive measurement shceme is design for the MZI [[3,4]](#Hentschel2010). 
 The input state is 
 \begin{align}
 \sqrt{\frac{2}{N+2}}\sum^{N/2}_{m=-N/2}\sin\left(\frac{(2m+N+2)\pi}{2(N+2)}\right)|m\rangle,
@@ -339,13 +347,13 @@ $m$.
     === "offline"
         === "DE"
             ``` py
-            DE_para = {"popsize":10, "deltaphi0":[], "max_episode":1000, "c":1.0, 
+            DE_para = {"p_num":10, "deltaphi0":[], "max_episode":1000, "c":1.0, 
                        "cr":0.5, "seed":1234}
             apt.offline(method="DE", **DE_para)
             ```
         === "PSO"
             ``` py
-            PSO_para = {"particle_num":10, "deltaphi0":[], "max_episode":[1000,100], 
+            PSO_para = {"p_num":10, "deltaphi0":[], "max_episode":[1000,100], 
                         "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
             apt.offline(method="PSO", **PSO_para)
             ```

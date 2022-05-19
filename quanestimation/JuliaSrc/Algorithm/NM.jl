@@ -1,27 +1,27 @@
 function update!(opt::StateOpt, alg::NM, obj, dynamics, output)
-    (; max_episode, state_num, ini_state, ar, ae, ac, as0, rng) = alg
+    (; max_episode, p_num, ini_state, ar, ae, ac, as0, rng) = alg
     if ismissing(ini_state)
         ini_state = [opt.psi]
     end
     dim = length(dynamics.data.ψ0)
-    nelder_mead = repeat(dynamics, state_num)
+    nelder_mead = repeat(dynamics, p_num)
 
     # initialize 
-    if length(ini_state) > state_num
-        ini_state = [ini_state[i] for i in 1:state_num]
+    if length(ini_state) > p_num
+        ini_state = [ini_state[i] for i in 1:p_num]
     end 
     for pj in 1:length(ini_state)
         nelder_mead[pj].data.ψ0 = [ini_state[pj][i] for i in 1:dim]
     end
-    for pj in (length(ini_state)+1):state_num
+    for pj in (length(ini_state)+1):p_num
         r_ini = 2*rand(rng, dim)-ones(dim)
         r = r_ini/norm(r_ini)
         phi = 2*pi*rand(rng, dim)
         nelder_mead[pj].data.ψ0 = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
     end
     
-    p_fit, p_out = zeros(state_num), zeros(state_num)
-    for pj in 1:state_num
+    p_fit, p_out = zeros(p_num), zeros(p_num)
+    for pj in 1:p_num
         p_out[pj], p_fit[pj] = objective(obj, nelder_mead[pj])
     end
     sort_ind = sortperm(p_fit, rev=true)
@@ -37,8 +37,8 @@ function update!(opt::StateOpt, alg::NM, obj, dynamics, output)
         # calculate the average vector
         vec_ave = zeros(ComplexF64, dim)
         for ni in 1:dim
-            vec_ave[ni] = [nelder_mead[pk].data.ψ0[ni] for pk in 1:(state_num-1)] |> sum
-            vec_ave[ni] = vec_ave[ni]/(state_num-1)
+            vec_ave[ni] = [nelder_mead[pk].data.ψ0[ni] for pk in 1:(p_num-1)] |> sum
+            vec_ave[ni] = vec_ave[ni]/(p_num-1)
         end
         vec_ave = vec_ave/norm(vec_ave)
 
@@ -96,7 +96,7 @@ function update!(opt::StateOpt, alg::NM, obj, dynamics, output)
                 else
                     # shrink
                     vec_first = [nelder_mead[sort_ind[1]].data.ψ0[i] for i in 1:dim]
-                    for pk in 1:state_num
+                    for pk in 1:p_num
                         for nq in 1:dim
                             nelder_mead[pk].data.ψ0[nq] = vec_first[nq] + as0*(nelder_mead[pk].data.ψ0[nq]-vec_first[nq])
                         end
@@ -124,7 +124,7 @@ function update!(opt::StateOpt, alg::NM, obj, dynamics, output)
                 else
                     # shrink
                     vec_first = [nelder_mead[sort_ind[1]].data.ψ0[i] for i in 1:dim]
-                    for pk in 1:state_num
+                    for pk in 1:p_num
                         for nq in 1:dim
                             nelder_mead[pk].data.ψ0[nq] = vec_first[nq] + as0*(nelder_mead[pk].data.ψ0[nq]-vec_first[nq])
                         end

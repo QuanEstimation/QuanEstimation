@@ -15,7 +15,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         episode and the values of the objective function in all episodes 
         will be saved.
 
-    > **particle_num:** `int`
+    > **p_num:** `int`
         -- The number of particles.
 
     > **psi0:** `list of arrays`
@@ -55,7 +55,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
     def __init__(
         self,
         savefile=False,
-        particle_num=10,
+        p_num=10,
         psi0=[],
         ctrl0=[],
         measurement0=[],
@@ -71,7 +71,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             self, savefile, psi0, ctrl0, measurement0, seed, eps
         )
 
-        self.p_num = particle_num
+        self.p_num = p_num
         self.max_episode = max_episode
         self.c0 = c0
         self.c1 = c1

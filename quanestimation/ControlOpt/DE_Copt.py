@@ -14,7 +14,7 @@ class DE_Copt(Control.ControlSystem):
         episode and the values of the objective function in all episodes 
         will be saved.
 
-    > **popsize:** `int`
+    > **p_num:** `int`
         -- The number of populations.
 
     > **ctrl0:** list of arrays
@@ -45,7 +45,7 @@ class DE_Copt(Control.ControlSystem):
     def __init__(
         self,
         savefile=False,
-        popsize=10,
+        p_num=10,
         ctrl0=[],
         max_episode=1000,
         c=1.0,
@@ -57,7 +57,7 @@ class DE_Copt(Control.ControlSystem):
 
         Control.ControlSystem.__init__(self, savefile, ctrl0, eps, load)
 
-        self.p_num = popsize
+        self.p_num = p_num
         self.max_episode = max_episode
         self.c = c
         self.cr = cr

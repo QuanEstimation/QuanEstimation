@@ -158,7 +158,7 @@ The code for comprehensive optimization with PSO is as follows
     ```
     where `kwargs` is of the form
     ``` py
-    kwargs = {"particle_num":10, "psi0":[], "ctrl0":[], "measurement0":[], 
+    kwargs = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], 
               "max_episode":[1000,100], "c0":1.0, "c1":2.0, "c2":2.0, 
               "seed":1234}
     ```
@@ -167,7 +167,7 @@ The code for comprehensive optimization with PSO is as follows
 
     | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
     | :----------:                     | :----------:               |
-    | "particle_num"                   | 10                         |
+    | "p_num"                   | 10                         |
     | "psi0"                           | [ ]                        |
     | "ctrl0"                          | [ ]                        |
     | "measurement0"                   | [ ]                        |
@@ -179,7 +179,7 @@ The code for comprehensive optimization with PSO is as follows
 
     `psi0`, `ctrl0` and `measurement0` in the algorithms represent the initial 
     guesses of states, control coefficients and measurements, respectively, `seed` 
-    is the random seed. Here `particle_num` is the number of particles, `c0`, 
+    is the random seed. Here `p_num` is the number of particles, `c0`, 
     `c1`, and `c2` are the PSO parameters representing the inertia weight, cognitive 
     learning factor and social learning factor, respectively. `max_episode` accepts 
     both integers and arrays with two elements. If it is an integer, for example 
@@ -227,7 +227,7 @@ The code for comprehensive optimization with DE is as follows
     ```
     where `kwargs` is of the form
     ``` py
-    kwargs = {"popsize":10, "psi0":[], "ctrl0":[], "measurement0":[], 
+    kwargs = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], 
               "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
     ```
     The keywords and the default values of DE can be seen in the following 
@@ -235,7 +235,7 @@ The code for comprehensive optimization with DE is as follows
 
     | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
     | :----------:                     | :----------:               |
-    | "popsize"                        | 10                         |
+    | "p_num"                        | 10                         |
     | "psi0"                           | [ ]                        |
     | "ctrl0"                          | [ ]                        |
     | "measurement0"                   | [ ]                        |
@@ -244,7 +244,7 @@ The code for comprehensive optimization with DE is as follows
     | "cr"                             | 0.5                        |
     | "seed"                           | 1234                       |
 
-    `popsize` is the number of populations. Here `max_episode` is 
+    `p_num` is the number of populations. Here `max_episode` is 
     an integer representing the number of episodes. `c` and `cr` are constants for 
     mutation and crossover.  
 === "Julia"
@@ -326,8 +326,8 @@ The code for comprehensive optimization with AD is as follows
 
 **Example 8.1**  
 <a id="example8_1"></a>
-A single qubit system whose free evolution Hamiltonian is $H_0 = \frac{1}{2}\omega_0 \sigma_3$ with 
-$\omega_0$ the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system is governed by
+A single qubit system whose free evolution Hamiltonian is $H_0 = \frac{1}{2}\omega \sigma_3$ with 
+$\omega$ the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system is governed by
 \begin{align}
 \partial_t\rho=-i[H_0, \rho]+ \gamma_{+}\left(\sigma_{+}\rho\sigma_{-}-\frac{1}{2}\{\sigma_{-}\sigma_{+},\rho\}\right)+ \gamma_{-}\left(\sigma_{-}\rho\sigma_{+}-\frac{1}{2}\{\sigma_{+}\sigma_{-},\rho\}\right),
 \end{align}
@@ -348,12 +348,12 @@ In this case, we consider two types of comprehensive optimization, the first one
     # initial state
     rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
     # free Hamiltonian
-    omega0 = 1.0
+    omega = 1.0
     sx = np.array([[0., 1.], [1., 0.]])
 	sy = np.array([[0., -1.j], [1.j, 0.]]) 
 	sz = np.array([[1., 0.], [0., -1.]])
-    H0 = 0.5*omega0*sz
-    # derivative of the free Hamiltonian on omega0
+    H0 = 0.5*omega*sz
+    # derivative of the free Hamiltonian on omega
     dH = [0.5*sz]
     # control Hamiltonians 
     Hc = [sx,sy,sz]
@@ -372,7 +372,7 @@ In this case, we consider two types of comprehensive optimization, the first one
         === "DE"
             ``` py
             # comprehensive optimization algorithm: DE
-            DE_paras = {"popsize":10, "psi0":[], "ctrl0":[], "measurement0":[], \
+            DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
                         "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
             com.dynamics(tspan, H0, dH, decay=decay)
@@ -381,7 +381,7 @@ In this case, we consider two types of comprehensive optimization, the first one
         === "PSO"
             ``` py
             # comprehensive optimization algorithm: PSO
-            PSO_paras = {"particle_num":10, "psi0":[], "ctrl0":[], \
+            PSO_paras = {"p_num":10, "psi0":[], "ctrl0":[], \
                          "measurement0":[], "max_episode":[1000,100], "c0":1.0, \
                          "c1":2.0, "c2":2.0, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
@@ -392,7 +392,7 @@ In this case, we consider two types of comprehensive optimization, the first one
         === "DE"
             ``` py
             # comprehensive optimization algorithm: DE
-            DE_paras = {"popsize":10, "psi0":[], "ctrl0":[], "measurement0":[], \
+            DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
                         "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0])
@@ -408,7 +408,7 @@ In this case, we consider two types of comprehensive optimization, the first one
         === "PSO"
             ``` py
             # comprehensive optimization algorithm: PSO
-            PSO_paras = {"particle_num":10, "psi0":[], "ctrl0":[], \
+            PSO_paras = {"p_num":10, "psi0":[], "ctrl0":[], \
                          "measurement0":[], "max_episode":[1000,100], "c0":1.0, \
                          "c1":2.0, "c2":2.0, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
@@ -443,7 +443,7 @@ In this case, we consider two types of comprehensive optimization, the first one
         === "DE"
             ``` py
             # comprehensive optimization algorithm: DE
-            DE_paras = {"popsize":10, "psi0":[], "ctrl0":[], "measurement0":[], \
+            DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
                         "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0])
@@ -452,7 +452,7 @@ In this case, we consider two types of comprehensive optimization, the first one
         === "PSO"
             ``` py
             # comprehensive optimization algorithm: PSO
-            PSO_paras = {"particle_num":10, "psi0":[], "ctrl0":[], \
+            PSO_paras = {"p_num":10, "psi0":[], "ctrl0":[], \
                          "measurement0":[], "max_episode":[1000,100], "c0":1.0, \
                          "c1":2.0, "c2":2.0, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
@@ -463,7 +463,7 @@ In this case, we consider two types of comprehensive optimization, the first one
         === "DE"
             ``` py
             # comprehensive optimization algorithm: DE
-            DE_paras = {"popsize":10, "psi0":[], "ctrl0":[], "measurement0":[], \
+            DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
                         "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0])
@@ -472,7 +472,7 @@ In this case, we consider two types of comprehensive optimization, the first one
         === "PSO"
             ``` py
             # comprehensive optimization algorithm: PSO
-            PSO_paras = {"particle_num":10, "psi0":[], "ctrl0":[], \
+            PSO_paras = {"p_num":10, "psi0":[], "ctrl0":[], \
                          "measurement0":[], "max_episode":[1000,100], "c0":1.0, \
                          "c1":2.0, "c2":2.0, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
@@ -486,12 +486,12 @@ In this case, we consider two types of comprehensive optimization, the first one
     # initial state
     rho0 = 0.5*ones(2, 2)
     # free Hamiltonian
-    omega0 = 1.0
+    omega = 1.0
     sx = [0. 1.; 1. 0.0im]
 	sy = [0. -im; im 0.]
 	sz = [1. 0.0im; 0. -1.]
-    H0 = 0.5*omega0*sz
-    # derivative of the free Hamiltonian on omega0
+    H0 = 0.5*omega*sz
+    # derivative of the free Hamiltonian on omega
     dH = [0.5*sz]
     # control Hamiltonians 
     Hc = [sx, sy, sz]
@@ -727,7 +727,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
         === "DE"
             ``` py
             # comprehensive optimization algorithm: DE
-            DE_paras = {"popsize":10, "psi0":[], "ctrl0":[], "measurement0":[], \
+            DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
                         "max_episode":100, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
             com.dynamics(tspan, H0, dH, decay=decay)
@@ -736,7 +736,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
         === "PSO"
             ``` py
             # comprehensive optimization algorithm: PSO
-            PSO_paras = {"particle_num":10, "psi0":[], "ctrl0":[], \
+            PSO_paras = {"p_num":10, "psi0":[], "ctrl0":[], \
                          "measurement0":[], "max_episode":[1000,100], "c0":1.0, \
                          "c1":2.0, "c2":2.0, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
@@ -747,7 +747,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
         === "DE"
             ``` py
             # comprehensive optimization algorithm: DE
-            DE_paras = {"popsize":10, "psi0":[], "ctrl0":[], "measurement0":[], \
+            DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
                         "max_episode":100, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl=[ctrl0], \
@@ -771,7 +771,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
         === "PSO"
             ``` py
             # comprehensive optimization algorithm: PSO
-            PSO_paras = {"particle_num":10, "psi0":[], "ctrl0":[], \
+            PSO_paras = {"p_num":10, "psi0":[], "ctrl0":[], \
                          "measurement0":[], "max_episode":[1000,100], "c0":1.0, \
                          "c1":2.0, "c2":2.0, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
@@ -816,7 +816,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
         === "DE"
             ``` py
             # comprehensive optimization algorithm: DE
-            DE_paras = {"popsize":10, "psi0":[], "ctrl0":[], "measurement0":[], \
+            DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
                         "max_episode":100, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-0.2,0.2])
@@ -825,7 +825,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
         === "PSO"
             ``` py
             # comprehensive optimization algorithm: PSO
-            PSO_paras = {"particle_num":10, "psi0":[], "ctrl0":[], \
+            PSO_paras = {"p_num":10, "psi0":[], "ctrl0":[], \
                          "measurement0":[], "max_episode":[1000,100], "c0":1.0, \
                          "c1":2.0, "c2":2.0, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
@@ -836,7 +836,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
         === "DE"
             ``` py
             # comprehensive optimization algorithm: DE
-            DE_paras = {"popsize":10, "psi0":[], "ctrl0":[], "measurement0":[], \
+            DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
                         "max_episode":100, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-0.2,0.2])
@@ -845,7 +845,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
         === "PSO"
             ``` py
             # comprehensive optimization algorithm: PSO
-            PSO_paras = {"particle_num":10, "psi0":[], "ctrl0":[], \
+            PSO_paras = {"p_num":10, "psi0":[], "ctrl0":[], \
                          "measurement0":[], "max_episode":[1000,100], "c0":1.0, \
                          "c1":2.0, "c2":2.0, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
@@ -1102,7 +1102,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
     === "DE"
         ``` py
         # comprehensive optimization algorithm: DE
-        DE_paras = {"popsize":10, "psi0":[], "ctrl0":[], "measurement0":[], \
+        DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
                     "max_episode":100, "c":1.0, "cr":0.5, "seed":1234}
         com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
         com.Kraus(K, dK)
@@ -1111,7 +1111,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
     === "PSO"
         ``` py
         # comprehensive optimization algorithm: PSO
-        PSO_paras = {"particle_num":10, "psi0":[], "ctrl0":[], \
+        PSO_paras = {"p_num":10, "psi0":[], "ctrl0":[], \
                      "measurement0":[], "max_episode":[1000,100], "c0":1.0, \
                      "c1":2.0, "c2":2.0, "seed":1234}
         com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)

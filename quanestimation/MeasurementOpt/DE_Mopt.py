@@ -14,7 +14,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
         episode and the values of the objective function in all episodes 
         will be saved.
 
-    > **popsize:** `int`
+    > **p_num:** `int`
         -- The number of populations.
 
     > **measurement0:** `list of arrays`
@@ -46,7 +46,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
         mtype,
         minput,
         savefile=False,
-        popsize=10,
+        p_num=10,
         measurement0=[],
         max_episode=1000,
         c=1.0,
@@ -60,7 +60,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
             self, mtype, minput, savefile, measurement0, seed, eps, load
         )
 
-        self.p_num = popsize
+        self.p_num = p_num
         self.max_episode = max_episode
         self.c = c
         self.cr = cr

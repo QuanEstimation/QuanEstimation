@@ -3,11 +3,11 @@ using Trapz
 
 # free Hamiltonian
 function H0_func(x)
-    return 0.5*B*(sx*cos(x)+sz*sin(x))
+    return 0.5*B*omega0*(sx*cos(x)+sz*sin(x))
 end
 # derivative of the free Hamiltonian on x
 function dH_func(x)
-    return [0.5*B*(-sx*sin(x)+sz*cos(x))]
+    return [0.5*B*omega0*(-sx*sin(x)+sz*cos(x))]
 end
 # prior distribution
 function p_func(x, mu, eta)
@@ -17,7 +17,7 @@ function dp_func(x, mu, eta)
     return -(x-mu)*exp(-(x-mu)^2/(2*eta^2))/(eta^3*sqrt(2*pi))
 end
 
-B = 0.5*pi
+B, omega0 = 0.5*pi, 1.0
 sx = [0. 1.; 1. 0.0im]
 sy = [0. -im; im 0.]
 sz = [1. 0.0im; 0. -1.]

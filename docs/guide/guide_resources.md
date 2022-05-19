@@ -1,3 +1,4 @@
+# **Metrological resources**
 The metrological resources that QuanEstimation can calculate are spin squeezing and the 
 minimum time to reach the given target. The spin squeezing can be calculated via the function: 
 === "Python"
@@ -43,22 +44,25 @@ In this example, QuTip [[3,4]](#Johansson2012) is used to generate spin coherent
     rho = psi0*psi0'
     xi = QuanEstimation.SpinSqueezing(rho; basis="Dicke", output="KU")
     ```
-Calculation of the time to reach a given precision limit with
+Calculation of the minimum time to reach a given precision limit with
 === "Python"
     ``` py
     TargetTime(f, tspan, func, *args, **kwargs)
     ```
+    where `f` is the given value of the objective function and `tspan` is the time length for the 
+    evolution. `func` represents the function for calculating the objective function, `*args` and 
+    `**kwargs` are the corresponding input parameters and the keyword arguments.
 === "Julia"
     ``` jl
     TargetTime(f, tspan, func, args...; kwargs...)
     ```
-where `f` is the given value of the objective function and `tspan` is the time length for the 
-evolution. `func` represents the function for calculating the objective function, `*args` and 
-`**kwargs` are the corresponding input parameters and the keyword arguments.
+    where `f` is the given value of the objective function and `tspan` is the time length for the 
+    evolution. `func` represents the function for calculating the objective function, `args...` 
+    and `kwargs...` are the corresponding input parameters and the keyword arguments.
 
 **Example 4.2**  
 In this example, the free evolution Hamiltonian of a single qubit system is $H_0=\frac{1}{2}
-\omega_0 \sigma_3$ with $\omega_0$ the frequency and $\sigma_3$ a Pauli matrix. 
+\omega \sigma_3$ with $\omega$ the frequency and $\sigma_3$ a Pauli matrix. 
 The dynamics of the system is governed by
 \begin{align}
 \partial_t\rho=-i[H_0, \rho],
@@ -66,7 +70,7 @@ The dynamics of the system is governed by
 
 where $\rho$ is the parameterized density matrix. The probe state is taken as $|+\rangle\langle+|$ 
 with $|+\rangle=\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)$. Here $|0\rangle$ $(|1\rangle)$ is the 
-eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $(-1)$.
+eigenstate of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
 === "Python"
     ``` py
     from quanestimation import *
@@ -75,10 +79,10 @@ eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $(-1)
     # initial state
     rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
     # free Hamiltonian
-    omega0 = 1.0
+    omega = 1.0
     sz = np.array([[1., 0.], [0., -1.]])
-    H0 = 0.5*omega0*sz
-    # derivative of the free Hamiltonian on omega0
+    H0 = 0.5*omega*sz
+    # derivative of the free Hamiltonian on omega
     dH = [0.5*sz]
     # time length for the evolution
     tspan = np.linspace(0., 50., 2000)
@@ -96,12 +100,12 @@ eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $(-1)
     # initial state
     rho0 = 0.5*ones(2, 2)
     # free Hamiltonian
-    omega0 = 1.0
+    omega = 1.0
     sx = [0. 1.; 1. 0.0im]
 	sy = [0. -im; im 0.]
 	sz = [1. 0.0im; 0. -1.]
-	H0 = 0.5*omega0*sz
-    # derivative of the free Hamiltonian on omega0
+	H0 = 0.5*omega*sz
+    # derivative of the free Hamiltonian on omega
     dH = [0.5*sz]
     # time length for the evolution
     tspan = range(0., 50., length=2000)

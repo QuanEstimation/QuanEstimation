@@ -4,12 +4,12 @@ using Random
 # initial state
 rho0 = 0.5*ones(2, 2)
 # free Hamiltonian
-omega0 = 1.0
+omega = 1.0
 sx = [0. 1.; 1. 0.0im]
 sy = [0. -im; im 0.]
 sz = [1. 0.0im; 0. -1.]
-H0 = 0.5*omega0*sz
-# derivative of the free Hamiltonian on omega0
+H0 = 0.5*omega*sz
+# derivative of the free Hamiltonian on omega
 dH = [0.5*sz]
 # control Hamiltonians 
 Hc = [sx, sy, sz]

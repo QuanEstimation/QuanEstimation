@@ -14,7 +14,7 @@ class PSO_Mopt(Measurement.MeasurementSystem):
         episode and the values of the objective function in all episodes 
         will be saved.
 
-    > **particle_num:** `int`
+    > **p_num:** `int`
         -- The number of particles.
 
     > **measurement0:** `list of arrays`
@@ -55,7 +55,7 @@ class PSO_Mopt(Measurement.MeasurementSystem):
         mtype,
         minput,
         savefile=False,
-        particle_num=10,
+        p_num=10,
         measurement0=[],
         max_episode=[1000, 100],
         c0=1.0,
@@ -70,7 +70,7 @@ class PSO_Mopt(Measurement.MeasurementSystem):
             self, mtype, minput, savefile, measurement0, seed, eps, load
         )
 
-        self.p_num = particle_num
+        self.p_num = p_num
         self.max_episode = max_episode
         self.c0 = c0
         self.c1 = c1

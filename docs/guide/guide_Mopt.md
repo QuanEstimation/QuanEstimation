@@ -102,14 +102,14 @@ The code for measurement optimization with PSO is as follows
     ```
     where `kwargs` is of the form
     ``` py
-    kwargs = {"particle_num":10, "measurement0":[], "max_episode":[1000,100], \ 
+    kwargs = {"p_num":10, "measurement0":[], "max_episode":[1000,100], \ 
               "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
     ```
     The keywords and the default values of PSO can be seen in the following table
 
     | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
     | :----------:                     | :----------:               |
-    | "particle_num"                   | 10                         |
+    | "p_num"                   | 10                         |
     | "measurement0"                   | [ ]                        |
     | "max_episode"                    | [1000,100]                 |
     | "c0"                             | 1.0                        |
@@ -117,7 +117,7 @@ The code for measurement optimization with PSO is as follows
     | "c2"                             | 2.0                        |
     | "seed"                           | 1234                       |
 
-    `particle_num` is the number of particles, `c0`, `c1` and `c2` are the PSO parameters 
+    `p_num` is the number of particles, `c0`, `c1` and `c2` are the PSO parameters 
     representing the inertia weight, cognitive learning factor and social learning factor, 
     respectively. `max_episode` accepts both integers and arrays with two elements. If it is 
     an integer, for example `max_episode=1000`, it means the program will continuously run 
@@ -178,7 +178,7 @@ The code for measurement optimization with PSO is as follows
         s = np.random.random(dim**2)
         measurement0 = [s]
         ```
-    In this algorithm, the length of `measurement0` should be less than or equal to `particle_num`.
+    In this algorithm, the length of `measurement0` should be less than or equal to `p_num`.
 === "Julia"
     ``` jl
     alg = PSO(p_num=10, ini_particle=missing, max_episode=[1000,100], 
@@ -264,21 +264,21 @@ The code for measurement optimization with DE is as follows
     ```
     where `kwargs` is of the form
     ``` py
-    kwargs = {"popsize":10, "measurement0":[], "max_episode":1000, \
+    kwargs = {"p_num":10, "measurement0":[], "max_episode":1000, \
               "c":1.0, "cr":0.5, "seed":1234}
     ```
     The keywords and the default values of DE can be seen in the following table
 
     | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
     | :----------:                     | :----------:               |
-    | "popsize"                        | 10                         |
+    | "p_num"                        | 10                         |
     | "measurement0"                   | [ ]                        |
     | "max_episode"                    | 1000                       |
     | "c"                              | 1.0                        |
     | "cr"                             | 0.5                        |
     | "seed"                           | 1234                       |
 
-    `popsize` represents the number of populations, `c` and `cr` are the mutation constant and the 
+    `p_num` represents the number of populations, `c` and `cr` are the mutation constant and the 
     crossover constant. Here `max_episode` is an integer representing the number of episodes, 
     the variable `measurement0` is the same with `measurement0` in PSO.
 === "Julia"
@@ -361,7 +361,7 @@ A single qubit system whose dynamics is governed by
 \sigma_{-},\rho\}\right),
 \end{align}
 
-where $H = \frac{1}{2}\omega_0 \sigma_3$ is the free Hamiltonian with $\omega_0$ the frequency, 
+where $H = \frac{1}{2}\omega \sigma_3$ is the free Hamiltonian with $\omega$ the frequency, 
 $\sigma_{\pm}=(\sigma_1 \pm \sigma_2)/2$ and $\gamma_{+}$, $\gamma_{-}$ are decay rates.
 Here $\sigma_{i}$ for $(i=1,2,3)$ is the  Pauli matrix.
 
@@ -376,12 +376,12 @@ $1$ $(-1)$.
     # initial state
     rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
     # free Hamiltonian
-    omega0 = 1.0
+    omega = 1.0
     sx = np.array([[0., 1.], [1., 0.]])
 	sy = np.array([[0., -1.j], [1.j, 0.]]) 
 	sz = np.array([[1., 0.], [0., -1.]])
-    H0 = 0.5*omega0*sz
-    # derivative of the free Hamiltonian on omega0
+    H0 = 0.5*omega*sz
+    # derivative of the free Hamiltonian on omega
     dH = [0.5*sz]
     # dissipation
     sp = np.array([[0., 1.], [0., 0.]])  
@@ -397,7 +397,7 @@ $1$ $(-1)$.
         === "DE"
 		    ``` py
             # measurement optimization algorithm: DE
-		    DE_paras = {"popsize":10, "measurement0":[], "max_episode":1000, \
+		    DE_paras = {"p_num":10, "measurement0":[], "max_episode":1000, \
                         "c":1.0, "cr":0.5, "seed":1234}
 		    m = MeasurementOpt(mtype="projection", minput=[], savefile=False, \
                                method="DE", **DE_paras)
@@ -405,7 +405,7 @@ $1$ $(-1)$.
         === "PSO"
 		    ``` py
             # measurement optimization algorithm: PSO
-		    PSO_paras = {"particle_num":10, "measurement0":[], \
+		    PSO_paras = {"p_num":10, "measurement0":[], \
                          "max_episode":[1000,100], "c0":1.0, \
 					    "c1":2.0, "c2":2.0, "seed":1234}
 		    m = MeasurementOpt(mtype="projection", minput=[], savefile=False, \
@@ -415,7 +415,7 @@ $1$ $(-1)$.
         === "DE"
 		    ``` py
             # measurement optimization algorithm: DE
-		    DE_paras = {"popsize":10, "measurement0":[], "max_episode":1000, \
+		    DE_paras = {"p_num":10, "measurement0":[], "max_episode":1000, \
 				        "c":1.0, "cr":0.5, "seed":1234}
 		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 4], \
                                savefile=False, method="DE", **DE_paras)
@@ -423,7 +423,7 @@ $1$ $(-1)$.
         === "PSO"
 		    ``` py
             # measurement optimization algorithm: PSO
-		    PSO_paras = {"particle_num":10, "measurement0":[], "max_episode":[1000,100], \
+		    PSO_paras = {"p_num":10, "measurement0":[], "max_episode":[1000,100], \
 					     "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
 		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 4], \
                                savefile=False, method="PSO", **PSO_paras)
@@ -440,7 +440,7 @@ $1$ $(-1)$.
         === "DE"
 		    ``` py
             # measurement optimization algorithm: DE
-		    DE_paras = {"popsize":10, "measurement0":[], "max_episode":1000, \
+		    DE_paras = {"p_num":10, "measurement0":[], "max_episode":1000, \
                         "c":1.0, "cr":0.5, "seed":1234}
 		    m = MeasurementOpt(mtype="input", minput=["rotation", POVM_basis], \
                                savefile=False, method="DE", **DE_paras)
@@ -448,7 +448,7 @@ $1$ $(-1)$.
         === "PSO"
 		    ``` py
             # measurement optimization algorithm: PSO
-		    PSO_paras = {"particle_num":10, "measurement0":[], \
+		    PSO_paras = {"p_num":10, "measurement0":[], \
                          "max_episode":[1000,100], "c0":1.0, \
 					     "c1":2.0, "c2":2.0, "seed":1234}
 		    m = MeasurementOpt(mtype="input", minput=["rotation", POVM_basis], \
@@ -478,12 +478,12 @@ $1$ $(-1)$.
     # initial state
     rho0 = 0.5*ones(2, 2)
     # free Hamiltonian
-    omega0 = 1.0
+    omega = 1.0
     sx = [0. 1.; 1. 0.0im]
 	sy = [0. -im; im 0.]
 	sz = [1. 0.0im; 0. -1.]
-    H0 = 0.5*omega0*sz
-    # derivative of the free Hamiltonian on omega0
+    H0 = 0.5*omega*sz
+    # derivative of the free Hamiltonian on omega
     dH = [0.5*sz]
     # dissipation
     sp = [0. 1.; 0. 0.0im]
@@ -658,7 +658,7 @@ Here three types of measurement optimization are considerd, projective measureme
         === "DE"
 		    ``` py
             # measurement optimization algorithm: DE
-		    DE_paras = {"popsize":10, "measurement0":[], "max_episode":1000, \
+		    DE_paras = {"p_num":10, "measurement0":[], "max_episode":1000, \
                         "c":1.0, "cr":0.5, "seed":1234}
 		    m = MeasurementOpt(mtype="projection", minput=[], savefile=False, \
                                method="DE", **DE_paras)
@@ -666,7 +666,7 @@ Here three types of measurement optimization are considerd, projective measureme
         === "PSO"
 		    ``` py
             # measurement optimization algorithm: PSO
-		    PSO_paras = {"particle_num":10, "measurement0":[], \
+		    PSO_paras = {"p_num":10, "measurement0":[], \
                          "max_episode":[1000,100], "c0":1.0, \
 					    "c1":2.0, "c2":2.0, "seed":1234}
 		    m = MeasurementOpt(mtype="projection", minput=[], savefile=False, \
@@ -676,7 +676,7 @@ Here three types of measurement optimization are considerd, projective measureme
         === "DE"
 		    ``` py
             # measurement optimization algorithm: DE
-		    DE_paras = {"popsize":10, "measurement0":[], "max_episode":1000, \
+		    DE_paras = {"p_num":10, "measurement0":[], "max_episode":1000, \
 				        "c":1.0, "cr":0.5, "seed":1234}
 		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 4], \
                                savefile=False, method="DE", **DE_paras)
@@ -684,7 +684,7 @@ Here three types of measurement optimization are considerd, projective measureme
         === "PSO"
 		    ``` py
             # measurement optimization algorithm: PSO
-		    PSO_paras = {"particle_num":10, "measurement0":[], "max_episode":[1000,100], \
+		    PSO_paras = {"p_num":10, "measurement0":[], "max_episode":[1000,100], \
 					     "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
 		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 4], \
                                savefile=False, method="PSO", **PSO_paras)
@@ -701,7 +701,7 @@ Here three types of measurement optimization are considerd, projective measureme
         === "DE"
 		    ``` py
             # measurement optimization algorithm: DE
-		    DE_paras = {"popsize":10, "measurement0":[], "max_episode":1000, \
+		    DE_paras = {"p_num":10, "measurement0":[], "max_episode":1000, \
                         "c":1.0, "cr":0.5, "seed":1234}
 		    m = MeasurementOpt(mtype="input", minput=["rotation", POVM_basis], \
                                savefile=False, method="DE", **DE_paras)
@@ -709,7 +709,7 @@ Here three types of measurement optimization are considerd, projective measureme
         === "PSO"
 		    ``` py
             # measurement optimization algorithm: PSO
-		    PSO_paras = {"particle_num":10, "measurement0":[], \
+		    PSO_paras = {"p_num":10, "measurement0":[], \
                          "max_episode":[1000,100], "c0":1.0, \
 					     "c1":2.0, "c2":2.0, "seed":1234}
 		    m = MeasurementOpt(mtype="input", minput=["rotation", POVM_basis], \
@@ -905,7 +905,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
         === "DE"
 		    ``` py
             # measurement optimization algorithm: DE
-		    DE_paras = {"popsize":10, "measurement0":[], "max_episode":1000, \
+		    DE_paras = {"p_num":10, "measurement0":[], "max_episode":1000, \
                         "c":1.0, "cr":0.5, "seed":1234}
 		    m = MeasurementOpt(mtype="projection", minput=[], savefile=False, \
                                method="DE", **DE_paras)
@@ -913,7 +913,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
         === "PSO"
 		    ``` py
             # measurement optimization algorithm: PSO
-		    PSO_paras = {"particle_num":10, "measurement0":[], \
+		    PSO_paras = {"p_num":10, "measurement0":[], \
                          "max_episode":[1000,100], "c0":1.0, \
 					    "c1":2.0, "c2":2.0, "seed":1234}
 		    m = MeasurementOpt(mtype="projection", minput=[], savefile=False, \
@@ -923,7 +923,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
         === "DE"
 		    ``` py
             # measurement optimization algorithm: DE
-		    DE_paras = {"popsize":10, "measurement0":[], "max_episode":1000, \
+		    DE_paras = {"p_num":10, "measurement0":[], "max_episode":1000, \
 				        "c":1.0, "cr":0.5, "seed":1234}
 		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 4], \
                                savefile=False, method="DE", **DE_paras)
@@ -931,7 +931,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
         === "PSO"
 		    ``` py
             # measurement optimization algorithm: PSO
-		    PSO_paras = {"particle_num":10, "measurement0":[], "max_episode":[1000,100], \
+		    PSO_paras = {"p_num":10, "measurement0":[], "max_episode":[1000,100], \
 					     "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
 		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 4], \
                                savefile=False, method="PSO", **PSO_paras)
@@ -948,7 +948,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
         === "DE"
 		    ``` py
             # measurement optimization algorithm: DE
-		    DE_paras = {"popsize":10, "measurement0":[], "max_episode":1000, \
+		    DE_paras = {"p_num":10, "measurement0":[], "max_episode":1000, \
                         "c":1.0, "cr":0.5, "seed":1234}
 		    m = MeasurementOpt(mtype="input", minput=["rotation", POVM_basis], \
                                savefile=False, method="DE", **DE_paras)
@@ -956,7 +956,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
         === "PSO"
 		    ``` py
             # measurement optimization algorithm: PSO
-		    PSO_paras = {"particle_num":10, "measurement0":[], \
+		    PSO_paras = {"p_num":10, "measurement0":[], \
                          "max_episode":[1000,100], "c0":1.0, \
 					     "c1":2.0, "c2":2.0, "seed":1234}
 		    m = MeasurementOpt(mtype="input", minput=["rotation", POVM_basis], \
