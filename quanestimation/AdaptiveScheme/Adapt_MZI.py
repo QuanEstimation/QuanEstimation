@@ -44,8 +44,7 @@ class Adapt_MZI:
     def offline(
         self,
         method="DE",
-        popsize=10,
-        particle_num=10,
+        p_num=10,
         deltaphi0=[],
         c=1.0,
         cr=0.5,
@@ -65,7 +64,7 @@ class Adapt_MZI:
             "PSO" -- PSO algorithm for the adaptive phase estimation.
 
         If the `method=DE`, the parameters are:
-        > **popsize:** `int`
+        > **p_num:** `int`
             -- The number of populations.
 
         > **deltaphi0:** `list`
@@ -87,8 +86,6 @@ class Adapt_MZI:
             -- Machine epsilon.
         
         If the `method=PSO`, the parameters are:
-        > **particle_num:** `int`
-            -- The number of particles.
 
         > **deltaphi0:** `list`
             -- Initial guesses of phase difference.
@@ -129,7 +126,7 @@ class Adapt_MZI:
                 self.rho0,
                 self.a,
                 comb,
-                popsize,
+                p_num,
                 deltaphi0,
                 c,
                 cr,
@@ -144,7 +141,7 @@ class Adapt_MZI:
                 self.rho0,
                 self.a,
                 comb,
-                particle_num,
+                p_num,
                 deltaphi0,
                 c0,
                 c1,

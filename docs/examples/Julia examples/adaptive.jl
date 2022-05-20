@@ -4,14 +4,14 @@ using StatsBase
 
 # free Hamiltonian
 function H0_func(x)
-    return 0.5*B*(sx*cos(x[1])+sz*sin(x[1]))
+    return 0.5*B*omega0*(sx*cos(x[1])+sz*sin(x[1]))
 end
 # derivative of free Hamiltonian in x
 function dH_func(x)
-    return [0.5*B*(-sx*sin(x[1])+sz*cos(x[1]))]
+    return [0.5*B*omega0*(-sx*sin(x[1])+sz*cos(x[1]))]
 end
 
-B = pi/2.0
+B, omega0 = pi/2.0, 1.0
 sx = [0. 1.; 1. 0.0im]
 sy = [0. -im; im 0.]
 sz = [1. 0.0im; 0. -1.]

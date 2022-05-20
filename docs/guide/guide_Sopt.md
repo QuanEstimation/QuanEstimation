@@ -1,7 +1,7 @@
 # **State optimization**
 For state optimization in QuanEstimation, the probe state is expanded as 
-$|\psi\rangle=\sum_i c_i|i\rangle$ in a specific basis $\{|i\rangle\}$. Search of the optimal 
-probe states is equal to search of the normalized complex coefficients $\{c_i\}$. In 
+$|\psi\rangle=\sum_i c_i|i\rangle$ in a specific basis $\{|i\rangle\}$. Thus, search of the 
+optimal probe states is equal to search of the normalized complex coefficients $\{c_i\}$. In 
 QuanEstimation, the state optimization algorithms are the automatic differentiation (AD) 
 [[1]](#Baydin2018), particle swarm optimization (PSO) [[2]](#Kennedy1995), differential 
 evolution (DE) [[3]](#Storn1997), Nelder-Mead (NM) [[4]](#Nelder1965), and deep deterministic 
@@ -28,7 +28,7 @@ optimizaiton
     states in the final episode and the values of the objective function in all episodes will 
     be saved. If set `True` then the states and the values of the objective function obtained 
     in all episodes will be saved during the training. `method` represents the algorithm used 
-    to optimize the states, options are: "AD", "PSO", "DE", "DDPG", and "NM". `**kwargs` contains 
+    to optimize the states, options are: "AD", "PSO", "DE", "DDPG" and "NM". `**kwargs` contains 
     the keywords and default values corresponding to the optimization algorithm which will be 
     introduced in detail below.
 
@@ -51,7 +51,7 @@ optimizaiton
     the users call `state.HCRB()` for single parameter scenario, the program will exit and print 
     `"Program terminated. In the single-parameter scenario, the HCRB is equivalent to the QFI. Please 
     choose 'QFIM' as the objective function"`. `LDtype` in `state.QFIM()` represents the types 
-    of the QFIM, it can be set as `LDtype="SLD"` (default), `LDtype="RLD"`, and `LDtype="LLD"`. 
+    of the QFIM, it can be set as `LDtype="SLD"` (default), `LDtype="RLD"` and `LDtype="LLD"`. 
     `M` represents a set of positive operator-valued measure (POVM) with default value `[]`. 
     In the package, a set of rank-one symmetric informationally complete POVM (SIC-POVM) is 
     used when `M=[]`.
@@ -98,7 +98,7 @@ optimizaiton
     scenario, the program will exit and print `"Program terminated. In the single-parameter scenario, the 
     HCRB is equivalent to the QFI. Please choose 'QFIM_obj()' as the objective function"`.
     `LDtype` in `QFIM_obj()` represents the types of the QFIM, it can be set as `LDtype=:SLD` 
-    (default), `LDtype=:RLD`, and `LDtype=:LLD`. `M` represents a set of positive operator-valued 
+    (default), `LDtype=:RLD` and `LDtype=:LLD`. `M` represents a set of positive operator-valued 
     measure (POVM) with default value `missing`. In the package, a set of rank-one symmetric 
     informationally complete POVM (SIC-POVM) is used when `M=missing`.
 
@@ -169,7 +169,7 @@ The code for state optimization with PSO is as follows
     ```
     where `kwargs` is of the form
     ``` py
-    kwargs = {"particle_num":10, "psi0":[], "max_episode":[1000,100], 
+    kwargs = {"p_num":10, "psi0":[], "max_episode":[1000,100], 
               "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
     ```
     The keywords and the default values of PSO can be seen in the following 
@@ -177,7 +177,7 @@ The code for state optimization with PSO is as follows
 
     | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
     | :----------:                     | :----------:               |
-    | "particle_num"                   | 10                         |
+    | "p_num"                   | 10                         |
     | "psi0"                           | [ ]                        |
     | "max_episode"                    | [1000,100]                 |
     | "c0"                             | 1.0                        |
@@ -185,7 +185,7 @@ The code for state optimization with PSO is as follows
     | "c2"                             | 2.0                        |
     | "seed"                           | 1234                       |
 
-    `particle_num` is the number of particles. Here `max_episode` accepts both integers and 
+    `p_num` is the number of particles. Here `max_episode` accepts both integers and 
     arrays with two elements. If it is an integer, for example `max_episode=1000`, it means the 
     program will continuously run 1000 episodes. However, if it is an array, for example 
     `max_episode=[1000,100]`, the program will run 1000 episodes in total but replace states of 
@@ -227,7 +227,7 @@ The code for state optimization with DE is as follows
     ```
     where `kwargs` is of the form
     ``` py
-    kwargs = {"popsize":10, "psi0":[], "max_episode":1000, "c":1.0, 
+    kwargs = {"p_num":10, "psi0":[], "max_episode":1000, "c":1.0, 
               "cr":0.5, "seed":1234}
     ```
     The keywords and the default values of DE can be seen in the following 
@@ -235,14 +235,14 @@ The code for state optimization with DE is as follows
 
     | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
     | :----------:                     | :----------:               |
-    | "popsize"                        | 10                         |
+    | "p_num"                        | 10                         |
     | "psi0"                           | [ ]                        |
     | "max_episode"                    | 1000                       |
     | "c"                              | 1.0                        |
     | "cr"                             | 0.5                        |
     | "seed"                           | 1234                       |
 
-    `popsize` represents the number of populations. `c` and `cr` are the mutation constant and 
+    `p_num` represents the number of populations. `c` and `cr` are the mutation constant and 
     crossover constant.
 === "Julia"
     ``` jl
@@ -272,7 +272,7 @@ The code for state optimization with NM is as follows
     ```
     where `kwargs` is of the form
     ``` py
-    kwargs = {"state_num":10, "psi0":psi0, "max_episode":1000, "ar":1.0, 
+    kwargs = {"p_num":10, "psi0":psi0, "max_episode":1000, "ar":1.0, 
               "ae":2.0, "ac":0.5, "as0":0.5, "seed":1234}
     ```
     The keywords and the default values of NM can be seen in the following 
@@ -280,7 +280,7 @@ The code for state optimization with NM is as follows
 
     | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
     | :----------:                     | :----------:               |
-    | "state_num"                      | 10                         |
+    | "p_num"                      | 10                         |
     | "psi0"                           | [ ]                        |
     | "max_episode"                    | 1000                       |
     | "ar"                             | 1.0                        |
@@ -289,11 +289,11 @@ The code for state optimization with NM is as follows
     | "as0"                            | 0.5                        |
     | "seed"                           | 1234                       |
 
-    `state_num` represents the number of initial states. `ar`, `ae`, `ac`, and `as0` are 
+    `p_num` represents the number of initial states. `ar`, `ae`, `ac`, and `as0` are 
     constants for reflection, expansion, constraction, and shrink, respectively.
 === "Julia"
     ``` jl
-    alg = NM(state_num=10, ini_state=missing, max_episode=1000, ar=1.0, ae=2.0, 
+    alg = NM(p_num=10, ini_state=missing, max_episode=1000, ar=1.0, ae=2.0, 
              ac=0.5, as0=0.5, seed=1234)
     ```
     The keywords and the default values of NM can be seen in the following 
@@ -301,7 +301,7 @@ The code for state optimization with NM is as follows
 
     | $~~~~~~~~~~$keywords$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
     | :----------:                     | :----------:               |
-    | "state_num"                      | 10                         |
+    | "p_num"                      | 10                         |
     | "ini_state"                      | missing                    |
     | "max_episode"                    | 1000                       |
     | "ar"                             | 1.0                        |
@@ -405,21 +405,21 @@ for generation of the spin coherent state.
 	=== "PSO"
 		``` py
         # state optimization algorithm: PSO
-		PSO_paras = {"particle_num":10, "psi0":psi0, "max_episode":[1000,100], \
+		PSO_paras = {"p_num":10, "psi0":psi0, "max_episode":[1000,100], \
 					 "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
 		state = StateOpt(savefile=False, method="PSO", **PSO_paras)
 		```
 	=== "DE"
 		``` py
         # state optimization algorithm: DE
-		DE_paras = {"popsize":10, "psi0":psi0, "max_episode":1000, "c":1.0, \
+		DE_paras = {"p_num":10, "psi0":psi0, "max_episode":1000, "c":1.0, \
 				    "cr":0.5, "seed":1234}
 		state = StateOpt(savefile=False, method="DE", **DE_paras)
 		```
     === "NM"
 		``` py
         # state optimization algorithm: NM
-		NM_paras = {"state_num":20, "psi0":psi0, "max_episode":1000, \
+		NM_paras = {"p_num":20, "psi0":psi0, "max_episode":1000, \
                     "ar":1.0, "ae":2.0, "ac":0.5, "as0":0.5, "seed":1234}
         state = StateOpt(savefile=False, method="NM", **NM_paras)
 		```
@@ -497,7 +497,7 @@ for generation of the spin coherent state.
     === "NM"
         ``` jl
         # state optimization algorithm: NM
-        alg = QuanEstimation.NM(state_num=10, max_episode=1000, ar=1.0, 
+        alg = QuanEstimation.NM(p_num=10, max_episode=1000, ar=1.0, 
                                 ae=2.0, ac=0.5, as0=0.5, seed=1234)
         ```
     === "DDPG"
@@ -564,21 +564,21 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
 	=== "PSO"
 		``` py
         # state optimization algorithm: PSO
-		PSO_paras = {"particle_num":10, "psi0":psi0, "max_episode":[1000,100], \
+		PSO_paras = {"p_num":10, "psi0":psi0, "max_episode":[1000,100], \
 					 "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
 		state = StateOpt(savefile=False, method="PSO", **PSO_paras)
 		```
 	=== "DE"
 		``` py
         # state optimization algorithm: DE
-		DE_paras = {"popsize":10, "psi0":psi0, "max_episode":1000, "c":1.0, \
+		DE_paras = {"p_num":10, "psi0":psi0, "max_episode":1000, "c":1.0, \
 				    "cr":0.5, "seed":1234}
 		state = StateOpt(savefile=False, method="DE", **DE_paras)
 		```
     === "NM"
 		``` py
         # state optimization algorithm: NM
-		NM_paras = {"state_num":20, "psi0":psi0, "max_episode":1000, \
+		NM_paras = {"p_num":20, "psi0":psi0, "max_episode":1000, \
                     "ar":1.0, "ae":2.0, "ac":0.5, "as0":0.5, "seed":1234}
         state = StateOpt(savefile=False, method="NM", **NM_paras)
 		```
@@ -663,7 +663,7 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
     === "NM"
         ``` jl
         # state optimization algorithm: NM
-        alg = QuanEstimation.NM(state_num=10, max_episode=1000, ar=1.0, 
+        alg = QuanEstimation.NM(p_num=10, max_episode=1000, ar=1.0, 
                                 ae=2.0, ac=0.5, as0=0.5, seed=1234)
         ```
     === "DDPG"
@@ -783,21 +783,21 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
 	=== "PSO"
 		``` py
         # state optimization algorithm: PSO
-		PSO_paras = {"particle_num":10, "psi0":psi0, "max_episode":[1000,100], \
+		PSO_paras = {"p_num":10, "psi0":psi0, "max_episode":[1000,100], \
 					 "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
 		state = StateOpt(savefile=False, method="PSO", **PSO_paras)
 		```
 	=== "DE"
 		``` py
         # state optimization algorithm: DE
-		DE_paras = {"popsize":10, "psi0":psi0, "max_episode":1000, "c":1.0, \
+		DE_paras = {"p_num":10, "psi0":psi0, "max_episode":1000, "c":1.0, \
 				    "cr":0.5, "seed":1234}
 		state = StateOpt(savefile=False, method="DE", **DE_paras)
 		```
     === "NM"
 		``` py
         # state optimization algorithm: NM
-		NM_paras = {"state_num":20, "psi0":psi0, "max_episode":1000, \
+		NM_paras = {"p_num":20, "psi0":psi0, "max_episode":1000, \
                     "ar":1.0, "ae":2.0, "ac":0.5, "as0":0.5, "seed":1234}
         state = StateOpt(savefile=False, method="NM", **NM_paras)
 		```
@@ -864,7 +864,7 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
     === "NM"
         ``` jl
         # state optimization algorithm: NM
-        alg = QuanEstimation.NM(state_num=10, max_episode=1000, ar=1.0, 
+        alg = QuanEstimation.NM(p_num=10, max_episode=1000, ar=1.0, 
                                 ae=2.0, ac=0.5, as0=0.5, seed=1234)
         ```
     === "DDPG"

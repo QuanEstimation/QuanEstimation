@@ -17,16 +17,16 @@ unknown parameters $\hat{\textbf{x}}=(\hat{x}_0,\hat{x}_1,\dots)^{\mathrm{T}}$ t
 $\{\Pi_y\}$ is a set of positive operator-valued measure (POVM) and $\rho$ represents the 
 parameterized density matrix. $n$ is the repetition of the experiment, $\mathcal{I}$ and 
 $\mathcal{F}$ are the classical Fisher information matrix (CFIM) and quantum Fisher information 
-matrix (QFIM), respectively. The $ab$th entry of CFIM is defined by
+matrix (QFIM), respectively. The $ab$th entry of CFIM is defined as
 \begin{align}
 \mathcal{I}_{ab}=\sum_y\frac{1}{p(y|\textbf{x})}[\partial_a p(y|\textbf{x})][\partial_b 
 p(y|\textbf{x})]
 \end{align}
 
-with $\{p(y|\textbf{x})=\mathrm{Tr}(\rho\Pi_y)\}$. The most well-used type of the QFIM is 
+with $p(y|\textbf{x})=\mathrm{Tr}(\rho\Pi_y)$. The most well-used type of the QFIM is 
 SLD-based QFIM of the form
 \begin{align}
-\mathcal{F}_{ab}=\frac{1}{2}\mathrm{Tr}(\rho\{L_a, L_b\})
+\mathcal{F}_{ab}=\frac{1}{2}\mathrm{Tr}[\rho (L_aL_b+ L_bL_a)]
 \end{align}
 
 with $\mathcal{F}_{ab}$ the $ab$th entry of $\mathcal{F}$ and $L_{a}(L_{b})$ the symmetric 
@@ -47,7 +47,7 @@ For $\lambda_i (\lambda_j)=0$, the above equation is set to be zero.
 Besides, there are right logarithmic derivative (RLD) and left logarithmic derivative (LLD) 
 defined by $\partial_{a}\rho=\rho \mathcal{R}_a$ and $\partial_{a}\rho=\mathcal{R}_a^{\dagger}
 \rho$ with the  corresponding QFIM  $\mathcal{F}_{ab}=\mathrm{Tr}(\rho \mathcal{R}_a 
-\mathcal{R}^{\dagger}_b)$. The RLD and LLD operators are calculated by
+\mathcal{R}^{\dagger}_b)$. The RLD and LLD operators are calculated via
 
 \begin{align}
 \langle\lambda_i| \mathcal{R}_{a} |\lambda_j\rangle
@@ -78,14 +78,14 @@ codes
     ``` jl
     LLD(rho, drho; rep="original", eps=1e-8)
     ```
-where `rho` and `drho` are the density matrix of the state and its derivatives on the unknown 
-parameters to be estimated. `drho` should be input as $[\partial_a{\rho}, \partial_b{\rho}, 
-\cdots]$. For single parameter estimation (the length of `drho` is equal to one), the output 
-is a matrix and for multiparameter estimation (the length of `drho` is more than one), it 
-returns a list. There are two output choices for the logarithmic derivatives basis which can 
-be setting through `rep`. The default basis (`rep="original"`) of the logarithmic derivatives 
-is the same with `rho` and the users can also request the logarithmic derivatives written in 
-the eigenspace of `rho` by `rep="eigen"`. `eps` represents the machine epsilon which 
+where `rho` and `drho` are the density matrix of the state and its derivatives with respect to
+the unknown parameters to be estimated. `drho` should be input as $[\partial_a{\rho}, 
+\partial_b{\rho}, \cdots]$. For single parameter estimation (the length of `drho` is equal to 
+one), the output is a matrix and for multiparameter estimation (the length of `drho` is more 
+than one), it returns a list. There are two output choices for the logarithmic derivatives 
+basis which can be setting through `rep`. The default basis (`rep="original"`) of the logarithmic 
+derivatives is the same with `rho` and the users can also request the logarithmic derivatives 
+written in the eigenspace of `rho` by `rep="eigen"`. `eps` represents the machine epsilon which 
 defaults to $10^{-8}$.
 
 In QuanEstimation, the QFI and QFIM can be calculated via the following function
@@ -93,18 +93,22 @@ In QuanEstimation, the QFI and QFIM can be calculated via the following function
     ``` py
     QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8)
     ```
+    `LDtype` represents the types of QFI (QFIM) can be set. Options are `LDtype=SLD` (default), 
+    `LDtype=RLD` and `LDtype=LLD`. This function will return QFI (QFIM) if `exportLD=False`,
+    however, if the users set `exportLD=True`, it will return logarithmic derivatives apart 
+    from QFI (QFIM).
 === "Julia"
     ``` jl
     QFIM(rho, drho; LDtype=:SLD, exportLD=false, eps=1e-8)
     ```
-`LDtype` represents the types of QFI (QFIM) can be set. Options are `LDtype=SLD` (default), 
-`LDtype=RLD` and `LDtype=LLD`. This function will return QFI (QFIM) if `exportLD=False`,
-however, if the users set `exportLD=True`, it will return logarithmic derivatives apart 
-from QFI (QFIM).
+    `LDtype` represents the types of QFI (QFIM) can be set. Options are `LDtype=SLD` (default), 
+    `LDtype=RLD` and `LDtype=LLD`. This function will return QFI (QFIM) if `exportLD=false`,
+    however, if the users set `exportLD=true`, it will return logarithmic derivatives apart 
+    from QFI (QFIM).
 
 **Example 3.1**  
 <a id="example3_1"></a>
-The Hamiltonian of a single qubit system is $H=\frac{1}{2}\omega_0 \sigma_3$ with $\omega_0$ 
+The Hamiltonian of a single qubit system is $H=\frac{1}{2}\omega \sigma_3$ with $\omega$ 
 the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system is governed by
 \begin{align}
 \partial_t\rho=-i[H, \rho]+ \gamma_{+}\left(\sigma_{+}\rho\sigma_{-}-\frac{1}{2}\{\sigma_{-}
@@ -124,10 +128,10 @@ the eigenstates of $\sigma_3$ with respect to the eigenvalues $1$ and $-1$.
     # initial state
     rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
     # free Hamiltonian
-    omega0 = 1.0
+    omega = 1.0
     sz = np.array([[1., 0.], [0., -1.]])
-    H0 = 0.5*omega0*sz
-    # derivative of the free Hamiltonian on omega0
+    H0 = 0.5*omega*sz
+    # derivative of the free Hamiltonian on omega
     dH = [0.5*sz]
     # dissipation
     sp = np.array([[0., 1.], [0., 0.]])  
@@ -152,12 +156,12 @@ the eigenstates of $\sigma_3$ with respect to the eigenvalues $1$ and $-1$.
     # initial state
     rho0 = 0.5*ones(2, 2)
     # free Hamiltonian
-    omega0 = 1.0
+    omega = 1.0
     sx = [0. 1.; 1. 0.0im]
 	sy = [0. -im; im 0.]
 	sz = [1. 0.0im; 0. -1.]
-    H0 = 0.5*omega0*sz
-    # derivative of the free Hamiltonian on omega0
+    H0 = 0.5*omega*sz
+    # derivative of the free Hamiltonian on omega
     dH = [0.5*sz]
     # dissipation
     sp = [0. 1.; 0. 0.0im]
@@ -185,8 +189,8 @@ calculated by calling the function
     ``` jl
     QFIM_Kraus(rho0, K, dK; LDtype=:SLD, exportLD=false, eps=1e-8)
     ```
-where `K` and `dK` are the Kraus operators and the derivatives on the unknown parameters to 
-be estimated.
+where `K` and `dK` are the Kraus operators and the derivatives with respect to the unknown 
+parameters to be estimated.
 
 **Example 3.2**  
 The Kraus operators for the amplitude damping channel are
@@ -203,12 +207,9 @@ K_2 = \left(\begin{array}{cc}
 \end{eqnarray}
 
 where $\gamma$ is unknown parameter to be estimated which represents the decay probability. 
-The parameterized density matrix can be calculated via $\rho=\sum_i K_i\rho_0K_i^{\dagger}$ 
-and corresponding derivatives on the unknown parameters are $\partial_{\textbf{x}}\rho=
-\sum_i \partial_{\textbf{x}}K_i\rho_0K_i^{\dagger} + K_i\rho_0\partial_{\textbf{x}}K_i^{\dagger}$ 
-with $\rho_0$ the probe state. In this example, the probe state is taken as $|+\rangle\langle+|$ 
-with $|+\rangle:=\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)$. $|0\rangle$ $(|1\rangle)$ is the 
-eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $(-1)$.
+In this example, the probe state is taken as $|+\rangle\langle+|$ with $|+\rangle:=\frac{1}
+{\sqrt{2}}(|0\rangle+|1\rangle)$. $|0\rangle$ $(|1\rangle)$ is the eigenstate of $\sigma_3$ 
+(Pauli matrix) with respect to the eigenvalue $1$ $(-1)$.
 === "Python"
     ``` py
     from quanestimation import *
@@ -254,8 +255,8 @@ The FI (FIM) for a set of the probabilities `p` can be calculated by
     ``` jl
     FIM(p, dp; eps=1e-8)
     ```
-where `dp` is a list representing the derivatives of the probabilities `p` on the unknown 
-parameters.
+where `dp` is a list representing the derivatives of the probabilities `p` with respect to 
+the unknown parameters.
 
 **Example 3.3**  
 === "Python"
@@ -279,18 +280,22 @@ In quantum metrology, the CFI (CFIM) are solved by
     ``` py
     CFIM(rho, drho, M=[], eps=1e-8)
     ```
+    Here `M` represents a set of positive operator-valued measure (POVM) with default value `[]`. 
+    In this function, a set of rank-one symmetric informationally complete POVM (SIC-POVM) is used 
+    when `M=[]`. SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+    which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html). 
 === "Julia"
     ``` jl
     CFIM(rho, drho; M=missing, eps=1e-8)
     ```
-Here `M` represents a set of positive operator-valued measure (POVM) with default value `[]`. 
-In this function, a set of rank-one symmetric informationally complete POVM (SIC-POVM) is used 
-when `M=[]`. SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html). 
+    Here `M` represents a set of positive operator-valued measure (POVM) with default value `missing`. 
+    In this function, a set of rank-one symmetric informationally complete POVM (SIC-POVM) is used 
+    when `M=missing`. SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+    which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html). 
 
 **Example 3.4**  
 <a id="example2_4"></a>
-The Hamiltonian of a single qubit system is $H=\frac{1}{2}\omega_0 \sigma_3$ with $\omega_0$ 
+The Hamiltonian of a single qubit system is $H=\frac{1}{2}\omega \sigma_3$ with $\omega$ 
 the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system is governed by
 \begin{align}
 \partial_t\rho=-i[H, \rho]+ \gamma_{+}\left(\sigma_{+}\rho\sigma_{-}-\frac{1}{2}\{\sigma_{-}
@@ -311,10 +316,10 @@ the eigenstates of $\sigma_3$ with respect to the eigenvalues $1$ and $-1$.
     # initial state
     rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
     # free Hamiltonian
-    omega0 = 1.0
+    omega = 1.0
     sz = np.array([[1., 0.], [0., -1.]])
-    H0 = 0.5*omega0*sz
-    # derivative of the free Hamiltonian on omega0
+    H0 = 0.5*omega*sz
+    # derivative of the free Hamiltonian on omega
     dH = [0.5*sz]
     # dissipation
     sp = np.array([[0., 1.], [0., 0.]])  
@@ -343,12 +348,12 @@ the eigenstates of $\sigma_3$ with respect to the eigenvalues $1$ and $-1$.
     # initial state
     rho0 = 0.5*ones(2, 2)
     # free Hamiltonian
-    omega0 = 1.0
+    omega = 1.0
     sx = [0. 1.; 1. 0.0im]
 	sy = [0. -im; im 0.]
 	sz = [1. 0.0im; 0. -1.]
-    H0 = 0.5*omega0*sz
-    # derivative of the free Hamiltonian on omega0
+    H0 = 0.5*omega*sz
+    # derivative of the free Hamiltonian on omega
     dH = [0.5*sz]
     # dissipation
     sp = [0. 1.; 0. 0.0im]
@@ -380,8 +385,8 @@ In Bloch representation, the SLD based QFI (QFIM) is calculated by
     ``` jl
     QFIM_Bloch(r, dr; eps=1e-8)
     ```
-`r` and `dr` are the parameterized Bloch vector and its derivatives of on the unknown 
-parameters to be estimated.
+`r` and `dr` are the parameterized Bloch vector and its derivatives of with respect to the 
+unknown parameters to be estimated.
 
 **Example 3.5**  
 The arbitrary single-qubit state can be written as 
@@ -435,16 +440,17 @@ The package can also calculte the SLD based QFI (QFIM) with Gaussian states.
     QFIM_Gauss(R, dR, D, dD)
     ```
 The variable `R` is the expected value $\left(\langle[\textbf{R}]_i\rangle\right)$ of 
-$\textbf{R}$ with respect to $\rho$, it is an array epresenting the first-order moment. 
+$\textbf{R}$ with respect to $\rho$, it is an array representing the first-order moment. 
 Here $\textbf{R}=(q_1,p_1,q_2,p_2,\dots)^{\mathrm{T}}$ with $q_i=\frac{1}{\sqrt{2}}
 (a_i+a^{\dagger}_i)$ and $p_i=\frac{1}{i\sqrt{2}}(a_i-a^{\dagger}_i)$ represents a vector 
-of quadrature operators. `dR` is a list of derivatives of `R` on the unknown parameters 
-with $i$th entry $\partial_{\textbf{x}} \langle[\textbf{R}]_i\rangle$. `D` and `dD` represent 
-the second-order moment matrix with the $ij$th entry $D_{ij}=\langle [\textbf{R}]_i 
-[\textbf{R}]_j\rangle$ and its derivatives on the unknown parameters.
+of quadrature operators. `dR` is a list of derivatives of `R` with respect to the unknown 
+parameters. The $i$th entry of `dR` is $\partial_{\textbf{x}} \langle[\textbf{R}]_i\rangle$. 
+`D` and `dD` represent the second-order moment matrix with the $ij$th entry $D_{ij}=\langle 
+[\textbf{R}]_i [\textbf{R}]_j+[\textbf{R}]_j [\textbf{R}]_i\rangle/2$ and its derivatives with 
+respect tp the unknown parameters.
 
 **Example 3.6**  
-The first and second moments [[10]] (#Safranek2019) are
+The first and second moments [[10]](#Safranek2019) are
 
 \begin{eqnarray}
 \langle[\textbf{R}]_i\rangle = \left(\begin{array}{cc}
@@ -528,9 +534,9 @@ R\Lambda$. In QuanEstimation, the HCRB can be solved by
     ``` jl
     HCRB(rho, drho, W; eps=1e-8) 
     ```
-where `rho` and `drho` are the density matrix of the state and its derivatives on the unknown 
-parameters to be estimated, respectively. `W` represents the weight matrix defaults to 
-identity matrix and `eps` is the machine epsilon with default value $10^{-8}$.
+where `rho` and `drho` are the density matrix of the state and its derivatives with respect to
+the unknown parameters to be estimated, respectively. `W` represents the weight matrix defaults 
+to identity matrix and `eps` is the machine epsilon with default value $10^{-8}$.
 
 **Example 3.7**  
 <a id="example3_7"></a>
@@ -659,6 +665,17 @@ In QuanEstimation, BCFI (BCFIM) and BQFI (BQFIM) can be solved via
     ``` py
     BQFIM(x, p, rho, drho, LDtype="SLD", eps=1e-8)
     ```
+    where `x` represents the regimes of the parameters for the integral, it should be input as a 
+    list of arrays. `p` is an array representing the prior distribution. The input varibles `rho` 
+    and `drho` are two multidimensional lists with the dimensions as `x`. For example, for three 
+    parameter ($x_0, x_1, x_2$) estimation, the $ijk$th entry of `rho` and `drho` are $\rho$ and 
+    $[\partial_0\rho, \partial_1\rho, \partial_2\rho]$ with respect to the values $[x_0]_i$, 
+    $[x_1]_j$ and $[x_2]_k$, respectively.`LDtype` represents the types of QFI (QFIM) can be set,
+    options are `LDtype=SLD` (default), `LDtype=RLD` and `LDtype=LLD`. `M` represents a set of 
+    positive operator-valued measure (POVM) with default value `[]`. In QuanEstimation, a set of 
+    rank-one symmetric informationally complete POVM (SIC-POVM) is load when `M=[]`. SIC-POVM is 
+    calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state which can be downloaded 
+    from [here](http://www.physics.umb.edu/Research/QBism/solutions.html).
 === "Julia"
     ``` jl
     BCFIM(x, p, rho, drho; M=missing, eps=1e-8)
@@ -666,17 +683,17 @@ In QuanEstimation, BCFI (BCFIM) and BQFI (BQFIM) can be solved via
     ``` jl
     BQFIM(x, p, rho, drho; LDtype=:SLD, eps=1e-8)
     ```
-where `x` represents the regimes of the parameters for the integral, it should be input as a 
-list of arrays. `p` is an array representing the prior distribution. The input varibles `rho` 
-and `drho` are two multidimensional lists with the dimensions as `x`. For example, for three 
-parameter ($x_0, x_1, x_2$) estimation, the $ijk$th entry of `rho` and `drho` are $\rho$ and 
-$[\partial_0\rho, \partial_1\rho, \partial_2\rho]$ with respect to the values $[x_0]_i$, 
-$[x_1]_j$ and $[x_2]_k$, respectively.`LDtype` represents the types of QFI (QFIM) can be set,
-options are `LDtype=SLD` (default), `LDtype=RLD` and `LDtype=LLD`. `M` represents a set of 
-positive operator-valued measure (POVM) with default value `[]`. In QuanEstimation, a set of 
-rank-one symmetric informationally complete POVM (SIC-POVM) is load when `M=[]`. SIC-POVM is 
-calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state which can be downloaded 
-from [here](http://www.physics.umb.edu/Research/QBism/solutions.html).
+    where `x` represents the regimes of the parameters for the integral, it should be input as a 
+    list of arrays. `p` is an array representing the prior distribution. The input varibles `rho` 
+    and `drho` are two multidimensional lists with the dimensions as `x`. For example, for three 
+    parameter ($x_0, x_1, x_2$) estimation, the $ijk$th entry of `rho` and `drho` are $\rho$ and 
+    $[\partial_0\rho, \partial_1\rho, \partial_2\rho]$ with respect to the values $[x_0]_i$, 
+    $[x_1]_j$ and $[x_2]_k$, respectively.`LDtype` represents the types of QFI (QFIM) can be set,
+    options are `LDtype=SLD` (default), `LDtype=RLD` and `LDtype=LLD`. `M` represents a set of 
+    positive operator-valued measure (POVM) with default value `missing`. In QuanEstimation, a set of 
+    rank-one symmetric informationally complete POVM (SIC-POVM) is load when `M=missing`. SIC-POVM is 
+    calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state which can be downloaded 
+    from [here](http://www.physics.umb.edu/Research/QBism/solutions.html).
 
 In the Bayesian scenarios, the covariance matrix with a prior distribution $p(\textbf{x})$ is 
 defined as
@@ -686,15 +703,15 @@ defined as
 \end{align}
 
 where $\textbf{x}=(x_0,x_1,\dots)^{\mathrm{T}}$ are the unknown parameters to be estimated and 
-the integral $\int\mathrm{d}\textbf{x}:=\iiint\mathrm{d}x_0\mathrm{d}x_1\cdots$. $\{\Pi_y\}$ is 
-a set of POVM and $\rho$ represents the parameterized density matrix. The two types of Bayesian 
+the integral $\int\mathrm{d}\textbf{x}:=\int\mathrm{d}x_0\int\mathrm{d}x_1\cdots$. $\{\Pi_y\}$ is 
+a set of POVM and $\rho$ represents the parameterized density matrix. Two types of Bayesian 
 Cramér-Rao bound (BCRB) are calculated in this package, the first one is 
 \begin{align}
 \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})\left(B\mathcal{I}^{-1}B
 +\textbf{b}\textbf{b}^{\mathrm{T}}\right)\mathrm{d}\textbf{x},
 \end{align}
 
-where $\textbf{b}$ and $\textbf{b}'$ are the vectors of biase and its derivatives on 
+where $\textbf{b}$ and $\textbf{b}'$ are the vectors of biase and its derivatives with respect to 
 $\textbf{x}$. $B$ is a diagonal matrix with the $i$th entry $B_{ii}=1+[\textbf{b}']_{i}$ and 
 $\mathcal{I}$ is the CFIM. The second one is
 \begin{align}
@@ -727,6 +744,11 @@ In QuanEstimation, the BCRB and BQCRB are calculated via
     ``` py
     BQCRB(x, p, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8)
     ```
+    where `b` and `db` are the vectors of biases and its derivatives on the unknown parameters. 
+    For unbiased estimates, `b=[]` and `db=[]`. In QuanEstimation, the users can set the types of 
+    BCRB and BQCRB via the variable `btype`. For single parameter estimation, Ref [[6]](#Liu2016) 
+    calculates the optimal biased bound based on the first type of the BQCRB, it can be realized 
+    numerically via
 === "Julia"
     ``` jl
     BCRB(x, p, rho, drho; M=missing, b=missing, db=missing, 
@@ -736,12 +758,12 @@ In QuanEstimation, the BCRB and BQCRB are calculated via
     BQCRB(x, p, rho, drho; b=missing, db=missing, btype=1, 
           LDtype=:SLD, eps=1e-8)
     ```
+    where `b` and `db` are the vectors of biases and its derivatives on the unknown parameters. 
+    For unbiased estimates, `b=missing` and `db=missing`. In QuanEstimation, the users can set the 
+    types of BCRB and BQCRB via the variable `btype`. For single parameter estimation, Ref 
+    [[6]](#Liu2016) calculates the optimal biased bound based on the first type of the BQCRB, it can 
+    be realized numerically via
 
-where `b` and `db` are the vectors of biases and its derivatives on the unknown parameters. 
-For unbiased estimates, `b=[]` and `db=[]`. In QuanEstimation, the users can set the types of 
-BCRB and BQCRB via the variable `btype`. For single parameter estimation, Ref [[6]](#Liu2016) 
-calculates the optimal biased bound based on the first type of the BQCRB, it can be realized 
-numerically via
 === "Python"
     ``` py
     OBB(x, p, dp, rho, drho, d2rho, LDtype="SLD", eps=1e-8)
@@ -752,7 +774,7 @@ numerically via
     ```
 `d2rho` is a list representing the second order derivatives of `rho` on `x`.
 
-Van Trees in 1968 [[7]](#vanTrees1968) provide a well used Bayesian version of Cramér-Rao 
+Van Trees in 1968 [[7]](#vanTrees1968) provides a well used Bayesian version of Cramér-Rao 
 bound known as Van Trees bound (VTB). The quantum version (QVTB) provided by Tsang, Wiseman 
 and Caves [[9]](#Tsang2011). Two types of VTB are contained in QuanEstimation, the first one is 
 \begin{align}        
@@ -831,12 +853,12 @@ the density matrix. `eps` is the machine epsilon with default value $10^{-8}$.
 <a id="example3_8"></a>
 The Hamiltonian of a qubit system under a magnetic field $B$ in the XZ plane is
 \begin{align}
-H=\frac{B}{2}(\sigma_1\cos{x}+\sigma_3\sin{x})
+H=\frac{B\omega_0}{2}(\sigma_1\cos{x}+\sigma_3\sin{x})
 \end{align}
 
 with $x$ the unknown parameter and $\sigma_{1}$, $\sigma_{3}$ Pauli matrices. The probe state 
-is taken as $\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)$ with $|0\rangle$ and $|1\rangle$ the 
-eigenvstates of $\sigma_3$ with respect to the eigenvalues $1$ and $-1$. The measurement 
+is taken as $\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)$ with $|0\rangle$ ($|1\rangle$) the 
+eigenvstates of $\sigma_3$ with respect to the eigenvalues $1$ ($-1$). The measurement 
 for classical bounds is a set of rank-one symmetric informationally complete positive 
 operator-valued measure (SIC-POVM).
 
@@ -854,13 +876,13 @@ $\mathrm{erf}(x):=\frac{2}{\sqrt{\pi}}\int^x_0 e^{-t^2}\mathrm{d}t$ the error fu
     # initial state
     rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
     # free Hamiltonian
-    B = 0.5*np.pi
+    B, omega0 = 0.5*np.pi, 1.0
     sx = np.array([[0., 1.], [1., 0.]])
     sy = np.array([[0., -1.j], [1.j, 0.]]) 
     sz = np.array([[1., 0.], [0., -1.]])
-    H0_func = lambda x: 0.5*B*(sx*np.cos(x)+sz*np.sin(x))
+    H0_func = lambda x: 0.5*B*omega0*(sx*np.cos(x)+sz*np.sin(x))
     # derivative of the free Hamiltonian on x
-    dH_func = lambda x: [0.5*B*(-sx*np.sin(x)+sz*np.cos(x))]
+    dH_func = lambda x: [0.5*B*omega0*(-sx*np.sin(x)+sz*np.cos(x))]
     # prior distribution
     x = np.linspace(-0.5*np.pi, 0.5*np.pi, 100)
     mu, eta = 0.0, 0.2
@@ -910,11 +932,11 @@ $\mathrm{erf}(x):=\frac{2}{\sqrt{\pi}}\int^x_0 e^{-t^2}\mathrm{d}t$ the error fu
 
     # free Hamiltonian
     function H0_func(x)
-        return 0.5*B*(sx*cos(x)+sz*sin(x))
+        return 0.5*B*omega0*(sx*cos(x)+sz*sin(x))
     end
     # derivative of the free Hamiltonian on x
     function dH_func(x)
-        return [0.5*B*(-sx*sin(x)+sz*cos(x))]
+        return [0.5*B*omega0*(-sx*sin(x)+sz*cos(x))]
     end
     # prior distribution
     function p_func(x, mu, eta)
@@ -924,7 +946,7 @@ $\mathrm{erf}(x):=\frac{2}{\sqrt{\pi}}\int^x_0 e^{-t^2}\mathrm{d}t$ the error fu
         return -(x-mu)*exp(-(x-mu)^2/(2*eta^2))/(eta^3*sqrt(2*pi))
     end
 
-    B = 0.5*pi
+    B, omega0 = 0.5*pi, 1.0
     sx = [0. 1.; 1. 0.0im]
 	sy = [0. -im; im 0.]
 	sz = [1. 0.0im; 0. -1.]
@@ -987,6 +1009,19 @@ value of $\textbf{x}$ can be evaluated by
     ``` py
     MLE(x, rho, y, M=[], savefile=False)
     ```
+    where `x` is a list of arrays representing the regimes of the parameters for the integral and 
+    `p` is an array representing the prior distribution. For multiparameter estimation, `p` is 
+    multidimensional. The input varible `rho` is a multidimensional list with the dimensions as `x` 
+    representing the parameterized density matrix. `M` contains a set of positive operator-valued 
+    measure (POVM). In QuanEstimation, a set of rank-one symmetric informationally complete POVM 
+    (SIC-POVM) is used when `M=[]`. SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM 
+    fiducial state which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html). 
+        `eatimator` in `Bayes()` representing the estimators which is defaulted by the mean value of the 
+    paramters. Also, it can be set as `MAP`. The posterior distributions (likelihood function) in the 
+    final iteration and the estimated values in all iterations will be saved in "pout.npy" ("Lout.npy") 
+    and "xout.npy" if `savefile=False`. However, if the users want to save all the posterior 
+    distributions (likelihood function) and the estimated values in all iterations, the variable 
+    `savefile` needs to be set to `True`.
 === "Julia"
     ``` jl
     Bayes(x, p, rho, y; M=missing, estimator="mean", savefile=false)
@@ -994,23 +1029,25 @@ value of $\textbf{x}$ can be evaluated by
     ``` jl
     MLE(x, rho, y; M=missing, savefile=false)
     ```
-where `x` is a list of arrays representing the regimes of the parameters for the integral and 
-`p` is an array representing the prior distribution. For multiparameter estimation, `p` is 
-multidimensional. The input varible `rho` is a multidimensional list with the dimensions as `x` 
-representing the parameterized density matrix. `M` contains a set of positive operator-valued 
-measure (POVM). In QuanEstimation, a set of rank-one symmetric informationally complete POVM 
-(SIC-POVM) is used when `M=[]`. SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM 
-fiducial state which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html). The posterior 
-distributions (likelihood function) in the final iteration and the estimated values in all 
-iterations will be saved in "pout.npy" ("Lout.npy") and "xout.npy" if `savefile=False`. However,
-if the users want to save all the posterior distributions (likelihood function) and the 
-estimated values in all iterations, the variable `savefile` needs to be set to `True`.
+    where `x` is a list of arrays representing the regimes of the parameters for the integral and 
+    `p` is an array representing the prior distribution. For multiparameter estimation, `p` is 
+    multidimensional. The input varible `rho` is a multidimensional list with the dimensions as `x` 
+    representing the parameterized density matrix. `M` contains a set of positive operator-valued 
+    measure (POVM). In QuanEstimation, a set of rank-one symmetric informationally complete POVM 
+    (SIC-POVM) is used when `M=missing`. SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM 
+    fiducial state which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html). 
+        `eatimator` in `Bayes()` representing the estimators which is defaulted by the mean value of the 
+    paramters. Also, it can be set as `MAP`. The posterior distributions (likelihood function) in the 
+    final iteration and the estimated values in all iterations will be saved in "pout.csv" ("Lout.csv") 
+    and "xout.csv" if `savefile=false`. However, if the users want to save all the posterior 
+    distributions (likelihood function) and the estimated values in all iterations, the variable 
+    `savefile` needs to be set to `true`.
 
 **Example 3.9**  
 <a id="example3_9"></a>
 The Hamiltonian of a qubit system is 
 \begin{align}
-H=\frac{B}{2}(\sigma_1\cos{x}+\sigma_3\sin{x}),
+H=\frac{B\omega_0}{2}(\sigma_1\cos{x}+\sigma_3\sin{x}),
 \end{align}
 
 where $B$ is the magnetic field in the XZ plane, $x$ is the unknown parameter and $\sigma_{1}$, 
@@ -1028,13 +1065,13 @@ $[0, \pi/2]$.
     # initial state
     rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
     # free Hamiltonian
-    B = np.pi/2.0
+    B, omega0 = np.pi/2.0, 1.0
     sx = np.array([[0., 1.], [1., 0.]])
     sy = np.array([[0., -1.j], [1.j, 0.]]) 
     sz = np.array([[1., 0.], [0., -1.]])
-    H0_func = lambda x: 0.5*B*(sx*np.cos(x)+sz*np.sin(x))
+    H0_func = lambda x: 0.5*B*omega0*(sx*np.cos(x)+sz*np.sin(x))
     # derivative of the free Hamiltonian on x
-    dH_func = lambda x: [0.5*B*(-sx*np.sin(x)+sz*np.cos(x))]
+    dH_func = lambda x: [0.5*B*omega0*(-sx*np.sin(x)+sz*np.cos(x))]
     # measurement
     M1 = 0.5*np.array([[1., 1.], [1., 1.]])
     M2 = 0.5*np.array([[1.,-1.], [-1., 1.]])
@@ -1078,14 +1115,14 @@ $[0, \pi/2]$.
 
     # free Hamiltonian
     function H0_func(x)
-        return 0.5*B*(sx*cos(x)+sz*sin(x))
+        return 0.5*B*omega0*(sx*cos(x)+sz*sin(x))
     end
     # derivative of the free Hamiltonian on x
     function dH_func(x)
-        return [0.5*B*(-sx*sin(x)+sz*cos(x))]
+        return [0.5*B*omega0*(-sx*sin(x)+sz*cos(x))]
     end
 
-    B = pi/2.0
+    B, omega0 = pi/2.0, 1.0
     sx = [0. 1.; 1. 0.0im]
 	sy = [0. -im; im 0.]
 	sz = [1. 0.0im; 0. -1.]
@@ -1144,7 +1181,7 @@ In QuanEstimation, this can be realized by calling
     ``` jl
     BayesCost(x, p, xest, rho, y, M; W=missing, eps=1e-8)
     ```
-`xest` represents the estimator.
+`xest` represents the estimators for the parameters.
 
 Besides, the average Bayesian cost bounded by [[5]](#Rafal2020) 
 \begin{equation}
@@ -1171,7 +1208,7 @@ The function for calculating the Bayesian cost bound (BCB) is
 <a id="example3_10"></a>
 The Hamiltonian of a qubit system is 
 \begin{align}
-H=\frac{B}{2}(\sigma_1\cos{x}+\sigma_3\sin{x}),
+H=\frac{B\omega_0}{2}(\sigma_1\cos{x}+\sigma_3\sin{x}),
 \end{align}
 
 where $B$ is the magnetic field in the XZ plane, $x$ is the unknown parameter and $\sigma_{1}$, 
@@ -1189,13 +1226,13 @@ $[0, \pi/2]$.
     # initial state
     rho0 = 0.5*np.array([[1., 1.], [1., 1.]])
     # free Hamiltonian
-    B = np.pi/2.0
+    B, omega0 = np.pi/2.0, 1.0
     sx = np.array([[0., 1.], [1., 0.]])
     sy = np.array([[0., -1.j], [1.j, 0.]]) 
     sz = np.array([[1., 0.], [0., -1.]])
-    H0_func = lambda x: 0.5*B*(sx*np.cos(x)+sz*np.sin(x))
+    H0_func = lambda x: 0.5*B*omega0*(sx*np.cos(x)+sz*np.sin(x))
     # derivative of the free Hamiltonian on x
-    dH_func = lambda x: [0.5*B*(-sx*np.sin(x)+sz*np.cos(x))]
+    dH_func = lambda x: [0.5*B*omega0*(-sx*np.sin(x)+sz*np.cos(x))]
     # measurement
     M1 = 0.5*np.array([[1., 1.], [1., 1.]])
     M2 = 0.5*np.array([[1.,-1.], [-1., 1.]])
@@ -1233,14 +1270,14 @@ $[0, \pi/2]$.
 
     # free Hamiltonian
     function H0_func(x)
-        return 0.5*B*(sx*cos(x)+sz*sin(x))
+        return 0.5*B*omega0*(sx*cos(x)+sz*sin(x))
     end
     # derivative of the free Hamiltonian on x
     function dH_func(x)
-        return [0.5*B*(-sx*sin(x)+sz*cos(x))]
+        return [0.5*B*omega0*(-sx*sin(x)+sz*cos(x))]
     end
 
-    B = pi/2.0
+    B, omega0 = pi/2.0, 1.0
     sx = [0. 1.; 1. 0.0im]
 	sy = [0. -im; im 0.]
 	sz = [1. 0.0im; 0. -1.]

@@ -15,7 +15,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         episode and the values of the objective function in all episodes 
         will be saved.
 
-    > **popsize:** `int`
+    > **p_num:** `int`
         -- The number of populations.
 
     > **psi0:** `list of arrays`
@@ -45,7 +45,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
     def __init__(
         self,
         savefile=False,
-        popsize=10,
+        p_num=10,
         psi0=[],
         ctrl0=[],
         measurement0=[],
@@ -60,7 +60,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             self, savefile, psi0, ctrl0, measurement0, seed, eps
         )
 
-        self.p_num = popsize
+        self.p_num = p_num
         self.max_episode = max_episode
         self.c = c
         self.cr = cr

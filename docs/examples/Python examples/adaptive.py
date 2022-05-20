@@ -5,13 +5,13 @@ import random
 # initial state
 rho0 = 0.5 * np.array([[1., 1.], [1., 1.]])
 # free Hamiltonian
-B = 0.5 * np.pi
+B, omega0 = 0.5 * np.pi, 1.0
 sx = np.array([[0., 1.], [1., 0.]])
 sy = np.array([[0., -1.j], [1.j, 0.]]) 
 sz = np.array([[1., 0.], [0., -1.]])
-H0_func = lambda x: 0.5*B*(sx*np.cos(x[0])+sz*np.sin(x[0]))
+H0_func = lambda x: 0.5*B*omega0*(sx*np.cos(x[0])+sz*np.sin(x[0]))
 # derivative of free Hamiltonian in x
-dH_func = lambda x: [0.5*B*(-sx*np.sin(x[0])+sz*np.cos(x[0]))]
+dH_func = lambda x: [0.5*B*omega0*(-sx*np.sin(x[0])+sz*np.cos(x[0]))]
 # measurement
 M1 = 0.5*np.array([[1., 1.], [1., 1.]])
 M2 = 0.5*np.array([[1., -1.], [-1., 1.]])

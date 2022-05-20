@@ -169,7 +169,7 @@ DDPG(;max_episode::Int=500, layer_num::Int=3, layer_dim::Int=200, seed::Number=1
 
 Base.@kwdef struct NM <: AbstractAlgorithm
     max_episode::Int = 1000 
-    state_num::Int = 10
+    p_num::Int = 10
     ini_state::Union{AbstractVector, Missing} = missing
     ar::Number = 1.0
     ae::Number = 2.0
@@ -178,17 +178,17 @@ Base.@kwdef struct NM <: AbstractAlgorithm
     rng::AbstractRNG = GLOBAL_RNG
 end
 
-NM(max_episode, state_num, nelder_mead, ar, ae, ac, as0) =
-    NM(max_episode, state_num, nelder_mead, ar, ae, ac, as0, GLOBAL_RNG)
-NM(max_episode, state_num, nelder_mead, ar, ae, ac, as0, seed::Number) =
-    NM(max_episode, state_num, nelder_mead, ar, ae, ac, as0, MersenneTwister(seed))
+NM(max_episode, p_num, nelder_mead, ar, ae, ac, as0) =
+    NM(max_episode, p_num, nelder_mead, ar, ae, ac, as0, GLOBAL_RNG)
+NM(max_episode, p_num, nelder_mead, ar, ae, ac, as0, seed::Number) =
+    NM(max_episode, p_num, nelder_mead, ar, ae, ac, as0, MersenneTwister(seed))
 """
 
-    NM(;max_episode::Int=1000, state_num::Int=10, nelder_mead=missing, ar::Number=1.0, ae::Number=2.0, ac::Number=0.5, as0::Number=0.5, seed::Number=1234)
+    NM(;max_episode::Int=1000, p_num::Int=10, nelder_mead=missing, ar::Number=1.0, ae::Number=2.0, ac::Number=0.5, as0::Number=0.5, seed::Number=1234)
 
 State optimization algorithm: NM.
 - `max_episode`: The number of populations.
-- `state_num`: The number of the input states.
+- `p_num`: The number of the input states.
 - `nelder_mead`: Initial guesses of the optimization variables.
 - `ar`: Reflection constant.
 - `ae`: Expansion constant.
@@ -196,8 +196,8 @@ State optimization algorithm: NM.
 - `as0`: Shrink constant.
 - `seed`: Random seed.
 """
-NM(;max_episode::Int=1000, state_num::Int=10, nelder_mead=missing, ar::Number=1.0, ae::Number=2.0, ac::Number=0.5, as0::Number=0.5, seed::Number=1234) =
-    NM(max_episode, state_num, nelder_mead, ar, ae, ac, as0, MersenneTwister(seed))
+NM(;max_episode::Int=1000, p_num::Int=10, nelder_mead=missing, ar::Number=1.0, ae::Number=2.0, ac::Number=0.5, as0::Number=0.5, seed::Number=1234) =
+    NM(max_episode, p_num, nelder_mead, ar, ae, ac, as0, MersenneTwister(seed))
 
 alg_type(::AD) = :AD
 alg_type(::AD_Adam) = :AD

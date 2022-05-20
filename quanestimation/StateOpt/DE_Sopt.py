@@ -14,7 +14,7 @@ class DE_Sopt(State.StateSystem):
         episode and the values of the objective function in all episodes 
         will be saved.
 
-    > **popsize:** `int`
+    > **p_num:** `int`
         -- The number of populations.
 
     > **psi0:** `list of arrays`
@@ -44,7 +44,7 @@ class DE_Sopt(State.StateSystem):
     def __init__(
         self,
         savefile=False,
-        popsize=10,
+        p_num=10,
         psi0=[],
         max_episode=1000,
         c=1.0,
@@ -56,7 +56,7 @@ class DE_Sopt(State.StateSystem):
 
         State.StateSystem.__init__(self, savefile, psi0, seed, eps, load)
 
-        self.p_num = popsize
+        self.p_num = p_num
         self.max_episode = max_episode
         self.c = c
         self.cr = cr

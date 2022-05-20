@@ -13,7 +13,7 @@ class PSO_Sopt(State.StateSystem):
         the state in the final episode and the values of the objective function 
         in all episodes will be saved.
 
-    > **particle_num:** `int`
+    > **p_num:** `int`
         -- The number of particles.
 
     > **psi0:** `list of arrays`
@@ -52,7 +52,7 @@ class PSO_Sopt(State.StateSystem):
     def __init__(
         self,
         savefile=False,
-        particle_num=10,
+        p_num=10,
         psi0=[],
         max_episode=[1000, 100],
         c0=1.0,
@@ -69,7 +69,7 @@ class PSO_Sopt(State.StateSystem):
         --------
         inputs
         --------
-        particle_num:
+        p_num:
            --description: the number of particles.
            --type: int
 
@@ -102,7 +102,7 @@ class PSO_Sopt(State.StateSystem):
         """
 
         self.max_episode = max_episode
-        self.p_num = particle_num
+        self.p_num = p_num
         self.c0 = c0
         self.c1 = c1
         self.c2 = c2

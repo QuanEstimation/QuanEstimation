@@ -20,11 +20,11 @@ apt.online(output="phi")
 
 #================offline strategy=================#
 # # algorithm: DE
-# DE_para = {"popsize":10, "deltaphi0":[], "max_episode":1000, "c":1.0, 
+# DE_para = {"p_num":10, "deltaphi0":[], "max_episode":1000, "c":1.0, 
 #            "cr":0.5, "seed":1234}
 # apt.offline(method="DE", **DE_para)
 
 # # algorithm: PSO
-# PSO_para = {"particle_num":10, "deltaphi0":[], "max_episode":[1000,100], 
+# PSO_para = {"p_num":10, "deltaphi0":[], "max_episode":[1000,100], 
 #             "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
 # apt.offline(method="PSO", **PSO_para)

@@ -120,5 +120,5 @@ $H(\textbf{x}+\textbf{u})$ with $\textbf{x}$ the unknown parameters and $\textbf
 the tunable parameters. The tunable parameters $\textbf{u}$ are used to let the 
 Hamiltonian work at the optimal point $\textbf{x}_{\mathrm{opt}}$. 
 ### **Adaptive measurement**
-::: quanestimation.adaptive
-::: quanestimation.adapt_MZI
+::: quanestimation.Adaptive
+::: quanestimation.Adapt_MZI
