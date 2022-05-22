@@ -78,20 +78,21 @@ end
 ########## Bayesian quantum Cramer-Rao bound ##########
 @doc raw"""
 
-    BQCRB(x::AbstractVector, p, rho, drho; b=missing, db=missing, LDtype=:SLD, btype=1, eps=GLOBAL_EPS)
+    BQCRB(x::AbstractVector, p, dp, rho, drho; b=missing, db=missing, LDtype=:SLD, btype=1, eps=GLOBAL_EPS)
 
 Calculation of the Bayesian quantum Cramer-Rao bound (BQCRB).
 - `x`: The regimes of the parameters for the integral.
 - `p`: The prior distribution.
+- `dp`: Derivatives of the prior distribution with respect to the unknown parameters to be estimated. For example, dp[0] is the derivative vector on the first parameter.
 - `rho`: Parameterized density matrix.
 - `drho`: Derivatives of the parameterized density matrix (rho) with respect to the unknown parameters to be estimated.
 - `b`: Vector of biases of the form ``\textbf{b}=(b(x_0),b(x_1),\dots)^{\mathrm{T}}``.
 - `db`: Derivatives of b on the unknown parameters to be estimated, It should be expressed as ``\textbf{b}'=(\partial_0 b(x_0),\partial_1 b(x_1),\dots)^{\mathrm{T}}``.
 - `LDtype`: Types of QFI (QFIM) can be set as the objective function. Options are "SLD" (default), "RLD" and "LLD".
-- `btype`: Types of the BCRB. Options are 1 and 2.
+- `btype`: Types of the BCRB. Options are 1, 2 and 3.
 - `eps`: Machine epsilon.
 """
-function BQCRB(x::AbstractVector, p, rho, drho; b=missing, db=missing, LDtype=:SLD, btype=1, eps=GLOBAL_EPS)
+function BQCRB(x::AbstractVector, p, dp, rho, drho; b=missing, db=missing, LDtype=:SLD, btype=1, eps=GLOBAL_EPS)
     para_num = length(x)
 
     if ismissing(b)
@@ -133,48 +134,62 @@ function BQCRB(x::AbstractVector, p, rho, drho; b=missing, db=missing, LDtype=:S
             arr3 = [p[k]*b[k]^2 for k in 1:p_num]
             bb = trapz(x[1], arr3)
             F = B^2/F1+bb
-        end
+        elseif btype == 3
+            I_tp = [real(dp[i]*dp[i]/p[i]^2) for i in 1:p_num]
+            arr = [p[j]*(dp[j]*b[j]/p[j]+(1 + db[j]))^2 / (I_tp[j] + F_tp[j]) for j in 1:p_num]
+            F = trapz(x[1], arr)
+        else
+            println("NameError: btype should be choosen in {1, 2, 3}.")
+        end  
         return F
     else
         #### multiparameter scenario ####
-
         xnum = length(x)
         bs  =  Iterators.product(b...)
         dbs =  Iterators.product(db...)
-        trapzm(x, integrands, slice_dim) =  [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
+        trapzm(x, integrands, slice_dim) = [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
 
         if btype == 1 
-            integrand(p,rho,drho,b,db)=p*diagm(1 .+db)*pinv(QFIM(rho,drho;eps=eps))*diagm(1 .+db)+b*b'
-            integrands = [integrand(p,rho,drho,[b...],[db...])|>vec for (p,rho,drho,b,db) in zip(p,rho,drho,bs,dbs)]
+            integrand1(p,rho,drho,b,db)=p*diagm(1 .+db)*pinv(QFIM(rho,drho;LDtype=LDtype,eps=eps))*diagm(1 .+db)+b*b'
+            integrands = [integrand1(p,rho,drho,[b...],[db...])|>vec for (p,rho,drho,b,db) in zip(p,rho,drho,bs,dbs)]
             I = trapzm(x, integrands, xnum^2) |> I->reshape(I,xnum,xnum)
         elseif btype == 2
             Bs = [p*(1 .+[db...]) for (p,db) in zip(p,dbs)]
             B = trapzm(x, Bs, xnum)|> diagm
-            Fs = [p*QFIM(rho,drho;eps=eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
+            Fs = [p*QFIM(rho,drho;LDtype=LDtype,eps=eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
             F = trapzm(x, Fs, xnum^2) |> I->reshape(I,xnum,xnum)
             bbts = [p*[b...]*[b...]'|>vec for (p,b) in zip(p,bs)]
             I = B*pinv(F)*B + (trapzm(x, bbts, xnum^2) |> I->reshape(I,xnum,xnum))
-        end
+        elseif btype == 3
+            Ip(p,dp) = dp*dp'/p^2
+            G = [G_mat(p,dp,[b...],[db...]) for (p,dp,b,db) in zip(p,dp,bs,dbs)]
+            integrand3(p,dp,rho,drho,G_tp)=p*G_tp*pinv(Ip(p,dp)+QFIM(rho,drho;LDtype=LDtype,eps=eps))*G_tp'
+            integrands = [integrand3(p,dp,rho,drho,G_tp)|>vec for (p,dp,rho,drho,G_tp) in zip(p,dp,rho,drho,G)]
+            I = trapzm(x, integrands, xnum^2) |> I->reshape(I,xnum,xnum)
+        else
+            println("NameError: btype should be choosen in {1, 2, 3}.")
+        end  
         return I
     end
 end
 
 @doc raw"""
 
-    BCRB(x::AbstractVector, p, rho, drho; M=missing, b=missing, db=missing, btype=1, eps=GLOBAL_EPS)
+    BCRB(x::AbstractVector, p, dp, rho, drho; M=missing, b=missing, db=missing, btype=1, eps=GLOBAL_EPS)
 
 Calculation of the Bayesian Cramer-Rao bound (BCRB).
 - `x`: The regimes of the parameters for the integral.
 - `p`: The prior distribution.
+- `dp`: Derivatives of the prior distribution with respect to the unknown parameters to be estimated. For example, dp[0] is the derivative vector on the first parameter.
 - `rho`: Parameterized density matrix.
 - `drho`: Derivatives of the parameterized density matrix (rho) with respect to the unknown parameters to be estimated.
 - `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
 - `b`: Vector of biases of the form ``\textbf{b}=(b(x_0),b(x_1),\dots)^{\mathrm{T}}``.
 - `db`: Derivatives of b on the unknown parameters to be estimated, It should be expressed as ``\textbf{b}'=(\partial_0 b(x_0),\partial_1 b(x_1),\dots)^{\mathrm{T}}``.
-- `btype`: Types of the BCRB. Options are 1 and 2.
+- `btype`: Types of the BCRB. Options are 1, 2 and 3.
 - `eps`: Machine epsilon.
 """
-function BCRB(x::AbstractVector, p, rho, drho; M=missing, b=missing, db=missing, btype=1, eps=GLOBAL_EPS)
+function BCRB(x::AbstractVector, p, dp, rho, drho; M=missing, b=missing, db=missing, btype=1, eps=GLOBAL_EPS)
     para_num = length(x)
      
     if ismissing(b)
@@ -201,6 +216,7 @@ function BCRB(x::AbstractVector, p, rho, drho; M=missing, b=missing, db=missing,
             db = db[1]
         end
         F_tp = zeros(p_num)
+
         for i in 1:p_num
             f = CFIM(rho[i], drho[i], M; eps=eps)
             F_tp[i] = f
@@ -217,6 +233,12 @@ function BCRB(x::AbstractVector, p, rho, drho; M=missing, b=missing, db=missing,
             arr3 = [p[k]*b[k]^2 for k in 1:p_num]
             bb = trapz(x[1], arr3)
             F = B^2/F1+bb
+        elseif btype == 3
+            I_tp = [real(dp[i]*dp[i]/p[i]^2) for i in 1:p_num]
+            arr = [p[j]*(dp[j]*b[j]/p[j]+(1 + db[j]))^2 / (I_tp[j] + F_tp[j]) for j in 1:p_num]
+            F = trapz(x[1], arr)
+        else
+            println("NameError: btype should be choosen in {1, 2, 3}")
         end
         return F
     else
@@ -231,8 +253,8 @@ function BCRB(x::AbstractVector, p, rho, drho; M=missing, b=missing, db=missing,
         trapzm(x, integrands, slice_dim) =  [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
 
         if btype == 1 
-            integrand(p,rho,drho,b,db)=p*diagm(1 .+db)*pinv(CFIM(rho,drho,M;eps=eps))*diagm(1 .+db)+b*b'
-            integrands = [integrand(p,rho,drho,[b...],[db...])|>vec for (p,rho,drho,b,db) in zip(p,rho,drho,bs,dbs)]
+            integrand1(p,rho,drho,b,db)=p*diagm(1 .+db)*pinv(CFIM(rho,drho,M;eps=eps))*diagm(1 .+db)+b*b'
+            integrands = [integrand1(p,rho,drho,[b...],[db...])|>vec for (p,rho,drho,b,db) in zip(p,rho,drho,bs,dbs)]
             I = trapzm(x, integrands, xnum^2) |> I->reshape(I,xnum,xnum)
         elseif btype == 2
             Bs = [p*(1 .+[db...]) for (p,db) in zip(p,dbs)]
@@ -241,14 +263,37 @@ function BCRB(x::AbstractVector, p, rho, drho; M=missing, b=missing, db=missing,
             F = trapzm(x, Fs, xnum^2) |> I->reshape(I,xnum,xnum)
             bbts = [p*[b...]*[b...]'|>vec for (p,b) in zip(p,bs)]
             I = B*pinv(F)*B + (trapzm(x, bbts, xnum^2) |> I->reshape(I,xnum,xnum))
+        elseif btype == 3
+            Ip(p,dp) = dp*dp'/p^2
+            G = [G_mat(p,dp,[b...],[db...]) for (p,dp,b,db) in zip(p,dp,bs,dbs)]
+            integrand3(p,dp,rho,drho,G_tp)=p*G_tp*pinv(Ip(p,dp)+CFIM(rho,drho,M;eps=eps))*G_tp'
+            integrands = [integrand3(p,dp,rho,drho,G_tp)|>vec for (p,dp,rho,drho,G_tp) in zip(p,dp,rho,drho,G)]
+            I = trapzm(x, integrands, xnum^2) |> I->reshape(I,xnum,xnum)
+        else
+            println("NameError: btype should be choosen in {1, 2, 3}.")
         end    
         return I
     end
 end
 
+function G_mat(p, dp, b, db)
+    para_num = length(db)
+    G_tp = zeros(para_num, para_num)
+    for i in 1:para_num
+        for j in 1:para_num
+            if i == j
+                G_tp[i,j] = dp[j]*b[i]/p + (1+db[i])
+            else
+                G_tp[i,j] = dp[j]*b[i]/p
+            end
+        end
+    end
+    return G_tp
+end
+
 """
 
-    QVTB(x::AbstractVector, p, dp, rho, drho; LDtype=:SLD, btype=1, eps=GLOBAL_EPS)
+    QVTB(x::AbstractVector, p, dp, rho, drho; LDtype=:SLD, eps=GLOBAL_EPS)
 
 Calculation of the Bayesian version of Cramer-Rao bound in troduced by Van Trees (VTB).
 - `x`: The regimes of the parameters for the integral.
@@ -257,10 +302,9 @@ Calculation of the Bayesian version of Cramer-Rao bound in troduced by Van Trees
 - `rho`: Parameterized density matrix.
 - `drho`: Derivatives of the parameterized density matrix (rho) with respect to the unknown parameters to be estimated.
 - `LDtype`: Types of QFI (QFIM) can be set as the objective function. Options are "SLD" (default), "RLD" and "LLD".
-- `btype`: Types of the BCRB. Options are 1 and 2.
 - `eps`: Machine epsilon.
 """
-function QVTB(x::AbstractVector, p, dp, rho, drho; LDtype=:SLD, btype=1, eps=GLOBAL_EPS)
+function QVTB(x::AbstractVector, p, dp, rho, drho; LDtype=:SLD, eps=GLOBAL_EPS)
     para_num = length(x)
     if para_num == 1
         #### singleparameter scenario ####
@@ -275,19 +319,12 @@ function QVTB(x::AbstractVector, p, dp, rho, drho; LDtype=:SLD, btype=1, eps=GLO
         for m in 1:p_num
             F_tp[m] = QFIM(rho[m], drho[m]; LDtype=LDtype, eps=eps)
         end
-        I = 0.0
-        if btype==1
-            I_tp = [real(dp[i]*dp[i]/p[i]^2) for i in 1:p_num]
-            arr = [p[j]/(I_tp[j]+F_tp[j]) for j in 1:p_num]
-            I = trapz(x[1], arr)
-        elseif btype==2
-            I, F = 0.0, 0.0
-            arr1 = [real(dp[i]*dp[i]/p[i]) for i in 1:p_num]  
-            I = trapz(x[1], arr1)
-            arr2 = [real(F_tp[j]*p[j]) for j in 1:p_num]
-            F = trapz(x[1], arr2)
-            I = 1.0/(I+F)
-        end
+
+        arr1 = [real(dp[i]*dp[i]/p[i]) for i in 1:p_num]  
+        I = trapz(x[1], arr1)
+        arr2 = [real(F_tp[j]*p[j]) for j in 1:p_num]
+        F = trapz(x[1], arr2)
+        I = 1.0/(I+F)
         return I
     else
         #### multiparameter scenario ####
@@ -295,24 +332,18 @@ function QVTB(x::AbstractVector, p, dp, rho, drho; LDtype=:SLD, btype=1, eps=GLO
         trapzm(x, integrands, slice_dim) =  [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
         Ip(p,dp) = dp*dp'/p^2
 
-        if btype == 1 
-            integrand(p,dp,rho,drho)=p*pinv(Ip(p,dp)+QFIM(rho,drho;eps=eps))
-            integrands = [integrand(p,dp,rho,drho)|>vec for (p,dp,rho,drho) in zip(p,dp,rho,drho)]
-            I = trapzm(x, integrands, xnum^2) |> I->reshape(I,xnum,xnum)
-        elseif btype == 2
-            Iprs = [p*Ip(p,dp)|>vec for (p,dp) in zip(p,dp)]
-            Ipr = trapzm(x, Iprs, xnum^2)|> I->reshape(I,xnum,xnum)
-            Fs = [p*QFIM(rho,drho;eps=eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
-            F = trapzm(x, Fs, xnum^2) |> I->reshape(I,xnum,xnum)
-            I = pinv(Ipr+F)
-        end
+        Iprs = [p*Ip(p,dp)|>vec for (p,dp) in zip(p,dp)]
+        Ipr = trapzm(x, Iprs, xnum^2)|> I->reshape(I,xnum,xnum)
+        Fs = [p*QFIM(rho,drho;eps=eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
+        F = trapzm(x, Fs, xnum^2) |> I->reshape(I,xnum,xnum)
+        I = pinv(Ipr+F)
         return I
     end
 end
 
 """
 
-    VTB(x::AbstractVector, p, dp, rho, drho; M=missing, btype=1, eps=GLOBAL_EPS)
+    VTB(x::AbstractVector, p, dp, rho, drho; M=missing, eps=GLOBAL_EPS)
 
 Calculation of the Bayesian version of Cramer-Rao bound introduced by Van Trees (VTB).
 - `x`: The regimes of the parameters for the integral.
@@ -321,10 +352,9 @@ Calculation of the Bayesian version of Cramer-Rao bound introduced by Van Trees 
 - `rho`: Parameterized density matrix.
 - `drho`: Derivatives of the parameterized density matrix (rho) with respect to the unknown parameters to be estimated.
 - `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
-- `btype`: Types of the BCRB. Options are 1 and 2.
 - `eps`: Machine epsilon.
 """
-function VTB(x::AbstractVector, p, dp, rho, drho; M=missing, btype=1, eps=GLOBAL_EPS)
+function VTB(x::AbstractVector, p, dp, rho, drho; M=missing, eps=GLOBAL_EPS)
     para_num = length(x)
     if para_num == 1
         #### singleparameter scenario ####
@@ -342,18 +372,12 @@ function VTB(x::AbstractVector, p, dp, rho, drho; M=missing, btype=1, eps=GLOBAL
         for m in 1:p_num
             F_tp[m] = CFIM(rho[m], drho[m], M; eps=eps)
         end
-        res = 0.0
-        if btype==1
-            I_tp = [real(dp[i]*dp[i]/p[i]^2) for i in 1:p_num]
-            arr = [p[j]/(I_tp[j]+F_tp[j]) for j in 1:p_num]
-            res = trapz(x[1], arr)
-        elseif btype==2
-            arr1 = [real(dp[i]*dp[i]/p[i]) for i in 1:p_num]  
-            I = trapz(x[1], arr1)
-            arr2 = [real(F_tp[j]*p[j]) for j in 1:p_num]
-            F = trapz(x[1], arr2)
-            res = 1.0/(I+F)
-        end
+
+        arr1 = [real(dp[i]*dp[i]/p[i]) for i in 1:p_num]  
+        I = trapz(x[1], arr1)
+        arr2 = [real(F_tp[j]*p[j]) for j in 1:p_num]
+        F = trapz(x[1], arr2)
+        res = 1.0/(I+F)
         return res
     else
         #### multiparameter scenario #### 
@@ -363,17 +387,12 @@ function VTB(x::AbstractVector, p, dp, rho, drho; M=missing, btype=1, eps=GLOBAL
         xnum = length(x)
         trapzm(x, integrands, slice_dim) =  [trapz(tuple(x...), I) for I in [reshape(hcat(integrands...)[i,:], length.(x)...) for i in 1:slice_dim]] 
         Ip(p,dp) = dp*dp'/p^2
-        if btype == 1 
-            integrand(p,dp,rho,drho)=p*pinv(Ip(p,dp)+CFIM(rho,drho,M;eps=eps))
-            integrands = [integrand(p,dp,rho,drho)|>vec for (p,dp,rho,drho) in zip(p,dp,rho,drho)]
-            I = trapzm(x, integrands, xnum^2) |> I->reshape(I,xnum,xnum)
-        elseif btype == 2
-            Iprs = [p*Ip(p,dp)|>vec for (p,dp) in zip(p,dp)]
-            Ipr = trapzm(x, Iprs, xnum^2)|> I->reshape(I,xnum,xnum)
-            Fs = [p*CFIM(rho,drho,M;eps=eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
-            F = trapzm(x, Fs, xnum^2) |> I->reshape(I,xnum,xnum)
-            I = pinv(Ipr+F)
-        end
+
+        Iprs = [p*Ip(p,dp)|>vec for (p,dp) in zip(p,dp)]
+        Ipr = trapzm(x, Iprs, xnum^2)|> I->reshape(I,xnum,xnum)
+        Fs = [p*CFIM(rho,drho,M;eps=eps)|>vec for (p,rho,drho) in zip(p,rho,drho)]
+        F = trapzm(x, Fs, xnum^2) |> I->reshape(I,xnum,xnum)
+        I = pinv(Ipr+F) 
         return I
     end
 end
