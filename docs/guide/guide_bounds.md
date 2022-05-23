@@ -722,7 +722,16 @@ $\mathcal{I}$ is the CFIM. The second one is
 where $\mathcal{B}=\int p(\textbf{x})B\mathrm{d}\textbf{x}$ is the average of $B$ and 
 $\mathcal{I}_{\mathrm{Bayes}}$ is the average of the CFIM.
 
-Two types of Bayesian Quantum Cramér-Rao bound (BCRB) are calculated, the first one is 
+The third one is 
+\begin{align}
+\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})
+\mathcal{G}\left(\mathcal{I}_p+\mathcal{I}\right)^{-1}\mathcal{G}^{\mathrm{T}}\mathrm{d}\textbf{x}
+\end{align}
+
+with $[\mathcal{I}_{p}]_{ab}:=[\partial_a \ln p(\textbf{x})][\partial_b \ln p(\textbf{x})]$ and
+$\mathcal{G}_{ab}:=[\partial_b\ln p(\textbf{x})][\textbf{b}]_a+B_{aa}\delta_{ab}$.
+
+Three types of Bayesian Quantum Cramér-Rao bound (BCRB) are calculated, the first one is 
 \begin{align}
 \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq\int p(\textbf{x})\left(B\mathcal{F}^{-1}B
 +\textbf{b}\textbf{b}^{\mathrm{T}}\right)\mathrm{d}\textbf{x}
@@ -736,13 +745,19 @@ with $\mathcal{F}$ the QFIM for all types. The second one is
 
 with $\mathcal{F}_{\mathrm{Bayes}}$ the average of the QFIM.
 
+The third one is 
+\begin{align}
+\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})
+\mathcal{G}\left(\mathcal{I}_p+\mathcal{F}\right)^{-1}\mathcal{G}^{\mathrm{T}}\mathrm{d}\textbf{x}.
+\end{align}
+
 In QuanEstimation, the BCRB and BQCRB are calculated via
 === "Python"
     ``` py
-    BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8)
+    BCRB(x, p, dp, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8)
     ```
     ``` py
-    BQCRB(x, p, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8)
+    BQCRB(x, p, dp, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8)
     ```
     where `b` and `db` are the vectors of biases and its derivatives on the unknown parameters. 
     For unbiased estimates, `b=[]` and `db=[]`. In QuanEstimation, the users can set the types of 
@@ -751,11 +766,11 @@ In QuanEstimation, the BCRB and BQCRB are calculated via
     numerically via
 === "Julia"
     ``` jl
-    BCRB(x, p, rho, drho; M=missing, b=missing, db=missing, 
+    BCRB(x, p, dp, rho, drho; M=missing, b=missing, db=missing, 
          btype=1, eps=1e-8)
     ```
     ``` jl
-    BQCRB(x, p, rho, drho; b=missing, db=missing, btype=1, 
+    BQCRB(x, p, dp, rho, drho; b=missing, db=missing, btype=1, 
           LDtype=:SLD, eps=1e-8)
     ```
     where `b` and `db` are the vectors of biases and its derivatives on the unknown parameters. 
@@ -798,26 +813,21 @@ Besides, the package can also calculate two types of QVTB, the first one is
 \end{align}
 
 with $\mathcal{F}$ the QFIM for all types. 
-The second one is
-<center> $\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \left(\mathcal{I}_{\mathrm{prior}}
-+\mathcal{F}_{\mathrm{Bayes}}\right)^{-1}$ </center> 
-
-with $\mathcal{F}_{\mathrm{Bayes}}$ the average of the QFIM.
 
 The functions to calculate the VTB and QVTB are
 === "Python"
     ``` py
-    VTB(x, p, dp, rho, drho, M=[], btype=1, eps=1e-8)
+    VTB(x, p, dp, rho, drho, M=[], eps=1e-8)
     ```
     ``` py
-    QVTB(x, p, dp, rho, drho, btype=1, LDtype="SLD", eps=1e-8)
+    QVTB(x, p, dp, rho, drho, LDtype="SLD", eps=1e-8)
     ```
 === "Julia"
     ``` jl
-    VTB(x, p, dp, rho, drho; M=missing, btype=1, eps=1e-8)
+    VTB(x, p, dp, rho, drho; M=missing,eps=1e-8)
     ```
     ``` jl
-    QVTB(x, p, dp, rho, drho; btype=1, LDtype=:SLD, eps=1e-8)
+    QVTB(x, p, dp, rho, drho; LDtype=:SLD, eps=1e-8)
     ```
 Here the variables in the codes are the same with `BCRB` and `BQCRB`.
 
@@ -912,17 +922,17 @@ $\mathrm{erf}(x):=\frac{2}{\sqrt{\pi}}\int^x_0 e^{-t^2}\mathrm{d}t$ the error fu
     ```
     ``` py
     # Classical Bayesian bounds
-    f_BCRB1 = BCRB([x], p, rho, drho, M=[], btype=1)
-    f_BCRB2 = BCRB([x], p, rho, drho, M=[], btype=2)
-    f_VTB1 = VTB([x], p, dp, rho, drho, M=[], btype=1)
-    f_VTB2 = VTB([x], p, dp, rho, drho, M=[], btype=2)
+    f_BCRB1 = BCRB([x], p, dp, rho, drho, M=[], btype=1)
+    f_BCRB2 = BCRB([x], p, dp, rho, drho, M=[], btype=2)
+    f_BCRB3 = BCRB([x], p, dp, rho, drho, M=[], btype=3)
+    f_VTB = VTB([x], p, dp, rho, drho, M=[])
     ```
     ``` py
     # Quantum Bayesian bounds
-    f_BQCRB1 = BQCRB([x], p, rho, drho, btype=1)
-    f_BQCRB2 = BQCRB([x], p, rho, drho, btype=2)
-    f_QVTB1 = QVTB([x], p, dp, rho, drho, btype=1)
-    f_QVTB2 = QVTB([x], p, dp, rho, drho, btype=2)
+    f_BQCRB1 = BQCRB([x], p, dp, rho, drho, btype=1)
+    f_BQCRB2 = BQCRB([x], p, dp, rho, drho, btype=2)
+    f_BQCRB3 = BQCRB([x], p, dp, rho, drho, btype=3)
+    f_QVTB = QVTB([x], p, dp, rho, drho)
     f_QZZB = QZZB([x], p, rho)
     ```
 === "Julia"
@@ -975,17 +985,17 @@ $\mathrm{erf}(x):=\frac{2}{\sqrt{\pi}}\int^x_0 e^{-t^2}\mathrm{d}t$ the error fu
     ```
     ``` jl
     # Classical Bayesian bounds
-    f_BCRB1 = QuanEstimation.BCRB([x], p, rho, drho; btype=1)
-    f_BCRB2 = QuanEstimation.BCRB([x], p, rho, drho; btype=2)
-    f_VTB1 = QuanEstimation.VTB([x], p, dp, rho, drho; btype=1)
-    f_VTB2 = QuanEstimation.VTB([x], p, dp, rho, drho; btype=2)
+    f_BCRB1 = QuanEstimation.BCRB([x], p, dp, rho, drho; btype=1)
+    f_BCRB2 = QuanEstimation.BCRB([x], p, dp, rho, drho; btype=2)
+    f_BCRB3 = QuanEstimation.BCRB([x], p, dp, rho, drho; btype=3)
+    f_VTB = QuanEstimation.VTB([x], p, dp, rho, drho)
     ```
     ``` jl
     # Quantum Bayesian bounds
-    f_BQCRB1 = QuanEstimation.BQCRB([x], p, rho, drho, btype=1)
-    f_BQCRB2 = QuanEstimation.BQCRB([x], p, rho, drho, btype=2)
-    f_QVTB1 = QuanEstimation.QVTB([x], p, dp, rho, drho, btype=1)
-    f_QVTB2 = QuanEstimation.QVTB([x], p, dp, rho, drho, btype=2)
+    f_BQCRB1 = QuanEstimation.BQCRB([x], p, dp, rho, drho, btype=1)
+    f_BQCRB2 = QuanEstimation.BQCRB([x], p, dp, rho, drho, btype=2)
+    f_BQCRB3 = QuanEstimation.BQCRB([x], p, dp, rho, drho, btype=3)
+    f_QVTB = QuanEstimation.QVTB([x], p, dp, rho, drho)
     f_QZZB = QuanEstimation.QZZB([x], p, rho)
     ```
 ---

@@ -201,7 +201,7 @@ def BQFIM(x, p, rho, drho, LDtype="SLD", eps=1e-8):
         return BQFIM_res
 
 
-def BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
+def BCRB(x, p, dp, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
     r"""
     Calculation of the Bayesian Cramer-Rao bound (BCRB). The covariance matrix 
     with a prior distribution $p(\textbf{x})$ is defined as
@@ -216,7 +216,7 @@ def BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
     $\{\Pi_y\}$ is a set of positive operator-valued measure (POVM) and $\rho$ represents 
     the parameterized density matrix.
 
-    This function calculates two types BCRB. The first one is 
+    This function calculates three types BCRB. The first one is 
     \begin{align}
     \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})\left(B\mathcal{I}^{-1}B
     +\textbf{b}\textbf{b}^{\mathrm{T}}\right)\mathrm{d}\textbf{x},
@@ -235,6 +235,15 @@ def BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
     where $\mathcal{B}=\int p(\textbf{x})B\mathrm{d}\textbf{x}$ is the average of $B$ and 
     $\mathcal{I}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{I}\mathrm{d}\textbf{x}$ is 
     the average CFIM.
+
+    The third one is
+    \begin{align}
+    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})
+    \mathcal{G}\left(\mathcal{I}_p+\mathcal{I}\right)^{-1}\mathcal{G}^{\mathrm{T}}\mathrm{d}\textbf{x}
+    \end{align}
+
+    with $[\mathcal{I}_{p}]_{ab}:=[\partial_a \ln p(\textbf{x})][\partial_b \ln p(\textbf{x})]$ and
+    $\mathcal{G}_{ab}:=[\partial_b\ln p(\textbf{x})][\textbf{b}]_a+B_{aa}\delta_{ab}$.
 
     Parameters
     ----------
@@ -262,10 +271,11 @@ def BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
         -- Derivatives of b with respect to the unknown parameters to be estimated, It should be 
         expressed as $\textbf{b}'=(\partial_0 b(x_0),\partial_1 b(x_1),\dots)^{\mathrm{T}}$.
 
-    > **btype:** `int (1 or 2)`
+    > **btype:** `int (1, 2, 3)`
         -- Types of the BCRB. Options are:  
         1 (default) -- It means to calculate the first type of the BCRB.  
         2 -- It means to calculate the second type of the BCRB.
+        3 -- It means to calculate the third type of the BCRB.
 
     > **eps:** `float`
         -- Machine epsilon.
@@ -325,8 +335,13 @@ def BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
             bb = simps(arr3, x[0])
             F = B**2 / F1 + bb
             return F
+        elif btype == 3:
+            I_tp = [np.real(dp[i] * dp[i] / p[i] ** 2) for i in range(p_num)]
+            arr = [p[j]*(dp[j]*b[j]/p[j]+(1 + db[j]))**2 / (I_tp[j] + F_tp[j]) for j in range(p_num)]
+            F = simps(arr, x[0])
+            return F
         else:
-            raise NameError("NameError: btype should be choosen in {1, 2}")
+            raise NameError("NameError: btype should be choosen in {1, 2, 3}.")
     else:
         #### multiparameter scenario ####
         if b == []:
@@ -341,14 +356,16 @@ def BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
 
         p_shape = np.shape(p)
         p_ext = extract_ele(p, para_num)
+        dp_ext = extract_ele(dp, para_num)
         rho_ext = extract_ele(rho, para_num)
         drho_ext = extract_ele(drho, para_num)
         b_pro = product(*b)
         db_pro = product(*db)
 
-        p_list, rho_list, drho_list = [], [], []
-        for p_ele, rho_ele, drho_ele in zip(p_ext, rho_ext, drho_ext):
+        p_list, dp_list, rho_list, drho_list = [], [], [], []
+        for p_ele, dp_ele, rho_ele, drho_ele in zip(p_ext, dp_ext, rho_ext, drho_ext):
             p_list.append(p_ele)
+            dp_list.append(dp_ele)
             rho_list.append(rho_ele)
             drho_list.append(drho_ele)
 
@@ -441,11 +458,43 @@ def BCRB(x, p, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
                     bb_res[para_m][para_n] = arr3
             res = np.dot(B_res, np.dot(np.linalg.pinv(F_res), B_res)) + bb_res
             return res
+        elif btype == 3:
+            F_list = [
+                [[0.0 for i in range(len(p_list))] for j in range(para_num)]
+                for k in range(para_num)
+            ]
+            for i in range(len(p_list)):
+                F_tp = CFIM(rho_list[i], drho_list[i], M=M, eps=eps)
+                I_tp = np.zeros((para_num, para_num))
+                G_tp = np.zeros((para_num, para_num))
+                for pm in range(para_num):
+                    for pn in range(para_num):
+                        if pm == pn:
+                            G_tp[pm][pn] = dp_list[i][pn]*b_list[i][pm]/p_list[i]+(1.0 + db_list[i][pm])
+                        else:
+                            G_tp[pm][pn] = dp_list[i][pn]*b_list[i][pm]/p_list[i]
+                        I_tp[pm][pn] = dp_list[i][pm] * dp_list[i][pn] / p_list[i] ** 2
+
+                F_tot = np.dot(G_tp, np.dot(np.linalg.pinv(F_tp + I_tp), G_tp.T))
+                for pj in range(para_num):
+                    for pk in range(para_num):
+                        F_list[pj][pk][i] = F_tot[pj][pk]
+
+            res = np.zeros([para_num, para_num])
+            for para_i in range(0, para_num):
+                for para_j in range(para_i, para_num):
+                    F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
+                    arr = p * F_ij
+                    for si in reversed(range(para_num)):
+                        arr = simps(arr, x[si])
+                    res[para_i][para_j] = arr
+                    res[para_j][para_i] = arr
+            return res
         else:
-            raise NameError("NameError: btype should be choosen in {1, 2}")
+            raise NameError("NameError: btype should be choosen in {1, 2, 3}.")
 
 
-def BQCRB(x, p, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
+def BQCRB(x, p, dp, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
     r"""
     Calculation of the Bayesian quantum Cramer-Rao bound (BQCRB). The covariance matrix 
     with a prior distribution $p(\textbf{x})$ is defined as
@@ -460,7 +509,7 @@ def BQCRB(x, p, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
     $\{\Pi_y\}$ is a set of positive operator-valued measure (POVM) and $\rho$ represent 
     the parameterized density matrix.
 
-    This function calculates two types of the BQCRB. The first one is
+    This function calculates three types of the BQCRB. The first one is
     \begin{align}
     \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq\int p(\textbf{x})\left(B\mathcal{F}^{-1}B
     +\textbf{b}\textbf{b}^{\mathrm{T}}\right)\mathrm{d}\textbf{x},
@@ -479,6 +528,15 @@ def BQCRB(x, p, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
     where $\mathcal{B}=\int p(\textbf{x})B\mathrm{d}\textbf{x}$ is the average of $B$ and 
     $\mathcal{F}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{F}\mathrm{d}\textbf{x}$ is 
     the average QFIM.
+
+    The third one is
+    \begin{align}
+    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})
+    \mathcal{G}\left(\mathcal{I}_p+\mathcal{F}\right)^{-1}\mathcal{G}^{\mathrm{T}}\mathrm{d}\textbf{x}
+    \end{align}
+
+    with $[\mathcal{I}_{p}]_{ab}:=[\partial_a \ln p(\textbf{x})][\partial_b \ln p(\textbf{x})]$ and
+    $\mathcal{G}_{ab}:=[\partial_b\ln p(\textbf{x})][\textbf{b}]_a+B_{aa}\delta_{ab}$.
 
     Parameters
     ----------
@@ -502,10 +560,11 @@ def BQCRB(x, p, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
         -- Derivatives of b with respect to the unknown parameters to be estimated, It should be 
         expressed as $\textbf{b}'=(\partial_0 b(x_0),\partial_1 b(x_1),\dots)^{\mathrm{T}}$.
 
-    > **btype:** `int (1 or 2)`
+    > **btype:** `int (1, 2, 3)`
         -- Types of the BQCRB. Options are:  
         1 (default) -- It means to calculate the first type of the BQCRB.  
         2 -- It means to calculate the second type of the BQCRB.
+        3 -- It means to calculate the third type of the BCRB.
 
     > **LDtype:** `string`
         -- Types of QFI (QFIM) can be set as the objective function. Options are:  
@@ -562,8 +621,13 @@ def BQCRB(x, p, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
             bb = simps(arr3, x[0])
             F = B**2 / F2 + bb
             return F
+        elif btype == 3:
+            I_tp = [np.real(dp[i] * dp[i] / p[i] ** 2) for i in range(p_num)]
+            arr = [p[j]*(dp[j]*b[j]/p[j]+(1 + db[j]))**2 / (I_tp[j] + F_tp[j]) for j in range(p_num)]
+            F = simps(arr, x[0])
+            return F
         else:
-            raise NameError("NameError: btype should be choosen in {1, 2}")
+            raise NameError("NameError: btype should be choosen in {1, 2, 3}.")
     else:
         #### multiparameter scenario ####
         if b == []:
@@ -578,14 +642,16 @@ def BQCRB(x, p, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
 
         p_shape = np.shape(p)
         p_ext = extract_ele(p, para_num)
+        dp_ext = extract_ele(dp, para_num)
         rho_ext = extract_ele(rho, para_num)
         drho_ext = extract_ele(drho, para_num)
         b_pro = product(*b)
         db_pro = product(*db)
 
-        p_list, rho_list, drho_list = [], [], []
-        for p_ele, rho_ele, drho_ele in zip(p_ext, rho_ext, drho_ext):
+        p_list, dp_list, rho_list, drho_list = [], [], [], []
+        for p_ele, dp_ele, rho_ele, drho_ele in zip(p_ext, dp_ext, rho_ext, drho_ext):
             p_list.append(p_ele)
+            dp_list.append(dp_ele)
             rho_list.append(rho_ele)
             drho_list.append(drho_ele)
 
@@ -672,11 +738,43 @@ def BQCRB(x, p, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
                     bb_res[para_m][para_n] = arr3
             res = np.dot(B_res, np.dot(np.linalg.pinv(F_res), B_res)) + bb_res
             return res
+        elif btype == 3:
+            F_list = [
+                [[0.0 for i in range(len(p_list))] for j in range(para_num)]
+                for k in range(para_num)
+            ]
+            for i in range(len(p_list)):
+                F_tp = QFIM(rho_list[i], drho_list[i], LDtype=LDtype, eps=eps)
+                I_tp = np.zeros((para_num, para_num))
+                G_tp = np.zeros((para_num, para_num))
+                for pm in range(para_num):
+                    for pn in range(para_num):
+                        if pm == pn:
+                            G_tp[pm][pn] = dp_list[i][pn]*b_list[i][pm]/p_list[i]+(1.0 + db_list[i][pm])
+                        else:
+                            G_tp[pm][pn] = dp_list[i][pn]*b_list[i][pm]/p_list[i]
+                        I_tp[pm][pn] = dp_list[i][pm] * dp_list[i][pn] / p_list[i] ** 2
+
+                F_tot = np.dot(G_tp, np.dot(np.linalg.pinv(F_tp + I_tp), G_tp.T))
+                for pj in range(para_num):
+                    for pk in range(para_num):
+                        F_list[pj][pk][i] = F_tot[pj][pk]
+
+            res = np.zeros([para_num, para_num])
+            for para_i in range(0, para_num):
+                for para_j in range(para_i, para_num):
+                    F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
+                    arr = p * F_ij
+                    for si in reversed(range(para_num)):
+                        arr = simps(arr, x[si])
+                    res[para_i][para_j] = arr
+                    res[para_j][para_i] = arr
+            return res
         else:
-            raise NameError("NameError: btype should be choosen in {1, 2}")
+            raise NameError("NameError: btype should be choosen in {1, 2, 3}.")
 
 
-def VTB(x, p, dp, rho, drho, M=[], btype=1, eps=1e-8):
+def VTB(x, p, dp, rho, drho, M=[], eps=1e-8):
     r"""
     Calculation of the Bayesian version of Cramer-Rao bound introduced by
     Van Trees (VTB). The covariance matrix with a prior distribution $p(\textbf{x})$ 
@@ -692,16 +790,6 @@ def VTB(x, p, dp, rho, drho, M=[], btype=1, eps=1e-8):
     $\{\Pi_y\}$ is a set of positive operator-valued measure (POVM) and $\rho$ represent 
     the parameterized density matrix.
 
-    This function calculates two types of the VTB. The first one is 
-    \begin{align}
-    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})\left(\mathcal{I}_p
-    +\mathcal{I}\right)^{-1}\mathrm{d}\textbf{x},
-    \end{align}
-
-    where the entry of $\mathcal{I}_{p}$ is defined by$[\mathcal{I}_{p}]_{ab}=[\partial_a 
-    \ln p(\textbf{x})][\partial_b \ln p(\textbf{x})]$ and $\mathcal{I}$ represents the CFIM.
-
-    The second one is
     \begin{align}
     \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \left(\mathcal{I}_{\mathrm{prior}}
     +\mathcal{I}_{\mathrm{Bayes}}\right)^{-1},
@@ -735,11 +823,6 @@ def VTB(x, p, dp, rho, drho, M=[], btype=1, eps=1e-8):
     > **M:** `list of matrices`
         -- A set of positive operator-valued measure (POVM). The default measurement 
         is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
-
-    > **btype:** `int (1 or 2)`
-        -- Types of the VTB. Options are:  
-        1 (default) -- It means to calculate the first type of the VTB.  
-        2 -- It means to calculate the second type of the VTB.
 
     > **eps:** `float`
         -- Machine epsilon.
@@ -777,18 +860,12 @@ def VTB(x, p, dp, rho, drho, M=[], btype=1, eps=1e-8):
         for m in range(p_num):
             F_tp[m] = CFIM(rho[m], [drho[m]], M=M, eps=eps)
 
-        if btype == 1:
-            I_tp = [np.real(dp[i] * dp[i] / p[i] ** 2) for i in range(p_num)]
-            arr = [p[j] / (I_tp[j] + F_tp[j]) for j in range(p_num)]
-            return simps(arr, x[0])
-        elif btype == 2:
-            arr1 = [np.real(dp[i] * dp[i] / p[i]) for i in range(p_num)]
-            I = simps(arr1, x[0])
-            arr2 = [np.real(F_tp[j] * p[j]) for j in range(p_num)]
-            F = simps(arr2, x[0])
-            return 1.0 / (I + F)
-        else:
-            raise NameError("NameError: btype should be choosen in {1, 2}")
+
+        arr1 = [np.real(dp[i] * dp[i] / p[i]) for i in range(p_num)]
+        I = simps(arr1, x[0])
+        arr2 = [np.real(F_tp[j] * p[j]) for j in range(p_num)]
+        F = simps(arr2, x[0])
+        return 1.0 / (I + F)
     else:
         #### multiparameter scenario ####
         p_shape = np.shape(p)
@@ -810,72 +887,42 @@ def VTB(x, p, dp, rho, drho, M=[], btype=1, eps=1e-8):
         else:
             if type(M) != list:
                 raise TypeError("Please make sure M is a list!")
-        if btype == 1:
-            F_list = [
+        
+        F_list = [
                 [[0.0 for i in range(len(p_list))] for j in range(para_num)]
                 for k in range(para_num)
             ]
-            for i in range(len(p_list)):
-                F_tp = CFIM(rho_list[i], drho_list[i], M=M, eps=eps)
-                I_tp = np.zeros((para_num, para_num))
-                for pm in range(para_num):
-                    for pn in range(para_num):
-                        I_tp[pm][pn] = dp_list[i][pm] * dp_list[i][pn] / p_list[i] ** 2
-
-                F_tot = np.linalg.pinv(F_tp + I_tp)
-                for pj in range(para_num):
-                    for pk in range(para_num):
-                        F_list[pj][pk][i] = F_tot[pj][pk]
-
-            res = np.zeros([para_num, para_num])
-            for para_i in range(0, para_num):
-                for para_j in range(para_i, para_num):
-                    F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
-                    arr = p * F_ij
-                    for si in reversed(range(para_num)):
-                        arr = simps(arr, x[si])
-                    res[para_i][para_j] = arr
-                    res[para_j][para_i] = arr
-            return res
-        elif btype == 2:
-            F_list = [
+        I_list = [
                 [[0.0 for i in range(len(p_list))] for j in range(para_num)]
                 for k in range(para_num)
             ]
-            I_list = [
-                [[0.0 for i in range(len(p_list))] for j in range(para_num)]
-                for k in range(para_num)
-            ]
-            for i in range(len(p_list)):
-                F_tp = CFIM(rho_list[i], drho_list[i], M=M, eps=eps)
-                for pj in range(para_num):
-                    for pk in range(para_num):
-                        F_list[pj][pk][i] = F_tp[pj][pk]
-                        I_list[pj][pk][i] = (
+        for i in range(len(p_list)):
+            F_tp = CFIM(rho_list[i], drho_list[i], M=M, eps=eps)
+            for pj in range(para_num):
+                for pk in range(para_num):
+                    F_list[pj][pk][i] = F_tp[pj][pk]
+                    I_list[pj][pk][i] = (
                             dp_list[i][pj] * dp_list[i][pk] / p_list[i] ** 2
                         )
 
-            F_res = np.zeros([para_num, para_num])
-            I_res = np.zeros([para_num, para_num])
-            for para_i in range(0, para_num):
-                for para_j in range(para_i, para_num):
-                    F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
-                    I_ij = np.array(I_list[para_i][para_j]).reshape(p_shape)
-                    arr1 = p * F_ij
-                    arr2 = p * I_ij
-                    for si in reversed(range(para_num)):
-                        arr1 = simps(arr1, x[si])
-                        arr2 = simps(arr2, x[si])
-                    F_res[para_i][para_j] = arr1
-                    F_res[para_j][para_i] = arr1
-                    I_res[para_i][para_j] = arr2
-                    I_res[para_j][para_i] = arr2
-            return np.linalg.pinv(F_res + I_res)
-        else:
-            raise NameError("NameError: btype should be choosen in {1, 2}")
+        F_res = np.zeros([para_num, para_num])
+        I_res = np.zeros([para_num, para_num])
+        for para_i in range(0, para_num):
+            for para_j in range(para_i, para_num):
+                F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
+                I_ij = np.array(I_list[para_i][para_j]).reshape(p_shape)
+                arr1 = p * F_ij
+                arr2 = p * I_ij
+                for si in reversed(range(para_num)):
+                    arr1 = simps(arr1, x[si])
+                    arr2 = simps(arr2, x[si])
+                F_res[para_i][para_j] = arr1
+                F_res[para_j][para_i] = arr1
+                I_res[para_i][para_j] = arr2
+                I_res[para_j][para_i] = arr2
+        return np.linalg.pinv(F_res + I_res)
 
-
-def QVTB(x, p, dp, rho, drho, btype=1, LDtype="SLD", eps=1e-8):
+def QVTB(x, p, dp, rho, drho, LDtype="SLD", eps=1e-8):
     r"""
     Calculation of the Bayesian version of quantum Cramer-Rao bound introduced 
     by Van Trees (QVTB). The covariance matrix with a prior distribution p(\textbf{x}) 
@@ -891,17 +938,6 @@ def QVTB(x, p, dp, rho, drho, btype=1, LDtype="SLD", eps=1e-8):
     $\{\Pi_y\}$ is a set of positive operator-valued measure (POVM) and $\rho$ represent 
     the parameterized density matrix.
 
-    This function calculates two types of QVTB. The first one is  
-    \begin{align}
-    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})\left(\mathcal{I}_p
-    +\mathcal{F}\right)^{-1}\mathrm{d}\textbf{x},
-    \end{align}
-
-    where the entry of $\mathcal{I}_{p}$ is defined by $[\mathcal{I}_{p}]_{ab}=[\partial_a 
-    \ln p(\textbf{x})][\partial_b \ln p(\textbf{x})]$ 
-    and $\mathcal{F}$ is the QFIM for all types.
-
-    The second one is
     \begin{align}
     \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \left(\mathcal{I}_{\mathrm{prior}}
     +\mathcal{F}_{\mathrm{Bayes}}\right)^{-1},
@@ -930,11 +966,6 @@ def QVTB(x, p, dp, rho, drho, btype=1, LDtype="SLD", eps=1e-8):
     > **drho:** `multidimensional list`
         -- Derivatives of the parameterized density matrix (rho) with respect to the unknown
         parameters to be estimated.
-
-    > **btype:** `int (1 or 2)`
-        -- Types of the QVTB. Options are:  
-        1 (default) -- It means to calculate the first type of the QVTB.  
-        2 -- It means to calculate the second type of the QVTB.
 
     > **LDtype:** `string`
         -- Types of QFI (QFIM) can be set as the objective function. Options are:  
@@ -965,18 +996,11 @@ def QVTB(x, p, dp, rho, drho, btype=1, LDtype="SLD", eps=1e-8):
         for m in range(p_num):
             F_tp[m] = QFIM(rho[m], [drho[m]], LDtype=LDtype, eps=eps)
 
-        if btype == 1:
-            I_tp = [np.real(dp[i] * dp[i] / p[i] ** 2) for i in range(p_num)]
-            arr = [p[j] / (I_tp[j] + F_tp[j]) for j in range(p_num)]
-            return simps(arr, x[0])
-        elif btype == 2:
-            arr1 = [np.real(dp[i] * dp[i] / p[i]) for i in range(p_num)]
-            I = simps(arr1, x[0])
-            arr2 = [np.real(F_tp[j] * p[j]) for j in range(p_num)]
-            F = simps(arr2, x[0])
-            return 1.0 / (I + F)
-        else:
-            raise NameError("NameError: btype should be choosen in {1, 2}")
+        arr1 = [np.real(dp[i] * dp[i] / p[i]) for i in range(p_num)]
+        I = simps(arr1, x[0])
+        arr2 = [np.real(F_tp[j] * p[j]) for j in range(p_num)]
+        F = simps(arr2, x[0])
+        return 1.0 / (I + F)
     else:
         #### multiparameter scenario ####
         p_shape = np.shape(p)
@@ -997,73 +1021,39 @@ def QVTB(x, p, dp, rho, drho, btype=1, LDtype="SLD", eps=1e-8):
             rho_list.append(rho_ele)
             drho_list.append(drho_ele)
 
-        if btype == 1:
-            F_list = [
+        F_list = [
                 [[0.0 for i in range(len(p_list))] for j in range(para_num)]
                 for k in range(para_num)
             ]
-            I_list = [
+        I_list = [
                 [[0.0 for i in range(len(p_list))] for j in range(para_num)]
                 for k in range(para_num)
             ]
-            for i in range(len(p_list)):
-                F_tp = QFIM(rho_list[i], drho_list[i], LDtype=LDtype, eps=eps)
-                I_tp = np.zeros((para_num, para_num))
-                for pm in range(para_num):
-                    for pn in range(para_num):
-                        I_tp[pm][pn] = dp_list[i][pm] * dp_list[i][pn] / p_list[i] ** 2
-
-                F_tot = np.linalg.pinv(F_tp + I_tp)
-                for pj in range(para_num):
-                    for pk in range(para_num):
-                        F_list[pj][pk][i] = F_tot[pj][pk]
-
-            res = np.zeros([para_num, para_num])
-            for para_i in range(0, para_num):
-                for para_j in range(para_i, para_num):
-                    F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
-                    arr = p * F_ij
-                    for si in reversed(range(para_num)):
-                        arr = simps(arr, x[si])
-                    res[para_i][para_j] = arr
-                    res[para_j][para_i] = arr
-            return res
-        elif btype == 2:
-            F_list = [
-                [[0.0 for i in range(len(p_list))] for j in range(para_num)]
-                for k in range(para_num)
-            ]
-            I_list = [
-                [[0.0 for i in range(len(p_list))] for j in range(para_num)]
-                for k in range(para_num)
-            ]
-            for i in range(len(p_list)):
-                F_tp = QFIM(rho_list[i], drho_list[i], LDtype=LDtype, eps=eps)
-                for pj in range(para_num):
-                    for pk in range(para_num):
-                        F_list[pj][pk][i] = F_tp[pj][pk]
-                        I_list[pj][pk][i] = (
+        for i in range(len(p_list)):
+            F_tp = QFIM(rho_list[i], drho_list[i], LDtype=LDtype, eps=eps)
+            for pj in range(para_num):
+                for pk in range(para_num):
+                    F_list[pj][pk][i] = F_tp[pj][pk]
+                    I_list[pj][pk][i] = (
                             dp_list[i][pj] * dp_list[i][pk] / p_list[i] ** 2
                         )
 
-            F_res = np.zeros([para_num, para_num])
-            I_res = np.zeros([para_num, para_num])
-            for para_i in range(0, para_num):
-                for para_j in range(para_i, para_num):
-                    F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
-                    I_ij = np.array(I_list[para_i][para_j]).reshape(p_shape)
-                    arr1 = p * F_ij
-                    arr2 = p * I_ij
-                    for si in reversed(range(para_num)):
-                        arr1 = simps(arr1, x[si])
-                        arr2 = simps(arr2, x[si])
-                    F_res[para_i][para_j] = arr1
-                    F_res[para_j][para_i] = arr1
-                    I_res[para_i][para_j] = arr2
-                    I_res[para_j][para_i] = arr2
-            return np.linalg.pinv(F_res + I_res)
-        else:
-            raise NameError("NameError: btype should be choosen in {1, 2}")
+        F_res = np.zeros([para_num, para_num])
+        I_res = np.zeros([para_num, para_num])
+        for para_i in range(0, para_num):
+            for para_j in range(para_i, para_num):
+                F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
+                I_ij = np.array(I_list[para_i][para_j]).reshape(p_shape)
+                arr1 = p * F_ij
+                arr2 = p * I_ij
+                for si in reversed(range(para_num)):
+                    arr1 = simps(arr1, x[si])
+                    arr2 = simps(arr2, x[si])
+                F_res[para_i][para_j] = arr1
+                F_res[para_j][para_i] = arr1
+                I_res[para_i][para_j] = arr2
+                I_res[para_j][para_i] = arr2
+        return np.linalg.pinv(F_res + I_res)
 
 
 def OBB_func(x, y, t, J, F):
