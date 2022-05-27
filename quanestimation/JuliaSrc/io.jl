@@ -26,6 +26,7 @@ const IO_alg = Dict(
     :DE => "optimization algorithm: Differential Evolution (DE)",
     :DDPG => "optimization algorithm: Deep Deterministic Policy Gradient (DDPG)",
     :NM => "optimization algorithm: Nelder-Mead (NM)",
+    :Iterative => "optimization algorithm: Iterative",
 )
 
 const IO_ini = Dict(

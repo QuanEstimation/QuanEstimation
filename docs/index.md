@@ -23,7 +23,7 @@ simultaneous optimizations among them. The optimization methods include the grad
 algorithms such as the gradient ascent pulse engineering (GRAPE), GRAPE algorithm based on the 
 automatic differentiation (auto-GRAPE), automatic differentiation (AD) and the 
 gradient-free algorithms such as particle swarm optimization (PSO), differential evolution (DE), 
-deep deterministic policy gradients (DDPG).
+deep deterministic policy gradients (DDPG) and reversed iterative (RI) algorithm.
 
 The interface of QuanEstimation is written in Python, but the most calculation processes are
 executed in Julia for the computational efficiency. Therefore, QuanEstimation also has a full

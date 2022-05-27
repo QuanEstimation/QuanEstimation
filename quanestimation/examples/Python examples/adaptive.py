@@ -31,7 +31,7 @@ for xi in range(len(x)):
     rho_tp, drho_tp = dynamics.expm()
     rho[xi] = rho_tp[-1]
 # Bayesian estimation
-np.random.seed(1234)
+random.seed(1234)
 y = [0 for i in range(500)]
 res_rand = random.sample(range(0, len(y)), 125)
 for i in range(len(res_rand)):
@@ -40,6 +40,6 @@ pout, xout = Bayes([x], p, rho, y, M=M, savefile=False)
 # generation of H and dH
 H, dH = BayesInput([x], H0_func, dH_func, channel="dynamics")
 # adaptive measurement
-apt = adaptive([x], pout, rho0, savefile=False, max_episode=100, eps=1e-8)
+apt = Adaptive([x], pout, rho0, savefile=False, max_episode=100, eps=1e-8)
 apt.dynamics(tspan, H, dH)
 apt.CFIM(M=M, W=[])

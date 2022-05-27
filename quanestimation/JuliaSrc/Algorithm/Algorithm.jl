@@ -199,6 +199,23 @@ State optimization algorithm: NM.
 NM(;max_episode::Int=1000, p_num::Int=10, nelder_mead=missing, ar::Number=1.0, ae::Number=2.0, ac::Number=0.5, as0::Number=0.5, seed::Number=1234) =
     NM(max_episode, p_num, nelder_mead, ar, ae, ac, as0, MersenneTwister(seed))
 
+Base.@kwdef struct Iterative <: AbstractAlgorithm
+    max_episode::Int = 300 
+    rng::AbstractRNG = GLOBAL_RNG
+end
+    
+Iterative(max_episode) = Iterative(max_episode, GLOBAL_RNG)
+Iterative(max_episode, seed::Number) = Iterative(max_episode, MersenneTwister(seed))
+"""
+
+    Iterative(;max_episode::Int=300, seed::Number=1234)
+
+State optimization algorithm: Iterative.
+- `max_episode`: The number of episodes.
+- `seed`: Random seed.
+"""
+Iterative(;max_episode::Int=300, seed::Number=1234) = Iterative(max_episode, MersenneTwister(seed))
+
 alg_type(::AD) = :AD
 alg_type(::AD_Adam) = :AD
 alg_type(::GRAPE) = :GRAPE
@@ -209,10 +226,12 @@ alg_type(::PSO) = :PSO
 alg_type(::DDPG) = :DDPG
 alg_type(::DE) = :DE
 alg_type(::NM) = :NM
+alg_type(::Iterative) = :Iterative
 
 include("AD.jl")
 include("DDPG.jl")
 include("DE.jl")
 include("GRAPE.jl")
 include("NM.jl")
+include("Iterative.jl")
 include("PSO.jl")

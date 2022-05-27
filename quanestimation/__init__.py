@@ -126,6 +126,9 @@ from quanestimation.StateOpt.DDPG_Sopt import (
 from quanestimation.StateOpt.NM_Sopt import (
     NM_Sopt,
 )
+from quanestimation.StateOpt.Iterative_Sopt import (
+    Iterative_Sopt,
+)
 
 from quanestimation.AdaptiveScheme.Adaptive import Adaptive
 from quanestimation.AdaptiveScheme.Adapt_MZI import Adapt_MZI
@@ -176,6 +179,7 @@ __all__ = [
     "PSO_Sopt",
     "DDPG_Sopt",
     "NM_Sopt",
+    "Iterative_Sopt",
     "mat_vec_convert",
     "suN_generator",
     "gramschmidt",

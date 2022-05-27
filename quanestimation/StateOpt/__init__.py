@@ -18,6 +18,9 @@ from quanestimation.StateOpt.DDPG_Sopt import (
 from quanestimation.StateOpt.NM_Sopt import (
     NM_Sopt,
 )
+from quanestimation.StateOpt.Iterative_Sopt import (
+    Iterative_Sopt,
+)
 
 __all__ = [
     "StateSystem",
@@ -27,5 +30,6 @@ __all__ = [
     "PSO_Sopt",
     "DDPG_Sopt",
     "NM_Sopt",
+    "Iterative_Sopt",
     "csv2npy_states",
 ]
