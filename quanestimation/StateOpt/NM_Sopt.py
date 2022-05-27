@@ -20,7 +20,7 @@ class NM_Sopt(State.StateSystem):
     > **psi0:** `list of arrays`
         -- Initial guesses of states.
 
-    > **max_episode : `int`
+    > **max_episode:** `int`
         -- The number of episodes.
   
     > **ar:** `float`

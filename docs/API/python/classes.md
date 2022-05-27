@@ -41,15 +41,18 @@ The probe state is expanded as $|\psi\rangle=\sum_i c_i|i\rangle$ in a specific
 basis, i.e., $\{|i\rangle\}$. In state optimization, the search of the
 optimal probe states is equal to search of the normalized complex coefficients
 $\{c_i\}$. In QuanEstimation, the state optimization algorithms are 
-automatic differentiation (AD), particle swarm optimization (PSO), 
-differential evolution (DE), deep deterministic policy gradients (DDPG)
-and Nelder-Mead (NM).
+automatic differentiation (AD), reverse iterative (RI) algorithm, particle swarm 
+optimization (PSO), differential evolution (DE), deep deterministic policy gradients 
+(DDPG) and Nelder-Mead (NM).
 
 ### **Base**
 ::: quanestimation.StateSystem
 
 ### **State optimization with AD**
 ::: quanestimation.AD_Sopt
+
+### **State optimization with RI**
+::: quanestimation.Iterative_Sopt
 
 ### **State Optimization with PSO**
 ::: quanestimation.PSO_Sopt
