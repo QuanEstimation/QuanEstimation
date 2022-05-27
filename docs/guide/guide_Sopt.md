@@ -3,10 +3,10 @@ For state optimization in QuanEstimation, the probe state is expanded as
 $|\psi\rangle=\sum_i c_i|i\rangle$ in a specific basis $\{|i\rangle\}$. Thus, search of the 
 optimal probe states is equal to search of the normalized complex coefficients $\{c_i\}$. In 
 QuanEstimation, the state optimization algorithms are the automatic differentiation (AD) 
-[[1]](#Baydin2018), particle swarm optimization (PSO) [[2]](#Kennedy1995), differential 
-evolution (DE) [[3]](#Storn1997), Nelder-Mead (NM) [[4]](#Nelder1965), and deep deterministic 
-policy gradients (DDPG) [[5]](#Lillicrap2015). Call the following codes to perform state 
-optimizaiton
+[[1]](#Baydin2018), reverse iterative (RI)[[2]](#Rafal2011) algorithm, particle swarm optimization (PSO) 
+[[3]](#Kennedy1995), differential evolution (DE) [[4]](#Storn1997), Nelder-Mead (NM) 
+[[5]](#Nelder1965), and deep deterministic policy gradients (DDPG) [[6]](#Lillicrap2015). 
+Call the following codes to perform state optimizaiton
 === "Python"
     ``` py
     state = StateOpt(savefile=False, method="AD", **kwargs)
@@ -951,35 +951,41 @@ A. G. Baydin, B. A. Pearlmutter, A. A. Radul, and J. M. Siskind,
 Automatic differentiation in machine learning: a survey,
 [J. Mach. Learn. Res. **18**, 1-43 (2018).](http://jmlr.org/papers/v18/17-468.html)
 
-<a id="Kennedy1995">[2]</a>
+<a id="Rafal2011">[2]</a>
+R. Demkowicz-Dobrzański,
+Optimal phase estimation with arbitrary a priori knowledge,
+[Phys. Rev. A **83**, 061802(R) (2011).
+](https://doi.org/10.1103/PhysRevA.83.061802)
+
+<a id="Kennedy1995">[3]</a>
 J. Kennedy and R. Eberhar,
 Particle swarm optimization,
 [Proc. 1995 IEEE International Conference on Neural Networks **4**, 1942-1948 (1995).
 ](https://doi.org/10.1109/ICNN.1995.488968)
 
-<a id="Storn1997">[3]</a>
+<a id="Storn1997">[4]</a>
 R. Storn and K. Price,
 Differential Evolution-A Simple and Efficient Heuristic for global
 Optimization over Continuous Spaces,
 [J. Global Optim. **11**, 341 (1997).](https://doi.org/10.1023/A:1008202821328)
 
-<a id="Nelder1965">[4]</a>
+<a id="Nelder1965">[5]</a>
 J. A. Nelder and R. Mead,
 A Simplex Method for Function Minimization,
 [Comput. J. **7**, 308–313 (1965).](https://doi.org/10.1093/comjnl/7.4.308)
 
-<a id="Lillicrap2015">[5]</a>
+<a id="Lillicrap2015">[6]</a>
 T. P. Lillicrap, J. J. Hunt, A. Pritzel, N. Heess, T. Erez, Y. Tassa, D. Silver, 
 and D. Wierstra,
 Continuous control with deep reinforcement learning,
 [arXiv:1509.02971.](https://arxiv.org/abs/1509.02971)
 
-<a id="Johansson2012">[6]</a>
+<a id="Johansson2012">[7]</a>
 J. R. Johansson, P. D. Nation, and F. Nori,
 QuTiP: An open-source Python framework for the dynamics of open quantum systems,
 [Comp. Phys. Comm. **183**, 1760 (2012).](https://doi.org/10.1016/j.cpc.2012.02.021)
 
-<a id="Johansson2013">[7]</a>
+<a id="Johansson2013">[8]</a>
 J. R. Johansson, P. D. Nation, and F. Nori,
 QuTiP 2: A Python framework for the dynamics of open quantum systems,
 [Comp. Phys. Comm. **184**, 1234 (2013).](https://doi.org/10.1016/j.cpc.2012.11.019)

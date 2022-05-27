@@ -142,6 +142,22 @@ Choose HCRB as the objective function.
 
 <a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/AsymptoticBound.jl#L45-L52' class='documenter-source'>source</a><br>
 
+##  **`Main.QuanEstimation.Iterative`** &mdash; *Method*.
+
+
+
+```julia
+Iterative(;max_episode::Int=300, seed::Number=1234)
+```
+
+State optimization algorithm: Iterative.
+
+  * `max_episode`: The number of episodes.
+  * `seed`: Random seed.
+
+
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Algorithm/Algorithm.jl#L209-L216' class='documenter-source'>source</a><br>
+
 ##  **`Main.QuanEstimation.Kraus`** &mdash; *Method*.
 
 
@@ -329,13 +345,13 @@ Initialize the parameterization described by the Lindblad master equation govern
 
 
 ```julia
-NM(;max_episode::Int=1000, state_num::Int=10, nelder_mead=missing, ar::Number=1.0, ae::Number=2.0, ac::Number=0.5, as0::Number=0.5, seed::Number=1234)
+NM(;max_episode::Int=1000, p_num::Int=10, nelder_mead=missing, ar::Number=1.0, ae::Number=2.0, ac::Number=0.5, as0::Number=0.5, seed::Number=1234)
 ```
 
 State optimization algorithm: NM.
 
   * `max_episode`: The number of populations.
-  * `state_num`: The number of the input states.
+  * `p_num`: The number of the input states.
   * `nelder_mead`: Initial guesses of the optimization variables.
   * `ar`: Reflection constant.
   * `ae`: Expansion constant.
@@ -531,6 +547,58 @@ Control optimization algorithm: auto-GRAPE.
 
 <a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Algorithm/Algorithm.jl#L48-L58' class='documenter-source'>source</a><br>
 
+##  **`Main.QuanEstimation.Adaptive`** &mdash; *Method*.
+
+
+
+```julia
+Adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; savefile=false, max_episode::Int=1000, eps::Float64=1e-8, Hc=missing, ctrl=missing, decay=missing, M=missing, W=missing)
+```
+
+In QuanEstimation, the Hamiltonian of the adaptive system should be written as $H(\textbf{x}+\textbf{u})$ with $\textbf{x}$ the unknown parameters and $\textbf{u}$ the tunable parameters. The tunable parameters $\textbf{u}$ are used to let the  Hamiltonian work at the optimal point $\textbf{x}_{\mathrm{opt}}$. 
+
+  * `x`: The regimes of the parameters for the integral.
+  * `p`: The prior distribution.
+  * `rho0`: Density matrix.
+  * `tspan`: The experimental results obtained in practice.
+  * `H`: Free Hamiltonian with respect to the values in x.
+  * `dH`: Derivatives of the free Hamiltonian with respect to the unknown parameters to be estimated.
+  * `savefile`: Whether or not to save all the posterior distributions.
+  * `max_episode`: The number of episodes.
+  * `eps`: Machine epsilon.
+  * `Hc`: Control Hamiltonians.
+  * `ctrl`: Control coefficients.
+  * `decay`: Decay operators and the corresponding decay rates.
+  * `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+  * `W`: Whether or not to save all the posterior distributions.
+
+
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Common/AdaptiveScheme.jl#L1-L23' class='documenter-source'>source</a><br>
+
+##  **`Main.QuanEstimation.Adaptive`** &mdash; *Method*.
+
+
+
+```julia
+Adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; savefile=false, max_episode::Int=1000, eps::Float64=1e-8, M=missing, W=missing)
+```
+
+In QuanEstimation, the Hamiltonian of the adaptive system should be written as $H(\textbf{x}+\textbf{u})$ with $\textbf{x}$ the unknown parameters and $\textbf{u}$ the tunable parameters. The tunable parameters $\textbf{u}$ are used to let the  Hamiltonian work at the optimal point $\textbf{x}_{\mathrm{opt}}$. 
+
+  * `x`: The regimes of the parameters for the integral.
+  * `p`: The prior distribution.
+  * `rho0`: Density matrix.
+  * `K`: Kraus operator(s) with respect to the values in x.
+  * `dK`: Derivatives of the Kraus operator(s) with respect to the unknown parameters to be estimated.
+  * `savefile`: Whether or not to save all the posterior distributions.
+  * `max_episode`: The number of episodes.
+  * `eps`: Machine epsilon.
+  * `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+  * `W`: Whether or not to save all the posterior distributions.
+
+
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Common/AdaptiveScheme.jl#L219-L237' class='documenter-source'>source</a><br>
+
 ##  **`Main.QuanEstimation.BCB`** &mdash; *Method*.
 
 
@@ -575,46 +643,48 @@ Calculation of the Bayesian classical Fisher information (BCFI) and the Bayesian
 
 
 ```julia
-BCRB(x::AbstractVector, p, rho, drho; M=missing, b=missing, db=missing, btype=1, eps=GLOBAL_EPS)
+BCRB(x::AbstractVector, p, dp, rho, drho; M=missing, b=missing, db=missing, btype=1, eps=GLOBAL_EPS)
 ```
 
 Calculation of the Bayesian Cramer-Rao bound (BCRB).
 
   * `x`: The regimes of the parameters for the integral.
   * `p`: The prior distribution.
+  * `dp`: Derivatives of the prior distribution with respect to the unknown parameters to be estimated. For example, dp[0] is the derivative vector on the first parameter.
   * `rho`: Parameterized density matrix.
   * `drho`: Derivatives of the parameterized density matrix (rho) with respect to the unknown parameters to be estimated.
   * `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
   * `b`: Vector of biases of the form $\textbf{b}=(b(x_0),b(x_1),\dots)^{\mathrm{T}}$.
   * `db`: Derivatives of b on the unknown parameters to be estimated, It should be expressed as $\textbf{b}'=(\partial_0 b(x_0),\partial_1 b(x_1),\dots)^{\mathrm{T}}$.
-  * `btype`: Types of the BCRB. Options are 1 and 2.
+  * `btype`: Types of the BCRB. Options are 1, 2 and 3.
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/BayesianBound/BayesianCramerRao.jl#L162-L176' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/BayesianBound/BayesianCramerRao.jl#L176-L191' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.BQCRB`** &mdash; *Method*.
 
 
 
 ```julia
-BQCRB(x::AbstractVector, p, rho, drho; b=missing, db=missing, LDtype=:SLD, btype=1, eps=GLOBAL_EPS)
+BQCRB(x::AbstractVector, p, dp, rho, drho; b=missing, db=missing, LDtype=:SLD, btype=1, eps=GLOBAL_EPS)
 ```
 
 Calculation of the Bayesian quantum Cramer-Rao bound (BQCRB).
 
   * `x`: The regimes of the parameters for the integral.
   * `p`: The prior distribution.
+  * `dp`: Derivatives of the prior distribution with respect to the unknown parameters to be estimated. For example, dp[0] is the derivative vector on the first parameter.
   * `rho`: Parameterized density matrix.
   * `drho`: Derivatives of the parameterized density matrix (rho) with respect to the unknown parameters to be estimated.
   * `b`: Vector of biases of the form $\textbf{b}=(b(x_0),b(x_1),\dots)^{\mathrm{T}}$.
   * `db`: Derivatives of b on the unknown parameters to be estimated, It should be expressed as $\textbf{b}'=(\partial_0 b(x_0),\partial_1 b(x_1),\dots)^{\mathrm{T}}$.
   * `LDtype`: Types of QFI (QFIM) can be set as the objective function. Options are "SLD" (default), "RLD" and "LLD".
-  * `btype`: Types of the BCRB. Options are 1 and 2.
+  * `btype`: Types of the BCRB. Options are 1, 2 and 3.
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/BayesianBound/BayesianCramerRao.jl#L79-L93' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/BayesianBound/BayesianCramerRao.jl#L79-L94' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.BQFIM`** &mdash; *Method*.
 
@@ -837,7 +907,7 @@ Calculation of the Bayesian version of Cramer-Rao bound introduced by Van Trees 
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/BayesianBound/BayesianCramerRao.jl#L404-L417' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/BayesianBound/BayesianCramerRao.jl#L423-L436' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.QFIM`** &mdash; *Method*.
 
@@ -896,7 +966,7 @@ Calculation of the quantum Fisher information (QFI) and quantum Fisher informati
 
 
 ```julia
-QVTB(x::AbstractVector, p, dp, rho, drho; LDtype=:SLD, btype=1, eps=GLOBAL_EPS)
+QVTB(x::AbstractVector, p, dp, rho, drho; LDtype=:SLD, eps=GLOBAL_EPS)
 ```
 
 Calculation of the Bayesian version of Cramer-Rao bound in troduced by Van Trees (VTB).
@@ -907,11 +977,10 @@ Calculation of the Bayesian version of Cramer-Rao bound in troduced by Van Trees
   * `rho`: Parameterized density matrix.
   * `drho`: Derivatives of the parameterized density matrix (rho) with respect to the unknown parameters to be estimated.
   * `LDtype`: Types of QFI (QFIM) can be set as the objective function. Options are "SLD" (default), "RLD" and "LLD".
-  * `btype`: Types of the BCRB. Options are 1 and 2.
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/BayesianBound/BayesianCramerRao.jl#L249-L262' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/BayesianBound/BayesianCramerRao.jl#L294-L306' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.QZZB`** &mdash; *Method*.
 
@@ -959,7 +1028,7 @@ SpinSqueezing(ρ::AbstractMatrix; basis="Dicke", output="KU")
 Calculate the spin squeezing parameter for the input density matrix. The `basis` can be `"Dicke"` for the Dicke basis, or `"Pauli"` for the Pauli basis. The `output` can be both `"KU"`(for spin squeezing defined by Kitagawa and Ueda) and `"WBIMH"`(for spin squeezing defined by Wineland et al.).
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Resources/Resources.jl#L23-L29' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Resource/Resource.jl#L23-L29' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.TargetTime`** &mdash; *Method*.
 
@@ -972,14 +1041,14 @@ TargetTime(f::Number, tspan::AbstractVector, func::Function, args...; kwargs...)
 Calculate the minimum time to reach a precision limit of given level. The `func` can be any objective function during the control optimization, e.g. QFIM, CFIM, HCRB, etc.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Resources/Resources.jl#L73-L78' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Resource/Resource.jl#L73-L78' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.VTB`** &mdash; *Method*.
 
 
 
 ```julia
-VTB(x::AbstractVector, p, dp, rho, drho; M=missing, btype=1, eps=GLOBAL_EPS)
+VTB(x::AbstractVector, p, dp, rho, drho; M=missing, eps=GLOBAL_EPS)
 ```
 
 Calculation of the Bayesian version of Cramer-Rao bound introduced by Van Trees (VTB).
@@ -990,63 +1059,10 @@ Calculation of the Bayesian version of Cramer-Rao bound introduced by Van Trees 
   * `rho`: Parameterized density matrix.
   * `drho`: Derivatives of the parameterized density matrix (rho) with respect to the unknown parameters to be estimated.
   * `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
-  * `btype`: Types of the BCRB. Options are 1 and 2.
   * `eps`: Machine epsilon.
 
 
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/BayesianBound/BayesianCramerRao.jl#L313-L326' class='documenter-source'>source</a><br>
-
-##  **`Main.QuanEstimation.adaptive`** &mdash; *Method*.
-
-
-
-```julia
-adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; save_file=false, max_episode::Int=1000, eps::Float64=1e-8, Hc=missing, ctrl=missing, decay=missing, M=missing, W=missing)
-```
-
-In QuanEstimation, the Hamiltonian of the adaptive system should be written as $H(\textbf{x}+\textbf{u})$ with $\textbf{x}$ the unknown parameters and $\textbf{u}$ the tunable parameters. The tunable parameters $\textbf{u}$ are used to let the  Hamiltonian work at the optimal point $\textbf{x}_{\mathrm{opt}}$. 
-
-  * `x`: The regimes of the parameters for the integral.
-  * `p`: The prior distribution.
-  * `rho0`: Density matrix.
-  * `tspan`: The experimental results obtained in practice.
-  * `H`: Free Hamiltonian with respect to the values in x.
-  * `dH`: Derivatives of the free Hamiltonian with respect to the unknown parameters to be estimated.
-  * `savefile`: Whether or not to save all the posterior distributions.
-  * `max_episode`: The number of episodes.
-  * `eps`: Machine epsilon.
-  * `Hc`: Control Hamiltonians.
-  * `ctrl`: Control coefficients.
-  * `decay`: Decay operators and the corresponding decay rates.
-  * `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
-  * `W`: Whether or not to save all the posterior distributions.
-
-
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Common/AdaptiveScheme.jl#L1-L23' class='documenter-source'>source</a><br>
-
-##  **`Main.QuanEstimation.adaptive`** &mdash; *Method*.
-
-
-
-```julia
-adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; save_file=false, max_episode::Int=1000, eps::Float64=1e-8, M=missing, W=missing)
-```
-
-In QuanEstimation, the Hamiltonian of the adaptive system should be written as $H(\textbf{x}+\textbf{u})$ with $\textbf{x}$ the unknown parameters and $\textbf{u}$ the tunable parameters. The tunable parameters $\textbf{u}$ are used to let the  Hamiltonian work at the optimal point $\textbf{x}_{\mathrm{opt}}$. 
-
-  * `x`: The regimes of the parameters for the integral.
-  * `p`: The prior distribution.
-  * `rho0`: Density matrix.
-  * `K`: Kraus operator(s) with respect to the values in x.
-  * `dK`: Derivatives of the Kraus operator(s) with respect to the unknown parameters to be estimated.
-  * `savefile`: Whether or not to save all the posterior distributions.
-  * `max_episode`: The number of episodes.
-  * `eps`: Machine epsilon.
-  * `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
-  * `W`: Whether or not to save all the posterior distributions.
-
-
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Common/AdaptiveScheme.jl#L217-L235' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/BayesianBound/BayesianCramerRao.jl#L344-L356' class='documenter-source'>source</a><br>
 
 ##  **`Main.QuanEstimation.evolve`** &mdash; *Method*.
 

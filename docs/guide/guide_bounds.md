@@ -761,9 +761,7 @@ In QuanEstimation, the BCRB and BQCRB are calculated via
     ```
     where `b` and `db` are the vectors of biases and its derivatives on the unknown parameters. 
     For unbiased estimates, `b=[]` and `db=[]`. In QuanEstimation, the users can set the types of 
-    BCRB and BQCRB via the variable `btype`. For single parameter estimation, Ref [[6]](#Liu2016) 
-    calculates the optimal biased bound based on the first type of the BQCRB, it can be realized 
-    numerically via
+    BCRB and BQCRB via the variable `btype`. 
 === "Julia"
     ``` jl
     BCRB(x, p, dp, rho, drho; M=missing, b=missing, db=missing, 
@@ -774,11 +772,11 @@ In QuanEstimation, the BCRB and BQCRB are calculated via
           LDtype=:SLD, eps=1e-8)
     ```
     where `b` and `db` are the vectors of biases and its derivatives on the unknown parameters. 
-    For unbiased estimates, `b=missing` and `db=missing`. In QuanEstimation, the users can set the 
-    types of BCRB and BQCRB via the variable `btype`. For single parameter estimation, Ref 
-    [[6]](#Liu2016) calculates the optimal biased bound based on the first type of the BQCRB, it can 
-    be realized numerically via
+    For unbiased estimates, `b=missing` and `db=missing`. In QuanEstimation, the users can set 
+    the types of BCRB and BQCRB via the variable `btype`. 
 
+For single parameter estimation, Ref [[6]](#Liu2016) calculates the optimal biased bound based 
+on the first type of the BQCRB, it can be realized numerically via
 === "Python"
     ``` py
     OBB(x, p, dp, rho, drho, d2rho, LDtype="SLD", eps=1e-8)
@@ -790,29 +788,19 @@ In QuanEstimation, the BCRB and BQCRB are calculated via
 `d2rho` is a list representing the second order derivatives of `rho` on `x`.
 
 Van Trees in 1968 [[7]](#vanTrees1968) provides a well used Bayesian version of Cramér-Rao 
-bound known as Van Trees bound (VTB). The quantum version (QVTB) provided by Tsang, Wiseman 
-and Caves [[9]](#Tsang2011). Two types of VTB are contained in QuanEstimation, the first one is 
-\begin{align}        
-\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})\left(\mathcal{I}_p
-+\mathcal{I}\right)^{-1}\mathrm{d}\textbf{x},
-\end{align}
-
-where the entry of $\mathcal{I}_{p}$ is defined by$[\mathcal{I}_{p}]_{ab}=[\partial_a 
-\ln p(\textbf{x})][\partial_b \ln p(\textbf{x})]$ and $\mathcal{I}$ represents the CFIM. 
-The second one is      
+bound known as Van Trees bound (VTB). 
 <center> $\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \left(\mathcal{I}_{\mathrm{prior}}
 +\mathcal{I}_{\mathrm{Bayes}}\right)^{-1},$ </center>  
 
 where $\mathcal{I}_{\mathrm{prior}}=\int p(\textbf{x})\mathcal{I}_{p}\mathrm{d}\textbf{x}$ 
 is the CFIM for $p(\textbf{x})$ and $\mathcal{I}_{\mathrm{Bayes}}$ is the average of the CFIM.
 
-Besides, the package can also calculate two types of QVTB, the first one is  
-\begin{align}
-\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})\left(\mathcal{I}_p
-+\mathcal{F}\right)^{-1}\mathrm{d}\textbf{x}
-\end{align}
+The quantum version (QVTB) provided by Tsang, Wiseman 
+and Caves [[9]](#Tsang2011). 
+<center> $\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \left(\mathcal{I}_{\mathrm{prior}}
++\mathcal{F}_{\mathrm{Bayes}}\right)^{-1}$ </center>  
 
-with $\mathcal{F}$ the QFIM for all types. 
+with $\mathcal{F}_{\mathrm{Bayes}}$ the average of the QFIM of all types.
 
 The functions to calculate the VTB and QVTB are
 === "Python"

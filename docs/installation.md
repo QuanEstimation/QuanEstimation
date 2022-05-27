@@ -34,10 +34,11 @@ of Python and Julia should be above 3.6 and 1.7, respectively.
 | LinearAlgebra                          | --          |BoundaryValueDiffEq                    | 2.7.2       |
 | Zygote                                 | 0.6.37      |SCS                                    | 0.8.1       |
 | Convex                                 | 0.14.18     |Trapz                                  | 2.0.3       |
-| ReinforcementLearning                  | 0.10.0      |Interpolation                          | 0.13.5      |
+| ReinforcementLearning                  | 0.10.0      |Interpolations                         | 0.13.5      |
 | IntervalSets                           | 0.5.4       |SparseArrays                           | --          |
 | Flux                                   | 0.12.4      |DelimitedFiles                         | --          |
 | StatsBase                              | 0.33.16     |Random                                 | --          |
+| Printf                                 | --          |StableRNGs                             | --          |
 
 The version information of the packages without the version number is the same with the 
 corresponding packages in Julia 1.7. Besides, the version information of the full Julia package 
