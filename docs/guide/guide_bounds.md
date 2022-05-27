@@ -922,15 +922,15 @@ $\mathrm{erf}(x):=\frac{2}{\sqrt{\pi}}\int^x_0 e^{-t^2}\mathrm{d}t$ the error fu
     ```
     ``` py
     # Classical Bayesian bounds
-    f_BCRB1 = BCRB([x], p, dp, rho, drho, M=[], btype=1)
-    f_BCRB2 = BCRB([x], p, dp, rho, drho, M=[], btype=2)
+    f_BCRB1 = BCRB([x], p, [], rho, drho, M=[], btype=1)
+    f_BCRB2 = BCRB([x], p, [], rho, drho, M=[], btype=2)
     f_BCRB3 = BCRB([x], p, dp, rho, drho, M=[], btype=3)
     f_VTB = VTB([x], p, dp, rho, drho, M=[])
     ```
     ``` py
     # Quantum Bayesian bounds
-    f_BQCRB1 = BQCRB([x], p, dp, rho, drho, btype=1)
-    f_BQCRB2 = BQCRB([x], p, dp, rho, drho, btype=2)
+    f_BQCRB1 = BQCRB([x], p, [], rho, drho, btype=1)
+    f_BQCRB2 = BQCRB([x], p, [], rho, drho, btype=2)
     f_BQCRB3 = BQCRB([x], p, dp, rho, drho, btype=3)
     f_QVTB = QVTB([x], p, dp, rho, drho)
     f_QZZB = QZZB([x], p, rho)

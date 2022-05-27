@@ -1,6 +1,6 @@
 @doc raw"""
 
-    adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; save_file=false, max_episode::Int=1000, eps::Float64=1e-8, Hc=missing, ctrl=missing, decay=missing, M=missing, W=missing)
+    Adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; savefile=false, max_episode::Int=1000, eps::Float64=1e-8, Hc=missing, ctrl=missing, decay=missing, M=missing, W=missing)
 
 In QuanEstimation, the Hamiltonian of the adaptive system should be written as
 ``H(\textbf{x}+\textbf{u})`` with ``\textbf{x}`` the unknown parameters and ``\textbf{u}``
@@ -21,7 +21,7 @@ Hamiltonian work at the optimal point ``\textbf{x}_{\mathrm{opt}}``.
 - `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
 - `W`: Whether or not to save all the posterior distributions. 
 """
-function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; save_file=false, max_episode::Int=1000, eps::Float64=1e-8, 
+function Adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; savefile=false, max_episode::Int=1000, eps::Float64=1e-8, 
                   Hc=missing, ctrl=missing, decay=missing, M=missing, W=missing)
     dim = size(rho0)[1]
     para_num = length(x)
@@ -85,6 +85,8 @@ function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; save
                 rho_tp, drho_tp = evolve(dynamics)
                 rho[hj] = rho_tp
             end
+
+            println(p_real[indx_tp])
             println("The tunable parameter is $u")
             print("Please enter the experimental result: ")
             enter = readline()
@@ -110,7 +112,7 @@ function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; save
             append!(y, Int(res_exp-1))
             append!(pout, [p])
         end
-        if save_file == false
+        if savefile == false
             open("pout.csv","w") do f
                 writedlm(f, [p])
             end
@@ -190,7 +192,7 @@ function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; save
             append!(y, Int(res_exp-1))
             append!(pout, [p])
         end
-        if save_file == false
+        if savefile == false
             open("pout.csv","w") do f
                 writedlm(f, [p])
             end
@@ -216,7 +218,7 @@ end
 
 @doc raw"""
 
-    adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; save_file=false, max_episode::Int=1000, eps::Float64=1e-8, M=missing, W=missing)
+    Adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; savefile=false, max_episode::Int=1000, eps::Float64=1e-8, M=missing, W=missing)
 
 In QuanEstimation, the Hamiltonian of the adaptive system should be written as
 ``H(\textbf{x}+\textbf{u})`` with ``\textbf{x}`` the unknown parameters and ``\textbf{u}``
@@ -233,7 +235,7 @@ Hamiltonian work at the optimal point ``\textbf{x}_{\mathrm{opt}}``.
 - `M`: A set of positive operator-valued measure (POVM). The default measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
 - `W`: Whether or not to save all the posterior distributions. 
 """
-function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; save_file=false, max_episode::Int=1000, 
+function Adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; savefile=false, max_episode::Int=1000, 
     eps::Float64=1e-8, M=missing, W=missing)
     dim = size(rho0)[1]
     para_num = length(x)
@@ -293,7 +295,7 @@ function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; save_file=f
             append!(y, Int(res_exp-1))
             append!(pout, [p])
         end
-        if save_file == false
+        if savefile == false
             open("pout.csv","w") do f
                 writedlm(f, [p])
             end
@@ -375,7 +377,7 @@ function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; save_file=f
             append!(y, Int(res_exp+1))
             append!(pout, [p])
         end
-        if save_file == false
+        if savefile == false
             open("pout.csv","w") do f
                 writedlm(f, [p])
             end
@@ -399,13 +401,13 @@ function adaptive(x::AbstractVector, p, rho0::AbstractMatrix, K, dK; save_file=f
     end
 end
 
-mutable struct adapt_MZI
+mutable struct Adapt_MZI
     x
     p
     rho0
 end
 
-function online(apt::adapt_MZI; output::String = "phi")
+function online(apt::Adapt_MZI; output::String = "phi")
     (;x, p, rho0) = apt
     N = Int(sqrt(size(rho0,1))) - 1
     a = destroy(N+1) |> sparse
@@ -424,7 +426,7 @@ function brgd(n)
     return deepcopy(vcat(L0,L1))
 end
 
-function offline(apt::adapt_MZI, alg; eps = GLOBAL_EPS)
+function offline(apt::Adapt_MZI, alg; eps = GLOBAL_EPS)
     (;x,p,rho0) = apt
     N = Int(sqrt(size(rho0,1))) - 1
     a = destroy(N+1) |> sparse

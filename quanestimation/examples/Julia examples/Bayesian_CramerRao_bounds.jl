@@ -45,14 +45,14 @@ for i = 1:length(x)
 end
 
 # Classical Bayesian bounds
-f_BCRB1 = QuanEstimation.BCRB([x], p, dp, rho, drho, btype=1)
-f_BCRB2 = QuanEstimation.BCRB([x], p, dp, rho, drho, btype=2)
+f_BCRB1 = QuanEstimation.BCRB([x], p, [], rho, drho, btype=1)
+f_BCRB2 = QuanEstimation.BCRB([x], p, [], rho, drho, btype=2)
 f_BCRB3 = QuanEstimation.BCRB([x], p, dp, rho, drho, btype=3)
 f_VTB = QuanEstimation.VTB([x], p, dp, rho, drho)
 
 # Quantum Bayesian bounds
-f_BQCRB1 = QuanEstimation.BQCRB([x], p, dp, rho, drho, btype=1)
-f_BQCRB2 = QuanEstimation.BQCRB([x], p, dp, rho, drho, btype=2)
+f_BQCRB1 = QuanEstimation.BQCRB([x], p, [], rho, drho, btype=1)
+f_BQCRB2 = QuanEstimation.BQCRB([x], p, [], rho, drho, btype=2)
 f_BQCRB3 = QuanEstimation.BQCRB([x], p, dp, rho, drho, btype=3)
 f_QVTB = QuanEstimation.QVTB([x], p, dp, rho, drho)
 f_QZZB = QuanEstimation.QZZB([x], p, rho)

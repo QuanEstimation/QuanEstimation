@@ -161,6 +161,39 @@ The code for state optimization with AD is as follows
     rate for the first moment estimates and the second moment estimates can be set by the user via 
     `epsilon`, `beta1` and `beta2`.
 
+## **RI**
+The code for state optimization with RI is as follows
+=== "Python"
+    ``` py
+    state = StateOpt(method="RI", **kwargs)
+    ```
+    where `kwargs` is of the form
+    ``` py
+    kwargs = {"psi0":[], "max_episode":300, "seed":1234}
+    ```
+    The keywords and the default values of RI can be seen in the following table
+
+    | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
+    | :----------:                     | :----------:               |
+    | "psi0"                           | [ ]                        |
+    | "max_episode"                    | 300                        |
+    | "seed"                           | 1234                       |
+
+    `psi0` is a list representing the initial guesses of states and `max_episode` is the number of episodes. `seed` is the random seed. 
+=== "Julia"
+    ``` jl
+    alg = RI(max_episode=300, seed=1234)
+    ```
+    The keywords and the default values of RI can be seen in the following 
+    table
+
+    | $~~~~~~~~~~$keywords$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
+    | :----------:                     | :----------:               |
+    | "max_episode"                    | 300                        |
+    | "seed"                           | 1234                       |
+
+    `max_episode` is the number of episodes. `seed` is the random seed. 
+
 ## **PSO**
 The code for state optimization with PSO is as follows
 === "Python"
@@ -360,10 +393,14 @@ The Hamiltonian of the Lipkin–Meshkov–Glick (LMG) model is
 H_{\mathrm{LMG}}=-\frac{\lambda}{N}(J_1^2+gJ_2^2)-hJ_3,
 \end{align}
 
-where $N$ is the number of spins of the system, $\lambda$ is the spin–spin interaction strength, $h$ is the strength of the 
-external field and $g$ is the anisotropic parameter. $J_i=\frac{1}{2}\sum_{j=1}^N \sigma_i^{(j)}$ ($i=1,2,3$) is the collective spin operator with $\sigma_i^{(j)}$ the $i$th Pauli matrix for the $j$th spin. In single-parameter scenario, we take $g$ as the unknown parameter to be estimated. The states are expanded as 
-$|\psi\rangle=\sum^J_{m=-J}c_m|J,m\rangle$ with $|J,m\rangle$ the Dicke state and $c_m$ a complex coefficient. Here we fixed 
-$J=N/2$. In this example, the probe state is optimized for both noiseless scenario and collective dephasing noise. The dynamics under collective dephasing can be expressed as
+where $N$ is the number of spins of the system, $\lambda$ is the spin–spin interaction strength, 
+$h$ is the strength of the external field and $g$ is the anisotropic parameter. 
+$J_i=\frac{1}{2}\sum_{j=1}^N \sigma_i^{(j)}$ ($i=1,2,3$) is the collective spin operator with 
+$\sigma_i^{(j)}$ the $i$th Pauli matrix for the $j$th spin. In single-parameter scenario, we take 
+$g$ as the unknown parameter to be estimated. The states are expanded as 
+$|\psi\rangle=\sum^J_{m=-J}c_m|J,m\rangle$ with $|J,m\rangle$ the Dicke state and $c_m$ a complex 
+coefficient. Here we fixed $J=N/2$. In this example, the probe state is optimized for both noiseless
+scenario and collective dephasing noise. The dynamics under collective dephasing can be expressed as
 <center> $\partial_t\rho = -i[H_{\mathrm{LMG}},\rho]+\gamma \left(J_3\rho J_3-\frac{1}{2}\left\{\rho, J^2_3\right\}\right)$ </center>
 with $\gamma$ the decay rate.
 
@@ -780,6 +817,12 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
                     "epsilon":0.01, "beta1":0.90, "beta2":0.99}
         state = StateOpt(savefile=False, method="AD", **AD_paras)
 		```
+    === "RI"
+		``` py
+        # state optimization algorithm: RI
+		RI_paras = {"psi0":psi0, "max_episode":300, "seed":0.01}
+        state = StateOpt(savefile=False, method="RI", **RI_paras)
+		```
 	=== "PSO"
 		``` py
         # state optimization algorithm: PSO
@@ -848,6 +891,11 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
         # state optimization algorithm: AD
         alg = QuanEstimation.AD(Adam=false, max_episode=300, epsilon=0.01, 
                                 beta1=0.90, beta2=0.99)
+        ```
+    === "RI"
+        ``` jl
+        # state optimization algorithm: RI
+        alg = QuanEstimation.RI(max_episode=300, seed=1234)
         ```
     === "PSO"
         ``` jl
