@@ -14,7 +14,10 @@ using the features of quantum mechanics.
 ### **Rafał Demkowicz-Dobrzański**  
 **University of Warsaw**  
 **Email:** <Rafal.Demkowicz-Dobrzanski@fuw.edu.pl>  
-**Biography:**
+**Biography:** Rafał Demkowicz-Dobrzański is an associate professor at the Faculty of Physics, 
+University of Warsaw. He is a theorist actively working in the field of quantum metrology, 
+who developed methods to identify fundamental limits in quantum metrology in presence of 
+decoherence.
 
 ---
 ### **Mao Zhang** 
@@ -37,8 +40,11 @@ of control enhanced quantum metrological schemes.
 
 ### **Haidong Yuan**  
 **The Chinese University of Hong Kong**  
+**Biography:** Haidong Yuan is an associate professor at the Department of Mechanical 
+and Automation Engineering, The Chinese University of Hong Kong.
 
 ---
 
 ### **Xiaoguang Wang**  
 **Zhejiang University**  
+**Biography:** Xiaoguang Wang is a professor at the Department of Physics, Zhejiang University.

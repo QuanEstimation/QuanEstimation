@@ -430,59 +430,6 @@ function evolve(dynamics::Lindblad{noiseless,free,dm})
     ρt |> vec2mat, ∂ρt_∂x |> vec2mat
 end
 
-#### evolution of pure states under time-independent Hamiltonian without noise and controls ####
-function evolve(dynamics::Lindblad{noiseless,free,ket})
-    (; H0, dH, ψ0, tspan) = dynamics.data
-
-    para_num = length(dH)
-    Δt = tspan[2] - tspan[1]
-    U = exp(-im * H0 * Δt)
-    ψt = ψ0
-    ∂ψ∂x = [ψ0 |> zero for i = 1:para_num]
-    for t = 2:length(tspan)
-        ψt = U * ψt
-        ∂ψ∂x = [-im * Δt * dH[i] * ψt for i = 1:para_num] + [U] .* ∂ψ∂x
-    end
-    ρt = ψt * ψt'
-    ∂ρt_∂x = [(∂ψ∂x[i] * ψt' + ψt * ∂ψ∂x[i]') for i = 1:para_num]
-    ρt, ∂ρt_∂x
-end
-
-#### evolution of pure states under time-dependent Hamiltonian without noise and controls ####
-function evolve(dynamics::Lindblad{noiseless,timedepend,ket})
-    (; H0, dH, ψ0, tspan) = dynamics.data
-
-    para_num = length(dH)
-    dH_L = [liouville_commu(dH[i]) for i = 1:para_num]
-    ρt = (ψ0 * ψ0') |> vec
-    ∂ρt_∂x = [ρt |> zero for i = 1:para_num]
-    for t = 2:length(tspan)
-        Δt = tspan[t] - tspan[t-1] # tspan may not be equally spaced 
-        exp_L = expL(H0[t-1], Δt)
-        ρt = exp_L * ρt
-        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
-    end
-    # ρt = exp(vec(H0[end])' * zero(ρt)) * ρt
-    ρt |> vec2mat, ∂ρt_∂x |> vec2mat
-end
-
-#### evolution of density matrix under time-independent Hamiltonian without noise and controls ####
-function evolve(dynamics::Lindblad{noiseless,free,dm})
-    (; H0, dH, ρ0, tspan) = dynamics.data
-
-    para_num = length(dH)
-    Δt = tspan[2] - tspan[1]
-    exp_L = expL(H0, Δt)
-    dH_L = [liouville_commu(dH[i]) for i = 1:para_num]
-    ρt = ρ0 |> vec
-    ∂ρt_∂x = [ρt |> zero for i = 1:para_num]
-    for t = 2:length(tspan)
-        ρt = exp_L * ρt
-        ∂ρt_∂x = [-im * Δt * dH_L[i] * ρt for i = 1:para_num] + [exp_L] .* ∂ρt_∂x
-    end
-    # ρt = exp(vec(H0[end])' * zero(ρt)) * ρt   
-    ρt |> vec2mat, ∂ρt_∂x |> vec2mat
-end
 
 #### evolution of density matrix under time-dependent Hamiltonian without noise and controls ####
 function evolve(dynamics::Lindblad{noiseless,timedepend,dm})

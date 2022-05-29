@@ -200,7 +200,7 @@ function Adam(gt, t, para, mt, vt, epsilon, beta1, beta2, eps)
 end
 
 #### bound coefficients of linear combination in Mopt ####
-function bound_LC_coeff!(coefficients::Vector{Vector{Float64}})
+function bound_LC_coeff!(coefficients::Vector{Vector{Float64}}, rng)
     M_num = length(coefficients)
     basis_num = length(coefficients[1])
     for ck in 1:M_num
@@ -349,7 +349,7 @@ function initial_LinearComb!(measurement0, B_all, basis_num, M_num, p_num, rng)
 
     for pj in (length(measurement0)+1):p_num
         B_all[pj] = [rand(rng, basis_num) for i in 1:M_num]
-        bound_LC_coeff!(B_all[pj])
+        bound_LC_coeff!(B_all[pj], rng)
     end
 end
 
