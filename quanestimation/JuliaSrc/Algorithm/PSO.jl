@@ -348,7 +348,7 @@ function update!(opt::Mopt_LinearComb, alg::PSO, obj, dynamics, output)
                     particles[pk][dk][ck] += velocity[dk, ck, pk]
                 end
             end
-            bound_LC_coeff!(particles[pk])
+            bound_LC_coeff!(particles[pk], rng)
     
             for dm in 1:M_num
                 for cm in 1:basis_num

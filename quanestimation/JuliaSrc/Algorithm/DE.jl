@@ -280,7 +280,7 @@ function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
             end
     
             # normalize the coefficients 
-            bound_LC_coeff!(M_cross)
+            bound_LC_coeff!(M_cross, rng)
             M = [sum([M_cross[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
             obj_cross = set_M(obj, M)
             f_out, f_cross = objective(obj_cross, dynamics)

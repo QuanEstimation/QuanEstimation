@@ -27,6 +27,7 @@ of Python and Julia should be above 3.6 and 1.7, respectively.
 | sympy                        | >=1.10       |
 | scipy                        | >=1.8        |
 | cvxpy                        | >=1.2        |
+| more_itertools               | >=8.12.0     |
 
 ## **Julia packages**
 | $~~~~~~~~~~~~~~~~$Package$~~~~~~~~~~~~$| Version     |$~~~~~~~~~~~~~~~~$Package$~~~~~~~~~~~~$| Version     |
@@ -44,4 +45,3 @@ The version information of the packages without the version number is the same w
 corresponding packages in Julia 1.7. Besides, the version information of the full Julia package 
 is also the same as the table above. All of these packages will be automatically installed when
 the users install QuanEstimation.
-

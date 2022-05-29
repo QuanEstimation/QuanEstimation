@@ -86,7 +86,6 @@ function Adaptive(x::AbstractVector, p, rho0::AbstractMatrix, tspan, H, dH; save
                 rho[hj] = rho_tp
             end
 
-            println(p_real[indx_tp])
             println("The tunable parameter is $u")
             print("Please enter the experimental result: ")
             enter = readline()

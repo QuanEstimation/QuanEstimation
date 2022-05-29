@@ -350,50 +350,103 @@ def adaptive_dynamics(
         print("The optimal parameter is %f" % x_opt)
 
         u = 0.0
-        y, xout, pout = [], [], []
-        for ei in range(max_episode):
-            rho = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
-            for hj in range(p_num):
-                x_idx = np.argmin(np.abs(x[0] - (x[0][hj] + u)))
-                H_tp = H[x_idx]
-                dH_tp = dH[x_idx]
-                dynamics = Lindblad(
-                    tspan, rho0, H_tp, dH_tp, decay=decay, Hc=Hc, ctrl=ctrl
-                )
-                rho_tp, drho_tp = dynamics.expm()
-                rho[hj] = rho_tp[-1]
-            print("The tunable parameter is %f" % u)
-            res_exp = input("Please enter the experimental result: ")
-            res_exp = int(res_exp)
-            pyx = np.zeros(p_num)
-            for xi in range(p_num):
-                pyx[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
-
-            arr = [pyx[m] * p[m] for m in range(p_num)]
-            py = simps(arr, x[0])
-            p_update = pyx * p / py
-            p = p_update
-            p_idx = np.argmax(p)
-            x_out = x[0][p_idx]
-            print("The estimator is %s (%d episodes)" % (x_out, ei))
-            u = x_opt - x_out
-
-            if (ei + 1) % 50 == 0:
-                if (x_out + u) > x[0][-1] and (x_out + u) < x[0][0]:
-                    raise ValueError("please increase the regime of the parameters.")
-
-            xout.append(x_out)
-            y.append(res_exp)
-            pout.append(p)
-        #### save file ####
         if savefile == False:
-            np.save("xout", xout)
-            np.save("y", y)
-            np.save("pout", p)
+            y, xout = [], []
+            for ei in range(max_episode):
+                rho = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
+                for hj in range(p_num):
+                    x_idx = np.argmin(np.abs(x[0] - (x[0][hj] + u)))
+                    H_tp = H[x_idx]
+                    dH_tp = dH[x_idx]
+                    dynamics = Lindblad(
+                        tspan, rho0, H_tp, dH_tp, decay=decay, Hc=Hc, ctrl=ctrl
+                    )
+                    rho_tp, drho_tp = dynamics.expm()
+                    rho[hj] = rho_tp[-1]
+                print("The tunable parameter is %f" % u)
+                res_exp = input("Please enter the experimental result: ")
+                res_exp = int(res_exp)
+                pyx = np.zeros(p_num)
+                for xi in range(p_num):
+                    pyx[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
+
+                arr = [pyx[m] * p[m] for m in range(p_num)]
+                py = simps(arr, x[0])
+                p_update = pyx * p / py
+                p = p_update
+                p_idx = np.argmax(p)
+                x_out = x[0][p_idx]
+                print("The estimator is %s (%d episodes)" % (x_out, ei))
+                u = x_opt - x_out
+
+                if (ei + 1) % 50 == 0:
+                    if (x_out + u) > x[0][-1] and (x_out + u) < x[0][0]:
+                        raise ValueError("please increase the regime of the parameters.")
+
+                xout.append(x_out)
+                y.append(res_exp)
+            fp = open('pout.csv','a')
+            fp.write('\n')
+            np.savetxt(fp, np.array(p))
+            fp.close()
+
+            fx = open('xout.csv','a')
+            fx.write('\n')
+            np.savetxt(fx, np.array(xout))
+            fx.close()
+
+            fy = open('y.csv','a')
+            fy.write('\n')
+            np.savetxt(fy, np.array(y))
+            fy.close()
         else:
-            np.save("xout", xout)
-            np.save("y", y)
-            np.save("pout", pout)
+            y, xout = [], []
+            for ei in range(max_episode):
+                rho = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
+                for hj in range(p_num):
+                    x_idx = np.argmin(np.abs(x[0] - (x[0][hj] + u)))
+                    H_tp = H[x_idx]
+                    dH_tp = dH[x_idx]
+                    dynamics = Lindblad(
+                        tspan, rho0, H_tp, dH_tp, decay=decay, Hc=Hc, ctrl=ctrl
+                    )
+                    rho_tp, drho_tp = dynamics.expm()
+                    rho[hj] = rho_tp[-1]
+
+                print("The tunable parameter is %f" % u)
+                res_exp = input("Please enter the experimental result: ")
+                res_exp = int(res_exp)
+                pyx = np.zeros(p_num)
+                for xi in range(p_num):
+                    pyx[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
+
+                arr = [pyx[m] * p[m] for m in range(p_num)]
+                py = simps(arr, x[0])
+                p_update = pyx * p / py
+                p = p_update
+                p_idx = np.argmax(p)
+                x_out = x[0][p_idx]
+                print("The estimator is %s (%d episodes)" % (x_out, ei))
+                u = x_opt - x_out
+
+                if (ei + 1) % 50 == 0:
+                    if (x_out + u) > x[0][-1] and (x_out + u) < x[0][0]:
+                        raise ValueError("please increase the regime of the parameters.")
+
+                fp = open('pout.csv','a')
+                fp.write('\n')
+                np.savetxt(fp, [np.array(p)])
+                fp.close()
+
+                fx = open('xout.csv','a')
+                fx.write('\n')
+                np.savetxt(fx, [x_out])
+                fx.close()
+
+                fy = open('y.csv','a')
+                fy.write('\n')
+                np.savetxt(fy, [res_exp])
+                fy.close()
     else:
         #### miltiparameter senario ####
         p_shape = np.shape(p)
@@ -428,70 +481,143 @@ def adaptive_dynamics(
         print("The optimal parameter are %s" % (x_opt))
 
         u = [0.0 for i in range(para_num)]
-        y, xout, pout = [], [], []
-        for ei in range(max_episode):
-            rho = [
-                np.zeros((dim, dim), dtype=np.complex128) for i in range(len(p_list))
-            ]
-            for hj in range(len(p_list)):
-                idx_list = [
-                    np.argmin(np.abs(x[i] - (x_list[hj][i] + u[i])))
-                    for i in range(para_num)
-                ]
-                x_idx = int(
-                    sum(
-                        [
-                            idx_list[i] * np.prod(np.array(p_shape[(i + 1) :]))
-                            for i in range(para_num)
-                        ]
-                    )
-                )
-                H_tp = H_list[x_idx]
-                dH_tp = dH_list[x_idx]
-                dynamics = Lindblad(
-                    tspan, rho0, H_tp, dH_tp, decay=decay, Hc=Hc, ctrl=ctrl
-                )
-                rho_tp, drho_tp = dynamics.expm()
-                rho[hj] = rho_tp[-1]
-            print("The tunable parameter are %s" % (u))
-            res_exp = input("Please enter the experimental result: ")
-            res_exp = int(res_exp)
-            pyx_list = np.zeros(len(p_list))
-            for xi in range(len(p_list)):
-                pyx_list[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
-            pyx = pyx_list.reshape(p_shape)
-            arr = p * pyx
-            for si in reversed(range(para_num)):
-                arr = simps(arr, x[si])
-            py = arr
-            p_update = p * pyx / py
-            p = p_update
-            p_idx = np.unravel_index(p.argmax(), p.shape)
-            x_out = [x[i][p_idx[i]] for i in range(para_num)]
-
-            print("The estimator is %s (%d episodes)" % (x_out, ei))
-            u = np.array(x_opt) - np.array(x_out)
-
-            if (ei + 1) % 50 == 0:
-                for un in range(para_num):
-                    if (x_out[un] + u[un]) > x[un][-1] and (x_out[un] + u[un]) < x[un][
-                        0
-                    ]:
-                        raise ValueError(
-                            "please increase the regime of the parameters."
-                        )
-            xout.append(x_out)
-            y.append(res_exp)
-            pout.append(p)
-        #### save file ####
         if savefile == False:
-            np.save("xout", xout)
-            np.save("y", y)
-            np.save("pout", p)
+            y, xout = [], []
+            for ei in range(max_episode):
+                rho = [
+                    np.zeros((dim, dim), dtype=np.complex128) for i in range(len(p_list))
+                ]
+                for hj in range(len(p_list)):
+                    idx_list = [
+                        np.argmin(np.abs(x[i] - (x_list[hj][i] + u[i])))
+                        for i in range(para_num)
+                    ]
+                    x_idx = int(
+                        sum(
+                            [
+                                idx_list[i] * np.prod(np.array(p_shape[(i + 1) :]))
+                                for i in range(para_num)
+                            ]
+                        )
+                    )
+                    H_tp = H_list[x_idx]
+                    dH_tp = dH_list[x_idx]
+                    dynamics = Lindblad(
+                        tspan, rho0, H_tp, dH_tp, decay=decay, Hc=Hc, ctrl=ctrl
+                    )
+                    rho_tp, drho_tp = dynamics.expm()
+                    rho[hj] = rho_tp[-1]
+                print("The tunable parameter are %s" % (u))
+                res_exp = input("Please enter the experimental result: ")
+                res_exp = int(res_exp)
+                pyx_list = np.zeros(len(p_list))
+                for xi in range(len(p_list)):
+                    pyx_list[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
+                pyx = pyx_list.reshape(p_shape)
+                arr = p * pyx
+                for si in reversed(range(para_num)):
+                    arr = simps(arr, x[si])
+                py = arr
+                p_update = p * pyx / py
+                p = p_update
+                p_idx = np.unravel_index(p.argmax(), p.shape)
+                x_out = [x[i][p_idx[i]] for i in range(para_num)]
+
+                print("The estimator is %s (%d episodes)" % (x_out, ei))
+                u = np.array(x_opt) - np.array(x_out)
+
+                if (ei + 1) % 50 == 0:
+                    for un in range(para_num):
+                        if (x_out[un] + u[un]) > x[un][-1] and (x_out[un] + u[un]) < x[un][
+                            0
+                        ]:
+                            raise ValueError(
+                                "please increase the regime of the parameters."
+                            )
+                xout.append(x_out)
+                y.append(res_exp)
+
+            fp = open('pout.csv','a')
+            fp.write('\n')
+            np.savetxt(fp, np.array(p))
+            fp.close()
+
+            fx = open('xout.csv','a')
+            fx.write('\n')
+            np.savetxt(fx, np.array(xout))
+            fx.close()
+
+            fy = open('y.csv','a')
+            fy.write('\n')
+            np.savetxt(fy, np.array(y))
+            fy.close()
         else:
-            np.save("xout", xout)
-            np.save("y", y)
-            np.save("pout", pout)
+            for ei in range(max_episode):
+                rho = [
+                    np.zeros((dim, dim), dtype=np.complex128) for i in range(len(p_list))
+                ]
+                for hj in range(len(p_list)):
+                    idx_list = [
+                        np.argmin(np.abs(x[i] - (x_list[hj][i] + u[i])))
+                        for i in range(para_num)
+                    ]
+                    x_idx = int(
+                        sum(
+                            [
+                                idx_list[i] * np.prod(np.array(p_shape[(i + 1) :]))
+                                for i in range(para_num)
+                            ]
+                        )
+                    )
+                    H_tp = H_list[x_idx]
+                    dH_tp = dH_list[x_idx]
+                    dynamics = Lindblad(
+                        tspan, rho0, H_tp, dH_tp, decay=decay, Hc=Hc, ctrl=ctrl
+                    )
+                    rho_tp, drho_tp = dynamics.expm()
+                    rho[hj] = rho_tp[-1]
+                print("The tunable parameter are %s" % (u))
+                res_exp = input("Please enter the experimental result: ")
+                res_exp = int(res_exp)
+                pyx_list = np.zeros(len(p_list))
+                for xi in range(len(p_list)):
+                    pyx_list[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
+                pyx = pyx_list.reshape(p_shape)
+                arr = p * pyx
+                for si in reversed(range(para_num)):
+                    arr = simps(arr, x[si])
+                py = arr
+                p_update = p * pyx / py
+                p = p_update
+                p_idx = np.unravel_index(p.argmax(), p.shape)
+                x_out = [x[i][p_idx[i]] for i in range(para_num)]
+
+                print("The estimator is %s (%d episodes)" % (x_out, ei))
+                u = np.array(x_opt) - np.array(x_out)
+
+                if (ei + 1) % 50 == 0:
+                    for un in range(para_num):
+                        if (x_out[un] + u[un]) > x[un][-1] and (x_out[un] + u[un]) < x[un][
+                            0
+                        ]:
+                            raise ValueError(
+                                "please increase the regime of the parameters."
+                            )
+
+                fp = open('pout.csv','a')
+                fp.write('\n')
+                np.savetxt(fp, [np.array(p)])
+                fp.close()
+
+                fx = open('xout.csv','a')
+                fx.write('\n')
+                np.savetxt(fx, [x_out])
+                fx.close()
+
+                fy = open('y.csv','a')
+                fy.write('\n')
+                np.savetxt(fy, [res_exp])
+                fy.close()
 
 
 def adaptive_Kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
@@ -523,45 +649,91 @@ def adaptive_Kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
         print("The optimal parameter is %s" % x_opt)
 
         u = 0.0
-        y, xout, pout = [], [], []
-        for ei in range(max_episode):
-            rho = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
-            for hj in range(p_num):
-                x_idx = np.argmin(np.abs(x[0] - (x[0][hj] + u)))
-                rho_tp = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K[x_idx]])
-                rho[hj] = rho_tp
-            print("The tunable parameter is %s" % u)
-            res_exp = input("Please enter the experimental result: ")
-            res_exp = int(res_exp)
-            pyx = np.zeros(p_num)
-            for xi in range(p_num):
-                pyx[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
-
-            arr = [pyx[m] * p[m] for m in range(p_num)]
-            py = simps(arr, x[0])
-            p_update = pyx * p / py
-            p = p_update
-            p_idx = np.argmax(p)
-            x_out = x[0][p_idx]
-            print("The estimator is %s (%d episodes)" % (x_out, ei))
-            u = x_opt - x_out
-
-            if (ei + 1) % 50 == 0:
-                if (x_out + u) > x[0][-1] and (x_out + u) < x[0][0]:
-                    raise ValueError("please increase the regime of the parameters.")
-
-            xout.append(x_out)
-            y.append(res_exp)
-            pout.append(p)
-        #### save file ####
         if savefile == False:
-            np.save("xout", xout)
-            np.save("y", y)
-            np.save("pout", p)
+            y, xout = [], []
+            for ei in range(max_episode):
+                rho = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
+                for hj in range(p_num):
+                    x_idx = np.argmin(np.abs(x[0] - (x[0][hj] + u)))
+                    rho_tp = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K[x_idx]])
+                    rho[hj] = rho_tp
+                print("The tunable parameter is %s" % u)
+                res_exp = input("Please enter the experimental result: ")
+                res_exp = int(res_exp)
+                pyx = np.zeros(p_num)
+                for xi in range(p_num):
+                    pyx[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
+
+                arr = [pyx[m] * p[m] for m in range(p_num)]
+                py = simps(arr, x[0])
+                p_update = pyx * p / py
+                p = p_update
+                p_idx = np.argmax(p)
+                x_out = x[0][p_idx]
+                print("The estimator is %s (%d episodes)" % (x_out, ei))
+                u = x_opt - x_out
+
+                if (ei + 1) % 50 == 0:
+                    if (x_out + u) > x[0][-1] and (x_out + u) < x[0][0]:
+                        raise ValueError("please increase the regime of the parameters.")
+
+                xout.append(x_out)
+                y.append(res_exp)
+            fp = open('pout.csv','a')
+            fp.write('\n')
+            np.savetxt(fp, np.array(p))
+            fp.close()
+
+            fx = open('xout.csv','a')
+            fx.write('\n')
+            np.savetxt(fx, np.array(xout))
+            fx.close()
+
+            fy = open('y.csv','a')
+            fy.write('\n')
+            np.savetxt(fy, np.array(y))
+            fy.close()
         else:
-            np.save("xout", xout)
-            np.save("y", y)
-            np.save("pout", pout)
+            for ei in range(max_episode):
+                rho = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
+                for hj in range(p_num):
+                    x_idx = np.argmin(np.abs(x[0] - (x[0][hj] + u)))
+                    rho_tp = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K[x_idx]])
+                    rho[hj] = rho_tp
+                print("The tunable parameter is %s" % u)
+                res_exp = input("Please enter the experimental result: ")
+                res_exp = int(res_exp)
+                pyx = np.zeros(p_num)
+                for xi in range(p_num):
+                    pyx[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
+
+                arr = [pyx[m] * p[m] for m in range(p_num)]
+                py = simps(arr, x[0])
+                p_update = pyx * p / py
+                p = p_update
+                p_idx = np.argmax(p)
+                x_out = x[0][p_idx]
+                print("The estimator is %s (%d episodes)" % (x_out, ei))
+                u = x_opt - x_out
+
+                if (ei + 1) % 50 == 0:
+                    if (x_out + u) > x[0][-1] and (x_out + u) < x[0][0]:
+                        raise ValueError("please increase the regime of the parameters.")
+
+                fp = open('pout.csv','a')
+                fp.write('\n')
+                np.savetxt(fp, [np.array(p)])
+                fp.close()
+
+                fx = open('xout.csv','a')
+                fx.write('\n')
+                np.savetxt(fx, [x_out])
+                fx.close()
+
+                fy = open('y.csv','a')
+                fy.write('\n')
+                np.savetxt(fy, [res_exp])
+                fy.close()
     else:
         #### miltiparameter senario ####
         p_shape = np.shape(p)
@@ -606,63 +778,131 @@ def adaptive_Kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
         x_opt = [x[i][idx[i]] for i in range(para_num)]
         print("The optimal parameter is %s" % (x_opt))
         u = [0.0 for i in range(para_num)]
-        y, xout, pout = [], [], []
-        for ei in range(max_episode):
-            rho = [
-                np.zeros((dim, dim), dtype=np.complex128) for i in range(len(p_list))
-            ]
-            for hj in range(len(p_list)):
-                idx_list = [
-                    np.argmin(np.abs(x[i] - (x_list[hj][i] + u[i])))
-                    for i in range(para_num)
-                ]
-                x_idx = int(
-                    sum(
-                        [
-                            idx_list[i] * np.prod(np.array(p_shape[(i + 1) :]))
-                            for i in range(para_num)
-                        ]
-                    )
-                )
-                rho[hj] = sum(
-                    [np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K_list[x_idx]]
-                )
-            print("The tunable parameter are %s" % (u))
-            res_exp = input("Please enter the experimental result: ")
-            res_exp = int(res_exp)
-            pyx_list = np.zeros(len(p_list))
-            for xi in range(len(p_list)):
-                pyx_list[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
-            pyx = pyx_list.reshape(p_shape)
-            arr = p * pyx
-            for si in reversed(range(para_num)):
-                arr = simps(arr, x[si])
-            py = arr
-            p_update = p * pyx / py
-            p = p_update
-            p_idx = np.unravel_index(p.argmax(), p.shape)
-            x_out = [x[i][p_idx[i]] for i in range(para_num)]
 
-            print("The estimator are %s (%d episodes)" % (x_out, ei))
-            u = np.array(x_opt) - np.array(x_out)
-
-            if (ei + 1) % 50 == 0:
-                for un in range(para_num):
-                    if (x_out[un] + u[un]) > x[un][-1] and (x_out[un] + u[un]) < x[un][
-                        0
-                    ]:
-                        raise ValueError(
-                            "please increase the regime of the parameters."
-                        )
-            xout.append(x_out)
-            y.append(res_exp)
-            pout.append(p)
-        #### save file ####
         if savefile == False:
-            np.save("xout", xout)
-            np.save("y", y)
-            np.save("pout", p)
+            y, xout = [], []
+            for ei in range(max_episode):
+                rho = [
+                    np.zeros((dim, dim), dtype=np.complex128) for i in range(len(p_list))
+                ]
+                for hj in range(len(p_list)):
+                    idx_list = [
+                        np.argmin(np.abs(x[i] - (x_list[hj][i] + u[i])))
+                        for i in range(para_num)
+                    ]
+                    x_idx = int(
+                        sum(
+                            [
+                                idx_list[i] * np.prod(np.array(p_shape[(i + 1) :]))
+                                for i in range(para_num)
+                            ]
+                        )
+                    )
+                    rho[hj] = sum(
+                        [np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K_list[x_idx]]
+                    )
+                print("The tunable parameter are %s" % (u))
+                res_exp = input("Please enter the experimental result: ")
+                res_exp = int(res_exp)
+                pyx_list = np.zeros(len(p_list))
+                for xi in range(len(p_list)):
+                    pyx_list[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
+                pyx = pyx_list.reshape(p_shape)
+                arr = p * pyx
+                for si in reversed(range(para_num)):
+                    arr = simps(arr, x[si])
+                py = arr
+                p_update = p * pyx / py
+                p = p_update
+                p_idx = np.unravel_index(p.argmax(), p.shape)
+                x_out = [x[i][p_idx[i]] for i in range(para_num)]
+
+                print("The estimator are %s (%d episodes)" % (x_out, ei))
+                u = np.array(x_opt) - np.array(x_out)
+
+                if (ei + 1) % 50 == 0:
+                    for un in range(para_num):
+                        if (x_out[un] + u[un]) > x[un][-1] and (x_out[un] + u[un]) < x[un][
+                            0
+                        ]:
+                            raise ValueError(
+                                "please increase the regime of the parameters."
+                            )
+                xout.append(x_out)
+                y.append(res_exp)
+            fp = open('pout.csv','a')
+            fp.write('\n')
+            np.savetxt(fp, np.array(p))
+            fp.close()
+
+            fx = open('xout.csv','a')
+            fx.write('\n')
+            np.savetxt(fx, np.array(xout))
+            fx.close()
+
+            fy = open('y.csv','a')
+            fy.write('\n')
+            np.savetxt(fy, np.array(y))
+            fy.close()
         else:
-            np.save("xout", xout)
-            np.save("y", y)
-            np.save("pout", pout)
+            for ei in range(max_episode):
+                rho = [
+                    np.zeros((dim, dim), dtype=np.complex128) for i in range(len(p_list))
+                ]
+                for hj in range(len(p_list)):
+                    idx_list = [
+                        np.argmin(np.abs(x[i] - (x_list[hj][i] + u[i])))
+                        for i in range(para_num)
+                    ]
+                    x_idx = int(
+                        sum(
+                            [
+                                idx_list[i] * np.prod(np.array(p_shape[(i + 1) :]))
+                                for i in range(para_num)
+                            ]
+                        )
+                    )
+                    rho[hj] = sum(
+                        [np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K_list[x_idx]]
+                    )
+                print("The tunable parameter are %s" % (u))
+                res_exp = input("Please enter the experimental result: ")
+                res_exp = int(res_exp)
+                pyx_list = np.zeros(len(p_list))
+                for xi in range(len(p_list)):
+                    pyx_list[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
+                pyx = pyx_list.reshape(p_shape)
+                arr = p * pyx
+                for si in reversed(range(para_num)):
+                    arr = simps(arr, x[si])
+                py = arr
+                p_update = p * pyx / py
+                p = p_update
+                p_idx = np.unravel_index(p.argmax(), p.shape)
+                x_out = [x[i][p_idx[i]] for i in range(para_num)]
+
+                print("The estimator are %s (%d episodes)" % (x_out, ei))
+                u = np.array(x_opt) - np.array(x_out)
+
+                if (ei + 1) % 50 == 0:
+                    for un in range(para_num):
+                        if (x_out[un] + u[un]) > x[un][-1] and (x_out[un] + u[un]) < x[un][
+                            0
+                        ]:
+                            raise ValueError(
+                                "please increase the regime of the parameters."
+                            )
+                fp = open('pout.csv','a')
+                fp.write('\n')
+                np.savetxt(fp, [np.array(p)])
+                fp.close()
+
+                fx = open('xout.csv','a')
+                fx.write('\n')
+                np.savetxt(fx, [x_out])
+                fx.close()
+
+                fy = open('y.csv','a')
+                fy.write('\n')
+                np.savetxt(fy, [res_exp])
+                fy.close()

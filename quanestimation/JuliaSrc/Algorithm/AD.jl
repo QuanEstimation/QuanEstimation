@@ -79,9 +79,10 @@ end
 function update!(opt::Mopt_LinearComb, alg::AbstractAD, obj, dynamics, output)
     (; max_episode) = alg
     (; POVM_basis, M_num) = opt
+    rng = MersenneTwister(1234)
     basis_num = length(POVM_basis)
 
-    bound_LC_coeff!(opt.B)
+    bound_LC_coeff!(opt.B, rng)
     M = [sum([opt.B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
     obj_QFIM = QFIM_obj(obj)
     f_opt, f_comp = objective(obj_QFIM, dynamics)
@@ -96,7 +97,7 @@ function update!(opt::Mopt_LinearComb, alg::AbstractAD, obj, dynamics, output)
     for ei in 1:(max_episode-1)
         δ = gradient(() -> objective(opt, obj, dynamics)[2], Flux.Params([opt.B]))
         update_M!(opt, alg, obj, δ[opt.B])
-        bound_LC_coeff!(opt.B)
+        bound_LC_coeff!(opt.B, rng)
         M = [sum([opt.B[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
         obj_copy = set_M(obj, M)
         f_out, f_now = objective(obj_copy, dynamics)
