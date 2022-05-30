@@ -1,6 +1,6 @@
 #### control optimization ####
 function update!(opt::ControlOpt, alg::DE, obj, dynamics, output)
-    (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    (; max_episode, p_num, ini_population, c, cr) = alg
     if ismissing(ini_population)
         ini_population = ([opt.ctrl,],)
     end
@@ -10,7 +10,7 @@ function update!(opt::ControlOpt, alg::DE, obj, dynamics, output)
     populations = repeat(dynamics, p_num)
 
     # initialization
-    initial_ctrl!(opt, ini_population, populations, p_num, rng)
+    initial_ctrl!(opt, ini_population, populations, p_num, opt.rng)
 
     dynamics_copy = set_ctrl(dynamics, [zeros(ctrl_length) for i = 1:ctrl_num])
     f_noctrl, f_comp = objective(obj, dynamics_copy)
@@ -27,7 +27,7 @@ function update!(opt::ControlOpt, alg::DE, obj, dynamics, output)
     for ei = 1:(max_episode-1)
         for pj = 1:p_num
             #mutations
-            mut_num = sample(rng, 1:p_num, 3, replace = false)
+            mut_num = sample(opt.rng, 1:p_num, 3, replace = false)
             ctrl_mut = [Vector{Float64}(undef, ctrl_length) for i = 1:ctrl_num]
             for ci = 1:ctrl_num
                 for ti = 1:ctrl_length
@@ -42,9 +42,9 @@ function update!(opt::ControlOpt, alg::DE, obj, dynamics, output)
             #crossover 
             ctrl_cross = [Vector{Float64}(undef, ctrl_length) for i = 1:ctrl_num]
             for cj = 1:ctrl_num
-                cross_int = sample(rng, 1:ctrl_length, 1, replace = false)[1]
+                cross_int = sample(opt.rng, 1:ctrl_length, 1, replace = false)[1]
                 for tj = 1:ctrl_length
-                    rand_num = rand(rng)
+                    rand_num = rand(opt.rng)
                     if rand_num <= cr
                         ctrl_cross[cj][tj] = ctrl_mut[cj][tj]
                     else
@@ -78,7 +78,7 @@ end
 
 #### state optimization ####
 function update!(opt::StateOpt, alg::DE, obj, dynamics, output)
-    (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    (; max_episode, p_num, ini_population, c, cr) = alg
     if ismissing(ini_population)
         ini_population = ([opt.psi,],)
     end
@@ -86,7 +86,7 @@ function update!(opt::StateOpt, alg::DE, obj, dynamics, output)
     dim = length(dynamics.data.ψ0)
     populations = repeat(dynamics, p_num)
     # initialization  
-    initial_state!(ini_population, populations, p_num, rng)
+    initial_state!(ini_population, populations, p_num, opt.rng)
 
     p_fit, p_out = zeros(p_num), zeros(p_num)
     for i in 1:p_num
@@ -101,16 +101,16 @@ function update!(opt::StateOpt, alg::DE, obj, dynamics, output)
     for ei in 1:(max_episode-1)
         for pj in 1:p_num
             #mutations
-            mut_num = sample(rng, 1:p_num, 3, replace=false)
+            mut_num = sample(opt.rng, 1:p_num, 3, replace=false)
             state_mut = zeros(ComplexF64, dim)
             for ci in 1:dim
                 state_mut[ci] = populations[mut_num[1]].data.ψ0[ci]+c*(populations[mut_num[2]].data.ψ0[ci]-populations[mut_num[3]].data.ψ0[ci])
             end
             #crossover
             state_cross = zeros(ComplexF64, dim)
-            cross_int = sample(rng, 1:dim, 1, replace=false)[1]
+            cross_int = sample(opt.rng, 1:dim, 1, replace=false)[1]
             for cj in 1:dim
-                rand_num = rand(rng)
+                rand_num = rand(opt.rng)
                 if rand_num <= cr
                     state_cross[cj] = state_mut[cj]
                 else
@@ -141,7 +141,7 @@ end
     
 #### projective measurement optimization ####
 function update!(opt::Mopt_Projection, alg::DE, obj, dynamics, output)
-    (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    (; max_episode, p_num, ini_population, c, cr) = alg
     if ismissing(ini_population)
         ini_population = ([opt.M], )
     end
@@ -152,7 +152,7 @@ function update!(opt::Mopt_Projection, alg::DE, obj, dynamics, output)
 
     populations = [[zeros(ComplexF64, dim) for j in 1:M_num] for i in 1:p_num]
     # initialization  
-    initial_M!(ini_population, populations, dim, p_num, M_num, rng)
+    initial_M!(ini_population, populations, dim, p_num, M_num, opt.rng)
 
     p_fit, p_out = zeros(p_num), zeros(p_num)
     for pj in 1:p_num
@@ -173,7 +173,7 @@ function update!(opt::Mopt_Projection, alg::DE, obj, dynamics, output)
     for ei in 1:(max_episode-1)
         for pj in 1:p_num
             #mutations
-            mut_num = sample(rng, 1:p_num, 3, replace=false)
+            mut_num = sample(opt.rng, 1:p_num, 3, replace=false)
             M_mut = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
             for ci in 1:M_num
                 for ti in 1:dim
@@ -184,9 +184,9 @@ function update!(opt::Mopt_Projection, alg::DE, obj, dynamics, output)
             #crossover
             M_cross = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
             for cj in 1:M_num
-                cross_int = sample(rng, 1:dim, 1, replace=false)[1]
+                cross_int = sample(opt.rng, 1:dim, 1, replace=false)[1]
                 for tj in 1:dim
-                    rand_num = rand(rng)
+                    rand_num = rand(opt.rng)
                     if rand_num <= cr
                         M_cross[cj][tj] = M_mut[cj][tj]
                     else
@@ -223,7 +223,7 @@ end
 
 #### find the optimal linear combination of a given set of POVM ####
 function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
-    (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    (; max_episode, p_num, ini_population, c, cr) = alg
     (; B, POVM_basis, M_num) = opt
     if ismissing(ini_population)
         ini_population = ( [B], )
@@ -234,7 +234,7 @@ function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
     populations = [[zeros(basis_num) for j in 1:M_num] for i in 1:p_num]
 
     # initialization
-    initial_LinearComb!(ini_population, populations, basis_num, M_num, p_num, rng)
+    initial_LinearComb!(ini_population, populations, basis_num, M_num, p_num, opt.rng)
 
     p_fit, p_out = zeros(p_num), zeros(p_num)
     for pj in 1:p_num
@@ -257,7 +257,7 @@ function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
     for ei in 1:(max_episode-1)
         for pj in 1:p_num
             #mutations
-            mut_num = sample(rng, 1:p_num, 3, replace=false)
+            mut_num = sample(opt.rng, 1:p_num, 3, replace=false)
             M_mut = [Vector{Float64}(undef, basis_num) for i in 1:M_num]
             for ci in 1:M_num
                 for ti in 1:basis_num
@@ -267,9 +267,9 @@ function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
             #crossover
             M_cross = [Vector{Float64}(undef, basis_num) for i in 1:M_num]
             for cj in 1:M_num
-                cross_int = sample(rng, 1:basis_num, 1, replace=false)[1]
+                cross_int = sample(opt.rng, 1:basis_num, 1, replace=false)[1]
                 for tj in 1:basis_num
-                    rand_num = rand(rng)
+                    rand_num = rand(opt.rng)
                     if rand_num <= cr
                         M_cross[cj][tj] = M_mut[cj][tj]
                     else
@@ -280,7 +280,7 @@ function update!(opt::Mopt_LinearComb, alg::DE, obj, dynamics, output)
             end
     
             # normalize the coefficients 
-            bound_LC_coeff!(M_cross, rng)
+            bound_LC_coeff!(M_cross, opt.rng)
             M = [sum([M_cross[i][j]*POVM_basis[j] for j in 1:basis_num]) for i in 1:M_num]
             obj_cross = set_M(obj, M)
             f_out, f_cross = objective(obj_cross, dynamics)
@@ -307,7 +307,7 @@ end
 
 #### find the optimal rotated measurement of a given set of POVM ####
 function update!(opt::Mopt_Rotation, alg::DE, obj, dynamics, output)
-    (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    (; max_episode, p_num, ini_population, c, cr) = alg
     (; s, POVM_basis, Lambda) = opt
     if ismissing(ini_population)
         ini_population = ([s,],)
@@ -328,7 +328,7 @@ function update!(opt::Mopt_Rotation, alg::DE, obj, dynamics, output)
     M_num = length(POVM_basis)
     populations = [zeros(dim^2) for i in 1:p_num]
     # initialization  
-    initial_Rotation!(ini_population, populations, dim, p_num, rng)
+    initial_Rotation!(ini_population, populations, dim, p_num, opt.rng)
 
     p_fit, p_out = zeros(p_num), zeros(p_num)
     for pj in 1:p_num
@@ -353,7 +353,7 @@ function update!(opt::Mopt_Rotation, alg::DE, obj, dynamics, output)
     for ei in 1:(max_episode-1)
         for pj in 1:p_num
             #mutations
-            mut_num = sample(rng, 1:p_num, 3, replace=false)
+            mut_num = sample(opt.rng, 1:p_num, 3, replace=false)
             M_mut = Vector{Float64}(undef, dim^2)
             for ti in 1:dim^2
                 M_mut[ti] = populations[mut_num[1]][ti] + c*(populations[mut_num[2]][ti]-populations[mut_num[3]][ti])
@@ -361,9 +361,9 @@ function update!(opt::Mopt_Rotation, alg::DE, obj, dynamics, output)
     
             #crossover
             M_cross = Vector{Float64}(undef, dim^2)
-            cross_int = sample(rng, 1:dim^2, 1, replace=false)[1]
+            cross_int = sample(opt.rng, 1:dim^2, 1, replace=false)[1]
             for tj in 1:dim^2
-                rand_num = rand(rng)
+                rand_num = rand(opt.rng)
                 if rand_num <= cr
                     M_cross[tj] = M_mut[tj]
                 else
@@ -400,7 +400,7 @@ end
 
 #### state and control optimization ####
 function update!(opt::StateControlOpt, alg::DE, obj, dynamics, output)
-    (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    (; max_episode, p_num, ini_population, c, cr) = alg
     if ismissing(ini_population)
         ini_population = ([opt.psi], [opt.ctrl,])
     end
@@ -411,8 +411,8 @@ function update!(opt::StateControlOpt, alg::DE, obj, dynamics, output)
     populations = repeat(dynamics, p_num)
 
     # initialization 
-    initial_state!(psi0, populations, p_num, rng)
-    initial_ctrl!(opt, ctrl0, populations, p_num, rng)
+    initial_state!(psi0, populations, p_num, opt.rng)
+    initial_ctrl!(opt, ctrl0, populations, p_num, opt.rng)
 
     p_fit, p_out = zeros(p_num), zeros(p_num)
     for i in 1:p_num
@@ -430,7 +430,7 @@ function update!(opt::StateControlOpt, alg::DE, obj, dynamics, output)
     for ei in 1:(max_episode-1)
         for pj in 1:p_num
             #mutations
-            mut_num = sample(rng, 1:p_num, 3, replace = false)
+            mut_num = sample(opt.rng, 1:p_num, 3, replace = false)
             state_mut = zeros(ComplexF64, dim)
             for ci in 1:dim
                 state_mut[ci] = populations[mut_num[1]].data.ψ0[ci] + c * (populations[mut_num[2]].data.ψ0[ci] - populations[mut_num[3]].data.ψ0[ci])
@@ -445,9 +445,9 @@ function update!(opt::StateControlOpt, alg::DE, obj, dynamics, output)
             end
             #crossover
             state_cross = zeros(ComplexF64, dim)
-            cross_int1 = sample(rng, 1:dim, 1, replace = false)[1]
+            cross_int1 = sample(opt.rng, 1:dim, 1, replace = false)[1]
             for cj in 1:dim
-                rand_num = rand(rng)
+                rand_num = rand(opt.rng)
                 if rand_num <= cr
                     state_cross[cj] = state_mut[cj]
                 else
@@ -458,9 +458,9 @@ function update!(opt::StateControlOpt, alg::DE, obj, dynamics, output)
             psi_cross = state_cross / norm(state_cross)
             ctrl_cross = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
             for cj in 1:ctrl_num
-                cross_int2 = sample(rng, 1:ctrl_length, 1, replace = false)[1]
+                cross_int2 = sample(opt.rng, 1:ctrl_length, 1, replace = false)[1]
                 for tj in 1:ctrl_length
-                    rand_num = rand(rng)
+                    rand_num = rand(opt.rng)
                     if rand_num <= cr
                         ctrl_cross[cj][tj] = ctrl_mut[cj][tj]
                     else
@@ -499,7 +499,7 @@ end
 
 #### state and measurement optimization ####
 function update!(opt::StateMeasurementOpt, alg::DE, obj, dynamics, output)
-    (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    (; max_episode, p_num, ini_population, c, cr) = alg
     if ismissing(ini_population)
         ini_population = ([opt.psi], [opt.M,])
     end
@@ -509,9 +509,9 @@ function update!(opt::StateMeasurementOpt, alg::DE, obj, dynamics, output)
     populations = repeat(dynamics, p_num)
 
     # initialization 
-    initial_state!(psi0, populations, p_num, rng)
+    initial_state!(psi0, populations, p_num, opt.rng)
     C_all = [[zeros(ComplexF64, dim) for j in 1:M_num] for i in 1:p_num]
-    initial_M!(measurement0, C_all, dim, p_num, M_num, rng)
+    initial_M!(measurement0, C_all, dim, p_num, M_num, opt.rng)
 
     p_fit, p_out = zeros(p_num), zeros(p_num)
     for pj in 1:p_num
@@ -529,7 +529,7 @@ function update!(opt::StateMeasurementOpt, alg::DE, obj, dynamics, output)
     for ei in 1:(max_episode-1)
         for pj in 1:p_num
             #mutations
-            mut_num = sample(rng, 1:p_num, 3, replace = false)
+            mut_num = sample(opt.rng, 1:p_num, 3, replace = false)
             state_mut = zeros(ComplexF64, dim)
             for ci in 1:dim
                 state_mut[ci] = populations[mut_num[1]].data.ψ0[ci] + c * (populations[mut_num[2]].data.ψ0[ci] - populations[mut_num[3]].data.ψ0[ci])
@@ -544,9 +544,9 @@ function update!(opt::StateMeasurementOpt, alg::DE, obj, dynamics, output)
             end
             #crossover
             state_cross = zeros(ComplexF64, dim)
-            cross_int1 = sample(rng, 1:dim, 1, replace = false)[1]
+            cross_int1 = sample(opt.rng, 1:dim, 1, replace = false)[1]
             for cj in 1:dim
-                rand_num = rand(rng)
+                rand_num = rand(opt.rng)
                 if rand_num <= cr
                     state_cross[cj] = state_mut[cj]
                 else
@@ -558,9 +558,9 @@ function update!(opt::StateMeasurementOpt, alg::DE, obj, dynamics, output)
     
             M_cross = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
             for cj in 1:M_num
-                cross_int = sample(rng, 1:dim, 1, replace = false)[1]
+                cross_int = sample(opt.rng, 1:dim, 1, replace = false)[1]
                 for tj in 1:dim
-                    rand_num = rand(rng)
+                    rand_num = rand(opt.rng)
                     if rand_num <= cr
                         M_cross[cj][tj] = M_mut[cj][tj]
                     else
@@ -602,7 +602,7 @@ end
 
 #### control and measurement optimization ####
 function update!(opt::ControlMeasurementOpt, alg::DE, obj, dynamics, output)
-    (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    (; max_episode, p_num, ini_population, c, cr) = alg
     if ismissing(ini_population)
         ini_population = ([opt.ctrl,], [opt.M])
     end
@@ -614,9 +614,9 @@ function update!(opt::ControlMeasurementOpt, alg::DE, obj, dynamics, output)
     populations = repeat(dynamics, p_num)
 
     # initialization 
-    initial_ctrl!(opt, ctrl0, populations, p_num, rng)
+    initial_ctrl!(opt, ctrl0, populations, p_num, opt.rng)
     C_all = [[zeros(ComplexF64, dim) for j in 1:M_num] for i in 1:p_num]
-    initial_M!(measurement0, C_all, dim, p_num, M_num, rng)
+    initial_M!(measurement0, C_all, dim, p_num, M_num, opt.rng)
 
     p_fit, p_out = zeros(p_num), zeros(p_num)
     for pj in 1:p_num
@@ -634,7 +634,7 @@ function update!(opt::ControlMeasurementOpt, alg::DE, obj, dynamics, output)
     for ei in 1:(max_episode-1)
         for pj in 1:p_num
             #mutations
-            mut_num = sample(rng, 1:p_num, 3, replace = false)
+            mut_num = sample(opt.rng, 1:p_num, 3, replace = false)
             ctrl_mut = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
             for ci in 1:ctrl_num
                 for ti in 1:ctrl_length
@@ -655,9 +655,9 @@ function update!(opt::ControlMeasurementOpt, alg::DE, obj, dynamics, output)
             #crossover   
             ctrl_cross = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
             for cj in 1:ctrl_num
-                cross_int2 = sample(rng, 1:ctrl_length, 1, replace = false)[1]
+                cross_int2 = sample(opt.rng, 1:ctrl_length, 1, replace = false)[1]
                 for tj in 1:ctrl_length
-                    rand_num = rand(rng)
+                    rand_num = rand(opt.rng)
                     if rand_num <= cr
                         ctrl_cross[cj][tj] = ctrl_mut[cj][tj]
                     else
@@ -670,9 +670,9 @@ function update!(opt::ControlMeasurementOpt, alg::DE, obj, dynamics, output)
     
             M_cross = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
             for cj in 1:M_num
-                cross_int = sample(rng, 1:dim, 1, replace = false)[1]
+                cross_int = sample(opt.rng, 1:dim, 1, replace = false)[1]
                 for tj in 1:dim
-                    rand_num = rand(rng)
+                    rand_num = rand(opt.rng)
                     if rand_num <= cr
                         M_cross[cj][tj] = M_mut[cj][tj]
                     else
@@ -716,7 +716,7 @@ end
 
 #### state, control and measurement optimization ####
 function update!(opt::StateControlMeasurementOpt, alg::DE, obj, dynamics, output)
-    (; max_episode, p_num, ini_population, c, cr, rng) = alg
+    (; max_episode, p_num, ini_population, c, cr) = alg
     if ismissing(ini_population)
         ini_population = ([opt.psi], [opt.ctrl,], [opt.M])
     end
@@ -728,10 +728,10 @@ function update!(opt::StateControlMeasurementOpt, alg::DE, obj, dynamics, output
     populations = repeat(dynamics, p_num)
 
     # initialization 
-    initial_state!(psi0, populations, p_num, rng)
-    initial_ctrl!(opt, ctrl0, populations, p_num, rng)
+    initial_state!(psi0, populations, p_num, opt.rng)
+    initial_ctrl!(opt, ctrl0, populations, p_num, opt.rng)
     C_all = [[zeros(ComplexF64, dim) for j in 1:M_num] for i in 1:p_num]
-    initial_M!(measurement0, C_all, dim, p_num, M_num, rng)
+    initial_M!(measurement0, C_all, dim, p_num, M_num, opt.rng)
 
     p_fit, p_out = zeros(p_num), zeros(p_num)
     for pj in 1:p_num
@@ -749,7 +749,7 @@ function update!(opt::StateControlMeasurementOpt, alg::DE, obj, dynamics, output
     for ei in 1:(max_episode-1)
         for pj in 1:p_num
             #mutations
-            mut_num = sample(rng, 1:p_num, 3, replace = false)
+            mut_num = sample(opt.rng, 1:p_num, 3, replace = false)
             state_mut = zeros(ComplexF64, dim)
             for ci in 1:dim
                 state_mut[ci] = populations[mut_num[1]].data.ψ0[ci] + c * (populations[mut_num[2]].data.ψ0[ci] - populations[mut_num[3]].data.ψ0[ci])
@@ -771,9 +771,9 @@ function update!(opt::StateControlMeasurementOpt, alg::DE, obj, dynamics, output
             end
             #crossover
             state_cross = zeros(ComplexF64, dim)
-            cross_int1 = sample(rng, 1:dim, 1, replace = false)[1]
+            cross_int1 = sample(opt.rng, 1:dim, 1, replace = false)[1]
             for cj in 1:dim
-                rand_num = rand(rng)
+                rand_num = rand(opt.rng)
                 if rand_num <= cr
                     state_cross[cj] = state_mut[cj]
                 else
@@ -784,9 +784,9 @@ function update!(opt::StateControlMeasurementOpt, alg::DE, obj, dynamics, output
             psi_cross = state_cross / norm(state_cross)
             ctrl_cross = [Vector{Float64}(undef, ctrl_length) for i in 1:ctrl_num]
             for cj in 1:ctrl_num
-                cross_int2 = sample(rng, 1:ctrl_length, 1, replace = false)[1]
+                cross_int2 = sample(opt.rng, 1:ctrl_length, 1, replace = false)[1]
                 for tj in 1:ctrl_length
-                    rand_num = rand(rng)
+                    rand_num = rand(opt.rng)
                     if rand_num <= cr
                         ctrl_cross[cj][tj] = ctrl_mut[cj][tj]
                     else
@@ -799,9 +799,9 @@ function update!(opt::StateControlMeasurementOpt, alg::DE, obj, dynamics, output
     
             M_cross = [Vector{ComplexF64}(undef, dim) for i in 1:M_num]
             for cj in 1:M_num
-                cross_int = sample(rng, 1:dim, 1, replace = false)[1]
+                cross_int = sample(opt.rng, 1:dim, 1, replace = false)[1]
                 for tj in 1:dim
-                    rand_num = rand(rng)
+                    rand_num = rand(opt.rng)
                     if rand_num <= cr
                         M_cross[cj][tj] = M_mut[cj][tj]
                     else

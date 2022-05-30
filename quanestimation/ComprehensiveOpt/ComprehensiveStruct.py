@@ -346,7 +346,7 @@ class ComprehensiveSystem:
                 )
 
         self.opt = Main.QuanEstimation.StateControlOpt(
-            self.psi, self.control_coefficients, self.ctrl_bound
+            psi=self.psi, ctrl=self.control_coefficients, ctrl_bound=self.ctrl_bound, seed=self.seed
         )
         self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
 
@@ -393,7 +393,7 @@ class ComprehensiveSystem:
 
         self.obj = Main.QuanEstimation.CFIM_obj([], self.W, self.eps, self.para_type)
         self.opt = Main.QuanEstimation.ControlMeasurementOpt(
-            self.control_coefficients, self.C, self.ctrl_bound
+            ctrl=self.control_coefficients, M=self.C, ctrl_bound=self.ctrl_bound, seed=self.seed
         )
         self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
 
@@ -560,7 +560,7 @@ class ComprehensiveSystem:
                 )
 
         self.obj = Main.QuanEstimation.CFIM_obj([], self.W, self.eps, self.para_type)
-        self.opt = Main.QuanEstimation.StateMeasurementOpt(self.psi, self.C)
+        self.opt = Main.QuanEstimation.StateMeasurementOpt(psi=self.psi, M=self.C, seed=self.seed)
         self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
 
         system = Main.QuanEstimation.QuanEstSystem(
@@ -591,7 +591,7 @@ class ComprehensiveSystem:
 
         self.obj = Main.QuanEstimation.CFIM_obj([], self.W, self.eps, self.para_type)
         self.opt = Main.QuanEstimation.StateControlMeasurementOpt(
-            self.psi, self.control_coefficients, self.C, self.ctrl_bound
+            psi=self.psi, ctrl=self.control_coefficients, M=self.C, ctrl_bound=self.ctrl_bound, seed=self.seed
         )
         self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
 

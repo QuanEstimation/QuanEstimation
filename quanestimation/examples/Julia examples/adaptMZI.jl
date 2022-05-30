@@ -19,11 +19,11 @@ QuanEstimation.online(apt, output="phi")
 #================offline strategy=========================#
 # # algorithm: DE
 # alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
-#                         max_episode=1000, c=1.0, cr=0.5, seed=1234)
-# QuanEstimation.offline(apt, alg)
+#                         max_episode=1000, c=1.0, cr=0.5)
+# QuanEstimation.offline(apt, alg, seed=1234)
 
 # # algorithm: PSO
 # alg = QuanEstimation.PSO(p_num=10, ini_particle=missing,  
 #                          max_episode=[1000,100], c0=1.0, 
-#                          c1=2.0, c2=2.0, seed=1234)
-# QuanEstimation.offline(apt, alg)
+#                          c1=2.0, c2=2.0)
+# QuanEstimation.offline(apt, alg, seed=1234)

@@ -1,5 +1,5 @@
 function update!(opt::StateOpt, alg::NM, obj, dynamics, output)
-    (; max_episode, p_num, ini_state, ar, ae, ac, as0, rng) = alg
+    (; max_episode, p_num, ini_state, ar, ae, ac, as0) = alg
     if ismissing(ini_state)
         ini_state = [opt.psi]
     end
@@ -14,9 +14,9 @@ function update!(opt::StateOpt, alg::NM, obj, dynamics, output)
         nelder_mead[pj].data.ψ0 = [ini_state[pj][i] for i in 1:dim]
     end
     for pj in (length(ini_state)+1):p_num
-        r_ini = 2*rand(rng, dim)-ones(dim)
+        r_ini = 2*rand(opt.rng, dim)-ones(dim)
         r = r_ini/norm(r_ini)
-        phi = 2*pi*rand(rng, dim)
+        phi = 2*pi*rand(opt.rng, dim)
         nelder_mead[pj].data.ψ0 = [r[i]*exp(1.0im*phi[i]) for i in 1:dim]
     end
     

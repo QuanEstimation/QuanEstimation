@@ -425,23 +425,24 @@ function brgd(n)
     return deepcopy(vcat(L0,L1))
 end
 
-function offline(apt::Adapt_MZI, alg; eps = GLOBAL_EPS)
+function offline(apt::Adapt_MZI, alg; eps = GLOBAL_EPS, seed=1234)
+    rng = MersenneTwister(seed)
     (;x,p,rho0) = apt
     N = Int(sqrt(size(rho0,1))) - 1
     a = destroy(N+1) |> sparse
     comb = brgd(N)|>x->[[parse(Int, s) for s in ss] for ss in x]
     if alg isa DE
-        (;p_num,ini_population,c,cr,rng,max_episode) = alg
+        (;p_num,ini_population,c,cr,max_episode) = alg
         if ismissing(ini_population)
             ini_population = ([apt.rho0],)
         end
-        DE_deltaphiOpt(x,p,rho0,a,comb,p_num,ini_population[1],c,cr,rng.seed,max_episode,eps)
+        DE_deltaphiOpt(x,p,rho0,a,comb,p_num,ini_population[1],c,cr,rng,max_episode,eps)
     elseif alg isa PSO
-        (;p_num,ini_particle,c0,c1,c2,rng,max_episode) = alg
+        (;p_num,ini_particle,c0,c1,c2,max_episode) = alg
         if ismissing(ini_particle)
             ini_particle = ([apt.rho0],)
         end
-        PSO_deltaphiOpt(x,p,rho0,a,comb,p_num,ini_particle[1],c0,c1,c2,rng.seed,max_episode,eps)
+        PSO_deltaphiOpt(x,p,rho0,a,comb,p_num,ini_particle[1],c0,c1,c2,rng,max_episode,eps)
     end
 end
 
@@ -587,8 +588,7 @@ function logarithmic(number, N)
     return res
 end
 
-function DE_deltaphiOpt(x, p, rho0, a, comb, p_num, ini_population, c, cr, seed, max_episode, eps)
-    Random.seed!(seed)
+function DE_deltaphiOpt(x, p, rho0, a, comb, p_num, ini_population, c, cr, rng::AbstractRNG, max_episode, eps)
     N = size(a)[1] - 1
     deltaphi = [zeros(N) for i in 1:p_num]
     # initialize
@@ -600,7 +600,7 @@ function DE_deltaphiOpt(x, p, rho0, a, comb, p_num, ini_population, c, cr, seed,
         deltaphi[pj] = [ini_population[pj][i] for i in 1:N]
     end
     for pk in (length(ini_population)+1):p_num
-        deltaphi[pk] = [res[i]+rand() for i in 1:N]
+        deltaphi[pk] = [res[i]+rand(rng) for i in 1:N]
     end
 
     p_fit = [0.0 for i in 1:p_num]
@@ -622,7 +622,7 @@ function DE_deltaphiOpt(x, p, rho0, a, comb, p_num, ini_population, c, cr, seed,
             deltaphi_cross = [0.0 for i in 1:N]
             cross_int = sample(rng, 1:N, 1, replace=false)[1]
             for cj in 1:N
-                rand_num = rand()
+                rand_num = rand(rng)
                 if rand_num <= cr
                     deltaphi_cross[cj] = deltaphi_mut[cj]
                 else
@@ -653,8 +653,10 @@ function DE_deltaphiOpt(x, p, rho0, a, comb, p_num, ini_population, c, cr, seed,
     return deltaphi[findmax(p_fit)[2]]
 end
 
-function PSO_deltaphiOpt(x, p, rho0, a, comb, p_num, ini_particle, c0, c1, c2, seed, max_episode, eps)   
-    Random.seed!(seed)
+DE_deltaphiOpt(x, p, rho0, a, comb, p_num, ini_population, c, cr, seed::Number, max_episode, eps) = 
+DE_deltaphiOpt(x, p, rho0, a, comb, p_num, ini_population, c, cr, MersenneTwister(seed), max_episode, eps)
+
+function PSO_deltaphiOpt(x, p, rho0, a, comb, p_num, ini_particle, c0, c1, c2, rng::AbstractRNG, max_episode, eps)   
     N = size(a)[1] - 1
     n = size(a)[1]
 
@@ -673,10 +675,10 @@ function PSO_deltaphiOpt(x, p, rho0, a, comb, p_num, ini_particle, c0, c1, c2, s
         deltaphi[pj] = [ini_particle[pj][i] for i in 1:N]
     end
     for pk in (length(ini_particle)+1):p_num
-        deltaphi[pk] = [res[i]+rand() for i in 1:N]
+        deltaphi[pk] = [res[i]+rand(rng) for i in 1:N]
     end
     for pl in 1:p_num
-        velocity[pl] = [0.1*rand() for i in 1:N]
+        velocity[pl] = [0.1*rand(rng) for i in 1:N]
     end
     
     pbest = [zeros(N) for i in 1:p_num]
@@ -708,8 +710,8 @@ function PSO_deltaphiOpt(x, p, rho0, a, comb, p_num, ini_particle, c0, c1, c2, s
             deltaphi_pre = [0.0 for i in 1:N]
             for ck in 1:N
                 deltaphi_pre[ck] = deltaphi[pa][ck]
-                velocity[pa][ck] = c0*velocity[pa][ck] + c1*rand()*(pbest[pa][ck] - deltaphi[pa][ck]) 
-                                    + c2*rand()*(gbest[ck] - deltaphi[pa][ck])
+                velocity[pa][ck] = c0*velocity[pa][ck] + c1*rand(rng)*(pbest[pa][ck] - deltaphi[pa][ck]) 
+                                    + c2*rand(rng)*(gbest[ck] - deltaphi[pa][ck])
                 deltaphi[pa][ck] += velocity[pa][ck]
             end
 
@@ -734,3 +736,5 @@ function PSO_deltaphiOpt(x, p, rho0, a, comb, p_num, ini_particle, c0, c1, c2, s
     return gbest
 end
 
+PSO_deltaphiOpt(x, p, rho0, a, comb, p_num, ini_particle, c0, c1, c2, seed::Number, max_episode, eps) = 
+PSO_deltaphiOpt(x, p, rho0, a, comb, p_num, ini_particle, c0, c1, c2, MersenneTwister(seed), max_episode, eps)   

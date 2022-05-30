@@ -7,50 +7,70 @@ abstract type Rotation <: AbstractMeasurementType end
 
 abstract type Opt <: AbstractOpt end
 
+mutable struct ControlOpt <: Opt
+	ctrl::Union{AbstractVector, Missing}
+	ctrl_bound::AbstractVector
+	rng::AbstractRNG
+end
+
 """
 
-	ControlOpt(ctrl::Union{AbstractVector, Missing}=missing, ctrl_bound::AbstractVector=[-Inf, Inf])
+	ControlOpt(ctrl=missing, ctrl_bound=[-Inf, Inf], seed=1234)
 	
 Control optimization.
 - `ctrl`: Guessed control coefficients.
 - `ctrl_bound`: Lower and upper bounds of the control coefficients.
+- `seed`: Random seed.
 """
-Base.@kwdef mutable struct ControlOpt <: Opt
-	ctrl::Union{AbstractVector, Missing} = missing
-	ctrl_bound::AbstractVector = [-Inf, Inf]
-end
+ControlOpt(;ctrl=missing, ctrl_bound=[-Inf, Inf], seed=1234) = ControlOpt(ctrl, ctrl_bound, MersenneTwister(seed))
 
 Copt = ControlOpt
-ControlOpt(ctrl::Matrix{R}, ctrl_bound::AbstractVector) where R<:Number = ControlOpt([c[:] for c in eachrow(ctrl)], ctrl_bound)  
+ControlOpt(ctrl::Matrix{R}, ctrl_bound::AbstractVector) where R<:Number = ControlOpt([c[:] for c in eachrow(ctrl)], ctrl_bound)
+
+mutable struct StateOpt <: Opt
+	psi::Union{AbstractVector, Missing}
+	rng::AbstractRNG
+end
 
 """
 
-	StateOpt(psi::Union{AbstractVector, Missing} = missing)
+	StateOpt(psi=missing, seed=1234)
 	
 State optimization.
 - `psi`: Guessed probe state.
+- `seed`: Random seed.
 """
-Base.@kwdef mutable struct StateOpt <: Opt
-	psi::Union{AbstractVector, Missing} = missing
-end
+StateOpt(;psi=missing, seed=1234) = StateOpt(psi, MersenneTwister(seed))
 
 Sopt = StateOpt
 
 abstract type AbstractMopt <: Opt end
 
-Base.@kwdef mutable struct Mopt_Projection <: AbstractMopt
-	M::Union{AbstractVector, Missing} = missing
+mutable struct Mopt_Projection <: AbstractMopt
+	M::Union{AbstractVector, Missing}
+	rng::AbstractRNG
 end
-Base.@kwdef mutable struct Mopt_LinearComb <: AbstractMopt
-	B::Union{AbstractVector, Missing} = missing
-	POVM_basis::Union{AbstractVector, Missing} = missing
-	M_num::Int = 1
+
+Mopt_Projection(;M=missing, seed=1234) = Mopt_Projection(M, MersenneTwister(seed))
+
+mutable struct Mopt_LinearComb <: AbstractMopt
+	B::Union{AbstractVector, Missing}
+	POVM_basis::Union{AbstractVector, Missing}
+	M_num::Int
+	rng::AbstractRNG
 end
-Base.@kwdef mutable struct Mopt_Rotation <: AbstractMopt
-	s::Union{AbstractVector, Missing} = missing
-	POVM_basis::Union{AbstractVector, Missing} = missing
-	Lambda::Union{AbstractVector, Missing} = missing
+
+Mopt_LinearComb(;B=missing, POVM_basis=missing, M_num=1, seed=1234) = Mopt_LinearComb(B, POVM_basis, M_num, MersenneTwister(seed))
+
+mutable struct Mopt_Rotation <: AbstractMopt
+	s::Union{AbstractVector, Missing}
+	POVM_basis::Union{AbstractVector, Missing}
+	Lambda::Union{AbstractVector, Missing}
+	rng::AbstractRNG
 end
+
+Mopt_Rotation(;s=missing, POVM_basis=missing, Lambda=missing, seed=1234) = Mopt_Rotation(s, POVM_basis, Lambda, MersenneTwister(seed))
+
 
 """
 
@@ -74,70 +94,86 @@ Mopt = MeasurementOpt
 
 abstract type CompOpt <: Opt end
 
-Base.@kwdef mutable struct StateControlOpt <: CompOpt
-	psi::Union{AbstractVector, Missing} = missing
-	ctrl::Union{AbstractVector, Missing} = missing
-	ctrl_bound::AbstractVector = [-Inf, Inf]
+mutable struct StateControlOpt <: CompOpt
+	psi::Union{AbstractVector, Missing}
+	ctrl::Union{AbstractVector, Missing}
+	ctrl_bound::AbstractVector
+	rng::AbstractRNG
 end
+
+StateControlOpt(;psi=missing, ctrl=missing, ctrl_bound=[-Inf, Inf], seed=1234) = StateControlOpt(psi, ctrl, ctrl_bound, MersenneTwister(seed))
 
 """
 
-	SCopt(psi::Union{AbstractVector, Missing}=missing, ctrl::Union{AbstractVector, Missing}=missing, ctrl_bound::AbstractVector=[-Inf, Inf])
+	SCopt(psi=missing, ctrl=missing, ctrl_bound=[-Inf, Inf], seed=1234)
 	
 State and control optimization.
 - `psi`: Guessed probe state.
 - `ctrl`: Guessed control coefficients.
 - `ctrl_bound`: Lower and upper bounds of the control coefficients.
+- `seed`: Random seed.
 """
 SCopt = StateControlOpt
 
-Base.@kwdef mutable struct ControlMeasurementOpt <: CompOpt
-	ctrl::Union{AbstractVector, Missing} = missing
-	M::Union{AbstractVector, Missing} = missing
-	ctrl_bound::AbstractVector = [-Inf, Inf]
+mutable struct ControlMeasurementOpt <: CompOpt
+	ctrl::Union{AbstractVector, Missing}
+	M::Union{AbstractVector, Missing}
+	ctrl_bound::AbstractVector
+	rng::AbstractRNG
 end 
+
+ControlMeasurementOpt(;ctrl=missing, M=missing, ctrl_bound=[-Inf, Inf], seed=1234) = ControlMeasurementOpt(ctrl, M, ctrl_bound, MersenneTwister(seed))
 
 """
 
-	CMopt(ctrl::Union{AbstractVector, Missing}=missing, M::Union{AbstractVector, Missing}=missing, ctrl_bound::AbstractVector=[-Inf, Inf])
+	CMopt(ctrl=missing, M=missing, ctrl_bound=[-Inf, Inf], seed=1234)
 	
 Control and measurement optimization.
 - `ctrl`: Guessed control coefficients.
 - `M`: Guessed projective measurement (a set of basis)
 - `ctrl_bound`: Lower and upper bounds of the control coefficients.
+- `seed`: Random seed.
 """
 CMopt = ControlMeasurementOpt
 
-Base.@kwdef mutable struct StateMeasurementOpt <: CompOpt 
-	psi::Union{AbstractVector, Missing} = missing
-	M::Union{AbstractVector, Missing} = missing
+mutable struct StateMeasurementOpt <: CompOpt 
+	psi::Union{AbstractVector, Missing}
+	M::Union{AbstractVector, Missing}
+	rng::AbstractRNG
 end
 
+StateMeasurementOpt(;psi=missing, M=missing, seed=1234) = StateMeasurementOpt(psi, M, MersenneTwister(seed))
 """
 
-	SMopt(psi::Union{AbstractVector, Missing}=missing, M::Union{AbstractVector, Missing}=missing)
+	SMopt(psi=missing, M=missing, seed=1234)
 	
 State and control optimization.
 - `psi`: Guessed probe state.
 - `M`: Guessed projective measurement (a set of basis).
+- `seed`: Random seed.
 """
 SMopt = StateMeasurementOpt
 
-Base.@kwdef mutable struct StateControlMeasurementOpt <: CompOpt
-	psi::Union{AbstractVector, Missing} = missing
-	ctrl::Union{AbstractVector, Missing} = missing
-	M::Union{AbstractVector, Missing} = missing
-	ctrl_bound::AbstractVector = [-Inf, Inf]
+mutable struct StateControlMeasurementOpt <: CompOpt
+	psi::Union{AbstractVector, Missing}
+	ctrl::Union{AbstractVector, Missing}
+	M::Union{AbstractVector, Missing}
+	ctrl_bound::AbstractVector
+	rng::AbstractRNG
 end
+
+StateControlMeasurementOpt(;psi=missing, ctrl=missing, M=missing, ctrl_bound=[-Inf, Inf], seed=1234) = StateControlMeasurementOpt(psi, ctrl, M, ctrl_bound, MersenneTwister(seed))
+
 """
 
-	SCMopt(psi::Union{AbstractVector, Missing}=missing, ctrl::Union{AbstractVector, Missing}=missing, M::Union{AbstractVector, Missing}=missing, ctrl_bound::AbstractVector=[-Inf, Inf])
+	SCMopt(psi=missing, ctrl=missing, M=missing, ctrl_bound=[-Inf, Inf], seed=1234)
 	
 State, control and measurement optimization.
 - `psi`: Guessed probe state.
 - `ctrl`: Guessed control coefficients.
 - `M`: Guessed projective measurement (a set of basis).
 - `ctrl_bound`:  Lower and upper bounds of the control coefficients.
+- `seed`: Random seed.
 """
 SCMopt = StateControlMeasurementOpt
 

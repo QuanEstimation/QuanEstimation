@@ -221,7 +221,7 @@ function bound_LC_coeff!(coefficients::Vector{Vector{Float64}}, rng)
     for mi in 1:M_num
         if Sum_row[mi] == 0.0
             int_num = sample(rng, 1:basis_num, 1, replace=false)[1]
-            coefficients[mi][int_num] = rand()
+            coefficients[mi][int_num] = rand(rng)
         end
     end 
 

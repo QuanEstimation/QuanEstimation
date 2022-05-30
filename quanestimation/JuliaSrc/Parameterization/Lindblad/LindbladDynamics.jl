@@ -605,9 +605,10 @@ function propagate(
     H = Htot(H0, Hc, a)
     dH_L = [liouville_commu(dH) for dH in dH]
     exp_L = expL(H, decay_opt, γ, Δt)
-    dρₜ_next = [dρₜ|>vec for dρₜ in dρₜ ]
-    ρₜ_next = exp_L * vec(ρₜ )
+    dρₜ_next = [dρₜ|>vec for dρₜ in dρₜ]
+    ρₜ_next = ρₜ
     for i in 1:ctrl_interval
+        ρₜ_next = exp_L * vec(ρₜ_next)
         for para = 1:para_num
             dρₜ_next[para] = -im * Δt * dH_L[para] * ρₜ_next + exp_L * dρₜ_next[para]
         end
@@ -629,9 +630,10 @@ function propagate(
     H = Htot(H0, Hc, a)
     dH_L = [liouville_commu(dH) for dH in dH]
     exp_L = expL(H, Δt)
-    dρₜ_next = [dρₜ|>vec for dρₜ in dρₜ ]
-    ρₜ_next = exp_L * vec(ρₜ )
+    dρₜ_next = [dρₜ|>vec for dρₜ in dρₜ]
+    ρₜ_next = ρₜ
     for i in 1:ctrl_interval
+        ρₜ_next = exp_L * vec(ρₜ_next)
         for para = 1:para_num
             dρₜ_next[para] = -im * Δt * dH_L[para] * ρₜ_next + exp_L * dρₜ_next[para]
         end

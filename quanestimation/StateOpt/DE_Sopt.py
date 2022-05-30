@@ -86,7 +86,6 @@ class DE_Sopt(State.StateSystem):
             ini_population,
             self.c,
             self.cr,
-            self.seed,
         )
         super().QFIM(W, LDtype)
 
@@ -117,7 +116,6 @@ class DE_Sopt(State.StateSystem):
             ini_population,
             self.c,
             self.cr,
-            self.seed,
         )
         super().CFIM(M, W)
 
@@ -140,6 +138,5 @@ class DE_Sopt(State.StateSystem):
             ini_population,
             self.c,
             self.cr,
-            self.seed,
         )
         super().HCRB(W)

@@ -108,9 +108,6 @@ class Adapt_MZI:
             -- The exploitation weight that attracts the particle to the best position  
             in the neighborhood, also known as social learning factor.
 
-        > **seed:** `int`
-            -- Random seed.
-
         > **eps:** `float`
             -- Machine epsilon.
         """
@@ -119,6 +116,7 @@ class Adapt_MZI:
             np.array([int(list(comb_tp[i])[j]) for j in range(self.N)])
             for i in range(2**self.N)
         ]
+        
         if method == "DE":
             Main.QuanEstimation.DE_deltaphiOpt(
                 self.x,

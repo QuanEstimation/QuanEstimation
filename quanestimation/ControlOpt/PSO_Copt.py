@@ -99,7 +99,6 @@ class PSO_Copt(Control.ControlSystem):
             self.c0,
             self.c1,
             self.c2,
-            self.seed,
         )
 
         super().QFIM(W, LDtype)
@@ -132,7 +131,6 @@ class PSO_Copt(Control.ControlSystem):
             self.c0,
             self.c1,
             self.c2,
-            self.seed,
         )
 
         super().CFIM(M, W)
@@ -157,7 +155,6 @@ class PSO_Copt(Control.ControlSystem):
             self.c0,
             self.c1,
             self.c2,
-            self.seed,
         )
 
         super().HCRB(W)
@@ -210,7 +207,6 @@ class PSO_Copt(Control.ControlSystem):
             self.c0,
             self.c1,
             self.c2,
-            self.seed,
         )
         
         super().mintime(f, W, M, method, target, LDtype)

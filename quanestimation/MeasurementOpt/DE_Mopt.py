@@ -83,6 +83,5 @@ class DE_Mopt(Measurement.MeasurementSystem):
             ini_population,
             self.c,
             self.cr,
-            self.seed,
         )
         super().CFIM(W)

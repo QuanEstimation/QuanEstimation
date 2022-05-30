@@ -59,6 +59,7 @@ class GRAPE_Copt(Control.ControlSystem):
         beta1=0.90,
         beta2=0.99,
         eps=1e-8,
+        seed=1234,
         load=False,
         auto=True,
     ):
@@ -72,6 +73,7 @@ class GRAPE_Copt(Control.ControlSystem):
         self.beta2 = beta2
         self.mt = 0.0
         self.vt = 0.0
+        self.seed = seed
         self.auto = auto
 
     def QFIM(self, W=[], LDtype="SLD"):

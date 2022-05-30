@@ -117,7 +117,6 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             self.c0,
             self.c1,
             self.c2,
-            self.seed,
         )
         super().SC(W, M, target, LDtype)
 
@@ -141,7 +140,6 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             self.c0,
             self.c1,
             self.c2,
-            self.seed,
         )
 
         super().CM(rho0, W)
@@ -163,7 +161,6 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             self.c0,
             self.c1,
             self.c2,
-            self.seed,
         )
 
         super().SM(W)
@@ -185,7 +182,6 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             self.c0,
             self.c1,
             self.c2,
-            self.seed,
         )
         
         super().SCM(W)

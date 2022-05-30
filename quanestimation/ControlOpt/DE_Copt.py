@@ -87,7 +87,6 @@ class DE_Copt(Control.ControlSystem):
             ini_population,
             self.c,
             self.cr,
-            self.seed,
         )
 
         super().QFIM(W, LDtype)
@@ -119,7 +118,6 @@ class DE_Copt(Control.ControlSystem):
             ini_population,
             self.c,
             self.cr,
-            self.seed,
         )
 
         super().CFIM(M, W)
@@ -143,7 +141,6 @@ class DE_Copt(Control.ControlSystem):
             ini_population,
             self.c,
             self.cr,
-            self.seed,
         )
 
         super().HCRB(W)
@@ -195,7 +192,6 @@ class DE_Copt(Control.ControlSystem):
             ini_population,
             self.c,
             self.cr,
-            self.seed,
         )
         
         super().mintime(f, W, M, method, target, LDtype)

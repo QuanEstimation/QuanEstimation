@@ -104,7 +104,6 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             ini_population,
             self.c,
             self.cr,
-            self.seed,
         )
         
         super().SC(W, M, target, LDtype)
@@ -128,7 +127,6 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             ini_population,
             self.c,
             self.cr,
-            self.seed,
         )
 
         super().CM(rho0, W)
@@ -149,7 +147,6 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             ini_population,
             self.c,
             self.cr,
-            self.seed,
         )
 
         super().SM(W)
@@ -170,7 +167,6 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             ini_population,
             self.c,
             self.cr,
-            self.seed,
         )
 
         super().SCM(W)
