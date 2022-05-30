@@ -140,7 +140,7 @@ class MeasurementSystem:
             else:
                 self.C = [self.measurement0[0][i] for i in range(len(self.rho0))]
                 self.C = [np.array(x, dtype=np.complex128) for x in self.C]
-            self.opt = Main.QuanEstimation.Mopt_Projection(self.C)
+            self.opt = Main.QuanEstimation.Mopt_Projection(M=self.C, seed=self.seed)
 
         elif self.mtype == "input":
             if self.minput[0] == "LC":
@@ -194,7 +194,7 @@ class MeasurementSystem:
                 elif len(self.measurement0) >= 1:
                     self.B = [self.measurement0[0][i] for i in range(self.M_num)]
                 self.opt = Main.QuanEstimation.Mopt_LinearComb(
-                    self.B, self.povm_basis, self.M_num
+                    B=self.B, POVM_basis=self.povm_basis, M_num=self.M_num, seed=self.seed
                 )
 
             elif self.minput[0] == "rotation":
@@ -235,7 +235,7 @@ class MeasurementSystem:
                     ]
 
                 self.opt = Main.QuanEstimation.Mopt_Rotation(
-                    self.s, self.povm_basis, []
+                    s=self.s, POVM_basis=self.povm_basis, Lambda=[], seed=self.seed
                 )  #### Lambda=[]
 
             else:
@@ -418,7 +418,7 @@ class MeasurementSystem:
             else:
                 self.C = [self.measurement0[0][i] for i in range(len(self.rho0))]
                 self.C = [np.array(x, dtype=np.complex128) for x in self.C]
-            self.opt = Main.QuanEstimation.Mopt_Projection(self.C)
+            self.opt = Main.QuanEstimation.Mopt_Projection(M=self.C, seed=self.seed)
 
         elif self.mtype == "input":
             if self.minput[0] == "LC":
@@ -474,7 +474,7 @@ class MeasurementSystem:
                         self.measurement0[0][i] for i in range(len(self.povm_basis))
                     ]
                 self.opt = Main.QuanEstimation.Mopt_LinearComb(
-                    self.B, self.povm_basis, self.M_num
+                    B=self.B, POVM_basis=self.povm_basis, M_num=self.M_num, seed=self.seed
                 )
 
             elif self.minput[0] == "rotation":
@@ -515,7 +515,7 @@ class MeasurementSystem:
                     ]
 
                 self.opt = Main.QuanEstimation.Mopt_Rotation(
-                    self.s, self.povm_basis, []
+                    s=self.s, POVM_basis=self.povm_basis, Lambda=[], seed=self.seed
                 )
 
             else:

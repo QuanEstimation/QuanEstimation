@@ -40,8 +40,11 @@ function run(opt::AbstractOpt, alg::AbstractAlgorithm, obj::AbstractObj, dynamic
     if obj isa HCRB_obj
         if alg isa AD || alg isa AD_Adam
             println("AD is not available when the objective function is HCRB.")
-        else obj isa HCRB_obj{single_para}
+        elseif obj isa HCRB_obj{single_para}
             println("Program exit. In the single-parameter scenario, the HCRB is equivalent to the QFI. Please choose 'QFIM_obj()' as the objective function.")
+        else
+            system = QuanEstSystem(opt, alg, obj, dynamics, output)
+            run(system)
         end
     else
         system = QuanEstSystem(opt, alg, obj, dynamics, output)

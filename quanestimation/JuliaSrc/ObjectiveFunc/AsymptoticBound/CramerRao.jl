@@ -40,7 +40,7 @@ function SLD(
     SLD_eig = zeros(T, dim, dim)
     for fi = 1:dim
         for fj = 1:dim
-             if abs(val[fi] + val[fj]) > eps
+            if abs(val[fi] + val[fj]) > eps
                 SLD_eig[fi, fj] = 2 * (vec[:, fi]' * dρ * vec[:, fj]) / (val[fi] + val[fj])
             end
         end
@@ -52,7 +52,7 @@ function SLD(
     elseif rep == "eigen"
         SLD = SLD_eig
 	else
-		throw(ArgumentError("the rep should be chosen between"))
+		throw(ArgumentError("The rep should be chosen in {'original', 'eigen'}."))
     end
     SLD
 end
@@ -61,10 +61,6 @@ end
     L = SLD(ρ, dρ; eps = eps)
     SLD_pullback = L̄ -> (Ḡ -> (-Ḡ * L - L * Ḡ, 2 * Ḡ))(SLD((ρ) |> Array, L̄ / 2))
     L, SLD_pullback
-end
-
-function SLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = GLOBAL_EPS) where {T<:Complex}
-    (x -> SLD(ρ, x; eps = eps)).(dρ)
 end
 
 function SLD_liouville(ρ::Matrix{T}, ∂ρ_∂x::Matrix{T}; eps = GLOBAL_EPS) where {T<:Complex}
@@ -147,13 +143,6 @@ function RLD(
     RLD
 end
 
-function RLD(ρ::Matrix{T}, dρ::Matrix{T}; eps = GLOBAL_EPS) where {T<:Complex}
-    pinv(ρ, rtol = eps) * dρ
-end
-
-function RLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = GLOBAL_EPS) where {T<:Complex}
-    (x -> RLD(ρ, x; eps = eps)).(dρ)
-end
 
 @doc raw"""
 
@@ -211,13 +200,6 @@ function LLD(
     LLD
 end
 
-function LLD(ρ::Matrix{T}, dρ::Matrix{T}; eps = GLOBAL_EPS) where {T<:Complex}
-    (dρ * pinv(ρ, rtol = eps))'
-end
-
-function LLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = GLOBAL_EPS) where {T<:Complex}
-    (x -> LLD(ρ, x; eps = eps)).(dρ)
-end
 
 #========================================================#
 ####################### calculate QFI ####################
@@ -229,13 +211,13 @@ function QFIM_SLD(ρ::Matrix{T}, dρ::Matrix{T}; eps = GLOBAL_EPS) where {T<:Com
 end
 
 function QFIM_RLD(ρ::Matrix{T}, dρ::Matrix{T}; eps = GLOBAL_EPS) where {T<:Complex}
-    RLD_tp = RLD(ρ, dρ; eps = eps)
+    RLD_tp = pinv(ρ, rtol = eps) * dρ
     F = tr(ρ * RLD_tp * RLD_tp')
     F |> real
 end
 
 function QFIM_LLD(ρ::Matrix{T}, dρ::Matrix{T}; eps = GLOBAL_EPS) where {T<:Complex}
-    LLD_tp = LLD(ρ, dρ; eps = eps)
+    LLD_tp = (dρ * pinv(ρ, rtol = eps))'
     F = tr(ρ * LLD_tp * LLD_tp')
     F |> real
 end
@@ -260,14 +242,14 @@ end
 
 function QFIM_RLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = GLOBAL_EPS) where {T<:Complex}
     p_num = length(dρ)
-    LD_tp = RLD(ρ, dρ; eps = eps)
+    LD_tp = (x -> (pinv(ρ, rtol = eps) * x) ).(dρ)
     LD_dag = [LD_tp[i]' for i = 1:p_num]
     ([ρ] .* (kron(LD_tp, reshape(LD_dag, 1, p_num)))) .|> tr
 end
 
 function QFIM_LLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = GLOBAL_EPS) where {T<:Complex}
     p_num = length(dρ)
-    LD_tp = LLD(ρ, dρ; eps = eps)
+    LD_tp = (x -> (x * pinv(ρ, rtol = eps))').(dρ)
     LD_dag = [LD_tp[i]' for i = 1:p_num]
     ([ρ] .* (kron(LD_tp, reshape(LD_dag, 1, p_num)))) .|> tr
 end
@@ -381,49 +363,41 @@ function CFIM(ρ::Matrix{T}, dρ::Matrix{T}; M=nothing, eps=GLOBAL_EPS) where {T
     real(F)
 end
 
+## QFI with exportLD
 """
 
-    QFIM(ρ::Matrix{T}, dρ::Matrix{T}; LDtype=:SLD, eps=GLOBAL_EPS) where {T<:Complex}
-
-When applied to the case of single parameter. Calculation of the quantum Fisher information (QFI) for all types.
-"""
-function QFIM(
-    ρ::Matrix{T},
-    dρ::Matrix{T};
-    LDtype = :SLD,
-    eps = GLOBAL_EPS,
-) where {T<:Complex}
-
-    eval(Symbol("QFIM_" * string(LDtype)))(ρ, dρ; eps = eps)
-end
-
-"""
-
-    QFIM(ρ::Matrix{T}, dρ::Matrix{T}; LDtype=:SLD, eps=GLOBAL_EPS) where {T<:Complex}
+    QFIM(ρ::Matrix{T}, dρ::Matrix{T}; LDtype=:SLD, exportLD::Bool= false, eps=GLOBAL_EPS) where {T<:Complex}
 
 Calculation of the quantum Fisher information (QFI) for all types. 
 - `ρ`: Density matrix.
 - `dρ`: Derivatives of the density matrix with respect to the unknown parameters to be estimated. For example, drho[1] is the derivative vector with respect to the first parameter.
 - `LDtype`: Types of QFI (QFIM) can be set as the objective function. Options are `:SLD` (default), `:RLD` and `:LLD`.
+- `exportLD`: export logarithmic derivatives apart from F.
 - `eps`: Machine epsilon.
 """
-
 function QFIM(
     ρ::Matrix{T},
-    dρ::Vector{Matrix{T}};
+    dρ::Matrix{T};
     LDtype = :SLD,
+    exportLD ::Bool= false,
     eps = GLOBAL_EPS,
 ) where {T<:Complex}
 
-    eval(Symbol("QFIM_" * string(LDtype)))(ρ, dρ; eps = eps)
+    F = eval(Symbol("QFIM_" * string(LDtype)))(ρ, dρ; eps = eps)
+    if exportLD == false
+        return F
+    else
+        LD = eval(Symbol(LDtype))(ρ, dρ; eps = eps)
+        return F, LD
+    end
 end
 
+"""
 
-QFIM(sym::Symbol, args...; kwargs...) = QFIM(Val{sym}, args...; kwargs...)
-QFIM(ρ, dρ; LDtype=LDtype, exportLD=false, eps=GLOBAL_EPS) = QFIM(ρ, dρ; LDtype=LDtype, eps=GLOBAL_EPS)
+    QFIM(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; LDtype=:SLD, exportLD::Bool= false, eps=GLOBAL_EPS) where {T<:Complex}
 
-
-## QFI with exportLD
+When applied to the case of single parameter. Calculation of the quantum Fisher information (QFI) for all types.
+"""
 function QFIM(
     ρ::Matrix{T},
     dρ::Vector{Matrix{T}};
@@ -440,6 +414,8 @@ function QFIM(
         return F, LD
     end
 end
+
+QFIM(sym::Symbol, args...; kwargs...) = QFIM(Val{sym}, args...; kwargs...)
 
 """
 
@@ -465,24 +441,6 @@ function QFIM_Kraus(ρ0::AbstractMatrix, K::AbstractVector, dK::AbstractVector; 
     else
         # multiparameter scenario
         return F
-    end
-end
-
-## QFIM with exportLD
-function QFIM(
-    ρ::Matrix{T},
-    dρ::Vector{Matrix{T}};
-    LDtype = :SLD,
-    exportLD ::Bool= false,
-    eps = GLOBAL_EPS,
-) where {T<:Complex}
-
-    F = eval(Symbol("QFIM_" * string(LDtype)))(ρ, dρ; eps = eps)
-    if exportLD == false
-        return F
-    else
-        LD = eval(Symbol(LDtype))(ρ, dρ; eps = eps)
-        return F, LD
     end
 end
 

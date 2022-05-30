@@ -188,7 +188,7 @@ class ControlSystem:
         else: pass
 
         self.opt = Main.QuanEstimation.ControlOpt(
-            self.control_coefficients, self.ctrl_bound
+            ctrl=self.control_coefficients, ctrl_bound=self.ctrl_bound, seed=self.seed
         )
         self.dynamic = Main.QuanEstimation.Lindblad(
             self.freeHamiltonian,

@@ -38,12 +38,11 @@ POVM_basis = [QuanEstimation.basis(dim, i)*QuanEstimation.basis(dim, i)'
 # time length for the evolution
 tspan = range(0., 2., length=4000)
 # choose the optimization type
-opt = QuanEstimation.SCMopt(ctrl_bound=[-0.2,0.2])
+opt = QuanEstimation.SCMopt(ctrl_bound=[-0.2,0.2], seed=1234)
 
 ##==========choose comprehensive optimization algorithm==========##
 ##-------------algorithm: DE---------------------##
-alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5, 
-                        seed=1234)
+alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
 # input the dynamics data
 dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)
 # objective function: tr(WI^{-1})
@@ -53,7 +52,7 @@ QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 
 ##-------------algorithm: PSO---------------------##
 # alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
-#                          c1=2.0, c2=2.0, seed=1234)
+#                          c1=2.0, c2=2.0)
 # # input the dynamics data
 # dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)
 # # objective function: tr(WI^{-1})

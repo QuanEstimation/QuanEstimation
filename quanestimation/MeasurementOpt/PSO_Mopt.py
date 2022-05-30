@@ -96,7 +96,6 @@ class PSO_Mopt(Measurement.MeasurementSystem):
             self.c0,
             self.c1,
             self.c2,
-            self.seed,
         )
         
         super().CFIM(W)

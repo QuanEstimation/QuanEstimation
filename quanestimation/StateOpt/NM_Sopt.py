@@ -98,7 +98,6 @@ class NM_Sopt(State.StateSystem):
             self.ae,
             self.ac,
             self.as0,
-            self.seed,
         )
 
         super().QFIM(W, LDtype)
@@ -132,7 +131,6 @@ class NM_Sopt(State.StateSystem):
             self.ae,
             self.ac,
             self.as0,
-            self.seed,
         )
 
         super().CFIM(M, W)
@@ -158,7 +156,6 @@ class NM_Sopt(State.StateSystem):
             self.ae,
             self.ac,
             self.as0,
-            self.seed,
         )
 
         super().HCRB(W)

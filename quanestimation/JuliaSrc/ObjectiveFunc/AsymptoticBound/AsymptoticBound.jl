@@ -4,20 +4,20 @@ abstract type SLD <: AbstractLDtype end
 abstract type RLD <: AbstractLDtype end
 abstract type LLD <: AbstractLDtype end
 
-Base.@kwdef struct QFIM_obj{P,D} <: AbstractObj
+struct QFIM_obj{P,D} <: AbstractObj
     W::Union{AbstractMatrix, Missing}
-    eps::Number = GLOBAL_EPS
+    eps::Number
 end
 
-Base.@kwdef struct CFIM_obj{P} <: AbstractObj
+struct CFIM_obj{P} <: AbstractObj
     M::Union{AbstractVecOrMat, Missing}
     W::Union{AbstractMatrix, Missing}
-    eps::Number = GLOBAL_EPS
+    eps::Number
 end
 
-Base.@kwdef struct HCRB_obj{P} <: AbstractObj
+struct HCRB_obj{P} <: AbstractObj
     W::Union{AbstractMatrix, Missing}
-    eps::Number = GLOBAL_EPS
+    eps::Number
 end
 
 @doc raw"""

@@ -26,7 +26,7 @@ decay = [[Jz, 0.1]]
 # time length for the evolution
 tspan = range(0., 10., length=2500)
 # set the optimization type
-opt = QuanEstimation.StateOpt(psi=psi0) 
+opt = QuanEstimation.StateOpt(psi=psi0, seed=1234) 
 
 ##================choose the state optimization algorithm===============##
 # state optimization algorithm: AD
@@ -35,29 +35,33 @@ alg = QuanEstimation.AD(Adam=false, max_episode=300, epsilon=0.01,
 
 # # state optimization algorithm: PSO
 # alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
-#                          c1=2.0, c2=2.0, seed=1234)
+#                          c1=2.0, c2=2.0)
 
 # # state optimization algorithm: DE
-# alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5, 
-#                         seed=1234)
+# alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
 
 # # state optimization algorithm: NM
-# alg = QuanEstimation.NM(state_num=10, max_episode=1000, ar=1.0, 
-#                         ae=2.0, ac=0.5, as0=0.5, seed=1234)
+# alg = QuanEstimation.NM(p_num=10, max_episode=1000, ar=1.0, 
+#                         ae=2.0, ac=0.5, as0=0.5)
 
 # # state optimization algorithm: DDPG
-# alg = QuanEstimation.DDPG(max_episode=500, layer_num=3, layer_dim=200, 
-#                           seed=1234)
+# alg = QuanEstimation.DDPG(max_episode=500, layer_num=3, layer_dim=200)
 
-# input the dynamics data
-dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay) 
 
 ##====================choose the objective function==================##
+##-------------objective function: QFI---------------------##
 # objective function: QFI
 obj = QuanEstimation.QFIM_obj()
-
-# # objective function: CFI
-# obj = QuanEstimation.CFIM_obj()
-
+# input the dynamics data
+dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay) 
 # run the state optimization problem
 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+
+##-------------objective function: CFI---------------------##
+# # objective function: CFI
+# obj = QuanEstimation.CFIM_obj()
+# # input the dynamics data
+# dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay) 
+# # run the state optimization problem
+# QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+

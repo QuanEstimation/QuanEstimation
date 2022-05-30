@@ -6,7 +6,7 @@ end
 
 """
 
-    HCRB(ρ::Matrix{T}, dρ::Vector{Matrix{T}}, C::Matrix{Float64}; eps=GLOBAL_EPS) where {T<:Complex}
+    HCRB(ρ::AbstractMatrix, dρ::AbstractVector, C::AbstractMatrix; eps=GLOBAL_EPS)
 
 Caltulate the Holevo Cramer-Rao bound (HCRB) via the semidefinite program (SDP).
 - `ρ`: Density matrix.
@@ -15,11 +15,11 @@ Caltulate the Holevo Cramer-Rao bound (HCRB) via the semidefinite program (SDP).
 - `eps`: Machine epsilon.
 """
 function HCRB(
-    ρ::Matrix{T},
-    dρ::Vector{Matrix{T}},
-    C::Matrix{Float64};
+    ρ::AbstractMatrix,
+    dρ::AbstractVector,
+    C::AbstractMatrix;
     eps=GLOBAL_EPS,
-) where {T<:Complex}
+) 
     if length(dρ) == 1
         println(
             "In the single-parameter scenario, the HCRB is equivalent to the QFI. This function will return the value of the QFI.",
@@ -38,11 +38,11 @@ function HCRB(
 end
 
 function Holevo_bound(
-    ρ::Matrix{T},
-    dρ::Vector{Matrix{T}},
-    C::Matrix{Float64};
+    ρ::AbstractMatrix,
+    dρ::AbstractVector,
+    C::AbstractMatrix;
     eps = GLOBAL_EPS,
-) where {T<:Complex}
+) 
 
     dim = size(ρ)[1]
     num = dim * dim
@@ -87,10 +87,10 @@ function Holevo_bound(
 end
 
 function Holevo_bound_obj(
-    ρ::Matrix{T},
-    dρ::Vector{Matrix{T}},
-    C::Matrix{Float64};
+    ρ::AbstractMatrix,
+    dρ::AbstractVector,
+    C::AbstractMatrix;
     eps = GLOBAL_EPS,
-) where {T<:Complex}
+)
     return Holevo_bound(ρ, dρ, C; eps = eps)[1]
 end
