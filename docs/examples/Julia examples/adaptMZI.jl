@@ -1,4 +1,5 @@
 using QuanEstimation
+using SparseArrays
 
 # the number of photons
 N = 8
@@ -16,9 +17,9 @@ apt = QuanEstimation.Adapt_MZI(x, p, rho0)
 QuanEstimation.online(apt, output="phi")
 
 #================offline strategy=========================#
-# algorithm: DE
+# # algorithm: DE
 # alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
-#                         max_episode=50, c=1.0, cr=0.5, seed=1234)
+#                         max_episode=1000, c=1.0, cr=0.5, seed=1234)
 # QuanEstimation.offline(apt, alg)
 
 # # algorithm: PSO
