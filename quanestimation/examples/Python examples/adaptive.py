@@ -33,15 +33,15 @@ for xi in range(len(x)):
 
 # # Bayesian estimation
 random.seed(1234)
-y = [0 for i in range(2000)]
-res_rand = random.sample(range(0, len(y)), 500)
+y = [0 for i in range(500)]
+res_rand = random.sample(range(0, len(y)), 125)
 for i in range(len(res_rand)):
     y[res_rand[i]] = 1
 pout, xout = Bayes([x], p, rho, y, M=M, estimator="MAP", savefile=True)
-pout = np.load("pout.npy")[499]
+
 # generation of H and dH
 H, dH = BayesInput([x], H0_func, dH_func, channel="dynamics")
 # adaptive measurement
-apt = Adaptive([x], pout, rho0, savefile=False, max_episode=1500, eps=1e-8)
+apt = Adaptive([x], pout, rho0, savefile=False, max_episode=100, eps=1e-8)
 apt.dynamics(tspan, H, dH)
 apt.CFIM(M=M, W=[])

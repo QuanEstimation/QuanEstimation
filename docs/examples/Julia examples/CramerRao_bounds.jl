@@ -23,12 +23,12 @@ tspan = range(0., 50., length=2000)
 # dynamics
 rho, drho = QuanEstimation.expm(tspan, rho0, H0, dH, decay)
 # calculation of the CFI and QFI
-I, F = Float64[], Float64[]
+Im, F = Float64[], Float64[]
 for ti in 2:length(tspan)
     # CFI
     I_tp = QuanEstimation.CFIM(rho[ti], drho[ti], M)
-    append!(I, I_tp)
+    append!(Im, I_tp)
     # QFI
-    F_tp = QuanEstimation.QFIM(rho[ti], drho[ti], LDtype="LLD")
+    F_tp = QuanEstimation.QFIM(rho[ti], drho[ti])
     append!(F, F_tp)
 end

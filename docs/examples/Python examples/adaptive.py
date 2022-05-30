@@ -19,7 +19,7 @@ M = [M1, M2]
 # time length for the evolution
 tspan = np.linspace(0., 1., 1000)
 # prior distribution
-x = np.linspace(-0.25*np.pi+0.1, 3.0*np.pi/4.0-0.1, 100)
+x = np.linspace(-0.25*np.pi+0.1, 3.0*np.pi/4.0-0.1, 1000)
 p = (1.0/(x[-1]-x[0]))*np.ones(len(x))
 # dynamics
 rho = [np.zeros((len(rho0), len(rho0)), dtype=np.complex128) for \
@@ -30,13 +30,15 @@ for xi in range(len(x)):
     dynamics = Lindblad(tspan, rho0, H_tp, dH_tp)
     rho_tp, drho_tp = dynamics.expm()
     rho[xi] = rho_tp[-1]
-# Bayesian estimation
+
+# # Bayesian estimation
 random.seed(1234)
 y = [0 for i in range(500)]
 res_rand = random.sample(range(0, len(y)), 125)
 for i in range(len(res_rand)):
     y[res_rand[i]] = 1
-pout, xout = Bayes([x], p, rho, y, M=M, savefile=False)
+pout, xout = Bayes([x], p, rho, y, M=M, estimator="MAP", savefile=True)
+
 # generation of H and dH
 H, dH = BayesInput([x], H0_func, dH_func, channel="dynamics")
 # adaptive measurement
