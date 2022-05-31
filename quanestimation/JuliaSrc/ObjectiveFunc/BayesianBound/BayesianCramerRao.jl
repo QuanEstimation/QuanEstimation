@@ -453,7 +453,7 @@ function OBB(x::AbstractVector, p, dp, rho, drho, d2rho; LDtype=:SLD, eps=GLOBAL
     delta = x[2] - x[1] 
     F, J = zeros(p_num), zeros(p_num)
     for m in 1:p_num
-        f, LD = QFIM(Val{:exportLD}(),rho[m], drho[m]; LDtype=Symbol(LDtype), eps=eps)
+        f, LD = QFIM(rho[m], drho[m], LDtype=LDtype, exportLD=true)
         dF = real(tr(2*d2rho[m]*d2rho[m]*LD - LD*LD*drho[m]))
         J[m] = dp[m]/p[m] - dF/f 
         F[m] = f

@@ -1,6 +1,6 @@
 ###################### mintime opt #############################
 function mintime(::Val{:binary}, f::Number, system)
-    (; dynamics, output, obj) = system
+    (; dynamics, output, obj, optim, algorithm) = system
     (; tspan, ctrl) = deepcopy(dynamics.data)
     low, high = 1, length(tspan)
     mid = 0
@@ -11,7 +11,12 @@ function mintime(::Val{:binary}, f::Number, system)
 
         dynamics.data.tspan = tspan[1:mid]
         dynamics.data.ctrl = [c[1:mid-1] for c in ctrl] 
-        
+        if algorithm isa DE
+            algorithm.ini_population =  ([dynamics.data.ctrl],)
+        elseif algorithm isa PSO
+            algorithm.ini_particle = ([dynamics.data.ctrl],)
+        end
+
         f_ini = objective(obj, dynamics)[2]
 
         if f > f_ini
@@ -39,7 +44,7 @@ function mintime(::Val{:binary}, f::Number, system)
 end
 
 function mintime(::Val{:forward}, f::Number, system)
-    (; dynamics, output, obj) = system
+    (; dynamics, output, obj, algorithm) = system
     (; tspan, ctrl) = deepcopy(dynamics.data)
     idx = 2
     f_now = 0.0
@@ -47,6 +52,12 @@ function mintime(::Val{:forward}, f::Number, system)
     while f_now < f && idx<length(tspan)
         dynamics.data.tspan = tspan[1:idx]
         dynamics.data.ctrl = [c[1:idx-1] for c in ctrl] 
+        if algorithm isa DE
+            algorithm.ini_population =  ([dynamics.data.ctrl],)
+        elseif algorithm isa PSO
+            algorithm.ini_particle = ([dynamics.data.ctrl],)
+        end
+        
         run(system)
         f_now = output.f_list[end]
         idx += 1

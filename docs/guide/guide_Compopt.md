@@ -64,7 +64,7 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
 === "Julia"
     === "SM"
         ``` jl
-        opt = SMopt(psi=psi, M=M)
+        opt = SMopt(psi=psi, M=M, seed=1234)
         alg = DE(kwargs...)
         dynamics = Lindblad(opt, tspan, H0, dH; Hc=missing, 
                             ctrl=missing, decay=missing)  
@@ -73,7 +73,7 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
         ```
     === "SC"
         ``` jl
-        opt = SCopt(psi=psi, ctrl=ctrl, ctrl_bound=ctrl_bound)
+        opt = SCopt(psi=psi, ctrl=ctrl, ctrl_bound=ctrl_bound, seed=1234)
         alg = DE(kwargs...)
         dynamics = Lindblad(opt, tspan, H0, dH, Hc; decay=missing)
         ```
@@ -94,7 +94,7 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
         ```
     === "CM"
         ``` jl
-        opt = CMopt(ctrl=ctrl, M=M, ctrl_bound=ctrl_bound)
+        opt = CMopt(ctrl=ctrl, M=M, ctrl_bound=ctrl_bound, seed=1234)
         alg = DE(kwargs...)
         dynamics = Lindblad(opt, tspan, H0, dH, Hc; decay=missing)
         obj = CFIM_obj(W=missing)
@@ -102,7 +102,7 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
         ```
     === "SCM"
         ``` jl
-        opt = SCMopt(psi=psi, ctrl=ctrl, M=M, ctrl_bound=ctrl_bound)
+        opt = SCMopt(psi=psi, ctrl=ctrl, M=M, ctrl_bound=ctrl_bound, seed=1234)
         alg = DE(kwargs...)
         dynamics = Lindblad(opt, tspan, H0, dH, Hc; decay=missing)
         obj = CFIM_obj(W=missing)
@@ -119,6 +119,7 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
     contains control. `ctrl_bound` is an array with two elements representing the lower and 
     upper bound of the control coefficients, respectively. The default value of `ctrl_bound=
     missing` which means the control coefficients are in the regime $[-\infty,\infty]$.
+    `seed` is the random seed which can ensure the reproducibility of results.
     
     The objective function of `SCopt()` can be chosen as `QFIM_obj()` (default), `CFIM_obj()` 
     and `HCRB_obj()` for the corresponding objective functions are QFI ($\mathrm{Tr}(W\mathcal{F}^
@@ -190,7 +191,7 @@ The code for comprehensive optimization with PSO is as follows
 === "Julia"
     ``` jl
     alg = PSO(p_num=10, ini_particle=missing, max_episode=[1000,100], 
-              c0=1.0, c1=2.0, c2=2.0, seed=1234)
+              c0=1.0, c1=2.0, c2=2.0)
     ```
     The keywords and the default values of PSO can be seen in the following 
     table
@@ -203,21 +204,19 @@ The code for comprehensive optimization with PSO is as follows
     | "c0"                             | 1.0                        |
     | "c1"                             | 2.0                        |
     | "c2"                             | 2.0                        |
-    | "seed"                           | 1234                       |
 
     `ini_particle`is a tuple contains `psi0`, `ctrl0` and `measurement0`, which 
     representing the initial guesses of states, control coefficients and measurements,
     respectively. The input rule of `ini_particle` shoule be `ini_particle=(psi0, 
     measurement0)`(SM), `ini_particle=(psi0, ctrl0)`(SC), `ini_particle=(ctrl0, 
     measurement0)`(CM) and  `ini_particle=(psi0, ctrl0, measurement0)`(SCM).
-    `seed` is the random seed. Here `p_num` is the number of 
-    particles, `c0`, `c1`, and `c2` are the PSO parameters representing the inertia 
-    weight, cognitive learning factor and social learning factor, respectively. 
-    `max_episode` accepts both integers and arrays with two elements. If it is an 
-    integer, for example max_episode=1000, it means the program will continuously 
-    run 1000 episodes. However, if it is an array, for example max_episode=[1000,100], 
-    the program will run 1000 episodes in total but replace control coefficients of all 
-    the particles with global best every 100 episodes. 
+    Here `p_num` is the number of particles, `c0`, `c1`, and `c2` are the PSO parameters 
+    representing the inertia weight, cognitive learning factor and social learning 
+    factor, respectively. `max_episode` accepts both integers and arrays with two 
+    elements. If it is an integer, for example max_episode=1000, it means the program 
+    will continuously run 1000 episodes. However, if it is an array, for example 
+    max_episode=[1000,100], the program will run 1000 episodes in total but replace 
+    control coefficients of all the particles with global best every 100 episodes. 
 
 ## **DE**
 The code for comprehensive optimization with DE is as follows
@@ -250,7 +249,7 @@ The code for comprehensive optimization with DE is as follows
 === "Julia"
     ``` jl
     alg = DE(p_num=10, ini_population=missing, max_episode=1000, 
-             c=1.0, cr=0.5, seed=1234)
+             c=1.0, cr=0.5)
     ```
     The keywords and the default values of DE can be seen in the following 
     table
@@ -262,7 +261,6 @@ The code for comprehensive optimization with DE is as follows
     | "max_episode"                    | 1000                       |
     | "c"                              | 1.0                        |
     | "cr"                             | 0.5                        |
-    | "seed"                           | 1234                       |
 
     Here `max_episode` is an integer representing the number of episodes. `p_num` 
     represents the number of populations. `c` and `cr` are constants for mutation 
@@ -508,13 +506,12 @@ In this case, we consider two types of comprehensive optimization, the first one
     ```
     === "SM"
         ``` jl
-        opt = QuanEstimation.SMopt()
+        opt = QuanEstimation.SMopt(seed=1234)
         ```
         === "DE"
             ``` jl
             # comprehensive optimization algorithm: DE
-            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5, 
-                                    seed=1234)
+            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)   
             # objective function: CFI
@@ -524,7 +521,7 @@ In this case, we consider two types of comprehensive optimization, the first one
             ``` jl
             # comprehensive optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
-                                     c1=2.0, c2=2.0, seed=1234)
+                                     c1=2.0, c2=2.0)
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)   
             # objective function: CFI
@@ -532,13 +529,12 @@ In this case, we consider two types of comprehensive optimization, the first one
             ```
     === "SC"
         ``` jl
-        opt = QuanEstimation.SMopt(ctrl_bound=[-2.0,2.0])
+        opt = QuanEstimation.SMopt(ctrl_bound=[-2.0,2.0], seed=1234)
         ```
         === "DE"
             ``` jl
             # comprehensive optimization algorithm: DE
-            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5, 
-                                    seed=1234)
+            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
             ```
@@ -556,7 +552,7 @@ In this case, we consider two types of comprehensive optimization, the first one
             ``` jl
             # comprehensive optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
-                                     c1=2.0, c2=2.0, seed=1234)
+                                     c1=2.0, c2=2.0)
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
             ```
@@ -590,13 +586,12 @@ In this case, we consider two types of comprehensive optimization, the first one
                 ```
     === "CM"
         ``` jl
-        opt = QuanEstimation.CMopt(ctrl_bound=[-2.0,2.0])
+        opt = QuanEstimation.CMopt(ctrl_bound=[-2.0,2.0], seed=1234)
         ```
         === "DE"
             ``` jl
             # comprehensive optimization algorithm: DE
-            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5, 
-                                    seed=1234)
+            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH,  
                                                Hc, decay=decay)   
@@ -607,7 +602,7 @@ In this case, we consider two types of comprehensive optimization, the first one
             ``` jl
             # comprehensive optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
-                                     c1=2.0, c2=2.0, seed=1234)
+                                     c1=2.0, c2=2.0)
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH,  
                                                Hc, decay=decay)  
@@ -616,13 +611,12 @@ In this case, we consider two types of comprehensive optimization, the first one
             ```
     === "SCM"
         ``` jl
-        opt = QuanEstimation.SCMopt(ctrl_bound=[-2.0,2.0])
+        opt = QuanEstimation.SCMopt(ctrl_bound=[-2.0,2.0], seed=1234)
         ```
         === "DE"
             ``` jl
             # comprehensive optimization algorithm: DE
-            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5, 
-                                    seed=1234)
+            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)   
             # objective function: CFI
@@ -632,7 +626,7 @@ In this case, we consider two types of comprehensive optimization, the first one
             ``` jl
             # comprehensive optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
-                                     c1=2.0, c2=2.0, seed=1234)
+                                     c1=2.0, c2=2.0)
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)  
             # objective function: CFI
@@ -900,13 +894,12 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
     ```
     === "SM"
         ``` jl
-        opt = QuanEstimation.SMopt()
+        opt = QuanEstimation.SMopt(seed=1234)
         ```
         === "DE"
             ``` jl
             # comprehensive optimization algorithm: DE
-            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5, 
-                                    seed=1234)
+            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)   
             # objective function: CFI
@@ -916,7 +909,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             ``` jl
             # comprehensive optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
-                                     c1=2.0, c2=2.0, seed=1234)
+                                     c1=2.0, c2=2.0)
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)   
             # objective function: CFI
@@ -924,13 +917,12 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             ```
     === "SC"
         ``` jl
-        opt = QuanEstimation.SMopt(ctrl=ctrl, ctrl_bound=[-0.2,0.2])
+        opt = QuanEstimation.SMopt(ctrl=ctrl, ctrl_bound=[-0.2,0.2], seed=1234)
         ```
         === "DE"
             ``` jl
             # comprehensive optimization algorithm: DE
-            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5, 
-                                    seed=1234)
+            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
             ```
@@ -953,7 +945,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             ``` jl
             # comprehensive optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
-                                     c1=2.0, c2=2.0, seed=1234)
+                                     c1=2.0, c2=2.0)
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
             ```
@@ -992,13 +984,12 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                 ```
     === "CM"
         ``` jl
-        opt = QuanEstimation.CMopt()
+        opt = QuanEstimation.CMopt(seed=1234)
         ```
         === "DE"
             ``` jl
             # comprehensive optimization algorithm: DE
-            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5, 
-                                    seed=1234)
+            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc,  
                                                decay=decay)    
@@ -1009,7 +1000,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             ``` jl
             # comprehensive optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
-                                     c1=2.0, c2=2.0, seed=1234)
+                                     c1=2.0, c2=2.0)
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, 
                                                decay=decay)  
@@ -1018,13 +1009,12 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             ```
     === "SCM"
         ``` jl
-        opt = QuanEstimation.SCMopt()
+        opt = QuanEstimation.SCMopt(seed=1234)
         ```
         === "DE"
             ``` jl
             # comprehensive optimization algorithm: DE
-            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5, 
-                                    seed=1234)
+            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)   
             # objective function: CFI
@@ -1034,7 +1024,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             ``` jl
             # comprehensive optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
-                                     c1=2.0, c2=2.0, seed=1234)
+                                     c1=2.0, c2=2.0)
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)   
             # objective function: CFI
@@ -1054,7 +1044,7 @@ with the Kraus operators which can be realized by
     ```
 === "Julia"
     ``` jl
-    opt = SMopt(psi=psi, M=M)
+    opt = SMopt(psi=psi, M=M, seed=1234)
     alg = DE(kwargs...)
     dynamics = Kraus(opt, K, dK) 
     obj = CFIM_obj(W=missing)
@@ -1138,13 +1128,12 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
     dK2 = [0. 0.5/sqrt(gamma); 0. 0.]
     dK = [[dK1], [dK2]]
     # comprehensive optimization 
-    opt = QuanEstimation.SMopt()
+    opt = QuanEstimation.SMopt(seed=1234)
     ```
     === "DE"
         ``` jl
         # comprehensive optimization algorithm: DE
-        alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5, 
-                                    seed=1234)
+        alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
         # input the dynamics data
         dynamics = QuanEstimation.Kraus(opt, K, dK)  
         # objective function: CFI
@@ -1154,7 +1143,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
         ``` jl
         # comprehensive optimization algorithm: PSO
         alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
-                                     c1=2.0, c2=2.0, seed=1234)
+                                     c1=2.0, c2=2.0)
         # input the dynamics data
         dynamics = QuanEstimation.Kraus(opt, K, dK)   
         # objective function: CFI

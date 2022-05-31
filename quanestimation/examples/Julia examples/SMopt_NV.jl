@@ -42,7 +42,7 @@ opt = QuanEstimation.SMopt(seed=1234)
 
 ##==========choose comprehensive optimization algorithm==========##
 ##-------------algorithm: DE---------------------##
-alg = QuanEstimation.DE(p_num=10, max_episode=100, c=1.0, cr=0.5)
+alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
 # input the dynamics data
 dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)   
 # objective function: CFI
@@ -51,7 +51,7 @@ obj = QuanEstimation.CFIM_obj(M=M)
 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 
 ##-------------algorithm: PSO---------------------##
-# alg = QuanEstimation.PSO(p_num=10, max_episode=[100,100], c0=1.0, 
+# alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
 #                          c1=2.0, c2=2.0)
 # # input the dynamics data
 # dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)   
