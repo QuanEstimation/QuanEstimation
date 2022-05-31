@@ -71,7 +71,7 @@ struct AD_Adam <: AbstractAD
     beta2::Number
 end
 
-AD(max_episode, epsilon, beta1, beta2) = AD_Adam(max_episode=max_episode, epsilon=epsilon, beta1=beta1, beta2=beta2)
+AD(max_episode, epsilon, beta1, beta2) = AD_Adam(max_episode, epsilon, beta1, beta2)
 """
 
     AD(;max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99, Adam::Bool=true)

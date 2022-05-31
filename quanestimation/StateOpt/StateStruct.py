@@ -259,6 +259,7 @@ class StateSystem:
 
         k_num = len(K)
         para_num = len(dK[0])
+        self.para_num = para_num
         self.K = [np.array(x, dtype=np.complex128) for x in K]
         self.dK = [
             [np.array(dK[i][j], dtype=np.complex128) for j in range(para_num)]
@@ -321,7 +322,7 @@ class StateSystem:
 
         elif self.dynamics_type == "Kraus":
             if W == []:
-                W = np.eye(len(self.dK))
+                W = np.eye(self.para_num)
             self.W = W
         else:
             pass
@@ -368,7 +369,7 @@ class StateSystem:
 
         elif self.dynamics_type == "Kraus":
             if W == []:
-                W = np.eye(len(self.dK))
+                W = np.eye(self.para_num)
             self.W = W
 
         self.obj = Main.QuanEstimation.CFIM_obj(M, self.W, self.eps, self.para_type)
@@ -404,7 +405,7 @@ class StateSystem:
 
         elif self.dynamics_type == "Kraus":
             if W == []:
-                W = np.eye(len(self.dK))
+                W = np.eye(self.para_num)
             self.W = W
             if len(self.dK) == 1:
                 raise ValueError(

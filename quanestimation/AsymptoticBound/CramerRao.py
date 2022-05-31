@@ -297,8 +297,8 @@ def RLD(rho, drho, rep="original", eps=1e-8):
                     RLD_eig[fi][fj] = (term_tp/val[fi])
                 else:
                     if np.abs(term_tp) < eps:
-                        print("RLD does not exist. It only exist when the support of drho is contained in the support of rho.")
-                        return None
+                        raise ValueError("The RLD does not exist. It only exist when the support of drho is contained in the support of rho.",
+            )
         RLD_eig[RLD_eig == np.inf] = 0.0
 
         if rep == "original":
@@ -374,8 +374,8 @@ def LLD(rho, drho, rep="original", eps=1e-8):
                     LLD_eig[fj][fi] = LLD_eig_tp.conj()
                 else: 
                     if np.abs(term_tp) < eps:
-                        print("LLD does not exist. It only exist when the support of drho is contained in the support of rho.")
-                        return None
+                        raise ValueError("The LLD does not exist. It only exist when the support of drho is contained in the support of rho.",
+            )
         LLD_eig[LLD_eig == np.inf] = 0.0
 
         if rep == "original":

@@ -66,7 +66,7 @@ class AD_Sopt(State.StateSystem):
 
         if self.Adam:
             self.alg = Main.QuanEstimation.AD(
-                self.max_episode, self.epsilon, self.beta1, self.beta2
+                self.max_episode, self.epsilon, self.beta1, self.beta2,
             )
         else:
             self.alg = Main.QuanEstimation.AD(self.max_episode, self.epsilon)
