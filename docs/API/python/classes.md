@@ -52,7 +52,7 @@ optimization (PSO), differential evolution (DE), deep deterministic policy gradi
 ::: quanestimation.AD_Sopt
 
 ### **State optimization with RI**
-::: quanestimation.Iterative_Sopt
+::: quanestimation.RI_Sopt
 
 ### **State Optimization with PSO**
 ::: quanestimation.PSO_Sopt

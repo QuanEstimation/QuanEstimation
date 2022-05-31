@@ -437,11 +437,11 @@ def StateOpt(savefile=False, method="AD", **kwargs):
         return stateoptimize.DDPG_Sopt(savefile=savefile, **kwargs)
     elif method == "NM":
         return stateoptimize.NM_Sopt(savefile=savefile, **kwargs)
-    elif method == "Iterative":
-        return stateoptimize.Iterative_Sopt(savefile=savefile, **kwargs)
+    elif method == "RI":
+        return stateoptimize.RI_Sopt(savefile=savefile, **kwargs)
     else:
         raise ValueError(
-            "{!r} is not a valid value for method, supported values are 'AD', 'PSO', 'DE', 'NM', 'DDPG' and 'Iterative.".format(
+            "{!r} is not a valid value for method, supported values are 'AD', 'PSO', 'DE', 'NM', 'DDPG' and 'RI.".format(
                 method
             )
         )

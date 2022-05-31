@@ -179,18 +179,18 @@ State optimization algorithm: NM.
 """
 NM(;max_episode::Int=1000, p_num::Int=10, nelder_mead=missing, ar::Number=1.0, ae::Number=2.0, ac::Number=0.5, as0::Number=0.5) = NM(max_episode, p_num, nelder_mead, ar, ae, ac, as0)
 
-struct Iterative <: AbstractAlgorithm
+struct RI <: AbstractAlgorithm
     max_episode::Int
 end
 
 """
 
-    Iterative(;max_episode::Int=300, seed::Number=1234)
+    RI(;max_episode::Int=300, seed::Number=1234)
 
-State optimization algorithm: Iterative.
+State optimization algorithm: reverse iterative.
 - `max_episode`: The number of episodes.
 """
-Iterative(;max_episode::Int=300) = Iterative(max_episode)
+RI(;max_episode::Int=300) = RI(max_episode)
 
 alg_type(::AD) = :AD
 alg_type(::AD_Adam) = :AD
@@ -202,12 +202,12 @@ alg_type(::PSO) = :PSO
 alg_type(::DDPG) = :DDPG
 alg_type(::DE) = :DE
 alg_type(::NM) = :NM
-alg_type(::Iterative) = :Iterative
+alg_type(::RI) = :RI
 
 include("AD.jl")
 include("DDPG.jl")
 include("DE.jl")
 include("GRAPE.jl")
 include("NM.jl")
-include("Iterative.jl")
+include("RI.jl")
 include("PSO.jl")

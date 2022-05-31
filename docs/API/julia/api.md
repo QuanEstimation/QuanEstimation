@@ -143,21 +143,6 @@ Choose HCRB as the objective function.
 
 <a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/AsymptoticBound.jl#L45-L52' class='documenter-source'>source</a><br>
 
-##  **`QuanEstimation.Iterative`** &mdash; *Method*.
-
-
-
-```julia
-Iterative(;max_episode::Int=300, seed::Number=1234)
-```
-
-State optimization algorithm: Iterative.
-
-  * `max_episode`: The number of episodes.
-
-
-<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Algorithm/Algorithm.jl#L186-L192' class='documenter-source'>source</a><br>
-
 ##  **`QuanEstimation.Kraus`** &mdash; *Method*.
 
 
@@ -397,6 +382,21 @@ Choose QFI [$\mathrm{Tr}(WF^{-1})$] as the objective function with $W$ the weigh
 
 
 <a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/ObjectiveFunc/AsymptoticBound/AsymptoticBound.jl#L23-L31' class='documenter-source'>source</a><br>
+
+##  **`QuanEstimation.RI`** &mdash; *Method*.
+
+
+
+```julia
+RI(;max_episode::Int=300, seed::Number=1234)
+```
+
+State optimization algorithm: reverse iterative.
+
+  * `max_episode`: The number of episodes.
+
+
+<a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/38c09a785a9cfc9533ae704100edf8b3a24598dc/src/Algorithm/Algorithm.jl#L186-L192' class='documenter-source'>source</a><br>
 
 ##  **`QuanEstimation.RLD`** &mdash; *Method*.
 

@@ -40,9 +40,9 @@ t = 10.
 K = [expm(-1.j*H0*t)]
 dK = [[dU(len(psi_css), t, H0, dH)]]
 
-# State optimization algorithm: Iterative
+# State optimization algorithm: reverse iterative
 paras = {"psi0":psi0, "max_episode": 300, "seed": 1234}
-state = StateOpt(savefile=True, method="Iterative", **paras)
+state = StateOpt(savefile=True, method="RI", **paras)
 state.Kraus(K, dK)
 state.QFIM()
 
