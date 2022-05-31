@@ -127,8 +127,7 @@ function RLD(
                 RLD_eig[fi, fj] = term_tp / val[fi]
             else
                 if abs(term_tp) < eps
-                    println("RLD does not exist. It only exist when the support of drho is contained in the support of rho.")
-                    return nothing
+                    throw(ErrorException("The RLD does not exist. It only exist when the support of drho is contained in the support of rho."))
                 end
             end
         end
@@ -181,11 +180,10 @@ function LLD(
         for fj = 1:dim
             term_tp = (vec[:, fi]' * dρ * vec[:, fj])
             if abs(val[fj]) > eps
-                LLD_eig[fj, fi] = (term_tp / val[fj]) |> conj()
+                LLD_eig[fj, fi] = conj(term_tp / val[fj])
             else
                 if abs(term_tp) < eps
-                    println("LLD does not exist. It only exist when the support of drho is contained in the support of rho.")
-                    return nothing
+                    throw(ErrorException("The LLD does not exist. It only exist when the support of drho is contained in the support of rho."))
                 end
             end
         end

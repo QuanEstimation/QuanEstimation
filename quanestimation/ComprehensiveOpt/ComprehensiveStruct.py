@@ -5,7 +5,7 @@ import math
 import os
 from julia import Main
 import quanestimation.ComprehensiveOpt as compopt
-from quanestimation.Common.Common import gramschmidt
+from quanestimation.Common.Common import gramschmidt, SIC
 
 
 class ComprehensiveSystem:
@@ -242,6 +242,7 @@ class ComprehensiveSystem:
 
         k_num = len(K)
         para_num = len(dK[0])
+        self.para_num = para_num
         dK_tp = [
             [np.array(dK[i][j], dtype=np.complex128) for j in range(para_num)]
             for i in range(k_num)
@@ -279,7 +280,7 @@ class ComprehensiveSystem:
             self.C = [self.measurement0[0][i] for i in range(len(self.psi))]
             self.C = [np.array(x, dtype=np.complex128) for x in self.C]
 
-        self.dynamic = Main.QuanEstimation.Kraus(self.K, self.dK, self.psi)
+        self.dynamic = Main.QuanEstimation.Kraus(self.psi, self.K, self.dK)
 
         self.dynamics_type = "Kraus"
 
@@ -340,6 +341,9 @@ class ComprehensiveSystem:
                 self.obj = Main.QuanEstimation.QFIM_obj(
                     self.W, self.eps, self.para_type, LDtype
                 )
+            elif target == "CFIM":
+                M = SIC(len(self.psi))
+                self.obj = Main.QuanEstimation.CFIM_obj(M, self.W, self.eps, self.para_type)
             else:
                 raise ValueError(
                     "Please enter the correct values for target and LDtype. Supported target are 'QFIM', 'CFIM' and 'HCRB', supported LDtype are 'SLD', 'RLD' and 'LLD'."
@@ -552,7 +556,7 @@ class ComprehensiveSystem:
             )
         elif self.dynamics_type == "Kraus":
             if W == []:
-                W = np.eye(len(self.dK))
+                W = np.eye(self.para_num)
             self.W = W
         else:
             raise ValueError(

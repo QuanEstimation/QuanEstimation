@@ -388,6 +388,7 @@ class MeasurementSystem:
         """
         k_num = len(K)
         para_num = len(dK[0])
+        self.para_num = para_num
         self.dK = [
             [np.array(dK[i][j], dtype=np.complex128) for j in range(para_num)]
             for i in range(k_num)
@@ -531,7 +532,7 @@ class MeasurementSystem:
                 )
             )
 
-        self.dynamic = Main.QuanEstimation.Kraus(self.K, self.dK, self.rho0)
+        self.dynamic = Main.QuanEstimation.Kraus(self.rho0, self.K, self.dK)
         self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
 
         self.dynamics_type = "Kraus"
@@ -554,7 +555,7 @@ class MeasurementSystem:
             self.W = W
         elif self.dynamics_type == "Kraus":
             if W == []:
-                W = np.eye(len(self.dK))
+                W = np.eye(self.para_num)
             self.W = W
         else:
             raise ValueError(
