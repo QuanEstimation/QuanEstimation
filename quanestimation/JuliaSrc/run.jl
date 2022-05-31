@@ -40,6 +40,8 @@ function run(opt::AbstractOpt, alg::AbstractAlgorithm, obj::AbstractObj, dynamic
     if obj isa HCRB_obj
         if alg isa AD || alg isa AD_Adam
             println("AD is not available when the objective function is HCRB.")
+        elseif alg isa GRAPE || alg isa GRAPE_Adam || alg isa autoGRAPE || alg isa autoGRAPE_Adam
+            println("GRAPE is not available when the objective function is HCRB.")
         elseif obj isa HCRB_obj{single_para}
             println("Program exit. In the single-parameter scenario, the HCRB is equivalent to the QFI. Please choose 'QFIM_obj()' as the objective function.")
         else

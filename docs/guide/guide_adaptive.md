@@ -216,7 +216,8 @@ in QuanEstimation via
     `output="phi"` (default) and `output="dphi"` representing the phase and phase difference, 
     respectively. Online and offline strategies are both available in the package and the code 
     for calling offline stratege becomes `alg = QuanEstimation.DE(kwargs...)` 
-    (`alg = QuanEstimation.PSO(kwargs...)`) and `offline(apt, alg)`. 
+    (`alg = QuanEstimation.PSO(kwargs...)`) and `offline(apt, alg, seed=seed)`. 
+    `seed` is the random seed which can ensure the reproducibility of results.
 
 If the optimization algorithm is PSO, the keywords and the default values are
 === "Python"
@@ -247,7 +248,7 @@ If the optimization algorithm is PSO, the keywords and the default values are
 === "Julia"
     ``` jl
     alg = PSO(p_num=10, ini_particle=missing, max_episode=[1000,100], 
-              c0=1.0, c1=2.0, c2=2.0, seed=1234)
+              c0=1.0, c1=2.0, c2=2.0)
     ```
     The keywords and the default values of PSO can be seen in the following table
 
@@ -259,7 +260,6 @@ If the optimization algorithm is PSO, the keywords and the default values are
     | "c0"                             | 1.0                        |
     | "c1"                             | 2.0                        |
     | "c2"                             | 2.0                        |
-    | "seed"                           | 1234                       |
 
     Here `p_num` is the number of particles, `ini_particle` represents the initial guesses 
     of phase difference. `max_episode` accepts both integer and array with two elements. 
@@ -293,7 +293,7 @@ If the optimization algorithm is DE, the keywords and the default values are
 === "Julia"
     ```jl
     alg = DE(p_num=10, ini_population=missing, max_episode=1000, 
-             c=1.0, cr=0.5, seed=1234)
+             c=1.0, cr=0.5)
     ``` 
     The keywords and the default values of DE can be seen in the following table
 
@@ -304,12 +304,10 @@ If the optimization algorithm is DE, the keywords and the default values are
     | "max_episode"                    | 1000                       |
     | "c"                              | 1.0                        |
     | "cr"                             | 0.5                        |
-    | "seed"                           | 1234                       |
 
     `ini_population` represents the initial guesses of phase difference. `p_num` and 
     `max_episode` are the number of populations and training episodes. `c` and `cr` are 
-    DE parameters representing the mutation and crossover constants, `seed` is the random 
-    seed which can ensure the reproducibility of results.
+    DE parameters representing the mutation and crossover constants.
 
 **Example 9.2**  
 In this example, the adaptive measurement shceme is design for the MZI [[3,4]](#Hentschel2010). 
@@ -381,15 +379,15 @@ $m$.
         === "DE"
             ``` jl
             alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
-                                    max_episode=1000, c=1.0, cr=0.5, seed=1234)
-            QuanEstimation.offline(apt, alg)
+                                    max_episode=1000, c=1.0, cr=0.5)
+            QuanEstimation.offline(apt, alg, seed=1234)
             ```
         === "PSO"
             ``` jl
             alg = QuanEstimation.PSO(p_num=10, ini_particle=missing,  
                                      max_episode=[1000,100], c0=1.0, 
-                                     c1=2.0, c2=2.0, seed=1234)
-            QuanEstimation.offline(apt, alg)
+                                     c1=2.0, c2=2.0)
+            QuanEstimation.offline(apt, alg, seed=1234)
             ```
 ---
 

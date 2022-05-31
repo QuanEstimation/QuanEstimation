@@ -54,7 +54,7 @@ differential evolution (DE) [[2]](#Storn1997), and automatic differentiation (AD
 
 === "Julia"
     ``` jl
-    opt = MeasurementOpt(mtype=:Projection)
+    opt = MeasurementOpt(mtype=:Projection, seed=1234)
     alg = DE(kwargs...)
     dynamics = Lindblad(opt, tspan, rho0, H0, dH; Hc=missing, 
                         ctrl=missing, decay=missing)
@@ -68,7 +68,8 @@ differential evolution (DE) [[2]](#Storn1997), and automatic differentiation (AD
     rule of `opt` is `MeasurementOpt(mtype=:LC,POVM_basis=[Pi1,Pi2,...],M_num=m)` with 
     `[Pi1,Pi2,...]` a set of POVM and `m` the number of operators of the output measurement. 
     For finding the optimal linear combination of an input measurement, the code `opt` is 
-    `MeasurementOpt(mtype=:LC,POVM_basis=[Pi1,Pi2,...])`. 
+    `MeasurementOpt(mtype=:LC,POVM_basis=[Pi1,Pi2,...])`.  `seed` is the random seed which can 
+    ensure the reproducibility of results.
     
     If the dynamics of the system can be described by the master equation, then the dynamics data 
     `tspan`, `rho0`, `H0` and `dH` shoule be input. `tspan` is the time length for the evolution, 
@@ -109,7 +110,7 @@ The code for measurement optimization with PSO is as follows
 
     | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
     | :----------:                     | :----------:               |
-    | "p_num"                   | 10                         |
+    | "p_num"                          | 10                         |
     | "measurement0"                   | [ ]                        |
     | "max_episode"                    | [1000,100]                 |
     | "c0"                             | 1.0                        |
@@ -182,7 +183,7 @@ The code for measurement optimization with PSO is as follows
 === "Julia"
     ``` jl
     alg = PSO(p_num=10, ini_particle=missing, max_episode=[1000,100], 
-              c0=1.0, c1=2.0, c2=2.0, seed=1234)
+              c0=1.0, c1=2.0, c2=2.0)
     ```
     The keywords and the default values of PSO can be seen in the following table
 
@@ -194,7 +195,6 @@ The code for measurement optimization with PSO is as follows
     | "c0"                             | 1.0                        |
     | "c1"                             | 2.0                        |
     | "c2"                             | 2.0                        |
-    | "seed"                           | 1234                       |
 
     `p_num` is the number of particles, `c0`, `c1` and `c2` are the PSO parameters representing 
     the inertia weight, cognitive learning factor and social learning factor, respectively. 
@@ -202,9 +202,8 @@ The code for measurement optimization with PSO is as follows
     for example `max_episode=1000`, it means the program will continuously run 1000 episodes. 
     However, if it is an array, for example `max_episode=[1000,100]`, the program will run 1000 
     episodes in total but replace control coefficients of all the particles with global best 
-    every 100 episodes. `seed` is the random seed which can ensure the reproducibility of the 
-    results. `ini_particle` in the algorithm is a list representing the initial guesses of 
-    measurements, In the case of projective measurement optimization, the entry of `ini_particle` 
+    every 100 episodes. `ini_particle` in the algorithm is a list representing the initial guesses 
+    of measurements, In the case of projective measurement optimization, the entry of `ini_particle` 
     is a list of arrays with the length equal to the dimension of the system. In the cases of 
     finding the optimal linear combination and the optimal rotation of a given set of measurement, 
     the entry of `ini_particle` is a 2D-array and array, respectively. Here, an example of 
@@ -284,7 +283,7 @@ The code for measurement optimization with DE is as follows
 === "Julia"
     ``` jl
     alg = DE(p_num=10, ini_population=missing, max_episode=1000, 
-             c=1.0, cr=0.5, seed=1234)
+             c=1.0, cr=0.5)
     ```
         The keywords and the default values of DE can be seen in the following table
 
@@ -295,7 +294,6 @@ The code for measurement optimization with DE is as follows
     | "max_episode"                    | 1000                       |
     | "c"                              | 1.0                        |
     | "cr"                             | 0.5                        |
-    | "seed"                           | 1234                       |
 
     `p_num` represents the number of populations, `c` and `cr` are the mutation constant 
     and the crossover constant. Here `max_episode` is an integer representing the number of 
@@ -497,38 +495,39 @@ $1$ $(-1)$.
     ```
     === "Projection"
         ``` jl
-        opt = QuanEstimation.MeasurementOpt(method=:Projection)
+        opt = QuanEstimation.MeasurementOpt(method=:Projection, seed=1234)
         ```
         === "DE"
             ``` jl
             # measurement optimization algorithm: DE
             alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
-                                    max_episode=1000, c=1.0, cr=0.5, seed=1234)
+                                    max_episode=1000, c=1.0, cr=0.5)
             ```
         === "PSO"
             ``` jl
             # measurement optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, ini_particle=missing, 
                                      max_episode=[1000,100], c0=1.0, c1=2.0, 
-                                     c2=2.0, seed=1234)
+                                     c2=2.0)
             ```
     === "LC"
         ``` jl
         opt = QuanEstimation.MeasurementOpt(method=:LC, 
-                                            POVM_basis=POVM_basis, M_num=2)
+                                            POVM_basis=POVM_basis, M_num=2, 
+                                            seed=1234)
         ```
         === "DE"
             ``` jl
             # measurement optimization algorithm: DE
             alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
-                                    max_episode=1000, c=1.0, cr=0.5, seed=1234)
+                                    max_episode=1000, c=1.0, cr=0.5)
             ```
         === "PSO"
             ``` jl
             # measurement optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, ini_particle=missing, 
                                      max_episode=[1000,100], c0=1.0, c1=2.0, 
-                                     c2=2.0, seed=1234)
+                                     c2=2.0)
             ```
         === "AD"
             ``` jl
@@ -539,20 +538,20 @@ $1$ $(-1)$.
     === "Rotation"
         ``` jl
         opt = QuanEstimation.MeasurementOpt(method=:Rotation, 
-                                            POVM_basis=POVM_basis)
+                                            POVM_basis=POVM_basis, seed=1234)
         ```
         === "DE"
             ``` jl
             # measurement optimization algorithm: DE
             alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
-                                    max_episode=1000, c=1.0, cr=0.5, seed=1234)
+                                    max_episode=1000, c=1.0, cr=0.5)
             ```
         === "PSO"
             ``` jl
             # measurement optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, ini_particle=missing, 
                                      max_episode=[1000,100], c0=1.0, c1=2.0, 
-                                     c2=2.0, seed=1234)
+                                     c2=2.0)
             ```
         === "AD"
             ``` jl
@@ -773,38 +772,39 @@ Here three types of measurement optimization are considerd, projective measureme
     ```
     === "Projection"
         ``` jl
-        opt = QuanEstimation.MeasurementOpt(method=:Projection)
+        opt = QuanEstimation.MeasurementOpt(method=:Projection, seed=1234)
         ```
         === "DE"
             ``` jl
             # measurement optimization algorithm: DE
             alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
-                                    max_episode=1000, c=1.0, cr=0.5, seed=1234)
+                                    max_episode=1000, c=1.0, cr=0.5)
             ```
         === "PSO"
             ``` jl
             # measurement optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, ini_particle=missing, 
                                      max_episode=[1000,100], c0=1.0, c1=2.0, 
-                                     c2=2.0, seed=1234)
+                                     c2=2.0)
             ```
     === "LC"
         ``` jl
         opt = QuanEstimation.MeasurementOpt(method=:LC, 
-                                            POVM_basis=POVM_basis, M_num=4)
+                                            POVM_basis=POVM_basis, M_num=4, 
+                                            seed=1234)
         ```
         === "DE"
             ``` jl
             # measurement optimization algorithm: DE
             alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
-                                    max_episode=1000, c=1.0, cr=0.5, seed=1234)
+                                    max_episode=1000, c=1.0, cr=0.5)
             ```
         === "PSO"
             ``` jl
             # measurement optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, ini_particle=missing, 
                                      max_episode=[1000,100], c0=1.0, c1=2.0, 
-                                     c2=2.0, seed=1234)
+                                     c2=2.0)
             ```
         === "AD"
             ``` jl
@@ -815,20 +815,20 @@ Here three types of measurement optimization are considerd, projective measureme
     === "Rotation"
         ``` jl
         opt = QuanEstimation.MeasurementOpt(method=:Rotation, 
-                                            POVM_basis=POVM_basis)
+                                            POVM_basis=POVM_basis, seed=1234)
         ```
         === "DE"
             ``` jl
             # measurement optimization algorithm: DE
             alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
-                                    max_episode=1000, c=1.0, cr=0.5, seed=1234)
+                                    max_episode=1000, c=1.0, cr=0.5)
             ```
         === "PSO"
             ``` jl
             # measurement optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, ini_particle=missing, 
                                      max_episode=[1000,100], c0=1.0, c1=2.0, 
-                                     c2=2.0, seed=1234)
+                                     c2=2.0)
             ```
         === "AD"
             ``` jl
@@ -856,7 +856,7 @@ parameters should be input via
     ```
 === "Julia"
     ``` jl
-    opt = MeasurementOpt(mtype=:Projection)
+    opt = MeasurementOpt(mtype=:Projection, seed=1234)
     alg = DE(kwargs...)
     dynamics = Kraus(opt, K, dK)
     obj = CFIM_obj(W=missing)
@@ -994,38 +994,39 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
     ```
     === "Projection"
         ``` jl
-        opt = QuanEstimation.MeasurementOpt(method=:Projection)
+        opt = QuanEstimation.MeasurementOpt(method=:Projection, seed=1234)
         ```
         === "DE"
             ``` jl
             # measurement optimization algorithm: DE
             alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
-                                    max_episode=1000, c=1.0, cr=0.5, seed=1234)
+                                    max_episode=1000, c=1.0, cr=0.5)
             ```
         === "PSO"
             ``` jl
             # measurement optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, ini_particle=missing, 
                                      max_episode=[1000,100], c0=1.0, c1=2.0, 
-                                     c2=2.0, seed=1234)
+                                     c2=2.0)
             ```
     === "LC"
         ``` jl
         opt = QuanEstimation.MeasurementOpt(method=:LC, 
-                                            POVM_basis=POVM_basis, M_num=2)
+                                            POVM_basis=POVM_basis, M_num=2, 
+                                            seed=1234)
         ```
         === "DE"
             ``` jl
             # measurement optimization algorithm: DE
             alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
-                                    max_episode=1000, c=1.0, cr=0.5, seed=1234)
+                                    max_episode=1000, c=1.0, cr=0.5)
             ```
         === "PSO"
             ``` jl
             # measurement optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, ini_particle=missing, 
                                      max_episode=[1000,100], c0=1.0, c1=2.0, 
-                                     c2=2.0, seed=1234)
+                                     c2=2.0)
             ```
         === "AD"
             ``` jl
@@ -1036,20 +1037,20 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
     === "Rotation"
         ``` jl
         opt = QuanEstimation.MeasurementOpt(method=:Rotation, 
-                                            POVM_basis=POVM_basis)
+                                            POVM_basis=POVM_basis, seed=1234)
         ```
         === "DE"
             ``` jl
             # measurement optimization algorithm: DE
             alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
-                                    max_episode=1000, c=1.0, cr=0.5, seed=1234)
+                                    max_episode=1000, c=1.0, cr=0.5)
             ```
         === "PSO"
             ``` jl
             # measurement optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, ini_particle=missing, 
                                      max_episode=[1000,100], c0=1.0, c1=2.0, 
-                                     c2=2.0, seed=1234)
+                                     c2=2.0)
             ```
         === "AD"
             ``` jl

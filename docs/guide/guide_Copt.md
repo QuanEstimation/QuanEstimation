@@ -72,7 +72,7 @@ differential evolution (DE) [[6]](#Storn1997) and deep deterministic policy grad
 
 === "Julia"
 	``` jl
-	opt = ControlOpt(ctrl=ctrl, ctrl_bound=ctrl_bound)
+	opt = ControlOpt(ctrl=ctrl, ctrl_bound=ctrl_bound, seed=1234)
 	alg = autoGRAPE(kwargs...)
 	dynamics = Lindblad(opt, tspan, rho0, H0, dH, Hc, 
 	                    decay=mising) 
@@ -97,7 +97,8 @@ differential evolution (DE) [[6]](#Storn1997) and deep deterministic policy grad
 	`ctrl` is a list of arrays with the length equal to control Hamiltonians, 
 	`ctrl_bound` is an array with two elements representing the lower and upper bound of the 
 	control coefficients, respectively. The default value of `ctrl_bound=missing` which means 
-	the control coefficients are in the regime $[-\infty,\infty]$.
+	the control coefficients are in the regime $[-\infty,\infty]$. `seed` is the random seed 
+	which can ensure the reproducibility of results.
 	
 	The package can deal with the parameterization process in the form of master equation, the 
 	dynamics parameters shoule be input via `Lindblad()`. Here `tspan` is the time length for 
@@ -227,7 +228,7 @@ The code for control optimization with PSO is as follows
 === "Julia"
 	``` jl
 	alg = PSO(p_num=10, ini_particle=missing, max_episode=[1000,100], 
-			  c0=1.0, c1=2.0, c2=2.0, seed=1234)
+			  c0=1.0, c1=2.0, c2=2.0)
 	```
 
 	The keywords and the default values of PSO can be seen in the following table
@@ -240,7 +241,6 @@ The code for control optimization with PSO is as follows
 	| "c0"                             | 1.0                        |
 	| "c1"                             | 2.0                        |
 	| "c2"                             | 2.0                        |
-	| "seed"                           | 1234                       |
 
 	Here `p_num` is the number of particles. `c0`, `c1` and `c2` are the PSO parameters 
 	representing the inertia weight, cognitive learning factor and social learning factor, 
@@ -248,8 +248,7 @@ The code for control optimization with PSO is as follows
 	integer, for example `max_episode=1000`, it means the program will continuously run 1000 
 	episodes. However, if it is an array, for example `max_episode=[1000,100]`, the program will 
 	run 1000 episodes in total but replace control coefficients of all the particles with global 
-	best every 100 episodes. `seed` is the random seed which can ensure the reproducibility of 
-	the results. `ini_particle` is a tuple representing the initial guesses of control 
+	best every 100 episodes. `ini_particle` is a tuple representing the initial guesses of control 
 	coefficients.
 
 ## **DE**
@@ -280,7 +279,7 @@ The code for control optimization with DE is as follows
 === "Julia"
 	``` jl
 	alg = DE(p_num=10, ini_population=missing, max_episode=1000, 
-	         c=1.0, cr=0.5, seed=1234)
+	         c=1.0, cr=0.5)
 	```
 	The keywords and the default values of DE can be seen in the following table
 
@@ -291,7 +290,6 @@ The code for control optimization with DE is as follows
 	| "max_episode"                    | 1000                       |
 	| "c"                              | 1.0                        |
 	| "cr"                             | 0.5                        |
-	| "seed"                           | 1234                       |
 
 	`ini_population` is a tuple representing the initial guesses of control and `max_episode` 
 	represents the number of populations and episodes. `c` and `cr` are the mutation constant 
@@ -470,7 +468,7 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
 	ctrl = [zeros(cnum) for _ in 1:length(Hc)]
 	ctrl_bound = [-2., 2.]
 	# set the optimization type
-	opt = QuanEstimation.ControlOpt(ctrl=ctrl, ctrl_bound=ctrl_bound)
+	opt = QuanEstimation.ControlOpt(ctrl=ctrl, ctrl_bound=ctrl_bound, seed=1234)
 	```
 	=== "auto-GRAPE"
 		``` jl
@@ -489,19 +487,18 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
 		# control algorithm: PSO
 		alg = QuanEstimation.PSO(p_num=10, ini_particle=([ctrl],), 
 								 max_episode=[1000,100], c0=1.0, 
-                         	     c1=2.0, c2=2.0, seed=1234)
+                         	     c1=2.0, c2=2.0)
 		```
 	=== "DE"
 		``` jl
 		# control algorithm: DE
 		alg = QuanEstimation.DE(p_num=10, ini_population=([ctrl],), 
-		                        max_episode=1000, c=1.0, cr=0.5, seed=1234)
+		                        max_episode=1000, c=1.0, cr=0.5)
 		```
 	=== "DDPG"
 		``` jl
 		# control algorithm: DDPG
-		alg = QuanEstimation.DDPG(max_episode=500, layer_num=4, layer_dim=220, 
-		                          seed=1234)
+		alg = QuanEstimation.DDPG(max_episode=500, layer_num=4, layer_dim=220)
 		```
 	``` jl
 	# input the dynamics data
@@ -731,7 +728,7 @@ Here three types of measurement optimization are considerd, projective measureme
 	ini_10 = [-0.2*ones(cnum)+0.05*rand(rng,cnum) for _ in 1:cnum]
 	ctrl0 = [Symbol("ini_", i)|>eval for i in 1:10]
 	# set the optimization type
-	opt = QuanEstimation.ControlOpt(ctrl=ini_1, ctrl_bound=[-0.2, 0.2])
+	opt = QuanEstimation.ControlOpt(ctrl=ini_1, ctrl_bound=[-0.2, 0.2], seed=1234)
 	```
 	=== "auto-GRAPE"
 		``` jl
@@ -750,19 +747,18 @@ Here three types of measurement optimization are considerd, projective measureme
 		# control algorithm: PSO
 		alg = QuanEstimation.PSO(p_num=10, ini_particle=([ctrl],), 
 								 max_episode=[1000,100], c0=1.0, 
-                         	     c1=2.0, c2=2.0, seed=1234)
+                         	     c1=2.0, c2=2.0)
 		```
 	=== "DE"
 		``` jl
 		# control algorithm: DE
 		alg = QuanEstimation.DE(p_num=10, ini_population=([ctrl],), 
-		                        max_episode=1000, c=1.0, cr=0.5, seed=1234)
+		                        max_episode=1000, c=1.0, cr=0.5)
 		```
 	=== "DDPG"
 		``` jl
 		# control algorithm: DDPG
-		alg = QuanEstimation.DDPG(max_episode=500, layer_num=4, layer_dim=220, 
-		                          seed=1234)
+		alg = QuanEstimation.DDPG(max_episode=500, layer_num=4, layer_dim=220)
 		```
 	``` jl
 	# input the dynamics data
@@ -847,4 +843,3 @@ T. P. Lillicrap, J. J. Hunt, A. Pritzel, N. Heess, T. Erez, Y. Tassa, D. Silver,
 and D. Wierstra,
 Continuous control with deep reinforcement learning,
 [arXiv:1509.02971.](https://arxiv.org/abs/1509.02971)
-

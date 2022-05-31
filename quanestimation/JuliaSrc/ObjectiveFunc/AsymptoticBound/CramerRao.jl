@@ -233,7 +233,7 @@ end
 ####################### calculate QFIM #####################
 function QFIM_SLD(ρ::Matrix{T}, dρ::Vector{Matrix{T}}; eps = GLOBAL_EPS) where {T<:Complex}
     p_num = length(dρ)
-    LD_tp = SLD(ρ, dρ; eps = eps)
+    LD_tp = (x -> SLD(ρ, x; eps = eps)).(dρ)
     (
         [0.5 * ρ] .*
         (kron(LD_tp, reshape(LD_tp, 1, p_num)) + kron(reshape(LD_tp, 1, p_num), LD_tp))
@@ -266,10 +266,10 @@ end
 
 function QFIM_pure(ρ::Matrix{T}, ∂ρ_∂x::Vector{Matrix{T}}) where {T<:Complex}
     p_num = length(∂ρ_∂x)
-    SLD = [2 * ∂ρ_∂x[i] for i = 1:p_num]
+    sld = [2 * ∂ρ_∂x[i] for i = 1:p_num]
     (
         [0.5 * ρ] .*
-        (kron(SLD, reshape(SLD, 1, p_num)) + kron(reshape(SLD, 1, p_num), SLD))
+        (kron(sld, reshape(sld, 1, p_num)) + kron(reshape(sld, 1, p_num), sld))
     ) .|>
     tr .|>
     real

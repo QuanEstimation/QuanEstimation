@@ -85,7 +85,7 @@ Optimization algorithm: AD.
 """
 AD(;max_episode=300, epsilon=0.01, beta1=0.90, beta2=0.99, Adam::Bool=true) = Adam ? AD_Adam(max_episode, epsilon, beta1, beta2) : AD(max_episode, epsilon)
 
-struct PSO <: AbstractAlgorithm
+mutable struct PSO <: AbstractAlgorithm
     max_episode::Union{T,Vector{T}} where {T<:Int} 
     p_num::Int
     ini_particle::Union{Tuple, Missing}
@@ -105,7 +105,6 @@ Optimization algorithm: PSO.
 - `c0`: The damping factor that assists convergence, also known as inertia weight.
 - `c1`: The exploitation weight that attracts the particle to its best previous position, also known as cognitive learning factor.
 - `c2`: The exploitation weight that attracts the particle to the best position in the neighborhood, also known as social learning factor. 
-- `seed`: Random seed.
 """
 PSO(;max_episode::Union{T,Vector{T}} where {T<:Int}=[1000, 100], p_num::Number=10, ini_particle=missing, c0::Number=1.0, c1::Number=2.0, c2::Number=2.0) =
     PSO(max_episode, p_num, ini_particle, c0, c1, c2)
@@ -128,7 +127,6 @@ Optimization algorithm: DE.
 - `ini_population`: Initial guesses of the optimization variables.
 - `c`: Mutation constant.
 - `cr`: Crossover constant.
-- `seed`: Random seed.
 """
 DE(;max_episode::Number=1000, p_num::Number=10, ini_population=missing, c::Number=1.0,cr::Number=0.5) = DE(max_episode, p_num, ini_population, c, cr)
 
@@ -178,7 +176,6 @@ State optimization algorithm: NM.
 - `ae`: Expansion constant.
 - `ac`: Constraction constant.
 - `as0`: Shrink constant.
-- `seed`: Random seed.
 """
 NM(;max_episode::Int=1000, p_num::Int=10, nelder_mead=missing, ar::Number=1.0, ae::Number=2.0, ac::Number=0.5, as0::Number=0.5) = NM(max_episode, p_num, nelder_mead, ar, ae, ac, as0)
 
@@ -192,7 +189,6 @@ end
 
 State optimization algorithm: Iterative.
 - `max_episode`: The number of episodes.
-- `seed`: Random seed.
 """
 Iterative(;max_episode::Int=300) = Iterative(max_episode)
 

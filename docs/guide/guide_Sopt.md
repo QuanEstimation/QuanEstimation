@@ -57,7 +57,7 @@ Call the following codes to perform state optimizaiton
     used when `M=[]`.
 === "Julia"
     ``` jl
-    opt = StateOpt(psi=psi)
+    opt = StateOpt(psi=psi, seed=1234)
     alg = AD(kwargs...)
     dynamics = Lindblad(opt, tspan, H0, dH; Hc=missing, 
                         ctrl=missing, decay=missing)
@@ -80,15 +80,17 @@ Call the following codes to perform state optimizaiton
     The initial state (optimization variable) can be input via `psi=psi` in `StateOpt()` for 
     constructing a state optimization problem. `psi` is an array representing the state. 
     `Lindblad` accepts the dynamics parameters. `tspan` is the time length for the evolution, 
-    `H0` and `dH` are the free Hamiltonian and its derivatives with respect to the unknown parameters to be 
-    estimated. `H0` accepts both matrix (time-independent evolution) and list (time-dependent 
-    evolution) with the length equal to `tspan`. `dH` should be input as $[\partial_a{H_0}, 
-    \partial_b{H_0}, \cdots]$. `Hc` and `ctrl` are two lists represent the control Hamiltonians 
-    and the corresponding control coefficients. `decay` contains decay operators $(\Gamma_1, 
-    \Gamma_2, \cdots)$ and the corresponding decay rates $(\gamma_1, \gamma_2, \cdots)$ with 
-    the input rule decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...]. The default 
-    values for `decay`, `Hc` and `ctrl` are `missing` which means the dynamics is unitary and 
-    only governed by the free Hamiltonian. 
+    `H0` and `dH` are the free Hamiltonian and its derivatives with respect to the unknown 
+    parameters to be estimated. `H0` accepts both matrix (time-independent evolution) and list 
+    (time-dependent evolution) with the length equal to `tspan`. `dH` should be input as 
+    $[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. `Hc` and `ctrl` are two lists represent the 
+    control Hamiltonians and the corresponding control coefficients. `decay` contains decay 
+    operators $(\Gamma_1, \Gamma_2, \cdots)$ and the corresponding decay rates 
+    $(\gamma_1, \gamma_2, \cdots)$ with the input rule 
+    decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...]. The default values for 
+    `decay`, `Hc` and `ctrl` are `missing` which means the dynamics is unitary and only governed 
+    by the free Hamiltonian. `seed` is the random seed which can ensure the reproducibility of 
+    results.
 
     The objective functions for state optimization can be set as QFI ($\mathrm{Tr}(W\mathcal{F}^
     {-1})$), CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$) and HCRB, the corresponding codes for them are
@@ -182,7 +184,7 @@ The code for state optimization with RI is as follows
     `psi0` is a list representing the initial guesses of states and `max_episode` is the number of episodes. `seed` is the random seed. 
 === "Julia"
     ``` jl
-    alg = RI(max_episode=300, seed=1234)
+    alg = RI(max_episode=300)
     ```
     The keywords and the default values of RI can be seen in the following 
     table
@@ -190,9 +192,8 @@ The code for state optimization with RI is as follows
     | $~~~~~~~~~~$keywords$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
     | :----------:                     | :----------:               |
     | "max_episode"                    | 300                        |
-    | "seed"                           | 1234                       |
 
-    `max_episode` is the number of episodes. `seed` is the random seed. 
+    `max_episode` is the number of episodes.
 
 ## **PSO**
 The code for state optimization with PSO is as follows
@@ -228,7 +229,7 @@ The code for state optimization with PSO is as follows
 === "Julia"
     ``` jl
     alg = PSO(p_num=10, ini_particle=missing,  max_episode=[1000,100], 
-              c0=1.0, c1=2.0, c2=2.0, seed=1234)
+              c0=1.0, c1=2.0, c2=2.0)
     ```
     The keywords and the default values of PSO can be seen in the following 
     table
@@ -241,7 +242,6 @@ The code for state optimization with PSO is as follows
     | "c0"                             | 1.0                        |
     | "c1"                             | 2.0                        |
     | "c2"                             | 2.0                        |
-    | "seed"                           | 1234                       |
 
     `p_num` is the number of particles. `ini_particle` is a tuple representing the initial 
     guesses of states and `max_episode` is the number of episodes. Here `max_episode` accepts 
@@ -250,7 +250,7 @@ The code for state optimization with PSO is as follows
     `max_episode=[1000,100]`, the program will run 1000 episodes in total but replace states of 
     all the particles with global best every 100 episodes. `c0`, `c1`, and `c2` are the PSO 
     parameters representing the inertia weight, cognitive learning factor and social learning 
-    factor, respectively.  `seed` is the random seed. 
+    factor, respectively. 
 
 ## **DE**
 The code for state optimization with DE is as follows
@@ -280,7 +280,7 @@ The code for state optimization with DE is as follows
 === "Julia"
     ``` jl
     alg = DE(p_num=10, ini_population=missing, max_episode=1000, 
-             c=1.0, cr=0.5, seed=1234)
+             c=1.0, cr=0.5)
     ```
     The keywords and the default values of DE can be seen in the following 
     table
@@ -292,7 +292,6 @@ The code for state optimization with DE is as follows
     | "max_episode"                    | 1000                       |
     | "c"                              | 1.0                        |
     | "cr"                             | 0.5                        |
-    | "seed"                           | 1234                       |
 
     `ini_population` is a tuple representing the initial guesses of states , `c` and `cr` 
     are the mutation constant and crossover constant.
@@ -327,7 +326,7 @@ The code for state optimization with NM is as follows
 === "Julia"
     ``` jl
     alg = NM(p_num=10, ini_state=missing, max_episode=1000, ar=1.0, ae=2.0, 
-             ac=0.5, as0=0.5, seed=1234)
+             ac=0.5, as0=0.5)
     ```
     The keywords and the default values of NM can be seen in the following 
     table
@@ -341,7 +340,6 @@ The code for state optimization with NM is as follows
     | "ae"                             | 2.0                        |
     | "ac"                             | 0.5                        |
     | "as0"                            | 0.5                        |
-    | "seed"                           | 1234                       |
 
     `ini_state` represents the number of initial states. `ar`, `ae`, `ac`, and `as0` are 
     constants for reflection, expansion, constraction, and shrink, respectively.
@@ -511,7 +509,7 @@ for generation of the spin coherent state.
     # time length for the evolution
     tspan = range(0., 10., length=2500)
     # set the optimization type
-    opt = QuanEstimation.StateOpt(psi=psi0) 
+    opt = QuanEstimation.StateOpt(psi=psi0, seed=1234) 
     ```
     === "AD"
         ``` jl
@@ -523,25 +521,23 @@ for generation of the spin coherent state.
         ``` jl
         # state optimization algorithm: PSO
         alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
-                                 c1=2.0, c2=2.0, seed=1234)
+                                 c1=2.0, c2=2.0)
         ```
     === "DE"
         ``` jl
         # state optimization algorithm: DE
-        alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5, 
-                                seed=1234)
+        alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
         ```
     === "NM"
         ``` jl
         # state optimization algorithm: NM
         alg = QuanEstimation.NM(p_num=10, max_episode=1000, ar=1.0, 
-                                ae=2.0, ac=0.5, as0=0.5, seed=1234)
+                                ae=2.0, ac=0.5, as0=0.5)
         ```
     === "DDPG"
         ``` jl
         # state optimization algorithm: DDPG
-        alg = QuanEstimation.DDPG(max_episode=500, layer_num=3, layer_dim=200, 
-                                  seed=1234)
+        alg = QuanEstimation.DDPG(max_episode=500, layer_num=3, layer_dim=200)
         ```
     ``` jl
     # input the dynamics data
@@ -677,7 +673,7 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
     # weight matrix
     W = [1/3 0.; 0. 2/3]
     # set the optimization type
-    opt = QuanEstimation.StateOpt(psi=psi0)
+    opt = QuanEstimation.StateOpt(psi=psi0, seed=1234)
     ```
     === "AD"
         ``` jl
@@ -689,25 +685,23 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
         ``` jl
         # state optimization algorithm: PSO
         alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
-                                 c1=2.0, c2=2.0, seed=1234)
+                                 c1=2.0, c2=2.0)
         ```
     === "DE"
         ``` jl
         # state optimization algorithm: DE
-        alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5, 
-                                seed=1234)
+        alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
         ```
     === "NM"
         ``` jl
         # state optimization algorithm: NM
         alg = QuanEstimation.NM(p_num=10, max_episode=1000, ar=1.0, 
-                                ae=2.0, ac=0.5, as0=0.5, seed=1234)
+                                ae=2.0, ac=0.5, as0=0.5)
         ```
     === "DDPG"
         ``` jl
         # state optimization algorithm: DDPG
-        alg = QuanEstimation.DDPG(max_episode=500, layer_num=3, layer_dim=200, 
-                                  seed=1234)
+        alg = QuanEstimation.DDPG(max_episode=500, layer_num=3, layer_dim=200)
         ```
     ``` jl
     # input the dynamics data
@@ -754,7 +748,7 @@ codes are
         ```
 === "Julia"
     ``` jl
-    opt = StateOpt(psi=psi)
+    opt = StateOpt(psi=psi, seed=1234)
     alg = AD(kwargs...)
     dynamics = Kraus(opt, K, dK)
     ```
@@ -895,31 +889,29 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
     === "RI"
         ``` jl
         # state optimization algorithm: RI
-        alg = QuanEstimation.RI(max_episode=300, seed=1234)
+        alg = QuanEstimation.RI(max_episode=300)
         ```
     === "PSO"
         ``` jl
         # state optimization algorithm: PSO
         alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
-                                 c1=2.0, c2=2.0, seed=1234)
+                                 c1=2.0, c2=2.0)
         ```
     === "DE"
         ``` jl
         # state optimization algorithm: DE
-        alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5, 
-                                seed=1234)
+        alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
         ```
     === "NM"
         ``` jl
         # state optimization algorithm: NM
         alg = QuanEstimation.NM(p_num=10, max_episode=1000, ar=1.0, 
-                                ae=2.0, ac=0.5, as0=0.5, seed=1234)
+                                ae=2.0, ac=0.5, as0=0.5)
         ```
     === "DDPG"
         ``` jl
         # state optimization algorithm: DDPG
-        alg = QuanEstimation.DDPG(max_episode=500, layer_num=3, layer_dim=200, 
-                                  seed=1234)
+        alg = QuanEstimation.DDPG(max_episode=500, layer_num=3, layer_dim=200)
         ```
     ``` jl
     # input the dynamics data
