@@ -2,7 +2,7 @@ from julia import Main
 import quanestimation.StateOpt.StateStruct as State
 
 
-class Iterative_Sopt(State.StateSystem):
+class RI_Sopt(State.StateSystem):
     """
     Attributes
     ----------
@@ -60,9 +60,8 @@ class Iterative_Sopt(State.StateSystem):
             -- Types of QFI (QFIM) can be set as the objective function. Only SLD can
             is available here.
         """
-        self.alg = Main.QuanEstimation.Iterative(
+        self.alg = Main.QuanEstimation.RI(
             self.max_episode,
-            self.seed,
         )
         if self.dynamics_type != "Kraus":
             raise ValueError("Only the parameterization with Kraus operators is available.")
@@ -72,33 +71,21 @@ class Iterative_Sopt(State.StateSystem):
         else:
             raise ValueError("Only SLD is available.")
 
+    def CFIM(self, M=[], W=[]):
+        """
+        Choose CFIM as the objective function. 
 
-    # def CFIM(self, M=[], W=[]):
-    #     r"""
-    #     Choose CFI as the objective function. 
+        **Note:** CFIM is not available.
 
-    #     Parameters
-    #     ----------
-    #     > **W:** `matrix`
-    #         -- Weight matrix.
-
-    #     > **M:** `list of matrices`
-    #         -- A set of positive operator-valued measure (POVM). The default measurement 
-    #         is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
-
-    #     **Note:** 
-    #         SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-    #         which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
-    #         solutions.html).
-    #     """
-    #     self.alg = Main.QuanEstimation.Iterative(
-    #         self.max_episode,
-    #         self.seed,
-    #     )
-    #     if self.dynamics_type != "Kraus":
-    #         raise ValueError("Only the parameterization with Kraus operators is available.")
-
-    #     super().CFIM(M, W)
+        Parameters
+        ----------
+        > **M:** `list`
+            -- POVM.
+            
+        > **W:** `matrix`
+            -- Weight matrix.
+        """
+        raise ValueError("CFIM is not available.")
 
     def HCRB(self, W=[]):
         """
