@@ -1,0 +1,29 @@
+:root > * {
+    --md-code-hl-number-color: #008000;
+    --md-code-hl-string-color: #BA2121;
+    --md-code-hl-comment-color: #007979;
+    --md-code-hl-keyword-color: #008000;
+    --md-code-hl-function-color: #000;
+    --md-code-hl-operator-color: #AA22FF;
+    --md-code-hl-constant-color: #008000;
+    --md-code-hl-variable-color: #008000;
+    --md-code-hl-name-color: #000000;
+  }
+
+  [data-md-color-scheme="slate"] {
+    --md-code-bg-color: #4d4f5451;
+    --md-code-hl-number-color: #0ba224;
+    --md-code-hl-string-color: #BA2121;
+    --md-code-hl-comment-color: #029999;
+    --md-code-hl-keyword-color: #0ba224;
+    --md-code-hl-function-color: #e9ebfc;
+    --md-code-hl-operator-color: #AA22FF;
+    --md-code-hl-constant-color: #0ba224;
+    --md-code-hl-variable-color: #0ba224;
+    --md-code-hl-name-color: #e9ebfc;
+
+  }
+
+  .md-typeset pre > code {
+      white-space: pre-wrap;
+      }
