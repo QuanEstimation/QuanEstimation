@@ -1,4 +1,0 @@
-mkdocs-material
-fontawesome_markdown
-mkdocstrings[crystal,python]
-

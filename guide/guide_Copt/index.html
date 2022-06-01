@@ -9,36 +9,37 @@
         <meta name="description" content="Docs of QuanEstimation">
       
       
+      
         <meta name="author" content="QuanEstimation">
       
       
-        <link rel="canonical" href="https://quanestimation.github.io/QuanEstimation/guide/guide_Copt/">
+        <link rel="canonical" href="http://bwmarrin.github.io/MkDocsPlus/guide/guide_Copt/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.8">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-7.2.3">
     
     
       
-        <title>Control optimization - QuanEstimation Docs</title>
+        <title>Control optimization - QuanEstimation</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.644de097.min.css">
-      
-        
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.e6a45f82.min.css">
-        
-      
-    
-    
-    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.f7f47774.min.css">
       
         
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.3f5d1f46.min.css">
+        
+      
+    
+    
+    
+      
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
       
+    
     
     
       <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
@@ -53,9 +54,9 @@
     
       <link rel="stylesheet" href="../../css/julia_api.css">
     
-    <script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
+
 
     
     
@@ -72,8 +73,9 @@
     <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple">
   
     
+    <script>function __prefix(e){return new URL("../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
     
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+      <script>var palette=__get("__palette");if(null!==palette&&"object"==typeof palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -90,12 +92,9 @@
       
     </div>
     
-    
-      
-
-<header class="md-header" data-md-component="header">
+      <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="QuanEstimation Docs" class="md-header__button md-logo" aria-label="QuanEstimation Docs" data-md-component="logo">
+    <a href="../.." title="QuanEstimation" class="md-header__button md-logo" aria-label="QuanEstimation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4.41 3 3 4.41 5.69 7.1A7.924 7.924 0 0 0 4 12c0 1.85.63 3.55 1.69 4.9L3 19.59 4.41 21l2.69-2.69A7.924 7.924 0 0 0 12 20c1.85 0 3.55-.63 4.9-1.69L19.59 21 21 19.59l-2.69-2.69A7.924 7.924 0 0 0 20 12c0-1.85-.63-3.55-1.69-4.9L21 4.41 19.59 3 16.9 5.69A7.924 7.924 0 0 0 12 4c-1.85 0-3.55.63-4.9 1.69L4.41 3M12 6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6 2.69-6 6-6z"/></svg>
@@ -108,7 +107,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            QuanEstimation Docs
+            QuanEstimation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -148,7 +147,8 @@
       <label class="md-header__button md-icon" for="__search">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
       </label>
-      <div class="md-search" data-md-component="search" role="dialog">
+      
+<div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
@@ -180,10 +180,11 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/QuanEstimation/QuanEstimation" title="Go to repository" class="md-source" data-md-component="source">
+        
+<a href="https://github.com/QuanEstimation/QuanEstimation" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     GitHub
@@ -192,7 +193,6 @@
       </div>
     
   </nav>
-  
 </header>
     
     <div class="md-container" data-md-component="container">
@@ -200,7 +200,6 @@
       
         
           
-            
 <nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
   <div class="md-tabs__inner md-grid">
     <ul class="md-tabs__list">
@@ -309,7 +308,6 @@
     </ul>
   </div>
 </nav>
-          
         
       
       <main class="md-main" data-md-component="main">
@@ -327,20 +325,21 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="QuanEstimation Docs" class="md-nav__button md-logo" aria-label="QuanEstimation Docs" data-md-component="logo">
+    <a href="../.." title="QuanEstimation" class="md-nav__button md-logo" aria-label="QuanEstimation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4.41 3 3 4.41 5.69 7.1A7.924 7.924 0 0 0 4 12c0 1.85.63 3.55 1.69 4.9L3 19.59 4.41 21l2.69-2.69A7.924 7.924 0 0 0 12 20c1.85 0 3.55-.63 4.9-1.69L19.59 21 21 19.59l-2.69-2.69A7.924 7.924 0 0 0 20 12c0-1.85-.63-3.55-1.69-4.9L21 4.41 19.59 3 16.9 5.69A7.924 7.924 0 0 0 12 4c-1.85 0-3.55.63-4.9 1.69L4.41 3M12 6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6 2.69-6 6-6z"/></svg>
 
     </a>
-    QuanEstimation Docs
+    QuanEstimation
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/QuanEstimation/QuanEstimation" title="Go to repository" class="md-source" data-md-component="source">
+      
+<a href="https://github.com/QuanEstimation/QuanEstimation" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     GitHub
@@ -395,14 +394,10 @@
       
         <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
       
-      
-      
-      
-        <label class="md-nav__link" for="__nav_3">
-          Users Guide
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
+      <label class="md-nav__link" for="__nav_3">
+        Users Guide
+        <span class="md-nav__icon md-icon"></span>
+      </label>
       <nav class="md-nav" aria-label="Users Guide" data-md-level="1">
         <label class="md-nav__title" for="__nav_3">
           <span class="md-nav__icon md-icon"></span>
@@ -411,7 +406,6 @@
         <ul class="md-nav__list" data-md-scrollfix>
           
             
-              
   
   
   
@@ -422,10 +416,8 @@
     </li>
   
 
-            
           
             
-              
   
   
   
@@ -436,10 +428,8 @@
     </li>
   
 
-            
           
             
-              
   
   
   
@@ -450,10 +440,8 @@
     </li>
   
 
-            
           
             
-              
   
   
   
@@ -464,10 +452,8 @@
     </li>
   
 
-            
           
             
-              
   
   
     
@@ -491,7 +477,6 @@
       </a>
       
         
-
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -554,10 +539,8 @@
     </li>
   
 
-            
           
             
-              
   
   
   
@@ -568,10 +551,8 @@
     </li>
   
 
-            
           
             
-              
   
   
   
@@ -582,10 +563,8 @@
     </li>
   
 
-            
           
             
-              
   
   
   
@@ -596,10 +575,8 @@
     </li>
   
 
-            
           
             
-              
   
   
   
@@ -610,7 +587,6 @@
     </li>
   
 
-            
           
         </ul>
       </nav>
@@ -631,14 +607,10 @@
       
         <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
       
-      
-      
-      
-        <label class="md-nav__link" for="__nav_4">
-          API documentation
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
+      <label class="md-nav__link" for="__nav_4">
+        API documentation
+        <span class="md-nav__icon md-icon"></span>
+      </label>
       <nav class="md-nav" aria-label="API documentation" data-md-level="1">
         <label class="md-nav__title" for="__nav_4">
           <span class="md-nav__icon md-icon"></span>
@@ -647,7 +619,6 @@
         <ul class="md-nav__list" data-md-scrollfix>
           
             
-              
   
   
   
@@ -657,14 +628,10 @@
       
         <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_1" type="checkbox" id="__nav_4_1" >
       
-      
-      
-      
-        <label class="md-nav__link" for="__nav_4_1">
-          Python
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
+      <label class="md-nav__link" for="__nav_4_1">
+        Python
+        <span class="md-nav__icon md-icon"></span>
+      </label>
       <nav class="md-nav" aria-label="Python" data-md-level="2">
         <label class="md-nav__title" for="__nav_4_1">
           <span class="md-nav__icon md-icon"></span>
@@ -673,7 +640,6 @@
         <ul class="md-nav__list" data-md-scrollfix>
           
             
-              
   
   
   
@@ -684,10 +650,8 @@
     </li>
   
 
-            
           
             
-              
   
   
   
@@ -698,17 +662,14 @@
     </li>
   
 
-            
           
         </ul>
       </nav>
     </li>
   
 
-            
           
             
-              
   
   
   
@@ -719,7 +680,6 @@
     </li>
   
 
-            
           
         </ul>
       </nav>
@@ -784,7 +744,6 @@
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
-
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
@@ -852,13 +811,12 @@
             <article class="md-content__inner md-typeset">
               
                 
-<a href="https://github.com/QuanEstimation/QuanEstimation/edit/master/docs/guide/guide_Copt.md" title="Edit this page" class="md-content__button md-icon">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
-</a>
-
-
-
-<h1 id="control-optimization"><strong>Control optimization</strong><a class="headerlink" href="#control-optimization" title="Permanent link">&para;</a></h1>
+                  <a href="https://github.com/QuanEstimation/QuanEstimation/edit/master/docs/guide/guide_Copt.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="control-optimization"><strong>Control optimization</strong><a class="headerlink" href="#control-optimization" title="Permanent link">&para;</a></h1>
 <p>The Hamiltonian of a controlled system can be written as
 \begin{align}
 H = H_0(\textbf{x})+\sum_{k=1}^K u_k(t) H_k,
@@ -1719,54 +1677,47 @@ to the eigenvalue 1. <span class="arithmatex">\(W\)</span> is set to be identity
 <span class="c"># dissipation</span>
 <span class="n">decay</span> <span class="o">=</span> <span class="p">[[</span><span class="n">S3</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="nb">pi</span><span class="o">/</span><span class="n">cons</span><span class="p">]]</span>
 <span class="c"># measurement</span>
-<span class="n">M</span> <span class="o">=</span> <span class="p">[</span><span class="n">QuanEstimation</span><span class="o">.</span><span class="n">basis</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span><span class="o">*</span><span class="n">QuanEstimation</span><span class="o">.</span><span class="n">basis</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span><span class="o">&#39;</span> <span class="o">\</span>
+<span class="n">M</span> <span class="o">=</span> <span class="p">[</span><span class="n">QuanEstimation</span><span class="o">.</span><span class="n">basis</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span><span class="o">*</span><span class="n">QuanEstimation</span><span class="o">.</span><span class="n">basis</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span><span class="o">&#39;</span> 
      <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">dim</span><span class="p">]</span>
 <span class="c"># time length for the evolution </span>
 <span class="n">tspan</span> <span class="o">=</span> <span class="n">range</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">4000</span><span class="p">)</span>
 <span class="c"># guessed control coefficients</span>
 <span class="n">cnum</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="n">rng</span> <span class="o">=</span> <span class="n">MersenneTwister</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
-<span class="n">cnum</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">Hc</span><span class="p">)</span>
-<span class="n">ini_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">zeros</span><span class="p">(</span><span class="n">cnum</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">cnum</span><span class="p">]</span>
-<span class="n">ini_2</span> <span class="o">=</span> <span class="mf">0.2</span><span class="o">.*</span><span class="p">[</span><span class="n">ones</span><span class="p">(</span><span class="n">cnum</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">cnum</span><span class="p">]</span>
-<span class="n">ini_3</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.2</span><span class="o">.*</span><span class="p">[</span><span class="n">ones</span><span class="p">(</span><span class="n">cnum</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">cnum</span><span class="p">]</span>
-<span class="n">ini_4</span> <span class="o">=</span> <span class="p">[[</span><span class="n">range</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">cnum</span><span class="p">)</span><span class="o">...</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">cnum</span><span class="p">]</span>
-<span class="n">ini_5</span> <span class="o">=</span> <span class="p">[[</span><span class="n">range</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">cnum</span><span class="p">)</span><span class="o">...</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">cnum</span><span class="p">]</span>
-<span class="n">ini_6</span> <span class="o">=</span> <span class="p">[[</span><span class="n">range</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">cnum</span><span class="p">)</span><span class="o">...</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">cnum</span><span class="p">]</span>
-<span class="n">ini_7</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="o">*</span><span class="n">ones</span><span class="p">(</span><span class="n">cnum</span><span class="p">)</span><span class="o">+</span><span class="mf">0.01</span><span class="o">*</span><span class="n">rand</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span><span class="n">cnum</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">cnum</span><span class="p">]</span>
-<span class="n">ini_8</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="o">*</span><span class="n">ones</span><span class="p">(</span><span class="n">cnum</span><span class="p">)</span><span class="o">+</span><span class="mf">0.01</span><span class="o">*</span><span class="n">rand</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span><span class="n">cnum</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">cnum</span><span class="p">]</span>
-<span class="n">ini_9</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="o">*</span><span class="n">ones</span><span class="p">(</span><span class="n">cnum</span><span class="p">)</span><span class="o">+</span><span class="mf">0.05</span><span class="o">*</span><span class="n">rand</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span><span class="n">cnum</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">cnum</span><span class="p">]</span>
-<span class="n">ini_10</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="o">*</span><span class="n">ones</span><span class="p">(</span><span class="n">cnum</span><span class="p">)</span><span class="o">+</span><span class="mf">0.05</span><span class="o">*</span><span class="n">rand</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span><span class="n">cnum</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">cnum</span><span class="p">]</span>
+<span class="n">ini_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">zeros</span><span class="p">(</span><span class="n">cnum</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">length</span><span class="p">(</span><span class="n">Hc</span><span class="p">)]</span>
+<span class="n">ini_2</span> <span class="o">=</span> <span class="mf">0.2</span><span class="o">.*</span><span class="p">[</span><span class="n">ones</span><span class="p">(</span><span class="n">cnum</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">length</span><span class="p">(</span><span class="n">Hc</span><span class="p">)]</span>
+<span class="n">ini_3</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.2</span><span class="o">.*</span><span class="p">[</span><span class="n">ones</span><span class="p">(</span><span class="n">cnum</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">length</span><span class="p">(</span><span class="n">Hc</span><span class="p">)]</span>
+<span class="n">ini_4</span> <span class="o">=</span> <span class="p">[[</span><span class="n">range</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">cnum</span><span class="p">)</span><span class="o">...</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">length</span><span class="p">(</span><span class="n">Hc</span><span class="p">)]</span>
+<span class="n">ini_5</span> <span class="o">=</span> <span class="p">[[</span><span class="n">range</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">cnum</span><span class="p">)</span><span class="o">...</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">length</span><span class="p">(</span><span class="n">Hc</span><span class="p">)]</span>
+<span class="n">ini_6</span> <span class="o">=</span> <span class="p">[[</span><span class="n">range</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">cnum</span><span class="p">)</span><span class="o">...</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">length</span><span class="p">(</span><span class="n">Hc</span><span class="p">)]</span>
+<span class="n">ini_7</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="o">*</span><span class="n">ones</span><span class="p">(</span><span class="n">cnum</span><span class="p">)</span><span class="o">+</span><span class="mf">0.01</span><span class="o">*</span><span class="n">rand</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span><span class="n">cnum</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">length</span><span class="p">(</span><span class="n">Hc</span><span class="p">)]</span>
+<span class="n">ini_8</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="o">*</span><span class="n">ones</span><span class="p">(</span><span class="n">cnum</span><span class="p">)</span><span class="o">+</span><span class="mf">0.01</span><span class="o">*</span><span class="n">rand</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span><span class="n">cnum</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">length</span><span class="p">(</span><span class="n">Hc</span><span class="p">)]</span>
+<span class="n">ini_9</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="o">*</span><span class="n">ones</span><span class="p">(</span><span class="n">cnum</span><span class="p">)</span><span class="o">+</span><span class="mf">0.05</span><span class="o">*</span><span class="n">rand</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span><span class="n">cnum</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">length</span><span class="p">(</span><span class="n">Hc</span><span class="p">)]</span>
+<span class="n">ini_10</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="o">*</span><span class="n">ones</span><span class="p">(</span><span class="n">cnum</span><span class="p">)</span><span class="o">+</span><span class="mf">0.05</span><span class="o">*</span><span class="n">rand</span><span class="p">(</span><span class="n">rng</span><span class="p">,</span><span class="n">cnum</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">length</span><span class="p">(</span><span class="n">Hc</span><span class="p">)]</span>
 <span class="n">ctrl0</span> <span class="o">=</span> <span class="p">[</span><span class="kt">Symbol</span><span class="p">(</span><span class="s">&quot;ini_&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span><span class="o">|&gt;</span><span class="n">eval</span> <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="o">:</span><span class="mi">10</span><span class="p">]</span>
 <span class="c"># set the optimization type</span>
 <span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">ControlOpt</span><span class="p">(</span><span class="n">ctrl</span><span class="o">=</span><span class="n">ini_1</span><span class="p">,</span> <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 </code></pre></div>
-<div class="tabbed-set" data-tabs="16:5"><input checked="checked" id="__tabbed_16_1" name="__tabbed_16" type="radio" /><label for="__tabbed_16_1">auto-GRAPE</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="16:4"><input checked="checked" id="__tabbed_16_1" name="__tabbed_16" type="radio" /><label for="__tabbed_16_1">auto-GRAPE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># control algorithm: auto-GRAPE</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">autoGRAPE</span><span class="p">(</span><span class="n">Adam</span><span class="o">=</span><span class="nb">true</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> 
                                <span class="n">beta1</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_16_2" name="__tabbed_16" type="radio" /><label for="__tabbed_16_2">GRAPE</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># control algorithm: GRAPE</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">GRAPE</span><span class="p">(</span><span class="n">Adam</span><span class="o">=</span><span class="nb">true</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> 
-                           <span class="n">beta1</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_16_3" name="__tabbed_16" type="radio" /><label for="__tabbed_16_3">PSO</label><div class="tabbed-content">
+<input id="__tabbed_16_2" name="__tabbed_16" type="radio" /><label for="__tabbed_16_2">PSO</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># control algorithm: PSO</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_particle</span><span class="o">=</span><span class="p">([</span><span class="n">ctrl</span><span class="p">],),</span> 
                          <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
                          <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_16_4" name="__tabbed_16" type="radio" /><label for="__tabbed_16_4">DE</label><div class="tabbed-content">
+<input id="__tabbed_16_3" name="__tabbed_16" type="radio" /><label for="__tabbed_16_3">DE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># control algorithm: DE</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_population</span><span class="o">=</span><span class="p">([</span><span class="n">ctrl</span><span class="p">],),</span> 
                         <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_16_5" name="__tabbed_16" type="radio" /><label for="__tabbed_16_5">DDPG</label><div class="tabbed-content">
+<input id="__tabbed_16_4" name="__tabbed_16" type="radio" /><label for="__tabbed_16_4">DDPG</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># control algorithm: DDPG</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DDPG</span><span class="p">(</span><span class="n">max_episode</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">layer_num</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">layer_dim</span><span class="o">=</span><span class="mi">220</span><span class="p">)</span>
 </code></pre></div>
@@ -1850,6 +1801,13 @@ T. P. Lillicrap, J. J. Hunt, A. Pritzel, N. Heess, T. Erez, Y. Tassa, D. Silver,
 and D. Wierstra,
 Continuous control with deep reinforcement learning,
 <a href="https://arxiv.org/abs/1509.02971">arXiv:1509.02971.</a></p>
+                
+                  
+                
+              
+              
+                
+
 
               
             </article>
@@ -1863,7 +1821,8 @@ Continuous control with deep reinforcement learning,
         
       </main>
       
-        <footer class="md-footer">
+        
+<footer class="md-footer">
   
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
@@ -1902,15 +1861,14 @@ Continuous control with deep reinforcement learning,
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
-      <div class="md-copyright">
-  
-  
-    Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-      Material for MkDocs
-    </a>
-  
-</div>
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
       
     </div>
   </div>
@@ -1920,10 +1878,10 @@ Continuous control with deep reinforcement learning,
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.annotate", "navigation.tabs", "navigation.top"], "search": "../../assets/javascripts/workers/search.5e67fbfe.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.annotate", "navigation.tabs", "navigation.top"], "search": "../../assets/javascripts/workers/search.709b4209.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c44cc438.min.js"></script>
+      <script src="../../assets/javascripts/bundle.29db7785.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       
