@@ -31,8 +31,11 @@ of control enhanced quantum metrological schemes.
 ---
 ### **Huai-Ming Yu**  
 **Huazhong University of Science and Technology**  
-**Email:** <2021612226@hust.edu.cn>  
-**Biography:**
+**Email:** <HuaimingYuuu@gmail.com>  
+**Biography:** Huai-Ming Yu is a M.Sc. student at School of Physics, Huazhong University of 
+Science and Technology. His research interests lie primarily in the fields of quantum information,
+quantum control, quantum foundations, as well as scientific programming and its applications in
+quantum technology.
 
 ---
 
