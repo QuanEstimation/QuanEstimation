@@ -14,11 +14,8 @@ Run the command in the terminal to install QuanEstimation:
     import Pkg
     Pkg.add("QuanEstimation")
     ```
-    TUNA currently provides Julia's official package registry mirror to speed up the 
-    installation. This may be achieved by setting the environment variable
-    in # ~/.bashrc  
-    export JULIA_PKG_SERVER=https://mirrors.tuna.tsinghua.edu.cn/julia  
-    For more infromation, please click [here](https://mirror.tuna.tsinghua.edu.cn/help/julia/).
+    If the users want to install the package via a Julia mirror, please 
+    click [here](https://mirror.tuna.tsinghua.edu.cn/help/julia/) for usage.
 
 ---
 
