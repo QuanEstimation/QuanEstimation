@@ -708,24 +708,23 @@ Here three types of measurement optimization are considerd, projective measureme
 	# dissipation
 	decay = [[S3, 2*pi/cons]]
 	# measurement
-	M = [QuanEstimation.basis(dim, i)*QuanEstimation.basis(dim, i)' \
+	M = [QuanEstimation.basis(dim, i)*QuanEstimation.basis(dim, i)' 
 	     for i in 1:dim]
 	# time length for the evolution 
 	tspan = range(0., 2., length=4000)
 	# guessed control coefficients
 	cnum = 10
 	rng = MersenneTwister(1234)
-	cnum = length(Hc)
-	ini_1 = [zeros(cnum) for _ in 1:cnum]
-	ini_2 = 0.2.*[ones(cnum) for _ in 1:cnum]
-	ini_3 = -0.2.*[ones(cnum) for _ in 1:cnum]
-	ini_4 = [[range(-0.2, 0.2, length=cnum)...] for _ in 1:cnum]
-	ini_5 = [[range(-0.2, 0., length=cnum)...] for _ in 1:cnum]
-	ini_6 = [[range(0., 0.2, length=cnum)...] for _ in 1:cnum]
-	ini_7 = [-0.2*ones(cnum)+0.01*rand(rng,cnum) for _ in 1:cnum]
-	ini_8 = [-0.2*ones(cnum)+0.01*rand(rng,cnum) for _ in 1:cnum]
-	ini_9 = [-0.2*ones(cnum)+0.05*rand(rng,cnum) for _ in 1:cnum]
-	ini_10 = [-0.2*ones(cnum)+0.05*rand(rng,cnum) for _ in 1:cnum]
+	ini_1 = [zeros(cnum) for _ in 1:length(Hc)]
+	ini_2 = 0.2.*[ones(cnum) for _ in 1:length(Hc)]
+	ini_3 = -0.2.*[ones(cnum) for _ in 1:length(Hc)]
+	ini_4 = [[range(-0.2, 0.2, length=cnum)...] for _ in 1:length(Hc)]
+	ini_5 = [[range(-0.2, 0., length=cnum)...] for _ in 1:length(Hc)]
+	ini_6 = [[range(0., 0.2, length=cnum)...] for _ in 1:length(Hc)]
+	ini_7 = [-0.2*ones(cnum)+0.01*rand(rng,cnum) for _ in 1:length(Hc)]
+	ini_8 = [-0.2*ones(cnum)+0.01*rand(rng,cnum) for _ in 1:length(Hc)]
+	ini_9 = [-0.2*ones(cnum)+0.05*rand(rng,cnum) for _ in 1:length(Hc)]
+	ini_10 = [-0.2*ones(cnum)+0.05*rand(rng,cnum) for _ in 1:length(Hc)]
 	ctrl0 = [Symbol("ini_", i)|>eval for i in 1:10]
 	# set the optimization type
 	opt = QuanEstimation.ControlOpt(ctrl=ini_1, ctrl_bound=[-0.2, 0.2], seed=1234)
@@ -735,12 +734,6 @@ Here three types of measurement optimization are considerd, projective measureme
 		# control algorithm: auto-GRAPE
 		alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=300, epsilon=0.01, 
 		                               beta1=0.90, beta2=0.99)
-		```
-	=== "GRAPE"
-		``` jl
-		# control algorithm: GRAPE
-		alg = QuanEstimation.GRAPE(Adam=true, max_episode=300, epsilon=0.01, 
-		                           beta1=0.90, beta2=0.99)
 		```
 	=== "PSO"
 		``` jl
