@@ -28,7 +28,7 @@ Nevertheless, if you still want to manually install the toolkit, you can
         julia.install()
     ```
 5. `import QuanEstimation` to load the package. 
-6. then run the examples in `quanestimation/examples/` folder and play around.
+6. then run the examples in `quanestimation/examples/` folder and have fun.
 
 ## Installation
 Run the command in the terminal to install QuanEstimation:  
