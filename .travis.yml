@@ -19,10 +19,10 @@ script: tox
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
-  user: Yuuu
+  user: QuanEstimation
   password:
     secure: PLEASE_REPLACE_ME
   on:
     tags: true
-    repo: HM-Yuuu/quanestimation
+    repo: QuanEstimation/quanestimation
     python: 3.8

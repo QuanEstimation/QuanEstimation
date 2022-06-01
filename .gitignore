@@ -135,6 +135,7 @@ dmypy.json
 
 #vscode
 .vscode/
+.devcontainer/
 
 #workspace
 .code_workspace
