@@ -368,11 +368,11 @@ the eigenstates of $\sigma_3$ with respect to the eigenvalues $1$ and $-1$.
     # dynamics
     rho, drho = QuanEstimation.expm(tspan, rho0, H0, dH, decay)
     # calculation of the CFI
-    I = Float64[]
+    Im = Float64[]
     for ti in 2:length(tspan)
         # CFI
         I_tp = QuanEstimation.CFIM(rho[ti], drho[ti], M)
-        append!(I, I_tp)
+        append!(Im, I_tp)
     end
     ```
 

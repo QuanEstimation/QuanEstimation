@@ -34,6 +34,7 @@ In this example, QuTip [[3,4]](#Johansson2012) is used to generate spin coherent
 === "Julia"
     ``` jl
     using QuanEstimation
+    using SparseArrays
 
     # generation of the coherent spin state
     j, theta, phi = 2, 0.5pi, 0.5pi
@@ -111,9 +112,10 @@ eigenstate of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
     tspan = range(0., 50., length=2000)
     # dynamics
     rho, drho = QuanEstimation.expm(tspan, rho0, H0, dH)
+    drho = [drho[i][1] for i in 1:2000]
     # the value of the objective function
     f = 20
-    t = QuanEstimaion.TargetTime(f, tspan, QuanEstimation.QFIM, rho, drho)
+    t = QuanEstimation.TargetTime(f, tspan, QuanEstimation.QFIM, rho, drho)
     ```
 
 ---
