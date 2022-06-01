@@ -1,4 +1,5 @@
-# QuanEstimation.jl
+# QuanEstimation
+
 
 <!-- needs to be modified -->
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://HuaimingYuuu.github.io/QuanEstimation.jl/stable)
