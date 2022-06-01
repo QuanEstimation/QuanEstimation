@@ -6,7 +6,6 @@ site_url: https://quanestimation.github.io/QuanEstimation/
 repo_url: https://github.com/QuanEstimation/QuanEstimation
 
 docs_dir: docs/src
-site_dir: docs/
 
 # extra_javascript: []
 extra_css:
