@@ -112,7 +112,7 @@ $\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}
     # time length for the evolution
     tspan = np.linspace(0., 1., 1000)
     # prior distribution
-    x = np.linspace(-0.25*np.pi+0.1, 3.0*np.pi/4.0-0.1, 100)
+    x = np.linspace(-0.25*np.pi+0.1, 3.0*np.pi/4.0-0.1, 1000)
     p = (1.0/(x[-1]-x[0]))*np.ones(len(x))
     # dynamics
     rho = [np.zeros((len(rho0), len(rho0)), dtype=np.complex128) for \
@@ -133,7 +133,7 @@ $\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}
     # generation of H and dH
     H, dH = BayesInput([x], H0_func, dH_func, channel="dynamics")
     # adaptive measurement
-    apt = Adaptive([x], pout, rho0, savefile=False, max_episode=1000, eps=1e-8)
+    apt = Adaptive([x], pout, rho0, savefile=False, max_episode=100, eps=1e-8)
     apt.dynamics(tspan, H, dH)
     apt.CFIM(M=M, W=[])
     ```
@@ -165,7 +165,7 @@ $\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}
     # time length for the evolution
     tspan = range(0., stop=1., length=1000) |>Vector
     # prior distribution
-    x = range(-0.25*pi+0.1, stop=3.0*pi/4.0-0.1, length=100) |>Vector
+    x = range(-0.25*pi+0.1, stop=3.0*pi/4.0-0.1, length=1000) |>Vector
     p = (1.0/(x[end]-x[1]))*ones(length(x))
     # dynamics
     rho = Vector{Matrix{ComplexF64}}(undef, length(x))
@@ -188,7 +188,7 @@ $\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}
                                       channel="dynamics")
     # adaptive measurement
     QuanEstimation.Adaptive([x], pout, rho0, tspan, H, dH; M=M, 
-                            max_episode=1000)
+                            max_episode=100)
     ```
 ---
 Berry et al. [[1,2]](#Berry2000) introduced a famous adaptive scheme in phase estimation. The 
@@ -358,6 +358,7 @@ $m$.
 === "Julia"
     ``` jl
     using QuanEstimation
+    using SparseArrays
 
     # the number of photons
     N = 8

@@ -495,7 +495,7 @@ $1$ $(-1)$.
     ```
     === "Projection"
         ``` jl
-        opt = QuanEstimation.MeasurementOpt(method=:Projection, seed=1234)
+        opt = QuanEstimation.MeasurementOpt(mtype=:Projection, seed=1234)
         ```
         === "DE"
             ``` jl
@@ -512,7 +512,7 @@ $1$ $(-1)$.
             ```
     === "LC"
         ``` jl
-        opt = QuanEstimation.MeasurementOpt(method=:LC, 
+        opt = QuanEstimation.MeasurementOpt(mtype=:LC, 
                                             POVM_basis=POVM_basis, M_num=2, 
                                             seed=1234)
         ```
@@ -537,7 +537,7 @@ $1$ $(-1)$.
             ```
     === "Rotation"
         ``` jl
-        opt = QuanEstimation.MeasurementOpt(method=:Rotation, 
+        opt = QuanEstimation.MeasurementOpt(mtype=:Rotation, 
                                             POVM_basis=POVM_basis, seed=1234)
         ```
         === "DE"
@@ -772,7 +772,7 @@ Here three types of measurement optimization are considerd, projective measureme
     ```
     === "Projection"
         ``` jl
-        opt = QuanEstimation.MeasurementOpt(method=:Projection, seed=1234)
+        opt = QuanEstimation.MeasurementOpt(mtype=:Projection, seed=1234)
         ```
         === "DE"
             ``` jl
@@ -789,7 +789,7 @@ Here three types of measurement optimization are considerd, projective measureme
             ```
     === "LC"
         ``` jl
-        opt = QuanEstimation.MeasurementOpt(method=:LC, 
+        opt = QuanEstimation.MeasurementOpt(mtype=:LC, 
                                             POVM_basis=POVM_basis, M_num=4, 
                                             seed=1234)
         ```
@@ -814,7 +814,7 @@ Here three types of measurement optimization are considerd, projective measureme
             ```
     === "Rotation"
         ``` jl
-        opt = QuanEstimation.MeasurementOpt(method=:Rotation, 
+        opt = QuanEstimation.MeasurementOpt(mtype=:Rotation, 
                                             POVM_basis=POVM_basis, seed=1234)
         ```
         === "DE"
@@ -900,8 +900,10 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
     dK1 = np.array([[1., 0.], [0.0, -0.5/np.sqrt(1-gamma)]])
     dK2 = np.array([[0., 0.5/np.sqrt(gamma)], [0., 0.]])
     dK = [[dK1], [dK2]]
+    # measurement
+    POVM_basis = QuanEstimation.SIC(len(rho0))
     ```
-        === "projection"
+    === "projection"
         === "DE"
 		    ``` py
             # measurement optimization algorithm: DE
@@ -991,10 +993,13 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
     dK1 = [1. 0.; 0. -0.5/sqrt(1-gamma)]
     dK2 = [0. 0.5/sqrt(gamma); 0. 0.]
     dK = [[dK1], [dK2]]
+    # measurement
+    dim = size(rho0,1)
+    POVM_basis = QuanEstimation.SIC(dim)
     ```
     === "Projection"
         ``` jl
-        opt = QuanEstimation.MeasurementOpt(method=:Projection, seed=1234)
+        opt = QuanEstimation.MeasurementOpt(mtype=:Projection, seed=1234)
         ```
         === "DE"
             ``` jl
@@ -1011,7 +1016,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
             ```
     === "LC"
         ``` jl
-        opt = QuanEstimation.MeasurementOpt(method=:LC, 
+        opt = QuanEstimation.MeasurementOpt(mtype=:LC, 
                                             POVM_basis=POVM_basis, M_num=2, 
                                             seed=1234)
         ```
@@ -1036,7 +1041,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
             ```
     === "Rotation"
         ``` jl
-        opt = QuanEstimation.MeasurementOpt(method=:Rotation, 
+        opt = QuanEstimation.MeasurementOpt(mtype=:Rotation, 
                                             POVM_basis=POVM_basis, seed=1234)
         ```
         === "DE"

@@ -517,43 +517,81 @@ for generation of the spin coherent state.
         alg = QuanEstimation.AD(Adam=false, max_episode=300, epsilon=0.01, 
                                 beta1=0.90, beta2=0.99)
         ```
+        === "QFIM"
+            ``` jl
+            # objective function: QFI
+            obj = QuanEstimation.QFIM_obj()
+            ```
+        === "CFIM"
+            ``` jl
+            # objective function: CFI
+            obj = QuanEstimation.CFIM_obj()
+            ```
     === "PSO"
         ``` jl
         # state optimization algorithm: PSO
         alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
                                  c1=2.0, c2=2.0)
         ```
+        === "QFIM"
+            ``` jl
+            # objective function: QFI
+            obj = QuanEstimation.QFIM_obj()
+            ```
+        === "CFIM"
+            ``` jl
+            # objective function: CFI
+            obj = QuanEstimation.CFIM_obj()
+            ```
     === "DE"
         ``` jl
         # state optimization algorithm: DE
         alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
         ```
+        === "QFIM"
+            ``` jl
+            # objective function: QFI
+            obj = QuanEstimation.QFIM_obj()
+            ```
+        === "CFIM"
+            ``` jl
+            # objective function: CFI
+            obj = QuanEstimation.CFIM_obj()
+            ```
     === "NM"
         ``` jl
         # state optimization algorithm: NM
         alg = QuanEstimation.NM(p_num=10, max_episode=1000, ar=1.0, 
                                 ae=2.0, ac=0.5, as0=0.5)
         ```
+        === "QFIM"
+            ``` jl
+            # objective function: QFI
+            obj = QuanEstimation.QFIM_obj()
+            ```
+        === "CFIM"
+            ``` jl
+            # objective function: CFI
+            obj = QuanEstimation.CFIM_obj()
+            ```
     === "DDPG"
         ``` jl
         # state optimization algorithm: DDPG
         alg = QuanEstimation.DDPG(max_episode=500, layer_num=3, layer_dim=200)
         ```
+        === "QFIM"
+            ``` jl
+            # objective function: QFI
+            obj = QuanEstimation.QFIM_obj()
+            ```
+        === "CFIM"
+            ``` jl
+            # objective function: CFI
+            obj = QuanEstimation.CFIM_obj()
+            ```
     ``` jl
     # input the dynamics data
     dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay) 
-    ```
-    === "QFIM"
-        ``` jl
-        # objective function: QFI
-        obj = QuanEstimation.QFIM_obj()
-        ```
-    === "CFIM"
-        ``` jl
-        # objective function: CFI
-        obj = QuanEstimation.CFIM_obj()
-        ```
-    ``` jl
     # run the state optimization problem
     QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
     ```
@@ -594,6 +632,25 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
                     "epsilon":0.01, "beta1":0.90, "beta2":0.99}
         state = StateOpt(savefile=False, method="AD", **AD_paras)
 		```
+        ``` py
+        # input the dynamics data
+        state.dynamics(tspan, H0, dH, decay=decay)
+        ```
+        === "QFIM"
+            ``` py
+            # objective function: tr(WF^{-1})
+            state.QFIM()
+            ```
+        === "CFIM"
+            ``` py
+            # objective function: tr(WI^{-1})
+            state.CFIM()
+            ```
+        === "HCRB"
+            ``` py
+            # objective function: HCRB
+            state.HCRB()
+            ```
 	=== "PSO"
 		``` py
         # state optimization algorithm: PSO
@@ -601,6 +658,25 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
 					 "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
 		state = StateOpt(savefile=False, method="PSO", **PSO_paras)
 		```
+        ``` py
+        # input the dynamics data
+        state.dynamics(tspan, H0, dH, decay=decay)
+        ```
+        === "QFIM"
+            ``` py
+            # objective function: tr(WF^{-1})
+            state.QFIM()
+            ```
+        === "CFIM"
+            ``` py
+            # objective function: tr(WI^{-1})
+            state.CFIM()
+            ```
+        === "HCRB"
+            ``` py
+            # objective function: HCRB
+            state.HCRB()
+            ```
 	=== "DE"
 		``` py
         # state optimization algorithm: DE
@@ -608,6 +684,25 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
 				    "cr":0.5, "seed":1234}
 		state = StateOpt(savefile=False, method="DE", **DE_paras)
 		```
+        ``` py
+        # input the dynamics data
+        state.dynamics(tspan, H0, dH, decay=decay)
+        ```
+        === "QFIM"
+            ``` py
+            # objective function: tr(WF^{-1})
+            state.QFIM()
+            ```
+        === "CFIM"
+            ``` py
+            # objective function: tr(WI^{-1})
+            state.CFIM()
+            ```
+        === "HCRB"
+            ``` py
+            # objective function: HCRB
+            state.HCRB()
+            ```
     === "NM"
 		``` py
         # state optimization algorithm: NM
@@ -615,6 +710,25 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
                     "ar":1.0, "ae":2.0, "ac":0.5, "as0":0.5, "seed":1234}
         state = StateOpt(savefile=False, method="NM", **NM_paras)
 		```
+        ``` py
+        # input the dynamics data
+        state.dynamics(tspan, H0, dH, decay=decay)
+        ```
+        === "QFIM"
+            ``` py
+            # objective function: tr(WF^{-1})
+            state.QFIM()
+            ```
+        === "CFIM"
+            ``` py
+            # objective function: tr(WI^{-1})
+            state.CFIM()
+            ```
+        === "HCRB"
+            ``` py
+            # objective function: HCRB
+            state.HCRB()
+            ```
 	=== "DDPG"
 		``` py
         # state optimization algorithm: DDPG
@@ -622,25 +736,20 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
 		              "seed":1234}
 		state = StateOpt(savefile=False, method="DDPG", **DDPG_paras)
 		```
-    ``` py
-    # input the dynamics data
-    state.dynamics(tspan, H0, dH, decay=decay)
-    ```
-    === "QFIM"
         ``` py
-        # objective function: tr(WF^{-1})
-        state.QFIM()
+        # input the dynamics data
+        state.dynamics(tspan, H0, dH, decay=decay)
         ```
-    === "CFIM"
-        ``` py
-        # objective function: tr(WI^{-1})
-        state.CFIM()
-        ```
-    === "HCRB"
-        ``` py
-        # objective function: HCRB
-        state.HCRB()
-        ```
+        === "QFIM"
+            ``` py
+            # objective function: tr(WF^{-1})
+            state.QFIM()
+            ```
+        === "CFIM"
+            ``` py
+            # objective function: tr(WI^{-1})
+            state.CFIM()
+            ```
 === "Julia"
     ``` jl
     using QuanEstimation
@@ -681,48 +790,96 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
         alg = QuanEstimation.AD(Adam=false, max_episode=300, epsilon=0.01, 
                                 beta1=0.90, beta2=0.99)
         ```
+        === "QFIM"
+            ``` jl
+            # objective function: tr(WF^{-1})
+            obj = QuanEstimation.QFIM_obj()
+            ```
+        === "CFIM"
+            ``` jl
+            # objective function: tr(WI^{-1})
+            obj = QuanEstimation.CFIM_obj()
+            ```
     === "PSO"
         ``` jl
         # state optimization algorithm: PSO
         alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
                                  c1=2.0, c2=2.0)
         ```
+        === "QFIM"
+            ``` jl
+            # objective function: tr(WF^{-1})
+            obj = QuanEstimation.QFIM_obj()
+            ```
+        === "CFIM"
+            ``` jl
+            # objective function: tr(WI^{-1})
+            obj = QuanEstimation.CFIM_obj()
+            ```
+        === "HCRB"
+            ``` jl
+            # objective function: HCRB
+            obj = QuanEstimation.HCRB_obj()
+            ```
     === "DE"
         ``` jl
         # state optimization algorithm: DE
         alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
         ```
+        === "QFIM"
+            ``` jl
+            # objective function: tr(WF^{-1})
+            obj = QuanEstimation.QFIM_obj()
+            ```
+        === "CFIM"
+            ``` jl
+            # objective function: tr(WI^{-1})
+            obj = QuanEstimation.CFIM_obj()
+            ```
+        === "HCRB"
+            ``` jl
+            # objective function: HCRB
+            obj = QuanEstimation.HCRB_obj()
+            ```
     === "NM"
         ``` jl
         # state optimization algorithm: NM
         alg = QuanEstimation.NM(p_num=10, max_episode=1000, ar=1.0, 
                                 ae=2.0, ac=0.5, as0=0.5)
         ```
+        === "QFIM"
+            ``` jl
+            # objective function: tr(WF^{-1})
+            obj = QuanEstimation.QFIM_obj()
+            ```
+        === "CFIM"
+            ``` jl
+            # objective function: tr(WI^{-1})
+            obj = QuanEstimation.CFIM_obj()
+            ```
+        === "HCRB"
+            ``` jl
+            # objective function: HCRB
+            obj = QuanEstimation.HCRB_obj()
+            ```
     === "DDPG"
         ``` jl
         # state optimization algorithm: DDPG
         alg = QuanEstimation.DDPG(max_episode=500, layer_num=3, layer_dim=200)
         ```
+        === "QFIM"
+            ``` jl
+            # objective function: tr(WF^{-1})
+            obj = QuanEstimation.QFIM_obj()
+            ```
+        === "CFIM"
+            ``` jl
+            # objective function: tr(WI^{-1})
+            obj = QuanEstimation.CFIM_obj()
+            ```
     ``` jl
     # input the dynamics data
     dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay) 
-    ```
-    === "QFIM"
-        ``` jl
-        # objective function: tr(WF^{-1})
-        obj = QuanEstimation.QFIM_obj()
-        ```
-    === "CFIM"
-        ``` jl
-        # objective function: tr(WI^{-1})
-        obj = QuanEstimation.CFIM_obj()
-        ```
-    === "HCRB"
-        ``` jl
-        # objective function: HCRB
-        obj = QuanEstimation.HCRB_obj()
-        ```
-    ``` jl
     # run the state optimization problem
     QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
     ```
@@ -811,12 +968,35 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
                     "epsilon":0.01, "beta1":0.90, "beta2":0.99}
         state = StateOpt(savefile=False, method="AD", **AD_paras)
 		```
+        ``` py
+        # input the dynamics data
+        state.Kraus(K, dK)
+        ```
+        === "QFIM"
+            ``` py
+            # objective function: QFI
+            state.QFIM()
+            ```
+        === "CFIM"
+            ``` py
+            # objective function: CFI
+            state.CFIM()
+            ```
     === "RI"
 		``` py
         # state optimization algorithm: RI
 		RI_paras = {"psi0":psi0, "max_episode":300, "seed":0.01}
         state = StateOpt(savefile=False, method="RI", **RI_paras)
 		```
+        ``` py
+        # input the dynamics data
+        state.Kraus(K, dK)
+        ```
+        === "QFIM"
+            ``` py
+            # objective function: QFI
+            state.QFIM()
+            ```
 	=== "PSO"
 		``` py
         # state optimization algorithm: PSO
@@ -824,6 +1004,20 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
 					 "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
 		state = StateOpt(savefile=False, method="PSO", **PSO_paras)
 		```
+        ``` py
+        # input the dynamics data
+        state.Kraus(K, dK)
+        ```
+        === "QFIM"
+            ``` py
+            # objective function: QFI
+            state.QFIM()
+            ```
+        === "CFIM"
+            ``` py
+            # objective function: CFI
+            state.CFIM()
+            ```
 	=== "DE"
 		``` py
         # state optimization algorithm: DE
@@ -831,6 +1025,20 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
 				    "cr":0.5, "seed":1234}
 		state = StateOpt(savefile=False, method="DE", **DE_paras)
 		```
+        ``` py
+        # input the dynamics data
+        state.Kraus(K, dK)
+        ```
+        === "QFIM"
+            ``` py
+            # objective function: QFI
+            state.QFIM()
+            ```
+        === "CFIM"
+            ``` py
+            # objective function: CFI
+            state.CFIM()
+            ```
     === "NM"
 		``` py
         # state optimization algorithm: NM
@@ -838,6 +1046,20 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
                     "ar":1.0, "ae":2.0, "ac":0.5, "as0":0.5, "seed":1234}
         state = StateOpt(savefile=False, method="NM", **NM_paras)
 		```
+        ``` py
+        # input the dynamics data
+        state.Kraus(K, dK)
+        ```
+        === "QFIM"
+            ``` py
+            # objective function: QFI
+            state.QFIM()
+            ```
+        === "CFIM"
+            ``` py
+            # objective function: CFI
+            state.CFIM()
+            ```
 	=== "DDPG"
 		``` py
         # state optimization algorithm: DDPG
@@ -845,25 +1067,20 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
 		              "seed":1234}
 		state = StateOpt(savefile=False, method="DDPG", **DDPG_paras)
 		```
-    ``` py
-    # input the dynamics data
-    state.Kraus(K, dK)
-    ```
-    === "QFIM"
         ``` py
-        # objective function: QFI
-        state.QFIM()
+        # input the dynamics data
+        state.Kraus(K, dK)
         ```
-    === "CFIM"
-        ``` py
-        # objective function: CFI
-        state.CFIM()
-        ```
-    === "HCRB"
-        ``` py
-        # objective function: HCRB
-        state.HCRB()
-        ```
+        === "QFIM"
+            ``` py
+            # objective function: QFI
+            state.QFIM()
+            ```
+        === "CFIM"
+            ``` py
+            # objective function: CFI
+            state.CFIM()
+            ```
 === "Julia"
     ``` jl
     using QuanEstimation
@@ -879,6 +1096,7 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
     dK1 = [1. 0.; 0. -0.5/sqrt(1-gamma)]
     dK2 = [0. 0.5/sqrt(gamma); 0. 0.]
     dK = [[dK1], [dK2]]
+    opt = QuanEstimation.Sopt(seed=1234)
     ```
     === "AD"
         ``` jl
@@ -886,53 +1104,91 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
         alg = QuanEstimation.AD(Adam=false, max_episode=300, epsilon=0.01, 
                                 beta1=0.90, beta2=0.99)
         ```
+        === "QFIM"
+            ``` jl
+            # objective function: QFI
+            obj = QuanEstimation.QFIM_obj()
+            ```
+        === "CFIM"
+            ``` jl
+            # objective function: CFI
+            obj = QuanEstimation.CFIM_obj()
+            ```
     === "RI"
         ``` jl
         # state optimization algorithm: RI
         alg = QuanEstimation.RI(max_episode=300)
         ```
+        === "QFIM"
+            ``` jl
+            # objective function: QFI
+            obj = QuanEstimation.QFIM_obj()
+            ```
     === "PSO"
         ``` jl
         # state optimization algorithm: PSO
         alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
                                  c1=2.0, c2=2.0)
         ```
+        === "QFIM"
+            ``` jl
+            # objective function: QFI
+            obj = QuanEstimation.QFIM_obj()
+            ```
+        === "CFIM"
+            ``` jl
+            # objective function: CFI
+            obj = QuanEstimation.CFIM_obj()
+            ```
     === "DE"
         ``` jl
         # state optimization algorithm: DE
         alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
         ```
+                === "QFIM"
+            ``` jl
+            # objective function: QFI
+            obj = QuanEstimation.QFIM_obj()
+            ```
+        === "CFIM"
+            ``` jl
+            # objective function: CFI
+            obj = QuanEstimation.CFIM_obj()
+            ```
     === "NM"
         ``` jl
         # state optimization algorithm: NM
         alg = QuanEstimation.NM(p_num=10, max_episode=1000, ar=1.0, 
                                 ae=2.0, ac=0.5, as0=0.5)
-        ```
+        ```        
+        === "QFIM"
+            ``` jl
+            # objective function: QFI
+            obj = QuanEstimation.QFIM_obj()
+            ```
+        === "CFIM"
+            ``` jl
+            # objective function: CFI
+            obj = QuanEstimation.CFIM_obj()
+            ```
     === "DDPG"
         ``` jl
         # state optimization algorithm: DDPG
         alg = QuanEstimation.DDPG(max_episode=500, layer_num=3, layer_dim=200)
         ```
+        === "QFIM"
+            ``` jl
+            # objective function: QFI
+            obj = QuanEstimation.QFIM_obj()
+            ```
+        === "CFIM"
+            ``` jl
+            # objective function: CFI
+            obj = QuanEstimation.CFIM_obj()
+            ```
     ``` jl
     # input the dynamics data
-    dynamics = QuanEstimation.Kraus(opt, K, dK) 
-    ```
-    === "QFIM"
-        ``` jl
-        # objective function: QFI
-        obj = QuanEstimation.QFIM_obj()
-        ```
-    === "CFIM"
-        ``` jl
-        # objective function: CFI
-        obj = QuanEstimation.CFIM_obj()
-        ```
-    === "HCRB"
-        ``` jl
-        # objective function: HCRB
-        obj = QuanEstimation.HCRB_obj()
-        ```
-    ``` jl
+    dynamics = QuanEstimation.Kraus(opt, K, dK)
     # run the state optimization problem
     QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
     ```
