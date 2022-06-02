@@ -476,12 +476,32 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
 		alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=300, epsilon=0.01, 
 		                               beta1=0.90, beta2=0.99)
 		```
+		=== "QFIM"
+			``` jl
+			# objective function: QFI
+			obj = QuanEstimation.QFIM_obj()
+			```
+		=== "CFIM"
+			``` jl
+			# objective function: CFI
+			obj = QuanEstimation.CFIM_obj(M=M)
+			```
 	=== "GRAPE"
 		``` jl
 		# control algorithm: GRAPE
 		alg = QuanEstimation.GRAPE(Adam=true, max_episode=300, epsilon=0.01, 
 		                           beta1=0.90, beta2=0.99)
 		```
+		=== "QFIM"
+			``` jl
+			# objective function: QFI
+			obj = QuanEstimation.QFIM_obj()
+			```
+		=== "CFIM"
+			``` jl
+			# objective function: CFI
+			obj = QuanEstimation.CFIM_obj(M=M)
+			```
 	=== "PSO"
 		``` jl
 		# control algorithm: PSO
@@ -489,32 +509,50 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
 								 max_episode=[1000,100], c0=1.0, 
                          	     c1=2.0, c2=2.0)
 		```
+		=== "QFIM"
+			``` jl
+			# objective function: QFI
+			obj = QuanEstimation.QFIM_obj()
+			```
+		=== "CFIM"
+			``` jl
+			# objective function: CFI
+			obj = QuanEstimation.CFIM_obj(M=M)
+			```
 	=== "DE"
 		``` jl
 		# control algorithm: DE
 		alg = QuanEstimation.DE(p_num=10, ini_population=([ctrl],), 
 		                        max_episode=1000, c=1.0, cr=0.5)
 		```
+		=== "QFIM"
+			``` jl
+			# objective function: QFI
+			obj = QuanEstimation.QFIM_obj()
+			```
+		=== "CFIM"
+			``` jl
+			# objective function: CFI
+			obj = QuanEstimation.CFIM_obj(M=M)
+			```
 	=== "DDPG"
 		``` jl
 		# control algorithm: DDPG
 		alg = QuanEstimation.DDPG(max_episode=500, layer_num=4, layer_dim=220)
 		```
+		=== "QFIM"
+			``` jl
+			# objective function: QFI
+			obj = QuanEstimation.QFIM_obj()
+			```
+		=== "CFIM"
+			``` jl
+			# objective function: CFI
+			obj = QuanEstimation.CFIM_obj(M=M)
+			```
 	``` jl
 	# input the dynamics data
 	dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay)  
-	```
-	=== "QFIM"
-		``` jl
-		# objective function: QFI
-		obj = QuanEstimation.QFIM_obj()
-		```
-	=== "CFIM"
-		``` jl
-		# objective function: CFI
-		obj = QuanEstimation.CFIM_obj(M=M)
-		```
-	``` jl
 	# run the control optimization problem
 	QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 	```
@@ -630,6 +668,21 @@ Here three types of measurement optimization are considerd, projective measureme
 					   "epsilon":0.01, "beta1":0.90, "beta2":0.99}
 		control = ControlOpt(savefile=False, method="auto-GRAPE", **GRAPE_paras)
 		```
+		``` py
+		# input the dynamics data
+		control.dynamics(tspan, rho0, H0, dH, Hc, decay=decay, \
+	                 ctrl_bound=[-0.2, 0.2])
+		```
+		=== "QFIM"
+			``` py
+			# objective function: tr(WF^{-1})
+			control.QFIM()
+			```
+		=== "CFIM"
+			``` py
+			# objective function: tr(WI^{-1})
+			control.CFIM(M=M)
+			```
 	=== "PSO"
 		``` py
 		# control algorithm: PSO
@@ -637,6 +690,26 @@ Here three types of measurement optimization are considerd, projective measureme
 					 "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
 		control = ControlOpt(savefile=False, method="PSO", **PSO_paras)
 		```
+		``` py
+		# input the dynamics data
+		control.dynamics(tspan, rho0, H0, dH, Hc, decay=decay, \
+	                 ctrl_bound=[-0.2, 0.2])
+		```
+		=== "QFIM"
+			``` py
+			# objective function: tr(WF^{-1})
+			control.QFIM()
+			```
+		=== "CFIM"
+			``` py
+			# objective function: tr(WI^{-1})
+			control.CFIM(M=M)
+			```
+		=== "HCRB"
+			``` py
+			# objective function: HCRB
+			control.HCRB()
+			```
 	=== "DE"
 		``` py
 		# control algorithm: DE
@@ -644,6 +717,26 @@ Here three types of measurement optimization are considerd, projective measureme
 				    "cr":0.5, "seed":1234}
 		control = ControlOpt(savefile=False, method="DE", **DE_paras)
 		```
+		``` py
+		# input the dynamics data
+		control.dynamics(tspan, rho0, H0, dH, Hc, decay=decay, \
+	                 ctrl_bound=[-0.2, 0.2])
+		```
+		=== "QFIM"
+			``` py
+			# objective function: tr(WF^{-1})
+			control.QFIM()
+			```
+		=== "CFIM"
+			``` py
+			# objective function: tr(WI^{-1})
+			control.CFIM(M=M)
+			```
+		=== "HCRB"
+			``` py
+			# objective function: HCRB
+			control.HCRB()
+			```
 	=== "DDPG"
 		``` py
 		# control algorithm: DDPG
@@ -651,26 +744,21 @@ Here three types of measurement optimization are considerd, projective measureme
 		              "seed":1234}
 		control = ControlOpt(savefile=False, method="DDPG", **DDPG_paras)
 		```
-	``` py
-	# input the dynamics data
-	control.dynamics(tspan, rho0, H0, dH, Hc, decay=decay, \
+		``` py
+		# input the dynamics data
+		control.dynamics(tspan, rho0, H0, dH, Hc, decay=decay, \
 	                 ctrl_bound=[-0.2, 0.2])
-	```
-	=== "QFIM"
-		``` py
-		# objective function: tr(WF^{-1})
-		control.QFIM()
 		```
-	=== "CFIM"
-		``` py
-		# objective function: tr(WI^{-1})
-		control.CFIM(M=M)
-		```
-	=== "HCRB"
-		``` py
-		# objective function: HCRB
-		control.HCRB()
-		```
+		=== "QFIM"
+			``` py
+			# objective function: tr(WF^{-1})
+			control.QFIM()
+			```
+		=== "CFIM"
+			``` py
+			# objective function: tr(WI^{-1})
+			control.CFIM(M=M)
+			```
 === "Julia"
 	``` jl
 	using QuanEstimation
@@ -735,44 +823,77 @@ Here three types of measurement optimization are considerd, projective measureme
 		alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=300, epsilon=0.01, 
 		                               beta1=0.90, beta2=0.99)
 		```
+		=== "QFIM"
+			``` jl
+			# objective function: tr(WF^{-1})
+			obj = QuanEstimation.QFIM_obj()
+			```
+		=== "CFIM"
+			``` jl
+			# objective function: tr(WI^{-1})
+			obj = QuanEstimation.CFIM_obj(M=M)
+			```
 	=== "PSO"
 		``` jl
 		# control algorithm: PSO
-		alg = QuanEstimation.PSO(p_num=10, ini_particle=([ctrl],), 
+		alg = QuanEstimation.PSO(p_num=10, ini_particle=(ctrl0,), 
 								 max_episode=[1000,100], c0=1.0, 
                          	     c1=2.0, c2=2.0)
 		```
+		=== "QFIM"
+			``` jl
+			# objective function: tr(WF^{-1})
+			obj = QuanEstimation.QFIM_obj()
+			```
+		=== "CFIM"
+			``` jl
+			# objective function: tr(WI^{-1})
+			obj = QuanEstimation.CFIM_obj(M=M)
+			```
+		=== "HCRB"
+			``` jl
+			# objective function: HCRB
+			obj = QuanEstimation.HCRB_obj()
+			```
 	=== "DE"
 		``` jl
 		# control algorithm: DE
-		alg = QuanEstimation.DE(p_num=10, ini_population=([ctrl],), 
+		alg = QuanEstimation.DE(p_num=10, ini_population=(ctrl0,), 
 		                        max_episode=1000, c=1.0, cr=0.5)
 		```
+		=== "QFIM"
+			``` jl
+			# objective function: tr(WF^{-1})
+			obj = QuanEstimation.QFIM_obj()
+			```
+		=== "CFIM"
+			``` jl
+			# objective function: tr(WI^{-1})
+			obj = QuanEstimation.CFIM_obj(M=M)
+			```
+		=== "HCRB"
+			``` jl
+			# objective function: HCRB
+			obj = QuanEstimation.HCRB_obj()
+			```
 	=== "DDPG"
 		``` jl
 		# control algorithm: DDPG
 		alg = QuanEstimation.DDPG(max_episode=500, layer_num=4, layer_dim=220)
 		```
+		=== "QFIM"
+			``` jl
+			# objective function: tr(WF^{-1})
+			obj = QuanEstimation.QFIM_obj()
+			```
+		=== "CFIM"
+			``` jl
+			# objective function: tr(WI^{-1})
+			obj = QuanEstimation.CFIM_obj(M=M)
+			```
 	``` jl
 	# input the dynamics data
 	dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay)  
-	```
-	=== "QFIM"
-		``` jl
-		# objective function: tr(WF^{-1})
-		obj = QuanEstimation.QFIM_obj()
-		```
-	=== "CFIM"
-		``` jl
-		# objective function: tr(WI^{-1})
-		obj = QuanEstimation.CFIM_obj(M=M)
-		```
-	=== "HCRB"
-		``` jl
-		# objective function: HCRB
-		obj = QuanEstimation.HCRB_obj(M=M)
-		```
-	``` jl
 	# run the control optimization problem
 	QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 	```

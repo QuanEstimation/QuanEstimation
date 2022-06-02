@@ -426,8 +426,7 @@ In this case, we consider two types of comprehensive optimization, the first one
             AD_paras = {"Adam":False, "psi0":[], "ctrl0":[], "measurement0":[], \
                         "max_episode":300, "epsilon":0.01, "beta1":0.90, "beta2":0.99}
             com = ComprehensiveOpt(savefile=False, method="AD", **AD_paras)
-            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay)
-            com.SC(W=[], target="QFIM", LDtype="SLD", ctrl_bound=[-2.0,2.0])
+            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0])
             ```
             === "QFIM"
                 ``` py
@@ -511,21 +510,25 @@ In this case, we consider two types of comprehensive optimization, the first one
         === "DE"
             ``` jl
             # comprehensive optimization algorithm: DE
-            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
-            # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)   
+            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5) 
             # objective function: CFI
-            obj = QuanEstimation.CFIM_obj(M=M) 
+            obj = QuanEstimation.CFIM_obj(M=M)
+            # input the dynamics data
+            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)
+            # run the comprehensive optimization problem
+            QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
         === "PSO"
             ``` jl
             # comprehensive optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
                                      c1=2.0, c2=2.0)
-            # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)   
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj(M=M) 
+            # input the dynamics data
+            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)   
+            # run the comprehensive optimization problem
+            QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
     === "SC"
         ``` jl
@@ -535,54 +538,72 @@ In this case, we consider two types of comprehensive optimization, the first one
             ``` jl
             # comprehensive optimization algorithm: DE
             alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
-            # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
             ```
             === "QFIM"
                 ``` jl
                 # objective function: QFI
-                obj = QuanEstimation.QFIM_obj() 
+                obj = QuanEstimation.QFIM_obj()
+                # input the dynamics data
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                # run the comprehensive optimization problem
+                QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
             === "CFIM"
                 ``` jl
                 # objective function: CFI
                 obj = QuanEstimation.CFIM_obj(M=M) 
+                # input the dynamics data
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                # run the comprehensive optimization problem
+                QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
         === "PSO"
             ``` jl
             # comprehensive optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
                                      c1=2.0, c2=2.0)
-            # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
             ```
             === "QFIM"
                 ``` jl
                 # objective function: QFI
                 obj = QuanEstimation.QFIM_obj() 
+                # input the dynamics data
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                # run the comprehensive optimization problem
+                QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
             === "CFIM"
                 ``` jl
                 # objective function: CFI
                 obj = QuanEstimation.CFIM_obj(M=M) 
+                # input the dynamics data
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                # run the comprehensive optimization problem
+                QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
         === "AD"
             ``` jl
             # comprehensive optimization algorithm: AD
             alg = QuanEstimation.AD(Adam=true, max_episode=300, epsilon=0.01, 
                                     beta1=0.90, beta2=0.99)
-            # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
             ``` 
             === "QFIM"
                 ``` jl
                 # objective function: QFI
                 obj = QuanEstimation.QFIM_obj() 
+                # input the dynamics data
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                # run the comprehensive optimization problem
+                QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
             === "CFIM"
                 ``` jl
                 # objective function: CFI
                 obj = QuanEstimation.CFIM_obj(M=M) 
+                # input the dynamics data
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                # run the comprehensive optimization problem
+                QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
     === "CM"
         ``` jl
@@ -591,23 +612,27 @@ In this case, we consider two types of comprehensive optimization, the first one
         === "DE"
             ``` jl
             # comprehensive optimization algorithm: DE
-            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
-            # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH,  
-                                               Hc, decay=decay)   
+            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)  
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj(M=M) 
+            # input the dynamics data
+            dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH,  
+                                               Hc, decay=decay) 
+            # run the comprehensive optimization problem
+            QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
         === "PSO"
             ``` jl
             # comprehensive optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
                                      c1=2.0, c2=2.0)
+            # objective function: CFI
+            obj = QuanEstimation.CFIM_obj(M=M) 
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH,  
                                                Hc, decay=decay)  
-            # objective function: CFI
-            obj = QuanEstimation.CFIM_obj(M=M) 
+            # run the comprehensive optimization problem
+            QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
     === "SCM"
         ``` jl
@@ -616,26 +641,26 @@ In this case, we consider two types of comprehensive optimization, the first one
         === "DE"
             ``` jl
             # comprehensive optimization algorithm: DE
-            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
-            # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)   
+            alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5) 
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj(M=M) 
+            # input the dynamics data
+            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)  
+            # run the comprehensive optimization problem
+            QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
         === "PSO"
             ``` jl
             # comprehensive optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
-                                     c1=2.0, c2=2.0)
+                                     c1=2.0, c2=2.0) 
+            # objective function: CFI
+            obj = QuanEstimation.CFIM_obj(M=M)
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)  
-            # objective function: CFI
-            obj = QuanEstimation.CFIM_obj(M=M) 
+            # run the comprehensive optimization problem
+            QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
-    ``` jl
-    # run the comprehensive optimization problem
-    QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
-    ```
 **Example 8.2**  
 <a id="example8_2"></a>
 The Hamiltonian of a controlled system can be written as
@@ -900,87 +925,117 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             ``` jl
             # comprehensive optimization algorithm: DE
             alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
-            # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)   
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj(M=M) 
+            # input the dynamics data
+            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)   
+            # run the comprehensive optimization problem
+            QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
         === "PSO"
             ``` jl
             # comprehensive optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
-                                     c1=2.0, c2=2.0)
-            # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)   
+                                     c1=2.0, c2=2.0) 
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj(M=M) 
+            # input the dynamics data
+            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay) 
+            # run the comprehensive optimization problem
+            QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
     === "SC"
         ``` jl
-        opt = QuanEstimation.SMopt(ctrl=ctrl, ctrl_bound=[-0.2,0.2], seed=1234)
+        opt = QuanEstimation.SCopt(ctrl_bound=[-0.2,0.2], seed=1234)
         ```
         === "DE"
             ``` jl
             # comprehensive optimization algorithm: DE
             alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
-            # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
             ```
             === "QFIM"
                 ``` jl
                 # objective function: tr(WF^{-1})
                 obj = QuanEstimation.QFIM_obj() 
+                # input the dynamics data
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                # run the comprehensive optimization problem
+                QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
             === "CFIM"
                 ``` jl
                 # objective function: tr(WI^{-1})
                 obj = QuanEstimation.CFIM_obj(M=M) 
+                # input the dynamics data
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                # run the comprehensive optimization problem
+                QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
             === "HCRB"
                 ``` jl
                 # objective function: HCRB
                 obj = QuanEstimation.HCRB_obj() 
+                # input the dynamics data
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                # run the comprehensive optimization problem
+                QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
         === "PSO"
             ``` jl
             # comprehensive optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
-                                     c1=2.0, c2=2.0)
-            # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                                     c1=2.0, c2=2.0) 
             ```
             === "QFIM"
                 ``` jl
                 # objective function: tr(WF^{-1})
                 obj = QuanEstimation.QFIM_obj() 
+                # input the dynamics data
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)
+                # run the comprehensive optimization problem
+                QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
             === "CFIM"
                 ``` jl
                 # objective function: tr(WI^{-1})
                 obj = QuanEstimation.CFIM_obj(M=M) 
+                # input the dynamics data
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)
+                # run the comprehensive optimization problem
+                QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
             === "HCRB"
                 ``` jl
                 # objective function: HCRB
                 obj = QuanEstimation.HCRB_obj() 
+                # input the dynamics data
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)
+                # run the comprehensive optimization problem
+                QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
         === "AD"
             ``` jl
             # comprehensive optimization algorithm: AD
             alg = QuanEstimation.AD(Adam=true, max_episode=300, epsilon=0.01, 
                                     beta1=0.90, beta2=0.99)
-            # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
             ``` 
             === "QFIM"
                 ``` jl
                 # objective function: tr(WF^{-1})
-                obj = QuanEstimation.QFIM_obj() 
+                obj = QuanEstimation.QFIM_obj()
+                # input the dynamics data
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                # run the comprehensive optimization problem
+                QuanEstimation.run(opt, alg, obj, dynamics; savefile=false) 
                 ```
             === "CFIM"
                 ``` jl
                 # objective function: tr(WI^{-1})
                 obj = QuanEstimation.CFIM_obj(M=M) 
+                # input the dynamics data
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                # run the comprehensive optimization problem
+                QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
     === "CM"
         ``` jl
@@ -990,22 +1045,26 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             ``` jl
             # comprehensive optimization algorithm: DE
             alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
+            # objective function: CFI
+            obj = QuanEstimation.CFIM_obj()
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc,  
                                                decay=decay)    
-            # objective function: CFI
-            obj = QuanEstimation.CFIM_obj() 
+            # run the comprehensive optimization problem
+            QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
         === "PSO"
             ``` jl
             # comprehensive optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
                                      c1=2.0, c2=2.0)
+            # objective function: CFI
+            obj = QuanEstimation.CFIM_obj() 
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, 
                                                decay=decay)  
-            # objective function: CFI
-            obj = QuanEstimation.CFIM_obj() 
+            # run the comprehensive optimization problem
+            QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
     === "SCM"
         ``` jl
@@ -1015,25 +1074,25 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             ``` jl
             # comprehensive optimization algorithm: DE
             alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
-            # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)   
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj() 
+            # input the dynamics data
+            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)   
+            # run the comprehensive optimization problem
+            QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
         === "PSO"
             ``` jl
             # comprehensive optimization algorithm: PSO
             alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
                                      c1=2.0, c2=2.0)
-            # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)   
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj() 
+            # input the dynamics data
+            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)   
+            # run the comprehensive optimization problem
+            QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
-    ``` jl
-    # run the comprehensive optimization problem
-    QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
-    ```
 For optimization of probe state and measurement, the parameterization can also be implemented 
 with the Kraus operators which can be realized by
 === "Python"
@@ -1108,10 +1167,6 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
         com.Kraus(K, dK)
         com.SM()
         ```
-    ``` py
-    com = ComprehensiveOpt(savefile=False, method="DE", **kwargs)
-    com.SM()
-    ```
 === "Julia"
     ``` jl
     using QuanEstimation
@@ -1134,26 +1189,25 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
         ``` jl
         # comprehensive optimization algorithm: DE
         alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
-        # input the dynamics data
-        dynamics = QuanEstimation.Kraus(opt, K, dK)  
         # objective function: CFI
         obj = QuanEstimation.CFIM_obj() 
+        # input the dynamics data
+        dynamics = QuanEstimation.Kraus(opt, K, dK)  
+        # run the comprehensive optimization problem
+        QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
         ```
     === "PSO"
         ``` jl
         # comprehensive optimization algorithm: PSO
         alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
                                      c1=2.0, c2=2.0)
-        # input the dynamics data
-        dynamics = QuanEstimation.Kraus(opt, K, dK)   
         # objective function: CFI
         obj = QuanEstimation.CFIM_obj() 
+        # input the dynamics data
+        dynamics = QuanEstimation.Kraus(opt, K, dK)   
+        # run the comprehensive optimization problem
+        QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
         ```
-    ``` jl
-    # run the comprehensive optimization problem
-    QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
-    ```
-
 ---
 ## **Bibliography**
 <a id="Kennedy1995">[1]</a>
