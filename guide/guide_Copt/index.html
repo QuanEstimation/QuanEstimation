@@ -1449,35 +1449,6 @@ of <span class="arithmatex">\(\sigma_3\)</span> with respect to the eigenvalue <
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">autoGRAPE</span><span class="p">(</span><span class="n">Adam</span><span class="o">=</span><span class="nb">true</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> 
                                <span class="n">beta1</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
 </code></pre></div>
-</div>
-<input id="__tabbed_11_2" name="__tabbed_11" type="radio" /><label for="__tabbed_11_2">GRAPE</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># control algorithm: GRAPE</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">GRAPE</span><span class="p">(</span><span class="n">Adam</span><span class="o">=</span><span class="nb">true</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> 
-                           <span class="n">beta1</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_11_3" name="__tabbed_11" type="radio" /><label for="__tabbed_11_3">PSO</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># control algorithm: PSO</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_particle</span><span class="o">=</span><span class="p">([</span><span class="n">ctrl</span><span class="p">],),</span> 
-                         <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
-                         <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_11_4" name="__tabbed_11" type="radio" /><label for="__tabbed_11_4">DE</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># control algorithm: DE</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_population</span><span class="o">=</span><span class="p">([</span><span class="n">ctrl</span><span class="p">],),</span> 
-                        <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_11_5" name="__tabbed_11" type="radio" /><label for="__tabbed_11_5">DDPG</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># control algorithm: DDPG</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DDPG</span><span class="p">(</span><span class="n">max_episode</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">layer_num</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">layer_dim</span><span class="o">=</span><span class="mi">220</span><span class="p">)</span>
-</code></pre></div>
-</div>
-</div>
-<div class="highlight"><pre><span></span><code><span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="p">)</span>  
-</code></pre></div>
 <div class="tabbed-set" data-tabs="12:2"><input checked="checked" id="__tabbed_12_1" name="__tabbed_12" type="radio" /><label for="__tabbed_12_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
@@ -1489,7 +1460,79 @@ of <span class="arithmatex">\(\sigma_3\)</span> with respect to the eigenvalue <
 </code></pre></div>
 </div>
 </div>
-<div class="highlight"><pre><span></span><code><span class="c"># run the control optimization problem</span>
+</div>
+<input id="__tabbed_11_2" name="__tabbed_11" type="radio" /><label for="__tabbed_11_2">GRAPE</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># control algorithm: GRAPE</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">GRAPE</span><span class="p">(</span><span class="n">Adam</span><span class="o">=</span><span class="nb">true</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> 
+                           <span class="n">beta1</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="13:2"><input checked="checked" id="__tabbed_13_1" name="__tabbed_13" type="radio" /><label for="__tabbed_13_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_13_2" name="__tabbed_13" type="radio" /><label for="__tabbed_13_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: CFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_11_3" name="__tabbed_11" type="radio" /><label for="__tabbed_11_3">PSO</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># control algorithm: PSO</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_particle</span><span class="o">=</span><span class="p">([</span><span class="n">ctrl</span><span class="p">],),</span> 
+                         <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
+                         <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="14:2"><input checked="checked" id="__tabbed_14_1" name="__tabbed_14" type="radio" /><label for="__tabbed_14_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_14_2" name="__tabbed_14" type="radio" /><label for="__tabbed_14_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: CFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_11_4" name="__tabbed_11" type="radio" /><label for="__tabbed_11_4">DE</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># control algorithm: DE</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_population</span><span class="o">=</span><span class="p">([</span><span class="n">ctrl</span><span class="p">],),</span> 
+                        <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="15:2"><input checked="checked" id="__tabbed_15_1" name="__tabbed_15" type="radio" /><label for="__tabbed_15_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_15_2" name="__tabbed_15" type="radio" /><label for="__tabbed_15_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: CFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_11_5" name="__tabbed_11" type="radio" /><label for="__tabbed_11_5">DDPG</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># control algorithm: DDPG</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DDPG</span><span class="p">(</span><span class="n">max_episode</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">layer_num</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">layer_dim</span><span class="o">=</span><span class="mi">220</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="16:2"><input checked="checked" id="__tabbed_16_1" name="__tabbed_16" type="radio" /><label for="__tabbed_16_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_16_2" name="__tabbed_16" type="radio" /><label for="__tabbed_16_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: CFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="highlight"><pre><span></span><code><span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="p">)</span>  
+<span class="c"># run the control optimization problem</span>
 <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
@@ -1533,7 +1576,7 @@ with <span class="arithmatex">\(|1\rangle\)</span> (<span class="arithmatex">\(|
 (<span class="arithmatex">\(-1\)</span>). <span class="arithmatex">\(|\!\!\uparrow\rangle\)</span> is a nuclear state and the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> with respect 
 to the eigenvalue 1. <span class="arithmatex">\(W\)</span> is set to be identity.</p>
 <p>Here three types of measurement optimization are considerd, projective measurement, linear combination of a given set of positive operator-valued measure (POVM) and optimal rotated measurement of an input measurement.</p>
-<div class="tabbed-set" data-tabs="13:2"><input checked="checked" id="__tabbed_13_1" name="__tabbed_13" type="radio" /><label for="__tabbed_13_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="17:2"><input checked="checked" id="__tabbed_17_1" name="__tabbed_17" type="radio" /><label for="__tabbed_17_1">Python</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">quanestimation</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">random</span>
@@ -1591,57 +1634,107 @@ to the eigenvalue 1. <span class="arithmatex">\(W\)</span> is set to be identity
 <span class="n">ctrl0</span> <span class="o">=</span> <span class="p">[</span><span class="n">ini_1</span><span class="p">,</span> <span class="n">ini_2</span><span class="p">,</span> <span class="n">ini_3</span><span class="p">,</span> <span class="n">ini_4</span><span class="p">,</span> <span class="n">ini_5</span><span class="p">,</span> \
          <span class="n">ini_6</span><span class="p">,</span> <span class="n">ini_7</span><span class="p">,</span> <span class="n">ini_8</span><span class="p">,</span> <span class="n">ini_9</span><span class="p">,</span> <span class="n">ini_10</span><span class="p">]</span>
 </code></pre></div>
-<div class="tabbed-set" data-tabs="14:4"><input checked="checked" id="__tabbed_14_1" name="__tabbed_14" type="radio" /><label for="__tabbed_14_1">auto-GRAPE</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c1"># control algorithm: auto-GRAPE</span>
+<div class="tabbed-set" data-tabs="18:4"><input checked="checked" id="__tabbed_18_1" name="__tabbed_18" type="radio" /><label for="__tabbed_18_1">auto-GRAPE</label><div class="tabbed-content">
+<p><div class="highlight"><pre><span></span><code><span class="c1"># control algorithm: auto-GRAPE</span>
 <span class="n">GRAPE_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Adam&quot;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;ctrl0&quot;</span><span class="p">:</span><span class="n">ctrl0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">300</span><span class="p">,</span> \
                <span class="s2">&quot;epsilon&quot;</span><span class="p">:</span><span class="mf">0.01</span><span class="p">,</span> <span class="s2">&quot;beta1&quot;</span><span class="p">:</span><span class="mf">0.90</span><span class="p">,</span> <span class="s2">&quot;beta2&quot;</span><span class="p">:</span><span class="mf">0.99</span><span class="p">}</span>
 <span class="n">control</span> <span class="o">=</span> <span class="n">ControlOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;auto-GRAPE&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">GRAPE_paras</span><span class="p">)</span>
 </code></pre></div>
-</div>
-<input id="__tabbed_14_2" name="__tabbed_14" type="radio" /><label for="__tabbed_14_2">PSO</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c1"># control algorithm: PSO</span>
-<span class="n">PSO_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;ctrl0&quot;</span><span class="p">:</span><span class="n">ctrl0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> \
-             <span class="s2">&quot;c0&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;c1&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;c2&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
-<span class="n">control</span> <span class="o">=</span> <span class="n">ControlOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;PSO&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">PSO_paras</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_14_3" name="__tabbed_14" type="radio" /><label for="__tabbed_14_3">DE</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c1"># control algorithm: DE</span>
-<span class="n">DE_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;ctrl0&quot;</span><span class="p">:</span><span class="n">ctrl0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">1000</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> \
-            <span class="s2">&quot;cr&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
-<span class="n">control</span> <span class="o">=</span> <span class="n">ControlOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DE&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DE_paras</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_14_4" name="__tabbed_14" type="radio" /><label for="__tabbed_14_4">DDPG</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c1"># control algorithm: DDPG</span>
-<span class="n">DDPG_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;layer_num&quot;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;layer_dim&quot;</span><span class="p">:</span><span class="mi">220</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">500</span><span class="p">,</span> \
-              <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
-<span class="n">control</span> <span class="o">=</span> <span class="n">ControlOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DDPG&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DDPG_paras</span><span class="p">)</span>
-</code></pre></div>
-</div>
-</div>
 <div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
 <span class="n">control</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">,</span> \
-                 <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
-</code></pre></div>
-<div class="tabbed-set" data-tabs="15:3"><input checked="checked" id="__tabbed_15_1" name="__tabbed_15" type="radio" /><label for="__tabbed_15_1">QFIM</label><div class="tabbed-content">
+             <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+</code></pre></div></p>
+<div class="tabbed-set" data-tabs="19:2"><input checked="checked" id="__tabbed_19_1" name="__tabbed_19" type="radio" /><label for="__tabbed_19_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WF^{-1})</span>
 <span class="n">control</span><span class="o">.</span><span class="n">QFIM</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_15_2" name="__tabbed_15" type="radio" /><label for="__tabbed_15_2">CFIM</label><div class="tabbed-content">
+<input id="__tabbed_19_2" name="__tabbed_19" type="radio" /><label for="__tabbed_19_2">CFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WI^{-1})</span>
 <span class="n">control</span><span class="o">.</span><span class="n">CFIM</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_15_3" name="__tabbed_15" type="radio" /><label for="__tabbed_15_3">HCRB</label><div class="tabbed-content">
+</div>
+</div>
+<input id="__tabbed_18_2" name="__tabbed_18" type="radio" /><label for="__tabbed_18_2">PSO</label><div class="tabbed-content">
+<p><div class="highlight"><pre><span></span><code><span class="c1"># control algorithm: PSO</span>
+<span class="n">PSO_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;ctrl0&quot;</span><span class="p">:</span><span class="n">ctrl0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> \
+             <span class="s2">&quot;c0&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;c1&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;c2&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
+<span class="n">control</span> <span class="o">=</span> <span class="n">ControlOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;PSO&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">PSO_paras</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
+<span class="n">control</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">,</span> \
+             <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+</code></pre></div></p>
+<div class="tabbed-set" data-tabs="20:3"><input checked="checked" id="__tabbed_20_1" name="__tabbed_20" type="radio" /><label for="__tabbed_20_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WF^{-1})</span>
+<span class="n">control</span><span class="o">.</span><span class="n">QFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_20_2" name="__tabbed_20" type="radio" /><label for="__tabbed_20_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WI^{-1})</span>
+<span class="n">control</span><span class="o">.</span><span class="n">CFIM</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_20_3" name="__tabbed_20" type="radio" /><label for="__tabbed_20_3">HCRB</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: HCRB</span>
 <span class="n">control</span><span class="o">.</span><span class="n">HCRB</span><span class="p">()</span>
 </code></pre></div>
 </div>
 </div>
 </div>
-<input id="__tabbed_13_2" name="__tabbed_13" type="radio" /><label for="__tabbed_13_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_18_3" name="__tabbed_18" type="radio" /><label for="__tabbed_18_3">DE</label><div class="tabbed-content">
+<p><div class="highlight"><pre><span></span><code><span class="c1"># control algorithm: DE</span>
+<span class="n">DE_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;ctrl0&quot;</span><span class="p">:</span><span class="n">ctrl0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">1000</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> \
+            <span class="s2">&quot;cr&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
+<span class="n">control</span> <span class="o">=</span> <span class="n">ControlOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DE&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DE_paras</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
+<span class="n">control</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">,</span> \
+             <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+</code></pre></div></p>
+<div class="tabbed-set" data-tabs="21:3"><input checked="checked" id="__tabbed_21_1" name="__tabbed_21" type="radio" /><label for="__tabbed_21_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WF^{-1})</span>
+<span class="n">control</span><span class="o">.</span><span class="n">QFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_21_2" name="__tabbed_21" type="radio" /><label for="__tabbed_21_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WI^{-1})</span>
+<span class="n">control</span><span class="o">.</span><span class="n">CFIM</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_21_3" name="__tabbed_21" type="radio" /><label for="__tabbed_21_3">HCRB</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: HCRB</span>
+<span class="n">control</span><span class="o">.</span><span class="n">HCRB</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_18_4" name="__tabbed_18" type="radio" /><label for="__tabbed_18_4">DDPG</label><div class="tabbed-content">
+<p><div class="highlight"><pre><span></span><code><span class="c1"># control algorithm: DDPG</span>
+<span class="n">DDPG_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;layer_num&quot;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;layer_dim&quot;</span><span class="p">:</span><span class="mi">220</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">500</span><span class="p">,</span> \
+              <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
+<span class="n">control</span> <span class="o">=</span> <span class="n">ControlOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DDPG&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DDPG_paras</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
+<span class="n">control</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">,</span> \
+             <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+</code></pre></div></p>
+<div class="tabbed-set" data-tabs="22:2"><input checked="checked" id="__tabbed_22_1" name="__tabbed_22" type="radio" /><label for="__tabbed_22_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WF^{-1})</span>
+<span class="n">control</span><span class="o">.</span><span class="n">QFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_22_2" name="__tabbed_22" type="radio" /><label for="__tabbed_22_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WI^{-1})</span>
+<span class="n">control</span><span class="o">.</span><span class="n">CFIM</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<input id="__tabbed_17_2" name="__tabbed_17" type="radio" /><label for="__tabbed_17_2">Julia</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="k">using</span> <span class="n">QuanEstimation</span>
 <span class="k">using</span> <span class="n">Random</span>
 <span class="k">using</span> <span class="n">LinearAlgebra</span>
@@ -1698,51 +1791,88 @@ to the eigenvalue 1. <span class="arithmatex">\(W\)</span> is set to be identity
 <span class="c"># set the optimization type</span>
 <span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">ControlOpt</span><span class="p">(</span><span class="n">ctrl</span><span class="o">=</span><span class="n">ini_1</span><span class="p">,</span> <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 </code></pre></div>
-<div class="tabbed-set" data-tabs="16:4"><input checked="checked" id="__tabbed_16_1" name="__tabbed_16" type="radio" /><label for="__tabbed_16_1">auto-GRAPE</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="23:4"><input checked="checked" id="__tabbed_23_1" name="__tabbed_23" type="radio" /><label for="__tabbed_23_1">auto-GRAPE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># control algorithm: auto-GRAPE</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">autoGRAPE</span><span class="p">(</span><span class="n">Adam</span><span class="o">=</span><span class="nb">true</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> 
                                <span class="n">beta1</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
 </code></pre></div>
-</div>
-<input id="__tabbed_16_2" name="__tabbed_16" type="radio" /><label for="__tabbed_16_2">PSO</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># control algorithm: PSO</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_particle</span><span class="o">=</span><span class="p">([</span><span class="n">ctrl</span><span class="p">],),</span> 
-                         <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
-                         <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_16_3" name="__tabbed_16" type="radio" /><label for="__tabbed_16_3">DE</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># control algorithm: DE</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_population</span><span class="o">=</span><span class="p">([</span><span class="n">ctrl</span><span class="p">],),</span> 
-                        <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_16_4" name="__tabbed_16" type="radio" /><label for="__tabbed_16_4">DDPG</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># control algorithm: DDPG</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DDPG</span><span class="p">(</span><span class="n">max_episode</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">layer_num</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">layer_dim</span><span class="o">=</span><span class="mi">220</span><span class="p">)</span>
-</code></pre></div>
-</div>
-</div>
-<div class="highlight"><pre><span></span><code><span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="p">)</span>  
-</code></pre></div>
-<div class="tabbed-set" data-tabs="17:3"><input checked="checked" id="__tabbed_17_1" name="__tabbed_17" type="radio" /><label for="__tabbed_17_1">QFIM</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="24:2"><input checked="checked" id="__tabbed_24_1" name="__tabbed_24" type="radio" /><label for="__tabbed_24_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WF^{-1})</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_17_2" name="__tabbed_17" type="radio" /><label for="__tabbed_17_2">CFIM</label><div class="tabbed-content">
+<input id="__tabbed_24_2" name="__tabbed_24" type="radio" /><label for="__tabbed_24_2">CFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WI^{-1})</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_17_3" name="__tabbed_17" type="radio" /><label for="__tabbed_17_3">HCRB</label><div class="tabbed-content">
+</div>
+</div>
+<input id="__tabbed_23_2" name="__tabbed_23" type="radio" /><label for="__tabbed_23_2">PSO</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># control algorithm: PSO</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_particle</span><span class="o">=</span><span class="p">(</span><span class="n">ctrl0</span><span class="p">,),</span> 
+                         <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
+                         <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="25:3"><input checked="checked" id="__tabbed_25_1" name="__tabbed_25" type="radio" /><label for="__tabbed_25_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WF^{-1})</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_25_2" name="__tabbed_25" type="radio" /><label for="__tabbed_25_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WI^{-1})</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_25_3" name="__tabbed_25" type="radio" /><label for="__tabbed_25_3">HCRB</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: HCRB</span>
-<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">HCRB_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">HCRB_obj</span><span class="p">()</span>
 </code></pre></div>
 </div>
 </div>
-<div class="highlight"><pre><span></span><code><span class="c"># run the control optimization problem</span>
+</div>
+<input id="__tabbed_23_3" name="__tabbed_23" type="radio" /><label for="__tabbed_23_3">DE</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># control algorithm: DE</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_population</span><span class="o">=</span><span class="p">(</span><span class="n">ctrl0</span><span class="p">,),</span> 
+                        <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="26:3"><input checked="checked" id="__tabbed_26_1" name="__tabbed_26" type="radio" /><label for="__tabbed_26_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WF^{-1})</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_26_2" name="__tabbed_26" type="radio" /><label for="__tabbed_26_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WI^{-1})</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_26_3" name="__tabbed_26" type="radio" /><label for="__tabbed_26_3">HCRB</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: HCRB</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">HCRB_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_23_4" name="__tabbed_23" type="radio" /><label for="__tabbed_23_4">DDPG</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># control algorithm: DDPG</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DDPG</span><span class="p">(</span><span class="n">max_episode</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">layer_num</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">layer_dim</span><span class="o">=</span><span class="mi">220</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="27:2"><input checked="checked" id="__tabbed_27_1" name="__tabbed_27" type="radio" /><label for="__tabbed_27_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WF^{-1})</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_27_2" name="__tabbed_27" type="radio" /><label for="__tabbed_27_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WI^{-1})</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="highlight"><pre><span></span><code><span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="p">)</span>  
+<span class="c"># run the control optimization problem</span>
 <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
@@ -1750,12 +1880,12 @@ to the eigenvalue 1. <span class="arithmatex">\(W\)</span> is set to be identity
 <hr />
 <h2 id="minimum-parameterization-time-optimization"><strong>Minimum parameterization time optimization</strong><a class="headerlink" href="#minimum-parameterization-time-optimization" title="Permanent link">&para;</a></h2>
 <p>Search of the minimum time to reach a given value of the objective function.</p>
-<div class="tabbed-set" data-tabs="18:2"><input checked="checked" id="__tabbed_18_1" name="__tabbed_18" type="radio" /><label for="__tabbed_18_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="28:2"><input checked="checked" id="__tabbed_28_1" name="__tabbed_28" type="radio" /><label for="__tabbed_28_1">Python</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">control</span><span class="o">.</span><span class="n">mintime</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">W</span><span class="o">=</span><span class="p">[],</span> <span class="n">M</span><span class="o">=</span><span class="p">[],</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;binary&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;QFIM&quot;</span><span class="p">,</span> 
                 <span class="n">LDtype</span><span class="o">=</span><span class="s2">&quot;SLD&quot;</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_18_2" name="__tabbed_18" type="radio" /><label for="__tabbed_18_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_28_2" name="__tabbed_28" type="radio" /><label for="__tabbed_28_2">Julia</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">mintime</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;binary&quot;</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>

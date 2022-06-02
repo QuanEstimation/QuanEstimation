@@ -1598,33 +1598,6 @@ for generation of the spin coherent state.</p>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">AD</span><span class="p">(</span><span class="n">Adam</span><span class="o">=</span><span class="nb">false</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> 
                         <span class="n">beta1</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
 </code></pre></div>
-</div>
-<input id="__tabbed_13_2" name="__tabbed_13" type="radio" /><label for="__tabbed_13_2">PSO</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: PSO</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
-                         <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_13_3" name="__tabbed_13" type="radio" /><label for="__tabbed_13_3">DE</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: DE</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_13_4" name="__tabbed_13" type="radio" /><label for="__tabbed_13_4">NM</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: NM</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">NM</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
-                        <span class="n">ae</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">ac</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">as0</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_13_5" name="__tabbed_13" type="radio" /><label for="__tabbed_13_5">DDPG</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: DDPG</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DDPG</span><span class="p">(</span><span class="n">max_episode</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">layer_num</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layer_dim</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
-</code></pre></div>
-</div>
-</div>
-<div class="highlight"><pre><span></span><code><span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
-</code></pre></div>
 <div class="tabbed-set" data-tabs="14:2"><input checked="checked" id="__tabbed_14_1" name="__tabbed_14" type="radio" /><label for="__tabbed_14_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
@@ -1636,7 +1609,77 @@ for generation of the spin coherent state.</p>
 </code></pre></div>
 </div>
 </div>
-<div class="highlight"><pre><span></span><code><span class="c"># run the state optimization problem</span>
+</div>
+<input id="__tabbed_13_2" name="__tabbed_13" type="radio" /><label for="__tabbed_13_2">PSO</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: PSO</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
+                         <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="15:2"><input checked="checked" id="__tabbed_15_1" name="__tabbed_15" type="radio" /><label for="__tabbed_15_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_15_2" name="__tabbed_15" type="radio" /><label for="__tabbed_15_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: CFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_13_3" name="__tabbed_13" type="radio" /><label for="__tabbed_13_3">DE</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: DE</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="16:2"><input checked="checked" id="__tabbed_16_1" name="__tabbed_16" type="radio" /><label for="__tabbed_16_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_16_2" name="__tabbed_16" type="radio" /><label for="__tabbed_16_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: CFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_13_4" name="__tabbed_13" type="radio" /><label for="__tabbed_13_4">NM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: NM</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">NM</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
+                        <span class="n">ae</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">ac</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">as0</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="17:2"><input checked="checked" id="__tabbed_17_1" name="__tabbed_17" type="radio" /><label for="__tabbed_17_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_17_2" name="__tabbed_17" type="radio" /><label for="__tabbed_17_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: CFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_13_5" name="__tabbed_13" type="radio" /><label for="__tabbed_13_5">DDPG</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: DDPG</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DDPG</span><span class="p">(</span><span class="n">max_episode</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">layer_num</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layer_dim</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="18:2"><input checked="checked" id="__tabbed_18_1" name="__tabbed_18" type="radio" /><label for="__tabbed_18_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_18_2" name="__tabbed_18" type="radio" /><label for="__tabbed_18_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: CFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="highlight"><pre><span></span><code><span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
+<span class="c"># run the state optimization problem</span>
 <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
@@ -1644,7 +1687,7 @@ for generation of the spin coherent state.</p>
 <p><strong>Example 6.2</strong><br />
 <a id="example6_2"></a>
 In the multiparameter scenario, <span class="arithmatex">\(g\)</span> and <span class="arithmatex">\(h\)</span> are chooen to be the unknown parameters to be estimated.</p>
-<div class="tabbed-set" data-tabs="15:2"><input checked="checked" id="__tabbed_15_1" name="__tabbed_15" type="radio" /><label for="__tabbed_15_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="19:2"><input checked="checked" id="__tabbed_19_1" name="__tabbed_19" type="radio" /><label for="__tabbed_19_1">Python</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">quanestimation</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">qutip</span> <span class="kn">import</span> <span class="o">*</span>
@@ -1670,63 +1713,134 @@ In the multiparameter scenario, <span class="arithmatex">\(g\)</span> and <span 
 <span class="c1"># weight matrix</span>
 <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">]])</span>
 </code></pre></div>
-<div class="tabbed-set" data-tabs="16:5"><input checked="checked" id="__tabbed_16_1" name="__tabbed_16" type="radio" /><label for="__tabbed_16_1">AD</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: AD</span>
+<div class="tabbed-set" data-tabs="20:5"><input checked="checked" id="__tabbed_20_1" name="__tabbed_20" type="radio" /><label for="__tabbed_20_1">AD</label><div class="tabbed-content">
+<p><div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: AD</span>
 <span class="n">AD_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Adam&quot;</span><span class="p">:</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;psi0&quot;</span><span class="p">:</span><span class="n">psi0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">300</span><span class="p">,</span> \
             <span class="s2">&quot;epsilon&quot;</span><span class="p">:</span><span class="mf">0.01</span><span class="p">,</span> <span class="s2">&quot;beta1&quot;</span><span class="p">:</span><span class="mf">0.90</span><span class="p">,</span> <span class="s2">&quot;beta2&quot;</span><span class="p">:</span><span class="mf">0.99</span><span class="p">}</span>
 <span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;AD&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">AD_paras</span><span class="p">)</span>
 </code></pre></div>
-</div>
-<input id="__tabbed_16_2" name="__tabbed_16" type="radio" /><label for="__tabbed_16_2">PSO</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: PSO</span>
-<span class="n">PSO_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;psi0&quot;</span><span class="p">:</span><span class="n">psi0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> \
-             <span class="s2">&quot;c0&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;c1&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;c2&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
-<span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;PSO&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">PSO_paras</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_16_3" name="__tabbed_16" type="radio" /><label for="__tabbed_16_3">DE</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: DE</span>
-<span class="n">DE_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;psi0&quot;</span><span class="p">:</span><span class="n">psi0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">1000</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> \
-            <span class="s2">&quot;cr&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
-<span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DE&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DE_paras</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_16_4" name="__tabbed_16" type="radio" /><label for="__tabbed_16_4">NM</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: NM</span>
-<span class="n">NM_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;psi0&quot;</span><span class="p">:</span><span class="n">psi0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">1000</span><span class="p">,</span> \
-            <span class="s2">&quot;ar&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;ae&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;ac&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;as0&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
-<span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;NM&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">NM_paras</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_16_5" name="__tabbed_16" type="radio" /><label for="__tabbed_16_5">DDPG</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: DDPG</span>
-<span class="n">DDPG_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;layer_num&quot;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;layer_dim&quot;</span><span class="p">:</span><span class="mi">250</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">500</span><span class="p">,</span> \
-              <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
-<span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DDPG&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DDPG_paras</span><span class="p">)</span>
-</code></pre></div>
-</div>
-</div>
 <div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
 <span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>
-</code></pre></div>
-<div class="tabbed-set" data-tabs="17:3"><input checked="checked" id="__tabbed_17_1" name="__tabbed_17" type="radio" /><label for="__tabbed_17_1">QFIM</label><div class="tabbed-content">
+</code></pre></div></p>
+<div class="tabbed-set" data-tabs="21:3"><input checked="checked" id="__tabbed_21_1" name="__tabbed_21" type="radio" /><label for="__tabbed_21_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WF^{-1})</span>
 <span class="n">state</span><span class="o">.</span><span class="n">QFIM</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_17_2" name="__tabbed_17" type="radio" /><label for="__tabbed_17_2">CFIM</label><div class="tabbed-content">
+<input id="__tabbed_21_2" name="__tabbed_21" type="radio" /><label for="__tabbed_21_2">CFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WI^{-1})</span>
 <span class="n">state</span><span class="o">.</span><span class="n">CFIM</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_17_3" name="__tabbed_17" type="radio" /><label for="__tabbed_17_3">HCRB</label><div class="tabbed-content">
+<input id="__tabbed_21_3" name="__tabbed_21" type="radio" /><label for="__tabbed_21_3">HCRB</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: HCRB</span>
 <span class="n">state</span><span class="o">.</span><span class="n">HCRB</span><span class="p">()</span>
 </code></pre></div>
 </div>
 </div>
 </div>
-<input id="__tabbed_15_2" name="__tabbed_15" type="radio" /><label for="__tabbed_15_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_20_2" name="__tabbed_20" type="radio" /><label for="__tabbed_20_2">PSO</label><div class="tabbed-content">
+<p><div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: PSO</span>
+<span class="n">PSO_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;psi0&quot;</span><span class="p">:</span><span class="n">psi0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> \
+             <span class="s2">&quot;c0&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;c1&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;c2&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;PSO&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">PSO_paras</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
+<span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>
+</code></pre></div></p>
+<div class="tabbed-set" data-tabs="22:3"><input checked="checked" id="__tabbed_22_1" name="__tabbed_22" type="radio" /><label for="__tabbed_22_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WF^{-1})</span>
+<span class="n">state</span><span class="o">.</span><span class="n">QFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_22_2" name="__tabbed_22" type="radio" /><label for="__tabbed_22_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WI^{-1})</span>
+<span class="n">state</span><span class="o">.</span><span class="n">CFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_22_3" name="__tabbed_22" type="radio" /><label for="__tabbed_22_3">HCRB</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: HCRB</span>
+<span class="n">state</span><span class="o">.</span><span class="n">HCRB</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_20_3" name="__tabbed_20" type="radio" /><label for="__tabbed_20_3">DE</label><div class="tabbed-content">
+<p><div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: DE</span>
+<span class="n">DE_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;psi0&quot;</span><span class="p">:</span><span class="n">psi0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">1000</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> \
+            <span class="s2">&quot;cr&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DE&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DE_paras</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
+<span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>
+</code></pre></div></p>
+<div class="tabbed-set" data-tabs="23:3"><input checked="checked" id="__tabbed_23_1" name="__tabbed_23" type="radio" /><label for="__tabbed_23_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WF^{-1})</span>
+<span class="n">state</span><span class="o">.</span><span class="n">QFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_23_2" name="__tabbed_23" type="radio" /><label for="__tabbed_23_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WI^{-1})</span>
+<span class="n">state</span><span class="o">.</span><span class="n">CFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_23_3" name="__tabbed_23" type="radio" /><label for="__tabbed_23_3">HCRB</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: HCRB</span>
+<span class="n">state</span><span class="o">.</span><span class="n">HCRB</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_20_4" name="__tabbed_20" type="radio" /><label for="__tabbed_20_4">NM</label><div class="tabbed-content">
+<p><div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: NM</span>
+<span class="n">NM_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;psi0&quot;</span><span class="p">:</span><span class="n">psi0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">1000</span><span class="p">,</span> \
+            <span class="s2">&quot;ar&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;ae&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;ac&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;as0&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;NM&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">NM_paras</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
+<span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>
+</code></pre></div></p>
+<div class="tabbed-set" data-tabs="24:3"><input checked="checked" id="__tabbed_24_1" name="__tabbed_24" type="radio" /><label for="__tabbed_24_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WF^{-1})</span>
+<span class="n">state</span><span class="o">.</span><span class="n">QFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_24_2" name="__tabbed_24" type="radio" /><label for="__tabbed_24_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WI^{-1})</span>
+<span class="n">state</span><span class="o">.</span><span class="n">CFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_24_3" name="__tabbed_24" type="radio" /><label for="__tabbed_24_3">HCRB</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: HCRB</span>
+<span class="n">state</span><span class="o">.</span><span class="n">HCRB</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_20_5" name="__tabbed_20" type="radio" /><label for="__tabbed_20_5">DDPG</label><div class="tabbed-content">
+<p><div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: DDPG</span>
+<span class="n">DDPG_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;layer_num&quot;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;layer_dim&quot;</span><span class="p">:</span><span class="mi">250</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">500</span><span class="p">,</span> \
+              <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DDPG&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DDPG_paras</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
+<span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>
+</code></pre></div></p>
+<div class="tabbed-set" data-tabs="25:2"><input checked="checked" id="__tabbed_25_1" name="__tabbed_25" type="radio" /><label for="__tabbed_25_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WF^{-1})</span>
+<span class="n">state</span><span class="o">.</span><span class="n">QFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_25_2" name="__tabbed_25" type="radio" /><label for="__tabbed_25_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WI^{-1})</span>
+<span class="n">state</span><span class="o">.</span><span class="n">CFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<input id="__tabbed_19_2" name="__tabbed_19" type="radio" /><label for="__tabbed_19_2">Julia</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="k">using</span> <span class="n">QuanEstimation</span>
 <span class="k">using</span> <span class="n">Random</span>
 <span class="k">using</span> <span class="n">StableRNGs</span>
@@ -1759,93 +1873,146 @@ In the multiparameter scenario, <span class="arithmatex">\(g\)</span> and <span 
 <span class="c"># set the optimization type</span>
 <span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">StateOpt</span><span class="p">(</span><span class="n">psi</span><span class="o">=</span><span class="n">psi0</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 </code></pre></div>
-<div class="tabbed-set" data-tabs="18:5"><input checked="checked" id="__tabbed_18_1" name="__tabbed_18" type="radio" /><label for="__tabbed_18_1">AD</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="26:5"><input checked="checked" id="__tabbed_26_1" name="__tabbed_26" type="radio" /><label for="__tabbed_26_1">AD</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: AD</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">AD</span><span class="p">(</span><span class="n">Adam</span><span class="o">=</span><span class="nb">false</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> 
                         <span class="n">beta1</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
 </code></pre></div>
-</div>
-<input id="__tabbed_18_2" name="__tabbed_18" type="radio" /><label for="__tabbed_18_2">PSO</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: PSO</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
-                         <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_18_3" name="__tabbed_18" type="radio" /><label for="__tabbed_18_3">DE</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: DE</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_18_4" name="__tabbed_18" type="radio" /><label for="__tabbed_18_4">NM</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: NM</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">NM</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
-                        <span class="n">ae</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">ac</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">as0</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_18_5" name="__tabbed_18" type="radio" /><label for="__tabbed_18_5">DDPG</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: DDPG</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DDPG</span><span class="p">(</span><span class="n">max_episode</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">layer_num</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layer_dim</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
-</code></pre></div>
-</div>
-</div>
-<div class="highlight"><pre><span></span><code><span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
-</code></pre></div>
-<div class="tabbed-set" data-tabs="19:3"><input checked="checked" id="__tabbed_19_1" name="__tabbed_19" type="radio" /><label for="__tabbed_19_1">QFIM</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="27:2"><input checked="checked" id="__tabbed_27_1" name="__tabbed_27" type="radio" /><label for="__tabbed_27_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WF^{-1})</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_19_2" name="__tabbed_19" type="radio" /><label for="__tabbed_19_2">CFIM</label><div class="tabbed-content">
+<input id="__tabbed_27_2" name="__tabbed_27" type="radio" /><label for="__tabbed_27_2">CFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WI^{-1})</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_19_3" name="__tabbed_19" type="radio" /><label for="__tabbed_19_3">HCRB</label><div class="tabbed-content">
+</div>
+</div>
+<input id="__tabbed_26_2" name="__tabbed_26" type="radio" /><label for="__tabbed_26_2">PSO</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: PSO</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
+                         <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="28:3"><input checked="checked" id="__tabbed_28_1" name="__tabbed_28" type="radio" /><label for="__tabbed_28_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WF^{-1})</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_28_2" name="__tabbed_28" type="radio" /><label for="__tabbed_28_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WI^{-1})</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_28_3" name="__tabbed_28" type="radio" /><label for="__tabbed_28_3">HCRB</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: HCRB</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">HCRB_obj</span><span class="p">()</span>
 </code></pre></div>
 </div>
 </div>
-<div class="highlight"><pre><span></span><code><span class="c"># run the state optimization problem</span>
+</div>
+<input id="__tabbed_26_3" name="__tabbed_26" type="radio" /><label for="__tabbed_26_3">DE</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: DE</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="29:3"><input checked="checked" id="__tabbed_29_1" name="__tabbed_29" type="radio" /><label for="__tabbed_29_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WF^{-1})</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_29_2" name="__tabbed_29" type="radio" /><label for="__tabbed_29_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WI^{-1})</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_29_3" name="__tabbed_29" type="radio" /><label for="__tabbed_29_3">HCRB</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: HCRB</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">HCRB_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_26_4" name="__tabbed_26" type="radio" /><label for="__tabbed_26_4">NM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: NM</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">NM</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
+                        <span class="n">ae</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">ac</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">as0</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="30:3"><input checked="checked" id="__tabbed_30_1" name="__tabbed_30" type="radio" /><label for="__tabbed_30_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WF^{-1})</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_30_2" name="__tabbed_30" type="radio" /><label for="__tabbed_30_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WI^{-1})</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_30_3" name="__tabbed_30" type="radio" /><label for="__tabbed_30_3">HCRB</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: HCRB</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">HCRB_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_26_5" name="__tabbed_26" type="radio" /><label for="__tabbed_26_5">DDPG</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: DDPG</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DDPG</span><span class="p">(</span><span class="n">max_episode</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">layer_num</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layer_dim</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="31:2"><input checked="checked" id="__tabbed_31_1" name="__tabbed_31" type="radio" /><label for="__tabbed_31_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WF^{-1})</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_31_2" name="__tabbed_31" type="radio" /><label for="__tabbed_31_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WI^{-1})</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="highlight"><pre><span></span><code><span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
+<span class="c"># run the state optimization problem</span>
 <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
 <p>If the parameterization process is implemented with the Kraus operators, then the corresponding 
 codes are</p>
-<div class="tabbed-set" data-tabs="20:2"><input checked="checked" id="__tabbed_20_1" name="__tabbed_20" type="radio" /><label for="__tabbed_20_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="32:2"><input checked="checked" id="__tabbed_32_1" name="__tabbed_32" type="radio" /><label for="__tabbed_32_1">Python</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;AD&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 <span class="n">state</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">Kraus</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">)</span>
 </code></pre></div>
-<div class="tabbed-set" data-tabs="21:3"><input checked="checked" id="__tabbed_21_1" name="__tabbed_21" type="radio" /><label for="__tabbed_21_1">QFIM</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="33:3"><input checked="checked" id="__tabbed_33_1" name="__tabbed_33" type="radio" /><label for="__tabbed_33_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">state</span><span class="o">.</span><span class="n">QFIM</span><span class="p">(</span><span class="n">W</span><span class="o">=</span><span class="p">[],</span> <span class="n">LDtype</span><span class="o">=</span><span class="s2">&quot;SLD&quot;</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_21_2" name="__tabbed_21" type="radio" /><label for="__tabbed_21_2">CFIM</label><div class="tabbed-content">
+<input id="__tabbed_33_2" name="__tabbed_33" type="radio" /><label for="__tabbed_33_2">CFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">state</span><span class="o">.</span><span class="n">CFIM</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="p">[],</span> <span class="n">W</span><span class="o">=</span><span class="p">[])</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_21_3" name="__tabbed_21" type="radio" /><label for="__tabbed_21_3">HCRB</label><div class="tabbed-content">
+<input id="__tabbed_33_3" name="__tabbed_33" type="radio" /><label for="__tabbed_33_3">HCRB</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">state</span><span class="o">.</span><span class="n">HCRB</span><span class="p">(</span><span class="n">W</span><span class="o">=</span><span class="p">[])</span>
 </code></pre></div>
 </div>
 </div>
 </div>
-<input id="__tabbed_20_2" name="__tabbed_20" type="radio" /><label for="__tabbed_20_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_32_2" name="__tabbed_32" type="radio" /><label for="__tabbed_32_2">Julia</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">psi</span><span class="o">=</span><span class="n">psi</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">AD</span><span class="p">(</span><span class="n">kwargs</span><span class="o">...</span><span class="p">)</span>
 <span class="n">dynamics</span> <span class="o">=</span> <span class="n">Kraus</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">)</span>
 </code></pre></div>
-<div class="tabbed-set" data-tabs="22:3"><input checked="checked" id="__tabbed_22_1" name="__tabbed_22" type="radio" /><label for="__tabbed_22_1">QFIM</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="34:3"><input checked="checked" id="__tabbed_34_1" name="__tabbed_34" type="radio" /><label for="__tabbed_34_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">obj</span> <span class="o">=</span> <span class="n">QFIM_obj</span><span class="p">(</span><span class="n">W</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">LDtype</span><span class="o">=</span><span class="ss">:SLD</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_22_2" name="__tabbed_22" type="radio" /><label for="__tabbed_22_2">CFIM</label><div class="tabbed-content">
+<input id="__tabbed_34_2" name="__tabbed_34" type="radio" /><label for="__tabbed_34_2">CFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">obj</span> <span class="o">=</span> <span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">W</span><span class="o">=</span><span class="nb">missing</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_22_3" name="__tabbed_22" type="radio" /><label for="__tabbed_22_3">HCRB</label><div class="tabbed-content">
+<input id="__tabbed_34_3" name="__tabbed_34" type="radio" /><label for="__tabbed_34_3">HCRB</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">obj</span> <span class="o">=</span> <span class="n">HCRB_obj</span><span class="p">(</span><span class="n">W</span><span class="o">=</span><span class="nb">missing</span><span class="p">)</span>
 </code></pre></div>
 </div>
@@ -1869,7 +2036,7 @@ K_2 = \left(\begin{array}{cc}
 \end{array}\right), \nonumber
 \end{eqnarray}\]</div>
 <p>where <span class="arithmatex">\(\gamma\)</span> is the unknown parameter to be estimated which represents the decay probability.</p>
-<div class="tabbed-set" data-tabs="23:2"><input checked="checked" id="__tabbed_23_1" name="__tabbed_23" type="radio" /><label for="__tabbed_23_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="35:2"><input checked="checked" id="__tabbed_35_1" name="__tabbed_35" type="radio" /><label for="__tabbed_35_1">Python</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">quanestimation</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -1885,69 +2052,129 @@ K_2 = \left(\begin{array}{cc}
 <span class="n">dK2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.5</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">gamma</span><span class="p">)],</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">]])</span>
 <span class="n">dK</span> <span class="o">=</span> <span class="p">[[</span><span class="n">dK1</span><span class="p">],</span> <span class="p">[</span><span class="n">dK2</span><span class="p">]]</span>
 </code></pre></div>
-<div class="tabbed-set" data-tabs="24:6"><input checked="checked" id="__tabbed_24_1" name="__tabbed_24" type="radio" /><label for="__tabbed_24_1">AD</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: AD</span>
+<div class="tabbed-set" data-tabs="36:6"><input checked="checked" id="__tabbed_36_1" name="__tabbed_36" type="radio" /><label for="__tabbed_36_1">AD</label><div class="tabbed-content">
+<p><div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: AD</span>
 <span class="n">AD_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Adam&quot;</span><span class="p">:</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;psi0&quot;</span><span class="p">:</span><span class="n">psi0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">300</span><span class="p">,</span> \
             <span class="s2">&quot;epsilon&quot;</span><span class="p">:</span><span class="mf">0.01</span><span class="p">,</span> <span class="s2">&quot;beta1&quot;</span><span class="p">:</span><span class="mf">0.90</span><span class="p">,</span> <span class="s2">&quot;beta2&quot;</span><span class="p">:</span><span class="mf">0.99</span><span class="p">}</span>
 <span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;AD&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">AD_paras</span><span class="p">)</span>
 </code></pre></div>
-</div>
-<input id="__tabbed_24_2" name="__tabbed_24" type="radio" /><label for="__tabbed_24_2">RI</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: RI</span>
-<span class="n">RI_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;psi0&quot;</span><span class="p">:</span><span class="n">psi0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">300</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mf">0.01</span><span class="p">}</span>
-<span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;RI&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">RI_paras</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_24_3" name="__tabbed_24" type="radio" /><label for="__tabbed_24_3">PSO</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: PSO</span>
-<span class="n">PSO_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;psi0&quot;</span><span class="p">:</span><span class="n">psi0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> \
-             <span class="s2">&quot;c0&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;c1&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;c2&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
-<span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;PSO&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">PSO_paras</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_24_4" name="__tabbed_24" type="radio" /><label for="__tabbed_24_4">DE</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: DE</span>
-<span class="n">DE_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;psi0&quot;</span><span class="p">:</span><span class="n">psi0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">1000</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> \
-            <span class="s2">&quot;cr&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
-<span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DE&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DE_paras</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_24_5" name="__tabbed_24" type="radio" /><label for="__tabbed_24_5">NM</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: NM</span>
-<span class="n">NM_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;psi0&quot;</span><span class="p">:</span><span class="n">psi0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">1000</span><span class="p">,</span> \
-            <span class="s2">&quot;ar&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;ae&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;ac&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;as0&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
-<span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;NM&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">NM_paras</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_24_6" name="__tabbed_24" type="radio" /><label for="__tabbed_24_6">DDPG</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: DDPG</span>
-<span class="n">DDPG_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;layer_num&quot;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;layer_dim&quot;</span><span class="p">:</span><span class="mi">250</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">500</span><span class="p">,</span> \
-              <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
-<span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DDPG&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DDPG_paras</span><span class="p">)</span>
-</code></pre></div>
-</div>
-</div>
 <div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
 <span class="n">state</span><span class="o">.</span><span class="n">Kraus</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">)</span>
-</code></pre></div>
-<div class="tabbed-set" data-tabs="25:3"><input checked="checked" id="__tabbed_25_1" name="__tabbed_25" type="radio" /><label for="__tabbed_25_1">QFIM</label><div class="tabbed-content">
+</code></pre></div></p>
+<div class="tabbed-set" data-tabs="37:2"><input checked="checked" id="__tabbed_37_1" name="__tabbed_37" type="radio" /><label for="__tabbed_37_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: QFI</span>
 <span class="n">state</span><span class="o">.</span><span class="n">QFIM</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_25_2" name="__tabbed_25" type="radio" /><label for="__tabbed_25_2">CFIM</label><div class="tabbed-content">
+<input id="__tabbed_37_2" name="__tabbed_37" type="radio" /><label for="__tabbed_37_2">CFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: CFI</span>
 <span class="n">state</span><span class="o">.</span><span class="n">CFIM</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_25_3" name="__tabbed_25" type="radio" /><label for="__tabbed_25_3">HCRB</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c1"># objective function: HCRB</span>
-<span class="n">state</span><span class="o">.</span><span class="n">HCRB</span><span class="p">()</span>
+</div>
+</div>
+<input id="__tabbed_36_2" name="__tabbed_36" type="radio" /><label for="__tabbed_36_2">RI</label><div class="tabbed-content">
+<p><div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: RI</span>
+<span class="n">RI_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;psi0&quot;</span><span class="p">:</span><span class="n">psi0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">300</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mf">0.01</span><span class="p">}</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;RI&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">RI_paras</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
+<span class="n">state</span><span class="o">.</span><span class="n">Kraus</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">)</span>
+</code></pre></div></p>
+<div class="tabbed-set" data-tabs="38:1"><input checked="checked" id="__tabbed_38_1" name="__tabbed_38" type="radio" /><label for="__tabbed_38_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: QFI</span>
+<span class="n">state</span><span class="o">.</span><span class="n">QFIM</span><span class="p">()</span>
 </code></pre></div>
 </div>
 </div>
 </div>
-<input id="__tabbed_23_2" name="__tabbed_23" type="radio" /><label for="__tabbed_23_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_36_3" name="__tabbed_36" type="radio" /><label for="__tabbed_36_3">PSO</label><div class="tabbed-content">
+<p><div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: PSO</span>
+<span class="n">PSO_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;psi0&quot;</span><span class="p">:</span><span class="n">psi0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> \
+             <span class="s2">&quot;c0&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;c1&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;c2&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;PSO&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">PSO_paras</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
+<span class="n">state</span><span class="o">.</span><span class="n">Kraus</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">)</span>
+</code></pre></div></p>
+<div class="tabbed-set" data-tabs="39:2"><input checked="checked" id="__tabbed_39_1" name="__tabbed_39" type="radio" /><label for="__tabbed_39_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: QFI</span>
+<span class="n">state</span><span class="o">.</span><span class="n">QFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_39_2" name="__tabbed_39" type="radio" /><label for="__tabbed_39_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: CFI</span>
+<span class="n">state</span><span class="o">.</span><span class="n">CFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_36_4" name="__tabbed_36" type="radio" /><label for="__tabbed_36_4">DE</label><div class="tabbed-content">
+<p><div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: DE</span>
+<span class="n">DE_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;psi0&quot;</span><span class="p">:</span><span class="n">psi0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">1000</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> \
+            <span class="s2">&quot;cr&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DE&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DE_paras</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
+<span class="n">state</span><span class="o">.</span><span class="n">Kraus</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">)</span>
+</code></pre></div></p>
+<div class="tabbed-set" data-tabs="40:2"><input checked="checked" id="__tabbed_40_1" name="__tabbed_40" type="radio" /><label for="__tabbed_40_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: QFI</span>
+<span class="n">state</span><span class="o">.</span><span class="n">QFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_40_2" name="__tabbed_40" type="radio" /><label for="__tabbed_40_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: CFI</span>
+<span class="n">state</span><span class="o">.</span><span class="n">CFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_36_5" name="__tabbed_36" type="radio" /><label for="__tabbed_36_5">NM</label><div class="tabbed-content">
+<p><div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: NM</span>
+<span class="n">NM_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;psi0&quot;</span><span class="p">:</span><span class="n">psi0</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">1000</span><span class="p">,</span> \
+            <span class="s2">&quot;ar&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;ae&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;ac&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;as0&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;NM&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">NM_paras</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
+<span class="n">state</span><span class="o">.</span><span class="n">Kraus</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">)</span>
+</code></pre></div></p>
+<div class="tabbed-set" data-tabs="41:2"><input checked="checked" id="__tabbed_41_1" name="__tabbed_41" type="radio" /><label for="__tabbed_41_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: QFI</span>
+<span class="n">state</span><span class="o">.</span><span class="n">QFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_41_2" name="__tabbed_41" type="radio" /><label for="__tabbed_41_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: CFI</span>
+<span class="n">state</span><span class="o">.</span><span class="n">CFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_36_6" name="__tabbed_36" type="radio" /><label for="__tabbed_36_6">DDPG</label><div class="tabbed-content">
+<p><div class="highlight"><pre><span></span><code><span class="c1"># state optimization algorithm: DDPG</span>
+<span class="n">DDPG_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;layer_num&quot;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;layer_dim&quot;</span><span class="p">:</span><span class="mi">250</span><span class="p">,</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">500</span><span class="p">,</span> \
+              <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DDPG&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DDPG_paras</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
+<span class="n">state</span><span class="o">.</span><span class="n">Kraus</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">)</span>
+</code></pre></div></p>
+<div class="tabbed-set" data-tabs="42:2"><input checked="checked" id="__tabbed_42_1" name="__tabbed_42" type="radio" /><label for="__tabbed_42_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: QFI</span>
+<span class="n">state</span><span class="o">.</span><span class="n">QFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_42_2" name="__tabbed_42" type="radio" /><label for="__tabbed_42_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># objective function: CFI</span>
+<span class="n">state</span><span class="o">.</span><span class="n">CFIM</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<input id="__tabbed_35_2" name="__tabbed_35" type="radio" /><label for="__tabbed_35_2">Julia</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="k">using</span> <span class="n">QuanEstimation</span>
 
 <span class="c"># initial state</span>
@@ -1961,61 +2188,105 @@ K_2 = \left(\begin{array}{cc}
 <span class="n">dK1</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.</span> <span class="mf">0.</span><span class="p">;</span> <span class="mf">0.</span> <span class="o">-</span><span class="mf">0.5</span><span class="o">/</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">gamma</span><span class="p">)]</span>
 <span class="n">dK2</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span> <span class="mf">0.5</span><span class="o">/</span><span class="n">sqrt</span><span class="p">(</span><span class="n">gamma</span><span class="p">);</span> <span class="mf">0.</span> <span class="mf">0.</span><span class="p">]</span>
 <span class="n">dK</span> <span class="o">=</span> <span class="p">[[</span><span class="n">dK1</span><span class="p">],</span> <span class="p">[</span><span class="n">dK2</span><span class="p">]]</span>
+<span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Sopt</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 </code></pre></div>
-<div class="tabbed-set" data-tabs="26:6"><input checked="checked" id="__tabbed_26_1" name="__tabbed_26" type="radio" /><label for="__tabbed_26_1">AD</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="43:6"><input checked="checked" id="__tabbed_43_1" name="__tabbed_43" type="radio" /><label for="__tabbed_43_1">AD</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: AD</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">AD</span><span class="p">(</span><span class="n">Adam</span><span class="o">=</span><span class="nb">false</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> 
                         <span class="n">beta1</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
 </code></pre></div>
-</div>
-<input id="__tabbed_26_2" name="__tabbed_26" type="radio" /><label for="__tabbed_26_2">RI</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: RI</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">RI</span><span class="p">(</span><span class="n">max_episode</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_26_3" name="__tabbed_26" type="radio" /><label for="__tabbed_26_3">PSO</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: PSO</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
-                         <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_26_4" name="__tabbed_26" type="radio" /><label for="__tabbed_26_4">DE</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: DE</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_26_5" name="__tabbed_26" type="radio" /><label for="__tabbed_26_5">NM</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: NM</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">NM</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
-                        <span class="n">ae</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">ac</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">as0</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_26_6" name="__tabbed_26" type="radio" /><label for="__tabbed_26_6">DDPG</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: DDPG</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DDPG</span><span class="p">(</span><span class="n">max_episode</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">layer_num</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layer_dim</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
-</code></pre></div>
-</div>
-</div>
-<div class="highlight"><pre><span></span><code><span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Kraus</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">)</span> 
-</code></pre></div>
-<div class="tabbed-set" data-tabs="27:3"><input checked="checked" id="__tabbed_27_1" name="__tabbed_27" type="radio" /><label for="__tabbed_27_1">QFIM</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="44:2"><input checked="checked" id="__tabbed_44_1" name="__tabbed_44" type="radio" /><label for="__tabbed_44_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_27_2" name="__tabbed_27" type="radio" /><label for="__tabbed_27_2">CFIM</label><div class="tabbed-content">
+<input id="__tabbed_44_2" name="__tabbed_44" type="radio" /><label for="__tabbed_44_2">CFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: CFI</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_27_3" name="__tabbed_27" type="radio" /><label for="__tabbed_27_3">HCRB</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># objective function: HCRB</span>
-<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">HCRB_obj</span><span class="p">()</span>
+</div>
+</div>
+<input id="__tabbed_43_2" name="__tabbed_43" type="radio" /><label for="__tabbed_43_2">RI</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: RI</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">RI</span><span class="p">(</span><span class="n">max_episode</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="45:1"><input checked="checked" id="__tabbed_45_1" name="__tabbed_45" type="radio" /><label for="__tabbed_45_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
 </code></pre></div>
 </div>
 </div>
-<div class="highlight"><pre><span></span><code><span class="c"># run the state optimization problem</span>
+</div>
+<input id="__tabbed_43_3" name="__tabbed_43" type="radio" /><label for="__tabbed_43_3">PSO</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: PSO</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
+                         <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="46:2"><input checked="checked" id="__tabbed_46_1" name="__tabbed_46" type="radio" /><label for="__tabbed_46_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_46_2" name="__tabbed_46" type="radio" /><label for="__tabbed_46_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: CFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_43_4" name="__tabbed_43" type="radio" /><label for="__tabbed_43_4">DE</label><div class="tabbed-content">
+<p><div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: DE</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</code></pre></div>
+        === "QFIM"
+    <div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div></p>
+<div class="tabbed-set" data-tabs="47:1"><input checked="checked" id="__tabbed_47_1" name="__tabbed_47" type="radio" /><label for="__tabbed_47_1">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: CFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_43_5" name="__tabbed_43" type="radio" /><label for="__tabbed_43_5">NM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: NM</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">NM</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
+                        <span class="n">ae</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">ac</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">as0</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="48:2"><input checked="checked" id="__tabbed_48_1" name="__tabbed_48" type="radio" /><label for="__tabbed_48_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_48_2" name="__tabbed_48" type="radio" /><label for="__tabbed_48_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: CFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_43_6" name="__tabbed_43" type="radio" /><label for="__tabbed_43_6">DDPG</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># state optimization algorithm: DDPG</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DDPG</span><span class="p">(</span><span class="n">max_episode</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">layer_num</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">layer_dim</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="49:2"><input checked="checked" id="__tabbed_49_1" name="__tabbed_49" type="radio" /><label for="__tabbed_49_1">QFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_49_2" name="__tabbed_49" type="radio" /><label for="__tabbed_49_2">CFIM</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># objective function: CFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="highlight"><pre><span></span><code><span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Kraus</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">)</span>
+<span class="c"># run the state optimization problem</span>
 <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>

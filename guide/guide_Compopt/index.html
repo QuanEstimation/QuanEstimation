@@ -1370,8 +1370,7 @@ H_\mathrm{c}=u_1(t)\sigma_1+u_2(t)\sigma_2+u_3(t)\sigma_3
 <span class="n">AD_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Adam&quot;</span><span class="p">:</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;psi0&quot;</span><span class="p">:[],</span> <span class="s2">&quot;ctrl0&quot;</span><span class="p">:[],</span> <span class="s2">&quot;measurement0&quot;</span><span class="p">:[],</span> \
             <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">300</span><span class="p">,</span> <span class="s2">&quot;epsilon&quot;</span><span class="p">:</span><span class="mf">0.01</span><span class="p">,</span> <span class="s2">&quot;beta1&quot;</span><span class="p">:</span><span class="mf">0.90</span><span class="p">,</span> <span class="s2">&quot;beta2&quot;</span><span class="p">:</span><span class="mf">0.99</span><span class="p">}</span>
 <span class="n">com</span> <span class="o">=</span> <span class="n">ComprehensiveOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;AD&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">AD_paras</span><span class="p">)</span>
-<span class="n">com</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="o">=</span><span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>
-<span class="n">com</span><span class="o">.</span><span class="n">SC</span><span class="p">(</span><span class="n">W</span><span class="o">=</span><span class="p">[],</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;QFIM&quot;</span><span class="p">,</span> <span class="n">LDtype</span><span class="o">=</span><span class="s2">&quot;SLD&quot;</span><span class="p">,</span> <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">2.0</span><span class="p">,</span><span class="mf">2.0</span><span class="p">])</span>
+<span class="n">com</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="o">=</span><span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">,</span> <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">2.0</span><span class="p">,</span><span class="mf">2.0</span><span class="p">])</span>
 </code></pre></div>
 <div class="tabbed-set" data-tabs="14:2"><input checked="checked" id="__tabbed_14_1" name="__tabbed_14" type="radio" /><label for="__tabbed_14_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">com</span><span class="o">.</span><span class="n">SC</span><span class="p">(</span><span class="n">W</span><span class="o">=</span><span class="p">[],</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;QFIM&quot;</span><span class="p">,</span> <span class="n">LDtype</span><span class="o">=</span><span class="s2">&quot;SLD&quot;</span><span class="p">)</span>
@@ -1462,21 +1461,25 @@ H_\mathrm{c}=u_1(t)\sigma_1+u_2(t)\sigma_2+u_3(t)\sigma_3
 </code></pre></div>
 <div class="tabbed-set" data-tabs="18:2"><input checked="checked" id="__tabbed_18_1" name="__tabbed_18" type="radio" /><label for="__tabbed_18_1">DE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: DE</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>   
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span> 
 <span class="c"># objective function: CFI</span>
-<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span> 
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <input id="__tabbed_18_2" name="__tabbed_18" type="radio" /><label for="__tabbed_18_2">PSO</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: PSO</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
                          <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-<span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>   
 <span class="c"># objective function: CFI</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>   
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -1487,17 +1490,23 @@ H_\mathrm{c}=u_1(t)\sigma_1+u_2(t)\sigma_2+u_3(t)\sigma_3
 <div class="tabbed-set" data-tabs="19:3"><input checked="checked" id="__tabbed_19_1" name="__tabbed_19" type="radio" /><label for="__tabbed_19_1">DE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: DE</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
 </code></pre></div>
 <div class="tabbed-set" data-tabs="20:2"><input checked="checked" id="__tabbed_20_1" name="__tabbed_20" type="radio" /><label for="__tabbed_20_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
-<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span> 
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <input id="__tabbed_20_2" name="__tabbed_20" type="radio" /><label for="__tabbed_20_2">CFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: CFI</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -1506,17 +1515,23 @@ H_\mathrm{c}=u_1(t)\sigma_1+u_2(t)\sigma_2+u_3(t)\sigma_3
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: PSO</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
                          <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-<span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
 </code></pre></div>
 <div class="tabbed-set" data-tabs="21:2"><input checked="checked" id="__tabbed_21_1" name="__tabbed_21" type="radio" /><label for="__tabbed_21_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <input id="__tabbed_21_2" name="__tabbed_21" type="radio" /><label for="__tabbed_21_2">CFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: CFI</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -1525,17 +1540,23 @@ H_\mathrm{c}=u_1(t)\sigma_1+u_2(t)\sigma_2+u_3(t)\sigma_3
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: AD</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">AD</span><span class="p">(</span><span class="n">Adam</span><span class="o">=</span><span class="nb">true</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> 
                         <span class="n">beta1</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
-<span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
 </code></pre></div>
 <div class="tabbed-set" data-tabs="22:2"><input checked="checked" id="__tabbed_22_1" name="__tabbed_22" type="radio" /><label for="__tabbed_22_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: QFI</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <input id="__tabbed_22_2" name="__tabbed_22" type="radio" /><label for="__tabbed_22_2">CFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: CFI</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -1547,23 +1568,27 @@ H_\mathrm{c}=u_1(t)\sigma_1+u_2(t)\sigma_2+u_3(t)\sigma_3
 </code></pre></div>
 <div class="tabbed-set" data-tabs="23:2"><input checked="checked" id="__tabbed_23_1" name="__tabbed_23" type="radio" /><label for="__tabbed_23_1">DE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: DE</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span>  
-                                   <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>   
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>  
 <span class="c"># objective function: CFI</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span>  
+                                   <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <input id="__tabbed_23_2" name="__tabbed_23" type="radio" /><label for="__tabbed_23_2">PSO</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: PSO</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
                          <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="c"># objective function: CFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span> 
 <span class="c"># input the dynamics data</span>
 <span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span>  
                                    <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>  
-<span class="c"># objective function: CFI</span>
-<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span> 
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -1573,29 +1598,30 @@ H_\mathrm{c}=u_1(t)\sigma_1+u_2(t)\sigma_2+u_3(t)\sigma_3
 </code></pre></div>
 <div class="tabbed-set" data-tabs="24:2"><input checked="checked" id="__tabbed_24_1" name="__tabbed_24" type="radio" /><label for="__tabbed_24_1">DE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: DE</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>   
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span> 
 <span class="c"># objective function: CFI</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>  
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <input id="__tabbed_24_2" name="__tabbed_24" type="radio" /><label for="__tabbed_24_2">PSO</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: PSO</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
-                         <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+                         <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span> 
+<span class="c"># objective function: CFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
 <span class="c"># input the dynamics data</span>
 <span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>  
-<span class="c"># objective function: CFI</span>
-<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span> 
-</code></pre></div>
-</div>
-</div>
-</div>
-</div>
-<div class="highlight"><pre><span></span><code><span class="c"># run the comprehensive optimization problem</span>
+<span class="c"># run the comprehensive optimization problem</span>
 <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 <p><strong>Example 8.2</strong><br />
@@ -1865,46 +1891,60 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> with respect to t
 <div class="tabbed-set" data-tabs="35:2"><input checked="checked" id="__tabbed_35_1" name="__tabbed_35" type="radio" /><label for="__tabbed_35_1">DE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: DE</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>   
 <span class="c"># objective function: CFI</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>   
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <input id="__tabbed_35_2" name="__tabbed_35" type="radio" /><label for="__tabbed_35_2">PSO</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: PSO</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
-                         <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-<span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>   
+                         <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span> 
 <span class="c"># objective function: CFI</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
 </div>
 <input id="__tabbed_34_2" name="__tabbed_34" type="radio" /><label for="__tabbed_34_2">SC</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">SMopt</span><span class="p">(</span><span class="n">ctrl</span><span class="o">=</span><span class="n">ctrl</span><span class="p">,</span> <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.2</span><span class="p">],</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">SCopt</span><span class="p">(</span><span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.2</span><span class="p">],</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 </code></pre></div>
 <div class="tabbed-set" data-tabs="36:3"><input checked="checked" id="__tabbed_36_1" name="__tabbed_36" type="radio" /><label for="__tabbed_36_1">DE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: DE</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
 </code></pre></div>
 <div class="tabbed-set" data-tabs="37:3"><input checked="checked" id="__tabbed_37_1" name="__tabbed_37" type="radio" /><label for="__tabbed_37_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WF^{-1})</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <input id="__tabbed_37_2" name="__tabbed_37" type="radio" /><label for="__tabbed_37_2">CFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WI^{-1})</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <input id="__tabbed_37_3" name="__tabbed_37" type="radio" /><label for="__tabbed_37_3">HCRB</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: HCRB</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">HCRB_obj</span><span class="p">()</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -1912,23 +1952,33 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> with respect to t
 <input id="__tabbed_36_2" name="__tabbed_36" type="radio" /><label for="__tabbed_36_2">PSO</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: PSO</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
-                         <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-<span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
+                         <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span> 
 </code></pre></div>
 <div class="tabbed-set" data-tabs="38:3"><input checked="checked" id="__tabbed_38_1" name="__tabbed_38" type="radio" /><label for="__tabbed_38_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WF^{-1})</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <input id="__tabbed_38_2" name="__tabbed_38" type="radio" /><label for="__tabbed_38_2">CFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WI^{-1})</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <input id="__tabbed_38_3" name="__tabbed_38" type="radio" /><label for="__tabbed_38_3">HCRB</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: HCRB</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">HCRB_obj</span><span class="p">()</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -1937,17 +1987,23 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> with respect to t
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: AD</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">AD</span><span class="p">(</span><span class="n">Adam</span><span class="o">=</span><span class="nb">true</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> 
                         <span class="n">beta1</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
-<span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
 </code></pre></div>
 <div class="tabbed-set" data-tabs="39:2"><input checked="checked" id="__tabbed_39_1" name="__tabbed_39" type="radio" /><label for="__tabbed_39_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WF^{-1})</span>
-<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span> 
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM_obj</span><span class="p">()</span>
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span> 
 </code></pre></div>
 </div>
 <input id="__tabbed_39_2" name="__tabbed_39" type="radio" /><label for="__tabbed_39_2">CFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># objective function: tr(WI^{-1})</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -1960,22 +2016,26 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> with respect to t
 <div class="tabbed-set" data-tabs="40:2"><input checked="checked" id="__tabbed_40_1" name="__tabbed_40" type="radio" /><label for="__tabbed_40_1">DE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: DE</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="c"># objective function: CFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span>
 <span class="c"># input the dynamics data</span>
 <span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span>  
                                    <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>    
-<span class="c"># objective function: CFI</span>
-<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span> 
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <input id="__tabbed_40_2" name="__tabbed_40" type="radio" /><label for="__tabbed_40_2">PSO</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: PSO</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
                          <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="c"># objective function: CFI</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span> 
 <span class="c"># input the dynamics data</span>
 <span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> 
                                    <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>  
-<span class="c"># objective function: CFI</span>
-<span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span> 
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -1986,28 +2046,29 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> with respect to t
 <div class="tabbed-set" data-tabs="41:2"><input checked="checked" id="__tabbed_41_1" name="__tabbed_41" type="radio" /><label for="__tabbed_41_1">DE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: DE</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>   
 <span class="c"># objective function: CFI</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>   
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <input id="__tabbed_41_2" name="__tabbed_41" type="radio" /><label for="__tabbed_41_2">PSO</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: PSO</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
                          <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-<span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>   
 <span class="c"># objective function: CFI</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span> 
-</code></pre></div>
-</div>
-</div>
-</div>
-</div>
-<div class="highlight"><pre><span></span><code><span class="c"># run the comprehensive optimization problem</span>
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>   
+<span class="c"># run the comprehensive optimization problem</span>
 <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 <p>For optimization of probe state and measurement, the parameterization can also be implemented 
@@ -2081,9 +2142,6 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> (Pauli matrix) wi
 </code></pre></div>
 </div>
 </div>
-<div class="highlight"><pre><span></span><code><span class="n">com</span> <span class="o">=</span> <span class="n">ComprehensiveOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DE&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<span class="n">com</span><span class="o">.</span><span class="n">SM</span><span class="p">()</span>
-</code></pre></div>
 </div>
 <input id="__tabbed_43_2" name="__tabbed_43" type="radio" /><label for="__tabbed_43_2">Julia</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="k">using</span> <span class="n">QuanEstimation</span>
@@ -2105,26 +2163,27 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> (Pauli matrix) wi
 <div class="tabbed-set" data-tabs="45:2"><input checked="checked" id="__tabbed_45_1" name="__tabbed_45" type="radio" /><label for="__tabbed_45_1">DE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: DE</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Kraus</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">)</span>  
 <span class="c"># objective function: CFI</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span> 
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Kraus</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">)</span>  
+<span class="c"># run the comprehensive optimization problem</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <input id="__tabbed_45_2" name="__tabbed_45" type="radio" /><label for="__tabbed_45_2">PSO</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># comprehensive optimization algorithm: PSO</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
                              <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-<span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Kraus</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">)</span>   
 <span class="c"># objective function: CFI</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM_obj</span><span class="p">()</span> 
-</code></pre></div>
-</div>
-</div>
-<div class="highlight"><pre><span></span><code><span class="c"># run the comprehensive optimization problem</span>
+<span class="c"># input the dynamics data</span>
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Kraus</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">)</span>   
+<span class="c"># run the comprehensive optimization problem</span>
 <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
+</div>
+</div>
 </div>
 </div>
 <hr />

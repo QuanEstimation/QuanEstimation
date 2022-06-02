@@ -1420,7 +1420,7 @@ Here <span class="arithmatex">\(\sigma_{i}\)</span> for <span class="arithmatex"
 <span class="n">tspan</span> <span class="o">=</span> <span class="n">range</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">2500</span><span class="p">)</span>
 </code></pre></div>
 <div class="tabbed-set" data-tabs="12:3"><input checked="checked" id="__tabbed_12_1" name="__tabbed_12" type="radio" /><label for="__tabbed_12_1">Projection</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="ss">:Projection</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">mtype</span><span class="o">=</span><span class="ss">:Projection</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 </code></pre></div>
 <div class="tabbed-set" data-tabs="13:2"><input checked="checked" id="__tabbed_13_1" name="__tabbed_13" type="radio" /><label for="__tabbed_13_1">DE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># measurement optimization algorithm: DE</span>
@@ -1438,7 +1438,7 @@ Here <span class="arithmatex">\(\sigma_{i}\)</span> for <span class="arithmatex"
 </div>
 </div>
 <input id="__tabbed_12_2" name="__tabbed_12" type="radio" /><label for="__tabbed_12_2">LC</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="ss">:LC</span><span class="p">,</span> 
+<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">mtype</span><span class="o">=</span><span class="ss">:LC</span><span class="p">,</span> 
                                     <span class="n">POVM_basis</span><span class="o">=</span><span class="n">POVM_basis</span><span class="p">,</span> <span class="n">M_num</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> 
                                     <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 </code></pre></div>
@@ -1464,7 +1464,7 @@ Here <span class="arithmatex">\(\sigma_{i}\)</span> for <span class="arithmatex"
 </div>
 </div>
 <input id="__tabbed_12_3" name="__tabbed_12" type="radio" /><label for="__tabbed_12_3">Rotation</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="ss">:Rotation</span><span class="p">,</span> 
+<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">mtype</span><span class="o">=</span><span class="ss">:Rotation</span><span class="p">,</span> 
                                     <span class="n">POVM_basis</span><span class="o">=</span><span class="n">POVM_basis</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 </code></pre></div>
 <div class="tabbed-set" data-tabs="15:3"><input checked="checked" id="__tabbed_15_1" name="__tabbed_15" type="radio" /><label for="__tabbed_15_1">DE</label><div class="tabbed-content">
@@ -1700,7 +1700,7 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> with respect to t
 <span class="n">tspan</span> <span class="o">=</span> <span class="n">range</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">4000</span><span class="p">)</span>
 </code></pre></div>
 <div class="tabbed-set" data-tabs="21:3"><input checked="checked" id="__tabbed_21_1" name="__tabbed_21" type="radio" /><label for="__tabbed_21_1">Projection</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="ss">:Projection</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">mtype</span><span class="o">=</span><span class="ss">:Projection</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 </code></pre></div>
 <div class="tabbed-set" data-tabs="22:2"><input checked="checked" id="__tabbed_22_1" name="__tabbed_22" type="radio" /><label for="__tabbed_22_1">DE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># measurement optimization algorithm: DE</span>
@@ -1718,7 +1718,7 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> with respect to t
 </div>
 </div>
 <input id="__tabbed_21_2" name="__tabbed_21" type="radio" /><label for="__tabbed_21_2">LC</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="ss">:LC</span><span class="p">,</span> 
+<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">mtype</span><span class="o">=</span><span class="ss">:LC</span><span class="p">,</span> 
                                     <span class="n">POVM_basis</span><span class="o">=</span><span class="n">POVM_basis</span><span class="p">,</span> <span class="n">M_num</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> 
                                     <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 </code></pre></div>
@@ -1744,7 +1744,7 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> with respect to t
 </div>
 </div>
 <input id="__tabbed_21_3" name="__tabbed_21" type="radio" /><label for="__tabbed_21_3">Rotation</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="ss">:Rotation</span><span class="p">,</span> 
+<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">mtype</span><span class="o">=</span><span class="ss">:Rotation</span><span class="p">,</span> 
                                     <span class="n">POVM_basis</span><span class="o">=</span><span class="n">POVM_basis</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 </code></pre></div>
 <div class="tabbed-set" data-tabs="24:3"><input checked="checked" id="__tabbed_24_1" name="__tabbed_24" type="radio" /><label for="__tabbed_24_1">DE</label><div class="tabbed-content">
@@ -1815,7 +1815,7 @@ probability. In this example, the probe state is taken as <span class="arithmate
 <span class="arithmatex">\(|+\rangle=\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)\)</span>. Here <span class="arithmatex">\(|0\rangle\)</span> <span class="arithmatex">\((|1\rangle)\)</span> is 
 the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> (Pauli matrix) with respect to the eigenvalue <span class="arithmatex">\(1\)</span> <span class="arithmatex">\((-1)\)</span>.</p>
 <div class="tabbed-set" data-tabs="26:2"><input checked="checked" id="__tabbed_26_1" name="__tabbed_26" type="radio" /><label for="__tabbed_26_1">Python</label><div class="tabbed-content">
-<p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">quanestimation</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">quanestimation</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="c1"># initial state</span>
@@ -1829,25 +1829,31 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> (Pauli matrix) wi
 <span class="n">dK1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">gamma</span><span class="p">)]])</span>
 <span class="n">dK2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.5</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">gamma</span><span class="p">)],</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">]])</span>
 <span class="n">dK</span> <span class="o">=</span> <span class="p">[[</span><span class="n">dK1</span><span class="p">],</span> <span class="p">[</span><span class="n">dK2</span><span class="p">]]</span>
+<span class="c1"># measurement</span>
+<span class="n">POVM_basis</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">SIC</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rho0</span><span class="p">))</span>
 </code></pre></div>
-    === "projection"
-    === "DE"
-        <div class="highlight"><pre><span></span><code><span class="c1"># measurement optimization algorithm: DE</span>
+<div class="tabbed-set" data-tabs="27:3"><input checked="checked" id="__tabbed_27_1" name="__tabbed_27" type="radio" /><label for="__tabbed_27_1">projection</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="28:2"><input checked="checked" id="__tabbed_28_1" name="__tabbed_28" type="radio" /><label for="__tabbed_28_1">DE</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># measurement optimization algorithm: DE</span>
 <span class="n">DE_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;measurement0&quot;</span><span class="p">:[],</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">1000</span><span class="p">,</span> \
             <span class="s2">&quot;c&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;cr&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
 <span class="n">m</span> <span class="o">=</span> <span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">mtype</span><span class="o">=</span><span class="s2">&quot;projection&quot;</span><span class="p">,</span> <span class="n">minput</span><span class="o">=</span><span class="p">[],</span> <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> \
                    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DE&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DE_paras</span><span class="p">)</span>
 </code></pre></div>
-    === "PSO"
-        <div class="highlight"><pre><span></span><code><span class="c1"># measurement optimization algorithm: PSO</span>
+</div>
+<input id="__tabbed_28_2" name="__tabbed_28" type="radio" /><label for="__tabbed_28_2">PSO</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c1"># measurement optimization algorithm: PSO</span>
 <span class="n">PSO_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;measurement0&quot;</span><span class="p">:[],</span> \
              <span class="s2">&quot;max_episode&quot;</span><span class="p">:[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="s2">&quot;c0&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> \
             <span class="s2">&quot;c1&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;c2&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
 <span class="n">m</span> <span class="o">=</span> <span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">mtype</span><span class="o">=</span><span class="s2">&quot;projection&quot;</span><span class="p">,</span> <span class="n">minput</span><span class="o">=</span><span class="p">[],</span> <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> \
                    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;PSO&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">PSO_paras</span><span class="p">)</span>
-</code></pre></div></p>
-<div class="tabbed-set" data-tabs="27:2"><input checked="checked" id="__tabbed_27_1" name="__tabbed_27" type="radio" /><label for="__tabbed_27_1">LC</label><div class="tabbed-content">
-<div class="tabbed-set" data-tabs="28:3"><input checked="checked" id="__tabbed_28_1" name="__tabbed_28" type="radio" /><label for="__tabbed_28_1">DE</label><div class="tabbed-content">
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_27_2" name="__tabbed_27" type="radio" /><label for="__tabbed_27_2">LC</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="29:3"><input checked="checked" id="__tabbed_29_1" name="__tabbed_29" type="radio" /><label for="__tabbed_29_1">DE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># measurement optimization algorithm: DE</span>
 <span class="n">DE_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;measurement0&quot;</span><span class="p">:[],</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">1000</span><span class="p">,</span> \
             <span class="s2">&quot;c&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;cr&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
@@ -1855,7 +1861,7 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> (Pauli matrix) wi
                    <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DE&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DE_paras</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_28_2" name="__tabbed_28" type="radio" /><label for="__tabbed_28_2">PSO</label><div class="tabbed-content">
+<input id="__tabbed_29_2" name="__tabbed_29" type="radio" /><label for="__tabbed_29_2">PSO</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># measurement optimization algorithm: PSO</span>
 <span class="n">PSO_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;measurement0&quot;</span><span class="p">:[],</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> \
              <span class="s2">&quot;c0&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;c1&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;c2&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
@@ -1863,7 +1869,7 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> (Pauli matrix) wi
                    <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;PSO&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">PSO_paras</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_28_3" name="__tabbed_28" type="radio" /><label for="__tabbed_28_3">AD</label><div class="tabbed-content">
+<input id="__tabbed_29_3" name="__tabbed_29" type="radio" /><label for="__tabbed_29_3">AD</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># measurement optimization algorithm: AD</span>
 <span class="n">AD_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Adam&quot;</span><span class="p">:</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;measurement0&quot;</span><span class="p">:[],</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">300</span><span class="p">,</span> \
             <span class="s2">&quot;epsilon&quot;</span><span class="p">:</span><span class="mf">0.01</span><span class="p">,</span> <span class="s2">&quot;beta1&quot;</span><span class="p">:</span><span class="mf">0.90</span><span class="p">,</span> <span class="s2">&quot;beta2&quot;</span><span class="p">:</span><span class="mf">0.99</span><span class="p">}</span>
@@ -1873,8 +1879,8 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> (Pauli matrix) wi
 </div>
 </div>
 </div>
-<input id="__tabbed_27_2" name="__tabbed_27" type="radio" /><label for="__tabbed_27_2">rotation</label><div class="tabbed-content">
-<div class="tabbed-set" data-tabs="29:3"><input checked="checked" id="__tabbed_29_1" name="__tabbed_29" type="radio" /><label for="__tabbed_29_1">DE</label><div class="tabbed-content">
+<input id="__tabbed_27_3" name="__tabbed_27" type="radio" /><label for="__tabbed_27_3">rotation</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="30:3"><input checked="checked" id="__tabbed_30_1" name="__tabbed_30" type="radio" /><label for="__tabbed_30_1">DE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># measurement optimization algorithm: DE</span>
 <span class="n">DE_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;measurement0&quot;</span><span class="p">:[],</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">1000</span><span class="p">,</span> \
             <span class="s2">&quot;c&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;cr&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
@@ -1882,7 +1888,7 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> (Pauli matrix) wi
                    <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DE&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DE_paras</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_29_2" name="__tabbed_29" type="radio" /><label for="__tabbed_29_2">PSO</label><div class="tabbed-content">
+<input id="__tabbed_30_2" name="__tabbed_30" type="radio" /><label for="__tabbed_30_2">PSO</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># measurement optimization algorithm: PSO</span>
 <span class="n">PSO_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;measurement0&quot;</span><span class="p">:[],</span> \
              <span class="s2">&quot;max_episode&quot;</span><span class="p">:[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="s2">&quot;c0&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> \
@@ -1891,7 +1897,7 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> (Pauli matrix) wi
                    <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;PSO&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">PSO_paras</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_29_3" name="__tabbed_29" type="radio" /><label for="__tabbed_29_3">AD</label><div class="tabbed-content">
+<input id="__tabbed_30_3" name="__tabbed_30" type="radio" /><label for="__tabbed_30_3">AD</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># measurement optimization algorithm: AD</span>
 <span class="n">AD_paras</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Adam&quot;</span><span class="p">:</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;measurement0&quot;</span><span class="p">:[],</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">300</span><span class="p">,</span> \
             <span class="s2">&quot;epsilon&quot;</span><span class="p">:</span><span class="mf">0.01</span><span class="p">,</span> <span class="s2">&quot;beta1&quot;</span><span class="p">:</span><span class="mf">0.90</span><span class="p">,</span> <span class="s2">&quot;beta2&quot;</span><span class="p">:</span><span class="mf">0.99</span><span class="p">}</span>
@@ -1922,31 +1928,14 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> (Pauli matrix) wi
 <span class="n">dK1</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.</span> <span class="mf">0.</span><span class="p">;</span> <span class="mf">0.</span> <span class="o">-</span><span class="mf">0.5</span><span class="o">/</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">gamma</span><span class="p">)]</span>
 <span class="n">dK2</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span> <span class="mf">0.5</span><span class="o">/</span><span class="n">sqrt</span><span class="p">(</span><span class="n">gamma</span><span class="p">);</span> <span class="mf">0.</span> <span class="mf">0.</span><span class="p">]</span>
 <span class="n">dK</span> <span class="o">=</span> <span class="p">[[</span><span class="n">dK1</span><span class="p">],</span> <span class="p">[</span><span class="n">dK2</span><span class="p">]]</span>
+<span class="c"># measurement</span>
+<span class="n">dim</span> <span class="o">=</span> <span class="n">size</span><span class="p">(</span><span class="n">rho0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">POVM_basis</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">SIC</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
 </code></pre></div>
-<div class="tabbed-set" data-tabs="30:3"><input checked="checked" id="__tabbed_30_1" name="__tabbed_30" type="radio" /><label for="__tabbed_30_1">Projection</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="ss">:Projection</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
+<div class="tabbed-set" data-tabs="31:3"><input checked="checked" id="__tabbed_31_1" name="__tabbed_31" type="radio" /><label for="__tabbed_31_1">Projection</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">mtype</span><span class="o">=</span><span class="ss">:Projection</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 </code></pre></div>
-<div class="tabbed-set" data-tabs="31:2"><input checked="checked" id="__tabbed_31_1" name="__tabbed_31" type="radio" /><label for="__tabbed_31_1">DE</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># measurement optimization algorithm: DE</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_population</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> 
-                        <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<input id="__tabbed_31_2" name="__tabbed_31" type="radio" /><label for="__tabbed_31_2">PSO</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># measurement optimization algorithm: PSO</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_particle</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> 
-                         <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> 
-                         <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-</code></pre></div>
-</div>
-</div>
-</div>
-<input id="__tabbed_30_2" name="__tabbed_30" type="radio" /><label for="__tabbed_30_2">LC</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="ss">:LC</span><span class="p">,</span> 
-                                    <span class="n">POVM_basis</span><span class="o">=</span><span class="n">POVM_basis</span><span class="p">,</span> <span class="n">M_num</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> 
-                                    <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
-</code></pre></div>
-<div class="tabbed-set" data-tabs="32:3"><input checked="checked" id="__tabbed_32_1" name="__tabbed_32" type="radio" /><label for="__tabbed_32_1">DE</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="32:2"><input checked="checked" id="__tabbed_32_1" name="__tabbed_32" type="radio" /><label for="__tabbed_32_1">DE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># measurement optimization algorithm: DE</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_population</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> 
                         <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
@@ -1959,17 +1948,12 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> (Pauli matrix) wi
                          <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_32_3" name="__tabbed_32" type="radio" /><label for="__tabbed_32_3">AD</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="c"># measurement optimization algorithm: AD</span>
-<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">AD</span><span class="p">(</span><span class="n">Adam</span><span class="o">=</span><span class="nb">true</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> 
-                        <span class="n">beta1</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
-</code></pre></div>
 </div>
 </div>
-</div>
-<input id="__tabbed_30_3" name="__tabbed_30" type="radio" /><label for="__tabbed_30_3">Rotation</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="ss">:Rotation</span><span class="p">,</span> 
-                                    <span class="n">POVM_basis</span><span class="o">=</span><span class="n">POVM_basis</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
+<input id="__tabbed_31_2" name="__tabbed_31" type="radio" /><label for="__tabbed_31_2">LC</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">mtype</span><span class="o">=</span><span class="ss">:LC</span><span class="p">,</span> 
+                                    <span class="n">POVM_basis</span><span class="o">=</span><span class="n">POVM_basis</span><span class="p">,</span> <span class="n">M_num</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> 
+                                    <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 </code></pre></div>
 <div class="tabbed-set" data-tabs="33:3"><input checked="checked" id="__tabbed_33_1" name="__tabbed_33" type="radio" /><label for="__tabbed_33_1">DE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># measurement optimization algorithm: DE</span>
@@ -1985,6 +1969,31 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> (Pauli matrix) wi
 </code></pre></div>
 </div>
 <input id="__tabbed_33_3" name="__tabbed_33" type="radio" /><label for="__tabbed_33_3">AD</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># measurement optimization algorithm: AD</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">AD</span><span class="p">(</span><span class="n">Adam</span><span class="o">=</span><span class="nb">true</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> 
+                        <span class="n">beta1</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<input id="__tabbed_31_3" name="__tabbed_31" type="radio" /><label for="__tabbed_31_3">Rotation</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">MeasurementOpt</span><span class="p">(</span><span class="n">mtype</span><span class="o">=</span><span class="ss">:Rotation</span><span class="p">,</span> 
+                                    <span class="n">POVM_basis</span><span class="o">=</span><span class="n">POVM_basis</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
+</code></pre></div>
+<div class="tabbed-set" data-tabs="34:3"><input checked="checked" id="__tabbed_34_1" name="__tabbed_34" type="radio" /><label for="__tabbed_34_1">DE</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># measurement optimization algorithm: DE</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_population</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> 
+                        <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_34_2" name="__tabbed_34" type="radio" /><label for="__tabbed_34_2">PSO</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="c"># measurement optimization algorithm: PSO</span>
+<span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_particle</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> 
+                         <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> 
+                         <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_34_3" name="__tabbed_34" type="radio" /><label for="__tabbed_34_3">AD</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c"># measurement optimization algorithm: AD</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">AD</span><span class="p">(</span><span class="n">Adam</span><span class="o">=</span><span class="nb">true</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> 
                         <span class="n">beta1</span><span class="o">=</span><span class="mf">0.90</span><span class="p">,</span> <span class="n">beta2</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
