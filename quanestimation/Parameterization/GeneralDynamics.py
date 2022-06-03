@@ -164,16 +164,14 @@ class Lindblad:
 
         d2H = [np.array(x, dtype=np.complex128) for x in d2H]
         rho, drho, d2rho = Main.QuanEstimation.secondorder_derivative(
+            self.tspan,
+            self.rho0,
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
             d2H,
-            self.rho0,
             self.decay_opt,
             self.gamma,
             self.control_Hamiltonian,
             self.control_coefficients,
-            self.tspan,
         )
         return rho, drho, d2rho
-   
-    

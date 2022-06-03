@@ -362,12 +362,12 @@ def BCRB(x, p, dp, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
         b_pro = product(*b)
         db_pro = product(*db)
 
-        p_list, dp_list, rho_list, drho_list = [], [], [], []
-        for p_ele, dp_ele, rho_ele, drho_ele in zip(p_ext, dp_ext, rho_ext, drho_ext):
+        p_list, rho_list, drho_list = [], [], []
+        for p_ele, rho_ele, drho_ele in zip(p_ext, rho_ext, drho_ext):
             p_list.append(p_ele)
-            dp_list.append(dp_ele)
             rho_list.append(rho_ele)
             drho_list.append(drho_ele)
+        dp_list = [dpi for dpi in dp_ext]
 
         b_list, db_list = [], []
         for b_ele, db_ele in zip(b_pro, db_pro):
@@ -648,12 +648,12 @@ def BQCRB(x, p, dp, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
         b_pro = product(*b)
         db_pro = product(*db)
 
-        p_list, dp_list, rho_list, drho_list = [], [], [], []
-        for p_ele, dp_ele, rho_ele, drho_ele in zip(p_ext, dp_ext, rho_ext, drho_ext):
+        p_list, rho_list, drho_list = [], [], []
+        for p_ele, rho_ele, drho_ele in zip(p_ext, rho_ext, drho_ext):
             p_list.append(p_ele)
-            dp_list.append(dp_ele)
             rho_list.append(rho_ele)
             drho_list.append(drho_ele)
+        dp_list = [dpi for dpi in dp_ext]
 
         b_list, db_list = [], []
         for b_ele, db_ele in zip(b_pro, db_pro):
@@ -874,12 +874,12 @@ def VTB(x, p, dp, rho, drho, M=[], eps=1e-8):
         rho_ext = extract_ele(rho, para_num)
         drho_ext = extract_ele(drho, para_num)
 
-        p_list, dp_list, rho_list, drho_list = [], [], [], []
-        for p_ele, dp_ele, rho_ele, drho_ele in zip(p_ext, dp_ext, rho_ext, drho_ext):
+        p_list, rho_list, drho_list = [], [], []
+        for p_ele, rho_ele, drho_ele in zip(p_ext, rho_ext, drho_ext):
             p_list.append(p_ele)
-            dp_list.append(dp_ele)
             rho_list.append(rho_ele)
             drho_list.append(drho_ele)
+        dp_list = [dpi for dpi in dp_ext]
 
         dim = len(rho_list[0])
         if M == []:
@@ -1009,17 +1009,12 @@ def QVTB(x, p, dp, rho, drho, LDtype="SLD", eps=1e-8):
         rho_ext = extract_ele(rho, para_num)
         drho_ext = extract_ele(drho, para_num)
 
-        p_list, dp_list, rho_list, drho_list, = (
-            [],
-            [],
-            [],
-            [],
-        )
-        for p_ele, dp_ele, rho_ele, drho_ele in zip(p_ext, dp_ext, rho_ext, drho_ext):
+        p_list, rho_list, drho_list = [], [], []
+        for p_ele, rho_ele, drho_ele in zip(p_ext, rho_ext, drho_ext):
             p_list.append(p_ele)
-            dp_list.append(dp_ele)
             rho_list.append(rho_ele)
             drho_list.append(drho_ele)
+        dp_list = [dpi for dpi in dp_ext]
 
         F_list = [
                 [[0.0 for i in range(len(p_list))] for j in range(para_num)]

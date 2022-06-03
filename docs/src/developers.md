@@ -22,7 +22,7 @@ decoherence.
 ---
 ### **Mao Zhang** 
 **Huazhong University of Science and Technology**  
-**Email:** <zhangmao2018@hust.edu.cn>  
+**Email:** <zhangmao2018@foxmail.com>  
 **Biography:** Ms. Zhang is currently a Ph.D. student in the National Precise Gravity 
 Measurement Facility, School of Physics, Huazhong University of Science and Technology. 
 Her research focuses on the quantum metrology and quantum control, especially the design 

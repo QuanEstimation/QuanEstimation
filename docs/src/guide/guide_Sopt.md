@@ -964,7 +964,7 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
     === "AD"
 		``` py
         # state optimization algorithm: AD
-		AD_paras = {"Adam":False, "psi0":psi0, "max_episode":300, \
+		AD_paras = {"Adam":False, "psi0":[], "max_episode":300, \
                     "epsilon":0.01, "beta1":0.90, "beta2":0.99}
         state = StateOpt(savefile=False, method="AD", **AD_paras)
 		```
@@ -985,7 +985,7 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
     === "RI"
 		``` py
         # state optimization algorithm: RI
-		RI_paras = {"psi0":psi0, "max_episode":300, "seed":0.01}
+		RI_paras = {"psi0":[], "max_episode":300, "seed":1234}
         state = StateOpt(savefile=False, method="RI", **RI_paras)
 		```
         ``` py
@@ -1000,7 +1000,7 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
 	=== "PSO"
 		``` py
         # state optimization algorithm: PSO
-		PSO_paras = {"p_num":10, "psi0":psi0, "max_episode":[1000,100], \
+		PSO_paras = {"p_num":10, "psi0":[], "max_episode":[1000,100], \
 					 "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
 		state = StateOpt(savefile=False, method="PSO", **PSO_paras)
 		```
@@ -1021,7 +1021,7 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
 	=== "DE"
 		``` py
         # state optimization algorithm: DE
-		DE_paras = {"p_num":10, "psi0":psi0, "max_episode":1000, "c":1.0, \
+		DE_paras = {"p_num":10, "psi0":[], "max_episode":1000, "c":1.0, \
 				    "cr":0.5, "seed":1234}
 		state = StateOpt(savefile=False, method="DE", **DE_paras)
 		```
@@ -1042,7 +1042,7 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
     === "NM"
 		``` py
         # state optimization algorithm: NM
-		NM_paras = {"p_num":20, "psi0":psi0, "max_episode":1000, \
+		NM_paras = {"p_num":20, "psi0":[], "max_episode":1000, \
                     "ar":1.0, "ae":2.0, "ac":0.5, "as0":0.5, "seed":1234}
         state = StateOpt(savefile=False, method="NM", **NM_paras)
 		```

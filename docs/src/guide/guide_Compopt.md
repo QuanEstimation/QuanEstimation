@@ -747,7 +747,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             ``` py
             # comprehensive optimization algorithm: DE
             DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
-                        "max_episode":100, "c":1.0, "cr":0.5, "seed":1234}
+                        "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
             com.dynamics(tspan, H0, dH, decay=decay)
             com.SM()
@@ -767,7 +767,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             ``` py
             # comprehensive optimization algorithm: DE
             DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
-                        "max_episode":100, "c":1.0, "cr":0.5, "seed":1234}
+                        "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl=[ctrl0], \
                          ctrl_bound=[-0.2,0.2])
@@ -836,7 +836,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             ``` py
             # comprehensive optimization algorithm: DE
             DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
-                        "max_episode":100, "c":1.0, "cr":0.5, "seed":1234}
+                        "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-0.2,0.2])
             com.CM(rho0)
@@ -856,7 +856,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             ``` py
             # comprehensive optimization algorithm: DE
             DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
-                        "max_episode":100, "c":1.0, "cr":0.5, "seed":1234}
+                        "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-0.2,0.2])
             com.SCM()
@@ -1152,7 +1152,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
         ``` py
         # comprehensive optimization algorithm: DE
         DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
-                    "max_episode":100, "c":1.0, "cr":0.5, "seed":1234}
+                    "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
         com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
         com.Kraus(K, dK)
         com.SM()
