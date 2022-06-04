@@ -1,4 +1,4 @@
-from julia import Main
+from julia import QuanEstimation
 import quanestimation.StateOpt.StateStruct as State
 
 
@@ -65,11 +65,11 @@ class AD_Sopt(State.StateSystem):
         self.vt = 0.0
 
         if self.Adam:
-            self.alg = Main.QuanEstimation.AD(
+            self.alg = QuanEstimation.AD(
                 self.max_episode, self.epsilon, self.beta1, self.beta2,
             )
         else:
-            self.alg = Main.QuanEstimation.AD(self.max_episode, self.epsilon)
+            self.alg = QuanEstimation.AD(self.max_episode, self.epsilon)
 
     def QFIM(self, W=[], LDtype="SLD"):
         r"""

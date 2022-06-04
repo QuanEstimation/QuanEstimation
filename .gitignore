@@ -151,4 +151,4 @@ dmypy.json
 quanestimation/JuliaSrc/Manifest.toml
 
 #history
-/.history/*
+.history

@@ -3,7 +3,7 @@ from scipy.interpolate import interp1d
 import os
 import math
 import warnings
-from julia import Main
+from julia import QuanEstimation
 import quanestimation.MeasurementOpt as Measure
 from quanestimation.Common.Common import gramschmidt, sic_povm
 
@@ -140,7 +140,7 @@ class MeasurementSystem:
             else:
                 self.C = [self.measurement0[0][i] for i in range(len(self.rho0))]
                 self.C = [np.array(x, dtype=np.complex128) for x in self.C]
-            self.opt = Main.QuanEstimation.Mopt_Projection(M=self.C, seed=self.seed)
+            self.opt = QuanEstimation.Mopt_Projection(M=self.C, seed=self.seed)
 
         elif self.mtype == "input":
             if self.minput[0] == "LC":
@@ -194,7 +194,7 @@ class MeasurementSystem:
                     self.measurement0 = [np.array(self.B)]
                 elif len(self.measurement0) >= 1:
                     self.B = [self.measurement0[0][i] for i in range(self.M_num)]
-                self.opt = Main.QuanEstimation.Mopt_LinearComb(
+                self.opt = QuanEstimation.Mopt_LinearComb(
                     B=self.B, POVM_basis=self.povm_basis, M_num=self.M_num, seed=self.seed
                 )
 
@@ -236,7 +236,7 @@ class MeasurementSystem:
                         for i in range(len(self.rho0) * len(self.rho0))
                     ]
 
-                self.opt = Main.QuanEstimation.Mopt_Rotation(
+                self.opt = QuanEstimation.Mopt_Rotation(
                     s=self.s, POVM_basis=self.povm_basis, Lambda=[], seed=self.seed
                 )  #### Lambda=[]
 
@@ -346,7 +346,7 @@ class MeasurementSystem:
         self.decay_opt = [np.array(x, dtype=np.complex128) for x in decay_opt]
 
         if any(self.gamma):
-            self.dynamic = Main.QuanEstimation.Lindblad(
+            self.dynamic = QuanEstimation.Lindblad(
                 self.freeHamiltonian,
                 self.Hamiltonian_derivative,
                 self.rho0,
@@ -355,13 +355,13 @@ class MeasurementSystem:
                 self.gamma,
             )
         else:
-            self.dynamic = Main.QuanEstimation.Lindblad(
+            self.dynamic = QuanEstimation.Lindblad(
                 self.freeHamiltonian,
                 self.Hamiltonian_derivative,
                 self.rho0,
                 self.tspan,
             )
-        self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
+        self.output = QuanEstimation.Output(self.opt, save=self.savefile)
         
         self.dynamics_type = "dynamics"
 
@@ -421,7 +421,7 @@ class MeasurementSystem:
             else:
                 self.C = [self.measurement0[0][i] for i in range(len(self.rho0))]
                 self.C = [np.array(x, dtype=np.complex128) for x in self.C]
-            self.opt = Main.QuanEstimation.Mopt_Projection(M=self.C, seed=self.seed)
+            self.opt = QuanEstimation.Mopt_Projection(M=self.C, seed=self.seed)
 
         elif self.mtype == "input":
             if self.minput[0] == "LC":
@@ -477,7 +477,7 @@ class MeasurementSystem:
                     self.B = [
                         self.measurement0[0][i] for i in range(len(self.povm_basis))
                     ]
-                self.opt = Main.QuanEstimation.Mopt_LinearComb(
+                self.opt = QuanEstimation.Mopt_LinearComb(
                     B=self.B, POVM_basis=self.povm_basis, M_num=self.M_num, seed=self.seed
                 )
 
@@ -519,7 +519,7 @@ class MeasurementSystem:
                         for i in range(len(self.rho0) * len(self.rho0))
                     ]
 
-                self.opt = Main.QuanEstimation.Mopt_Rotation(
+                self.opt = QuanEstimation.Mopt_Rotation(
                     s=self.s, POVM_basis=self.povm_basis, Lambda=[], seed=self.seed
                 )
 
@@ -536,8 +536,8 @@ class MeasurementSystem:
                 )
             )
 
-        self.dynamic = Main.QuanEstimation.Kraus(self.rho0, self.K, self.dK)
-        self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
+        self.dynamic = QuanEstimation.Kraus(self.rho0, self.K, self.dK)
+        self.output = QuanEstimation.Output(self.opt, save=self.savefile)
 
         self.dynamics_type = "Kraus"
 
@@ -566,13 +566,13 @@ class MeasurementSystem:
                 "Supported type of dynamics are Lindblad and Kraus."
                 )
 
-        self.obj = Main.QuanEstimation.CFIM_obj(
+        self.obj = QuanEstimation.CFIM_obj(
             [], self.W, self.eps, self.para_type
         )  #### m=[]
-        system = Main.QuanEstimation.QuanEstSystem(
+        system = QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
-        Main.QuanEstimation.run(system)
+        QuanEstimation.run(system)
         self.load_save()
 
 

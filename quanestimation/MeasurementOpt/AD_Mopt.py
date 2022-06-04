@@ -1,4 +1,4 @@
-from julia import Main
+from julia import QuanEstimation
 import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
 
@@ -71,11 +71,11 @@ class AD_Mopt(Measurement.MeasurementSystem):
         self.seed = seed
 
         if self.Adam:
-            self.alg = Main.QuanEstimation.AD(
+            self.alg = QuanEstimation.AD(
                 self.max_episode, self.epsilon, self.beta1, self.beta2
             )
         else:
-            self.alg = Main.QuanEstimation.AD(self.max_episode, self.epsilon)
+            self.alg = QuanEstimation.AD(self.max_episode, self.epsilon)
 
     def CFIM(self, W=[]):
         r"""

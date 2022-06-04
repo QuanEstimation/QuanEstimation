@@ -1,5 +1,5 @@
 import warnings
-from julia import Main
+from julia import QuanEstimation
 import quanestimation.ControlOpt.ControlStruct as Control
 
 
@@ -96,11 +96,11 @@ class GRAPE_Copt(Control.ControlSystem):
 
         if self.auto:
             if self.Adam:
-                self.alg = Main.QuanEstimation.autoGRAPE(
+                self.alg = QuanEstimation.autoGRAPE(
                     self.max_episode, self.epsilon, self.beta1, self.beta2
                 )
             else:
-                self.alg = Main.QuanEstimation.autoGRAPE(self.max_episode, self.epsilon)
+                self.alg = QuanEstimation.autoGRAPE(self.max_episode, self.epsilon)
         else:
             if (len(self.tspan) - 1) != len(self.control_coefficients[0]):
                 warnings.warn("GRAPE is not available when the length of each control is not \
@@ -108,19 +108,19 @@ class GRAPE_Copt(Control.ControlSystem):
                                DeprecationWarning)
                 #### call autoGRAPE automatically ####
                 if self.Adam:
-                    self.alg = Main.QuanEstimation.autoGRAPE(
+                    self.alg = QuanEstimation.autoGRAPE(
                         self.max_episode, self.epsilon, self.beta1, self.beta2
                     )
                 else:
-                    self.alg = Main.QuanEstimation.autoGRAPE(self.max_episode, self.epsilon)
+                    self.alg = QuanEstimation.autoGRAPE(self.max_episode, self.epsilon)
             else:
                 if LDtype == "SLD":
                     if self.Adam:
-                        self.alg = Main.QuanEstimation.GRAPE(
+                        self.alg = QuanEstimation.GRAPE(
                             self.max_episode, self.epsilon, self.beta1, self.beta2
                             )
                     else:
-                        self.alg = Main.QuanEstimation.GRAPE(self.max_episode, self.epsilon)
+                        self.alg = QuanEstimation.GRAPE(self.max_episode, self.epsilon)
                 else:
                     raise ValueError("GRAPE is only available when LDtype is SLD.")
 
@@ -149,11 +149,11 @@ class GRAPE_Copt(Control.ControlSystem):
 
         if self.auto:
             if self.Adam:
-                self.alg = Main.QuanEstimation.autoGRAPE(
+                self.alg = QuanEstimation.autoGRAPE(
                     self.max_episode, self.epsilon, self.beta1, self.beta2
                 )
             else:
-                self.alg = Main.QuanEstimation.autoGRAPE(self.max_episode, self.epsilon)
+                self.alg = QuanEstimation.autoGRAPE(self.max_episode, self.epsilon)
         else:
             if (len(self.tspan) - 1) != len(self.control_coefficients[0]):
                 warnings.warn("GRAPE is not available when the length of each control is not \
@@ -161,18 +161,18 @@ class GRAPE_Copt(Control.ControlSystem):
                                DeprecationWarning)
                 #### call autoGRAPE automatically ####
                 if self.Adam:
-                    self.alg = Main.QuanEstimation.autoGRAPE(
+                    self.alg = QuanEstimation.autoGRAPE(
                         self.max_episode, self.epsilon, self.beta1, self.beta2
                     )
                 else:
-                    self.alg = Main.QuanEstimation.autoGRAPE(self.max_episode, self.epsilon)
+                    self.alg = QuanEstimation.autoGRAPE(self.max_episode, self.epsilon)
             else:    
                 if self.Adam:
-                    self.alg = Main.QuanEstimation.GRAPE(
+                    self.alg = QuanEstimation.GRAPE(
                         self.max_episode, self.epsilon, self.beta1, self.beta2
                     )
                 else:
-                    self.alg = Main.QuanEstimation.GRAPE(self.max_episode, self.epsilon)
+                    self.alg = QuanEstimation.GRAPE(self.max_episode, self.epsilon)
 
         super().CFIM(M, W)
 
@@ -237,18 +237,18 @@ class GRAPE_Copt(Control.ControlSystem):
             )
         if self.auto:
             if self.Adam:
-                self.alg = Main.QuanEstimation.autoGRAPE(
+                self.alg = QuanEstimation.autoGRAPE(
                     self.max_episode, self.epsilon, self.beta1, self.beta2
                 )
             else:
-                self.alg = Main.QuanEstimation.autoGRAPE(self.max_episode, self.epsilon)
+                self.alg = QuanEstimation.autoGRAPE(self.max_episode, self.epsilon)
         else:
             
             if self.Adam:
-                self.alg = Main.QuanEstimation.GRAPE(
+                self.alg = QuanEstimation.GRAPE(
                         self.max_episode, self.epsilon, self.beta1, self.beta2
                     )
             else:
-                self.alg = Main.QuanEstimation.GRAPE(self.max_episode, self.epsilon)
+                self.alg = QuanEstimation.GRAPE(self.max_episode, self.epsilon)
 
         super().mintime(f, W, M, method, target, LDtype)

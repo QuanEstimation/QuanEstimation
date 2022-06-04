@@ -18,11 +18,10 @@ requirements = [
     "numpy",
     "sympy",
     "matplotlib",
-    "jill",
     "scipy",
-    "qutip",
     "cvxpy",
     "julia",
+    "more_itertools",
 ]
 
 test_requirements = []

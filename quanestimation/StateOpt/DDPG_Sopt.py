@@ -1,4 +1,4 @@
-from julia import Main
+from julia import QuanEstimation
 import quanestimation.StateOpt.StateStruct as State
 
 
@@ -58,7 +58,7 @@ class DDPG_Sopt(State.StateSystem):
 
         self.seed = seed
 
-        self.alg = Main.QuanEstimation.DDPG(
+        self.alg = QuanEstimation.DDPG(
             self.max_episode, self.layer_num, self.layer_dim, self.seed
         )
 

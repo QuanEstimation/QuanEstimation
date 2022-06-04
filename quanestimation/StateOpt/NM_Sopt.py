@@ -1,4 +1,5 @@
 from julia import Main
+from julia import QuanEstimation
 import quanestimation.StateOpt.StateStruct as State
 
 
@@ -90,7 +91,7 @@ class NM_Sopt(State.StateSystem):
             "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
         """
         ini_state = Main.vec(self.psi)
-        self.alg = Main.QuanEstimation.NM(
+        self.alg = QuanEstimation.NM(
             self.max_episode,
             self.p_num,
             ini_state,
@@ -123,7 +124,7 @@ class NM_Sopt(State.StateSystem):
             solutions.html).
         """
         ini_state = Main.vec(self.psi)
-        self.alg = Main.QuanEstimation.NM(
+        self.alg = QuanEstimation.NM(
             self.max_episode,
             self.p_num,
             ini_state,
@@ -148,7 +149,7 @@ class NM_Sopt(State.StateSystem):
             -- Weight matrix.
         """
         ini_state = Main.vec(self.psi)
-        self.alg = Main.QuanEstimation.NM(
+        self.alg = QuanEstimation.NM(
             self.max_episode,
             self.p_num,
             ini_state,

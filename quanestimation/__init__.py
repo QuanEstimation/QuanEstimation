@@ -1,8 +1,8 @@
 """Top-level package for quanestimation."""
-import os
-from julia import Main
-
 __version__ = "0.1.0"
+
+from .Common._julia_project import project
+project.ensure_init()
 
 from quanestimation.AsymptoticBound.CramerRao import (
     CFIM,
@@ -133,8 +133,6 @@ from quanestimation.StateOpt.RI_Sopt import (
 from quanestimation.AdaptiveScheme.Adaptive import Adaptive
 from quanestimation.AdaptiveScheme.Adapt_MZI import Adapt_MZI
 
-pkgpath = os.path.abspath(os.path.dirname(__file__))
-Main.include(pkgpath + "/JuliaSrc/QuanEstimation.jl")
 
 __all__ = [
     "ControlOpt",

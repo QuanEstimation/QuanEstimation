@@ -1,4 +1,4 @@
-from julia import Main
+from julia import QuanEstimation
 import quanestimation.ComprehensiveOpt.ComprehensiveStruct as Comp
 
 
@@ -98,7 +98,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             solutions.html).
         """
         ini_population = (self.psi0, self.ctrl0)
-        self.alg = Main.QuanEstimation.DE(
+        self.alg = QuanEstimation.DE(
             self.max_episode,
             self.p_num,
             ini_population,
@@ -121,7 +121,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             -- Weight matrix.
         """
         ini_population = (self.ctrl0, self.measurement0)
-        self.alg = Main.QuanEstimation.DE(
+        self.alg = QuanEstimation.DE(
             self.max_episode,
             self.p_num,
             ini_population,
@@ -141,7 +141,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             -- Weight matrix.
         """
         ini_population = (self.psi0, self.measurement0)
-        self.alg = Main.QuanEstimation.DE(
+        self.alg = QuanEstimation.DE(
             self.max_episode,
             self.p_num,
             ini_population,
@@ -161,7 +161,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             -- Weight matrix.
         """
         ini_population = (self.psi0, self.ctrl0, self.measurement0)
-        self.alg = Main.QuanEstimation.DE(
+        self.alg = QuanEstimation.DE(
             self.max_episode,
             self.p_num,
             ini_population,

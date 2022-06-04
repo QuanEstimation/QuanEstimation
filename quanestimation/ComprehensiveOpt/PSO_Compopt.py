@@ -1,4 +1,4 @@
-from julia import Main
+from julia import QuanEstimation
 import quanestimation.ComprehensiveOpt.ComprehensiveStruct as Comp
 
 
@@ -110,7 +110,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             solutions.html).
         """
         ini_particle = (self.psi0, self.ctrl0)
-        self.alg = Main.QuanEstimation.PSO(
+        self.alg = QuanEstimation.PSO(
             self.max_episode,
             self.p_num,
             ini_particle,
@@ -133,7 +133,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             -- Weight matrix.
         """
         ini_particle = (self.ctrl0, self.measurement0)
-        self.alg = Main.QuanEstimation.PSO(
+        self.alg = QuanEstimation.PSO(
             self.max_episode,
             self.p_num,
             ini_particle,
@@ -154,7 +154,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             -- Weight matrix.
         """
         ini_particle = (self.psi0, self.measurement0)
-        self.alg = Main.QuanEstimation.PSO(
+        self.alg = QuanEstimation.PSO(
             self.max_episode,
             self.p_num,
             ini_particle,
@@ -175,7 +175,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             -- Weight matrix.
         """
         ini_particle = (self.psi0, self.ctrl0, self.measurement0)
-        self.alg = Main.QuanEstimation.PSO(
+        self.alg = QuanEstimation.PSO(
             self.max_episode,
             self.p_num,
             ini_particle,

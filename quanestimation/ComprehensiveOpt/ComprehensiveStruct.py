@@ -3,7 +3,7 @@ from scipy.interpolate import interp1d
 import warnings
 import math
 import os
-from julia import Main
+from julia import QuanEstimation
 import quanestimation.ComprehensiveOpt as compopt
 from quanestimation.Common.Common import gramschmidt, SIC
 
@@ -280,7 +280,7 @@ class ComprehensiveSystem:
             self.C = [self.measurement0[0][i] for i in range(len(self.psi))]
             self.C = [np.array(x, dtype=np.complex128) for x in self.C]
 
-        self.dynamic = Main.QuanEstimation.Kraus(self.psi, self.K, self.dK)
+        self.dynamic = QuanEstimation.Kraus(self.psi, self.K, self.dK)
 
         self.dynamics_type = "Kraus"
 
@@ -326,7 +326,7 @@ class ComprehensiveSystem:
 
         if M != []:
             M = [np.array(x, dtype=np.complex128) for x in M]
-            self.obj = Main.QuanEstimation.CFIM_obj(M, self.W, self.eps, self.para_type)
+            self.obj = QuanEstimation.CFIM_obj(M, self.W, self.eps, self.para_type)
         else:
             if target == "HCRB":
                 if self.para_type == "single_para":
@@ -334,27 +334,27 @@ class ComprehensiveSystem:
                         "Program terminated. In the single-parameter scenario, the HCRB is equivalent to the QFI. Please choose 'QFIM' as the objective function"
                     )
                 else:
-                    self.obj = Main.QuanEstimation.HCRB_obj(self.W, self.eps, self.para_type)
+                    self.obj = QuanEstimation.HCRB_obj(self.W, self.eps, self.para_type)
             elif target == "QFIM" and (
                 LDtype == "SLD" or LDtype == "RLD" or LDtype == "LLD"
             ):
-                self.obj = Main.QuanEstimation.QFIM_obj(
+                self.obj = QuanEstimation.QFIM_obj(
                     self.W, self.eps, self.para_type, LDtype
                 )
             elif target == "CFIM":
                 M = SIC(len(self.psi))
-                self.obj = Main.QuanEstimation.CFIM_obj(M, self.W, self.eps, self.para_type)
+                self.obj = QuanEstimation.CFIM_obj(M, self.W, self.eps, self.para_type)
             else:
                 raise ValueError(
                     "Please enter the correct values for target and LDtype. Supported target are 'QFIM', 'CFIM' and 'HCRB', supported LDtype are 'SLD', 'RLD' and 'LLD'."
                 )
 
-        self.opt = Main.QuanEstimation.StateControlOpt(
+        self.opt = QuanEstimation.StateControlOpt(
             psi=self.psi, ctrl=self.control_coefficients, ctrl_bound=self.ctrl_bound, seed=self.seed
         )
-        self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
+        self.output = QuanEstimation.Output(self.opt, save=self.savefile)
 
-        self.dynamic = Main.QuanEstimation.Lindblad(
+        self.dynamic = QuanEstimation.Lindblad(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
             self.control_Hamiltonian,
@@ -364,10 +364,10 @@ class ComprehensiveSystem:
             self.decay_opt,
             self.gamma,
             )
-        system = Main.QuanEstimation.QuanEstSystem(
+        system = QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
-        Main.QuanEstimation.run(system)
+        QuanEstimation.run(system)
 
         self.load_save_state()
 
@@ -395,13 +395,13 @@ class ComprehensiveSystem:
 
         self.rho0 = np.array(rho0, dtype=np.complex128)
 
-        self.obj = Main.QuanEstimation.CFIM_obj([], self.W, self.eps, self.para_type)
-        self.opt = Main.QuanEstimation.ControlMeasurementOpt(
+        self.obj = QuanEstimation.CFIM_obj([], self.W, self.eps, self.para_type)
+        self.opt = QuanEstimation.ControlMeasurementOpt(
             ctrl=self.control_coefficients, M=self.C, ctrl_bound=self.ctrl_bound, seed=self.seed
         )
-        self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
+        self.output = QuanEstimation.Output(self.opt, save=self.savefile)
 
-        self.dynamic = Main.QuanEstimation.Lindblad(
+        self.dynamic = QuanEstimation.Lindblad(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
             self.control_Hamiltonian,
@@ -412,10 +412,10 @@ class ComprehensiveSystem:
             self.gamma,
             )
 
-        system = Main.QuanEstimation.QuanEstSystem(
+        system = QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
-        Main.QuanEstimation.run(system)
+        QuanEstimation.run(system)
 
         self.load_save_meas()
 
@@ -546,7 +546,7 @@ class ComprehensiveSystem:
                             np.array(x, dtype=np.complex128) for x in Htot
                         ]
 
-            self.dynamic = Main.QuanEstimation.Lindblad(
+            self.dynamic = QuanEstimation.Lindblad(
                 freeHamiltonian,
                 self.Hamiltonian_derivative,
                 self.psi,
@@ -563,14 +563,14 @@ class ComprehensiveSystem:
                 "Supported type of dynamics are Lindblad and Kraus."
                 )
 
-        self.obj = Main.QuanEstimation.CFIM_obj([], self.W, self.eps, self.para_type)
-        self.opt = Main.QuanEstimation.StateMeasurementOpt(psi=self.psi, M=self.C, seed=self.seed)
-        self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
+        self.obj = QuanEstimation.CFIM_obj([], self.W, self.eps, self.para_type)
+        self.opt = QuanEstimation.StateMeasurementOpt(psi=self.psi, M=self.C, seed=self.seed)
+        self.output = QuanEstimation.Output(self.opt, save=self.savefile)
 
-        system = Main.QuanEstimation.QuanEstSystem(
+        system = QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
-        Main.QuanEstimation.run(system)
+        QuanEstimation.run(system)
 
         self.load_save_state()
         self.load_save_meas()
@@ -593,13 +593,13 @@ class ComprehensiveSystem:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
 
-        self.obj = Main.QuanEstimation.CFIM_obj([], self.W, self.eps, self.para_type)
-        self.opt = Main.QuanEstimation.StateControlMeasurementOpt(
+        self.obj = QuanEstimation.CFIM_obj([], self.W, self.eps, self.para_type)
+        self.opt = QuanEstimation.StateControlMeasurementOpt(
             psi=self.psi, ctrl=self.control_coefficients, M=self.C, ctrl_bound=self.ctrl_bound, seed=self.seed
         )
-        self.output = Main.QuanEstimation.Output(self.opt, save=self.savefile)
+        self.output = QuanEstimation.Output(self.opt, save=self.savefile)
 
-        self.dynamic = Main.QuanEstimation.Lindblad(
+        self.dynamic = QuanEstimation.Lindblad(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
             self.control_Hamiltonian,
@@ -610,10 +610,10 @@ class ComprehensiveSystem:
             self.gamma,
             )
 
-        system = Main.QuanEstimation.QuanEstSystem(
+        system = QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
-        Main.QuanEstimation.run(system)
+        QuanEstimation.run(system)
 
         self.load_save_state()
         self.load_save_meas()

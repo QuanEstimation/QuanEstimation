@@ -1,4 +1,4 @@
-from julia import Main
+from julia import QuanEstimation
 import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
 
@@ -89,7 +89,7 @@ class PSO_Mopt(Measurement.MeasurementSystem):
             -- Weight matrix.
         """
         ini_particle = ([self.measurement0],)
-        self.alg = Main.QuanEstimation.PSO(
+        self.alg = QuanEstimation.PSO(
             self.max_episode,
             self.p_num,
             ini_particle,

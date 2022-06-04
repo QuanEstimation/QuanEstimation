@@ -1,4 +1,4 @@
-from julia import Main
+from julia import QuanEstimation
 import quanestimation.ComprehensiveOpt.ComprehensiveStruct as Comp
 
 
@@ -111,10 +111,10 @@ class AD_Compopt(Comp.ComprehensiveSystem):
             )
 
         if self.Adam:
-            self.alg = Main.QuanEstimation.AD(
+            self.alg = QuanEstimation.AD(
                 self.max_episode, self.epsilon, self.beta1, self.beta2
             )
         else:
-            self.alg = Main.QuanEstimation.AD(self.max_episode, self.epsilon)
+            self.alg = QuanEstimation.AD(self.max_episode, self.epsilon)
 
         super().SC(W, M, target, LDtype)
