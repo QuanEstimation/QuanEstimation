@@ -14,7 +14,7 @@ Run the command in the terminal to install QuanEstimation:
 pip install quanestimation
 ~~~
 
-P.S. Currently, installation under Winodws and MacOS may fail due to problems on precomplielations of julia pkgs, please try under Linux or inside a docker image.
+P.S. Currently, installation under Winodws and MacOS may fail due to problems on precomplielations of julia pkgs, please try under Linux or inside a docker container.
 
 ## Citation
 If you use QuanEstimation in your research, please cite the following paper:
