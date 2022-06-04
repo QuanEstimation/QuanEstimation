@@ -22,6 +22,7 @@ requirements = [
     "cvxpy",
     "julia",
     "more_itertools",
+    "julia_project",
 ]
 
 test_requirements = []
