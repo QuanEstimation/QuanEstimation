@@ -9,6 +9,8 @@ Run the command in the terminal to install QuanEstimation:
     git clone https://github.com/QuanEstimation/QuanEstimation.git
     ```
     to install the latest development version of QuanEstimation from Github.
+
+    P.S. Currently, installation under Winodws and MacOS may fail due to problems on precomplielations of julia pkgs, please try under Linux or inside a docker image.
 === "Julia"
     ``` jl
     import Pkg
