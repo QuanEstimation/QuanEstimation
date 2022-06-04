@@ -945,7 +945,7 @@ as follows</p>
 <p><strong>Example 7.1</strong></p>
 <div class="tabbed-set" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><label for="__tabbed_3_1">projection</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">quanestimation</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="c1"># the dimension of the system</span>
 <span class="n">dim</span> <span class="o">=</span> <span class="mi">6</span>
@@ -962,7 +962,7 @@ as follows</p>
 </div>
 <input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><label for="__tabbed_3_2">LC</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">quanestimation</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="c1"># the dimension of the system</span>
 <span class="n">dim</span> <span class="o">=</span> <span class="mi">6</span>
@@ -977,7 +977,7 @@ as follows</p>
 </div>
 <input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><label for="__tabbed_3_3">rotation</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">quanestimation</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="c1"># the dimension of the system</span>
 <span class="n">dim</span> <span class="o">=</span> <span class="mi">6</span>
@@ -1830,7 +1830,7 @@ the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> (Pauli matrix) wi
 <span class="n">dK2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.5</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">gamma</span><span class="p">)],</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">]])</span>
 <span class="n">dK</span> <span class="o">=</span> <span class="p">[[</span><span class="n">dK1</span><span class="p">],</span> <span class="p">[</span><span class="n">dK2</span><span class="p">]]</span>
 <span class="c1"># measurement</span>
-<span class="n">POVM_basis</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">SIC</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rho0</span><span class="p">))</span>
+<span class="n">POVM_basis</span> <span class="o">=</span> <span class="n">SIC</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rho0</span><span class="p">))</span>
 </code></pre></div>
 <div class="tabbed-set" data-tabs="27:3"><input checked="checked" id="__tabbed_27_1" name="__tabbed_27" type="radio" /><label for="__tabbed_27_1">projection</label><div class="tabbed-content">
 <div class="tabbed-set" data-tabs="28:2"><input checked="checked" id="__tabbed_28_1" name="__tabbed_28" type="radio" /><label for="__tabbed_28_1">DE</label><div class="tabbed-content">

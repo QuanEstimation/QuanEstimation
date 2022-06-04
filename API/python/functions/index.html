@@ -5859,12 +5859,12 @@ the average CFIM.</p>
         <span class="n">b_pro</span> <span class="o">=</span> <span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">b</span><span class="p">)</span>
         <span class="n">db_pro</span> <span class="o">=</span> <span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">db</span><span class="p">)</span>
 
-        <span class="n">p_list</span><span class="p">,</span> <span class="n">dp_list</span><span class="p">,</span> <span class="n">rho_list</span><span class="p">,</span> <span class="n">drho_list</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">p_ele</span><span class="p">,</span> <span class="n">dp_ele</span><span class="p">,</span> <span class="n">rho_ele</span><span class="p">,</span> <span class="n">drho_ele</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">p_ext</span><span class="p">,</span> <span class="n">dp_ext</span><span class="p">,</span> <span class="n">rho_ext</span><span class="p">,</span> <span class="n">drho_ext</span><span class="p">):</span>
+        <span class="n">p_list</span><span class="p">,</span> <span class="n">rho_list</span><span class="p">,</span> <span class="n">drho_list</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p_ele</span><span class="p">,</span> <span class="n">rho_ele</span><span class="p">,</span> <span class="n">drho_ele</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">p_ext</span><span class="p">,</span> <span class="n">rho_ext</span><span class="p">,</span> <span class="n">drho_ext</span><span class="p">):</span>
             <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_ele</span><span class="p">)</span>
-            <span class="n">dp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dp_ele</span><span class="p">)</span>
             <span class="n">rho_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rho_ele</span><span class="p">)</span>
             <span class="n">drho_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">drho_ele</span><span class="p">)</span>
+        <span class="n">dp_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">dpi</span> <span class="k">for</span> <span class="n">dpi</span> <span class="ow">in</span> <span class="n">dp_ext</span><span class="p">]</span>
 
         <span class="n">b_list</span><span class="p">,</span> <span class="n">db_list</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">b_ele</span><span class="p">,</span> <span class="n">db_ele</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">b_pro</span><span class="p">,</span> <span class="n">db_pro</span><span class="p">):</span>
@@ -6505,12 +6505,12 @@ the average QFIM.</p>
         <span class="n">b_pro</span> <span class="o">=</span> <span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">b</span><span class="p">)</span>
         <span class="n">db_pro</span> <span class="o">=</span> <span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">db</span><span class="p">)</span>
 
-        <span class="n">p_list</span><span class="p">,</span> <span class="n">dp_list</span><span class="p">,</span> <span class="n">rho_list</span><span class="p">,</span> <span class="n">drho_list</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">p_ele</span><span class="p">,</span> <span class="n">dp_ele</span><span class="p">,</span> <span class="n">rho_ele</span><span class="p">,</span> <span class="n">drho_ele</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">p_ext</span><span class="p">,</span> <span class="n">dp_ext</span><span class="p">,</span> <span class="n">rho_ext</span><span class="p">,</span> <span class="n">drho_ext</span><span class="p">):</span>
+        <span class="n">p_list</span><span class="p">,</span> <span class="n">rho_list</span><span class="p">,</span> <span class="n">drho_list</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p_ele</span><span class="p">,</span> <span class="n">rho_ele</span><span class="p">,</span> <span class="n">drho_ele</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">p_ext</span><span class="p">,</span> <span class="n">rho_ext</span><span class="p">,</span> <span class="n">drho_ext</span><span class="p">):</span>
             <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_ele</span><span class="p">)</span>
-            <span class="n">dp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dp_ele</span><span class="p">)</span>
             <span class="n">rho_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rho_ele</span><span class="p">)</span>
             <span class="n">drho_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">drho_ele</span><span class="p">)</span>
+        <span class="n">dp_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">dpi</span> <span class="k">for</span> <span class="n">dpi</span> <span class="ow">in</span> <span class="n">dp_ext</span><span class="p">]</span>
 
         <span class="n">b_list</span><span class="p">,</span> <span class="n">db_list</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">b_ele</span><span class="p">,</span> <span class="n">db_ele</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">b_pro</span><span class="p">,</span> <span class="n">db_pro</span><span class="p">):</span>
@@ -6686,7 +6686,12 @@ prior distribution <span class="arithmatex">\(p(x)\)</span> is
 
       <details class="quote">
         <summary>Source code in <code>quanestimation/BayesianBound/BayesianCramerRao.py</code></summary>
-        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1070</span>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1065</span>
+<span class="normal">1066</span>
+<span class="normal">1067</span>
+<span class="normal">1068</span>
+<span class="normal">1069</span>
+<span class="normal">1070</span>
 <span class="normal">1071</span>
 <span class="normal">1072</span>
 <span class="normal">1073</span>
@@ -6764,12 +6769,7 @@ prior distribution <span class="arithmatex">\(p(x)\)</span> is
 <span class="normal">1145</span>
 <span class="normal">1146</span>
 <span class="normal">1147</span>
-<span class="normal">1148</span>
-<span class="normal">1149</span>
-<span class="normal">1150</span>
-<span class="normal">1151</span>
-<span class="normal">1152</span>
-<span class="normal">1153</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">OBB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">,</span> <span class="n">d2rho</span><span class="p">,</span> <span class="n">LDtype</span><span class="o">=</span><span class="s2">&quot;SLD&quot;</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+<span class="normal">1148</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">OBB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">,</span> <span class="n">d2rho</span><span class="p">,</span> <span class="n">LDtype</span><span class="o">=</span><span class="s2">&quot;SLD&quot;</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculation of the optimal biased bound based on the first type of the BQCRB </span>
 <span class="sd">    in the case of single parameter estimation. The expression of OBB with a </span>
@@ -7166,12 +7166,12 @@ average CFIM.</p>
         <span class="n">rho_ext</span> <span class="o">=</span> <span class="n">extract_ele</span><span class="p">(</span><span class="n">rho</span><span class="p">,</span> <span class="n">para_num</span><span class="p">)</span>
         <span class="n">drho_ext</span> <span class="o">=</span> <span class="n">extract_ele</span><span class="p">(</span><span class="n">drho</span><span class="p">,</span> <span class="n">para_num</span><span class="p">)</span>
 
-        <span class="n">p_list</span><span class="p">,</span> <span class="n">dp_list</span><span class="p">,</span> <span class="n">rho_list</span><span class="p">,</span> <span class="n">drho_list</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">p_ele</span><span class="p">,</span> <span class="n">dp_ele</span><span class="p">,</span> <span class="n">rho_ele</span><span class="p">,</span> <span class="n">drho_ele</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">p_ext</span><span class="p">,</span> <span class="n">dp_ext</span><span class="p">,</span> <span class="n">rho_ext</span><span class="p">,</span> <span class="n">drho_ext</span><span class="p">):</span>
+        <span class="n">p_list</span><span class="p">,</span> <span class="n">rho_list</span><span class="p">,</span> <span class="n">drho_list</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p_ele</span><span class="p">,</span> <span class="n">rho_ele</span><span class="p">,</span> <span class="n">drho_ele</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">p_ext</span><span class="p">,</span> <span class="n">rho_ext</span><span class="p">,</span> <span class="n">drho_ext</span><span class="p">):</span>
             <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_ele</span><span class="p">)</span>
-            <span class="n">dp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dp_ele</span><span class="p">)</span>
             <span class="n">rho_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rho_ele</span><span class="p">)</span>
             <span class="n">drho_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">drho_ele</span><span class="p">)</span>
+        <span class="n">dp_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">dpi</span> <span class="k">for</span> <span class="n">dpi</span> <span class="ow">in</span> <span class="n">dp_ext</span><span class="p">]</span>
 
         <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rho_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">M</span> <span class="o">==</span> <span class="p">[]:</span>
@@ -7403,12 +7403,7 @@ the CFIM for <span class="arithmatex">\(p(\textbf{x})\)</span> and <span class="
 <span class="normal">1048</span>
 <span class="normal">1049</span>
 <span class="normal">1050</span>
-<span class="normal">1051</span>
-<span class="normal">1052</span>
-<span class="normal">1053</span>
-<span class="normal">1054</span>
-<span class="normal">1055</span>
-<span class="normal">1056</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">QVTB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">,</span> <span class="n">LDtype</span><span class="o">=</span><span class="s2">&quot;SLD&quot;</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+<span class="normal">1051</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">QVTB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">,</span> <span class="n">LDtype</span><span class="o">=</span><span class="s2">&quot;SLD&quot;</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculation of the Bayesian version of quantum Cramer-Rao bound introduced </span>
 <span class="sd">    by Van Trees (QVTB). The covariance matrix with a prior distribution p(\textbf{x}) </span>
@@ -7495,17 +7490,12 @@ the CFIM for <span class="arithmatex">\(p(\textbf{x})\)</span> and <span class="
         <span class="n">rho_ext</span> <span class="o">=</span> <span class="n">extract_ele</span><span class="p">(</span><span class="n">rho</span><span class="p">,</span> <span class="n">para_num</span><span class="p">)</span>
         <span class="n">drho_ext</span> <span class="o">=</span> <span class="n">extract_ele</span><span class="p">(</span><span class="n">drho</span><span class="p">,</span> <span class="n">para_num</span><span class="p">)</span>
 
-        <span class="n">p_list</span><span class="p">,</span> <span class="n">dp_list</span><span class="p">,</span> <span class="n">rho_list</span><span class="p">,</span> <span class="n">drho_list</span><span class="p">,</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">[],</span>
-            <span class="p">[],</span>
-            <span class="p">[],</span>
-            <span class="p">[],</span>
-        <span class="p">)</span>
-        <span class="k">for</span> <span class="n">p_ele</span><span class="p">,</span> <span class="n">dp_ele</span><span class="p">,</span> <span class="n">rho_ele</span><span class="p">,</span> <span class="n">drho_ele</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">p_ext</span><span class="p">,</span> <span class="n">dp_ext</span><span class="p">,</span> <span class="n">rho_ext</span><span class="p">,</span> <span class="n">drho_ext</span><span class="p">):</span>
+        <span class="n">p_list</span><span class="p">,</span> <span class="n">rho_list</span><span class="p">,</span> <span class="n">drho_list</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p_ele</span><span class="p">,</span> <span class="n">rho_ele</span><span class="p">,</span> <span class="n">drho_ele</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">p_ext</span><span class="p">,</span> <span class="n">rho_ext</span><span class="p">,</span> <span class="n">drho_ext</span><span class="p">):</span>
             <span class="n">p_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p_ele</span><span class="p">)</span>
-            <span class="n">dp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dp_ele</span><span class="p">)</span>
             <span class="n">rho_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rho_ele</span><span class="p">)</span>
             <span class="n">drho_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">drho_ele</span><span class="p">)</span>
+        <span class="n">dp_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">dpi</span> <span class="k">for</span> <span class="n">dpi</span> <span class="ow">in</span> <span class="n">dp_ext</span><span class="p">]</span>
 
         <span class="n">F_list</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="p">[[</span><span class="mf">0.0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p_list</span><span class="p">))]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">para_num</span><span class="p">)]</span>
@@ -8149,7 +8139,7 @@ posteriori probability (MAP).</p>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;</span><span class="si">{!r}</span><span class="s2"> is not a valid value for estimator, supported values are &#39;mean&#39; and &#39;MAP&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">estimator</span><span class="p">))</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;Lout&quot;</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;pout&quot;</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
             <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;xout&quot;</span><span class="p">,</span> <span class="n">x_out</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">p</span><span class="p">,</span> <span class="n">x_out</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
