@@ -189,7 +189,7 @@ def Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False):
             else:
                 raise ValueError(
                 "{!r} is not a valid value for estimator, supported values are 'mean' and 'MAP'.".format(estimator))
-            np.save("Lout", p)
+            np.save("pout", p)
             np.save("xout", x_out)
             return p, x_out[-1]
         else:

@@ -186,6 +186,7 @@ class MeasurementSystem:
                         self.M_num = self.minput[2]
 
                 if self.measurement0 == []:
+                    np.random.seed(self.seed)
                     self.B = [
                         np.random.random(len(self.povm_basis))
                         for i in range(self.M_num)
@@ -226,6 +227,7 @@ class MeasurementSystem:
                     self.mtype = "rotation"
 
                 if self.measurement0 == []:
+                    np.random.seed(self.seed)
                     self.s = np.random.random(len(self.rho0) ** 2)
                     self.measurement0 = [self.s]
                 elif len(self.measurement0) >= 1:
@@ -465,6 +467,7 @@ class MeasurementSystem:
                         self.M_num = self.minput[2]
 
                 if self.measurement0 == []:
+                    np.random.seed(self.seed)
                     self.B = [
                         np.random.random(len(self.povm_basis))
                         for i in range(self.M_num)
@@ -507,6 +510,7 @@ class MeasurementSystem:
                     self.mtype = "rotation"
 
                 if self.measurement0 == []:
+                    np.random.seed(self.seed)
                     self.s = np.random.random(len(self.rho0) ** 2)
                     self.measurement0 = [self.s]
                 elif len(self.measurement0) >= 1:

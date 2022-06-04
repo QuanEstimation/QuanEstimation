@@ -137,7 +137,7 @@ The code for measurement optimization with PSO is as follows
     === "projection"
         ``` py
         from quanestimation import *
-        from numpy import *
+        import numpy as np
 
         # the dimension of the system
         dim = 6
@@ -154,7 +154,7 @@ The code for measurement optimization with PSO is as follows
     === "LC"
         ``` py
         from quanestimation import *
-        from numpy import *
+        import numpy as np
 
         # the dimension of the system
         dim = 6
@@ -169,7 +169,7 @@ The code for measurement optimization with PSO is as follows
     === "rotation"
         ``` py
         from quanestimation import *
-        from numpy import *
+        import numpy as np
 
         # the dimension of the system
         dim = 6
@@ -901,7 +901,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
     dK2 = np.array([[0., 0.5/np.sqrt(gamma)], [0., 0.]])
     dK = [[dK1], [dK2]]
     # measurement
-    POVM_basis = QuanEstimation.SIC(len(rho0))
+    POVM_basis = SIC(len(rho0))
     ```
     === "projection"
         === "DE"
