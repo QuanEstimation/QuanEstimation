@@ -10,7 +10,6 @@ twine==1.14.0
 Click==7.0
 numpy
 sympy 
-matplotlib 
 jill 
 scipy 
 cvxpy
