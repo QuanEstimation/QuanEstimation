@@ -1,7 +1,8 @@
 """Top-level package for quanestimation."""
-__version__ = "0.1.1"
+__version__ = "0.1.3"
 
 import julia
+import platform
 from .Common._julia_project import project
 
 if platform.system() != 'Windows':
