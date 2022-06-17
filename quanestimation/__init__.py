@@ -22,8 +22,8 @@ from quanestimation.AsymptoticBound.CramerRao import (
     RLD,
     SLD,
 )
-from quanestimation.AsymptoticBound.Holevo import (
-    HCRB,
+from quanestimation.AsymptoticBound.analogCramerRao import (
+    HCRB, NHB, 
 )
 from quanestimation.BayesianBound.BayesianCramerRao import (
     BCFIM,
@@ -154,6 +154,7 @@ __all__ = [
     "RLD",
     "SLD",
     "HCRB",
+    "NHB",
     "QFIM_Gauss",
     "QFIM_Kraus",
     "FIM",

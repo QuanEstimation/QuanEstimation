@@ -450,7 +450,7 @@ parameters. The $i$th entry of `dR` is $\partial_{\textbf{x}} \langle[\textbf{R}
 respect tp the unknown parameters.
 
 **Example 3.6**  
-The first and second moments [[10]](#Safranek2019) are
+The first and second moments [[11]](#Safranek2019) are
 
 \begin{eqnarray}
 \langle[\textbf{R}]_i\rangle = \left(\begin{array}{cc}
@@ -538,6 +538,40 @@ where `rho` and `drho` are the density matrix of the state and its derivatives w
 the unknown parameters to be estimated, respectively. `W` represents the weight matrix defaults 
 to identity matrix and `eps` is the machine epsilon with default value $10^{-8}$.
 
+## **Nagaoka-Hayashi bound**
+Conlon et al.[[6]](#Conlon2021) provided a tighter bound than HCRB named as Nagaoka-Hayashi bound (NHB)
+
+\begin{equation}
+\mathrm{Tr}(W\mathrm{cov}(\hat{\textbf{X}},\{\Pi_y\}))\geq \min_{\textbf{X},\mathcal{Q}} \mathrm{Tr}\left((W\otimes\rho)\mathcal{Q}\right)
+\end{equation}
+
+with $W$ the weight matrix and $\mathcal{Q}$ a matrix satisfying $\mathcal{Q}\geq\textbf{X}^{\mathrm{T}}\textbf{X}$. 
+The NHB can be solved by the semidefinite programming as
+
+\begin{align}
+& \min_{\textbf{X},\mathcal{Q}}~\mathrm{Tr}\left((W\otimes\rho)\mathcal{Q}\right),  \nonumber \\
+& \mathrm{subject}~\mathrm{to}~
+\begin{cases}
+\left(\begin{array}{cc}
+\mathcal{Q} & \textbf{X}^{\mathrm{T}} \\
+\textbf{X} & I\\
+\end{array}\right)\geq 0, \\
+\mathrm{Tr}(\rho X_a)=0,\,\mathrm{Tr}(\partial_b\rho X_a)=\delta_{ab},\,\forall a, b.\\
+\end{cases}
+\end{align}
+
+In QuanEstimation, the NHB can be solved by
+=== "Python"
+    ``` py
+    NHB(rho, drho, W)
+    ```
+=== "Julia"
+    ``` jl
+    NHB(rho, drho, W) 
+    ```
+
+---
+
 **Example 3.7**  
 <a id="example3_7"></a>
 The Hamiltonian of a two-qubit system with $XX$ coupling is 
@@ -592,7 +626,7 @@ $|0\rangle$ $(|1\rangle)$ the eigenstate of $\sigma_3$ with respect to the eigen
     # weight matrix
     W = np.identity(2)
     # calculation of the CFIM, QFIM and HCRB
-    F, I, f = [], [], []
+    F, I, f_HCRB, f_NHB = [], [], [], []
     for ti in range(1, 1000):
         # CFIM
         I_tp = CFIM(rho[ti], drho[ti], M=M)
@@ -601,8 +635,11 @@ $|0\rangle$ $(|1\rangle)$ the eigenstate of $\sigma_3$ with respect to the eigen
         F_tp = QFIM(rho[ti], drho[ti])
         F.append(F_tp)
         # HCRB
-        f_tp = HCRB(rho[ti], drho[ti], W, eps=1e-6)
-        f.append(f_tp)
+        f_tp1 = HCRB(rho[ti], drho[ti], W, eps=1e-6)
+        f_HCRB.append(f_tp1)
+        # NHB
+        f_tp2 = NHB(rho[ti], drho[ti], W)
+        f_NHB.append(f_tp2)
     ```
 === "Julia"
     ``` jl
@@ -634,7 +671,7 @@ $|0\rangle$ $(|1\rangle)$ the eigenstate of $\sigma_3$ with respect to the eigen
     # weight matrix
     W = one(zeros(2, 2))
     # calculation of the CFIM, QFIM and HCRB
-    Im, F, f = [], [], Float64[]
+    Im, F, f_HCRB, f_NHB = [], [], [], []
     for ti in 2:length(tspan)
         # CFIM
         I_tp = QuanEstimation.CFIM(rho[ti], drho[ti], M)
@@ -643,11 +680,15 @@ $|0\rangle$ $(|1\rangle)$ the eigenstate of $\sigma_3$ with respect to the eigen
         F_tp = QuanEstimation.QFIM(rho[ti], drho[ti])
         append!(F, [F_tp])
         # HCRB
-        f_tp = QuanEstimation.HCRB(rho[ti], drho[ti], W)
-        append!(f, f_tp)
+        f_tp1 = QuanEstimation.HCRB(rho[ti], drho[ti], W)
+        append!(f_HCRB, f_tp1)
+        # NHB
+        f_tp2 = QuanEstimation.NHB(rho[ti], drho[ti], W)
+        append!(f_NHB, f_tp2)
     end
     ```
 ---
+
 ## **Bayesian Cramér-Rao bounds**
 The Bayesion version of the classical Fisher information (matrix) and quantum Fisher information 
 (matrix) can be calculated by <br>
@@ -775,7 +816,7 @@ In QuanEstimation, the BCRB and BQCRB are calculated via
     For unbiased estimates, `b=missing` and `db=missing`. In QuanEstimation, the users can set 
     the types of BCRB and BQCRB via the variable `btype`. 
 
-For single parameter estimation, Ref [[6]](#Liu2016) calculates the optimal biased bound based 
+For single parameter estimation, Ref [[7]](#Liu2016) calculates the optimal biased bound based 
 on the first type of the BQCRB, it can be realized numerically via
 === "Python"
     ``` py
@@ -787,7 +828,7 @@ on the first type of the BQCRB, it can be realized numerically via
     ```
 `d2rho` is a list representing the second order derivatives of `rho` on `x`.
 
-Van Trees in 1968 [[7]](#vanTrees1968) provides a well used Bayesian version of Cramér-Rao 
+Van Trees in 1968 [[8]](#vanTrees1968) provides a well used Bayesian version of Cramér-Rao 
 bound known as Van Trees bound (VTB). 
 <center> $\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \left(\mathcal{I}_{\mathrm{prior}}
 +\mathcal{I}_{\mathrm{Bayes}}\right)^{-1},$ </center>  
@@ -796,7 +837,7 @@ where $\mathcal{I}_{\mathrm{prior}}=\int p(\textbf{x})\mathcal{I}_{p}\mathrm{d}\
 is the CFIM for $p(\textbf{x})$ and $\mathcal{I}_{\mathrm{Bayes}}$ is the average of the CFIM.
 
 The quantum version (QVTB) provided by Tsang, Wiseman 
-and Caves [[9]](#Tsang2011). 
+and Caves [[10]](#Tsang2011). 
 <center> $\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \left(\mathcal{I}_{\mathrm{prior}}
 +\mathcal{F}_{\mathrm{Bayes}}\right)^{-1}$ </center>  
 
@@ -1163,7 +1204,7 @@ $[0, \pi/2]$.
     Lout, xout = QuanEstimation.MLE([x], rho, y, M=M; savefile=false)
     ```
 
-The average Bayesian cost [[11]](#Robert2007) for a quadratic cost function can be 
+The average Bayesian cost [[12]](#Robert2007) for a quadratic cost function can be 
 calculated via
 \begin{equation}
 \bar{C}:=\int p(\textbf{x})\sum_y p(y|\textbf{x})(\textbf{x}-\hat{\textbf{x}})^{\mathrm{T}}
@@ -1336,31 +1377,36 @@ R. Demkowicz-Dobrzański, W. Górecki, and M. Guţă,
 Multi-parameter estimation beyond Quantum Fisher Information,
 [J. Phys. A: Math. Theor. **53**, 363001 (2020).](https://doi.org/10.1088/1751-8121/ab8ef3)
 
-<a id="Liu2016">[6]</a>
+<a id="Conlon2021">[6]</a> 
+L. O. Conlon, J. Suzuki, P. K. Lam, and S. M. Assad,
+Efficient computation of the Nagaoka–Hayashi bound for multiparameter estimation with separable measurements,
+[npj Quantum Inf.  **7**, 110 (2021).](https://doi.org/10.1038/s41534-021-00414-1)
+
+<a id="Liu2016">[7]</a>
 J. Liu and H. Yuan, 
 Valid lower bound for all estimators in quantum parameter estimation, 
 [New J. Phys. **18**, 093009 (2016).](https://doi.org/10.1088/1367-2630/18/9/093009)
 
-<a id="vanTrees1968">[7]</a> 
+<a id="vanTrees1968">[8]</a> 
 H. L. Van Trees, 
 *Detection, estimation, and modulation theory: Part I*
 (Wiley, New York, 1968).
 
-<a id="Zhong2013">[8]</a> 
+<a id="Zhong2013">[9]</a> 
 W. Zhong, Z. Sun, J. Ma, X. Wang, and F. Nori,
 Fisher information under decoherence in Bloch representation, 
 [Phys. Rev. A **87**, 022337 (2013).](https://doi.org/10.1103/PhysRevA.87.022337)
 
-<a id="Tsang2011">[9]</a> 
+<a id="Tsang2011">[10]</a> 
 M. Tsang, H. M. Wiseman, and C. M. Caves, 
 Fundamental quantum limit to waveform estimation, 
 [Phys. Rev. Lett. **106**, 090401 (2011).](https://doi.org/10.1103/PhysRevLett.106.090401)
 
-<a id="Safranek2019">[10]</a> 
+<a id="Safranek2019">[11]</a> 
 D. Šafránek,
 Estimation of Gaussian quantum states,
 [J. Phys. A: Math. Theor. **52**, 035304 (2019).](https://doi.org/10.1088/1751-8121/aaf068)
 
-<a id="Robert2007">[11]</a> 
+<a id="Robert2007">[12]</a> 
 C. P. Robert,
 *The Bayesian Choice* (Berlin: Springer, 2007).

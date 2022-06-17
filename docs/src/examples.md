@@ -6,11 +6,11 @@ and [Example 3.4](./guide/guide_bounds.md#example3_4) in quantum metrological to
 [CramerRao_bounds.ipynb](examples/Python examples/CramerRao_bounds.ipynb)  
 [CramerRao_bounds.jl](examples/Julia examples/CramerRao_bounds.jl) 
 
-### Calculation of CFIM, QFIM and HCRB
+### Calculation of CFIM, QFIM, HCRB and NHB
 The example is discussed in detail in [Example 3.7](./guide/guide_bounds.md#example3_7) 
 in quantum metrological tools.  
-[Holevo_CramerRao_bound.ipynb](examples/Python examples/Holevo_CramerRao_bound.ipynb)  
-[Holevo_CramerRao_bound.jl](examples/Julia examples/Holevo_CramerRao_bound.jl)  
+[HCRB_NHB.ipynb](examples/Python examples/HCRB_NHB.ipynb)  
+[HCRB_NHB.jl](examples/Julia examples/HCRB_NHB.jl)  
 
 ### Calculation of Bayesian Cramér-Rao bounds
 The example is discussed in detail in [Example 3.8](./guide/guide_bounds.md#example3_8) 

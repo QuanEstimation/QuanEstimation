@@ -9,13 +9,13 @@ from quanestimation.AsymptoticBound.CramerRao import (
     RLD,
     SLD,
 )
-from quanestimation.AsymptoticBound.Holevo import (
+from quanestimation.AsymptoticBound.analogCramerRao import (
     HCRB,
+    NHB,
 )
 
 __all__ = [
     "CramerRao",
-    "Holevo",
     "CFIM",
     "QFIM",
     "QFIM_Bloch",
@@ -26,4 +26,5 @@ __all__ = [
     "RLD",
     "SLD",
     "HCRB",
+    "NHB",
 ]

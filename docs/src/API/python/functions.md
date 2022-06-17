@@ -35,8 +35,13 @@ This part is the functions of the Python-Julia package which written in Python.
 
 ---
 
-## **Holevo Cramér-Rao bounds**
+## **Holevo Cramér-Rao bound**
 ::: quanestimation.HCRB
+
+---
+
+## **Nagaoka-Hayashi bound**
+::: quanestimation.NHB
 
 ---
 

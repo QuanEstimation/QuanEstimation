@@ -88,3 +88,50 @@ def HCRB(rho, drho, W, eps=1e-8):
         prob.solve()
 
         return prob.value
+
+def NHB(rho, drho, W):
+    """
+    Calculation of the Nagaoka-Hayashi bound (NHB) via the semidefinite program (SDP).
+
+    Parameters
+    ----------
+    > **rho:** `matrix`
+        -- Density matrix.
+
+    > **drho:** `list`
+        -- Derivatives of the density matrix on the unknown parameters to be 
+        estimated. For example, drho[0] is the derivative vector on the first 
+        parameter.
+
+    > **W:** `matrix`
+        -- Weight matrix.
+
+    Returns
+    ----------
+    **NHB:** `float`
+        -- The value of Nagaoka-Hayashi bound.
+    """
+    dim = len(rho)
+    para_num = len(drho)
+    
+    L_tp = [[[] for i in range(para_num)] for j in range(para_num)]
+    for para_i in range(para_num):
+        for para_j in range(para_i, para_num):
+            L_tp[para_i][para_j] = cp.Variable((dim, dim), hermitian=True)
+            L_tp[para_j][para_i] = L_tp[para_i][para_j]
+    L = cp.vstack([cp.hstack(L_tp[i]) for i in range(para_num)])
+    X = [cp.Variable((dim, dim), hermitian=True) for j in range(para_num)]
+    
+    constraints = [cp.bmat([[L, cp.vstack(X)], [cp.hstack(X), np.identity(dim)]])  >> 0]
+    
+    for i in range(para_num):
+        constraints += [cp.trace(X[i] @ rho) == 0]
+        for j in range(para_num):
+            if i == j:
+                constraints += [cp.trace(X[i] @ drho[j]) == 1]
+            else:
+                constraints += [cp.trace(X[i] @ drho[j]) == 0]
+    prob = cp.Problem(cp.Minimize(cp.real(cp.trace(cp.kron(W, rho) @ L))), constraints)
+    prob.solve()
+
+    return prob.value

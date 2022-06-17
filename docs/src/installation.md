@@ -10,7 +10,7 @@ Run the command in the terminal to install QuanEstimation:
     ```
     to install the latest development version of QuanEstimation from Github.
 
-    P.S. Julia and the julia environment will be downloaded and precompiled automatically through an installation guide when the first time `quanestimation` is imported. However, if you want to install python version of QuanEstimaiton on **Windows** currently, please  try as follow to set up `pyjulia` after `pip install quanestimation`(also see [here](https://pyjulia.readthedocs.io/en/stable/installation.html) for instruction):  
+    P.S. Julia and the julia environment will be downloaded and precompiled automatically through an installation guide when the first time `quanestimation` is imported. However, if you want to install python version of QuanEstimaiton on **Windows** currently, please  try as follow to set up `pyjulia` after `pip install quanestimation` (also see [here](https://pyjulia.readthedocs.io/en/stable/installation.html) for instruction):  
     1. [Download julia](https://julialang.org/downloads/) and install. Or simply via `pip install jill` and `jill install`,  
     2. Inside the julia REPL, `using Pkg; Pkg.add("QuanEstimaiton")`,  
     3. In the python command line, `import julia; julia.install()` to initialize pyjulia,   

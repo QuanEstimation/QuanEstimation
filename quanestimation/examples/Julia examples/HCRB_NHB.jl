@@ -26,7 +26,7 @@ rho, drho = QuanEstimation.expm(tspan, rho0, H0, dH, decay)
 # weight matrix
 W = one(zeros(2, 2))
 # calculation of the CFIM, QFIM and HCRB
-Im, F, f = [], [], Float64[]
+Im, F, f_HCRB, f_NHB = [], [], [], []
 for ti in 2:length(tspan)
     #CFIM
     I_tp = QuanEstimation.CFIM(rho[ti], drho[ti], M)
@@ -34,7 +34,10 @@ for ti in 2:length(tspan)
     #QFIM
     F_tp = QuanEstimation.QFIM(rho[ti], drho[ti])
     append!(F, [F_tp])
-    #HCRB
-    f_tp = QuanEstimation.HCRB(rho[ti], drho[ti], W)
-    append!(f, f_tp)
+    # HCRB
+    f_tp1 = QuanEstimation.HCRB(rho[ti], drho[ti], W)
+    append!(f_HCRB, f_tp1)
+    # NHB
+    f_tp2 = QuanEstimation.NHB(rho[ti], drho[ti], W)
+    append!(f_NHB, f_tp2)
 end
