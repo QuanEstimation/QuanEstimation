@@ -481,6 +481,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#nagaoka-hayashi-bound" class="md-nav__link">
+    Nagaoka-Hayashi bound
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#bayesian-cramer-rao-bounds" class="md-nav__link">
     Bayesian Cramér-Rao bounds
   </a>
@@ -767,6 +774,13 @@
         <li class="md-nav__item">
   <a href="#holevo-cramer-rao-bound" class="md-nav__link">
     Holevo Cramér-Rao bound
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nagaoka-hayashi-bound" class="md-nav__link">
+    Nagaoka-Hayashi bound
   </a>
   
 </li>
@@ -1252,7 +1266,7 @@ parameters. The <span class="arithmatex">\(i\)</span>th entry of <code>dR</code>
 [\textbf{R}]_i [\textbf{R}]_j+[\textbf{R}]_j [\textbf{R}]_i\rangle/2\)</span> and its derivatives with 
 respect tp the unknown parameters.</p>
 <p><strong>Example 3.6</strong><br />
-The first and second moments <a href="#Safranek2019">[10]</a> are</p>
+The first and second moments <a href="#Safranek2019">[11]</a> are</p>
 <div class="arithmatex">\[\begin{eqnarray}
 \langle[\textbf{R}]_i\rangle = \left(\begin{array}{cc}
 0   \\
@@ -1337,6 +1351,35 @@ R\Lambda\)</span>. In QuanEstimation, the HCRB can be solved by</p>
 <p>where <code>rho</code> and <code>drho</code> are the density matrix of the state and its derivatives with respect to
 the unknown parameters to be estimated, respectively. <code>W</code> represents the weight matrix defaults 
 to identity matrix and <code>eps</code> is the machine epsilon with default value <span class="arithmatex">\(10^{-8}\)</span>.</p>
+<h2 id="nagaoka-hayashi-bound"><strong>Nagaoka-Hayashi bound</strong><a class="headerlink" href="#nagaoka-hayashi-bound" title="Permanent link">&para;</a></h2>
+<p>Conlon et al.<a href="#Conlon2021">[6]</a> provided a tighter bound than HCRB named as Nagaoka-Hayashi bound (NHB)</p>
+<div class="arithmatex">\[\begin{equation}
+\mathrm{Tr}(W\mathrm{cov}(\hat{\textbf{X}},\{\Pi_y\}))\geq \min_{\textbf{X},\mathcal{Q}} \mathrm{Tr}\left((W\otimes\rho)\mathcal{Q}\right)
+\end{equation}\]</div>
+<p>with <span class="arithmatex">\(W\)</span> the weight matrix and <span class="arithmatex">\(\mathcal{Q}\)</span> a matrix satisfying <span class="arithmatex">\(\mathcal{Q}\geq\textbf{X}^{\mathrm{T}}\textbf{X}\)</span>. 
+The NHB can be solved by the semidefinite programming as</p>
+<div class="arithmatex">\[\begin{align}
+&amp; \min_{\textbf{X},\mathcal{Q}}~\mathrm{Tr}\left((W\otimes\rho)\mathcal{Q}\right),  \nonumber \\
+&amp; \mathrm{subject}~\mathrm{to}~
+\begin{cases}
+\left(\begin{array}{cc}
+\mathcal{Q} &amp; \textbf{X}^{\mathrm{T}} \\
+\textbf{X} &amp; I\\
+\end{array}\right)\geq 0, \\
+\mathrm{Tr}(\rho X_a)=0,\,\mathrm{Tr}(\partial_b\rho X_a)=\delta_{ab},\,\forall a, b.\\
+\end{cases}
+\end{align}\]</div>
+<p>In QuanEstimation, the NHB can be solved by</p>
+<div class="tabbed-set" data-tabs="15:2"><input checked="checked" id="__tabbed_15_1" name="__tabbed_15" type="radio" /><label for="__tabbed_15_1">Python</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="n">NHB</span><span class="p">(</span><span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<input id="__tabbed_15_2" name="__tabbed_15" type="radio" /><label for="__tabbed_15_2">Julia</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="n">NHB</span><span class="p">(</span><span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span> 
+</code></pre></div>
+</div>
+</div>
+<hr />
 <p><strong>Example 3.7</strong><br />
 <a id="example3_7"></a>
 The Hamiltonian of a two-qubit system with <span class="arithmatex">\(XX\)</span> coupling is 
@@ -1356,7 +1399,7 @@ is set to be identity. The measurement for <span class="arithmatex">\(\mathrm{Tr
 <span class="arithmatex">\(\Pi_2\)</span>, <span class="arithmatex">\(I-\Pi_1-\Pi_2\}\)</span> with <span class="arithmatex">\(\Pi_1=0.85|00\rangle\langle 00|\)</span> and <span class="arithmatex">\(\Pi_2=0.1|\!+
 \!+\rangle\langle+\!+\!|\)</span>. Here <span class="arithmatex">\(|\pm\rangle:=\frac{1}{\sqrt{2}}(|0\rangle\pm|1\rangle)\)</span> with 
 <span class="arithmatex">\(|0\rangle\)</span> <span class="arithmatex">\((|1\rangle)\)</span> the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> with respect to the eigenvalue <span class="arithmatex">\(1\)</span> (<span class="arithmatex">\(-1\)</span>).</p>
-<div class="tabbed-set" data-tabs="15:2"><input checked="checked" id="__tabbed_15_1" name="__tabbed_15" type="radio" /><label for="__tabbed_15_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="16:2"><input checked="checked" id="__tabbed_16_1" name="__tabbed_16" type="radio" /><label for="__tabbed_16_1">Python</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">quanestimation</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -1387,7 +1430,7 @@ is set to be identity. The measurement for <span class="arithmatex">\(\mathrm{Tr
 <span class="c1"># weight matrix</span>
 <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="c1"># calculation of the CFIM, QFIM and HCRB</span>
-<span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">f</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+<span class="n">F</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">f_HCRB</span><span class="p">,</span> <span class="n">f_NHB</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">ti</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">):</span>
     <span class="c1"># CFIM</span>
     <span class="n">I_tp</span> <span class="o">=</span> <span class="n">CFIM</span><span class="p">(</span><span class="n">rho</span><span class="p">[</span><span class="n">ti</span><span class="p">],</span> <span class="n">drho</span><span class="p">[</span><span class="n">ti</span><span class="p">],</span> <span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
@@ -1396,11 +1439,14 @@ is set to be identity. The measurement for <span class="arithmatex">\(\mathrm{Tr
     <span class="n">F_tp</span> <span class="o">=</span> <span class="n">QFIM</span><span class="p">(</span><span class="n">rho</span><span class="p">[</span><span class="n">ti</span><span class="p">],</span> <span class="n">drho</span><span class="p">[</span><span class="n">ti</span><span class="p">])</span>
     <span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">F_tp</span><span class="p">)</span>
     <span class="c1"># HCRB</span>
-    <span class="n">f_tp</span> <span class="o">=</span> <span class="n">HCRB</span><span class="p">(</span><span class="n">rho</span><span class="p">[</span><span class="n">ti</span><span class="p">],</span> <span class="n">drho</span><span class="p">[</span><span class="n">ti</span><span class="p">],</span> <span class="n">W</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
-    <span class="n">f</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f_tp</span><span class="p">)</span>
+    <span class="n">f_tp1</span> <span class="o">=</span> <span class="n">HCRB</span><span class="p">(</span><span class="n">rho</span><span class="p">[</span><span class="n">ti</span><span class="p">],</span> <span class="n">drho</span><span class="p">[</span><span class="n">ti</span><span class="p">],</span> <span class="n">W</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
+    <span class="n">f_HCRB</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f_tp1</span><span class="p">)</span>
+    <span class="c1"># NHB</span>
+    <span class="n">f_tp2</span> <span class="o">=</span> <span class="n">NHB</span><span class="p">(</span><span class="n">rho</span><span class="p">[</span><span class="n">ti</span><span class="p">],</span> <span class="n">drho</span><span class="p">[</span><span class="n">ti</span><span class="p">],</span> <span class="n">W</span><span class="p">)</span>
+    <span class="n">f_NHB</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f_tp2</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_15_2" name="__tabbed_15" type="radio" /><label for="__tabbed_15_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_16_2" name="__tabbed_16" type="radio" /><label for="__tabbed_16_2">Julia</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="k">using</span> <span class="n">QuanEstimation</span>
 <span class="k">using</span> <span class="n">LinearAlgebra</span>
 
@@ -1429,7 +1475,7 @@ is set to be identity. The measurement for <span class="arithmatex">\(\mathrm{Tr
 <span class="c"># weight matrix</span>
 <span class="n">W</span> <span class="o">=</span> <span class="n">one</span><span class="p">(</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 <span class="c"># calculation of the CFIM, QFIM and HCRB</span>
-<span class="n">Im</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">f</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="kt">Float64</span><span class="p">[]</span>
+<span class="n">Im</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">f_HCRB</span><span class="p">,</span> <span class="n">f_NHB</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">ti</span> <span class="k">in</span> <span class="mi">2</span><span class="o">:</span><span class="n">length</span><span class="p">(</span><span class="n">tspan</span><span class="p">)</span>
     <span class="c"># CFIM</span>
     <span class="n">I_tp</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">CFIM</span><span class="p">(</span><span class="n">rho</span><span class="p">[</span><span class="n">ti</span><span class="p">],</span> <span class="n">drho</span><span class="p">[</span><span class="n">ti</span><span class="p">],</span> <span class="n">M</span><span class="p">)</span>
@@ -1438,8 +1484,11 @@ is set to be identity. The measurement for <span class="arithmatex">\(\mathrm{Tr
     <span class="n">F_tp</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">QFIM</span><span class="p">(</span><span class="n">rho</span><span class="p">[</span><span class="n">ti</span><span class="p">],</span> <span class="n">drho</span><span class="p">[</span><span class="n">ti</span><span class="p">])</span>
     <span class="n">append!</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="p">[</span><span class="n">F_tp</span><span class="p">])</span>
     <span class="c"># HCRB</span>
-    <span class="n">f_tp</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">HCRB</span><span class="p">(</span><span class="n">rho</span><span class="p">[</span><span class="n">ti</span><span class="p">],</span> <span class="n">drho</span><span class="p">[</span><span class="n">ti</span><span class="p">],</span> <span class="n">W</span><span class="p">)</span>
-    <span class="n">append!</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">f_tp</span><span class="p">)</span>
+    <span class="n">f_tp1</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">HCRB</span><span class="p">(</span><span class="n">rho</span><span class="p">[</span><span class="n">ti</span><span class="p">],</span> <span class="n">drho</span><span class="p">[</span><span class="n">ti</span><span class="p">],</span> <span class="n">W</span><span class="p">)</span>
+    <span class="n">append!</span><span class="p">(</span><span class="n">f_HCRB</span><span class="p">,</span> <span class="n">f_tp1</span><span class="p">)</span>
+    <span class="c"># NHB</span>
+    <span class="n">f_tp2</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">NHB</span><span class="p">(</span><span class="n">rho</span><span class="p">[</span><span class="n">ti</span><span class="p">],</span> <span class="n">drho</span><span class="p">[</span><span class="n">ti</span><span class="p">],</span> <span class="n">W</span><span class="p">)</span>
+    <span class="n">append!</span><span class="p">(</span><span class="n">f_NHB</span><span class="p">,</span> <span class="n">f_tp2</span><span class="p">)</span>
 <span class="k">end</span>
 </code></pre></div>
 </div>
@@ -1454,7 +1503,7 @@ and <br>
 where <span class="arithmatex">\(p(\textbf{x})\)</span> is the prior distribution, <span class="arithmatex">\(\mathcal{I}\)</span> and <span class="arithmatex">\(\mathcal{F}\)</span> are CFI (CFIM) 
 and QFI (QFIM) of all types, respectively.</p>
 <p>In QuanEstimation, BCFI (BCFIM) and BQFI (BQFIM) can be solved via</p>
-<div class="tabbed-set" data-tabs="16:2"><input checked="checked" id="__tabbed_16_1" name="__tabbed_16" type="radio" /><label for="__tabbed_16_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="17:2"><input checked="checked" id="__tabbed_17_1" name="__tabbed_17" type="radio" /><label for="__tabbed_17_1">Python</label><div class="tabbed-content">
 <p><div class="highlight"><pre><span></span><code><span class="n">BCFIM</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="p">[],</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="n">BQFIM</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">,</span> <span class="n">LDtype</span><span class="o">=</span><span class="s2">&quot;SLD&quot;</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
@@ -1471,7 +1520,7 @@ rank-one symmetric informationally complete POVM (SIC-POVM) is load when <code>M
 calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state which can be downloaded 
 from <a href="http://www.physics.umb.edu/Research/QBism/solutions.html">here</a>.</p>
 </div>
-<input id="__tabbed_16_2" name="__tabbed_16" type="radio" /><label for="__tabbed_16_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_17_2" name="__tabbed_17" type="radio" /><label for="__tabbed_17_2">Julia</label><div class="tabbed-content">
 <p><div class="highlight"><pre><span></span><code><span class="n">BCFIM</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">;</span> <span class="n">M</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="n">BQFIM</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">;</span> <span class="n">LDtype</span><span class="o">=</span><span class="ss">:SLD</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
@@ -1536,7 +1585,7 @@ Cramér-Rao bound (BCRB) are calculated in this package, the first one is
 \mathcal{G}\left(\mathcal{I}_p+\mathcal{F}\right)^{-1}\mathcal{G}^{\mathrm{T}}\mathrm{d}\textbf{x}.
 \end{align}</p>
 <p>In QuanEstimation, the BCRB and BQCRB are calculated via</p>
-<div class="tabbed-set" data-tabs="17:2"><input checked="checked" id="__tabbed_17_1" name="__tabbed_17" type="radio" /><label for="__tabbed_17_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="18:2"><input checked="checked" id="__tabbed_18_1" name="__tabbed_18" type="radio" /><label for="__tabbed_18_1">Python</label><div class="tabbed-content">
 <p><div class="highlight"><pre><span></span><code><span class="n">BCRB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="p">[],</span> <span class="n">b</span><span class="o">=</span><span class="p">[],</span> <span class="n">db</span><span class="o">=</span><span class="p">[],</span> <span class="n">btype</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="n">BQCRB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="p">[],</span> <span class="n">db</span><span class="o">=</span><span class="p">[],</span> <span class="n">btype</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">LDtype</span><span class="o">=</span><span class="s2">&quot;SLD&quot;</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
@@ -1545,7 +1594,7 @@ where <code>b</code> and <code>db</code> are the vectors of biases and its deriv
 For unbiased estimates, <code>b=[]</code> and <code>db=[]</code>. In QuanEstimation, the users can set the types of 
 BCRB and BQCRB via the variable <code>btype</code>. </p>
 </div>
-<input id="__tabbed_17_2" name="__tabbed_17" type="radio" /><label for="__tabbed_17_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_18_2" name="__tabbed_18" type="radio" /><label for="__tabbed_18_2">Julia</label><div class="tabbed-content">
 <p><div class="highlight"><pre><span></span><code><span class="n">BCRB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">;</span> <span class="n">M</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> 
      <span class="n">btype</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 </code></pre></div>
@@ -1557,37 +1606,37 @@ For unbiased estimates, <code>b=missing</code> and <code>db=missing</code>. In Q
 the types of BCRB and BQCRB via the variable <code>btype</code>. </p>
 </div>
 </div>
-<p>For single parameter estimation, Ref <a href="#Liu2016">[6]</a> calculates the optimal biased bound based 
+<p>For single parameter estimation, Ref <a href="#Liu2016">[7]</a> calculates the optimal biased bound based 
 on the first type of the BQCRB, it can be realized numerically via</p>
-<div class="tabbed-set" data-tabs="18:2"><input checked="checked" id="__tabbed_18_1" name="__tabbed_18" type="radio" /><label for="__tabbed_18_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="19:2"><input checked="checked" id="__tabbed_19_1" name="__tabbed_19" type="radio" /><label for="__tabbed_19_1">Python</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">OBB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">,</span> <span class="n">d2rho</span><span class="p">,</span> <span class="n">LDtype</span><span class="o">=</span><span class="s2">&quot;SLD&quot;</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_18_2" name="__tabbed_18" type="radio" /><label for="__tabbed_18_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_19_2" name="__tabbed_19" type="radio" /><label for="__tabbed_19_2">Julia</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">OBB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">,</span> <span class="n">d2rho</span><span class="p">;</span> <span class="n">LDtype</span><span class="o">=</span><span class="ss">:SLD</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
 <p><code>d2rho</code> is a list representing the second order derivatives of <code>rho</code> on <code>x</code>.</p>
-<p>Van Trees in 1968 <a href="#vanTrees1968">[7]</a> provides a well used Bayesian version of Cramér-Rao 
+<p>Van Trees in 1968 <a href="#vanTrees1968">[8]</a> provides a well used Bayesian version of Cramér-Rao 
 bound known as Van Trees bound (VTB). 
 <center> <span class="arithmatex">\(\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \left(\mathcal{I}_{\mathrm{prior}}
 +\mathcal{I}_{\mathrm{Bayes}}\right)^{-1},\)</span> </center>  </p>
 <p>where <span class="arithmatex">\(\mathcal{I}_{\mathrm{prior}}=\int p(\textbf{x})\mathcal{I}_{p}\mathrm{d}\textbf{x}\)</span> 
 is the CFIM for <span class="arithmatex">\(p(\textbf{x})\)</span> and <span class="arithmatex">\(\mathcal{I}_{\mathrm{Bayes}}\)</span> is the average of the CFIM.</p>
 <p>The quantum version (QVTB) provided by Tsang, Wiseman 
-and Caves <a href="#Tsang2011">[9]</a>. 
+and Caves <a href="#Tsang2011">[10]</a>. 
 <center> <span class="arithmatex">\(\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \left(\mathcal{I}_{\mathrm{prior}}
 +\mathcal{F}_{\mathrm{Bayes}}\right)^{-1}\)</span> </center>  </p>
 <p>with <span class="arithmatex">\(\mathcal{F}_{\mathrm{Bayes}}\)</span> the average of the QFIM of all types.</p>
 <p>The functions to calculate the VTB and QVTB are</p>
-<div class="tabbed-set" data-tabs="19:2"><input checked="checked" id="__tabbed_19_1" name="__tabbed_19" type="radio" /><label for="__tabbed_19_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="20:2"><input checked="checked" id="__tabbed_20_1" name="__tabbed_20" type="radio" /><label for="__tabbed_20_1">Python</label><div class="tabbed-content">
 <p><div class="highlight"><pre><span></span><code><span class="n">VTB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="p">[],</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="n">QVTB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">,</span> <span class="n">LDtype</span><span class="o">=</span><span class="s2">&quot;SLD&quot;</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 </code></pre></div></p>
 </div>
-<input id="__tabbed_19_2" name="__tabbed_19" type="radio" /><label for="__tabbed_19_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_20_2" name="__tabbed_20" type="radio" /><label for="__tabbed_20_2">Julia</label><div class="tabbed-content">
 <p><div class="highlight"><pre><span></span><code><span class="n">VTB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">;</span> <span class="n">M</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span><span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="n">QVTB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">;</span> <span class="n">LDtype</span><span class="o">=</span><span class="ss">:SLD</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
@@ -1607,11 +1656,11 @@ regime <span class="arithmatex">\([\alpha,\beta]\)</span> is</p>
 operator satisfying <span class="arithmatex">\(\mathcal{V}f(\tau)=\max_{h\geq 0}f(\tau+h)\)</span>. <span class="arithmatex">\(\rho(x)\)</span> is the 
 parameterized density matrix. </p>
 <p>In QuanEstimation, the QZZB can be calculated via the function:</p>
-<div class="tabbed-set" data-tabs="20:2"><input checked="checked" id="__tabbed_20_1" name="__tabbed_20" type="radio" /><label for="__tabbed_20_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="21:2"><input checked="checked" id="__tabbed_21_1" name="__tabbed_21" type="radio" /><label for="__tabbed_21_1">Python</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">QZZB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_20_2" name="__tabbed_20" type="radio" /><label for="__tabbed_20_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_21_2" name="__tabbed_21" type="radio" /><label for="__tabbed_21_2">Julia</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">QZZB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho</span><span class="p">;</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 </code></pre></div>
 </div>
@@ -1636,7 +1685,7 @@ operator-valued measure (SIC-POVM).</p>
 deviation, respectively. Here <span class="arithmatex">\(c=\frac{1}{2}\big[\mathrm{erf}(\frac{\pi-2\mu}{2\sqrt{2}\eta})
 +\mathrm{erf}(\frac{\pi+2\mu}{2\sqrt{2}\eta})\big]\)</span> is the normalized coefficient with 
 <span class="arithmatex">\(\mathrm{erf}(x):=\frac{2}{\sqrt{\pi}}\int^x_0 e^{-t^2}\mathrm{d}t\)</span> the error function.</p>
-<div class="tabbed-set" data-tabs="21:2"><input checked="checked" id="__tabbed_21_1" name="__tabbed_21" type="radio" /><label for="__tabbed_21_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="22:2"><input checked="checked" id="__tabbed_22_1" name="__tabbed_22" type="radio" /><label for="__tabbed_22_1">Python</label><div class="tabbed-content">
 <p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">quanestimation</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">simps</span>
@@ -1692,7 +1741,7 @@ deviation, respectively. Here <span class="arithmatex">\(c=\frac{1}{2}\big[\math
 <span class="n">f_QZZB</span> <span class="o">=</span> <span class="n">QZZB</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho</span><span class="p">)</span>
 </code></pre></div></p>
 </div>
-<input id="__tabbed_21_2" name="__tabbed_21" type="radio" /><label for="__tabbed_21_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_22_2" name="__tabbed_22" type="radio" /><label for="__tabbed_22_2">Julia</label><div class="tabbed-content">
 <p><div class="highlight"><pre><span></span><code><span class="k">using</span> <span class="n">QuanEstimation</span>
 <span class="k">using</span> <span class="n">Trapz</span>
 
@@ -1767,7 +1816,7 @@ p(\textbf{x}|y)=\frac{p(y|\textbf{x})p(\textbf{x})}{\int p(y|\textbf{x})p(\textb
 <p>with <span class="arithmatex">\(p(\textbf{x})\)</span> the current prior distribution and <span class="arithmatex">\(y\)</span> the outcome of the experiment. 
 In practice, the prior distribution is replaced with <span class="arithmatex">\(p(\textbf{x}|y)\)</span> and the estimated 
 value of <span class="arithmatex">\(\textbf{x}\)</span> can be evaluated by</p>
-<div class="tabbed-set" data-tabs="22:2"><input checked="checked" id="__tabbed_22_1" name="__tabbed_22" type="radio" /><label for="__tabbed_22_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="23:2"><input checked="checked" id="__tabbed_23_1" name="__tabbed_23" type="radio" /><label for="__tabbed_23_1">Python</label><div class="tabbed-content">
 <p><div class="highlight"><pre><span></span><code><span class="n">Bayes</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="p">[],</span> <span class="n">estimator</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="n">MLE</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="p">[],</span> <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -1786,7 +1835,7 @@ and "xout.npy" if <code>savefile=False</code>. However, if the users want to sav
 distributions (likelihood function) and the estimated values in all iterations, the variable 
 <code>savefile</code> needs to be set to <code>True</code>.</p>
 </div>
-<input id="__tabbed_22_2" name="__tabbed_22" type="radio" /><label for="__tabbed_22_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_23_2" name="__tabbed_23" type="radio" /><label for="__tabbed_23_2">Julia</label><div class="tabbed-content">
 <p><div class="highlight"><pre><span></span><code><span class="n">Bayes</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span> <span class="n">M</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="s">&quot;mean&quot;</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="n">MLE</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span> <span class="n">M</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
@@ -1818,7 +1867,7 @@ is <span class="arithmatex">\(\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}\
 (|0\rangle\pm|1\rangle)\)</span> with <span class="arithmatex">\(|0\rangle\)</span> <span class="arithmatex">\((|1\rangle)\)</span> the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> with respect 
 to the eigenvalue <span class="arithmatex">\(1\)</span> <span class="arithmatex">\((-1)\)</span>. In this example, the prior distribution <span class="arithmatex">\(p(x)\)</span> is uniform on 
 <span class="arithmatex">\([0, \pi/2]\)</span>.</p>
-<div class="tabbed-set" data-tabs="23:2"><input checked="checked" id="__tabbed_23_1" name="__tabbed_23" type="radio" /><label for="__tabbed_23_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="24:2"><input checked="checked" id="__tabbed_24_1" name="__tabbed_24" type="radio" /><label for="__tabbed_24_1">Python</label><div class="tabbed-content">
 <p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">quanestimation</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">random</span>
@@ -1866,7 +1915,7 @@ to the eigenvalue <span class="arithmatex">\(1\)</span> <span class="arithmatex"
 <span class="n">Lout</span><span class="p">,</span> <span class="n">xout</span> <span class="o">=</span> <span class="n">MLE</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">rho</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </code></pre></div></p>
 </div>
-<input id="__tabbed_23_2" name="__tabbed_23" type="radio" /><label for="__tabbed_23_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_24_2" name="__tabbed_24" type="radio" /><label for="__tabbed_24_2">Julia</label><div class="tabbed-content">
 <p><div class="highlight"><pre><span></span><code><span class="k">using</span> <span class="n">QuanEstimation</span>
 <span class="k">using</span> <span class="n">Random</span>
 <span class="k">using</span> <span class="n">StatsBase</span>
@@ -1921,18 +1970,18 @@ to the eigenvalue <span class="arithmatex">\(1\)</span> <span class="arithmatex"
 </code></pre></div></p>
 </div>
 </div>
-<p>The average Bayesian cost <a href="#Robert2007">[11]</a> for a quadratic cost function can be 
+<p>The average Bayesian cost <a href="#Robert2007">[12]</a> for a quadratic cost function can be 
 calculated via
 \begin{equation}
 \bar{C}:=\int p(\textbf{x})\sum_y p(y|\textbf{x})(\textbf{x}-\hat{\textbf{x}})^{\mathrm{T}}
 W(\textbf{x}-\hat{\textbf{x}})\,\mathrm{d}\textbf{x}
 \end{equation}</p>
 <p>In QuanEstimation, this can be realized by calling</p>
-<div class="tabbed-set" data-tabs="24:2"><input checked="checked" id="__tabbed_24_1" name="__tabbed_24" type="radio" /><label for="__tabbed_24_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="25:2"><input checked="checked" id="__tabbed_25_1" name="__tabbed_25" type="radio" /><label for="__tabbed_25_1">Python</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">BayesCost</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">xest</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">W</span><span class="o">=</span><span class="p">[],</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_24_2" name="__tabbed_24" type="radio" /><label for="__tabbed_24_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_25_2" name="__tabbed_25" type="radio" /><label for="__tabbed_25_2">Julia</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">BayesCost</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">xest</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">M</span><span class="p">;</span> <span class="n">W</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 </code></pre></div>
 </div>
@@ -1949,11 +1998,11 @@ W(\textbf{x}-\hat{\textbf{x}})\,\mathrm{d}\textbf{x}
 \bar{C}\geq \int p(x) x^2\,\mathrm{d}x-\mathrm{Tr}(\bar{\rho}\bar{L}^2). 
 \end{equation}</p>
 <p>The function for calculating the Bayesian cost bound (BCB) is</p>
-<div class="tabbed-set" data-tabs="25:2"><input checked="checked" id="__tabbed_25_1" name="__tabbed_25" type="radio" /><label for="__tabbed_25_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="26:2"><input checked="checked" id="__tabbed_26_1" name="__tabbed_26" type="radio" /><label for="__tabbed_26_1">Python</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">BCB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">W</span><span class="o">=</span><span class="p">[],</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_25_2" name="__tabbed_25" type="radio" /><label for="__tabbed_25_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_26_2" name="__tabbed_26" type="radio" /><label for="__tabbed_26_2">Julia</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">BCB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho</span><span class="p">;</span> <span class="n">W</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 </code></pre></div>
 </div>
@@ -1970,7 +2019,7 @@ is <span class="arithmatex">\(\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}\
 (|0\rangle\pm|1\rangle)\)</span> with <span class="arithmatex">\(|0\rangle\)</span> <span class="arithmatex">\((|1\rangle)\)</span> the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> with respect 
 to the eigenvalue <span class="arithmatex">\(1\)</span> <span class="arithmatex">\((-1)\)</span>. In this example, the prior distribution <span class="arithmatex">\(p(x)\)</span> is uniform on 
 <span class="arithmatex">\([0, \pi/2]\)</span>.</p>
-<div class="tabbed-set" data-tabs="26:2"><input checked="checked" id="__tabbed_26_1" name="__tabbed_26" type="radio" /><label for="__tabbed_26_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="27:2"><input checked="checked" id="__tabbed_27_1" name="__tabbed_27" type="radio" /><label for="__tabbed_27_1">Python</label><div class="tabbed-content">
 <p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">quanestimation</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">random</span>
@@ -2013,7 +2062,7 @@ to the eigenvalue <span class="arithmatex">\(1\)</span> <span class="arithmatex"
 <span class="n">C</span> <span class="o">=</span> <span class="n">BCB</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 </code></pre></div></p>
 </div>
-<input id="__tabbed_26_2" name="__tabbed_26" type="radio" /><label for="__tabbed_26_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_27_2" name="__tabbed_27" type="radio" /><label for="__tabbed_27_2">Julia</label><div class="tabbed-content">
 <p><div class="highlight"><pre><span></span><code><span class="k">using</span> <span class="n">QuanEstimation</span>
 <span class="k">using</span> <span class="n">Random</span>
 <span class="k">using</span> <span class="n">StatsBase</span>
@@ -2083,27 +2132,31 @@ Statistical decision theory for quantum systems,
 R. Demkowicz-Dobrzański, W. Górecki, and M. Guţă,
 Multi-parameter estimation beyond Quantum Fisher Information,
 <a href="https://doi.org/10.1088/1751-8121/ab8ef3">J. Phys. A: Math. Theor. <strong>53</strong>, 363001 (2020).</a></p>
-<p><a id="Liu2016">[6]</a>
+<p><a id="Conlon2021">[6]</a> 
+L. O. Conlon, J. Suzuki, P. K. Lam, and S. M. Assad,
+Efficient computation of the Nagaoka–Hayashi bound for multiparameter estimation with separable measurements,
+<a href="https://doi.org/10.1038/s41534-021-00414-1">npj Quantum Inf.  <strong>7</strong>, 110 (2021).</a></p>
+<p><a id="Liu2016">[7]</a>
 J. Liu and H. Yuan, 
 Valid lower bound for all estimators in quantum parameter estimation, 
 <a href="https://doi.org/10.1088/1367-2630/18/9/093009">New J. Phys. <strong>18</strong>, 093009 (2016).</a></p>
-<p><a id="vanTrees1968">[7]</a> 
+<p><a id="vanTrees1968">[8]</a> 
 H. L. Van Trees, 
 <em>Detection, estimation, and modulation theory: Part I</em>
 (Wiley, New York, 1968).</p>
-<p><a id="Zhong2013">[8]</a> 
+<p><a id="Zhong2013">[9]</a> 
 W. Zhong, Z. Sun, J. Ma, X. Wang, and F. Nori,
 Fisher information under decoherence in Bloch representation, 
 <a href="https://doi.org/10.1103/PhysRevA.87.022337">Phys. Rev. A <strong>87</strong>, 022337 (2013).</a></p>
-<p><a id="Tsang2011">[9]</a> 
+<p><a id="Tsang2011">[10]</a> 
 M. Tsang, H. M. Wiseman, and C. M. Caves, 
 Fundamental quantum limit to waveform estimation, 
 <a href="https://doi.org/10.1103/PhysRevLett.106.090401">Phys. Rev. Lett. <strong>106</strong>, 090401 (2011).</a></p>
-<p><a id="Safranek2019">[10]</a> 
+<p><a id="Safranek2019">[11]</a> 
 D. Šafránek,
 Estimation of Gaussian quantum states,
 <a href="https://doi.org/10.1088/1751-8121/aaf068">J. Phys. A: Math. Theor. <strong>52</strong>, 035304 (2019).</a></p>
-<p><a id="Robert2007">[11]</a> 
+<p><a id="Robert2007">[12]</a> 
 C. P. Robert,
 <em>The Bayesian Choice</em> (Berlin: Springer, 2007).</p>
                 
