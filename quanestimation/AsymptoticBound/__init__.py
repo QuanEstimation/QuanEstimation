@@ -9,7 +9,7 @@ from quanestimation.AsymptoticBound.CramerRao import (
     RLD,
     SLD,
 )
-from quanestimation.AsymptoticBound.analogCramerRao import (
+from quanestimation.AsymptoticBound.AnalogCramerRao import (
     HCRB,
     NHB,
 )
