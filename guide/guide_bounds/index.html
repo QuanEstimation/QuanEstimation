@@ -1266,7 +1266,7 @@ parameters. The <span class="arithmatex">\(i\)</span>th entry of <code>dR</code>
 [\textbf{R}]_i [\textbf{R}]_j+[\textbf{R}]_j [\textbf{R}]_i\rangle/2\)</span> and its derivatives with 
 respect tp the unknown parameters.</p>
 <p><strong>Example 3.6</strong><br />
-The first and second moments <a href="#Safranek2019">[11]</a> are</p>
+The first and second moments <a href="#Safranek2019">[13]</a> are</p>
 <div class="arithmatex">\[\begin{eqnarray}
 \langle[\textbf{R}]_i\rangle = \left(\begin{array}{cc}
 0   \\
@@ -1352,10 +1352,11 @@ R\Lambda\)</span>. In QuanEstimation, the HCRB can be solved by</p>
 the unknown parameters to be estimated, respectively. <code>W</code> represents the weight matrix defaults 
 to identity matrix and <code>eps</code> is the machine epsilon with default value <span class="arithmatex">\(10^{-8}\)</span>.</p>
 <h2 id="nagaoka-hayashi-bound"><strong>Nagaoka-Hayashi bound</strong><a class="headerlink" href="#nagaoka-hayashi-bound" title="Permanent link">&para;</a></h2>
-<p>Conlon et al.<a href="#Conlon2021">[6]</a> provided a tighter bound than HCRB named as Nagaoka-Hayashi bound (NHB)</p>
-<div class="arithmatex">\[\begin{equation}
-\mathrm{Tr}(W\mathrm{cov}(\hat{\textbf{X}},\{\Pi_y\}))\geq \min_{\textbf{X},\mathcal{Q}} \mathrm{Tr}\left((W\otimes\rho)\mathcal{Q}\right)
-\end{equation}\]</div>
+<p>Nagaoka-Hayashi bound (NHB) is another available bound in quantum parameter estimation and 
+it is tighter than HCRB in general. The NHB can be expressed as <a href="#Conlon2021">[6-8]</a>
+\begin{equation}
+\mathrm{Tr}(W\mathrm{cov}(\hat{\textbf{x}},{\Pi_y}))\geq \min_{\textbf{X},\mathcal{Q}} \mathrm{Tr}\left((W\otimes\rho)\mathcal{Q}\right)
+\end{equation}</p>
 <p>with <span class="arithmatex">\(W\)</span> the weight matrix and <span class="arithmatex">\(\mathcal{Q}\)</span> a matrix satisfying <span class="arithmatex">\(\mathcal{Q}\geq\textbf{X}^{\mathrm{T}}\textbf{X}\)</span>. 
 The NHB can be solved by the semidefinite programming as</p>
 <div class="arithmatex">\[\begin{align}
@@ -1366,7 +1367,8 @@ The NHB can be solved by the semidefinite programming as</p>
 \mathcal{Q} &amp; \textbf{X}^{\mathrm{T}} \\
 \textbf{X} &amp; I\\
 \end{array}\right)\geq 0, \\
-\mathrm{Tr}(\rho X_a)=0,\,\mathrm{Tr}(\partial_b\rho X_a)=\delta_{ab},\,\forall a, b.\\
+\mathrm{Tr}(\rho X_a)=0,\,\forall a, \\
+\mathrm{Tr}(X_a\partial_b\rho)=\delta_{ab},\,\forall a, b.\\
 \end{cases}
 \end{align}\]</div>
 <p>In QuanEstimation, the NHB can be solved by</p>
@@ -1606,7 +1608,7 @@ For unbiased estimates, <code>b=missing</code> and <code>db=missing</code>. In Q
 the types of BCRB and BQCRB via the variable <code>btype</code>. </p>
 </div>
 </div>
-<p>For single parameter estimation, Ref <a href="#Liu2016">[7]</a> calculates the optimal biased bound based 
+<p>For single parameter estimation, Ref <a href="#Liu2016">[9]</a> calculates the optimal biased bound based 
 on the first type of the BQCRB, it can be realized numerically via</p>
 <div class="tabbed-set" data-tabs="19:2"><input checked="checked" id="__tabbed_19_1" name="__tabbed_19" type="radio" /><label for="__tabbed_19_1">Python</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">OBB</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span><span class="p">,</span> <span class="n">d2rho</span><span class="p">,</span> <span class="n">LDtype</span><span class="o">=</span><span class="s2">&quot;SLD&quot;</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
@@ -1618,14 +1620,14 @@ on the first type of the BQCRB, it can be realized numerically via</p>
 </div>
 </div>
 <p><code>d2rho</code> is a list representing the second order derivatives of <code>rho</code> on <code>x</code>.</p>
-<p>Van Trees in 1968 <a href="#vanTrees1968">[8]</a> provides a well used Bayesian version of Cramér-Rao 
+<p>Van Trees in 1968 <a href="#vanTrees1968">[10]</a> provides a well used Bayesian version of Cramér-Rao 
 bound known as Van Trees bound (VTB). 
 <center> <span class="arithmatex">\(\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \left(\mathcal{I}_{\mathrm{prior}}
 +\mathcal{I}_{\mathrm{Bayes}}\right)^{-1},\)</span> </center>  </p>
 <p>where <span class="arithmatex">\(\mathcal{I}_{\mathrm{prior}}=\int p(\textbf{x})\mathcal{I}_{p}\mathrm{d}\textbf{x}\)</span> 
 is the CFIM for <span class="arithmatex">\(p(\textbf{x})\)</span> and <span class="arithmatex">\(\mathcal{I}_{\mathrm{Bayes}}\)</span> is the average of the CFIM.</p>
 <p>The quantum version (QVTB) provided by Tsang, Wiseman 
-and Caves <a href="#Tsang2011">[10]</a>. 
+and Caves <a href="#Tsang2011">[12]</a>. 
 <center> <span class="arithmatex">\(\mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \left(\mathcal{I}_{\mathrm{prior}}
 +\mathcal{F}_{\mathrm{Bayes}}\right)^{-1}\)</span> </center>  </p>
 <p>with <span class="arithmatex">\(\mathcal{F}_{\mathrm{Bayes}}\)</span> the average of the QFIM of all types.</p>
@@ -1970,7 +1972,7 @@ to the eigenvalue <span class="arithmatex">\(1\)</span> <span class="arithmatex"
 </code></pre></div></p>
 </div>
 </div>
-<p>The average Bayesian cost <a href="#Robert2007">[12]</a> for a quadratic cost function can be 
+<p>The average Bayesian cost <a href="#Robert2007">[14]</a> for a quadratic cost function can be 
 calculated via
 \begin{equation}
 \bar{C}:=\int p(\textbf{x})\sum_y p(y|\textbf{x})(\textbf{x}-\hat{\textbf{x}})^{\mathrm{T}}
@@ -2132,31 +2134,40 @@ Statistical decision theory for quantum systems,
 R. Demkowicz-Dobrzański, W. Górecki, and M. Guţă,
 Multi-parameter estimation beyond Quantum Fisher Information,
 <a href="https://doi.org/10.1088/1751-8121/ab8ef3">J. Phys. A: Math. Theor. <strong>53</strong>, 363001 (2020).</a></p>
-<p><a id="Conlon2021">[6]</a> 
+<p><a id="Nagaoka1989">[6]</a> 
+H. Nagaoka,
+A New Approach to Cra ´ mer–Rao Bounds for Quantum State Estimation,
+Tech. Rep. IT89-42, 9 (1989).</p>
+<p><a id="Hayashi1999">[7]</a> 
+M. Hayashi,
+On simultaneous measurement of noncommutative observables. In Development of 
+Infinite-Dimensional Non-Commutative Anaysis,
+96–188 (Kyoto Univ., 1999).</p>
+<p><a id="Conlon2021">[8]</a> 
 L. O. Conlon, J. Suzuki, P. K. Lam, and S. M. Assad,
 Efficient computation of the Nagaoka–Hayashi bound for multiparameter estimation with separable measurements,
 <a href="https://doi.org/10.1038/s41534-021-00414-1">npj Quantum Inf.  <strong>7</strong>, 110 (2021).</a></p>
-<p><a id="Liu2016">[7]</a>
+<p><a id="Liu2016">[9]</a>
 J. Liu and H. Yuan, 
 Valid lower bound for all estimators in quantum parameter estimation, 
 <a href="https://doi.org/10.1088/1367-2630/18/9/093009">New J. Phys. <strong>18</strong>, 093009 (2016).</a></p>
-<p><a id="vanTrees1968">[8]</a> 
+<p><a id="vanTrees1968">[10]</a> 
 H. L. Van Trees, 
 <em>Detection, estimation, and modulation theory: Part I</em>
 (Wiley, New York, 1968).</p>
-<p><a id="Zhong2013">[9]</a> 
+<p><a id="Zhong2013">[11]</a> 
 W. Zhong, Z. Sun, J. Ma, X. Wang, and F. Nori,
 Fisher information under decoherence in Bloch representation, 
 <a href="https://doi.org/10.1103/PhysRevA.87.022337">Phys. Rev. A <strong>87</strong>, 022337 (2013).</a></p>
-<p><a id="Tsang2011">[10]</a> 
+<p><a id="Tsang2011">[12]</a> 
 M. Tsang, H. M. Wiseman, and C. M. Caves, 
 Fundamental quantum limit to waveform estimation, 
 <a href="https://doi.org/10.1103/PhysRevLett.106.090401">Phys. Rev. Lett. <strong>106</strong>, 090401 (2011).</a></p>
-<p><a id="Safranek2019">[11]</a> 
+<p><a id="Safranek2019">[13]</a> 
 D. Šafránek,
 Estimation of Gaussian quantum states,
 <a href="https://doi.org/10.1088/1751-8121/aaf068">J. Phys. A: Math. Theor. <strong>52</strong>, 035304 (2019).</a></p>
-<p><a id="Robert2007">[12]</a> 
+<p><a id="Robert2007">[14]</a> 
 C. P. Robert,
 <em>The Bayesian Choice</em> (Berlin: Springer, 2007).</p>
                 
