@@ -592,7 +592,7 @@ with $\gamma_i$ the decay rate for the $i$th qubit.
 
 The probe state is taken as $\frac{1}{\sqrt{2}}(|00\rangle+|11\rangle)$ and the weight matrix 
 is set to be identity. The measurement for $\mathrm{Tr}(W\mathcal{I^{-1}})$ is $\{\Pi_1$, 
-$\Pi_2$, $I-\Pi_1-\Pi_2\}$ with $\Pi_1=0.85|00\rangle\langle 00|$ and $\Pi_2=0.1|\!+
+$\Pi_2$, $I-\Pi_1-\Pi_2\}$ with $\Pi_1=0.85|00\rangle\langle 00|$ and $\Pi_2=0.4|\!+
 \!+\rangle\langle+\!+\!|$. Here $|\pm\rangle:=\frac{1}{\sqrt{2}}(|0\rangle\pm|1\rangle)$ with 
 $|0\rangle$ $(|1\rangle)$ the eigenstate of $\sigma_3$ with respect to the eigenvalue $1$ ($-1$).
 === "Python"
@@ -619,24 +619,18 @@ $|0\rangle$ $(|1\rangle)$ the eigenstate of $\sigma_3$ with respect to the eigen
     M1 = 0.85*np.dot(m1.reshape(-1,1), m1.reshape(1,-1).conj())
     M2 = 0.1*np.ones((4, 4))
     M = [M1, M2, np.identity(4)-M1-M2]
+    # weight matrix
+    W = np.identity(2)
     # time length for the evolution
-    tspan = np.linspace(0., 10., 1000)
+    tspan = np.linspace(0., 5., 200)
     # dynamics
     dynamics = Lindblad(tspan, rho0, H0, dH, decay)
     rho, drho = dynamics.expm()
-    # weight matrix
-    W = np.identity(2)
-    # calculation of the CFIM, QFIM and HCRB
-    F, I, f_HCRB, f_NHB = [], [], [], []
-    for ti in range(1, 1000):
-        # CFIM
-        I_tp = CFIM(rho[ti], drho[ti], M=M)
-        I.append(I_tp)
-        # QFIM
-        F_tp = QFIM(rho[ti], drho[ti])
-        F.append(F_tp)
+    # calculation of the HCRB and NHB
+    f_HCRB, f_NHB = [], []
+    for ti in range(len(tspan)):
         # HCRB
-        f_tp1 = HCRB(rho[ti], drho[ti], W, eps=1e-6)
+        f_tp1 = HCRB(rho[ti], drho[ti], W, eps=1e-7)
         f_HCRB.append(f_tp1)
         # NHB
         f_tp2 = NHB(rho[ti], drho[ti], W)
@@ -666,20 +660,14 @@ $|0\rangle$ $(|1\rangle)$ the eigenstate of $\sigma_3$ with respect to the eigen
     M2 = 0.1*ones(4, 4)
     M = [M1, M2, I(4)-M1-M2]
     # time length for the evolution
-    tspan = range(0., 10., length=1000)
+    tspan = range(0., 5., length=200)
     # dynamics
     rho, drho = QuanEstimation.expm(tspan, rho0, H0, dH, decay)
     # weight matrix
     W = one(zeros(2, 2))
-    # calculation of the CFIM, QFIM and HCRB
-    Im, F, f_HCRB, f_NHB = [], [], [], []
+    # calculation of the HCRB and NHB
+    f_HCRB, f_NHB = [], []
     for ti in 2:length(tspan)
-        # CFIM
-        I_tp = QuanEstimation.CFIM(rho[ti], drho[ti], M)
-        append!(Im, [I_tp])
-        # QFIM
-        F_tp = QuanEstimation.QFIM(rho[ti], drho[ti])
-        append!(F, [F_tp])
         # HCRB
         f_tp1 = QuanEstimation.HCRB(rho[ti], drho[ti], W)
         append!(f_HCRB, f_tp1)
