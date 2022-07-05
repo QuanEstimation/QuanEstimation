@@ -2,7 +2,8 @@ import numpy as np
 from numpy.linalg import inv
 from scipy.linalg import sqrtm, schur, eigvals
 from quanestimation.Common.Common import SIC, suN_generator
-
+from scipy.integrate import quad
+from scipy.stats import norm, poisson, rayleigh, gamma
 
 def CFIM(rho, drho, M=[], eps=1e-8):
     r"""
@@ -130,6 +131,60 @@ def FIM(p, dp, eps=1e-8):
         return FIM_res[0][0]
     else:
         return FIM_res
+
+def FI_Expt(y1, y2, dx, ftype="norm"):
+    r"""
+    Calculation of the classical Fisher information (CFI) based on the experiment data. 
+
+    Parameters
+    ----------
+    > **y1:** `array` 
+        -- Experimental data obtained at the truth value (x).
+
+    > **y2:** `list`
+        -- Experimental data obtained at x+dx.
+
+    > **dx:** `float`
+        -- A known small drift of the parameter.
+
+    > **ftype:** `string`
+        -- The distribution the data follows. Options are:  
+        "norm" (default) -- normal distribution.  
+        "gamma" -- gamma distribution.
+        "rayleigh" -- rayleigh distribution.
+        "poisson" -- poisson distribution.
+
+    Returns
+    ----------
+    **CFI:** `float or matrix` 
+    """
+    fidelity = 0.0
+    if ftype == "norm":
+        mu1, std1 = norm.fit(y1)
+        mu2, std2 = norm.fit(y2)
+        f_func = lambda x: np.sqrt(norm.pdf(x, mu1, std1)*norm.pdf(x, mu2, std2))
+        fidelity, err = quad(f_func, -np.inf, np.inf)
+    elif ftype == "gamma":
+        a1, alpha1, beta1 = gamma.fit(y1)
+        a2, alpha2, beta2 = gamma.fit(y2)
+        f_func = lambda x: np.sqrt(gamma.pdf(x, a1, alpha1, beta1)*gamma.pdf(x, a2, alpha2, beta2))
+        fidelity, err = quad(f_func, 0., np.inf)
+    elif ftype == "rayleigh":
+        mean1, var1 = rayleigh.fit(y1)
+        mean2, var2 = rayleigh.fit(y2)
+        f_func = lambda x: np.sqrt(rayleigh.pdf(x, mean1, var1)*rayleigh.pdf(x, mean2, var2))
+        fidelity, err = quad(f_func, -np.inf, np.inf)
+    elif ftype == "poisson":
+        k1 = np.arange(max(y1)+1)
+        k2 = np.arange(max(y2)+1)
+        p1_pois = poisson.pmf(k1, np.mean(y1))
+        p2_pois = poisson.pmf(k2, np.mean(y2))
+        p1_pois, p2_pois = p1_pois/sum(p1_pois), p2_pois/sum(p2_pois)
+        fidelity = sum([np.sqrt(p1_pois[i]*p2_pois[i]) for i in range(len(p1_pois))])
+    else:
+        raise ValueError("{!r} is not a valid value for ftype, supported values are 'norm', 'poisson', 'gamma' and 'rayleigh'.".format(ftype))
+    Fc = 8*(1-fidelity)/dx**2
+    return Fc
 
 
 def SLD(rho, drho, rep="original", eps=1e-8):
