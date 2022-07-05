@@ -48,6 +48,7 @@ of Python and Julia should be above 3.6 and 1.7, respectively.
 | Flux                                   | 0.12.4      |DelimitedFiles                         | --          |
 | StatsBase                              | 0.33.16     |Random                                 | --          |
 | Printf                                 | --          |StableRNGs                             | --          |
+| Distributions                          | --          |QuadGK                                 | --          |
 
 The version information of the packages without the version number is the same with the 
 corresponding packages in Julia 1.7. Besides, the version information of the full Julia package 

@@ -28,6 +28,8 @@ This part is the functions of the Python-Julia package which written in Python.
 ::: quanestimation.CFIM
 <!-- ### **Fisher information matrix (FIM)** -->
 ::: quanestimation.FIM
+<!-- ### **Fisher information (FI_Expt)** -->
+::: quanestimation.FI_Expt
 <!-- ### **Quantum Fisher information matrix in Bloch representation** -->
 ::: quanestimation.QFIM_Bloch
 <!-- ### **Quantum Fisher information matrix with Gaussian states** -->

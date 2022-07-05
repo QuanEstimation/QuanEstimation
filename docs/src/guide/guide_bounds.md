@@ -275,6 +275,46 @@ the unknown parameters.
     dp = [[0.54], [-0.54]]
     F = QuanEstimation.FIM(p, dp)
     ```
+
+The FI can also be calculated based on the experiment data
+=== "Python"
+    ``` py
+    FI_Expt(y1, y2, dx, ftype="norm")
+    ```
+=== "Julia"
+    ``` jl
+    FI_Expt(y1, y2, dx; ftype=:norm)
+    ```
+`y1` and `y2` are two arrays representing the experimental data obtained at $x$ and $x+\delta x$, respectively.  $\delta x$ is a known small drift corresponds to `dx`. 
+`ftype` represents the distribution that the data follows, which can be choosen in "norm", 
+"gamma", "rayleigh", and "poisson".  `ftype="norm"` represents the normal (Gaussian) distribution
+with the probability density function
+\begin{align}
+f(x)=\frac{1}{\sigma\sqrt{2\pi}}e^{-(x-\mu)^2/2\sigma^2}
+\end{align}
+for distribution fitting, where $\mu$ and $\sigma$ are the mean and variance of the distribution, 
+respectively. 
+
+`ftype="gamma"` represents the gamma distribution of the form
+\begin{align}
+f(x)=\frac{x^{\alpha-1}e^{-\beta x}\beta^\alpha}{\Gamma(\alpha)}
+\end{align}
+with $\alpha$ the shape and $\beta$ the rate of the distribution. $\Gamma(\alpha)$ is the gamma function.
+
+If the data follows a rayleigh distribution, the data can be fit through setting 
+`ftype="rayleigh"`. The probability density function of the rayleigh distribution is
+\begin{align}
+f(x)=\frac{x-\mu}{\sigma^2}e^{-(x-\mu)^2/2\sigma^2}
+\end{align}
+with $\mu$ and $\sigma$ the mean and variance of the distribution.
+
+`ftype="poisson"` represents a discrete Poisson distribution with the probability mass function
+\begin{align}
+f(k)=\frac{\lambda^k e^{-\lambda}}{k!},
+\end{align}
+where $k=0,1,2,\cdots$ represents the number of occurrences, $\lambda$ represents the variance
+of the data, $!$ is the factorial function. 
+
 In quantum metrology, the CFI (CFIM) are solved by
 === "Python"
     ``` py
