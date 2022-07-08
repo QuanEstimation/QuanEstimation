@@ -581,8 +581,7 @@ def QFIM_Kraus(rho0, K, dK, LDtype="SLD", exportLD=False, eps=1e-8):
 
     > **dK:** `list` 
         -- Derivatives of the Kraus operator(s) on the unknown parameters to be 
-        estimated. For example, dK[0] is the derivative vector on the first 
-        parameter.
+        estimated.
 
     > **LDtype:** `string`
         -- Types of QFI (QFIM) can be set as the objective function. Options are:  

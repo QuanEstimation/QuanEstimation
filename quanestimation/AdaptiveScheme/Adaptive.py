@@ -337,13 +337,13 @@ def adaptive_dynamics(
         p_num = len(p)
 
         F = []
+        rho_all = []
         for hi in range(p_num):
-            dynamics = Lindblad(
-                tspan, rho0, H[hi], dH[hi], decay=decay, Hc=Hc, ctrl=ctrl
-            )
+            dynamics = Lindblad(tspan, rho0, H[hi], dH[hi], decay=decay, Hc=Hc, ctrl=ctrl)
             rho_tp, drho_tp = dynamics.expm()
             F_tp = CFIM(rho_tp[-1], drho_tp[-1], M)
             F.append(F_tp)
+            rho_all.append(rho_tp[-1])
 
         idx = np.argmax(F)
         x_opt = x[0][idx]
@@ -356,13 +356,7 @@ def adaptive_dynamics(
                 rho = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
                 for hj in range(p_num):
                     x_idx = np.argmin(np.abs(x[0] - (x[0][hj] + u)))
-                    H_tp = H[x_idx]
-                    dH_tp = dH[x_idx]
-                    dynamics = Lindblad(
-                        tspan, rho0, H_tp, dH_tp, decay=decay, Hc=Hc, ctrl=ctrl
-                    )
-                    rho_tp, drho_tp = dynamics.expm()
-                    rho[hj] = rho_tp[-1]
+                    rho[hj] = rho_all[x_idx]
                 print("The tunable parameter is %f" % u)
                 res_exp = input("Please enter the experimental result: ")
                 res_exp = int(res_exp)
@@ -405,13 +399,7 @@ def adaptive_dynamics(
                 rho = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
                 for hj in range(p_num):
                     x_idx = np.argmin(np.abs(x[0] - (x[0][hj] + u)))
-                    H_tp = H[x_idx]
-                    dH_tp = dH[x_idx]
-                    dynamics = Lindblad(
-                        tspan, rho0, H_tp, dH_tp, decay=decay, Hc=Hc, ctrl=ctrl
-                    )
-                    rho_tp, drho_tp = dynamics.expm()
-                    rho[hj] = rho_tp[-1]
+                    rho[hj] = rho_all[x_idx]
 
                 print("The tunable parameter is %f" % u)
                 res_exp = input("Please enter the experimental result: ")
@@ -465,6 +453,7 @@ def adaptive_dynamics(
             dH_list.append(dH_ele)
 
         F = []
+        rho_all = []
         for hi in range(len(p_list)):
             dynamics = Lindblad(
                 tspan, rho0, H_list[hi], dH_list[hi], decay=decay, Hc=Hc, ctrl=ctrl
@@ -475,6 +464,7 @@ def adaptive_dynamics(
                 F.append(eps)
             else:
                 F.append(1.0 / np.trace(np.dot(W, np.linalg.inv(F_tp))))
+            rho_all.append(rho_tp[-1])
         F = np.array(F).reshape(p_shape)
         idx = np.unravel_index(F.argmax(), F.shape)
         x_opt = [x[i][idx[i]] for i in range(para_num)]
@@ -500,13 +490,7 @@ def adaptive_dynamics(
                             ]
                         )
                     )
-                    H_tp = H_list[x_idx]
-                    dH_tp = dH_list[x_idx]
-                    dynamics = Lindblad(
-                        tspan, rho0, H_tp, dH_tp, decay=decay, Hc=Hc, ctrl=ctrl
-                    )
-                    rho_tp, drho_tp = dynamics.expm()
-                    rho[hj] = rho_tp[-1]
+                    rho[hj] = rho_all[x_idx]
                 print("The tunable parameter are %s" % (u))
                 res_exp = input("Please enter the experimental result: ")
                 res_exp = int(res_exp)
@@ -569,13 +553,7 @@ def adaptive_dynamics(
                             ]
                         )
                     )
-                    H_tp = H_list[x_idx]
-                    dH_tp = dH_list[x_idx]
-                    dynamics = Lindblad(
-                        tspan, rho0, H_tp, dH_tp, decay=decay, Hc=Hc, ctrl=ctrl
-                    )
-                    rho_tp, drho_tp = dynamics.expm()
-                    rho[hj] = rho_tp[-1]
+                    rho[hj] = rho_all[x_idx]
                 print("The tunable parameter are %s" % (u))
                 res_exp = input("Please enter the experimental result: ")
                 res_exp = int(res_exp)
@@ -627,6 +605,7 @@ def adaptive_Kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
         #### singleparameter senario ####
         p_num = len(p)
         F = []
+        rho_all = []
         for hi in range(p_num):
             rho_tp = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K[hi]])
             drho_tp = [
@@ -643,6 +622,7 @@ def adaptive_Kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
             ]
             F_tp = CFIM(rho_tp, drho_tp, M)
             F.append(F_tp)
+            rho_all.append(rho_tp)
 
         idx = np.argmax(F)
         x_opt = x[0][idx]
@@ -655,8 +635,7 @@ def adaptive_Kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
                 rho = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
                 for hj in range(p_num):
                     x_idx = np.argmin(np.abs(x[0] - (x[0][hj] + u)))
-                    rho_tp = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K[x_idx]])
-                    rho[hj] = rho_tp
+                    rho[hj] = rho_all[x_idx]
                 print("The tunable parameter is %s" % u)
                 res_exp = input("Please enter the experimental result: ")
                 res_exp = int(res_exp)
@@ -698,8 +677,7 @@ def adaptive_Kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
                 rho = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
                 for hj in range(p_num):
                     x_idx = np.argmin(np.abs(x[0] - (x[0][hj] + u)))
-                    rho_tp = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K[x_idx]])
-                    rho[hj] = rho_tp
+                    rho[hj] = rho_all[x_idx]
                 print("The tunable parameter is %s" % u)
                 res_exp = input("Please enter the experimental result: ")
                 res_exp = int(res_exp)
@@ -752,6 +730,7 @@ def adaptive_Kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
             dK_list.append(dK_ele)
         k_num = len(K_list[0])
         F = []
+        rho_all = []
         for hi in range(len(p_list)):
             rho_tp = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K_list[hi]])
             dK_reshape = [
@@ -773,6 +752,7 @@ def adaptive_Kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
                 F.append(eps)
             else:
                 F.append(1.0 / np.trace(np.dot(W, np.linalg.inv(F_tp))))
+            rho_all.append(rho_tp)
         F = np.array(F).reshape(p_shape)
         idx = np.unravel_index(F.argmax(), F.shape)
         x_opt = [x[i][idx[i]] for i in range(para_num)]
@@ -798,9 +778,7 @@ def adaptive_Kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
                             ]
                         )
                     )
-                    rho[hj] = sum(
-                        [np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K_list[x_idx]]
-                    )
+                    rho[hj] = rho_all[x_idx]
                 print("The tunable parameter are %s" % (u))
                 res_exp = input("Please enter the experimental result: ")
                 res_exp = int(res_exp)
@@ -862,9 +840,7 @@ def adaptive_Kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
                             ]
                         )
                     )
-                    rho[hj] = sum(
-                        [np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K_list[x_idx]]
-                    )
+                    rho[hj] = rho_all[x_idx]
                 print("The tunable parameter are %s" % (u))
                 res_exp = input("Please enter the experimental result: ")
                 res_exp = int(res_exp)
