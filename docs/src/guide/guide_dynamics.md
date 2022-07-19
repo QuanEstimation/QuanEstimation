@@ -31,6 +31,9 @@ respect to $\textbf{x}$ can be calculated via the codes
     `dH` should be input as $[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. `decay` contains decay 
     operators $(\Gamma_1, \Gamma_2, \cdots)$ and the corresponding decay rates $(\gamma_1, \gamma_2, 
     \cdots)$ with the input rule decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...]. 
+    For time-dependent decay rate, the input rule is the decay=[[$\Gamma_1$, $\gamma_1(t)$], 
+    [$\Gamma_2$, $\gamma_2(t)$],...], where $\gamma_1(t)$ [$\gamma_2(t)\cdots$] is an array with 
+    the length equal to `tspan`.
     `Hc` and `ctrl` are two lists represent the control Hamiltonians and the corresponding control 
     coefficients. The default values for `decay`, `Hc` and `ctrl` are `[]` which means the 
     dynamics is unitary and only governed by the free Hamiltonian.
@@ -51,9 +54,11 @@ respect to $\textbf{x}$ can be calculated via the codes
     `dH` should be input as $[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. `decay` contains decay 
     operators $(\Gamma_1, \Gamma_2, \cdots)$ and the corresponding decay rates $(\gamma_1, \gamma_2, 
     \cdots)$ with the input rule decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...]. 
-    `Hc` and `ctrl` are two lists represent the control Hamiltonians and the corresponding control 
-    coefficients. The default values for `decay`, `Hc` and `ctrl` are `missing` which means the 
-    dynamics is unitary and only governed by the free Hamiltonian.
+    For time-dependent decay rate, the input rule is the decay=[[$\Gamma_1$, $\gamma_1(t)$], 
+    [$\Gamma_2$, $\gamma_2(t)$],...], where $\gamma_1(t)$ [$\gamma_2(t)\cdots$] is an array with 
+    the length equal to `tspan`. `Hc` and `ctrl` are two lists represent the control Hamiltonians 
+    and the corresponding control coefficients. The default values for `decay`, `Hc` and `ctrl` 
+    are `missing` which means the dynamics is unitary and only governed by the free Hamiltonian.
 
     The output (`rho` and `drho`) of this function by calling `expm()` are two lists with 
     the length equal to `tspan`. Here `rho` represents the parameterized density matrix and `drho` 

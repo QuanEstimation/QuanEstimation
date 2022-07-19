@@ -3,6 +3,11 @@ QuanEstimation can be used to calculate several well-used metrological tools inc
 Quantum Cramér-Rao bounds, Holevo Cramér-Rao bound, Bayesian Cramér-Rao bounds, Quantum 
 Ziv-Zakai bound and perform Bayesian estimation.
 
+Notes: When calculating with Python and Julia (i.e., calcute the inverse and eigenvalues 
+of matrices), the results may vary due to the inconsistency of the retained effective digits. 
+This difference has no effect on optimization. If users want to get consistent results, the same number of significant digits for calculation should be input, 
+(i.e., keep 8 decimal places).
+
 ## **Quantum Cramér-Rao bounds**
 In quantum metrology, quantum Cramér-Rao bounds are well used metrological tools for 
 parameter estimation. It can be expressed as [[1,2,3]](#Helstrom1976)
