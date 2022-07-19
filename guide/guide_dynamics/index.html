@@ -730,6 +730,9 @@ is time-independent and a list with the length equal to <code>tspan</code> when 
 <code>dH</code> should be input as <span class="arithmatex">\([\partial_a{H_0}, \partial_b{H_0}, \cdots]\)</span>. <code>decay</code> contains decay 
 operators <span class="arithmatex">\((\Gamma_1, \Gamma_2, \cdots)\)</span> and the corresponding decay rates <span class="arithmatex">\((\gamma_1, \gamma_2, 
 \cdots)\)</span> with the input rule decay=[[<span class="arithmatex">\(\Gamma_1\)</span>, <span class="arithmatex">\(\gamma_1\)</span>], [<span class="arithmatex">\(\Gamma_2\)</span>, <span class="arithmatex">\(\gamma_2\)</span>],...]. 
+For time-dependent decay rate, the input rule is the decay=[[<span class="arithmatex">\(\Gamma_1\)</span>, <span class="arithmatex">\(\gamma_1(t)\)</span>], 
+[<span class="arithmatex">\(\Gamma_2\)</span>, <span class="arithmatex">\(\gamma_2(t)\)</span>],...], where <span class="arithmatex">\(\gamma_1(t)\)</span> [<span class="arithmatex">\(\gamma_2(t)\cdots\)</span>] is an array with 
+the length equal to <code>tspan</code>.
 <code>Hc</code> and <code>ctrl</code> are two lists represent the control Hamiltonians and the corresponding control 
 coefficients. The default values for <code>decay</code>, <code>Hc</code> and <code>ctrl</code> are <code>[]</code> which means the 
 dynamics is unitary and only governed by the free Hamiltonian.</p>
@@ -749,9 +752,11 @@ is time-independent and a list with the length equal to <code>tspan</code> when 
 <code>dH</code> should be input as <span class="arithmatex">\([\partial_a{H_0}, \partial_b{H_0}, \cdots]\)</span>. <code>decay</code> contains decay 
 operators <span class="arithmatex">\((\Gamma_1, \Gamma_2, \cdots)\)</span> and the corresponding decay rates <span class="arithmatex">\((\gamma_1, \gamma_2, 
 \cdots)\)</span> with the input rule decay=[[<span class="arithmatex">\(\Gamma_1\)</span>, <span class="arithmatex">\(\gamma_1\)</span>], [<span class="arithmatex">\(\Gamma_2\)</span>, <span class="arithmatex">\(\gamma_2\)</span>],...]. 
-<code>Hc</code> and <code>ctrl</code> are two lists represent the control Hamiltonians and the corresponding control 
-coefficients. The default values for <code>decay</code>, <code>Hc</code> and <code>ctrl</code> are <code>missing</code> which means the 
-dynamics is unitary and only governed by the free Hamiltonian.</p>
+For time-dependent decay rate, the input rule is the decay=[[<span class="arithmatex">\(\Gamma_1\)</span>, <span class="arithmatex">\(\gamma_1(t)\)</span>], 
+[<span class="arithmatex">\(\Gamma_2\)</span>, <span class="arithmatex">\(\gamma_2(t)\)</span>],...], where <span class="arithmatex">\(\gamma_1(t)\)</span> [<span class="arithmatex">\(\gamma_2(t)\cdots\)</span>] is an array with 
+the length equal to <code>tspan</code>. <code>Hc</code> and <code>ctrl</code> are two lists represent the control Hamiltonians 
+and the corresponding control coefficients. The default values for <code>decay</code>, <code>Hc</code> and <code>ctrl</code> 
+are <code>missing</code> which means the dynamics is unitary and only governed by the free Hamiltonian.</p>
 <p>The output (<code>rho</code> and <code>drho</code>) of this function by calling <code>expm()</code> are two lists with 
 the length equal to <code>tspan</code>. Here <code>rho</code> represents the parameterized density matrix and <code>drho</code> 
 is the corresponding derivatives with respect to all the parameters, the <span class="arithmatex">\(i\)</span>th entry of <code>drho</code> 
