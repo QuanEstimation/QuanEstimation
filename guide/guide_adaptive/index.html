@@ -753,7 +753,8 @@ the tunable parameters. The tunable parameters <span class="arithmatex">\(\textb
 Hamiltonian work at the optimal point <span class="arithmatex">\(\textbf{x}_{\mathrm{opt}}\)</span>. In this scenario,
 the adaptive estimation can be excuted through</p>
 <div class="tabbed-set" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><label for="__tabbed_1_1">Python</label><div class="tabbed-content">
-<p><div class="highlight"><pre><span></span><code><span class="n">apt</span> <span class="o">=</span> <span class="n">Adaptive</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
+<p><div class="highlight"><pre><span></span><code><span class="n">apt</span> <span class="o">=</span> <span class="n">Adaptive</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;FOP&quot;</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> 
+               <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 <span class="n">apt</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="o">=</span><span class="p">[],</span> <span class="n">ctrl</span><span class="o">=</span><span class="p">[],</span> <span class="n">decay</span><span class="o">=</span><span class="p">[])</span>               
 <span class="n">apt</span><span class="o">.</span><span class="n">CFIM</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="p">[],</span> <span class="n">W</span><span class="o">=</span><span class="p">[])</span> 
 </code></pre></div>
@@ -763,14 +764,18 @@ estimation.<code>rho0</code> is the density matrix of the probe state. The numbe
 set via <code>max_episode</code> with the default value 1000. <code>eps</code> represents the machine epsilon which 
 defaults to <span class="arithmatex">\(10^{-8}\)</span>. At the end of the program, three files "pout.npy", "xout.npy", and "y.npy"<br />
 including the posterior distributions, the estimated values and the experimental results will be 
-generated. If <code>savefile=True</code>, these files will be generated during the training and "pout.npy" 
+generated. The package contains two mothods for updating the tunable parameters. The first one is 
+updating the tunable parameters with a fix optimal point (<code>mtheod="FOP"</code>), which is the default 
+method in QuanEstimation. The other is <code>method="MI"</code> which means updating the tunable parameters 
+by maximizing the mutual information. If <code>savefile=True</code>, these files will be generated during the 
+training and "pout.npy" 
 will save all the posterior distributions, otherwise, the posterior distribution in the final 
 iteration will be saved. </p>
 </div>
 <input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><label for="__tabbed_1_2">Julia</label><div class="tabbed-content">
-<p><div class="highlight"><pre><span></span><code><span class="n">Adaptive</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> 
-         <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">Hc</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">ctrl</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> 
-         <span class="n">W</span><span class="o">=</span><span class="nb">missing</span><span class="p">)</span>
+<p><div class="highlight"><pre><span></span><code><span class="n">Adaptive</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">;</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;FOP&quot;</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">,</span> 
+         <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">Hc</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">ctrl</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> 
+         <span class="n">decay</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">W</span><span class="o">=</span><span class="nb">missing</span><span class="p">)</span>
 </code></pre></div>
 where <code>x</code> is a list of arrays representing the regime of the parameters for the integral, 
 <code>p</code> is an array representing the prior distribution, it is multidimensional for multiparameter
@@ -778,7 +783,10 @@ estimation.<code>rho0</code> is the density matrix of the probe state. The numbe
 set via <code>max_episode</code> with the default value 1000. <code>eps</code> represents the machine epsilon which 
 defaults to <span class="arithmatex">\(10^{-8}\)</span>. At the end of the program, three files "pout.csv", "xout.csv", and "y.csv"<br />
 including the posterior distributions, the estimated values and the experimental results will be 
-generated. If <code>savefile=true</code>, these files will be generated during the training and "pout.csv" 
+generated. The package contains two mothods for updating the tunable parameters. The first one is 
+updating the tunable parameters with a fix optimal point (<code>mtheod="FOP"</code>), which is the default 
+method in QuanEstimation. The other is <code>method="MI"</code> which means updating the tunable parameters 
+by maximizing the mutual information. If <code>savefile=true</code>, these files will be generated during the training and "pout.csv" 
 will save all the posterior distributions, otherwise, the posterior distribution in the final 
 iteration will be saved. </p>
 </div>

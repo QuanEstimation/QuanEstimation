@@ -21591,6 +21591,10 @@ Hamiltonian work at the optimal point <span class="arithmatex">\(\textbf{x}_{\ma
     -- The prior distribution.</p>
 <p><strong>rho0:</strong> <code>matrix</code>
     -- Initial state (density matrix).</p>
+<p><strong>method:</strong> <code>string</code>
+    -- Choose the method for updating the tunable parameters (u). Options are:<br />
+    "FOP" (default) -- Fix optimal point.<br />
+    "MI" -- mutual information.</p>
 <p><strong>savefile:</strong> <code>bool</code>
     -- Whether or not to save all the posterior distributions.<br />
     If set <code>True</code> then three files "pout.npy", "xout.npy" and "y.npy" will be 
@@ -21607,8 +21611,7 @@ Hamiltonian work at the optimal point <span class="arithmatex">\(\textbf{x}_{\ma
 
         <details class="quote">
           <summary>Source code in <code>quanestimation/AdaptiveScheme/Adaptive.py</code></summary>
-          <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 10</span>
-<span class="normal"> 11</span>
+          <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 11</span>
 <span class="normal"> 12</span>
 <span class="normal"> 13</span>
 <span class="normal"> 14</span>
@@ -21923,7 +21926,16 @@ Hamiltonian work at the optimal point <span class="arithmatex">\(\textbf{x}_{\ma
 <span class="normal">323</span>
 <span class="normal">324</span>
 <span class="normal">325</span>
-<span class="normal">326</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Adaptive</span><span class="p">:</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Adaptive</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -21935,6 +21947,11 @@ Hamiltonian work at the optimal point <span class="arithmatex">\(\textbf{x}_{\ma
 
 <span class="sd">    &gt; **rho0:** `matrix`</span>
 <span class="sd">        -- Initial state (density matrix).</span>
+
+<span class="sd">    &gt; **method:** `string`</span>
+<span class="sd">        -- Choose the method for updating the tunable parameters (u). Options are:  </span>
+<span class="sd">        &quot;FOP&quot; (default) -- Fix optimal point.  </span>
+<span class="sd">        &quot;MI&quot; -- mutual information.</span>
 
 <span class="sd">    &gt; **savefile:** `bool`</span>
 <span class="sd">        -- Whether or not to save all the posterior distributions.  </span>
@@ -21951,7 +21968,7 @@ Hamiltonian work at the optimal point <span class="arithmatex">\(\textbf{x}_{\ma
 <span class="sd">        -- Machine epsilon.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;FOP&quot;</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">p</span>
@@ -21960,6 +21977,7 @@ Hamiltonian work at the optimal point <span class="arithmatex">\(\textbf{x}_{\ma
         <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">=</span> <span class="n">eps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">para_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">savefile</span> <span class="o">=</span> <span class="n">savefile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
 
     <span class="k">def</span> <span class="nf">dynamics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="o">=</span><span class="p">[],</span> <span class="n">ctrl</span><span class="o">=</span><span class="p">[],</span> <span class="n">decay</span><span class="o">=</span><span class="p">[]):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
@@ -22076,6 +22094,7 @@ Hamiltonian work at the optimal point <span class="arithmatex">\(\textbf{x}_{\ma
                 <span class="bp">self</span><span class="o">.</span><span class="n">max_episode</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">savefile</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">method</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_type</span> <span class="o">==</span> <span class="s2">&quot;Kraus&quot;</span><span class="p">:</span>
             <span class="n">adaptive_Kraus</span><span class="p">(</span>
@@ -22089,6 +22108,7 @@ Hamiltonian work at the optimal point <span class="arithmatex">\(\textbf{x}_{\ma
                 <span class="bp">self</span><span class="o">.</span><span class="n">max_episode</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">savefile</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">method</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -22286,14 +22306,7 @@ in multiparameter estimation it will be <span class="arithmatex">\(\mathrm{Tr}(W
 
       <details class="quote">
         <summary>Source code in <code>quanestimation/AdaptiveScheme/Adaptive.py</code></summary>
-        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">127</span>
 <span class="normal">128</span>
 <span class="normal">129</span>
 <span class="normal">130</span>
@@ -22348,7 +22361,16 @@ in multiparameter estimation it will be <span class="arithmatex">\(\mathrm{Tr}(W
 <span class="normal">179</span>
 <span class="normal">180</span>
 <span class="normal">181</span>
-<span class="normal">182</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">CFIM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="p">[],</span> <span class="n">W</span><span class="o">=</span><span class="p">[]):</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">CFIM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="p">[],</span> <span class="n">W</span><span class="o">=</span><span class="p">[]):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Choose CFI or $\mathrm{Tr}(WI^{-1})$ as the objective function. </span>
 <span class="sd">    In single parameter estimation the objective function is CFI and </span>
@@ -22391,6 +22413,7 @@ in multiparameter estimation it will be <span class="arithmatex">\(\mathrm{Tr}(W
             <span class="bp">self</span><span class="o">.</span><span class="n">max_episode</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">savefile</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">method</span>
         <span class="p">)</span>
     <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_type</span> <span class="o">==</span> <span class="s2">&quot;Kraus&quot;</span><span class="p">:</span>
         <span class="n">adaptive_Kraus</span><span class="p">(</span>
@@ -22404,6 +22427,7 @@ in multiparameter estimation it will be <span class="arithmatex">\(\mathrm{Tr}(W
             <span class="bp">self</span><span class="o">.</span><span class="n">max_episode</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">savefile</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">method</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -22446,14 +22470,7 @@ in multiparameter estimation it will be <span class="arithmatex">\(\mathrm{Tr}(W
 
       <details class="quote">
         <summary>Source code in <code>quanestimation/AdaptiveScheme/Adaptive.py</code></summary>
-        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">103</span>
 <span class="normal">104</span>
 <span class="normal">105</span>
 <span class="normal">106</span>
@@ -22468,7 +22485,14 @@ in multiparameter estimation it will be <span class="arithmatex">\(\mathrm{Tr}(W
 <span class="normal">115</span>
 <span class="normal">116</span>
 <span class="normal">117</span>
-<span class="normal">118</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">Kraus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">):</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">Kraus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Dynamics of the density matrix of the form </span>
 <span class="sd">    \begin{align}</span>
@@ -22519,16 +22543,7 @@ in multiparameter estimation it will be <span class="arithmatex">\(\mathrm{Tr}(W
 
       <details class="quote">
         <summary>Source code in <code>quanestimation/AdaptiveScheme/Adaptive.py</code></summary>
-        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">193</span>
 <span class="normal">194</span>
 <span class="normal">195</span>
 <span class="normal">196</span>
@@ -22661,7 +22676,16 @@ in multiparameter estimation it will be <span class="arithmatex">\(\mathrm{Tr}(W
 <span class="normal">323</span>
 <span class="normal">324</span>
 <span class="normal">325</span>
-<span class="normal">326</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">Mopt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">W</span><span class="o">=</span><span class="p">[]):</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">Mopt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">W</span><span class="o">=</span><span class="p">[]):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Measurement optimization for the optimal x.</span>
 
@@ -22854,53 +22878,53 @@ operator and decay rate.</p>
 
       <details class="quote">
         <summary>Source code in <code>quanestimation/AdaptiveScheme/Adaptive.py</code></summary>
-        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span>
-<span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">dynamics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="o">=</span><span class="p">[],</span> <span class="n">ctrl</span><span class="o">=</span><span class="p">[],</span> <span class="n">decay</span><span class="o">=</span><span class="p">[]):</span>
+        <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">dynamics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="o">=</span><span class="p">[],</span> <span class="n">ctrl</span><span class="o">=</span><span class="p">[],</span> <span class="n">decay</span><span class="o">=</span><span class="p">[]):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Dynamics of the density matrix of the form </span>
 
