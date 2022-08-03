@@ -6,7 +6,8 @@ Hamiltonian work at the optimal point $\textbf{x}_{\mathrm{opt}}$. In this scena
 the adaptive estimation can be excuted through
 === "Python"
     ``` py
-    apt = Adaptive(x, p, rho0, savefile=False, max_episode=1000, eps=1e-8)
+    apt = Adaptive(x, p, rho0, method="FOP", savefile=False, max_episode=1000, 
+                   eps=1e-8)
     apt.dynamics(tspan, H, dH, Hc=[], ctrl=[], decay=[])               
     apt.CFIM(M=[], W=[]) 
     ```
@@ -16,14 +17,18 @@ the adaptive estimation can be excuted through
     set via `max_episode` with the default value 1000. `eps` represents the machine epsilon which 
     defaults to $10^{-8}$. At the end of the program, three files "pout.npy", "xout.npy", and "y.npy"  
     including the posterior distributions, the estimated values and the experimental results will be 
-    generated. If `savefile=True`, these files will be generated during the training and "pout.npy" 
+    generated. The package contains two mothods for updating the tunable parameters. The first one is 
+    updating the tunable parameters with a fix optimal point (`mtheod="FOP"`), which is the default 
+    method in QuanEstimation. The other is `method="MI"` which means updating the tunable parameters 
+    by maximizing the mutual information. If `savefile=True`, these files will be generated during the 
+    training and "pout.npy" 
     will save all the posterior distributions, otherwise, the posterior distribution in the final 
     iteration will be saved. 
 === "Julia"
     ``` jl
-    Adaptive(x, p, rho0, tspan, H, dH; savefile=false, max_episode=1000, 
-             eps=1e-8, Hc=missing, ctrl=missing, decay=missing, M=missing, 
-             W=missing)
+    Adaptive(x, p, rho0, tspan, H, dH; method="FOP", savefile=false, 
+             max_episode=1000, eps=1e-8, Hc=missing, ctrl=missing, 
+             decay=missing, M=missing, W=missing)
     ```
     where `x` is a list of arrays representing the regime of the parameters for the integral, 
     `p` is an array representing the prior distribution, it is multidimensional for multiparameter
@@ -31,7 +36,10 @@ the adaptive estimation can be excuted through
     set via `max_episode` with the default value 1000. `eps` represents the machine epsilon which 
     defaults to $10^{-8}$. At the end of the program, three files "pout.csv", "xout.csv", and "y.csv"  
     including the posterior distributions, the estimated values and the experimental results will be 
-    generated. If `savefile=true`, these files will be generated during the training and "pout.csv" 
+    generated. The package contains two mothods for updating the tunable parameters. The first one is 
+    updating the tunable parameters with a fix optimal point (`mtheod="FOP"`), which is the default 
+    method in QuanEstimation. The other is `method="MI"` which means updating the tunable parameters 
+    by maximizing the mutual information. If `savefile=true`, these files will be generated during the training and "pout.csv" 
     will save all the posterior distributions, otherwise, the posterior distribution in the final 
     iteration will be saved. 
 If the dynamics of the system can be described by the master equation, then the dynamics data 

@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.integrate import simps
 from itertools import product
+
 from quanestimation.Common.Common import extract_ele, SIC
 from quanestimation.MeasurementOpt.MeasurementStruct import MeasurementOpt
 from quanestimation.Parameterization.GeneralDynamics import Lindblad
@@ -20,6 +21,11 @@ class Adaptive:
     > **rho0:** `matrix`
         -- Initial state (density matrix).
 
+    > **method:** `string`
+        -- Choose the method for updating the tunable parameters (u). Options are:  
+        "FOP" (default) -- Fix optimal point.  
+        "MI" -- mutual information.
+        
     > **savefile:** `bool`
         -- Whether or not to save all the posterior distributions.  
         If set `True` then three files "pout.npy", "xout.npy" and "y.npy" will be 
@@ -27,7 +33,7 @@ class Adaptive:
         the experimental results in the iterations. If set `False` the posterior 
         distribution in the final iteration, the estimated values and the experimental 
         results in all iterations will be saved in "pout.npy", "xout.npy" and "y.npy". 
-
+        
     > **max_episode:** `int`
         -- The number of episodes.
 
@@ -35,7 +41,7 @@ class Adaptive:
         -- Machine epsilon.
     """
 
-    def __init__(self, x, p, rho0, savefile=False, max_episode=1000, eps=1e-8):
+    def __init__(self, x, p, rho0, method="FOP", savefile=False, max_episode=1000, eps=1e-8):
 
         self.x = x
         self.p = p
@@ -44,6 +50,7 @@ class Adaptive:
         self.eps = eps
         self.para_num = len(x)
         self.savefile = savefile
+        self.method = method
 
     def dynamics(self, tspan, H, dH, Hc=[], ctrl=[], decay=[]):
         r"""
@@ -160,6 +167,7 @@ class Adaptive:
                 self.max_episode,
                 self.eps,
                 self.savefile,
+                self.method
             )
         elif self.dynamic_type == "Kraus":
             adaptive_Kraus(
@@ -173,6 +181,7 @@ class Adaptive:
                 self.max_episode,
                 self.eps,
                 self.savefile,
+                self.method
             )
         else:
             raise ValueError(
@@ -324,11 +333,8 @@ class Adaptive:
                     self.dynamic_type
                 )
             )
-
-
-def adaptive_dynamics(
-    x, p, M, tspan, rho0, H, dH, decay, Hc, ctrl, W, max_episode, eps, savefile
-):
+    
+def adaptive_dynamics(x, p, M, tspan, rho0, H, dH, decay, Hc, ctrl, W, max_episode, eps, savefile, method):
 
     para_num = len(x)
     dim = np.shape(rho0)[0]
@@ -344,97 +350,37 @@ def adaptive_dynamics(
             F_tp = CFIM(rho_tp[-1], drho_tp[-1], M)
             F.append(F_tp)
             rho_all.append(rho_tp[-1])
-
-        idx = np.argmax(F)
-        x_opt = x[0][idx]
-        print("The optimal parameter is %f" % x_opt)
-
+        
         u = 0.0
-        if savefile == False:
-            y, xout = [], []
-            for ei in range(max_episode):
-                rho = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
-                for hj in range(p_num):
-                    x_idx = np.argmin(np.abs(x[0] - (x[0][hj] + u)))
-                    rho[hj] = rho_all[x_idx]
-                print("The tunable parameter is %f" % u)
-                res_exp = input("Please enter the experimental result: ")
-                res_exp = int(res_exp)
-                pyx = np.zeros(p_num)
-                for xi in range(p_num):
-                    pyx[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
-
-                arr = [pyx[m] * p[m] for m in range(p_num)]
-                py = simps(arr, x[0])
-                p_update = pyx * p / py
-                p = p_update
-                p_idx = np.argmax(p)
-                x_out = x[0][p_idx]
-                print("The estimator is %s (%d episodes)" % (x_out, ei))
-                u = x_opt - x_out
-
-                if (ei + 1) % 50 == 0:
-                    if (x_out + u) > x[0][-1] and (x_out + u) < x[0][0]:
-                        raise ValueError("please increase the regime of the parameters.")
-
-                xout.append(x_out)
-                y.append(res_exp)
-            fp = open('pout.csv','a')
-            fp.write('\n')
-            np.savetxt(fp, np.array(p))
-            fp.close()
-
-            fx = open('xout.csv','a')
-            fx.write('\n')
-            np.savetxt(fx, np.array(xout))
-            fx.close()
-
-            fy = open('y.csv','a')
-            fy.write('\n')
-            np.savetxt(fy, np.array(y))
-            fy.close()
-        else:
-            y, xout = [], []
-            for ei in range(max_episode):
-                rho = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
-                for hj in range(p_num):
-                    x_idx = np.argmin(np.abs(x[0] - (x[0][hj] + u)))
-                    rho[hj] = rho_all[x_idx]
-
-                print("The tunable parameter is %f" % u)
-                res_exp = input("Please enter the experimental result: ")
-                res_exp = int(res_exp)
-                pyx = np.zeros(p_num)
-                for xi in range(p_num):
-                    pyx[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
-
-                arr = [pyx[m] * p[m] for m in range(p_num)]
-                py = simps(arr, x[0])
-                p_update = pyx * p / py
-                p = p_update
-                p_idx = np.argmax(p)
-                x_out = x[0][p_idx]
-                print("The estimator is %s (%d episodes)" % (x_out, ei))
-                u = x_opt - x_out
-
-                if (ei + 1) % 50 == 0:
-                    if (x_out + u) > x[0][-1] and (x_out + u) < x[0][0]:
-                        raise ValueError("please increase the regime of the parameters.")
-
-                fp = open('pout.csv','a')
-                fp.write('\n')
-                np.savetxt(fp, [np.array(p)])
-                fp.close()
-
-                fx = open('xout.csv','a')
-                fx.write('\n')
-                np.savetxt(fx, [x_out])
-                fx.close()
-
-                fy = open('y.csv','a')
-                fy.write('\n')
-                np.savetxt(fy, [res_exp])
-                fy.close()
+        if method == "FOP":
+            idx = np.argmax(F)
+            x_opt = x[0][idx]
+            print("The optimal parameter is %f" % x_opt)
+            if savefile == False:
+                y, xout = [], []
+                for ei in range(max_episode):
+                    p, x_out, res_exp, u = iter_FOP_singlepara(p, p_num, x, u, rho_all, M, dim, x_opt, ei)
+                    xout.append(x_out)
+                    y.append(res_exp)
+                savefile_false(p, xout, y)
+            else:
+                y, xout = [], []
+                for ei in range(max_episode):
+                    p, x_out, res_exp, u = iter_FOP_singlepara(p, p_num, x, u, rho_all, M, dim, x_opt, ei)
+                    savefile_true([np.array(p)], x_out, res_exp)
+        elif method == "MI":
+            if savefile == False:
+                y, xout = [], []
+                for ei in range(max_episode):
+                    p, x_out, res_exp, u = iter_MI_singlepara(p, p_num, x, u, rho_all, M, dim, ei)
+                    xout.append(x_out)
+                    y.append(res_exp)
+                savefile_false(p, xout, y)
+            else:
+                y, xout = [], []
+                for ei in range(max_episode):
+                    p, x_out, res_exp, u = iter_MI_singlepara(p, p_num, x, u, rho_all, M, dim, ei)
+                    savefile_true([np.array(p)], x_out, res_exp)
     else:
         #### miltiparameter senario ####
         p_shape = np.shape(p)
@@ -452,12 +398,11 @@ def adaptive_dynamics(
             H_list.append(H_ele)
             dH_list.append(dH_ele)
 
+        p_num = len(p_list)
         F = []
         rho_all = []
-        for hi in range(len(p_list)):
-            dynamics = Lindblad(
-                tspan, rho0, H_list[hi], dH_list[hi], decay=decay, Hc=Hc, ctrl=ctrl
-            )
+        for hi in range(p_num):
+            dynamics = Lindblad(tspan, rho0, H_list[hi], dH_list[hi], decay=decay, Hc=Hc, ctrl=ctrl)
             rho_tp, drho_tp = dynamics.expm()
             F_tp = CFIM(rho_tp[-1], drho_tp[-1], M)
             if np.linalg.det(F_tp) < eps:
@@ -465,140 +410,38 @@ def adaptive_dynamics(
             else:
                 F.append(1.0 / np.trace(np.dot(W, np.linalg.inv(F_tp))))
             rho_all.append(rho_tp[-1])
-        F = np.array(F).reshape(p_shape)
-        idx = np.unravel_index(F.argmax(), F.shape)
-        x_opt = [x[i][idx[i]] for i in range(para_num)]
-        print("The optimal parameter are %s" % (x_opt))
 
         u = [0.0 for i in range(para_num)]
-        if savefile == False:
-            y, xout = [], []
-            for ei in range(max_episode):
-                rho = [
-                    np.zeros((dim, dim), dtype=np.complex128) for i in range(len(p_list))
-                ]
-                for hj in range(len(p_list)):
-                    idx_list = [
-                        np.argmin(np.abs(x[i] - (x_list[hj][i] + u[i])))
-                        for i in range(para_num)
-                    ]
-                    x_idx = int(
-                        sum(
-                            [
-                                idx_list[i] * np.prod(np.array(p_shape[(i + 1) :]))
-                                for i in range(para_num)
-                            ]
-                        )
-                    )
-                    rho[hj] = rho_all[x_idx]
-                print("The tunable parameter are %s" % (u))
-                res_exp = input("Please enter the experimental result: ")
-                res_exp = int(res_exp)
-                pyx_list = np.zeros(len(p_list))
-                for xi in range(len(p_list)):
-                    pyx_list[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
-                pyx = pyx_list.reshape(p_shape)
-                arr = p * pyx
-                for si in reversed(range(para_num)):
-                    arr = simps(arr, x[si])
-                py = arr
-                p_update = p * pyx / py
-                p = p_update
-                p_idx = np.unravel_index(p.argmax(), p.shape)
-                x_out = [x[i][p_idx[i]] for i in range(para_num)]
+        if method == "FOP":
+            F = np.array(F).reshape(p_shape)
+            idx = np.unravel_index(F.argmax(), F.shape)
+            x_opt = [x[i][idx[i]] for i in range(para_num)]
+            print("The optimal parameter are %s" % (x_opt))
+            if savefile == False:
+                y, xout = [], []
+                for ei in range(max_episode):
+                    p, x_out, res_exp, u = iter_FOP_multipara(p, p_num, para_num, x, x_list, u, rho_all, M, dim, x_opt, ei, p_shape)
+                    xout.append(x_out)
+                    y.append(res_exp)
+                savefile_false(p, xout, y)
+            else:
+                for ei in range(max_episode):
+                    p, x_out, res_exp, u = iter_FOP_multipara(p, p_num, para_num, x, x_list, u, rho_all, M, dim, x_opt, ei, p_shape)
+                    savefile_true(np.array(p), x_out, res_exp)
+        elif method == "MI":
+            if savefile == False:
+                y, xout = [], []
+                for ei in range(max_episode):
+                    p, x_out, res_exp, u = iter_MI_multipara(p, p_num, para_num, x, x_list, u, rho_all, M, dim, ei, p_shape)
+                    xout.append(x_out)
+                    y.append(res_exp)
+                savefile_false(p, xout, y)
+            else:
+                for ei in range(max_episode):
+                    p, x_out, res_exp, u = iter_MI_multipara(p, p_num, para_num, x, x_list, u, rho_all, M, dim, ei, p_shape)
+                    savefile_true(np.array(p), x_out, res_exp)
 
-                print("The estimator is %s (%d episodes)" % (x_out, ei))
-                u = np.array(x_opt) - np.array(x_out)
-
-                if (ei + 1) % 50 == 0:
-                    for un in range(para_num):
-                        if (x_out[un] + u[un]) > x[un][-1] and (x_out[un] + u[un]) < x[un][
-                            0
-                        ]:
-                            raise ValueError(
-                                "please increase the regime of the parameters."
-                            )
-                xout.append(x_out)
-                y.append(res_exp)
-
-            fp = open('pout.csv','a')
-            fp.write('\n')
-            np.savetxt(fp, np.array(p))
-            fp.close()
-
-            fx = open('xout.csv','a')
-            fx.write('\n')
-            np.savetxt(fx, np.array(xout))
-            fx.close()
-
-            fy = open('y.csv','a')
-            fy.write('\n')
-            np.savetxt(fy, np.array(y))
-            fy.close()
-        else:
-            for ei in range(max_episode):
-                rho = [
-                    np.zeros((dim, dim), dtype=np.complex128) for i in range(len(p_list))
-                ]
-                for hj in range(len(p_list)):
-                    idx_list = [
-                        np.argmin(np.abs(x[i] - (x_list[hj][i] + u[i])))
-                        for i in range(para_num)
-                    ]
-                    x_idx = int(
-                        sum(
-                            [
-                                idx_list[i] * np.prod(np.array(p_shape[(i + 1) :]))
-                                for i in range(para_num)
-                            ]
-                        )
-                    )
-                    rho[hj] = rho_all[x_idx]
-                print("The tunable parameter are %s" % (u))
-                res_exp = input("Please enter the experimental result: ")
-                res_exp = int(res_exp)
-                pyx_list = np.zeros(len(p_list))
-                for xi in range(len(p_list)):
-                    pyx_list[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
-                pyx = pyx_list.reshape(p_shape)
-                arr = p * pyx
-                for si in reversed(range(para_num)):
-                    arr = simps(arr, x[si])
-                py = arr
-                p_update = p * pyx / py
-                p = p_update
-                p_idx = np.unravel_index(p.argmax(), p.shape)
-                x_out = [x[i][p_idx[i]] for i in range(para_num)]
-
-                print("The estimator is %s (%d episodes)" % (x_out, ei))
-                u = np.array(x_opt) - np.array(x_out)
-
-                if (ei + 1) % 50 == 0:
-                    for un in range(para_num):
-                        if (x_out[un] + u[un]) > x[un][-1] and (x_out[un] + u[un]) < x[un][
-                            0
-                        ]:
-                            raise ValueError(
-                                "please increase the regime of the parameters."
-                            )
-
-                fp = open('pout.csv','a')
-                fp.write('\n')
-                np.savetxt(fp, [np.array(p)])
-                fp.close()
-
-                fx = open('xout.csv','a')
-                fx.write('\n')
-                np.savetxt(fx, [x_out])
-                fx.close()
-
-                fy = open('y.csv','a')
-                fy.write('\n')
-                np.savetxt(fy, [res_exp])
-                fy.close()
-
-
-def adaptive_Kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
+def adaptive_Kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile, method):
     para_num = len(x)
     dim = np.shape(rho0)[0]
     if para_num == 1:
@@ -608,110 +451,39 @@ def adaptive_Kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
         rho_all = []
         for hi in range(p_num):
             rho_tp = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K[hi]])
-            drho_tp = [
-                sum(
-                    [
-                        (
-                            np.dot(dKi, np.dot(rho0, Ki.conj().T))
-                            + np.dot(Ki, np.dot(rho0, dKi.conj().T))
-                        )
-                        for (Ki, dKi) in zip(K[hi], dKj)
-                    ]
-                )
-                for dKj in dK[hi]
-            ]
+            drho_tp = [sum([(np.dot(dKi, np.dot(rho0, Ki.conj().T)) + np.dot(Ki, np.dot(rho0, dKi.conj().T))) for (Ki, dKi) in zip(K[hi], dKj)]) for dKj in dK[hi]]
             F_tp = CFIM(rho_tp, drho_tp, M)
             F.append(F_tp)
             rho_all.append(rho_tp)
 
-        idx = np.argmax(F)
-        x_opt = x[0][idx]
-        print("The optimal parameter is %s" % x_opt)
-
         u = 0.0
-        if savefile == False:
-            y, xout = [], []
-            for ei in range(max_episode):
-                rho = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
-                for hj in range(p_num):
-                    x_idx = np.argmin(np.abs(x[0] - (x[0][hj] + u)))
-                    rho[hj] = rho_all[x_idx]
-                print("The tunable parameter is %s" % u)
-                res_exp = input("Please enter the experimental result: ")
-                res_exp = int(res_exp)
-                pyx = np.zeros(p_num)
-                for xi in range(p_num):
-                    pyx[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
-
-                arr = [pyx[m] * p[m] for m in range(p_num)]
-                py = simps(arr, x[0])
-                p_update = pyx * p / py
-                p = p_update
-                p_idx = np.argmax(p)
-                x_out = x[0][p_idx]
-                print("The estimator is %s (%d episodes)" % (x_out, ei))
-                u = x_opt - x_out
-
-                if (ei + 1) % 50 == 0:
-                    if (x_out + u) > x[0][-1] and (x_out + u) < x[0][0]:
-                        raise ValueError("please increase the regime of the parameters.")
-
-                xout.append(x_out)
-                y.append(res_exp)
-            fp = open('pout.csv','a')
-            fp.write('\n')
-            np.savetxt(fp, np.array(p))
-            fp.close()
-
-            fx = open('xout.csv','a')
-            fx.write('\n')
-            np.savetxt(fx, np.array(xout))
-            fx.close()
-
-            fy = open('y.csv','a')
-            fy.write('\n')
-            np.savetxt(fy, np.array(y))
-            fy.close()
-        else:
-            for ei in range(max_episode):
-                rho = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
-                for hj in range(p_num):
-                    x_idx = np.argmin(np.abs(x[0] - (x[0][hj] + u)))
-                    rho[hj] = rho_all[x_idx]
-                print("The tunable parameter is %s" % u)
-                res_exp = input("Please enter the experimental result: ")
-                res_exp = int(res_exp)
-                pyx = np.zeros(p_num)
-                for xi in range(p_num):
-                    pyx[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
-
-                arr = [pyx[m] * p[m] for m in range(p_num)]
-                py = simps(arr, x[0])
-                p_update = pyx * p / py
-                p = p_update
-                p_idx = np.argmax(p)
-                x_out = x[0][p_idx]
-                print("The estimator is %s (%d episodes)" % (x_out, ei))
-                u = x_opt - x_out
-
-                if (ei + 1) % 50 == 0:
-                    if (x_out + u) > x[0][-1] and (x_out + u) < x[0][0]:
-                        raise ValueError("please increase the regime of the parameters.")
-
-                fp = open('pout.csv','a')
-                fp.write('\n')
-                np.savetxt(fp, [np.array(p)])
-                fp.close()
-
-                fx = open('xout.csv','a')
-                fx.write('\n')
-                np.savetxt(fx, [x_out])
-                fx.close()
-
-                fy = open('y.csv','a')
-                fy.write('\n')
-                np.savetxt(fy, [res_exp])
-                fy.close()
+        if method == "FOP":
+            idx = np.argmax(F)
+            x_opt = x[0][idx]
+            print("The optimal parameter is %s" % x_opt)
+            if savefile == False:
+                y, xout = [], []
+                for ei in range(max_episode):
+                    p, x_out, res_exp, u = iter_FOP_singlepara(p, p_num, x, u, rho_all, M, dim, x_opt, ei)
+                    xout.append(x_out)
+                    y.append(res_exp)
+                savefile_false(p, xout, y)
+            else:
+                for ei in range(max_episode):
+                    p, x_out, res_exp, u = iter_FOP_singlepara(p, p_num, x, u, rho_all, M, dim, x_opt, ei)
+                    savefile_true([np.array(p)], x_out, res_exp)
+        elif method == "MI":
+            if savefile == False:
+                y, xout = [], []
+                for ei in range(max_episode):
+                    p, x_out, res_exp, u = iter_MI_singlepara(p, p_num, x, u, rho_all, M, dim, ei)
+                    xout.append(x_out)
+                    y.append(res_exp)
+                savefile_false(p, xout, y)
+            else:
+                for ei in range(max_episode):
+                    p, x_out, res_exp, u = iter_MI_singlepara(p, p_num, x, u, rho_all, M, dim, ei)
+                    savefile_true([np.array(p)], x_out, res_exp)
     else:
         #### miltiparameter senario ####
         p_shape = np.shape(p)
@@ -729,156 +501,284 @@ def adaptive_Kraus(x, p, M, rho0, K, dK, W, max_episode, eps, savefile):
             K_list.append(K_ele)
             dK_list.append(dK_ele)
         k_num = len(K_list[0])
+        p_num = len(p_list)
         F = []
         rho_all = []
-        for hi in range(len(p_list)):
+        for hi in range(p_num):
             rho_tp = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K_list[hi]])
-            dK_reshape = [
-                        [dK_list[hi][i][j] for i in range(k_num)]
-                        for j in range(para_num)
-                    ]
-            drho_tp = [
-                sum(
-                    [
-                        np.dot(dKi, np.dot(rho0, Ki.conj().T))
-                        + np.dot(Ki, np.dot(rho0, dKi.conj().T))
-                        for (Ki, dKi) in zip(K_list[hi], dKj)
-                    ]
-                )
-                for dKj in dK_reshape
-            ]
+            dK_reshape = [[dK_list[hi][i][j] for i in range(k_num)] for j in range(para_num)]
+            drho_tp = [sum([np.dot(dKi, np.dot(rho0, Ki.conj().T))+ np.dot(Ki, np.dot(rho0, dKi.conj().T)) for (Ki, dKi) in zip(K_list[hi], dKj)]) for dKj in dK_reshape]
             F_tp = CFIM(rho_tp, drho_tp, M)
             if np.linalg.det(F_tp) < eps:
                 F.append(eps)
             else:
                 F.append(1.0 / np.trace(np.dot(W, np.linalg.inv(F_tp))))
             rho_all.append(rho_tp)
-        F = np.array(F).reshape(p_shape)
-        idx = np.unravel_index(F.argmax(), F.shape)
-        x_opt = [x[i][idx[i]] for i in range(para_num)]
-        print("The optimal parameter is %s" % (x_opt))
-        u = [0.0 for i in range(para_num)]
 
-        if savefile == False:
-            y, xout = [], []
-            for ei in range(max_episode):
-                rho = [
-                    np.zeros((dim, dim), dtype=np.complex128) for i in range(len(p_list))
-                ]
-                for hj in range(len(p_list)):
-                    idx_list = [
-                        np.argmin(np.abs(x[i] - (x_list[hj][i] + u[i])))
-                        for i in range(para_num)
-                    ]
-                    x_idx = int(
-                        sum(
-                            [
-                                idx_list[i] * np.prod(np.array(p_shape[(i + 1) :]))
-                                for i in range(para_num)
-                            ]
-                        )
-                    )
-                    rho[hj] = rho_all[x_idx]
-                print("The tunable parameter are %s" % (u))
-                res_exp = input("Please enter the experimental result: ")
-                res_exp = int(res_exp)
-                pyx_list = np.zeros(len(p_list))
-                for xi in range(len(p_list)):
-                    pyx_list[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
-                pyx = pyx_list.reshape(p_shape)
-                arr = p * pyx
-                for si in reversed(range(para_num)):
-                    arr = simps(arr, x[si])
-                py = arr
-                p_update = p * pyx / py
-                p = p_update
-                p_idx = np.unravel_index(p.argmax(), p.shape)
-                x_out = [x[i][p_idx[i]] for i in range(para_num)]
+        if method == "FOP":
+            F = np.array(F).reshape(p_shape)
+            idx = np.unravel_index(F.argmax(), F.shape)
+            x_opt = [x[i][idx[i]] for i in range(para_num)]
+            print("The optimal parameter is %s" % (x_opt))
+            u = [0.0 for i in range(para_num)]
+            if savefile == False:
+                y, xout = [], []
+                for ei in range(max_episode):
+                    p, x_out, res_exp, u = iter_FOP_multipara(p, p_num, para_num, x, x_list, u, rho_all, M, dim, x_opt, ei, p_shape)
+                    xout.append(x_out)
+                    y.append(res_exp)
+                savefile_false(p, xout, y)
+            else:
+                for ei in range(max_episode):
+                    p, x_out, res_exp, u = iter_FOP_multipara(p, p_num, para_num, x, x_list, u, rho_all, M, dim, x_opt, ei, p_shape)
+                    savefile_true(np.array(p), x_out, res_exp)
+        elif method == "MI":
+            if savefile == False:
+                y, xout = [], []
+                for ei in range(max_episode):
+                    p, x_out, res_exp, u = iter_MI_multipara(p, p_num, para_num, x, x_list, u, rho_all, M, dim, ei, p_shape)
+                    xout.append(x_out)
+                    y.append(res_exp)
+                savefile_false(p, xout, y)
+            else:
+                for ei in range(max_episode):
+                    p, x_out, res_exp, u = iter_MI_multipara(p, p_num, para_num, x, x_list, u, rho_all, M, dim, ei, p_shape)
+                    savefile_true(np.array(p), x_out, res_exp)
 
-                print("The estimator are %s (%d episodes)" % (x_out, ei))
-                u = np.array(x_opt) - np.array(x_out)
+def iter_FOP_singlepara(p, p_num, x, u, rho_all, M, dim, x_opt, ei):
+    rho = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
+    for hj in range(p_num):
+        x_idx = np.argmin(np.abs(x[0] - (x[0][hj] + u)))
+        rho[hj] = rho_all[x_idx]
+    print("The tunable parameter is %f" % u)
+    res_exp = input("Please enter the experimental result: ")
+    res_exp = int(res_exp)
+    pyx = np.zeros(p_num)
+    for xi in range(p_num):
+        pyx[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
 
-                if (ei + 1) % 50 == 0:
-                    for un in range(para_num):
-                        if (x_out[un] + u[un]) > x[un][-1] and (x_out[un] + u[un]) < x[un][
-                            0
-                        ]:
-                            raise ValueError(
-                                "please increase the regime of the parameters."
-                            )
-                xout.append(x_out)
-                y.append(res_exp)
-            fp = open('pout.csv','a')
-            fp.write('\n')
-            np.savetxt(fp, np.array(p))
-            fp.close()
-
-            fx = open('xout.csv','a')
-            fx.write('\n')
-            np.savetxt(fx, np.array(xout))
-            fx.close()
-
-            fy = open('y.csv','a')
-            fy.write('\n')
-            np.savetxt(fy, np.array(y))
-            fy.close()
+    arr = np.array([pyx[m] * p[m] for m in range(p_num)])
+    py = simps(arr, x[0])
+    p_update = pyx * p / py
+    
+    for i in range(p_num):
+        if x[0][0] < (x[0][i] + u) < x[0][-1]:
+            p[i] = p_update[i]
         else:
-            for ei in range(max_episode):
-                rho = [
-                    np.zeros((dim, dim), dtype=np.complex128) for i in range(len(p_list))
-                ]
-                for hj in range(len(p_list)):
-                    idx_list = [
-                        np.argmin(np.abs(x[i] - (x_list[hj][i] + u[i])))
-                        for i in range(para_num)
-                    ]
-                    x_idx = int(
-                        sum(
-                            [
-                                idx_list[i] * np.prod(np.array(p_shape[(i + 1) :]))
-                                for i in range(para_num)
-                            ]
-                        )
-                    )
-                    rho[hj] = rho_all[x_idx]
-                print("The tunable parameter are %s" % (u))
-                res_exp = input("Please enter the experimental result: ")
-                res_exp = int(res_exp)
-                pyx_list = np.zeros(len(p_list))
-                for xi in range(len(p_list)):
-                    pyx_list[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
-                pyx = pyx_list.reshape(p_shape)
-                arr = p * pyx
-                for si in reversed(range(para_num)):
-                    arr = simps(arr, x[si])
-                py = arr
-                p_update = p * pyx / py
-                p = p_update
-                p_idx = np.unravel_index(p.argmax(), p.shape)
-                x_out = [x[i][p_idx[i]] for i in range(para_num)]
+            p[i] = 0.0
 
-                print("The estimator are %s (%d episodes)" % (x_out, ei))
-                u = np.array(x_opt) - np.array(x_out)
+    p_idx = np.argmax(p)
+    x_out = x[0][p_idx]
+    print("The estimator is %s (%d episodes)" % (x_out, ei))
+    u = x_opt - x_out
 
-                if (ei + 1) % 50 == 0:
-                    for un in range(para_num):
-                        if (x_out[un] + u[un]) > x[un][-1] and (x_out[un] + u[un]) < x[un][
-                            0
-                        ]:
-                            raise ValueError(
-                                "please increase the regime of the parameters."
-                            )
-                fp = open('pout.csv','a')
-                fp.write('\n')
-                np.savetxt(fp, [np.array(p)])
-                fp.close()
+    if (ei + 1) % 50 == 0:
+        if (x_out + u) > x[0][-1] and (x_out + u) < x[0][0]:
+            raise ValueError("please increase the regime of the parameters.")
+    return p, x_out, res_exp, u
 
-                fx = open('xout.csv','a')
-                fx.write('\n')
-                np.savetxt(fx, [x_out])
-                fx.close()
+def iter_FOP_multipara(p, p_num, para_num, x, x_list, u, rho_all, M, dim, x_opt, ei, p_shape):
+    rho = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
+    for hj in range(p_num):
+        idx_list = [np.argmin(np.abs(x[i] - (x_list[hj][i] + u[i]))) for i in range(para_num)]
+        x_idx = int(sum([idx_list[i] * np.prod(np.array(p_shape[(i + 1) :])) for i in range(para_num)]))
+        rho[hj] = rho_all[x_idx]
+    print("The tunable parameter are %s" % (u))
+    res_exp = input("Please enter the experimental result: ")
+    res_exp = int(res_exp)
+    pyx_list = np.zeros(p_num)
+    for xi in range(p_num):
+        pyx_list[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
+    pyx = pyx_list.reshape(p_shape)
+    arr = p * pyx
+    for si in reversed(range(para_num)):
+        arr = simps(arr, x[si])
+    py = arr
+    p_update = p * pyx / py
+    
+    p_lis = np.zeros(p_num)
+    p_ext = extract_ele(p_update, para_num)
+    p_up_lis = []
+    for p_ele in p_ext:
+        p_up_lis.append(p_ele)
+    for i in range(p_num):
+        res = [x_list[0][ri] < (x_list[i][ri] + u[ri]) < x_list[-1][ri] for ri in range(para_num)]
+        if all(res):
+            p_lis[i] =  p_up_lis[i]
 
-                fy = open('y.csv','a')
-                fy.write('\n')
-                np.savetxt(fy, [res_exp])
-                fy.close()
+    p = p_lis.reshape(p_shape)
+    
+    p_idx = np.unravel_index(p.argmax(), p.shape)
+    x_out = [x[i][p_idx[i]] for i in range(para_num)]
+
+    print("The estimator is %s (%d episodes)" % (x_out, ei))
+    u = np.array(x_opt) - np.array(x_out)
+
+    if (ei + 1) % 50 == 0:
+        for un in range(para_num):
+            if (x_out[un] + u[un]) > x[un][-1] and (x_out[un] + u[un]) < x[un][0]:
+                raise ValueError("please increase the regime of the parameters.")
+    return p, x_out, res_exp, u
+
+def iter_MI_singlepara(p, p_num, x, u, rho_all, M, dim, ei):
+    rho = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
+    for hj in range(p_num):
+        x_idx = np.argmin(np.abs(x[0] - (x[0][hj] + u)))
+        rho[hj] = rho_all[x_idx]
+    print("The tunable parameter is %f" % u)
+
+    res_exp = input("Please enter the experimental result: ")
+    res_exp = int(res_exp)
+    pyx = np.zeros(p_num)
+    for xi in range(p_num):
+        pyx[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
+
+    arr = np.array([pyx[m] * p[m] for m in range(p_num)])
+    py = simps(arr, x[0])
+    p_update = pyx * p / py
+    
+    for i in range(p_num):
+        if x[0][0] < (x[0][i] + u) < x[0][-1]:
+            p[i] = p_update[i]
+        else:
+            p[i] = 0.0
+
+    p_idx = np.argmax(p)
+    x_out = x[0][p_idx]
+    print("The estimator is %s (%d episodes)" % (x_out, ei))
+
+    MI = np.zeros(p_num)
+    for ui in range(p_num):
+        rho_u = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
+        for hk in range(p_num):
+            x_idx = np.argmin(np.abs(x[0] - (x[0][hk] + x[0][ui])))
+            rho_u[hk] = rho_all[x_idx]
+        value_tp = np.zeros(p_num)
+        for mi in range(len(M)):
+            pyx_tp = np.array([np.real(np.trace(np.dot(rho_u[xi], M[mi]))) for xi in range(p_num)])
+            mean_tp = simps(np.array([pyx_tp[i] * p[i] for i in range(p_num)]), x[0])
+            value_tp += pyx_tp*np.log2(pyx_tp/mean_tp)
+        # arr = np.array([value_tp[i] * p[i] for i in range(p_num)])
+        arr = np.zeros(p_num)
+        for i in range(p_num):
+            if x[0][0] < (x[0][i] + x[0][ui]) < x[0][-1]:
+                arr[i] = value_tp[i] * p[i]
+        MI[ui] = simps(arr, x[0])
+    u = x[0][np.argmax(MI)]
+
+    if (ei + 1) % 50 == 0:
+        if (x_out + u) > x[0][-1] and (x_out + u) < x[0][0]:
+            raise ValueError("please increase the regime of the parameters.")
+    return p, x_out, res_exp, u
+
+def iter_MI_multipara(p, p_num, para_num, x, x_list, u, rho_all, M, dim, ei, p_shape):
+    rho = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
+    for hj in range(p_num):
+        idx_list = [np.argmin(np.abs(x[i] - (x_list[hj][i] + u[i]))) for i in range(para_num)]
+        x_idx = int(sum([idx_list[i] * np.prod(np.array(p_shape[(i + 1) :])) for i in range(para_num)]))
+        rho[hj] = rho_all[x_idx]
+    print("The tunable parameter are %s" % (u))
+    res_exp = input("Please enter the experimental result: ")
+    res_exp = int(res_exp)
+    pyx_list = np.zeros(p_num)
+    for xi in range(p_num):
+        pyx_list[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
+    pyx = pyx_list.reshape(p_shape)
+    arr = p * pyx
+    for si in reversed(range(para_num)):
+        arr = simps(arr, x[si])
+    py = arr
+    p_update = p * pyx / py
+    
+    p_lis = np.zeros(p_num)
+    p_ext = extract_ele(p_update, para_num)
+    p_up_lis = []
+    for p_ele in p_ext:
+        p_up_lis.append(p_ele)
+    for i in range(p_num):
+        res = [x_list[0][ri] < (x_list[i][ri] + u[ri]) < x_list[-1][ri] for ri in range(para_num)]
+        if all(res):
+            p_lis[i] =  p_up_lis[i]
+
+    p = p_lis.reshape(p_shape)
+
+    p_idx = np.unravel_index(p.argmax(), p.shape)
+    x_out = [x[i][p_idx[i]] for i in range(para_num)]
+    print("The estimator is %s (%d episodes)" % (x_out, ei))
+
+    MI = np.zeros(p_num)
+    for ui in range(p_num):
+        rho_u = [np.zeros((dim, dim), dtype=np.complex128) for i in range(p_num)]
+        for hj in range(p_num):
+            idx_list = [np.argmin(np.abs(x[i] - (x_list[hj][i] + x_list[ui][i]))) for i in range(para_num)]
+            x_idx = int(sum([idx_list[i] * np.prod(np.array(p_shape[(i + 1) :])) for i in range(para_num)]))
+            rho_u[hj] = rho_all[x_idx]
+        value_tp = np.zeros(p_shape)
+        for mi in range(len(M)):
+            pyx_list_tp = np.array([np.real(np.trace(np.dot(rho_u[xi], M[mi]))) for xi in range(p_num)])
+            pyx_tp = pyx_list_tp.reshape(p_shape)
+            mean_tp = p * pyx_tp
+            for si in reversed(range(para_num)):
+                mean_tp = simps(mean_tp, x[si])
+            value_tp += pyx_tp*np.log2(pyx_tp/mean_tp) 
+
+        # value_int = p * value_tp
+        # for sj in reversed(range(para_num)):
+        #    value_int = simps(value_int, x[sj])  
+
+        arr = np.zeros(p_num)
+        p_ext = extract_ele(p, para_num)
+        value_ext = extract_ele(value_tp, para_num)
+        p_lis, value_lis = [], []
+        for p_ele, value_ele in zip(p_ext, value_ext):
+            p_lis.append(p_ele)
+            value_lis.append(value_ele)
+        for hj in range(p_num):
+            res = [x_list[0][ri] < (x_list[hj][ri] + x_list[ui][ri]) < x_list[-1][ri] for ri in range(para_num)]
+            if all(res):
+                arr[hj] =  p_lis[hj] * value_lis[hj]
+        value_int = arr.reshape(p_shape)
+        for sj in reversed(range(para_num)):
+           value_int = simps(value_int, x[sj])     
+
+        MI[ui] = value_int
+    p_idx = np.unravel_index(MI.argmax(), p.shape)
+    u = [x[i][p_idx[i]] for i in range(para_num)]
+
+    if (ei + 1) % 50 == 0:
+        for un in range(para_num):
+            if (x_out[un] + u[un]) > x[un][-1] and (x_out[un] + u[un]) < x[un][0]:
+                raise ValueError("please increase the regime of the parameters.")
+    return p, x_out, res_exp, u
+
+def savefile_true(p, xout, y):
+    fp = open('pout.csv','a')
+    fp.write('\n')
+    np.savetxt(fp, p)
+    fp.close()
+
+    fx = open('xout.csv','a')
+    fx.write('\n')
+    np.savetxt(fx, [xout])
+    fx.close()
+
+    fy = open('y.csv','a')
+    fy.write('\n')
+    np.savetxt(fy, [y])
+    fy.close()
+
+def savefile_false(p, xout, y):
+    fp = open('pout.csv','a')
+    fp.write('\n')
+    np.savetxt(fp, np.array(p))
+    fp.close()
+
+    fx = open('xout.csv','a')
+    fx.write('\n')
+    np.savetxt(fx, np.array(xout))
+    fx.close()
+
+    fy = open('y.csv','a')
+    fy.write('\n')
+    np.savetxt(fy, np.array(y))
+    fy.close()
