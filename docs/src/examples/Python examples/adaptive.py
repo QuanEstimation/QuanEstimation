@@ -42,6 +42,6 @@ pout, xout = Bayes([x], p, rho, y, M=M, estimator="MAP", savefile=True)
 # generation of H and dH
 H, dH = BayesInput([x], H0_func, dH_func, channel="dynamics")
 # adaptive measurement
-apt = Adaptive([x], pout, rho0, savefile=False, max_episode=100, eps=1e-8)
+apt = Adapt([x], pout, rho0, savefile=False, max_episode=100, eps=1e-8)
 apt.dynamics(tspan, H, dH)
 apt.CFIM(M=M, W=[])
