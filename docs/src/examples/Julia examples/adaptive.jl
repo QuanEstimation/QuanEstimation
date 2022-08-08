@@ -46,5 +46,5 @@ pout, xout = QuanEstimation.Bayes([x], p, rho, y, M=M, savefile=false)
 H, dH = QuanEstimation.BayesInput([x], H0_func, dH_func; 
                                      channel="dynamics")
 # adaptive measurement
-QuanEstimation.Adaptive([x], pout, rho0, tspan, H, dH; M=M, 
+QuanEstimation.Adapt([x], pout, rho0, tspan, H, dH; M=M, 
                         max_episode=100)

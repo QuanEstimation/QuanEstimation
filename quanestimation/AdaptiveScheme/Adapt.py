@@ -8,7 +8,7 @@ from quanestimation.Parameterization.GeneralDynamics import Lindblad
 from quanestimation.AsymptoticBound.CramerRao import QFIM, CFIM
 
 
-class Adaptive:
+class Adapt:
     """
     Attributes
     ----------

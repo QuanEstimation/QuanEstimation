@@ -138,7 +138,7 @@ from quanestimation.StateOpt.RI_Sopt import (
     RI_Sopt,
 )
 
-from quanestimation.AdaptiveScheme.Adaptive import Adaptive
+from quanestimation.AdaptiveScheme.Adapt import Adapt
 from quanestimation.AdaptiveScheme.Adapt_MZI import Adapt_MZI
 
 
@@ -202,6 +202,6 @@ __all__ = [
     "AD_Compopt",
     "DE_Compopt",
     "PSO_Compopt",
-    "Adaptive",
+    "Adapt",
     "Adapt_MZI",
 ]

@@ -6,7 +6,7 @@ Hamiltonian work at the optimal point $\textbf{x}_{\mathrm{opt}}$. In this scena
 the adaptive estimation can be excuted through
 === "Python"
     ``` py
-    apt = Adaptive(x, p, rho0, method="FOP", savefile=False, max_episode=1000, 
+    apt = Adapt(x, p, rho0, method="FOP", savefile=False, max_episode=1000, 
                    eps=1e-8)
     apt.dynamics(tspan, H, dH, Hc=[], ctrl=[], decay=[])               
     apt.CFIM(M=[], W=[]) 
@@ -26,7 +26,7 @@ the adaptive estimation can be excuted through
     iteration will be saved. 
 === "Julia"
     ``` jl
-    Adaptive(x, p, rho0, tspan, H, dH; method="FOP", savefile=false, 
+    Adapt(x, p, rho0, tspan, H, dH; method="FOP", savefile=false, 
              max_episode=1000, eps=1e-8, Hc=missing, ctrl=missing, 
              decay=missing, M=missing, W=missing)
     ```
@@ -67,13 +67,13 @@ The objective function for adaptive measurement are CFI and $\mathrm{Tr}(W\mathc
 If the parameterization is implemented with the Kraus operators, the codes become
 === "Python"
     ``` py
-    apt = Adaptive(x, p, rho0, savefile=False, max_episode=1000, eps=1e-8)
+    apt = Adapt(x, p, rho0, savefile=False, max_episode=1000, eps=1e-8)
     apt.Kraus(K, dK)               
     apt.CFIM(M=[], W=[]) 
     ```
 === "Julia"
     ``` jl
-    Adaptive(x, p, rho0, K, dK; savefile=false, max_episode=1000, eps=1e-8, 
+    Adapt(x, p, rho0, K, dK; savefile=false, max_episode=1000, eps=1e-8, 
              Hc=missing, ctrl=missing, decay=missing, M=missing, W=missing)
     ```
 and 
@@ -141,7 +141,7 @@ $\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}
     # generation of H and dH
     H, dH = BayesInput([x], H0_func, dH_func, channel="dynamics")
     # adaptive measurement
-    apt = Adaptive([x], pout, rho0, savefile=False, max_episode=100, eps=1e-8)
+    apt = Adapt([x], pout, rho0, savefile=False, max_episode=100, eps=1e-8)
     apt.dynamics(tspan, H, dH)
     apt.CFIM(M=M, W=[])
     ```
@@ -195,7 +195,7 @@ $\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}
     H, dH = QuanEstimation.BayesInput([x], H0_func, dH_func; 
                                       channel="dynamics")
     # adaptive measurement
-    QuanEstimation.Adaptive([x], pout, rho0, tspan, H, dH; M=M, 
+    QuanEstimation.Adapt([x], pout, rho0, tspan, H, dH; M=M, 
                             max_episode=100)
     ```
 ---
@@ -210,7 +210,7 @@ in QuanEstimation via
     apt.general()
     apt.online(output="phi")
     ```
-    Here `x`, `p`, and `rho0` are the same with `adaptive`. The output can be set through 
+    Here `x`, `p`, and `rho0` are the same with `Adapt`. The output can be set through 
     `output="phi"` (default) and `output="dphi"` representing the phase and phase difference, 
     respectively. Online and offline strategies are both available in the package and the code 
     for calling offline stratege becomes `apt.offline(method="DE", **kwargs)` or 
@@ -220,7 +220,7 @@ in QuanEstimation via
     apt = Adapt_MZI(x, p, rho0)
     online(apt, output="phi")
     ```
-    Here `x`, `p`, and `rho0` are the same with `adaptive`. The output can be set through 
+    Here `x`, `p`, and `rho0` are the same with `Adapt`. The output can be set through 
     `output="phi"` (default) and `output="dphi"` representing the phase and phase difference, 
     respectively. Online and offline strategies are both available in the package and the code 
     for calling offline stratege becomes `alg = QuanEstimation.DE(kwargs...)` 
