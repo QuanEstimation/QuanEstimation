@@ -110,8 +110,8 @@ class Lindblad:
 
     def expm(self):
         r"""
-        Calculation of the density matrix and its derivatives on the unknown parameters.
-        The density matrix at $j$th time interval is obtained by 
+        Calculation of the density matrix and its derivatives on the unknown parameters 
+        with matrix exponential method (expm). The density matrix at $j$th time interval is obtained by 
         $\rho_j=e^{\Delta t\mathcal{L}}\rho_{j-1}$, where $\Delta t$ is the time
         interval and $\rho_{j-1}$ is the density matrix for the $(j-1)$th time interval.
         $\partial_{\textbf{x}}\rho_j$ is calculated as
@@ -134,6 +134,33 @@ class Lindblad:
         )
         return rho, drho
 
+    def ODE(self):
+        r"""
+        Calculation of the density matrix and its derivatives on the unknown parameters 
+        with ordinary differential equations (ODE) solver.
+        The density matrix at $j$th time interval is obtained by 
+        $\rho_j=e^{\Delta t\mathcal{L}}\rho_{j-1}$, where $\Delta t$ is the time
+        interval and $\rho_{j-1}$ is the density matrix for the $(j-1)$th time interval.
+        $\partial_{\textbf{x}}\rho_j$ is calculated as
+        \begin{align}
+        \partial_{\textbf{x}}\rho_j =\Delta t(\partial_{\textbf{x}}\mathcal{L})\rho_j
+        +e^{\Delta t \mathcal{L}}(\partial_{\textbf{x}}\rho_{j-1}).
+        \end{align}
+
+        """
+
+        rho, drho = QuanEstimation.ODE_py(
+            self.tspan,
+            self.rho0,
+            self.freeHamiltonian,
+            self.Hamiltonian_derivative,
+            self.decay_opt,
+            self.gamma,
+            self.control_Hamiltonian,
+            self.control_coefficients,
+        )
+        return rho, drho
+        
     def secondorder_derivative(self, d2H):
         r"""
         Calculation of the density matrix and its derivatives and the second derivatives
