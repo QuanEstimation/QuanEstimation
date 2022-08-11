@@ -23,12 +23,12 @@ class Adapt_MZI:
         self.p = p
         self.rho0 = rho0
         self.N = int(np.sqrt(len(rho0))) - 1
-        self.a = annihilation(self.N + 1)
+        # self.a = annihilation(self.N + 1)
 
     def general(self):
         self.MZI_type = "general"
 
-    def online(self, output="phi"):
+    def online(self, target="sharpness", output="phi"):
         """
         Parameters
         ----------
@@ -38,11 +38,12 @@ class Adapt_MZI:
             "dphi" -- Phase difference. 
         """
         phi = QuanEstimation.adaptMZI_online(
-            self.x, self.p, self.rho0, self.a, output
+            self.x, self.p, self.rho0, output, target
         )
 
     def offline(
         self,
+        target="sharpness",
         method="DE",
         p_num=10,
         deltaphi0=[],
@@ -122,7 +123,6 @@ class Adapt_MZI:
                 self.x,
                 self.p,
                 self.rho0,
-                self.a,
                 comb,
                 p_num,
                 deltaphi0,
@@ -130,6 +130,7 @@ class Adapt_MZI:
                 cr,
                 seed,
                 max_episode,
+                target,
                 eps,
             )
         elif method == "PSO":
@@ -137,7 +138,6 @@ class Adapt_MZI:
                 self.x,
                 self.p,
                 self.rho0,
-                self.a,
                 comb,
                 p_num,
                 deltaphi0,
@@ -146,6 +146,7 @@ class Adapt_MZI:
                 c2,
                 seed,
                 max_episode,
+                target,
                 eps,
             )
         else:
