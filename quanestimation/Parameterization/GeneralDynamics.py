@@ -134,7 +134,7 @@ class Lindblad:
         )
         return rho, drho
 
-    def ODE(self):
+    def ode(self):
         r"""
         Calculation of the density matrix and its derivatives on the unknown parameters 
         with ordinary differential equations (ODE) solver.
@@ -149,7 +149,7 @@ class Lindblad:
 
         """
 
-        rho, drho = QuanEstimation.ODE_py(
+        rho, drho = QuanEstimation.ode_py(
             self.tspan,
             self.rho0,
             self.freeHamiltonian,
