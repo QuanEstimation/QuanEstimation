@@ -134,7 +134,7 @@ class Lindblad:
         )
         return rho, drho
 
-    def ODE(self):
+    def ode(self):
         r"""
         Calculation of the density matrix and its derivatives on the unknown parameters 
         with ordinary differential equations (ODE) solver.
