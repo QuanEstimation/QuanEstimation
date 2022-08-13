@@ -149,7 +149,7 @@ class Lindblad:
 
         """
 
-        rho, drho = QuanEstimation.ODE_py(
+        rho, drho = QuanEstimation.ode_py(
             self.tspan,
             self.rho0,
             self.freeHamiltonian,
