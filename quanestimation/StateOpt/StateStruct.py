@@ -57,7 +57,7 @@ class StateSystem:
         else:
             pass
 
-    def dynamics(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[]):
+    def dynamics(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], dyn_method="expm"):
         r"""
         The dynamics of a density matrix is of the form 
         
@@ -96,9 +96,19 @@ class StateSystem:
             decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$,$\gamma_2$],...], where $\Gamma_1$ 
             $(\Gamma_2)$ represents the decay operator and $\gamma_1$ $(\gamma_2)$ is the 
             corresponding decay rate.
+
+        > **dyn_method:** `string`
+            -- The method for solving the Lindblad dynamcs. Options are:
+            "expm" (default) -- matrix exponential.
+            "ode" -- ordinary differential equation solvers.  
         """
 
         self.tspan = tspan
+
+        if dyn_method == "expm":
+            self.dyn_method = "Expm"
+        elif dyn_method == "ode":
+            self.dyn_method = "Ode"
 
         if Hc == [] or ctrl == []:
             if type(H0) == np.ndarray:
@@ -221,6 +231,7 @@ class StateSystem:
                 self.tspan,
                 self.decay_opt,
                 self.gamma,
+                dyn_method = self.dyn_method,
             )
         else:
             self.dynamic = QuanEstimation.Lindblad(
@@ -228,6 +239,7 @@ class StateSystem:
                 self.Hamiltonian_derivative,
                 self.psi0,
                 self.tspan,
+                dyn_method = self.dyn_method,
             )
         self.output = QuanEstimation.Output(self.opt, save=self.savefile)
 
