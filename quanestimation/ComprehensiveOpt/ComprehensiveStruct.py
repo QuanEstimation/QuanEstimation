@@ -46,7 +46,7 @@ class ComprehensiveSystem:
         self.seed = seed
         self.measurement0 = measurement0
 
-    def dynamics(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], ctrl_bound=[]):
+    def dynamics(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], ctrl_bound=[], dyn_method="expm"):
         r"""
         The dynamics of a density matrix is of the form 
 
@@ -90,11 +90,21 @@ class ComprehensiveSystem:
             -- Lower and upper bounds of the control coefficients.
             `ctrl_bound[0]` represents the lower bound of the control coefficients and
             `ctrl_bound[1]` represents the upper bound of the control coefficients.
+
+        > **dyn_method:** `string`
+            -- The method for solving the Lindblad dynamcs. Options are:
+            "expm" (default) -- matrix exponential.
+            "ode" -- ordinary differential equation solvers.  
         """
 
         self.tspan = tspan
         self.ctrl = ctrl
         self.Hc = Hc
+
+        if dyn_method == "expm":
+            self.dyn_method = "Expm"
+        elif dyn_method == "ode":
+            self.dyn_method = "Ode"
 
         if type(H0) == np.ndarray:
             self.freeHamiltonian = np.array(H0, dtype=np.complex128)
@@ -363,6 +373,7 @@ class ComprehensiveSystem:
             self.tspan,
             self.decay_opt,
             self.gamma,
+            dyn_method = self.dyn_method,
             )
         system = QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
@@ -406,10 +417,11 @@ class ComprehensiveSystem:
             self.Hamiltonian_derivative,
             self.control_Hamiltonian,
             self.control_coefficients,
-            rho0,
+            self.rho0,
             self.tspan,
             self.decay_opt,
             self.gamma,
+            dyn_method =self.dyn_method,
             )
 
         system = QuanEstimation.QuanEstSystem(
@@ -553,6 +565,7 @@ class ComprehensiveSystem:
                 self.tspan,
                 self.decay_opt,
                 self.gamma,
+                dyn_method = self.dyn_method,
             )
         elif self.dynamics_type == "Kraus":
             if W == []:

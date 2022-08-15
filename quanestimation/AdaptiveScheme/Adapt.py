@@ -52,7 +52,7 @@ class Adapt:
         self.savefile = savefile
         self.method = method
 
-    def dynamics(self, tspan, H, dH, Hc=[], ctrl=[], decay=[]):
+    def dynamics(self, tspan, H, dH, Hc=[], ctrl=[], decay=[], dyn_method="expm"):
         r"""
         Dynamics of the density matrix of the form 
         
@@ -99,6 +99,7 @@ class Adapt:
         self.decay = decay
 
         self.dynamic_type = "dynamics"
+        self.dyn_method = dyn_method
 
     def Kraus(self, K, dK):
         r"""
@@ -167,7 +168,8 @@ class Adapt:
                 self.max_episode,
                 self.eps,
                 self.savefile,
-                self.method
+                self.method,
+                dyn_method=self.dyn_method,
             )
         elif self.dynamic_type == "Kraus":
             adaptive_Kraus(
@@ -208,20 +210,36 @@ class Adapt:
         if self.dynamic_type == "dynamics":
             if self.para_num == 1:
                 F = []
-                for i in range(len(self.H)):
-                    dynamics = Lindblad(
-                        self.tspan,
-                        self.rho0,
-                        self.H[i],
-                        self.dH[i],
-                        decay=self.decay,
-                        Hc=self.Hc,
-                        ctrl=self.ctrl,
-                    )
-                    rho_tp, drho_tp = dynamics.expm()
-                    rho, drho = rho_tp[-1], drho_tp[-1]
-                    F_tp = QFIM(rho, drho)
-                    F.append(F_tp)
+                if self.dyn_method == "expm":
+                    for i in range(len(self.H)):
+                        dynamics = Lindblad(
+                            self.tspan,
+                            self.rho0,
+                            self.H[i],
+                            self.dH[i],
+                            decay=self.decay,
+                            Hc=self.Hc,
+                            ctrl=self.ctrl,
+                        )
+                        rho_tp, drho_tp = dynamics.expm()
+                        rho, drho = rho_tp[-1], drho_tp[-1]
+                        F_tp = QFIM(rho, drho)
+                        F.append(F_tp)
+                elif self.dyn_method == "ode":
+                    for i in range(len(self.H)):
+                        dynamics = Lindblad(
+                            self.tspan,
+                            self.rho0,
+                            self.H[i],
+                            self.dH[i],
+                            decay=self.decay,
+                            Hc=self.Hc,
+                            ctrl=self.ctrl,
+                        )
+                        rho_tp, drho_tp = dynamics.ode()
+                        rho, drho = rho_tp[-1], drho_tp[-1]
+                        F_tp = QFIM(rho, drho)
+                        F.append(F_tp)
                 idx = np.argmax(F)
                 H_res, dH_res = self.H[idx], self.dH[idx]
             else:
@@ -236,23 +254,42 @@ class Adapt:
                     dH_list.append(dH_ele)
 
                 F = []
-                for i in range(len(p_list)):
-                    dynamics = Lindblad(
-                        self.tspan,
-                        self.rho0,
-                        self.H_list[i],
-                        self.dH_list[i],
-                        decay=self.decay,
-                        Hc=self.Hc,
-                        ctrl=self.ctrl,
-                    )
-                    rho_tp, drho_tp = dynamics.expm()
-                    rho, drho = rho_tp[-1], drho_tp[-1]
-                    F_tp = QFIM(rho, drho)
-                    if np.linalg.det(F_tp) < self.eps:
-                        F.append(self.eps)
-                    else:
-                        F.append(1.0 / np.trace(np.dot(W, np.linalg.inv(F_tp))))
+                if self.dyn_method == "expm":
+                    for i in range(len(p_list)):
+                        dynamics = Lindblad(
+                            self.tspan,
+                            self.rho0,
+                            self.H_list[i],
+                            self.dH_list[i],
+                            decay=self.decay,
+                            Hc=self.Hc,
+                            ctrl=self.ctrl,
+                        )
+                        rho_tp, drho_tp = dynamics.expm()
+                        rho, drho = rho_tp[-1], drho_tp[-1]
+                        F_tp = QFIM(rho, drho)
+                        if np.linalg.det(F_tp) < self.eps:
+                            F.append(self.eps)
+                        else:
+                            F.append(1.0 / np.trace(np.dot(W, np.linalg.inv(F_tp))))
+                elif self.dyn_method == "ode":
+                    for i in range(len(p_list)):
+                        dynamics = Lindblad(
+                            self.tspan,
+                            self.rho0,
+                            self.H_list[i],
+                            self.dH_list[i],
+                            decay=self.decay,
+                            Hc=self.Hc,
+                            ctrl=self.ctrl,
+                        )
+                        rho_tp, drho_tp = dynamics.ode()
+                        rho, drho = rho_tp[-1], drho_tp[-1]
+                        F_tp = QFIM(rho, drho)
+                        if np.linalg.det(F_tp) < self.eps:
+                            F.append(self.eps)
+                        else:
+                            F.append(1.0 / np.trace(np.dot(W, np.linalg.inv(F_tp))))
                 idx = np.argmax(F)
                 H_res, dH_res = self.H_list[idx], self.dH_list[idx]
             m = MeasurementOpt(mtype="projection", minput=[], method="DE")
@@ -264,6 +301,7 @@ class Adapt:
                 Hc=self.Hc,
                 ctrl=self.ctrl,
                 decay=self.decay,
+                dyn_method=self.dyn_method,
             )
             m.CFIM(W=W)
         elif self.dynamic_type == "Kraus":
@@ -334,7 +372,7 @@ class Adapt:
                 )
             )
     
-def adaptive_dynamics(x, p, M, tspan, rho0, H, dH, decay, Hc, ctrl, W, max_episode, eps, savefile, method):
+def adaptive_dynamics(x, p, M, tspan, rho0, H, dH, decay, Hc, ctrl, W, max_episode, eps, savefile, method, dyn_method="expm"):
 
     para_num = len(x)
     dim = np.shape(rho0)[0]
@@ -344,12 +382,20 @@ def adaptive_dynamics(x, p, M, tspan, rho0, H, dH, decay, Hc, ctrl, W, max_episo
 
         F = []
         rho_all = []
-        for hi in range(p_num):
-            dynamics = Lindblad(tspan, rho0, H[hi], dH[hi], decay=decay, Hc=Hc, ctrl=ctrl)
-            rho_tp, drho_tp = dynamics.expm()
-            F_tp = CFIM(rho_tp[-1], drho_tp[-1], M)
-            F.append(F_tp)
-            rho_all.append(rho_tp[-1])
+        if dyn_method == "expm":
+            for hi in range(p_num):
+                dynamics = Lindblad(tspan, rho0, H[hi], dH[hi], decay=decay, Hc=Hc, ctrl=ctrl)
+                rho_tp, drho_tp = dynamics.expm()
+                F_tp = CFIM(rho_tp[-1], drho_tp[-1], M)
+                F.append(F_tp)
+                rho_all.append(rho_tp[-1])
+        elif dyn_method == "ode":
+            for hi in range(p_num):
+                dynamics = Lindblad(tspan, rho0, H[hi], dH[hi], decay=decay, Hc=Hc, ctrl=ctrl)
+                rho_tp, drho_tp = dynamics.ode()
+                F_tp = CFIM(rho_tp[-1], drho_tp[-1], M)
+                F.append(F_tp)
+                rho_all.append(rho_tp[-1])
         
         u = 0.0
         if method == "FOP":
@@ -401,15 +447,26 @@ def adaptive_dynamics(x, p, M, tspan, rho0, H, dH, decay, Hc, ctrl, W, max_episo
         p_num = len(p_list)
         F = []
         rho_all = []
-        for hi in range(p_num):
-            dynamics = Lindblad(tspan, rho0, H_list[hi], dH_list[hi], decay=decay, Hc=Hc, ctrl=ctrl)
-            rho_tp, drho_tp = dynamics.expm()
-            F_tp = CFIM(rho_tp[-1], drho_tp[-1], M)
-            if np.linalg.det(F_tp) < eps:
-                F.append(eps)
-            else:
-                F.append(1.0 / np.trace(np.dot(W, np.linalg.inv(F_tp))))
-            rho_all.append(rho_tp[-1])
+        if dyn_method == "expm":
+            for hi in range(p_num):
+                dynamics = Lindblad(tspan, rho0, H_list[hi], dH_list[hi], decay=decay, Hc=Hc, ctrl=ctrl)
+                rho_tp, drho_tp = dynamics.expm()
+                F_tp = CFIM(rho_tp[-1], drho_tp[-1], M)
+                if np.linalg.det(F_tp) < eps:
+                    F.append(eps)
+                else:
+                    F.append(1.0 / np.trace(np.dot(W, np.linalg.inv(F_tp))))
+                rho_all.append(rho_tp[-1])
+        elif dyn_method == "ode":
+            for hi in range(p_num):
+                dynamics = Lindblad(tspan, rho0, H_list[hi], dH_list[hi], decay=decay, Hc=Hc, ctrl=ctrl)
+                rho_tp, drho_tp = dynamics.ode()
+                F_tp = CFIM(rho_tp[-1], drho_tp[-1], M)
+                if np.linalg.det(F_tp) < eps:
+                    F.append(eps)
+                else:
+                    F.append(1.0 / np.trace(np.dot(W, np.linalg.inv(F_tp))))
+                rho_all.append(rho_tp[-1])
 
         u = [0.0 for i in range(para_num)]
         if method == "FOP":

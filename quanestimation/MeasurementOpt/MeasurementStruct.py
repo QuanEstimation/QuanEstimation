@@ -47,6 +47,11 @@ class MeasurementSystem:
         -- Whether or not to load measurements in the current location.  
         If set `True` then the program will load measurement from "measurements.csv"
         file in the current location and use it as the initial measurement.
+
+    > **dyn_method:** `string`
+        -- The method for solving the Lindblad dynamcs. Options are:
+        "expm" (default) -- matrix exponential.
+        "ode" -- ordinary differential equation solvers.  
     """
 
     def __init__(self, mtype, minput, savefile, measurement0, seed, eps, load):
@@ -69,7 +74,7 @@ class MeasurementSystem:
             file_save.close()
         else: pass
 
-    def dynamics(self, tspan, rho0, H0, dH, Hc=[], ctrl=[], decay=[]):
+    def dynamics(self, tspan, rho0, H0, dH, Hc=[], ctrl=[], decay=[], dyn_method="expm"):
         r"""
         The dynamics of a density matrix is of the form  
         
@@ -117,10 +122,16 @@ class MeasurementSystem:
         self.rho0 = np.array(rho0, dtype=np.complex128)
 
         self.dynamics_type = "dynamics"
+
         if len(dH) == 1:
             self.para_type = "single_para"
         else:
             self.para_type = "multi_para"
+
+        if dyn_method == "expm":
+            self.dyn_method = "Expm"
+        elif dyn_method == "ode":
+            self.dyn_method = "Ode"
 
         if self.mtype == "projection":
             if self.measurement0 == []:
@@ -353,6 +364,7 @@ class MeasurementSystem:
                 self.tspan,
                 self.decay_opt,
                 self.gamma,
+                dyn_method = self.dyn_method,
             )
         else:
             self.dynamic = QuanEstimation.Lindblad(
@@ -360,6 +372,7 @@ class MeasurementSystem:
                 self.Hamiltonian_derivative,
                 self.rho0,
                 self.tspan,
+                dyn_method = self.dyn_method,
             )
         self.output = QuanEstimation.Output(self.opt, save=self.savefile)
         
