@@ -82,9 +82,9 @@ class ComprehensiveSystem:
 
         > **decay:** `list`
             -- Decay operators and the corresponding decay rates. Its input rule is 
-        decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$,$\gamma_2$],...], where $\Gamma_1$ 
-        $(\Gamma_2)$ represents the decay operator and $\gamma_1$ $(\gamma_2)$ is the 
-        corresponding decay rate.
+            decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$,$\gamma_2$],...], where $\Gamma_1$ 
+            $(\Gamma_2)$ represents the decay operator and $\gamma_1$ $(\gamma_2)$ is the 
+            corresponding decay rate.
 
         > **ctrl_bound:** `array`
             -- Lower and upper bounds of the control coefficients.
@@ -92,9 +92,9 @@ class ComprehensiveSystem:
             `ctrl_bound[1]` represents the upper bound of the control coefficients.
 
         > **dyn_method:** `string`
-            -- The method for solving the Lindblad dynamcs. Options are:
-            "expm" (default) -- matrix exponential.
-            "ode" -- ordinary differential equation solvers.  
+            -- Setting the method for solving the Lindblad dynamics. Options are:  
+            "expm" (default) -- Matrix exponential.  
+            "ode" -- Solving the differential equations directly. 
         """
 
         self.tspan = tspan

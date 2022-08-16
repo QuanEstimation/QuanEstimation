@@ -32,6 +32,11 @@ class Adapt_MZI:
         """
         Parameters
         ----------
+        > **target:** `string`
+            -- Setting the target function for calculating the tunable phase. Options are:  
+            "sharpness" (default) -- Sharpness.  
+            "MI" -- Mutual information. 
+
         > **output:** `string`
             -- The output the class. Options are:  
             "phi" (default) -- The tunable phase.  
@@ -59,6 +64,11 @@ class Adapt_MZI:
         """
         Parameters
         ----------
+        > **target:** `string`
+            -- Setting the target function for calculating the tunable phase. Options are:  
+            "sharpness" (default) -- Sharpness.  
+            "MI" -- Mutual information. 
+
         > **method:** `string`
             -- The method for the adaptive phase estimation. Options are:  
             "DE" (default) -- DE algorithm for the adaptive phase estimation.    

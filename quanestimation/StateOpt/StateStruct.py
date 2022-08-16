@@ -98,9 +98,9 @@ class StateSystem:
             corresponding decay rate.
 
         > **dyn_method:** `string`
-            -- The method for solving the Lindblad dynamcs. Options are:
-            "expm" (default) -- matrix exponential.
-            "ode" -- ordinary differential equation solvers.  
+            -- Setting the method for solving the Lindblad dynamics. Options are:  
+            "expm" (default) -- Matrix exponential.  
+            "ode" -- Solving the differential equations directly.
         """
 
         self.tspan = tspan

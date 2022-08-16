@@ -89,6 +89,11 @@ class Adapt:
             `decay=[[Gamma1, gamma1], [Gamma2,gamma2],...]`, where `Gamma1 (Gamma2)` 
             represents the decay operator and `gamma1 (gamma2)` is the corresponding 
             decay rate.
+
+        > **dyn_method:** `string`
+            -- Setting the method for solving the Lindblad dynamics. Options are:  
+            "expm" (default) -- Matrix exponential.  
+            "ode" -- Solving the differential equations directly.
         """
 
         self.tspan = tspan
