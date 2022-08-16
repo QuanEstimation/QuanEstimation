@@ -30,7 +30,7 @@ opt = QuanEstimation.MeasurementOpt(mtype=:Rotation, POVM_basis=POVM_basis, seed
 alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
                         max_episode=1000, c=1.0, cr=0.5)
 # input the dynamics data
-dynamics = QuanEstimation.Lindblad(opt, tspan ,rho0, H0, dH, decay=decay)
+dynamics = QuanEstimation.Lindblad(opt, tspan ,rho0, H0, dH, decay=decay, dyn_method=:Expm)
 # objective function: CFI
 obj = QuanEstimation.CFIM_obj()
 # run the measurement optimization problem
@@ -41,7 +41,7 @@ QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 #                          max_episode=[1000,100], c0=1.0, c1=2.0, 
 #                          c2=2.0)
 # # input the dynamics data
-# dynamics = QuanEstimation.Lindblad(opt, tspan ,rho0, H0, dH, decay=decay)
+# dynamics = QuanEstimation.Lindblad(opt, tspan ,rho0, H0, dH, decay=decay, dyn_method=:Expm)
 # # objective function: CFI
 # obj = QuanEstimation.CFIM_obj()
 # # run the measurement optimization problem
@@ -51,7 +51,7 @@ QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 # alg = QuanEstimation.AD(Adam=false, max_episode=300, epsilon=0.01, 
 #                         beta1=0.90, beta2=0.99)
 # # input the dynamics data
-# dynamics = QuanEstimation.Lindblad(opt, tspan ,rho0, H0, dH, decay=decay)
+# dynamics = QuanEstimation.Lindblad(opt, tspan ,rho0, H0, dH, decay=decay, dyn_method=:Expm)
 # # objective function: CFI
 # obj = QuanEstimation.CFIM_obj()
 # # run the measurement optimization problem
