@@ -116,6 +116,11 @@ class MeasurementSystem:
             decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$,$\gamma_2$],...], where $\Gamma_1$ 
             $(\Gamma_2)$ represents the decay operator and $\gamma_1$ $(\gamma_2)$ is the 
             corresponding decay rate.
+
+        > **dyn_method:** `string`
+            -- Setting the method for solving the Lindblad dynamics. Options are:  
+            "expm" (default) -- Matrix exponential.  
+            "ode" -- Solving the differential equations directly.
         """
 
         self.tspan = tspan
