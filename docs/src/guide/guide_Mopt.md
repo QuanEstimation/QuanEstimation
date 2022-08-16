@@ -16,7 +16,8 @@ differential evolution (DE) [[2]](#Storn1997), and automatic differentiation (AD
     ``` py
     m = MeasurementOpt(mtype="projection", minput=[], savefile=False, 
                        method="DE", **kwargs)
-    m.dynamics(tspan, rho0, H0, dH, Hc=[], ctrl=[], decay=[])
+    m.dynamics(tspan, rho0, H0, dH, Hc=[], ctrl=[], decay=[], \
+               dyn_method="expm")
     m.CFIM(W=[])
     ```
     `mtype` represents the type of measurement optimization which defaults to `"projection"`. 
@@ -46,7 +47,9 @@ differential evolution (DE) [[2]](#Storn1997), and automatic differentiation (AD
     corresponding decay rates $(\gamma_1, \gamma_2, \cdots)$ with the input rule 
     decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...]. The default values for `decay`, 
     `Hc` and `ctrl` are empty which means the dynamics is unitary and only governed by the free 
-    Hamiltonian. 
+    Hamiltonian. `dyn_method="expm"` represents the method for solving the dynamics is 
+    matrix exponential, it can also be set as `dyn_method="ode"` which means the dynamics 
+    (differential equation) is directly solved with the ODE solvers.
 
     The objective function for measurement optimization are CFI and $\mathrm{Tr}(W\mathcal{I}^
     {-1})$ with $\mathcal{I}$ the CFIM. $W$ corresponds to `W` in the objective function is the 
@@ -57,7 +60,7 @@ differential evolution (DE) [[2]](#Storn1997), and automatic differentiation (AD
     opt = MeasurementOpt(mtype=:Projection, seed=1234)
     alg = DE(kwargs...)
     dynamics = Lindblad(opt, tspan, rho0, H0, dH; Hc=missing, 
-                        ctrl=missing, decay=missing)
+                        ctrl=missing, decay=missing, dyn_method=:Expm)
     obj = CFIM_obj(W=missing)
     run(opt, alg, obj, dynamics; savefile=false)
     ```
@@ -82,7 +85,9 @@ differential evolution (DE) [[2]](#Storn1997), and automatic differentiation (AD
     corresponding decay rates $(\gamma_1, \gamma_2, \cdots)$ with the input rule 
     decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...]. The default values for `decay`, 
     `Hc` and `ctrl` are `missing` which means the dynamics is unitary and only governed by the free 
-    Hamiltonian. 
+    Hamiltonian. `dyn_method=:Expm` represents the method for solving the dynamics is 
+    matrix exponential, it can also be set as `dyn_method=:Ode` which means the dynamics 
+    (differential equation) is directly solved with the ODE solvers.
 
     The objective function for measurement optimization are CFI and $\mathrm{Tr}(W\mathcal{I}^
     {-1})$ with $\mathcal{I}$ the CFIM. $W$ corresponds to `W` in the objective function is the 
@@ -462,7 +467,7 @@ $1$ $(-1)$.
 		    ```
     ``` py
     # input the dynamics data
-    m.dynamics(tspan, rho0, H0, dH, decay=decay)
+    m.dynamics(tspan, rho0, H0, dH, decay=decay, dyn_method="expm")
     # objective function: CFI
     m.CFIM()
     ```
@@ -561,7 +566,8 @@ $1$ $(-1)$.
             ```
     ``` jl
     # input the dynamics data
-    dynamics = QuanEstimation.Lindblad(opt, tspan ,rho0, H0, dH, decay=decay)
+    dynamics = QuanEstimation.Lindblad(opt, tspan ,rho0, H0, dH, 
+                                       decay=decay, dyn_method=:Expm)
     # objective function: CFI
     obj = QuanEstimation.CFIM_obj()
     # run the measurement optimization problem
@@ -724,7 +730,7 @@ Here three types of measurement optimization are considerd, projective measureme
 		    ```
     ``` py
     # input the dynamics data
-    m.dynamics(tspan, rho0, H0, dH, decay=decay)
+    m.dynamics(tspan, rho0, H0, dH, decay=decay, dyn_method="expm")
     # objective function: tr(WI^{-1})
     m.CFIM()
     ```
@@ -838,7 +844,8 @@ Here three types of measurement optimization are considerd, projective measureme
             ```
     ``` jl
     # input the dynamics data
-    dynamics = QuanEstimation.Lindblad(opt, tspan ,rho0, H0, dH, decay=decay)
+    dynamics = QuanEstimation.Lindblad(opt, tspan ,rho0, H0, dH, 
+                                       decay=decay, dyn_method=:Expm)
     # objective function: CFI
     obj = QuanEstimation.CFIM_obj()
     # run the measurement optimization problem

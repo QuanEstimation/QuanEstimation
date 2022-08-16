@@ -10,7 +10,8 @@ Call the following codes to perform state optimizaiton
 === "Python"
     ``` py
     state = StateOpt(savefile=False, method="AD", **kwargs)
-    state.dynamics(tspan, H0, dH, Hc=[], ctrl=[], decay=[])
+    state.dynamics(tspan, H0, dH, Hc=[], ctrl=[], decay=[], 
+                   dyn_method="expm")
     ```
     === "QFIM"
         ``` py
@@ -41,7 +42,9 @@ Call the following codes to perform state optimizaiton
     corresponding decay rates $(\gamma_1, \gamma_2, \cdots)$ with the input rule 
     decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...]. The default values for 
     `decay`, `Hc` and `ctrl` are empty which means the dynamics is unitary and only governed by 
-    the free Hamiltonian. 
+    the free Hamiltonian. `dyn_method="expm"` represents the method for solving the dynamics is 
+    matrix exponential, it can also be set as `dyn_method="ode"` which means the dynamics 
+    (differential equation) is directly solved with the ODE solvers.
 
     The objective functions for state optimization can be chosen as QFI $\left[\mathrm{Tr}
     (W\mathcal{F}^{-1})\right]$, CFI $\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]$ and HCRB, 
@@ -60,7 +63,7 @@ Call the following codes to perform state optimizaiton
     opt = StateOpt(psi=psi, seed=1234)
     alg = AD(kwargs...)
     dynamics = Lindblad(opt, tspan, H0, dH; Hc=missing, 
-                        ctrl=missing, decay=missing)
+                        ctrl=missing, decay=missing, dyn_method=:Expm)
     ```
     === "QFIM"
         ``` jl
@@ -90,15 +93,17 @@ Call the following codes to perform state optimizaiton
     decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...]. The default values for 
     `decay`, `Hc` and `ctrl` are `missing` which means the dynamics is unitary and only governed 
     by the free Hamiltonian. `seed` is the random seed which can ensure the reproducibility of 
-    results.
+    results. `dyn_method=:Expm` represents the method for solving the dynamics is 
+    matrix exponential, it can also be set as `dyn_method=:Ode` which means the dynamics 
+    (differential equation) is directly solved with the ODE solvers.
 
     The objective functions for state optimization can be set as QFI ($\mathrm{Tr}(W\mathcal{F}^
     {-1})$), CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$) and HCRB, the corresponding codes for them are
     `QFIM_obj()` (default), `CFIM_obj()` and `HCRB_obj()`. Here $\mathcal{F}$ and 
     $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight matrix which 
     defaults to the identity matrix. If the users call `HCRB_obj()` for single parameter 
-    scenario, the program will exit and print `"Program terminated. In the single-parameter scenario, the 
-    HCRB is equivalent to the QFI. Please choose 'QFIM_obj()' as the objective function"`.
+    scenario, the program will exit and print `"Program terminated. In the single-parameter scenario, 
+    the HCRB is equivalent to the QFI. Please choose 'QFIM_obj()' as the objective function"`.
     `LDtype` in `QFIM_obj()` represents the types of the QFIM, it can be set as `LDtype=:SLD` 
     (default), `LDtype=:RLD` and `LDtype=:LLD`. `M` represents a set of positive operator-valued 
     measure (POVM) with default value `missing`. In the package, a set of rank-one symmetric 
@@ -325,8 +330,8 @@ The code for state optimization with NM is as follows
     constants for reflection, expansion, constraction, and shrink, respectively.
 === "Julia"
     ``` jl
-    alg = NM(p_num=10, ini_state=missing, max_episode=1000, ar=1.0, ae=2.0, 
-             ac=0.5, as0=0.5)
+    alg = NM(p_num=10, ini_state=missing, max_episode=1000, ar=1.0, 
+             ae=2.0, ac=0.5, as0=0.5)
     ```
     The keywords and the default values of NM can be seen in the following 
     table
@@ -467,7 +472,7 @@ for generation of the spin coherent state.
 		```
     ``` py
     # input the dynamics data
-    state.dynamics(tspan, H0, dH, decay=decay)
+    state.dynamics(tspan, H0, dH, decay=decay, dyn_method="expm")
     ```
     === "QFIM"
         ``` py
@@ -591,7 +596,8 @@ for generation of the spin coherent state.
             ```
     ``` jl
     # input the dynamics data
-    dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay) 
+    dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay, 
+                                       dyn_method=:Expm) 
     # run the state optimization problem
     QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
     ```
@@ -634,7 +640,7 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
 		```
         ``` py
         # input the dynamics data
-        state.dynamics(tspan, H0, dH, decay=decay)
+        state.dynamics(tspan, H0, dH, decay=decay, dyn_method="expm")
         ```
         === "QFIM"
             ``` py
@@ -660,7 +666,7 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
 		```
         ``` py
         # input the dynamics data
-        state.dynamics(tspan, H0, dH, decay=decay)
+        state.dynamics(tspan, H0, dH, decay=decay, dyn_method="expm")
         ```
         === "QFIM"
             ``` py
@@ -686,7 +692,7 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
 		```
         ``` py
         # input the dynamics data
-        state.dynamics(tspan, H0, dH, decay=decay)
+        state.dynamics(tspan, H0, dH, decay=decay, dyn_method="expm")
         ```
         === "QFIM"
             ``` py
@@ -712,7 +718,7 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
 		```
         ``` py
         # input the dynamics data
-        state.dynamics(tspan, H0, dH, decay=decay)
+        state.dynamics(tspan, H0, dH, decay=decay, dyn_method="expm")
         ```
         === "QFIM"
             ``` py
@@ -738,7 +744,7 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
 		```
         ``` py
         # input the dynamics data
-        state.dynamics(tspan, H0, dH, decay=decay)
+        state.dynamics(tspan, H0, dH, decay=decay, dyn_method="expm")
         ```
         === "QFIM"
             ``` py
@@ -879,7 +885,8 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
             ```
     ``` jl
     # input the dynamics data
-    dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay) 
+    dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay, 
+                                       dyn_method=:Expm) 
     # run the state optimization problem
     QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
     ```

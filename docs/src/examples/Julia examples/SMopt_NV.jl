@@ -33,8 +33,8 @@ Hc = [S1, S2, S3]
 decay = [[S3, 2pi/cons]]
 # generation of a set of POVM basis
 dim = size(rho0, 1)
-POVM_basis = [QuanEstimation.basis(dim, i)*QuanEstimation.basis(dim, i)' 
-              for i in 1:dim]
+M = [QuanEstimation.basis(dim, i)*QuanEstimation.basis(dim, i)' 
+     for i in 1:dim]
 # time length for the evolution
 tspan = range(0., 2., length=4000)
 # choose the optimization type
@@ -44,7 +44,7 @@ opt = QuanEstimation.SMopt(seed=1234)
 ##-------------algorithm: DE---------------------##
 alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
 # input the dynamics data
-dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)   
+dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay, dyn_method=:Expm)   
 # objective function: CFI
 obj = QuanEstimation.CFIM_obj(M=M) 
 # run the comprehensive optimization problem
@@ -54,7 +54,7 @@ QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 # alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
 #                          c1=2.0, c2=2.0)
 # # input the dynamics data
-# dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)   
+# dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay, dyn_method=:Expm)   
 # # objective function: CFI
 # obj = QuanEstimation.CFIM_obj(M=M) 
 # # run the comprehensive optimization problem
