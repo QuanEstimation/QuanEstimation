@@ -17,13 +17,28 @@ is calculated via
 +e^{\Delta t \mathcal{L}}(\partial_{\textbf{x}}\rho_{j-1}),$ </center> <br>
 where $\rho_{j-1}$ is the evolved density matrix at $(j-1)$th time interval.
 
+The dynamics can also be solved by the ordinary differential equation (ODE) solvers, thus 
+$\rho$ and $\partial_{\textbf{x}}\rho$ are obtained via directly solving the differential equations.
+Here, $\partial_{\textbf{x}}\rho$ satisfies
+
+\begin{align}
+\partial_t(\partial_{\textbf{x}}\rho) =-i[\partial_{\textbf{x}}H,\rho] + \mathcal{L}(\partial_{\textbf{x}}\rho).
+\end{align}
+
 The evolved density matrix $\rho$ and its derivatives ($\partial_{\textbf{x}}\rho$) with 
-respect to $\textbf{x}$ can be calculated via the codes
+respect to $\textbf{x}$ can be calculata the codes
 === "Python"
     ``` py
     dynamics = Lindblad(tspan, rho0, H0, dH, decay=[], Hc=[], ctrl=[])
-    rho, drho = dynamics.expm()
     ```
+    === "expm"
+        ```
+        rho, drho = dynamics.expm()
+        ```
+    === "ode"
+        ```
+        rho, drho = dynamics.ode()
+        ```
     Here `tspan` is the time length for the evolution, `rho0` represents the density matrix of 
     the probe state, `H0` and `dH` are the free Hamiltonian and its derivatives with respect to 
     the unknown parameters to be estimated. The variable `H0` is a matrix when the free Hamiltonian 
@@ -38,15 +53,21 @@ respect to $\textbf{x}$ can be calculated via the codes
     coefficients. The default values for `decay`, `Hc` and `ctrl` are `[]` which means the 
     dynamics is unitary and only governed by the free Hamiltonian.
 
-    The output (`rho` and `drho`) of this class by calling `dynamics.expm()` are two lists with 
-    the length equal to `tspan`. Here `rho` represents the parameterized density matrix and `drho` 
-    is the corresponding derivatives with respect to all the parameters, the $i$th entry of `drho` 
-    is $[\partial_a{\rho},\partial_b{\rho},\cdots].$
+    The output (`rho` and `drho`) of this class by calling `dynamics.expm()` (`dynamics.ode()`) are 
+    two lists with the length equal to `tspan`. Here `rho` represents the parameterized density 
+    matrix and `drho` is the corresponding derivatives with respect to all the parameters, the $i$th 
+    entry of `drho` is $[\partial_a{\rho},\partial_b{\rho},\cdots].$
 === "Julia"
-    ``` jl
-    rho, drho = expm(tspan, rho0, H0, dH, decay=missing, Hc=missing, 
-                     ctrl=missing)
-    ```
+    === "expm"
+        ``` jl
+        rho, drho = expm(tspan, rho0, H0, dH, decay=missing, Hc=missing, 
+                         ctrl=missing)
+        ```
+    === "ode"
+        ``` jl
+        rho, drho = ode(tspan, rho0, H0, dH, decay=missing, Hc=missing, 
+                        ctrl=missing)
+        ```
     Here `tspan` is the time length for the evolution, `rho0` represents the density matrix of 
     the probe state, `H0` and `dH` are the free Hamiltonian and its derivatives with respect to 
     the unknown parameters to be estimated. The variable `H0` is a matrix when the free Hamiltonian 
@@ -60,7 +81,7 @@ respect to $\textbf{x}$ can be calculated via the codes
     and the corresponding control coefficients. The default values for `decay`, `Hc` and `ctrl` 
     are `missing` which means the dynamics is unitary and only governed by the free Hamiltonian.
 
-    The output (`rho` and `drho`) of this function by calling `expm()` are two lists with 
+    The output (`rho` and `drho`) of this function by calling `expm()` (`ode()`) are two lists with 
     the length equal to `tspan`. Here `rho` represents the parameterized density matrix and `drho` 
     is the corresponding derivatives with respect to all the parameters, the $i$th entry of `drho` 
     is $[\partial_a{\rho},\partial_b{\rho},\cdots].$

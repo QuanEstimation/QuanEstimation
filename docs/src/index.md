@@ -4,9 +4,10 @@ figure
 
 <figure markdown>
   ![Image title](Fig_schematic.png){ width="800" }
-  <figcaption>The package structure of QuanEstimation. The blue boxes, white boxes with blue 
-  edges, white boxes with orange boxes and gray boxes are folders, files, classes and functions in 
-  Python. The gray boxes with dotted orange boundaries represents the methods that solved in Julia.
+  <figcaption>The package structure of QuanEstimation. The blue boxes and the light blue boxes reprsent
+  the folders and the python files. The orange boxes and the gray boxes represent the classes and the 
+  functions. In the figure, the functions which are circled by dotted lines represent the wrapped Julia 
+  methods that are calculated in Julia.
   </figcaption>
 </figure>
 

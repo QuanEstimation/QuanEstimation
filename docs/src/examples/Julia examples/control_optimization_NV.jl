@@ -56,12 +56,12 @@ opt = QuanEstimation.ControlOpt(ctrl=ini_1, ctrl_bound=[-0.2, 0.2], seed=1234)
 
 ##==========choose measurement optimization algorithm==========##
 ##-------------algorithm: auto-GRAPE---------------------##
-alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=10, epsilon=0.01, 
+alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=300, epsilon=0.01, 
                                beta1=0.90, beta2=0.99)
 
 ##-------------algorithm: PSO---------------------##
 # alg = QuanEstimation.PSO(p_num=10, ini_particle=(ctrl0,), 
-#                          max_episode=[10,10], c0=1.0, 
+#                          max_episode=[1000,100], c0=1.0, 
 #                          c1=2.0, c2=2.0)
 
 ##-------------algorithm: DE---------------------##
@@ -69,14 +69,14 @@ alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=10, epsilon=0.01,
 #                         max_episode=1000, c=1.0, cr=0.5)
 
 ##-------------algorithm: DDPG---------------------##
-# alg = QuanEstimation.DDPG(max_episode=50, layer_num=4, layer_dim=220)
+# alg = QuanEstimation.DDPG(max_episode=500, layer_num=4, layer_dim=220)
 
 ##===================choose objective function===================##
 ##-------------objective function: QFI---------------------##
 # # objective function: tr(WF^{-1})
 # obj = QuanEstimation.QFIM_obj()
 # # input the dynamics data
-# dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay)
+# dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay, dyn_method=:Expm)
 # # run the control optimization problem
 # QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 
@@ -84,7 +84,7 @@ alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=10, epsilon=0.01,
 # objective function: tr(WI^{-1})
 obj = QuanEstimation.CFIM_obj(M=M)
 # input the dynamics data
-dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay)  
+dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay, dyn_method=:Expm)  
 # run the control optimization problem
 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 
@@ -92,6 +92,6 @@ QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 # # objective function: HCRB
 # obj = QuanEstimation.HCRB_obj()
 # # input the dynamics data
-# dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay)  
+# dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay, dyn_method=:Expm)  
 # # run the control optimization problem
 # QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)

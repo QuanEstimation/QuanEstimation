@@ -6,9 +6,10 @@ Hamiltonian work at the optimal point $\textbf{x}_{\mathrm{opt}}$. In this scena
 the adaptive estimation can be excuted through
 === "Python"
     ``` py
-    apt = Adapt(x, p, rho0, method="FOP", savefile=False, max_episode=1000, 
-                   eps=1e-8)
-    apt.dynamics(tspan, H, dH, Hc=[], ctrl=[], decay=[])               
+    apt = Adapt(x, p, rho0, method="FOP", savefile=False, 
+                max_episode=1000, eps=1e-8)
+    apt.dynamics(tspan, H, dH, Hc=[], ctrl=[], decay=[], 
+                 dyn_method="expm")               
     apt.CFIM(M=[], W=[]) 
     ```
     where `x` is a list of arrays representing the regime of the parameters for the integral, 
@@ -20,15 +21,21 @@ the adaptive estimation can be excuted through
     generated. The package contains two mothods for updating the tunable parameters. The first one is 
     updating the tunable parameters with a fix optimal point (`mtheod="FOP"`), which is the default 
     method in QuanEstimation. The other is `method="MI"` which means updating the tunable parameters 
-    by maximizing the mutual information. If `savefile=True`, these files will be generated during the 
-    training and "pout.npy" 
-    will save all the posterior distributions, otherwise, the posterior distribution in the final 
-    iteration will be saved. 
+    by maximizing the mutual information which is defined as
+    
+    \begin{equation}
+    I(\textbf{u})=\int\mathrm{p}(\textbf{x}) \sum_{y}\mathrm{p}(y|\textbf{x},\textbf{u})\mathrm{log}_2 
+    \left[\frac{\mathrm{p}(y|\textbf{x},\textbf{u})}{\int\mathrm{p}(\textbf{x})\mathrm{p}(y|\textbf{x},\textbf{u})\mathrm{d}\textbf{x}}\right]\mathrm{d}\textbf{x}.
+    \end{equation}
+
+    If `savefile=True`, these files will be generated during the 
+    training and "pout.npy" will save all the posterior distributions, otherwise, the posterior 
+    distribution in the final iteration will be saved. 
 === "Julia"
     ``` jl
-    Adapt(x, p, rho0, tspan, H, dH; method="FOP", savefile=false, 
-             max_episode=1000, eps=1e-8, Hc=missing, ctrl=missing, 
-             decay=missing, M=missing, W=missing)
+    Adapt(x, p, rho0, tspan, H, dH; dyn_method=:Expm, method="FOP", 
+          savefile=false, max_episode=1000, eps=1e-8, Hc=missing, 
+          ctrl=missing, decay=missing, M=missing, W=missing)
     ```
     where `x` is a list of arrays representing the regime of the parameters for the integral, 
     `p` is an array representing the prior distribution, it is multidimensional for multiparameter
@@ -39,7 +46,14 @@ the adaptive estimation can be excuted through
     generated. The package contains two mothods for updating the tunable parameters. The first one is 
     updating the tunable parameters with a fix optimal point (`mtheod="FOP"`), which is the default 
     method in QuanEstimation. The other is `method="MI"` which means updating the tunable parameters 
-    by maximizing the mutual information. If `savefile=true`, these files will be generated during the training and "pout.csv" 
+    by maximizing the mutual information which is defined as
+    
+    \begin{equation}
+    I(\textbf{u})=\int\mathrm{p}(\textbf{x}) \sum_{y}\mathrm{p}(y|\textbf{x},\textbf{u})\mathrm{log}_2 
+    \left[\frac{\mathrm{p}(y|\textbf{x},\textbf{u})}{\int\mathrm{p}(\textbf{x})\mathrm{p}(y|\textbf{x},\textbf{u})\mathrm{d}\textbf{x}}\right]\mathrm{d}\textbf{x}.
+    \end{equation}
+    
+    If `savefile=true`, these files will be generated during the training and "pout.csv" 
     will save all the posterior distributions, otherwise, the posterior distribution in the final 
     iteration will be saved. 
 If the dynamics of the system can be described by the master equation, then the dynamics data 
@@ -67,14 +81,16 @@ The objective function for adaptive measurement are CFI and $\mathrm{Tr}(W\mathc
 If the parameterization is implemented with the Kraus operators, the codes become
 === "Python"
     ``` py
-    apt = Adapt(x, p, rho0, savefile=False, max_episode=1000, eps=1e-8)
+    apt = Adapt(x, p, rho0, method="FOP", savefile=False,  
+                max_episode=1000, eps=1e-8)
     apt.Kraus(K, dK)               
     apt.CFIM(M=[], W=[]) 
     ```
 === "Julia"
     ``` jl
-    Adapt(x, p, rho0, K, dK; savefile=false, max_episode=1000, eps=1e-8, 
-             Hc=missing, ctrl=missing, decay=missing, M=missing, W=missing)
+    Adapt(x, p, rho0, K, dK; method="FOP", savefile=false, 
+          max_episode=1000, eps=1e-8, Hc=missing, ctrl=missing, 
+          decay=missing, M=missing, W=missing)
     ```
 and 
 === "Python"
@@ -141,8 +157,9 @@ $\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}
     # generation of H and dH
     H, dH = BayesInput([x], H0_func, dH_func, channel="dynamics")
     # adaptive measurement
-    apt = Adapt([x], pout, rho0, savefile=False, max_episode=100, eps=1e-8)
-    apt.dynamics(tspan, H, dH)
+    apt = Adapt([x], pout, rho0, method="FOP", savefile=False, 
+                max_episode=100, eps=1e-8)
+    apt.dynamics(tspan, H, dH, dyn_method="expm")
     apt.CFIM(M=M, W=[])
     ```
 === "Julia"
@@ -195,8 +212,8 @@ $\{|\!+\rangle\langle+\!|,|\!-\rangle\langle-\!|\}$. Here $|\pm\rangle:=\frac{1}
     H, dH = QuanEstimation.BayesInput([x], H0_func, dH_func; 
                                       channel="dynamics")
     # adaptive measurement
-    QuanEstimation.Adapt([x], pout, rho0, tspan, H, dH; M=M, 
-                            max_episode=100)
+    QuanEstimation.Adapt([x], pout, rho0, tspan, H, dH; M=M, dyn_method=:Expm, 
+                         method="FOP", max_episode=100)
     ```
 ---
 Berry et al. [[1,2]](#Berry2000) introduced a famous adaptive scheme in phase estimation. The 
@@ -208,22 +225,26 @@ in QuanEstimation via
     ``` py
     apt = Adapt_MZI(x, p, rho0)
     apt.general()
-    apt.online(output="phi")
+    apt.online(target="sharpness", output="phi")
     ```
-    Here `x`, `p`, and `rho0` are the same with `Adapt`. The output can be set through 
-    `output="phi"` (default) and `output="dphi"` representing the phase and phase difference, 
-    respectively. Online and offline strategies are both available in the package and the code 
-    for calling offline stratege becomes `apt.offline(method="DE", **kwargs)` or 
+    Here `x`, `p`, and `rho0` are the same with `Adapt`. `target="sharpness"` represents the
+    target function for calculating the tunable phase is sharpness, and it can also be set as 
+    `target="MI"` which means the target function is mutual information. The output can be set 
+    through `output="phi"` (default) and `output="dphi"` representing the phase and phase 
+    difference, respectively. Online and offline strategies are both available in the package 
+    and the code for calling offline stratege becomes `apt.offline(method="DE", **kwargs)` or 
     `apt.offline(method="PSO", **kwargs)`. 
 === "Julia"
     ``` jl
     apt = Adapt_MZI(x, p, rho0)
-    online(apt, output="phi")
+    online(apt, target=:sharpness, output="phi")
     ```
-    Here `x`, `p`, and `rho0` are the same with `Adapt`. The output can be set through 
-    `output="phi"` (default) and `output="dphi"` representing the phase and phase difference, 
-    respectively. Online and offline strategies are both available in the package and the code 
-    for calling offline stratege becomes `alg = QuanEstimation.DE(kwargs...)` 
+    Here `x`, `p`, and `rho0` are the same with `Adapt`. `target=:sharpness` represents the
+    target function for calculating the tunable phase is sharpness, and it can also be set as 
+    `target=:MI` which means the target function is mutual information. The output can be set 
+    through `output="phi"` (default) and `output="dphi"` representing the phase and phase 
+    difference, respectively. Online and offline strategies are both available in the package 
+    and the code for calling offline stratege becomes `alg = QuanEstimation.DE(kwargs...)` 
     (`alg = QuanEstimation.PSO(kwargs...)`) and `offline(apt, alg, seed=seed)`. 
     `seed` is the random seed which can ensure the reproducibility of results.
 
@@ -348,20 +369,20 @@ $m$.
     ```
     === "online"
         ``` py
-        apt.online(output="phi")
+        apt.online(target="sharpness", output="phi")
         ```
     === "offline"
         === "DE"
             ``` py
             DE_para = {"p_num":10, "deltaphi0":[], "max_episode":1000, "c":1.0, 
                        "cr":0.5, "seed":1234}
-            apt.offline(method="DE", **DE_para)
+            apt.offline(target="sharpness", method="DE", **DE_para)
             ```
         === "PSO"
             ``` py
             PSO_para = {"p_num":10, "deltaphi0":[], "max_episode":[1000,100], 
                         "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
-            apt.offline(method="PSO", **PSO_para)
+            apt.offline(target="sharpness", method="PSO", **PSO_para)
             ```
 === "Julia"
     ``` jl
@@ -382,21 +403,21 @@ $m$.
     ```
     === "online"
         ``` py
-        QuanEstimation.online(apt, output="phi")
+        QuanEstimation.online(apt, target=:sharpness, output="phi")
         ```
     === "offline"
         === "DE"
             ``` jl
             alg = QuanEstimation.DE(p_num=10, ini_population=missing, 
                                     max_episode=1000, c=1.0, cr=0.5)
-            QuanEstimation.offline(apt, alg, seed=1234)
+            QuanEstimation.offline(apt, alg, target=:sharpness, seed=1234)
             ```
         === "PSO"
             ``` jl
             alg = QuanEstimation.PSO(p_num=10, ini_particle=missing,  
                                      max_episode=[1000,100], c0=1.0, 
                                      c1=2.0, c2=2.0)
-            QuanEstimation.offline(apt, alg, seed=1234)
+            QuanEstimation.offline(apt, alg, target=:sharpness, seed=1234)
             ```
 ---
 

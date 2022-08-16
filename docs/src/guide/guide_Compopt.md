@@ -9,7 +9,8 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
 === "Python"
     ``` py
     com = ComprehensiveOpt(savefile=False, method="DE", **kwargs)
-    com.dynamics(tspan, H0, dH, Hc=[], ctrl=[], decay=[], ctrl_bound=[])
+    com.dynamics(tspan, H0, dH, Hc=[], ctrl=[], decay=[], ctrl_bound=[], 
+                 dyn_method="expm")
     ```
     === "SM"
         ``` py
@@ -48,7 +49,9 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
     dynamics is unitary and only governed by the free Hamiltonian. `ctrl_bound`is an array with two 
     elements representing the lower and upper bound of the control coefficients, respectively. The 
     default value of `ctrl_bound=[]` which means the control coefficients are in the regime 
-    $[-\infty,\infty]$.
+    $[-\infty,\infty]$. `dyn_method="expm"` represents the method for solving the dynamics is 
+    matrix exponential, it can also be set as `dyn_method="ode"` which means the dynamics 
+    (differential equation) is directly solved with the ODE solvers.
 
     QuanEstimation contains four comprehensive optimizations which are `com.SM()`, `com.SC()`,
     `com.CM()` and `com.SCM()`. The `target` in `com.SC()` can be set as `target="QFIM"` (default), 
@@ -66,8 +69,8 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
         ``` jl
         opt = SMopt(psi=psi, M=M, seed=1234)
         alg = DE(kwargs...)
-        dynamics = Lindblad(opt, tspan, H0, dH; Hc=missing, 
-                            ctrl=missing, decay=missing)  
+        dynamics = Lindblad(opt, tspan, H0, dH; Hc=missing, ctrl=missing, 
+                            decay=missing, dyn_method=:Expm)  
         obj = CFIM_obj(W=missing)
         run(opt, alg, obj, dynamics; savefile=false)
         ```
@@ -75,7 +78,8 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
         ``` jl
         opt = SCopt(psi=psi, ctrl=ctrl, ctrl_bound=ctrl_bound, seed=1234)
         alg = DE(kwargs...)
-        dynamics = Lindblad(opt, tspan, H0, dH, Hc; decay=missing)
+        dynamics = Lindblad(opt, tspan, H0, dH, Hc; decay=missing, 
+                            dyn_method=:Expm)
         ```
         === "QFIM"
             ``` jl
@@ -96,7 +100,8 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
         ``` jl
         opt = CMopt(ctrl=ctrl, M=M, ctrl_bound=ctrl_bound, seed=1234)
         alg = DE(kwargs...)
-        dynamics = Lindblad(opt, tspan, H0, dH, Hc; decay=missing)
+        dynamics = Lindblad(opt, tspan, H0, dH, Hc; decay=missing,
+                            dyn_method=:Expm)
         obj = CFIM_obj(W=missing)
         run(opt, alg, obj, dynamics; savefile=false)
         ```
@@ -104,7 +109,8 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
         ``` jl
         opt = SCMopt(psi=psi, ctrl=ctrl, M=M, ctrl_bound=ctrl_bound, seed=1234)
         alg = DE(kwargs...)
-        dynamics = Lindblad(opt, tspan, H0, dH, Hc; decay=missing)
+        dynamics = Lindblad(opt, tspan, H0, dH, Hc; decay=missing, 
+                            dyn_method=:Expm)
         obj = CFIM_obj(W=missing)
         run(opt, alg, obj, dynamics; savefile=false)
         ```
@@ -126,8 +132,8 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
     {-1})$), CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$) and HCRB, respectively. Here $\mathcal{F}$ 
     and $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight matrix which 
     defaults to the identity matrix. If the users set `HCRB_obj()` for single parameter scenario, 
-    the program will exit and print `"Program terminated. In the single-parameter scenario, the HCRB is 
-    equivalent to the QFI. Please choose 'QFIM_obj()' as the objective function"`. `LDtype` 
+    the program will exit and print `"Program terminated. In the single-parameter scenario, the 
+    HCRB is equivalent to the QFI. Please choose 'QFIM_obj()' as the objective function"`. `LDtype` 
     represents the types of the QFIM, it can be set as `LDtype=:SLD` (default), `LDtype=:RLD` 
     and `LDtype=:LLD`. For the other three scenarios, the objective function is `CFIM_obj()`.
     
@@ -140,7 +146,9 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
     control Hamiltonians and the corresponding control coefficients.`decay` contains decay 
     operators $(\Gamma_1, \Gamma_2, \cdots)$ and the corresponding decay rates $(\gamma_1, 
     \gamma_2, \cdots)$ with the input rule decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, 
-    $\gamma_2$],...]. 
+    $\gamma_2$],...]. `dyn_method=:Expm` represents the method for solving the dynamics is 
+    matrix exponential, it can also be set as `dyn_method=:Ode` which means the dynamics 
+    (differential equation) is directly solved with the ODE solvers.
 
     The variable `savefile` means whether to save all the optimized variables (probe states, 
     control coefficients and measurements). If set `true` then the optimized variables and the 
@@ -373,7 +381,7 @@ In this case, we consider two types of comprehensive optimization, the first one
             DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
                         "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
-            com.dynamics(tspan, H0, dH, decay=decay)
+            com.dynamics(tspan, H0, dH, decay=decay, dyn_method="expm")
             com.SM()
             ```
         === "PSO"
@@ -383,7 +391,7 @@ In this case, we consider two types of comprehensive optimization, the first one
                          "measurement0":[], "max_episode":[1000,100], "c0":1.0, \
                          "c1":2.0, "c2":2.0, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
-            com.dynamics(tspan, H0, dH, decay=decay)
+            com.dynamics(tspan, H0, dH, decay=decay, dyn_method="expm")
             com.SM()
             ```
     === "SC"
@@ -393,7 +401,8 @@ In this case, we consider two types of comprehensive optimization, the first one
             DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
                         "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
-            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0])
+            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0], \
+                         dyn_method="expm")
             ```
             === "QFIM"
                 ``` py
@@ -410,7 +419,8 @@ In this case, we consider two types of comprehensive optimization, the first one
                          "measurement0":[], "max_episode":[1000,100], "c0":1.0, \
                          "c1":2.0, "c2":2.0, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
-            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0])
+            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0], \
+                         dyn_method="expm")
             ```
             === "QFIM"
                 ``` py
@@ -426,7 +436,8 @@ In this case, we consider two types of comprehensive optimization, the first one
             AD_paras = {"Adam":False, "psi0":[], "ctrl0":[], "measurement0":[], \
                         "max_episode":300, "epsilon":0.01, "beta1":0.90, "beta2":0.99}
             com = ComprehensiveOpt(savefile=False, method="AD", **AD_paras)
-            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0])
+            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0], \
+                         dyn_method="expm")
             ```
             === "QFIM"
                 ``` py
@@ -443,7 +454,8 @@ In this case, we consider two types of comprehensive optimization, the first one
             DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
                         "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
-            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0])
+            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0], \
+                         dyn_method="expm")
             com.CM(rho0)
             ```
         === "PSO"
@@ -453,7 +465,8 @@ In this case, we consider two types of comprehensive optimization, the first one
                          "measurement0":[], "max_episode":[1000,100], "c0":1.0, \
                          "c1":2.0, "c2":2.0, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
-            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0])
+            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0], \
+                         dyn_method="expm")
             com.CM(rho0)
             ```
     === "SCM"
@@ -463,7 +476,8 @@ In this case, we consider two types of comprehensive optimization, the first one
             DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
                         "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
-            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0])
+            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0], \
+                         dyn_method="expm")
             com.SCM()
             ```
         === "PSO"
@@ -473,7 +487,8 @@ In this case, we consider two types of comprehensive optimization, the first one
                          "measurement0":[], "max_episode":[1000,100], "c0":1.0, \
                          "c1":2.0, "c2":2.0, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
-            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0])
+            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0], \
+                         dyn_method="expm")
             com.SCM()
             ```
 === "Julia"
@@ -514,7 +529,8 @@ In this case, we consider two types of comprehensive optimization, the first one
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj(M=M)
             # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)
+            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay, 
+                                               dyn_method=:Expm)
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
@@ -526,7 +542,8 @@ In this case, we consider two types of comprehensive optimization, the first one
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj(M=M) 
             # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)   
+            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay, 
+                                               dyn_method=:Expm)   
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
@@ -544,7 +561,8 @@ In this case, we consider two types of comprehensive optimization, the first one
                 # objective function: QFI
                 obj = QuanEstimation.QFIM_obj()
                 # input the dynamics data
-                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, 
+                                                   dyn_method=:Expm) 
                 # run the comprehensive optimization problem
                 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
@@ -553,7 +571,8 @@ In this case, we consider two types of comprehensive optimization, the first one
                 # objective function: CFI
                 obj = QuanEstimation.CFIM_obj(M=M) 
                 # input the dynamics data
-                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, 
+                                                   dyn_method=:Expm) 
                 # run the comprehensive optimization problem
                 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
@@ -568,7 +587,8 @@ In this case, we consider two types of comprehensive optimization, the first one
                 # objective function: QFI
                 obj = QuanEstimation.QFIM_obj() 
                 # input the dynamics data
-                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, 
+                                                   dyn_method=:Expm) 
                 # run the comprehensive optimization problem
                 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
@@ -577,7 +597,8 @@ In this case, we consider two types of comprehensive optimization, the first one
                 # objective function: CFI
                 obj = QuanEstimation.CFIM_obj(M=M) 
                 # input the dynamics data
-                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, 
+                                                   dyn_method=:Expm) 
                 # run the comprehensive optimization problem
                 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
@@ -592,7 +613,8 @@ In this case, we consider two types of comprehensive optimization, the first one
                 # objective function: QFI
                 obj = QuanEstimation.QFIM_obj() 
                 # input the dynamics data
-                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, 
+                                                   dyn_method=:Expm) 
                 # run the comprehensive optimization problem
                 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
@@ -601,7 +623,8 @@ In this case, we consider two types of comprehensive optimization, the first one
                 # objective function: CFI
                 obj = QuanEstimation.CFIM_obj(M=M) 
                 # input the dynamics data
-                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, 
+                                                   dyn_method=:Expm) 
                 # run the comprehensive optimization problem
                 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
@@ -616,8 +639,8 @@ In this case, we consider two types of comprehensive optimization, the first one
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj(M=M) 
             # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH,  
-                                               Hc, decay=decay) 
+            dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc,   
+                                               decay=decay, dyn_method=:Expm) 
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
@@ -629,8 +652,8 @@ In this case, we consider two types of comprehensive optimization, the first one
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj(M=M) 
             # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH,  
-                                               Hc, decay=decay)  
+            dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc,  
+                                               decay=decay, dyn_method=:Expm)  
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
@@ -645,7 +668,8 @@ In this case, we consider two types of comprehensive optimization, the first one
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj(M=M) 
             # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)  
+            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, 
+                                               dyn_method=:Expm)  
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
@@ -657,7 +681,8 @@ In this case, we consider two types of comprehensive optimization, the first one
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj(M=M)
             # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)  
+            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, 
+                                               dyn_method=:Expm)  
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
@@ -749,7 +774,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
                         "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
-            com.dynamics(tspan, H0, dH, decay=decay)
+            com.dynamics(tspan, H0, dH, decay=decay, dyn_method="expm")
             com.SM()
             ```
         === "PSO"
@@ -759,7 +784,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                          "measurement0":[], "max_episode":[1000,100], "c0":1.0, \
                          "c1":2.0, "c2":2.0, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
-            com.dynamics(tspan, H0, dH, decay=decay)
+            com.dynamics(tspan, H0, dH, decay=decay, dyn_method="expm")
             com.SM()
             ```
     === "SC"
@@ -770,7 +795,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                         "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl=[ctrl0], \
-                         ctrl_bound=[-0.2,0.2])
+                         ctrl_bound=[-0.2,0.2], dyn_method="expm")
             ```
             === "QFIM"
                 ``` py
@@ -795,7 +820,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                          "c1":2.0, "c2":2.0, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl=[ctrl0], \
-                         ctrl_bound=[-0.2,0.2])
+                         ctrl_bound=[-0.2,0.2], dyn_method="expm")
             ```
             === "QFIM"
                 ``` py
@@ -819,7 +844,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                         "max_episode":300, "epsilon":0.01, "beta1":0.90, "beta2":0.99}
             com = ComprehensiveOpt(savefile=False, method="AD", **AD_paras)
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl=[ctrl0], \
-                         ctrl_bound=[-0.2,0.2])
+                         ctrl_bound=[-0.2,0.2], dyn_method="expm")
             ```
             === "QFIM"
                 ``` py
@@ -838,7 +863,8 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
                         "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
-            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-0.2,0.2])
+            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-0.2,0.2], \
+                         dyn_method="expm")
             com.CM(rho0)
             ```
         === "PSO"
@@ -848,7 +874,8 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                          "measurement0":[], "max_episode":[1000,100], "c0":1.0, \
                          "c1":2.0, "c2":2.0, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
-            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-0.2,0.2])
+            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-0.2,0.2], \  
+                         dyn_method="expm")
             com.CM(rho0)
             ```
     === "SCM"
@@ -858,7 +885,8 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             DE_paras = {"p_num":10, "psi0":[], "ctrl0":[], "measurement0":[], \
                         "max_episode":1000, "c":1.0, "cr":0.5, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
-            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-0.2,0.2])
+            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-0.2,0.2], \
+                         dyn_method="expm")
             com.SCM()
             ```
         === "PSO"
@@ -868,7 +896,8 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                          "measurement0":[], "max_episode":[1000,100], "c0":1.0, \
                          "c1":2.0, "c2":2.0, "seed":1234}
             com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
-            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-0.2,0.2])
+            com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-0.2,0.2], \
+                         dyn_method="expm")
             com.SCM()
             ```
 === "Julia"
@@ -928,7 +957,8 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj(M=M) 
             # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay)   
+            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay, 
+                                               dyn_method=:Expm)   
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
@@ -940,7 +970,8 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj(M=M) 
             # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay) 
+            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay, 
+                                               dyn_method=:Expm) 
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
@@ -958,7 +989,8 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                 # objective function: tr(WF^{-1})
                 obj = QuanEstimation.QFIM_obj() 
                 # input the dynamics data
-                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, 
+                                                   dyn_method=:Expm) 
                 # run the comprehensive optimization problem
                 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
@@ -967,7 +999,8 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                 # objective function: tr(WI^{-1})
                 obj = QuanEstimation.CFIM_obj(M=M) 
                 # input the dynamics data
-                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, 
+                                                   dyn_method=:Expm) 
                 # run the comprehensive optimization problem
                 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
@@ -976,7 +1009,8 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                 # objective function: HCRB
                 obj = QuanEstimation.HCRB_obj() 
                 # input the dynamics data
-                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, 
+                                                   dyn_method=:Expm) 
                 # run the comprehensive optimization problem
                 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
@@ -991,7 +1025,8 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                 # objective function: tr(WF^{-1})
                 obj = QuanEstimation.QFIM_obj() 
                 # input the dynamics data
-                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, 
+                                                   dyn_method=:Expm)
                 # run the comprehensive optimization problem
                 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
@@ -1000,7 +1035,8 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                 # objective function: tr(WI^{-1})
                 obj = QuanEstimation.CFIM_obj(M=M) 
                 # input the dynamics data
-                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, 
+                                                   dyn_method=:Expm)
                 # run the comprehensive optimization problem
                 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
@@ -1009,7 +1045,8 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                 # objective function: HCRB
                 obj = QuanEstimation.HCRB_obj() 
                 # input the dynamics data
-                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, 
+                                                   dyn_method=:Expm)
                 # run the comprehensive optimization problem
                 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
@@ -1024,7 +1061,8 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                 # objective function: tr(WF^{-1})
                 obj = QuanEstimation.QFIM_obj()
                 # input the dynamics data
-                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, 
+                                                   dyn_method=:Expm) 
                 # run the comprehensive optimization problem
                 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false) 
                 ```
@@ -1033,7 +1071,8 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                 # objective function: tr(WI^{-1})
                 obj = QuanEstimation.CFIM_obj(M=M) 
                 # input the dynamics data
-                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay) 
+                dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, 
+                                                   dyn_method=:Expm) 
                 # run the comprehensive optimization problem
                 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
                 ```
@@ -1049,7 +1088,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             obj = QuanEstimation.CFIM_obj()
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc,  
-                                               decay=decay)    
+                                               decay=decay, dyn_method=:Expm)    
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
@@ -1062,7 +1101,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             obj = QuanEstimation.CFIM_obj() 
             # input the dynamics data
             dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, 
-                                               decay=decay)  
+                                               decay=decay, dyn_method=:Expm)  
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
@@ -1077,7 +1116,8 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj() 
             # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)   
+            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, 
+                                               dyn_method=:Expm)   
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```
@@ -1089,7 +1129,8 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj() 
             # input the dynamics data
-            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay)   
+            dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, 
+                                               dyn_method=:Expm)   
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
             ```

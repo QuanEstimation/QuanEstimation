@@ -20,7 +20,8 @@ differential evolution (DE) [[6]](#Storn1997) and deep deterministic policy grad
 === "Python"
 	```py
 	control = ControlOpt(savefile=False, method="auto-GRAPE", **kwargs)
-	control.dynamics(tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[])
+	control.dynamics(tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[], 
+	                 dyn_method="expm")
 	```
 	=== "QFIM"
 		``` py
@@ -56,7 +57,9 @@ differential evolution (DE) [[6]](#Storn1997) and deep deterministic policy grad
 	bounded control problems by setting lower and upper bounds of the control coefficients via 
 	`ctrl_bound`, which is an array with two elements representing the lower and upper bound of 
 	each control coefficient, respectively. The default value of `ctrl_bound=[]` which means the 
-	control coefficients are in the regime $[-\infty,\infty]$.
+	control coefficients are in the regime $[-\infty,\infty]$. `dyn_method="expm"` represents 
+	the method for solving the dynamics is matrix exponential, it can also be set as `dyn_method="ode"`
+	which means the dynamics (differential equation) is directly solved with the ODE solvers.
 
 	The objective functions for control optimization can be set as QFI $\left[\mathrm{Tr}(W
 	\mathcal{F}^{-1})\right]$, CFI $\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]$ and HCRB, the 
@@ -74,8 +77,8 @@ differential evolution (DE) [[6]](#Storn1997) and deep deterministic policy grad
 	``` jl
 	opt = ControlOpt(ctrl=ctrl, ctrl_bound=ctrl_bound, seed=1234)
 	alg = autoGRAPE(kwargs...)
-	dynamics = Lindblad(opt, tspan, rho0, H0, dH, Hc, 
-	                    decay=mising) 
+	dynamics = Lindblad(opt, tspan, rho0, H0, dH, Hc, decay=mising, 
+	                    dyn_method=:Expm) 
 	```
 	=== "QFIM"
 		``` jl
@@ -110,7 +113,9 @@ differential evolution (DE) [[6]](#Storn1997) and deep deterministic policy grad
 	contains decay operators $(\Gamma_1, \Gamma_2, \cdots)$ and the corresponding decay rates 
 	$(\gamma_1, \gamma_2, \cdots)$ with the input rule decay=[[$\Gamma_1$, $\gamma_1$], 
 	[$\Gamma_2$, $\gamma_2$],...]. The default value `decay` is `missing` which means the 
-	dynamics is unitary.
+	dynamics is unitary. `dyn_method=:Expm` represents the method for solving the dynamics is 
+    matrix exponential, it can also be set as `dyn_method=:Ode` which means the dynamics 
+    (differential equation) is directly solved with the ODE solvers.
 
 	The objective functions for control optimization can be set as QFI $\left[\mathrm{Tr}(W
 	\mathcal{F}^{-1})\right]$, CFI $\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]$ and HCRB, the 
@@ -424,7 +429,7 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
 	``` py
 	# input the dynamics data
 	control.dynamics(tspan, rho0, H0, dH, Hc, decay=decay, \
-	                 ctrl_bound=[-2.0, 2.0])
+	                 ctrl_bound=[-2.0, 2.0], dyn_method="expm")
 	```
 	=== "QFIM"
 		``` py
@@ -552,7 +557,8 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
 			```
 	``` jl
 	# input the dynamics data
-	dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay)  
+	dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay, 
+	                                   dyn_method=:Expm)  
 	# run the control optimization problem
 	QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 	```
@@ -671,7 +677,7 @@ Here three types of measurement optimization are considerd, projective measureme
 		``` py
 		# input the dynamics data
 		control.dynamics(tspan, rho0, H0, dH, Hc, decay=decay, \
-	                 ctrl_bound=[-0.2, 0.2])
+	                     ctrl_bound=[-0.2, 0.2], dyn_method="expm")
 		```
 		=== "QFIM"
 			``` py
@@ -693,7 +699,7 @@ Here three types of measurement optimization are considerd, projective measureme
 		``` py
 		# input the dynamics data
 		control.dynamics(tspan, rho0, H0, dH, Hc, decay=decay, \
-	                 ctrl_bound=[-0.2, 0.2])
+	                     ctrl_bound=[-0.2, 0.2], dyn_method="expm")
 		```
 		=== "QFIM"
 			``` py
@@ -720,7 +726,7 @@ Here three types of measurement optimization are considerd, projective measureme
 		``` py
 		# input the dynamics data
 		control.dynamics(tspan, rho0, H0, dH, Hc, decay=decay, \
-	                 ctrl_bound=[-0.2, 0.2])
+	                     ctrl_bound=[-0.2, 0.2], dyn_method="expm")
 		```
 		=== "QFIM"
 			``` py
@@ -747,7 +753,7 @@ Here three types of measurement optimization are considerd, projective measureme
 		``` py
 		# input the dynamics data
 		control.dynamics(tspan, rho0, H0, dH, Hc, decay=decay, \
-	                 ctrl_bound=[-0.2, 0.2])
+	                     ctrl_bound=[-0.2, 0.2], dyn_method="expm")
 		```
 		=== "QFIM"
 			``` py
@@ -893,7 +899,8 @@ Here three types of measurement optimization are considerd, projective measureme
 			```
 	``` jl
 	# input the dynamics data
-	dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay)  
+	dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay, 
+	                                   dyn_method=:Expm)  
 	# run the control optimization problem
 	QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 	```
