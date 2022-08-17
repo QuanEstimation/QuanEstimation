@@ -26,7 +26,7 @@ from quanestimation.AsymptoticBound.CramerRao import (
 from quanestimation.AsymptoticBound.AnalogCramerRao import (
     HCRB, NHB, 
 )
-from quanestimation.BayesianBound.BayesianCramerRao import (
+from quanestimation.BayesianBound.BayesCramerRao import (
     BCFIM,
     BQFIM,
     BCRB,
