@@ -831,7 +831,8 @@ differential evolution (DE) <a href="#Storn1997">[6]</a> and deep deterministic 
 (DDPG) <a href="#Lillicrap2015">[7]</a>. The codes for control optimization are</p>
 <div class="tabbed-set" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><label for="__tabbed_1_1">Python</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">control</span> <span class="o">=</span> <span class="n">ControlOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;auto-GRAPE&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<span class="n">control</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="p">[],</span> <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[])</span>
+<span class="n">control</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="p">[],</span> <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[],</span> 
+                 <span class="n">dyn_method</span><span class="o">=</span><span class="s2">&quot;expm&quot;</span><span class="p">)</span>
 </code></pre></div>
 <div class="tabbed-set" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><label for="__tabbed_2_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">control</span><span class="o">.</span><span class="n">QFIM</span><span class="p">(</span><span class="n">W</span><span class="o">=</span><span class="p">[],</span> <span class="n">LDtype</span><span class="o">=</span><span class="s2">&quot;SLD&quot;</span><span class="p">)</span>
@@ -867,7 +868,9 @@ decay=[[<span class="arithmatex">\(\Gamma_1\)</span>, <span class="arithmatex">\
 bounded control problems by setting lower and upper bounds of the control coefficients via 
 <code>ctrl_bound</code>, which is an array with two elements representing the lower and upper bound of 
 each control coefficient, respectively. The default value of <code>ctrl_bound=[]</code> which means the 
-control coefficients are in the regime <span class="arithmatex">\([-\infty,\infty]\)</span>.</p>
+control coefficients are in the regime <span class="arithmatex">\([-\infty,\infty]\)</span>. <code>dyn_method="expm"</code> represents 
+the method for solving the dynamics is matrix exponential, it can also be set as <code>dyn_method="ode"</code>
+which means the dynamics (differential equation) is directly solved with the ODE solvers.</p>
 <p>The objective functions for control optimization can be set as QFI <span class="arithmatex">\(\left[\mathrm{Tr}(W
 \mathcal{F}^{-1})\right]\)</span>, CFI <span class="arithmatex">\(\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]\)</span> and HCRB, the 
 corresponding codes for them are <code>control.QFIM()</code> (default), <code>control.CFIM()</code> and <code>control.HCRB()</code>. 
@@ -883,8 +886,8 @@ symmetric informationally complete POVM (SIC-POVM) is used in the calculation.</
 <input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><label for="__tabbed_1_2">Julia</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">ControlOpt</span><span class="p">(</span><span class="n">ctrl</span><span class="o">=</span><span class="n">ctrl</span><span class="p">,</span> <span class="n">ctrl_bound</span><span class="o">=</span><span class="n">ctrl_bound</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">autoGRAPE</span><span class="p">(</span><span class="n">kwargs</span><span class="o">...</span><span class="p">)</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> 
-                    <span class="n">decay</span><span class="o">=</span><span class="n">mising</span><span class="p">)</span> 
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">mising</span><span class="p">,</span> 
+                    <span class="n">dyn_method</span><span class="o">=</span><span class="ss">:Expm</span><span class="p">)</span> 
 </code></pre></div>
 <div class="tabbed-set" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><label for="__tabbed_3_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">obj</span> <span class="o">=</span> <span class="n">QFIM_obj</span><span class="p">(</span><span class="n">W</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">LDtype</span><span class="o">=</span><span class="ss">:SLD</span><span class="p">)</span>
@@ -918,7 +921,9 @@ length equal to <code>tspan</code> when it is time-dependent. <code>dH</code> sh
 contains decay operators <span class="arithmatex">\((\Gamma_1, \Gamma_2, \cdots)\)</span> and the corresponding decay rates 
 <span class="arithmatex">\((\gamma_1, \gamma_2, \cdots)\)</span> with the input rule decay=[[<span class="arithmatex">\(\Gamma_1\)</span>, <span class="arithmatex">\(\gamma_1\)</span>], 
 [<span class="arithmatex">\(\Gamma_2\)</span>, <span class="arithmatex">\(\gamma_2\)</span>],...]. The default value <code>decay</code> is <code>missing</code> which means the 
-dynamics is unitary.</p>
+dynamics is unitary. <code>dyn_method=:Expm</code> represents the method for solving the dynamics is 
+matrix exponential, it can also be set as <code>dyn_method=:Ode</code> which means the dynamics 
+(differential equation) is directly solved with the ODE solvers.</p>
 <p>The objective functions for control optimization can be set as QFI <span class="arithmatex">\(\left[\mathrm{Tr}(W
 \mathcal{F}^{-1})\right]\)</span>, CFI <span class="arithmatex">\(\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]\)</span> and HCRB, the 
 corresponding codes for them are <code>QFIM_obj()</code> (default), <code>CFIM_obj()</code> and <code>HCRB_obj()</code>. Here 
@@ -1397,7 +1402,7 @@ of <span class="arithmatex">\(\sigma_3\)</span> with respect to the eigenvalue <
 </div>
 <div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
 <span class="n">control</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">,</span> \
-                 <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">])</span>
+                 <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span> <span class="n">dyn_method</span><span class="o">=</span><span class="s2">&quot;expm&quot;</span><span class="p">)</span>
 </code></pre></div>
 <div class="tabbed-set" data-tabs="10:2"><input checked="checked" id="__tabbed_10_1" name="__tabbed_10" type="radio" /><label for="__tabbed_10_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: QFI</span>
@@ -1531,7 +1536,8 @@ of <span class="arithmatex">\(\sigma_3\)</span> with respect to the eigenvalue <
 </div>
 </div>
 <div class="highlight"><pre><span></span><code><span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="p">)</span>  
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="p">,</span> 
+                                   <span class="n">dyn_method</span><span class="o">=</span><span class="ss">:Expm</span><span class="p">)</span>  
 <span class="c"># run the control optimization problem</span>
 <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
@@ -1642,7 +1648,7 @@ to the eigenvalue 1. <span class="arithmatex">\(W\)</span> is set to be identity
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
 <span class="n">control</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">,</span> \
-             <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+                 <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">dyn_method</span><span class="o">=</span><span class="s2">&quot;expm&quot;</span><span class="p">)</span>
 </code></pre></div></p>
 <div class="tabbed-set" data-tabs="19:2"><input checked="checked" id="__tabbed_19_1" name="__tabbed_19" type="radio" /><label for="__tabbed_19_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WF^{-1})</span>
@@ -1664,7 +1670,7 @@ to the eigenvalue 1. <span class="arithmatex">\(W\)</span> is set to be identity
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
 <span class="n">control</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">,</span> \
-             <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+                 <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">dyn_method</span><span class="o">=</span><span class="s2">&quot;expm&quot;</span><span class="p">)</span>
 </code></pre></div></p>
 <div class="tabbed-set" data-tabs="20:3"><input checked="checked" id="__tabbed_20_1" name="__tabbed_20" type="radio" /><label for="__tabbed_20_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WF^{-1})</span>
@@ -1691,7 +1697,7 @@ to the eigenvalue 1. <span class="arithmatex">\(W\)</span> is set to be identity
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
 <span class="n">control</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">,</span> \
-             <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+                 <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">dyn_method</span><span class="o">=</span><span class="s2">&quot;expm&quot;</span><span class="p">)</span>
 </code></pre></div></p>
 <div class="tabbed-set" data-tabs="21:3"><input checked="checked" id="__tabbed_21_1" name="__tabbed_21" type="radio" /><label for="__tabbed_21_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WF^{-1})</span>
@@ -1718,7 +1724,7 @@ to the eigenvalue 1. <span class="arithmatex">\(W\)</span> is set to be identity
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
 <span class="n">control</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">,</span> \
-             <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+                 <span class="n">ctrl_bound</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">dyn_method</span><span class="o">=</span><span class="s2">&quot;expm&quot;</span><span class="p">)</span>
 </code></pre></div></p>
 <div class="tabbed-set" data-tabs="22:2"><input checked="checked" id="__tabbed_22_1" name="__tabbed_22" type="radio" /><label for="__tabbed_22_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WF^{-1})</span>
@@ -1871,7 +1877,8 @@ to the eigenvalue 1. <span class="arithmatex">\(W\)</span> is set to be identity
 </div>
 </div>
 <div class="highlight"><pre><span></span><code><span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="p">)</span>  
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">decay</span><span class="p">,</span> 
+                                   <span class="n">dyn_method</span><span class="o">=</span><span class="ss">:Expm</span><span class="p">)</span>  
 <span class="c"># run the control optimization problem</span>
 <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
