@@ -54,7 +54,7 @@ alg = QuanEstimation.AD(Adam=false, max_episode=300, epsilon=0.01,
 # objective function: tr(WF^{-1})
 obj = QuanEstimation.QFIM_obj(W=W)
 # input the dynamics data
-dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay) 
+dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay, dyn_method=:Expm) 
 # run the state optimization problem
 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 
@@ -62,7 +62,7 @@ QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 # # objective function: tr(WI^{-1})
 # obj = QuanEstimation.CFIM_obj(W=W)
 # # input the dynamics data
-# dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay) 
+# dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay, dyn_method=:Expm) 
 # # run the state optimization problem
 # QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 
@@ -70,6 +70,6 @@ QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 # # objective function: HCRB
 # obj = QuanEstimation.HCRB_obj(W=W)
 # # input the dynamics data
-# dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay) 
+# dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay, dyn_method=:Expm) 
 # # run the state optimization problem
 # QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)

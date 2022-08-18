@@ -45,7 +45,7 @@ opt = QuanEstimation.CMopt(ctrl_bound=[-0.2,0.2], seed=1234)
 alg = QuanEstimation.DE(p_num=10, max_episode=1000, c=1.0, cr=0.5)
 # input the dynamics data
 dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, 
-                                   decay=decay)   
+                                   decay=decay, dyn_method=:Expm)   
 # objective function: CFI
 obj = QuanEstimation.CFIM_obj() 
 # run the comprehensive optimization problem
@@ -56,7 +56,7 @@ QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 #                          c1=2.0, c2=2.0)
 # # input the dynamics data
 # dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, 
-#                                    decay=decay)   
+#                                    decay=decay, dyn_method=:Expm)   
 # # objective function: CFI
 # obj = QuanEstimation.CFIM_obj() 
 # # run the comprehensive optimization problem

@@ -56,7 +56,7 @@ alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=300, epsilon=0.01,
 # objective function: QFI
 obj = QuanEstimation.QFIM_obj()
 # input the dynamics data
-dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay)  
+dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay, dyn_method=:Expm)  
 # run the control optimization problem
 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 
@@ -64,7 +64,7 @@ QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 # # objective function: CFI
 # obj = QuanEstimation.CFIM_obj(M=M)
 # # input the dynamics data
-# dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay)  
+# dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay, dyn_method=:Expm)  
 # # run the control optimization problem
 # QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 

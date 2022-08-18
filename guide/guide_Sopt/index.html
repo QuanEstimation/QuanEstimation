@@ -841,7 +841,8 @@ QuanEstimation, the state optimization algorithms are the automatic differentiat
 Call the following codes to perform state optimizaiton</p>
 <div class="tabbed-set" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><label for="__tabbed_1_1">Python</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;AD&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="o">=</span><span class="p">[],</span> <span class="n">ctrl</span><span class="o">=</span><span class="p">[],</span> <span class="n">decay</span><span class="o">=</span><span class="p">[])</span>
+<span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="o">=</span><span class="p">[],</span> <span class="n">ctrl</span><span class="o">=</span><span class="p">[],</span> <span class="n">decay</span><span class="o">=</span><span class="p">[],</span> 
+               <span class="n">dyn_method</span><span class="o">=</span><span class="s2">&quot;expm&quot;</span><span class="p">)</span>
 </code></pre></div>
 <div class="tabbed-set" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><label for="__tabbed_2_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">state</span><span class="o">.</span><span class="n">QFIM</span><span class="p">(</span><span class="n">W</span><span class="o">=</span><span class="p">[],</span> <span class="n">LDtype</span><span class="o">=</span><span class="s2">&quot;SLD&quot;</span><span class="p">)</span>
@@ -872,7 +873,9 @@ coefficients. <code>decay</code> contains decay operators <span class="arithmate
 corresponding decay rates <span class="arithmatex">\((\gamma_1, \gamma_2, \cdots)\)</span> with the input rule 
 decay=[[<span class="arithmatex">\(\Gamma_1\)</span>, <span class="arithmatex">\(\gamma_1\)</span>], [<span class="arithmatex">\(\Gamma_2\)</span>, <span class="arithmatex">\(\gamma_2\)</span>],...]. The default values for 
 <code>decay</code>, <code>Hc</code> and <code>ctrl</code> are empty which means the dynamics is unitary and only governed by 
-the free Hamiltonian. </p>
+the free Hamiltonian. <code>dyn_method="expm"</code> represents the method for solving the dynamics is 
+matrix exponential, it can also be set as <code>dyn_method="ode"</code> which means the dynamics 
+(differential equation) is directly solved with the ODE solvers.</p>
 <p>The objective functions for state optimization can be chosen as QFI <span class="arithmatex">\(\left[\mathrm{Tr}
 (W\mathcal{F}^{-1})\right]\)</span>, CFI <span class="arithmatex">\(\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]\)</span> and HCRB, 
 the corresponding codes for them are <code>state.QFIM()</code> (default), <code>state.CFIM()</code> and 
@@ -890,7 +893,7 @@ used when <code>M=[]</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="n">opt</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">psi</span><span class="o">=</span><span class="n">psi</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 <span class="n">alg</span> <span class="o">=</span> <span class="n">AD</span><span class="p">(</span><span class="n">kwargs</span><span class="o">...</span><span class="p">)</span>
 <span class="n">dynamics</span> <span class="o">=</span> <span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">;</span> <span class="n">Hc</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> 
-                    <span class="n">ctrl</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="nb">missing</span><span class="p">)</span>
+                    <span class="n">ctrl</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">dyn_method</span><span class="o">=</span><span class="ss">:Expm</span><span class="p">)</span>
 </code></pre></div>
 <div class="tabbed-set" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><label for="__tabbed_3_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">obj</span> <span class="o">=</span> <span class="n">QFIM_obj</span><span class="p">(</span><span class="n">W</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">LDtype</span><span class="o">=</span><span class="ss">:SLD</span><span class="p">)</span>
@@ -920,14 +923,16 @@ operators <span class="arithmatex">\((\Gamma_1, \Gamma_2, \cdots)\)</span> and t
 decay=[[<span class="arithmatex">\(\Gamma_1\)</span>, <span class="arithmatex">\(\gamma_1\)</span>], [<span class="arithmatex">\(\Gamma_2\)</span>, <span class="arithmatex">\(\gamma_2\)</span>],...]. The default values for 
 <code>decay</code>, <code>Hc</code> and <code>ctrl</code> are <code>missing</code> which means the dynamics is unitary and only governed 
 by the free Hamiltonian. <code>seed</code> is the random seed which can ensure the reproducibility of 
-results.</p>
+results. <code>dyn_method=:Expm</code> represents the method for solving the dynamics is 
+matrix exponential, it can also be set as <code>dyn_method=:Ode</code> which means the dynamics 
+(differential equation) is directly solved with the ODE solvers.</p>
 <p>The objective functions for state optimization can be set as QFI (<span class="arithmatex">\(\mathrm{Tr}(W\mathcal{F}^
 {-1})\)</span>), CFI (<span class="arithmatex">\(\mathrm{Tr}(W\mathcal{I}^{-1})\)</span>) and HCRB, the corresponding codes for them are
 <code>QFIM_obj()</code> (default), <code>CFIM_obj()</code> and <code>HCRB_obj()</code>. Here <span class="arithmatex">\(\mathcal{F}\)</span> and 
 <span class="arithmatex">\(\mathcal{I}\)</span> are the QFIM and CFIM, <span class="arithmatex">\(W\)</span> corresponds to <code>W</code> is the weight matrix which 
 defaults to the identity matrix. If the users call <code>HCRB_obj()</code> for single parameter 
-scenario, the program will exit and print <code>"Program terminated. In the single-parameter scenario, the 
-HCRB is equivalent to the QFI. Please choose 'QFIM_obj()' as the objective function"</code>.
+scenario, the program will exit and print <code>"Program terminated. In the single-parameter scenario, 
+the HCRB is equivalent to the QFI. Please choose 'QFIM_obj()' as the objective function"</code>.
 <code>LDtype</code> in <code>QFIM_obj()</code> represents the types of the QFIM, it can be set as <code>LDtype=:SLD</code> 
 (default), <code>LDtype=:RLD</code> and <code>LDtype=:LLD</code>. <code>M</code> represents a set of positive operator-valued 
 measure (POVM) with default value <code>missing</code>. In the package, a set of rank-one symmetric 
@@ -1343,8 +1348,8 @@ table</p>
 constants for reflection, expansion, constraction, and shrink, respectively.</p>
 </div>
 <input id="__tabbed_8_2" name="__tabbed_8" type="radio" /><label for="__tabbed_8_2">Julia</label><div class="tabbed-content">
-<p><div class="highlight"><pre><span></span><code><span class="n">alg</span> <span class="o">=</span> <span class="n">NM</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_state</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ae</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> 
-         <span class="n">ac</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">as0</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<p><div class="highlight"><pre><span></span><code><span class="n">alg</span> <span class="o">=</span> <span class="n">NM</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_state</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">ar</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
+         <span class="n">ae</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">ac</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">as0</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 </code></pre></div>
 The keywords and the default values of NM can be seen in the following 
 table</p>
@@ -1548,7 +1553,7 @@ for generation of the spin coherent state.</p>
 </div>
 </div>
 <div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
-<span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>
+<span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">,</span> <span class="n">dyn_method</span><span class="o">=</span><span class="s2">&quot;expm&quot;</span><span class="p">)</span>
 </code></pre></div>
 <div class="tabbed-set" data-tabs="12:2"><input checked="checked" id="__tabbed_12_1" name="__tabbed_12" type="radio" /><label for="__tabbed_12_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: QFI</span>
@@ -1678,7 +1683,8 @@ for generation of the spin coherent state.</p>
 </div>
 </div>
 <div class="highlight"><pre><span></span><code><span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">,</span> 
+                                   <span class="n">dyn_method</span><span class="o">=</span><span class="ss">:Expm</span><span class="p">)</span> 
 <span class="c"># run the state optimization problem</span>
 <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>
@@ -1720,7 +1726,7 @@ In the multiparameter scenario, <span class="arithmatex">\(g\)</span> and <span 
 <span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;AD&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">AD_paras</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
-<span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>
+<span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">,</span> <span class="n">dyn_method</span><span class="o">=</span><span class="s2">&quot;expm&quot;</span><span class="p">)</span>
 </code></pre></div></p>
 <div class="tabbed-set" data-tabs="21:3"><input checked="checked" id="__tabbed_21_1" name="__tabbed_21" type="radio" /><label for="__tabbed_21_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WF^{-1})</span>
@@ -1746,7 +1752,7 @@ In the multiparameter scenario, <span class="arithmatex">\(g\)</span> and <span 
 <span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;PSO&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">PSO_paras</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
-<span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>
+<span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">,</span> <span class="n">dyn_method</span><span class="o">=</span><span class="s2">&quot;expm&quot;</span><span class="p">)</span>
 </code></pre></div></p>
 <div class="tabbed-set" data-tabs="22:3"><input checked="checked" id="__tabbed_22_1" name="__tabbed_22" type="radio" /><label for="__tabbed_22_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WF^{-1})</span>
@@ -1772,7 +1778,7 @@ In the multiparameter scenario, <span class="arithmatex">\(g\)</span> and <span 
 <span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DE&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DE_paras</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
-<span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>
+<span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">,</span> <span class="n">dyn_method</span><span class="o">=</span><span class="s2">&quot;expm&quot;</span><span class="p">)</span>
 </code></pre></div></p>
 <div class="tabbed-set" data-tabs="23:3"><input checked="checked" id="__tabbed_23_1" name="__tabbed_23" type="radio" /><label for="__tabbed_23_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WF^{-1})</span>
@@ -1798,7 +1804,7 @@ In the multiparameter scenario, <span class="arithmatex">\(g\)</span> and <span 
 <span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;NM&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">NM_paras</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
-<span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>
+<span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">,</span> <span class="n">dyn_method</span><span class="o">=</span><span class="s2">&quot;expm&quot;</span><span class="p">)</span>
 </code></pre></div></p>
 <div class="tabbed-set" data-tabs="24:3"><input checked="checked" id="__tabbed_24_1" name="__tabbed_24" type="radio" /><label for="__tabbed_24_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WF^{-1})</span>
@@ -1824,7 +1830,7 @@ In the multiparameter scenario, <span class="arithmatex">\(g\)</span> and <span 
 <span class="n">state</span> <span class="o">=</span> <span class="n">StateOpt</span><span class="p">(</span><span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DDPG&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DDPG_paras</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="c1"># input the dynamics data</span>
-<span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span>
+<span class="n">state</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">,</span> <span class="n">dyn_method</span><span class="o">=</span><span class="s2">&quot;expm&quot;</span><span class="p">)</span>
 </code></pre></div></p>
 <div class="tabbed-set" data-tabs="25:2"><input checked="checked" id="__tabbed_25_1" name="__tabbed_25" type="radio" /><label for="__tabbed_25_1">QFIM</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="c1"># objective function: tr(WF^{-1})</span>
@@ -1973,7 +1979,8 @@ In the multiparameter scenario, <span class="arithmatex">\(g\)</span> and <span 
 </div>
 </div>
 <div class="highlight"><pre><span></span><code><span class="c"># input the dynamics data</span>
-<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">)</span> 
+<span class="n">dynamics</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Lindblad</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="n">decay</span><span class="p">,</span> 
+                                   <span class="n">dyn_method</span><span class="o">=</span><span class="ss">:Expm</span><span class="p">)</span> 
 <span class="c"># run the state optimization problem</span>
 <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">)</span>
 </code></pre></div>

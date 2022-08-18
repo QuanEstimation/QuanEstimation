@@ -753,9 +753,10 @@ the tunable parameters. The tunable parameters <span class="arithmatex">\(\textb
 Hamiltonian work at the optimal point <span class="arithmatex">\(\textbf{x}_{\mathrm{opt}}\)</span>. In this scenario,
 the adaptive estimation can be excuted through</p>
 <div class="tabbed-set" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><label for="__tabbed_1_1">Python</label><div class="tabbed-content">
-<p><div class="highlight"><pre><span></span><code><span class="n">apt</span> <span class="o">=</span> <span class="n">Adaptive</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;FOP&quot;</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> 
-               <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
-<span class="n">apt</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="o">=</span><span class="p">[],</span> <span class="n">ctrl</span><span class="o">=</span><span class="p">[],</span> <span class="n">decay</span><span class="o">=</span><span class="p">[])</span>               
+<p><div class="highlight"><pre><span></span><code><span class="n">apt</span> <span class="o">=</span> <span class="n">Adapt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;FOP&quot;</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+            <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
+<span class="n">apt</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">Hc</span><span class="o">=</span><span class="p">[],</span> <span class="n">ctrl</span><span class="o">=</span><span class="p">[],</span> <span class="n">decay</span><span class="o">=</span><span class="p">[],</span> 
+             <span class="n">dyn_method</span><span class="o">=</span><span class="s2">&quot;expm&quot;</span><span class="p">)</span>               
 <span class="n">apt</span><span class="o">.</span><span class="n">CFIM</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="p">[],</span> <span class="n">W</span><span class="o">=</span><span class="p">[])</span> 
 </code></pre></div>
 where <code>x</code> is a list of arrays representing the regime of the parameters for the integral, 
@@ -767,15 +768,19 @@ including the posterior distributions, the estimated values and the experimental
 generated. The package contains two mothods for updating the tunable parameters. The first one is 
 updating the tunable parameters with a fix optimal point (<code>mtheod="FOP"</code>), which is the default 
 method in QuanEstimation. The other is <code>method="MI"</code> which means updating the tunable parameters 
-by maximizing the mutual information. If <code>savefile=True</code>, these files will be generated during the 
-training and "pout.npy" 
-will save all the posterior distributions, otherwise, the posterior distribution in the final 
-iteration will be saved. </p>
+by maximizing the mutual information which is defined as</p>
+<div class="arithmatex">\[\begin{equation}
+I(\textbf{u})=\int\mathrm{p}(\textbf{x}) \sum_{y}\mathrm{p}(y|\textbf{x},\textbf{u})\mathrm{log}_2 
+\left[\frac{\mathrm{p}(y|\textbf{x},\textbf{u})}{\int\mathrm{p}(\textbf{x})\mathrm{p}(y|\textbf{x},\textbf{u})\mathrm{d}\textbf{x}}\right]\mathrm{d}\textbf{x}.
+\end{equation}\]</div>
+<p>If <code>savefile=True</code>, these files will be generated during the 
+training and "pout.npy" will save all the posterior distributions, otherwise, the posterior 
+distribution in the final iteration will be saved. </p>
 </div>
 <input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><label for="__tabbed_1_2">Julia</label><div class="tabbed-content">
-<p><div class="highlight"><pre><span></span><code><span class="n">Adaptive</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">;</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;FOP&quot;</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">,</span> 
-         <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">Hc</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">ctrl</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> 
-         <span class="n">decay</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">W</span><span class="o">=</span><span class="nb">missing</span><span class="p">)</span>
+<p><div class="highlight"><pre><span></span><code><span class="n">Adapt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">;</span> <span class="n">dyn_method</span><span class="o">=</span><span class="ss">:Expm</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;FOP&quot;</span><span class="p">,</span> 
+      <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">Hc</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> 
+      <span class="n">ctrl</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">W</span><span class="o">=</span><span class="nb">missing</span><span class="p">)</span>
 </code></pre></div>
 where <code>x</code> is a list of arrays representing the regime of the parameters for the integral, 
 <code>p</code> is an array representing the prior distribution, it is multidimensional for multiparameter
@@ -786,7 +791,12 @@ including the posterior distributions, the estimated values and the experimental
 generated. The package contains two mothods for updating the tunable parameters. The first one is 
 updating the tunable parameters with a fix optimal point (<code>mtheod="FOP"</code>), which is the default 
 method in QuanEstimation. The other is <code>method="MI"</code> which means updating the tunable parameters 
-by maximizing the mutual information. If <code>savefile=true</code>, these files will be generated during the training and "pout.csv" 
+by maximizing the mutual information which is defined as</p>
+<div class="arithmatex">\[\begin{equation}
+I(\textbf{u})=\int\mathrm{p}(\textbf{x}) \sum_{y}\mathrm{p}(y|\textbf{x},\textbf{u})\mathrm{log}_2 
+\left[\frac{\mathrm{p}(y|\textbf{x},\textbf{u})}{\int\mathrm{p}(\textbf{x})\mathrm{p}(y|\textbf{x},\textbf{u})\mathrm{d}\textbf{x}}\right]\mathrm{d}\textbf{x}.
+\end{equation}\]</div>
+<p>If <code>savefile=true</code>, these files will be generated during the training and "pout.csv" 
 will save all the posterior distributions, otherwise, the posterior distribution in the final 
 iteration will be saved. </p>
 </div>
@@ -814,14 +824,16 @@ with the input rule decay=[[<span class="arithmatex">\(\Gamma_1\)</span>, <span 
 {-1})\)</span> with <span class="arithmatex">\(\mathcal{I}\)</span> the CFIM. <code>W</code> is the weight matrix which defaults to the identity matrix.</p>
 <p>If the parameterization is implemented with the Kraus operators, the codes become</p>
 <div class="tabbed-set" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><label for="__tabbed_3_1">Python</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="n">apt</span> <span class="o">=</span> <span class="n">Adaptive</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">apt</span> <span class="o">=</span> <span class="n">Adapt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;FOP&quot;</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  
+            <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 <span class="n">apt</span><span class="o">.</span><span class="n">Kraus</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">)</span>               
 <span class="n">apt</span><span class="o">.</span><span class="n">CFIM</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="p">[],</span> <span class="n">W</span><span class="o">=</span><span class="p">[])</span> 
 </code></pre></div>
 </div>
 <input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><label for="__tabbed_3_2">Julia</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="n">Adaptive</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">;</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> 
-         <span class="n">Hc</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">ctrl</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">W</span><span class="o">=</span><span class="nb">missing</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">Adapt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">;</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;FOP&quot;</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="nb">false</span><span class="p">,</span> 
+      <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">Hc</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">ctrl</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> 
+      <span class="n">decay</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">W</span><span class="o">=</span><span class="nb">missing</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -887,8 +899,9 @@ H=\frac{B\omega_0}{2}(\sigma_1\cos{x}+\sigma_3\sin{x}),
 <span class="c1"># generation of H and dH</span>
 <span class="n">H</span><span class="p">,</span> <span class="n">dH</span> <span class="o">=</span> <span class="n">BayesInput</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">H0_func</span><span class="p">,</span> <span class="n">dH_func</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="s2">&quot;dynamics&quot;</span><span class="p">)</span>
 <span class="c1"># adaptive measurement</span>
-<span class="n">apt</span> <span class="o">=</span> <span class="n">Adaptive</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">pout</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
-<span class="n">apt</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">)</span>
+<span class="n">apt</span> <span class="o">=</span> <span class="n">Adapt</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">pout</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;FOP&quot;</span><span class="p">,</span> <span class="n">savefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+            <span class="n">max_episode</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
+<span class="n">apt</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">dyn_method</span><span class="o">=</span><span class="s2">&quot;expm&quot;</span><span class="p">)</span>
 <span class="n">apt</span><span class="o">.</span><span class="n">CFIM</span><span class="p">(</span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">,</span> <span class="n">W</span><span class="o">=</span><span class="p">[])</span>
 </code></pre></div>
 </div>
@@ -941,8 +954,8 @@ H=\frac{B\omega_0}{2}(\sigma_1\cos{x}+\sigma_3\sin{x}),
 <span class="n">H</span><span class="p">,</span> <span class="n">dH</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">BayesInput</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">H0_func</span><span class="p">,</span> <span class="n">dH_func</span><span class="p">;</span> 
                                   <span class="n">channel</span><span class="o">=</span><span class="s">&quot;dynamics&quot;</span><span class="p">)</span>
 <span class="c"># adaptive measurement</span>
-<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Adaptive</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">pout</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">;</span> <span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">,</span> 
-                        <span class="n">max_episode</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Adapt</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">pout</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">tspan</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">dH</span><span class="p">;</span> <span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">,</span> <span class="n">dyn_method</span><span class="o">=</span><span class="ss">:Expm</span><span class="p">,</span> 
+                     <span class="n">method</span><span class="o">=</span><span class="s">&quot;FOP&quot;</span><span class="p">,</span> <span class="n">max_episode</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -955,22 +968,26 @@ in QuanEstimation via</p>
 <div class="tabbed-set" data-tabs="6:2"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><label for="__tabbed_6_1">Python</label><div class="tabbed-content">
 <p><div class="highlight"><pre><span></span><code><span class="n">apt</span> <span class="o">=</span> <span class="n">Adapt_MZI</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho0</span><span class="p">)</span>
 <span class="n">apt</span><span class="o">.</span><span class="n">general</span><span class="p">()</span>
-<span class="n">apt</span><span class="o">.</span><span class="n">online</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">&quot;phi&quot;</span><span class="p">)</span>
+<span class="n">apt</span><span class="o">.</span><span class="n">online</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s2">&quot;sharpness&quot;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;phi&quot;</span><span class="p">)</span>
 </code></pre></div>
-Here <code>x</code>, <code>p</code>, and <code>rho0</code> are the same with <code>adaptive</code>. The output can be set through 
-<code>output="phi"</code> (default) and <code>output="dphi"</code> representing the phase and phase difference, 
-respectively. Online and offline strategies are both available in the package and the code 
-for calling offline stratege becomes <code>apt.offline(method="DE", **kwargs)</code> or 
+Here <code>x</code>, <code>p</code>, and <code>rho0</code> are the same with <code>Adapt</code>. <code>target="sharpness"</code> represents the
+target function for calculating the tunable phase is sharpness, and it can also be set as 
+<code>target="MI"</code> which means the target function is mutual information. The output can be set 
+through <code>output="phi"</code> (default) and <code>output="dphi"</code> representing the phase and phase 
+difference, respectively. Online and offline strategies are both available in the package 
+and the code for calling offline stratege becomes <code>apt.offline(method="DE", **kwargs)</code> or 
 <code>apt.offline(method="PSO", **kwargs)</code>. </p>
 </div>
 <input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><label for="__tabbed_6_2">Julia</label><div class="tabbed-content">
 <p><div class="highlight"><pre><span></span><code><span class="n">apt</span> <span class="o">=</span> <span class="n">Adapt_MZI</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho0</span><span class="p">)</span>
-<span class="n">online</span><span class="p">(</span><span class="n">apt</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s">&quot;phi&quot;</span><span class="p">)</span>
+<span class="n">online</span><span class="p">(</span><span class="n">apt</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="ss">:sharpness</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s">&quot;phi&quot;</span><span class="p">)</span>
 </code></pre></div>
-Here <code>x</code>, <code>p</code>, and <code>rho0</code> are the same with <code>adaptive</code>. The output can be set through 
-<code>output="phi"</code> (default) and <code>output="dphi"</code> representing the phase and phase difference, 
-respectively. Online and offline strategies are both available in the package and the code 
-for calling offline stratege becomes <code>alg = QuanEstimation.DE(kwargs...)</code> 
+Here <code>x</code>, <code>p</code>, and <code>rho0</code> are the same with <code>Adapt</code>. <code>target=:sharpness</code> represents the
+target function for calculating the tunable phase is sharpness, and it can also be set as 
+<code>target=:MI</code> which means the target function is mutual information. The output can be set 
+through <code>output="phi"</code> (default) and <code>output="dphi"</code> representing the phase and phase 
+difference, respectively. Online and offline strategies are both available in the package 
+and the code for calling offline stratege becomes <code>alg = QuanEstimation.DE(kwargs...)</code> 
 (<code>alg = QuanEstimation.PSO(kwargs...)</code>) and <code>offline(apt, alg, seed=seed)</code>. 
 <code>seed</code> is the random seed which can ensure the reproducibility of results.</p>
 </div>
@@ -1189,20 +1206,20 @@ The input state is
 <span class="n">apt</span><span class="o">.</span><span class="n">general</span><span class="p">()</span>
 </code></pre></div>
 <div class="tabbed-set" data-tabs="10:2"><input checked="checked" id="__tabbed_10_1" name="__tabbed_10" type="radio" /><label for="__tabbed_10_1">online</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="n">apt</span><span class="o">.</span><span class="n">online</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="s2">&quot;phi&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">apt</span><span class="o">.</span><span class="n">online</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s2">&quot;sharpness&quot;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;phi&quot;</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <input id="__tabbed_10_2" name="__tabbed_10" type="radio" /><label for="__tabbed_10_2">offline</label><div class="tabbed-content">
 <div class="tabbed-set" data-tabs="11:2"><input checked="checked" id="__tabbed_11_1" name="__tabbed_11" type="radio" /><label for="__tabbed_11_1">DE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">DE_para</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;deltaphi0&quot;</span><span class="p">:[],</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:</span><span class="mi">1000</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> 
            <span class="s2">&quot;cr&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
-<span class="n">apt</span><span class="o">.</span><span class="n">offline</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;DE&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DE_para</span><span class="p">)</span>
+<span class="n">apt</span><span class="o">.</span><span class="n">offline</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s2">&quot;sharpness&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;DE&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">DE_para</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <input id="__tabbed_11_2" name="__tabbed_11" type="radio" /><label for="__tabbed_11_2">PSO</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">PSO_para</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;p_num&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;deltaphi0&quot;</span><span class="p">:[],</span> <span class="s2">&quot;max_episode&quot;</span><span class="p">:[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> 
             <span class="s2">&quot;c0&quot;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;c1&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;c2&quot;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span><span class="mi">1234</span><span class="p">}</span>
-<span class="n">apt</span><span class="o">.</span><span class="n">offline</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;PSO&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">PSO_para</span><span class="p">)</span>
+<span class="n">apt</span><span class="o">.</span><span class="n">offline</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s2">&quot;sharpness&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;PSO&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">PSO_para</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
@@ -1226,21 +1243,21 @@ The input state is
 <span class="n">apt</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">Adapt_MZI</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">rho0</span><span class="p">)</span>
 </code></pre></div>
 <div class="tabbed-set" data-tabs="12:2"><input checked="checked" id="__tabbed_12_1" name="__tabbed_12" type="radio" /><label for="__tabbed_12_1">online</label><div class="tabbed-content">
-<div class="highlight"><pre><span></span><code><span class="n">QuanEstimation</span><span class="o">.</span><span class="n">online</span><span class="p">(</span><span class="n">apt</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;phi&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">QuanEstimation</span><span class="o">.</span><span class="n">online</span><span class="p">(</span><span class="n">apt</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="p">:</span><span class="n">sharpness</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;phi&quot;</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <input id="__tabbed_12_2" name="__tabbed_12" type="radio" /><label for="__tabbed_12_2">offline</label><div class="tabbed-content">
 <div class="tabbed-set" data-tabs="13:2"><input checked="checked" id="__tabbed_13_1" name="__tabbed_13" type="radio" /><label for="__tabbed_13_1">DE</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">DE</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_population</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> 
                         <span class="n">max_episode</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cr</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">offline</span><span class="p">(</span><span class="n">apt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">offline</span><span class="p">(</span><span class="n">apt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="ss">:sharpness</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <input id="__tabbed_13_2" name="__tabbed_13" type="radio" /><label for="__tabbed_13_2">PSO</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">alg</span> <span class="o">=</span> <span class="n">QuanEstimation</span><span class="o">.</span><span class="n">PSO</span><span class="p">(</span><span class="n">p_num</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ini_particle</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span>  
                          <span class="n">max_episode</span><span class="o">=</span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">c0</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> 
                          <span class="n">c1</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">c2</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">offline</span><span class="p">(</span><span class="n">apt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
+<span class="n">QuanEstimation</span><span class="o">.</span><span class="n">offline</span><span class="p">(</span><span class="n">apt</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="ss">:sharpness</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>

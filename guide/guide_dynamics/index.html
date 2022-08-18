@@ -717,13 +717,27 @@ is calculated via
 <center> <span class="arithmatex">\(\partial_{\textbf{x}}\rho_j =\Delta t(\partial_{\textbf{x}}\mathcal{L})\rho_j
 +e^{\Delta t \mathcal{L}}(\partial_{\textbf{x}}\rho_{j-1}),\)</span> </center> <br>
 where <span class="arithmatex">\(\rho_{j-1}\)</span> is the evolved density matrix at <span class="arithmatex">\((j-1)\)</span>th time interval.</p>
+<p>The dynamics can also be solved by the ordinary differential equation (ODE) solvers, thus 
+<span class="arithmatex">\(\rho\)</span> and <span class="arithmatex">\(\partial_{\textbf{x}}\rho\)</span> are obtained via directly solving the differential equations.
+Here, <span class="arithmatex">\(\partial_{\textbf{x}}\rho\)</span> satisfies</p>
+<div class="arithmatex">\[\begin{align}
+\partial_t(\partial_{\textbf{x}}\rho) =-i[\partial_{\textbf{x}}H,\rho] + \mathcal{L}(\partial_{\textbf{x}}\rho).
+\end{align}\]</div>
 <p>The evolved density matrix <span class="arithmatex">\(\rho\)</span> and its derivatives (<span class="arithmatex">\(\partial_{\textbf{x}}\rho\)</span>) with 
-respect to <span class="arithmatex">\(\textbf{x}\)</span> can be calculated via the codes</p>
+respect to <span class="arithmatex">\(\textbf{x}\)</span> can be calculata the codes</p>
 <div class="tabbed-set" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><label for="__tabbed_1_1">Python</label><div class="tabbed-content">
-<p><div class="highlight"><pre><span></span><code><span class="n">dynamics</span> <span class="o">=</span> <span class="n">Lindblad</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="p">[],</span> <span class="n">Hc</span><span class="o">=</span><span class="p">[],</span> <span class="n">ctrl</span><span class="o">=</span><span class="p">[])</span>
-<span class="n">rho</span><span class="p">,</span> <span class="n">drho</span> <span class="o">=</span> <span class="n">dynamics</span><span class="o">.</span><span class="n">expm</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><span class="n">dynamics</span> <span class="o">=</span> <span class="n">Lindblad</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="p">[],</span> <span class="n">Hc</span><span class="o">=</span><span class="p">[],</span> <span class="n">ctrl</span><span class="o">=</span><span class="p">[])</span>
 </code></pre></div>
-Here <code>tspan</code> is the time length for the evolution, <code>rho0</code> represents the density matrix of 
+<div class="tabbed-set" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><label for="__tabbed_2_1">expm</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code>rho, drho = dynamics.expm()
+</code></pre></div>
+</div>
+<input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><label for="__tabbed_2_2">ode</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code>rho, drho = dynamics.ode()
+</code></pre></div>
+</div>
+</div>
+<p>Here <code>tspan</code> is the time length for the evolution, <code>rho0</code> represents the density matrix of 
 the probe state, <code>H0</code> and <code>dH</code> are the free Hamiltonian and its derivatives with respect to 
 the unknown parameters to be estimated. The variable <code>H0</code> is a matrix when the free Hamiltonian 
 is time-independent and a list with the length equal to <code>tspan</code> when it is time-dependent. 
@@ -736,16 +750,24 @@ the length equal to <code>tspan</code>.
 <code>Hc</code> and <code>ctrl</code> are two lists represent the control Hamiltonians and the corresponding control 
 coefficients. The default values for <code>decay</code>, <code>Hc</code> and <code>ctrl</code> are <code>[]</code> which means the 
 dynamics is unitary and only governed by the free Hamiltonian.</p>
-<p>The output (<code>rho</code> and <code>drho</code>) of this class by calling <code>dynamics.expm()</code> are two lists with 
-the length equal to <code>tspan</code>. Here <code>rho</code> represents the parameterized density matrix and <code>drho</code> 
-is the corresponding derivatives with respect to all the parameters, the <span class="arithmatex">\(i\)</span>th entry of <code>drho</code> 
-is <span class="arithmatex">\([\partial_a{\rho},\partial_b{\rho},\cdots].\)</span></p>
+<p>The output (<code>rho</code> and <code>drho</code>) of this class by calling <code>dynamics.expm()</code> (<code>dynamics.ode()</code>) are 
+two lists with the length equal to <code>tspan</code>. Here <code>rho</code> represents the parameterized density 
+matrix and <code>drho</code> is the corresponding derivatives with respect to all the parameters, the <span class="arithmatex">\(i\)</span>th 
+entry of <code>drho</code> is <span class="arithmatex">\([\partial_a{\rho},\partial_b{\rho},\cdots].\)</span></p>
 </div>
 <input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><label for="__tabbed_1_2">Julia</label><div class="tabbed-content">
-<p><div class="highlight"><pre><span></span><code><span class="n">rho</span><span class="p">,</span> <span class="n">drho</span> <span class="o">=</span> <span class="n">expm</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">Hc</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> 
+<div class="tabbed-set" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><label for="__tabbed_3_1">expm</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="n">rho</span><span class="p">,</span> <span class="n">drho</span> <span class="o">=</span> <span class="n">expm</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">Hc</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> 
                  <span class="n">ctrl</span><span class="o">=</span><span class="nb">missing</span><span class="p">)</span>
 </code></pre></div>
-Here <code>tspan</code> is the time length for the evolution, <code>rho0</code> represents the density matrix of 
+</div>
+<input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><label for="__tabbed_3_2">ode</label><div class="tabbed-content">
+<div class="highlight"><pre><span></span><code><span class="n">rho</span><span class="p">,</span> <span class="n">drho</span> <span class="o">=</span> <span class="n">ode</span><span class="p">(</span><span class="n">tspan</span><span class="p">,</span> <span class="n">rho0</span><span class="p">,</span> <span class="n">H0</span><span class="p">,</span> <span class="n">dH</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> <span class="n">Hc</span><span class="o">=</span><span class="nb">missing</span><span class="p">,</span> 
+                <span class="n">ctrl</span><span class="o">=</span><span class="nb">missing</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</div>
+<p>Here <code>tspan</code> is the time length for the evolution, <code>rho0</code> represents the density matrix of 
 the probe state, <code>H0</code> and <code>dH</code> are the free Hamiltonian and its derivatives with respect to 
 the unknown parameters to be estimated. The variable <code>H0</code> is a matrix when the free Hamiltonian 
 is time-independent and a list with the length equal to <code>tspan</code> when it is time-dependent. 
@@ -757,7 +779,7 @@ For time-dependent decay rate, the input rule is the decay=[[<span class="arithm
 the length equal to <code>tspan</code>. <code>Hc</code> and <code>ctrl</code> are two lists represent the control Hamiltonians 
 and the corresponding control coefficients. The default values for <code>decay</code>, <code>Hc</code> and <code>ctrl</code> 
 are <code>missing</code> which means the dynamics is unitary and only governed by the free Hamiltonian.</p>
-<p>The output (<code>rho</code> and <code>drho</code>) of this function by calling <code>expm()</code> are two lists with 
+<p>The output (<code>rho</code> and <code>drho</code>) of this function by calling <code>expm()</code> (<code>ode()</code>) are two lists with 
 the length equal to <code>tspan</code>. Here <code>rho</code> represents the parameterized density matrix and <code>drho</code> 
 is the corresponding derivatives with respect to all the parameters, the <span class="arithmatex">\(i\)</span>th entry of <code>drho</code> 
 is <span class="arithmatex">\([\partial_a{\rho},\partial_b{\rho},\cdots].\)</span></p>
@@ -773,7 +795,7 @@ The dynamics of the system is governed by
 <p>where <span class="arithmatex">\(\rho\)</span> is the parameterized density matrix. The probe state is taken as <span class="arithmatex">\(|+\rangle\langle+|\)</span> 
 with <span class="arithmatex">\(|+\rangle=\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)\)</span>. Here <span class="arithmatex">\(|0\rangle\)</span> <span class="arithmatex">\((|1\rangle)\)</span> is the 
 eigenstate of <span class="arithmatex">\(\sigma_3\)</span> with respect to the eigenvalue <span class="arithmatex">\(1\)</span> <span class="arithmatex">\((-1)\)</span>.</p>
-<div class="tabbed-set" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><label for="__tabbed_2_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><label for="__tabbed_4_1">Python</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">quanestimation</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -792,7 +814,7 @@ eigenstate of <span class="arithmatex">\(\sigma_3\)</span> with respect to the e
 <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span> <span class="o">=</span> <span class="n">dynamics</span><span class="o">.</span><span class="n">expm</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><label for="__tabbed_2_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><label for="__tabbed_4_2">Julia</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="k">using</span> <span class="n">QuanEstimation</span>
 
 <span class="c"># initial state</span>
@@ -824,11 +846,11 @@ can be calculated via
 represents its derivatives with respect to <span class="arithmatex">\(\textbf{x}\)</span>. Here <span class="arithmatex">\(I\)</span> is the identity 
 operator and <span class="arithmatex">\(\rho_0\)</span> is the probe state.</p>
 <p>In QuanEstimation, <span class="arithmatex">\(\rho\)</span> and <span class="arithmatex">\(\partial_{\textbf{x}}\rho\)</span> can be solved by</p>
-<div class="tabbed-set" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><label for="__tabbed_3_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="5:2"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><label for="__tabbed_5_1">Python</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">rho</span><span class="p">,</span> <span class="n">drho</span> <span class="o">=</span> <span class="n">Kraus</span><span class="p">(</span><span class="n">rho0</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><label for="__tabbed_3_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><label for="__tabbed_5_2">Julia</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="n">Kraus</span> <span class="o">=</span> <span class="n">Kraus</span><span class="p">(</span><span class="n">rho0</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">)</span>
 <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span> <span class="o">=</span> <span class="n">evolve</span><span class="p">(</span><span class="n">Kraus</span><span class="p">)</span>
 </code></pre></div>
@@ -851,7 +873,7 @@ K_2 = \left(\begin{array}{cc}
 the probe state is taken as <span class="arithmatex">\(|+\rangle\langle+|\)</span> with <span class="arithmatex">\(|+\rangle=\frac{1}{\sqrt{2}}(|0\rangle+
 |1\rangle)\)</span>. Here <span class="arithmatex">\(|0\rangle\)</span> <span class="arithmatex">\((|1\rangle)\)</span> is the eigenstate of <span class="arithmatex">\(\sigma_3\)</span> with respect to the 
 eigenvalue <span class="arithmatex">\(1\)</span> <span class="arithmatex">\((-1)\)</span>.</p>
-<div class="tabbed-set" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><label for="__tabbed_4_1">Python</label><div class="tabbed-content">
+<div class="tabbed-set" data-tabs="6:2"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><label for="__tabbed_6_1">Python</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">quanestimation</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -870,7 +892,7 @@ eigenvalue <span class="arithmatex">\(1\)</span> <span class="arithmatex">\((-1)
 <span class="n">rho</span><span class="p">,</span> <span class="n">drho</span> <span class="o">=</span> <span class="n">Kraus</span><span class="p">(</span><span class="n">rho0</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">dK</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><label for="__tabbed_4_2">Julia</label><div class="tabbed-content">
+<input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><label for="__tabbed_6_2">Julia</label><div class="tabbed-content">
 <div class="highlight"><pre><span></span><code><span class="k">using</span> <span class="n">QuanEstimation</span>
 
 <span class="c"># initial state</span>
