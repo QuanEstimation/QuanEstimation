@@ -1,4 +1,4 @@
-from quanestimation.BayesianBound.BayesianCramerRao import (
+from quanestimation.BayesianBound.BayesCramerRao import (
     BCFIM,
     BQFIM,
     BCRB,
