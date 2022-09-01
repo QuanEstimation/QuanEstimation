@@ -653,7 +653,7 @@ class ComprehensiveSystem:
         else: pass
 
 
-def ComprehensiveOpt(savefile=False, method="AD", **kwargs):
+def ComprehensiveOpt(savefile=False, method="DE", **kwargs):
 
     if method == "AD":
         return compopt.AD_Compopt(savefile=savefile, **kwargs)
