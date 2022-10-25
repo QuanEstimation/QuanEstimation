@@ -40,8 +40,8 @@ differential evolution (DE) [[2]](#Storn1997), and automatic differentiation (AD
     `tspan`, `rho0`, `H0` and `dH` shoule be input. `tspan` is the time length for the evolution, 
     `rho0` represents the density matrix of the initial state, `H0` and `dH` are the free 
     Hamiltonian and its derivatives on the unknown parameters to be estimated. `H0` is a matrix 
-    when the free Hamiltonian is time-independent and a list with the length equal to `tspan` when 
-    it is time-dependent. `dH` should be input as $[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. 
+    when the free Hamiltonian is time-independent and a list of matrices with the length equal to 
+    `tspan` when it is time-dependent. `dH` should be input as $[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. 
     `Hc` and `ctrl` are two lists represent the control Hamiltonians and the corresponding control 
     coefficients. `decay` contains decay operators $(\Gamma_1,\Gamma_2, \cdots)$ and the 
     corresponding decay rates $(\gamma_1, \gamma_2, \cdots)$ with the input rule 
@@ -78,8 +78,8 @@ differential evolution (DE) [[2]](#Storn1997), and automatic differentiation (AD
     `tspan`, `rho0`, `H0` and `dH` shoule be input. `tspan` is the time length for the evolution, 
     `rho0` represents the density matrix of the initial state, `H0` and `dH` are the free 
     Hamiltonian and its derivatives on the unknown parameters to be estimated. `H0` is a matrix 
-    when the free Hamiltonian is time-independent and a list with the length equal to `tspan` when 
-    it is time-dependent. `dH` should be input as $[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. 
+    when the free Hamiltonian is time-independent and a list of matrices with the length equal to 
+    `tspan` when it is time-dependent. `dH` should be input as $[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. 
     `Hc` and `ctrl` are two lists represent the control Hamiltonians and the corresponding control 
     coefficients. `decay` contains decay operators $(\Gamma_1,\Gamma_2, \cdots)$ and the 
     corresponding decay rates $(\gamma_1, \gamma_2, \cdots)$ with the input rule 
@@ -201,8 +201,8 @@ The code for measurement optimization with PSO is as follows
     | "c1"                             | 2.0                        |
     | "c2"                             | 2.0                        |
 
-    `p_num` is the number of particles, `c0`, `c1` and `c2` are the PSO parameters representing 
-    the inertia weight, cognitive learning factor and social learning factor, respectively. 
+    `p_num` is the number of particles, `c0`, `c1`, and `c2` are the PSO parameters representing 
+    the inertia weight, cognitive learning factor, and social learning factor, respectively. 
     `max_episode` accepts both integers and arrays with two elements. If it is an integer, 
     for example `max_episode=1000`, it means the program will continuously run 1000 episodes. 
     However, if it is an array, for example `max_episode=[1000,100]`, the program will run 1000 
@@ -330,8 +330,8 @@ The code for measurement optimization with AD is as follows
     The measurements will update according to the learning rate `"epsilon"` for `Adam=False`, 
     However,  Adam algorithm can be introduced to update the measurements which can be realized by 
     setting `Adam=True`. In this case, the Adam parameters include learning rate, the exponential 
-    decay rate for the first moment estimates and the second moment estimates can be set by the 
-    user via `epsilon`, `beta1` and `beta2`. The input rule of `measurement0` is the same with 
+    decay rate for the first moment estimates, and the second moment estimates can be set by the 
+    user via `epsilon`, `beta1`, and `beta2`. The input rule of `measurement0` is the same with 
     that in PSO, but the length of `measurement0` is equal to one.
 === "Julia"
     ``` jl
@@ -352,8 +352,8 @@ The code for measurement optimization with AD is as follows
     The measurements will update according to the learning rate `"epsilon"` for `Adam=False`, 
     However,  Adam algorithm can be introduced to update the measurements which can be realized by 
     setting `Adam=true`. In this case, the Adam parameters include learning rate, the exponential 
-    decay rate for the first moment estimates and the second moment estimates can be set by the 
-    user via `epsilon`, `beta1` and `beta2`.
+    decay rate for the first moment estimates, and the second moment estimates can be set by the 
+    user via `epsilon`, `beta1`, and `beta2`.
 
 **Example 7.2**  
 <a id="example7_2"></a>
@@ -646,7 +646,7 @@ Here three types of measurement optimization are considerd, projective measureme
 	H0 = D*np.kron(np.dot(s3, s3), ide2) + gS*(B1*S1+B2*S2+B3*S3) \
 		 + gI*(B1*I1+B2*I2+B3*I3) + A1*(np.kron(s1, sx) + np.kron(s2, sy)) \
 		 + A2*np.kron(s3, sz)
-    # derivatives of the free Hamiltonian on B1, B2 and B3
+    # derivatives of the free Hamiltonian on B1, B2, and B3
     dH = [gS*S1+gI*I1, gS*S2+gI*I2, gS*S3+gI*I3]
     # control Hamiltonians 
     Hc = [S1, S2, S3]

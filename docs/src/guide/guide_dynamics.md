@@ -42,7 +42,7 @@ respect to $\textbf{x}$ can be calculata the codes
     Here `tspan` is the time length for the evolution, `rho0` represents the density matrix of 
     the probe state, `H0` and `dH` are the free Hamiltonian and its derivatives with respect to 
     the unknown parameters to be estimated. The variable `H0` is a matrix when the free Hamiltonian 
-    is time-independent and a list with the length equal to `tspan` when it is time-dependent. 
+    is time-independent and a list of matrices with the length equal to `tspan` when it is time-dependent. 
     `dH` should be input as $[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. `decay` contains decay 
     operators $(\Gamma_1, \Gamma_2, \cdots)$ and the corresponding decay rates $(\gamma_1, \gamma_2, 
     \cdots)$ with the input rule decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...]. 
@@ -50,7 +50,7 @@ respect to $\textbf{x}$ can be calculata the codes
     [$\Gamma_2$, $\gamma_2(t)$],...], where $\gamma_1(t)$ [$\gamma_2(t)\cdots$] is an array with 
     the length equal to `tspan`.
     `Hc` and `ctrl` are two lists represent the control Hamiltonians and the corresponding control 
-    coefficients. The default values for `decay`, `Hc` and `ctrl` are `[]` which means the 
+    coefficients. The default values for `decay`, `Hc`, and `ctrl` are `[]` which means the 
     dynamics is unitary and only governed by the free Hamiltonian.
 
     The output (`rho` and `drho`) of this class by calling `dynamics.expm()` (`dynamics.ode()`) are 
@@ -71,14 +71,14 @@ respect to $\textbf{x}$ can be calculata the codes
     Here `tspan` is the time length for the evolution, `rho0` represents the density matrix of 
     the probe state, `H0` and `dH` are the free Hamiltonian and its derivatives with respect to 
     the unknown parameters to be estimated. The variable `H0` is a matrix when the free Hamiltonian 
-    is time-independent and a list with the length equal to `tspan` when it is time-dependent. 
+    is time-independent and a list of matrices with the length equal to `tspan` when it is time-dependent. 
     `dH` should be input as $[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. `decay` contains decay 
     operators $(\Gamma_1, \Gamma_2, \cdots)$ and the corresponding decay rates $(\gamma_1, \gamma_2, 
     \cdots)$ with the input rule decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...]. 
     For time-dependent decay rate, the input rule is the decay=[[$\Gamma_1$, $\gamma_1(t)$], 
     [$\Gamma_2$, $\gamma_2(t)$],...], where $\gamma_1(t)$ [$\gamma_2(t)\cdots$] is an array with 
     the length equal to `tspan`. `Hc` and `ctrl` are two lists represent the control Hamiltonians 
-    and the corresponding control coefficients. The default values for `decay`, `Hc` and `ctrl` 
+    and the corresponding control coefficients. The default values for `decay`, `Hc`, and `ctrl` 
     are `missing` which means the dynamics is unitary and only governed by the free Hamiltonian.
 
     The output (`rho` and `drho`) of this function by calling `expm()` (`ode()`) are two lists with 

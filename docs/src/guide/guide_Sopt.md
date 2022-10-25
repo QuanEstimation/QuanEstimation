@@ -29,13 +29,13 @@ Call the following codes to perform state optimizaiton
     states in the final episode and the values of the objective function in all episodes will 
     be saved. If set `True` then the states and the values of the objective function obtained 
     in all episodes will be saved during the training. `method` represents the algorithm used 
-    to optimize the states, options are: "AD", "PSO", "DE", "DDPG" and "NM". `**kwargs` contains 
+    to optimize the states, options are: "AD", "PSO", "DE", "DDPG", and "NM". `**kwargs` contains 
     the keywords and default values corresponding to the optimization algorithm which will be 
     introduced in detail below.
 
     `tspan` is the time length for the evolution, `H0` and `dH` are the free Hamiltonian and its
     derivatives with respect to the unknown parameters to be estimated. `H0` accepts both matrix 
-    (time-independent evolution) and list (time-dependent evolution) with the length equal to 
+    (time-independent evolution) and list of matrices (time-dependent evolution) with the length equal to 
     `tspan`. `dH` should be input as $[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. `Hc` 
     and `ctrl` are two lists represent the control Hamiltonians and the corresponding control 
     coefficients. `decay` contains decay operators $(\Gamma_1, \Gamma_2, \cdots)$ and the 
@@ -47,14 +47,14 @@ Call the following codes to perform state optimizaiton
     (differential equation) is directly solved with the ODE solvers.
 
     The objective functions for state optimization can be chosen as QFI $\left[\mathrm{Tr}
-    (W\mathcal{F}^{-1})\right]$, CFI $\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]$ and HCRB, 
-    the corresponding codes for them are `state.QFIM()` (default), `state.CFIM()` and 
+    (W\mathcal{F}^{-1})\right]$, CFI $\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]$, and HCRB, 
+    the corresponding codes for them are `state.QFIM()` (default), `state.CFIM()`, and 
     `state.HCRB()`. Here $\mathcal{F}$ and $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds 
     to `W` represents the weight matrix, the default value for `W` is the identity matrix. If 
     the users call `state.HCRB()` for single parameter scenario, the program will exit and print 
     `"Program terminated. In the single-parameter scenario, the HCRB is equivalent to the QFI. Please 
     choose 'QFIM' as the objective function"`. `LDtype` in `state.QFIM()` represents the types 
-    of the QFIM, it can be set as `LDtype="SLD"` (default), `LDtype="RLD"` and `LDtype="LLD"`. 
+    of the QFIM, it can be set as `LDtype="SLD"` (default), `LDtype="RLD"`, and `LDtype="LLD"`. 
     `M` represents a set of positive operator-valued measure (POVM) with default value `[]`. 
     In the package, a set of rank-one symmetric informationally complete POVM (SIC-POVM) is 
     used when `M=[]`.
@@ -84,22 +84,22 @@ Call the following codes to perform state optimizaiton
     constructing a state optimization problem. `psi` is an array representing the state. 
     `Lindblad` accepts the dynamics parameters. `tspan` is the time length for the evolution, 
     `H0` and `dH` are the free Hamiltonian and its derivatives with respect to the unknown 
-    parameters to be estimated. `H0` accepts both matrix (time-independent evolution) and list 
+    parameters to be estimated. `H0` accepts both matrix (time-independent evolution) and list of matrices
     (time-dependent evolution) with the length equal to `tspan`. `dH` should be input as 
     $[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. `Hc` and `ctrl` are two lists represent the 
     control Hamiltonians and the corresponding control coefficients. `decay` contains decay 
     operators $(\Gamma_1, \Gamma_2, \cdots)$ and the corresponding decay rates 
     $(\gamma_1, \gamma_2, \cdots)$ with the input rule 
     decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...]. The default values for 
-    `decay`, `Hc` and `ctrl` are `missing` which means the dynamics is unitary and only governed 
+    `decay`, `Hc`, and `ctrl` are `missing` which means the dynamics is unitary and only governed 
     by the free Hamiltonian. `seed` is the random seed which can ensure the reproducibility of 
     results. `dyn_method=:Expm` represents the method for solving the dynamics is 
     matrix exponential, it can also be set as `dyn_method=:Ode` which means the dynamics 
     (differential equation) is directly solved with the ODE solvers.
 
     The objective functions for state optimization can be set as QFI ($\mathrm{Tr}(W\mathcal{F}^
-    {-1})$), CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$) and HCRB, the corresponding codes for them are
-    `QFIM_obj()` (default), `CFIM_obj()` and `HCRB_obj()`. Here $\mathcal{F}$ and 
+    {-1})$), CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$), and HCRB, the corresponding codes for them are
+    `QFIM_obj()` (default), `CFIM_obj()`, and `HCRB_obj()`. Here $\mathcal{F}$ and 
     $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight matrix which 
     defaults to the identity matrix. If the users call `HCRB_obj()` for single parameter 
     scenario, the program will exit and print `"Program terminated. In the single-parameter scenario, 
@@ -113,7 +113,7 @@ Call the following codes to perform state optimizaiton
     final episode and the values of the objective function in all episodes will be saved. If set 
     `true` then the states and the values of the objective function obtained in all episodes will 
     be saved during the training. The algorithm used to optimize the states in QuanEstimation 
-    are AD, PSO, DE, DDPG and NM. `kwargs...` contains the keywords and default values corresponding 
+    are AD, PSO, DE, DDPG, and NM. `kwargs...` contains the keywords and default values corresponding 
     to the optimization algorithm which will be introduced in detail below.
 
 ---
@@ -166,7 +166,7 @@ The code for state optimization with AD is as follows
     However, Adam algorithm can be introduced to update the states which can be realized by setting 
     `Adam=true`. In this case, the Adam parameters include learning rate, the exponential decay 
     rate for the first moment estimates and the second moment estimates can be set by the user via 
-    `epsilon`, `beta1` and `beta2`.
+    `epsilon`, `beta1`, and `beta2`.
 
 ## **RI**
 The code for state optimization with RI is as follows
@@ -229,7 +229,7 @@ The code for state optimization with PSO is as follows
     program will continuously run 1000 episodes. However, if it is an array, for example 
     `max_episode=[1000,100]`, the program will run 1000 episodes in total but replace states of 
     all the particles with global best every 100 episodes. `c0`, `c1`, and `c2` are the PSO 
-    parameters representing the inertia weight, cognitive learning factor and social learning 
+    parameters representing the inertia weight, cognitive learning factor, and social learning 
     factor, respectively.  `seed` is the random seed.
 === "Julia"
     ``` jl
@@ -254,7 +254,7 @@ The code for state optimization with PSO is as follows
     it means the program will continuously run 1000 episodes. However, if it is an array, for example 
     `max_episode=[1000,100]`, the program will run 1000 episodes in total but replace states of 
     all the particles with global best every 100 episodes. `c0`, `c1`, and `c2` are the PSO 
-    parameters representing the inertia weight, cognitive learning factor and social learning 
+    parameters representing the inertia weight, cognitive learning factor, and social learning 
     factor, respectively. 
 
 ## **DE**

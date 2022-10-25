@@ -35,7 +35,7 @@ of Python and Julia should be above 3.6 and 1.7, respectively.
 | sympy                        | >=1.10       |
 | scipy                        | >=1.8        |
 | cvxpy                        | >=1.2        |
-| more_itertools               | >=8.12.0     |
+| more-itertools               | >=8.12.0     |
 
 ## **Julia packages**
 | $~~~~~~~~~~~~~~~~$Package$~~~~~~~~~~~~$| Version     |$~~~~~~~~~~~~~~~~$Package$~~~~~~~~~~~~$| Version     |

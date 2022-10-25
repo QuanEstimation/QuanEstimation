@@ -152,3 +152,7 @@ quanestimation/JuliaSrc/Manifest.toml
 
 #history
 .history
+
+#.DS_store
+.DS_store
+*/.DS_store

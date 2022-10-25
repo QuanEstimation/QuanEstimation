@@ -56,7 +56,7 @@ defined by $\partial_{a}\rho=\rho \mathcal{R}_a$ and $\partial_{a}\rho=\mathcal{
 
 \begin{align}
 \langle\lambda_i| \mathcal{R}_{a} |\lambda_j\rangle
-&= \frac{1}{\lambda_i}\langle\lambda_i| \partial_{a}\rho |\lambda_j\rangle,~~\lambda_i\neq 0; \\
+&= \frac{1}{\lambda_i}\langle\lambda_i| \partial_{a}\rho |\lambda_j\rangle,~~\lambda_i\neq 0, \\
 \langle\lambda_i| \mathcal{R}_{a}^{\dagger} |\lambda_j\rangle
 &= \frac{1}{\lambda_j}\langle\lambda_i| \partial_{a}\rho |\lambda_j\rangle,~~\lambda_j\neq 0.
 \end{align}

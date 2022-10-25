@@ -15,7 +15,7 @@ coefficients. In QuanEstimation, different algorithms are invoked to update the 
 coefficients. The control optimization algorithms are the gradient ascent pulse engineering 
 (GRAPE) [[1,2,3]](#Khaneja2005), GRAPE algorithm based on the automatic differentiation 
 (auto-GRAPE) [[4]](#Baydin2018), particle swarm optimization (PSO) [[5]](#Kennedy1995), 
-differential evolution (DE) [[6]](#Storn1997) and deep deterministic policy gradients 
+differential evolution (DE) [[6]](#Storn1997), and deep deterministic policy gradients 
 (DDPG) [[7]](#Lillicrap2015). The codes for control optimization are
 === "Python"
 	```py
@@ -48,7 +48,7 @@ differential evolution (DE) [[6]](#Storn1997) and deep deterministic policy grad
 	is the time length for the evolution and `rho0` represents the density matrix of the initial 
 	state. `H0` and `dH` are the free Hamiltonian and its derivatives with respect to the unknown 
 	parameters to be estimated. `H0` is a matrix when the free Hamiltonian is time-independent and 
-	a list with the length equal to `tspan` when it is time-dependent. `dH` should be input as 
+	a list of matrices with the length equal to `tspan` when it is time-dependent. `dH` should be input as 
 	$[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. `Hc` is a list representing the control 
 	Hamiltonians. `decay` contains decay operators $(\Gamma_1, \Gamma_2, \cdots)$ and the 
 	corresponding decay rates $(\gamma_1, \gamma_2, \cdots)$, its input rule is
@@ -62,8 +62,8 @@ differential evolution (DE) [[6]](#Storn1997) and deep deterministic policy grad
 	which means the dynamics (differential equation) is directly solved with the ODE solvers.
 
 	The objective functions for control optimization can be set as QFI $\left[\mathrm{Tr}(W
-	\mathcal{F}^{-1})\right]$, CFI $\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]$ and HCRB, the 
-	corresponding codes for them are `control.QFIM()` (default), `control.CFIM()` and `control.HCRB()`. 
+	\mathcal{F}^{-1})\right]$, CFI $\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]$, and HCRB, the 
+	corresponding codes for them are `control.QFIM()` (default), `control.CFIM()`, and `control.HCRB()`. 
 	Here $\mathcal{F}$ and $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight 
 	matrix which defaults to the identity matrix. If the users call `control.HCRB()` for single 
 	parameter scenario, the program will exit and print `"Program terminated. In the single-parameter 
@@ -107,8 +107,8 @@ differential evolution (DE) [[6]](#Storn1997) and deep deterministic policy grad
 	dynamics parameters shoule be input via `Lindblad()`. Here `tspan` is the time length for 
 	the evolution and `rho0` represents the density matrix of the initial state. `H0` and `dH` 
 	are the free Hamiltonian and its derivatives with respect to the unknown parameters to be 
-	estimated. `H0` is a matrix when the free Hamiltonian is time-independent and a list with the 
-	length equal to `tspan` when it is time-dependent. `dH` should be input as $[\partial_a{H_0}, 
+	estimated. `H0` is a matrix when the free Hamiltonian is time-independent and a list of matrices
+	with the length equal to `tspan` when it is time-dependent. `dH` should be input as $[\partial_a{H_0}, 
 	\partial_b{H_0}, \cdots]$. `Hc` is a list representing the control Hamiltonians. `decay` 
 	contains decay operators $(\Gamma_1, \Gamma_2, \cdots)$ and the corresponding decay rates 
 	$(\gamma_1, \gamma_2, \cdots)$ with the input rule decay=[[$\Gamma_1$, $\gamma_1$], 
@@ -118,8 +118,8 @@ differential evolution (DE) [[6]](#Storn1997) and deep deterministic policy grad
     (differential equation) is directly solved with the ODE solvers.
 
 	The objective functions for control optimization can be set as QFI $\left[\mathrm{Tr}(W
-	\mathcal{F}^{-1})\right]$, CFI $\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]$ and HCRB, the 
-	corresponding codes for them are `QFIM_obj()` (default), `CFIM_obj()` and `HCRB_obj()`. Here 
+	\mathcal{F}^{-1})\right]$, CFI $\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]$, and HCRB, the 
+	corresponding codes for them are `QFIM_obj()` (default), `CFIM_obj()`, and `HCRB_obj()`. Here 
 	$\mathcal{F}$ and $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight 
 	matrix which defaults to the identity matrix. If the users call `HCRB_obj()` for single parameter 
 	scenario, the program will exit and print `"Program terminated. In the single-parameter scenario, 
@@ -134,7 +134,7 @@ differential evolution (DE) [[6]](#Storn1997) and deep deterministic policy grad
 	the objective function in all episodes will be saved in "controls.csv" and "f.csv", respectively.
 	If set `true` then the control coefficients and the values of the objective function in all 
 	episodes will be saved during the training. The algorithm used for optimizing the control
-	coefficients in QuanEstimation are GRAPE, auto-GRAPE, PSO, DE and DDPG. `kwargs...` contains 
+	coefficients in QuanEstimation are GRAPE, auto-GRAPE, PSO, DE, and DDPG. `kwargs...` contains 
 	the keywords and defaults value corresponding to the optimization algorithm which will be 
 	introduced in detail below.
 
@@ -167,7 +167,7 @@ The codes for control optimization with GRAPE and auto-GRAPE are as follows
 	Adam algorithm can be introduced to update the control coefficients when using GRAPE and 
 	auto-GRAPE for control optimization, which can be realized by setting `Adam=True`. In this 
 	case, the Adam parameters include learning rate, the exponential decay rate for the first 
-	moment estimates and the second moment estimates can be set by the users via `epsilon`, `beta1`
+	moment estimates and the second moment estimates can be set by the users via `epsilon`, `beta1`,
 	and `beta2`, respectively. If `Adam=False`, the control coefficients will update according to 
 	the learning rate `"epsilon"`. `ctrl0` is a list representing the initial guesses of control 
 	coefficients and `max_episode` is the number of episodes.
@@ -194,7 +194,7 @@ The codes for control optimization with GRAPE and auto-GRAPE are as follows
 	Adam algorithm can be introduced to update the control coefficients when using GRAPE and 
 	auto-GRAPE for control optimization, which can be realized by setting `Adam=true`. In this 
 	case, the Adam parameters include learning rate, the exponential decay rate for the first 
-	moment estimates and the second moment estimates can be set by the users via `epsilon`, `beta1`
+	moment estimates and the second moment estimates can be set by the users via `epsilon`, `beta1`,
 	and `beta2`, respectively. If `Adam=false`, the control coefficients will update according to 
 	the learning rate `"epsilon"`.
 
@@ -221,8 +221,8 @@ The code for control optimization with PSO is as follows
 	| "c2"                             | 2.0                        |
 	| "seed"                           | 1234                       |
 
-	Here `p_num` is the number of particles. `c0`, `c1` and `c2` are the PSO parameters 
-	representing the inertia weight, cognitive learning factor and social learning factor, 
+	Here `p_num` is the number of particles. `c0`, `c1`, and `c2` are the PSO parameters 
+	representing the inertia weight, cognitive learning factor, and social learning factor, 
 	respectively. `max_episode` accepts both integer and array with two elements. If it is an 
 	integer, for example `max_episode=1000`, it means the program will continuously run 1000 
 	episodes. However, if it is an array, for example `max_episode=[1000,100]`, the program will 
@@ -247,8 +247,8 @@ The code for control optimization with PSO is as follows
 	| "c1"                             | 2.0                        |
 	| "c2"                             | 2.0                        |
 
-	Here `p_num` is the number of particles. `c0`, `c1` and `c2` are the PSO parameters 
-	representing the inertia weight, cognitive learning factor and social learning factor, 
+	Here `p_num` is the number of particles. `c0`, `c1`, and `c2` are the PSO parameters 
+	representing the inertia weight, cognitive learning factor, and social learning factor, 
 	respectively. `max_episode` accepts both integer and array with two elements. If it is an 
 	integer, for example `max_episode=1000`, it means the program will continuously run 1000 
 	episodes. However, if it is an array, for example `max_episode=[1000,100]`, the program will 
@@ -579,7 +579,7 @@ H_0/\hbar=DS^2_3+g_{\mathrm{S}}\vec{B}\cdot\vec{S}+g_{\mathrm{I}}\vec{B}\cdot\ve
 
 is the free evolution Hamiltonian, where $\vec{S}=(S_1,S_2,S_3)^{\mathrm{T}}$ and 
 $\vec{I}=(I_1,I_2,I_3)^{\mathrm{T}}$ with $S_i=s_i\otimes I$ and $I_i=I\otimes \sigma_i$ 
-$(i=1,2,3)$ the electron and nuclear operators. $s_1, s_2, s_3$ are spin-1 operators with 
+$(i=1,2,3)$ the electron and nuclear operators. $s_1, s_2, and s_3$ are spin-1 operators with 
 
 \begin{eqnarray}
 s_1 = \frac{1}{\sqrt{2}}\left(\begin{array}{ccc}
@@ -591,7 +591,7 @@ s_2 = \frac{1}{\sqrt{2}}\left(\begin{array}{ccc}
 0 & -i & 0\\
 i & 0 & -i\\
 0 & i & 0
-\end{array}\right)\!\!, \nonumber
+\end{array}\right), \nonumber
 \end{eqnarray}
 
 and $s_3=\mathrm{diag}(1,0,-1)$ and $\sigma_i (i=1,2,3)$ is Pauli matrix. $\mathcal{A}=\mathrm{diag}
@@ -599,12 +599,12 @@ and $s_3=\mathrm{diag}(1,0,-1)$ and $\sigma_i (i=1,2,3)$ is Pauli matrix. $\math
 hyperfine coupling coefficients. The coefficients $g_{\mathrm{S}}=g_\mathrm{e}\mu_\mathrm{B}/\hbar$ 
 and $g_{\mathrm{I}}=g_\mathrm{n}\mu_\mathrm{n}/\hbar$, where $g_\mathrm{e}$ ($g_\mathrm{n}$) is 
 the $g$ factor of the electron (nuclear), $\mu_\mathrm{B}$ ($\mu_\mathrm{n}$) is the Bohr (nuclear) 
-magneton and $\hbar$ is the Plank's constant. $\vec{B}$ is the magnetic field which be estimated.
+magneton, and $\hbar$ is the Plank's constant. $\vec{B}$ is the magnetic field which be estimated.
 
-In this case,the initial state is taken as $\frac{1}{\sqrt{2}}(|1\rangle+|\!-\!1\rangle)\otimes
+In this case, the initial state is taken as $\frac{1}{\sqrt{2}}(|1\rangle+|\!-\!1\rangle)\otimes
 |\!\!\uparrow\rangle$, where $\frac{1}{\sqrt{2}}(|1\rangle+|\!-\!1\rangle)$ is an electron state 
-with $|1\rangle$ ($|\!-\!1\rangle$) the eigenstate of $s_3$ with respect to the eigenvalue $1$ 
-($-1$). $|\!\!\uparrow\rangle$ is a nuclear state and the eigenstate of $\sigma_3$ with respect 
+with $|1\rangle$ $\left(|-\!1\rangle\right)$ the eigenstate of $s_3$ with respect to the eigenvalue $1$ 
+($-1$). $|\uparrow\rangle$ is a nuclear state and the eigenstate of $\sigma_3$ with respect 
 to the eigenvalue 1. $W$ is set to be identity.
 
 Here three types of measurement optimization are considerd, projective measurement, linear combination of a given set of positive operator-valued measure (POVM) and optimal rotated measurement of an input measurement.
@@ -920,7 +920,7 @@ Search of the minimum time to reach a given value of the objective function.
 the minimum time are provided which are logarithmic search and forward search from the 
 beginning of time. It can be realized by setting `method=binary` (default) and 
 `method=forward`. `target` represents the objective function for searching the minimum time, 
-the users can choose QFI $\left[\mathrm{Tr}(WF^{-1})\right]$, CFI $\left[\mathrm{Tr}(WI^{-1})\right]$ 
+the users can choose QFI $\left[\mathrm{Tr}(WF^{-1})\right]$, CFI $\left[\mathrm{Tr}(WI^{-1})\right]$, 
 and HCRB for the objective functions. If `target="QFIM"`, the types for the logarithmic derivatives 
 can be set via `LDtype`.
 

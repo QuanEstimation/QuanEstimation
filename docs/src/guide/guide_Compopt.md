@@ -1,6 +1,6 @@
 # **Comprehensive optimization**
 In order to obtain the optimal parameter estimation schemes, it is necessary to
-simultaneously optimize the probe state, control and measurement. The comprehensive 
+simultaneously optimize the probe state, control, and measurement. The comprehensive 
 optimization for the probe state and measurement (SM), the probe state and control (SC), the 
 control and measurement (CM) and the probe state, control and measurement (SCM) are proposed
 in QuanEstiamtion. In the package, the comprehensive optimization algorithms are particle 
@@ -39,7 +39,7 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
     If the dynamics of the system can be described by the master equation, then the dynamics data 
     `tspan`, `H0`, and `dH` shoule be input. `tspan` is the time length for the evolution, `H0`
     and `dH` are the free Hamiltonian and its derivatives on the unknown parameters to be 
-    estimated. `H0` is a matrix when the free Hamiltonian is time-independent and a list with the 
+    estimated. `H0` is a matrix when the free Hamiltonian is time-independent and a list of matrices with the 
     length equal to `tspan` when it is time-dependent. `dH` should be input as
     $[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. `Hc` and `ctrl` are two lists represent the
     control Hamiltonians and the corresponding control coefficients.`decay` contains decay 
@@ -56,13 +56,13 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
     QuanEstimation contains four comprehensive optimizations which are `com.SM()`, `com.SC()`,
     `com.CM()` and `com.SCM()`. The `target` in `com.SC()` can be set as `target="QFIM"` (default), 
     `target="CFIM` and `target="HCRB` for the corresponding objective functions are QFI 
-    ($\mathrm{Tr}(W\mathcal{F}^{-1})$), CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$) and HCRB, 
+    ($\mathrm{Tr}(W\mathcal{F}^{-1})$), CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$), and HCRB, 
     respectively. Here $\mathcal{F}$ and $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to 
     `W` is the weight matrix which defaults to the identity matrix. If the users set `target="HCRB` 
     for single parameter scenario, the program will exit and print `"Program terminated. In the 
     single-parameter scenario, the HCRB is equivalent to the QFI. Please choose 'QFIM' as the 
     objective function"`. `LDtype` represents the types of the QFIM, it can be set as 
-    `LDtype="SLD"` (default), `LDtype="RLD"` and `LDtype="LLD"`. For the other three scenarios, 
+    `LDtype="SLD"` (default), `LDtype="RLD"`, and `LDtype="LLD"`. For the other three scenarios, 
     the objective function is CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$).
 === "Julia"
     === "SM"
@@ -115,8 +115,8 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
         run(opt, alg, obj, dynamics; savefile=false)
         ```
     QuanEstimation contains four comprehensive optimizations which are `SMopt()`, `SCopt()`,
-    `CMopt()` and `SCMopt()`. The optimization variables including initial state, control 
-    and measurement can be input via `ctrl=ctrl`, `psi=psi` and `M=M`  for constructing a 
+    `CMopt()`, and `SCMopt()`. The optimization variables including initial state, control,
+    and measurement can be input via `ctrl=ctrl`, `psi=psi`, and `M=M`  for constructing a 
     comprehensive optimization problem. Here, `ctrl` is a list of arrays with the length 
     equal to control Hamiltonians, `psi` is an array representing the state and `M` is
     a list of arrays with the length equal to the dimension of the system which representing 
@@ -127,20 +127,20 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
     missing` which means the control coefficients are in the regime $[-\infty,\infty]$.
     `seed` is the random seed which can ensure the reproducibility of results.
     
-    The objective function of `SCopt()` can be chosen as `QFIM_obj()` (default), `CFIM_obj()` 
+    The objective function of `SCopt()` can be chosen as `QFIM_obj()` (default), `CFIM_obj()`, 
     and `HCRB_obj()` for the corresponding objective functions are QFI ($\mathrm{Tr}(W\mathcal{F}^
-    {-1})$), CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$) and HCRB, respectively. Here $\mathcal{F}$ 
+    {-1})$), CFI ($\mathrm{Tr}(W\mathcal{I}^{-1})$), and HCRB, respectively. Here $\mathcal{F}$ 
     and $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight matrix which 
     defaults to the identity matrix. If the users set `HCRB_obj()` for single parameter scenario, 
     the program will exit and print `"Program terminated. In the single-parameter scenario, the 
     HCRB is equivalent to the QFI. Please choose 'QFIM_obj()' as the objective function"`. `LDtype` 
-    represents the types of the QFIM, it can be set as `LDtype=:SLD` (default), `LDtype=:RLD` 
+    represents the types of the QFIM, it can be set as `LDtype=:SLD` (default), `LDtype=:RLD`, 
     and `LDtype=:LLD`. For the other three scenarios, the objective function is `CFIM_obj()`.
     
     If the dynamics of the system can be described by the master equation, then the dynamics data 
     `tspan`, `H0`, and `dH` shoule be input. `tspan` is the time length for the evolution, `H0`
     and `dH` are the free Hamiltonian and its derivatives on the unknown parameters to be 
-    estimated. `H0` is a matrix when the free Hamiltonian is time-independent and a list with the 
+    estimated. `H0` is a matrix when the free Hamiltonian is time-independent and a list of matrices with the 
     length equal to `tspan` when it is time-dependent. `dH` should be input as
     $[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. `Hc` and `ctrl` are two lists represent the
     control Hamiltonians and the corresponding control coefficients.`decay` contains decay 
@@ -151,11 +151,11 @@ and automatic differentiation (AD) [[3]](#Baydin2018).
     (differential equation) is directly solved with the ODE solvers.
 
     The variable `savefile` means whether to save all the optimized variables (probe states, 
-    control coefficients and measurements). If set `true` then the optimized variables and the 
+    control coefficients, and measurements). If set `true` then the optimized variables and the 
     values of the objective function obtained in all episodes will be saved during the training, 
     otherwise, the optimized variables in the final episode and the values of the objective 
     function in all episodes will be saved. The algorithm used in QuanEstimation for 
-    comprehensive optimizaiton are PSO, DE and AD. `kwargs...` is the keywords and the default 
+    comprehensive optimizaiton are PSO, DE, and AD. `kwargs...` is the keywords and the default 
     values corresponding to the optimization algorithm which will be introduced in detail below.
 
 ---
@@ -186,11 +186,11 @@ The code for comprehensive optimization with PSO is as follows
     | "c2"                             | 2.0                        |
     | "seed"                           | 1234                       |
 
-    `psi0`, `ctrl0` and `measurement0` in the algorithms represent the initial 
+    `psi0`, `ctrl0`, and `measurement0` in the algorithms represent the initial 
     guesses of states, control coefficients and measurements, respectively, `seed` 
     is the random seed. Here `p_num` is the number of particles, `c0`, 
     `c1`, and `c2` are the PSO parameters representing the inertia weight, cognitive 
-    learning factor and social learning factor, respectively. `max_episode` accepts 
+    learning factor, and social learning factor, respectively. `max_episode` accepts 
     both integers and arrays with two elements. If it is an integer, for example 
     max_episode=1000, it means the program will continuously run 1000 episodes. 
     However, if it is an array, for example max_episode=[1000,100], the program will 
@@ -213,13 +213,13 @@ The code for comprehensive optimization with PSO is as follows
     | "c1"                             | 2.0                        |
     | "c2"                             | 2.0                        |
 
-    `ini_particle`is a tuple contains `psi0`, `ctrl0` and `measurement0`, which 
-    representing the initial guesses of states, control coefficients and measurements,
+    `ini_particle`is a tuple contains `psi0`, `ctrl0`, and `measurement0`, which 
+    representing the initial guesses of states, control coefficients, and measurements,
     respectively. The input rule of `ini_particle` shoule be `ini_particle=(psi0, 
     measurement0)`(SM), `ini_particle=(psi0, ctrl0)`(SC), `ini_particle=(ctrl0, 
     measurement0)`(CM) and  `ini_particle=(psi0, ctrl0, measurement0)`(SCM).
     Here `p_num` is the number of particles, `c0`, `c1`, and `c2` are the PSO parameters 
-    representing the inertia weight, cognitive learning factor and social learning 
+    representing the inertia weight, cognitive learning factor, and social learning 
     factor, respectively. `max_episode` accepts both integers and arrays with two 
     elements. If it is an integer, for example max_episode=1000, it means the program 
     will continuously run 1000 episodes. However, if it is an array, for example 
@@ -272,11 +272,11 @@ The code for comprehensive optimization with DE is as follows
 
     Here `max_episode` is an integer representing the number of episodes. `p_num` 
     represents the number of populations. `c` and `cr` are constants for mutation 
-    and crossover. `ini_particle`is a tuple contains `psi0`, `ctrl0` and `measurement0`,
-    which representing the initial guesses of states, control coefficients and 
+    and crossover. `ini_particle`is a tuple contains `psi0`, `ctrl0`, and `measurement0`,
+    which representing the initial guesses of states, control coefficients, and 
     measurements, respectively. The input rule of `ini_particle` shoule be 
     `ini_particle=(psi0, measurement0)`(SM), `ini_particle=(psi0, ctrl0)`(SC), 
-    `ini_particle=(ctrl0, measurement0)`(CM) and  
+    `ini_particle=(ctrl0, measurement0)`(CM), and  
     `ini_particle=(psi0, ctrl0, measurement0)`(SCM).
 ## **AD**
 The code for comprehensive optimization with AD is as follows
@@ -327,8 +327,8 @@ The code for comprehensive optimization with AD is as follows
     The optimized variables will update according to the learning rate `"epsilon"` 
     when `Adam=false`. However, If `Adam=true`, Adam algorithm will be used and the 
     Adam parameters include learning rate, the exponential decay rate for the first 
-    moment estimates and the second moment estimates can be set by the user via 
-    `epsilon`, `beta1` and `beta2`.
+    moment estimates, and the second moment estimates can be set by the user via 
+    `epsilon`, `beta1`, and `beta2`.
 
 **Example 8.1**  
 <a id="example8_1"></a>
@@ -710,7 +710,7 @@ is the free evolution Hamiltonian, where $\vec{S}=(S_1,S_2,S_3)^{\mathrm{T}}$ an
 $S_i=s_i\otimes I$ and $I_i=I\otimes \sigma_i$ ($i=1,2,3$) the electron and nuclear operators. $\mathcal{A}=\mathrm{diag}
 (A_1,A_1,A_2)$ is the hyperfine tensor with $A_1$ and $A_2$ the axial and transverse magnetic hyperfine coupling coefficients.
 The coefficients $g_{\mathrm{S}}=g_\mathrm{e}\mu_\mathrm{B}/\hbar$ and $g_{\mathrm{I}}=g_\mathrm{n}\mu_\mathrm{n}/\hbar$, 
-where $g_\mathrm{e}$ ($g_\mathrm{n}$) is the $g$ factor of the electron (nuclear), $\mu_\mathrm{B}$ ($\mu_\mathrm{n}$) is the Bohr (nuclear) magneton and $\hbar$ is the Plank's constant. $\vec{B}$ is the magnetic field which be estimated. The control Hamiltonian is
+where $g_\mathrm{e}$ ($g_\mathrm{n}$) is the $g$ factor of the electron (nuclear), $\mu_\mathrm{B}$ ($\mu_\mathrm{n}$) is the Bohr (nuclear) magneton, and $\hbar$ is the Plank's constant. $\vec{B}$ is the magnetic field which be estimated. The control Hamiltonian is
 \begin{align}
 H_{\mathrm{c}}/\hbar=\sum^3_{i=1}\Omega_i(t)S_i
 \end{align}
@@ -752,7 +752,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
 	H0 = D*np.kron(np.dot(s3, s3), ide2) + gS*(B1*S1+B2*S2+B3*S3) \
 		 + gI*(B1*I1+B2*I2+B3*I3) + A1*(np.kron(s1, sx) + np.kron(s2, sy)) \
 		 + A2*np.kron(s3, sz)
-    # derivatives of the free Hamiltonian on B1, B2 and B3
+    # derivatives of the free Hamiltonian on B1, B2, and B3
     dH = [gS*S1+gI*I1, gS*S2+gI*I2, gS*S3+gI*I3]
     # control Hamiltonians 
     Hc = [S1, S2, S3]

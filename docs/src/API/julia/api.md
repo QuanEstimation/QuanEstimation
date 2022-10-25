@@ -719,7 +719,7 @@ Calculation of the Bayesian quantum Fisher information (BQFI) and the Bayesian q
 Bayes(x, p, rho, y; M=missing, savefile=false)
 ```
 
-Bayesian estimation. The prior distribution is updated via the posterior distribution obtained by the Bayes’ rule and the estimated value of parameters obtained via the maximum a posteriori probability (MAP).
+Bayesian estimation. The prior distribution is updated via the posterior distribution obtained by the Bayes' rule and the estimated value of parameters obtained via the maximum a posteriori probability (MAP).
 
   * `x`: The regimes of the parameters for the integral.
   * `p`: The prior distribution.
