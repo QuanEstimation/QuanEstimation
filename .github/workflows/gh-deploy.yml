@@ -16,5 +16,5 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.x
-      - run: pip install mkdocs-material mkdocs-material fontawesome_markdown mkdocstrings griffe 
+      - run: pip install -r docs/src/requirements.txt
       - run: mkdocs gh-deploy --force
