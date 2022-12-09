@@ -334,6 +334,7 @@ The code for comprehensive optimization with AD is as follows
 <a id="example8_1"></a>
 A single qubit system whose free evolution Hamiltonian is $H_0 = \frac{1}{2}\omega \sigma_3$ with 
 $\omega$ the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system is governed by
+
 \begin{align}
 \partial_t\rho=-i[H_0, \rho]+ \gamma_{+}\left(\sigma_{+}\rho\sigma_{-}-\frac{1}{2}\{\sigma_{-}\sigma_{+},\rho\}\right)+ \gamma_{-}\left(\sigma_{-}\rho\sigma_{+}-\frac{1}{2}\{\sigma_{+}\sigma_{-},\rho\}\right),
 \end{align}
@@ -371,6 +372,7 @@ In this case, we consider two types of comprehensive optimization, the first one
     M1 = 0.5*np.array([[1., 1.], [1., 1.]])
 	M2 = 0.5*np.array([[1., -1.], [-1., 1.]])
     M = [M1, M2]
+    M_num = 2
     # time length for the evolution
     tspan = np.linspace(0., 10., 2500)
     ```
@@ -383,6 +385,11 @@ In this case, we consider two types of comprehensive optimization, the first one
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
             com.dynamics(tspan, H0, dH, decay=decay, dyn_method="expm")
             com.SM()
+            # convert the ".csv" file to the ".npy" file
+            M_ = np.loadtxt("measurements.csv", dtype=np.complex128)
+            csv2npy_measurements(M_, M_num)
+            # load the measurements
+            M = np.load("measurements.npy")[-1]
             ```
         === "PSO"
             ``` py
@@ -393,6 +400,11 @@ In this case, we consider two types of comprehensive optimization, the first one
             com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
             com.dynamics(tspan, H0, dH, decay=decay, dyn_method="expm")
             com.SM()
+            # convert the ".csv" file to the ".npy" file
+            M_ = np.loadtxt("measurements.csv", dtype=np.complex128)
+            csv2npy_measurements(M_, M_num)
+            # load the measurements
+            M = np.load("measurements.npy")[-1]
             ```
     === "SC"
         === "DE"
@@ -457,6 +469,11 @@ In this case, we consider two types of comprehensive optimization, the first one
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0], \
                          dyn_method="expm")
             com.CM(rho0)
+            # convert the ".csv" file to the ".npy" file
+            M_ = np.loadtxt("measurements.csv", dtype=np.complex128)
+            csv2npy_measurements(M_, M_num)
+            # load the measurements
+            M = np.load("measurements.npy")[-1]
             ```
         === "PSO"
             ``` py
@@ -468,6 +485,11 @@ In this case, we consider two types of comprehensive optimization, the first one
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0], \
                          dyn_method="expm")
             com.CM(rho0)
+            # convert the ".csv" file to the ".npy" file
+            M_ = np.loadtxt("measurements.csv", dtype=np.complex128)
+            csv2npy_measurements(M_, M_num)
+            # load the measurements
+            M = np.load("measurements.npy")[-1]
             ```
     === "SCM"
         === "DE"
@@ -479,6 +501,11 @@ In this case, we consider two types of comprehensive optimization, the first one
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0], \
                          dyn_method="expm")
             com.SCM()
+            # convert the ".csv" file to the ".npy" file
+            M_ = np.loadtxt("measurements.csv", dtype=np.complex128)
+            csv2npy_measurements(M_, M_num)
+            # load the measurements
+            M = np.load("measurements.npy")[-1]
             ```
         === "PSO"
             ``` py
@@ -490,10 +517,16 @@ In this case, we consider two types of comprehensive optimization, the first one
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-2.0,2.0], \
                          dyn_method="expm")
             com.SCM()
+            # convert the ".csv" file to the ".npy" file
+            M_ = np.loadtxt("measurements.csv", dtype=np.complex128)
+            csv2npy_measurements(M_, M_num)
+            # load the measurements
+            M = np.load("measurements.npy")[-1]
             ```
 === "Julia"
     ``` jl
     using QuanEstimation
+    using DelimitedFiles
 
     # initial state
     rho0 = 0.5*ones(2, 2)
@@ -515,6 +548,7 @@ In this case, we consider two types of comprehensive optimization, the first one
     M1 = 0.5*[1.0+0.0im  1.; 1.  1.]
 	M2 = 0.5*[1.0+0.0im -1.; -1.  1.]
     M = [M1, M2]
+    M_num = 2
     # time length for the evolution
     tspan = range(0., 10., length=2500)
     ```
@@ -533,6 +567,10 @@ In this case, we consider two types of comprehensive optimization, the first one
                                                dyn_method=:Expm)
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+            # convert the flattened data into a list of matrix
+            M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+            M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] 
+                for j in 1:Int(length(M_[:,1])/M_num)][end]
             ```
         === "PSO"
             ``` jl
@@ -546,6 +584,10 @@ In this case, we consider two types of comprehensive optimization, the first one
                                                dyn_method=:Expm)   
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+            # convert the flattened data into a list of matrix
+            M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+            M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] 
+                for j in 1:Int(length(M_[:,1])/M_num)][end]
             ```
     === "SC"
         ``` jl
@@ -643,6 +685,10 @@ In this case, we consider two types of comprehensive optimization, the first one
                                                decay=decay, dyn_method=:Expm) 
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+            # convert the flattened data into a list of matrix
+            M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+            M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] 
+                for j in 1:Int(length(M_[:,1])/M_num)][end]
             ```
         === "PSO"
             ``` jl
@@ -656,6 +702,10 @@ In this case, we consider two types of comprehensive optimization, the first one
                                                decay=decay, dyn_method=:Expm)  
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+            # convert the flattened data into a list of matrix
+            M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+            M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] 
+                for j in 1:Int(length(M_[:,1])/M_num)][end]
             ```
     === "SCM"
         ``` jl
@@ -672,6 +722,10 @@ In this case, we consider two types of comprehensive optimization, the first one
                                                dyn_method=:Expm)  
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+            # convert the flattened data into a list of matrix
+            M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+            M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] 
+                for j in 1:Int(length(M_[:,1])/M_num)][end]
             ```
         === "PSO"
             ``` jl
@@ -685,6 +739,10 @@ In this case, we consider two types of comprehensive optimization, the first one
                                                dyn_method=:Expm)  
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+            # convert the flattened data into a list of matrix
+            M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+            M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] 
+                for j in 1:Int(length(M_[:,1])/M_num)][end]
             ```
 **Example 8.2**  
 <a id="example8_2"></a>
@@ -760,6 +818,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
     decay = [[S3,2*np.pi/cons]]  
     # measurement
     dim = len(rho0)
+    M_num = dim
     M = [np.dot(basis(dim, i), basis(dim, i).conj().T) for i in range(dim)]
     # time length for the evolution
     tspan = np.linspace(0., 2., 4000)
@@ -776,6 +835,11 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
             com.dynamics(tspan, H0, dH, decay=decay, dyn_method="expm")
             com.SM()
+            # convert the ".csv" file to the ".npy" file
+            M_ = np.loadtxt("measurements.csv", dtype=np.complex128)
+            csv2npy_measurements(M_, M_num)
+            # load the measurements
+            M = np.load("measurements.npy")[-1]
             ```
         === "PSO"
             ``` py
@@ -786,6 +850,11 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
             com.dynamics(tspan, H0, dH, decay=decay, dyn_method="expm")
             com.SM()
+            # convert the ".csv" file to the ".npy" file
+            M_ = np.loadtxt("measurements.csv", dtype=np.complex128)
+            csv2npy_measurements(M_, M_num)
+            # load the measurements
+            M = np.load("measurements.npy")[-1]
             ```
     === "SC"
         === "DE"
@@ -866,6 +935,11 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-0.2,0.2], \
                          dyn_method="expm")
             com.CM(rho0)
+            # convert the ".csv" file to the ".npy" file
+            M_ = np.loadtxt("measurements.csv", dtype=np.complex128)
+            csv2npy_measurements(M_, M_num)
+            # load the measurements
+            M = np.load("measurements.npy")[-1]
             ```
         === "PSO"
             ``` py
@@ -877,6 +951,11 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-0.2,0.2], \  
                          dyn_method="expm")
             com.CM(rho0)
+            # convert the ".csv" file to the ".npy" file
+            M_ = np.loadtxt("measurements.csv", dtype=np.complex128)
+            csv2npy_measurements(M_, M_num)
+            # load the measurements
+            M = np.load("measurements.npy")[-1]
             ```
     === "SCM"
         === "DE"
@@ -888,6 +967,11 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-0.2,0.2], \
                          dyn_method="expm")
             com.SCM()
+            # convert the ".csv" file to the ".npy" file
+            M_ = np.loadtxt("measurements.csv", dtype=np.complex128)
+            csv2npy_measurements(M_, M_num)
+            # load the measurements
+            M = np.load("measurements.npy")[-1]
             ```
         === "PSO"
             ``` py
@@ -899,11 +983,17 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
             com.dynamics(tspan, H0, dH, Hc=Hc, decay=decay, ctrl_bound=[-0.2,0.2], \
                          dyn_method="expm")
             com.SCM()
+            # convert the ".csv" file to the ".npy" file
+            M_ = np.loadtxt("measurements.csv", dtype=np.complex128)
+            csv2npy_measurements(M_, M_num)
+            # load the measurements
+            M = np.load("measurements.npy")[-1]
             ```
 === "Julia"
     ``` jl
     using QuanEstimation
     using LinearAlgebra
+    using DelimitedFiles
 
     # initial state
     rho0 = zeros(ComplexF64, 6, 6)
@@ -936,6 +1026,7 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
     decay = [[S3, 2pi/cons]]
     # measurement
     dim = size(rho0, 1)
+    M_num = dim
     M = [QuanEstimation.basis(dim, i)*QuanEstimation.basis(dim, i)' 
          for i in 1:dim]
     # time length for the evolution
@@ -961,6 +1052,10 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                                                dyn_method=:Expm)   
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+            # convert the flattened data into a list of matrix
+            M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+            M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] 
+                for j in 1:Int(length(M_[:,1])/M_num)][end]
             ```
         === "PSO"
             ``` jl
@@ -974,6 +1069,10 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                                                dyn_method=:Expm) 
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+            # convert the flattened data into a list of matrix
+            M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+            M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] 
+                for j in 1:Int(length(M_[:,1])/M_num)][end]
             ```
     === "SC"
         ``` jl
@@ -1091,6 +1190,10 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                                                decay=decay, dyn_method=:Expm)    
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+            # convert the flattened data into a list of matrix
+            M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+            M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] 
+                for j in 1:Int(length(M_[:,1])/M_num)][end]
             ```
         === "PSO"
             ``` jl
@@ -1104,6 +1207,10 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                                                decay=decay, dyn_method=:Expm)  
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+            # convert the flattened data into a list of matrix
+            M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+            M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] 
+                for j in 1:Int(length(M_[:,1])/M_num)][end]
             ```
     === "SCM"
         ``` jl
@@ -1120,6 +1227,10 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                                                dyn_method=:Expm)   
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+            # convert the flattened data into a list of matrix
+            M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+            M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] 
+                for j in 1:Int(length(M_[:,1])/M_num)][end]
             ```
         === "PSO"
             ``` jl
@@ -1133,6 +1244,10 @@ the eigenstate of $\sigma_3$ with respect to the eigenvalue 1. $W$ is set to be 
                                                dyn_method=:Expm)   
             # run the comprehensive optimization problem
             QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+            # convert the flattened data into a list of matrix
+            M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+            M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] 
+                for j in 1:Int(length(M_[:,1])/M_num)][end]
             ```
 For optimization of probe state and measurement, the parameterization can also be implemented 
 with the Kraus operators which can be realized by
@@ -1197,6 +1312,11 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
         com = ComprehensiveOpt(savefile=False, method="DE", **DE_paras)
         com.Kraus(K, dK)
         com.SM()
+        # convert the ".csv" file to the ".npy" file
+        M_ = np.loadtxt("measurements.csv", dtype=np.complex128)
+        csv2npy_measurements(M_, 2)
+        # load the measurements
+        M = np.load("measurements.npy")[-1]
         ```
     === "PSO"
         ``` py
@@ -1207,10 +1327,16 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
         com = ComprehensiveOpt(savefile=False, method="PSO", **PSO_paras)
         com.Kraus(K, dK)
         com.SM()
+        # convert the ".csv" file to the ".npy" file
+        M_ = np.loadtxt("measurements.csv", dtype=np.complex128)
+        csv2npy_measurements(M_, 2)
+        # load the measurements
+        M = np.load("measurements.npy")[-1]
         ```
 === "Julia"
     ``` jl
     using QuanEstimation
+    using DelimitedFiles
 
     # initial state
     rho0 = 0.5*ones(2, 2)
@@ -1224,6 +1350,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
     dK2 = [0. 0.5/sqrt(gamma); 0. 0.]
     dK = [[dK1], [dK2]]
     # comprehensive optimization 
+    M_num = 2
     opt = QuanEstimation.SMopt(seed=1234)
     ```
     === "DE"
@@ -1236,6 +1363,10 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
         dynamics = QuanEstimation.Kraus(opt, K, dK)  
         # run the comprehensive optimization problem
         QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+        # convert the flattened data into a list of matrix
+        M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+        M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] 
+            for j in 1:Int(length(M_[:,1])/M_num)][end]
         ```
     === "PSO"
         ``` jl
@@ -1248,6 +1379,10 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
         dynamics = QuanEstimation.Kraus(opt, K, dK)   
         # run the comprehensive optimization problem
         QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+        # convert the flattened data into a list of matrix
+        M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+        M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] 
+            for j in 1:Int(length(M_[:,1])/M_num)][end]
         ```
 ---
 ## **Bibliography**

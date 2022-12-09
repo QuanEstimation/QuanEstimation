@@ -1,6 +1,7 @@
 using QuanEstimation
 using Random
 using LinearAlgebra
+using DelimitedFiles
 
 # initial state
 rho0 = zeros(ComplexF64, 6, 6)
@@ -33,6 +34,7 @@ Hc = [S1, S2, S3]
 decay = [[S3, 2pi/cons]]
 # generation of a set of POVM basis
 dim = size(rho0, 1)
+M_num = dim
 M = [QuanEstimation.basis(dim, i)*QuanEstimation.basis(dim, i)' 
      for i in 1:dim]
 # time length for the evolution
@@ -49,6 +51,9 @@ dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay, dyn_method=:
 obj = QuanEstimation.CFIM_obj(M=M) 
 # run the comprehensive optimization problem
 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+# convert the flattened data into a list of matrix
+M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] for j in 1:Int(length(M_[:,1])/M_num)][end]
 
 ##-------------algorithm: PSO---------------------##
 # alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
@@ -59,3 +64,6 @@ QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 # obj = QuanEstimation.CFIM_obj(M=M) 
 # # run the comprehensive optimization problem
 # QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+# # convert the flattened data into a list of matrix
+# M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+# M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] for j in 1:Int(length(M_[:,1])/M_num)][end]

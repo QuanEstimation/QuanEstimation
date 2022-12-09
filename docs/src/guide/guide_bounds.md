@@ -115,6 +115,7 @@ In QuanEstimation, the QFI and QFIM can be calculated via the following function
 <a id="example3_1"></a>
 The Hamiltonian of a single qubit system is $H=\frac{1}{2}\omega \sigma_3$ with $\omega$ 
 the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system is governed by
+
 \begin{align}
 \partial_t\rho=-i[H, \rho]+ \gamma_{+}\left(\sigma_{+}\rho\sigma_{-}-\frac{1}{2}\{\sigma_{-}
 \sigma_{+},\rho\}\right)+ \gamma_{-}\left(\sigma_{-}\rho\sigma_{+}-\frac{1}{2}\{\sigma_{+}

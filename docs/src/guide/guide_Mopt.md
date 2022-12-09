@@ -358,11 +358,13 @@ The code for measurement optimization with AD is as follows
 **Example 7.2**  
 <a id="example7_2"></a>
 A single qubit system whose dynamics is governed by
+
 \begin{align}
 \partial_t\rho=-i[H, \rho]+ \gamma_{+}\left(\sigma_{+}\rho\sigma_{-}-\frac{1}{2}\{\sigma_{-}
 \sigma_{+},\rho\}\right)+ \gamma_{-}\left(\sigma_{-}\rho\sigma_{+}-\frac{1}{2}\{\sigma_{+}
 \sigma_{-},\rho\}\right),
 \end{align}
+
 
 where $H = \frac{1}{2}\omega \sigma_3$ is the free Hamiltonian with $\omega$ the frequency, 
 $\sigma_{\pm}=(\sigma_1 \pm \sigma_2)/2$ and $\gamma_{+}$, $\gamma_{-}$ are decay rates.
@@ -399,6 +401,7 @@ $1$ $(-1)$.
     === "projection"
         === "DE"
 		    ``` py
+            M_num = dim
             # measurement optimization algorithm: DE
 		    DE_paras = {"p_num":10, "measurement0":[], "max_episode":1000, \
                         "c":1.0, "cr":0.5, "seed":1234}
@@ -407,6 +410,7 @@ $1$ $(-1)$.
 		    ```
         === "PSO"
 		    ``` py
+            M_num = dim
             # measurement optimization algorithm: PSO
 		    PSO_paras = {"p_num":10, "measurement0":[], \
                          "max_episode":[1000,100], "c0":1.0, \
@@ -417,31 +421,35 @@ $1$ $(-1)$.
     === "LC"
         === "DE"
 		    ``` py
+            M_num = 2
             # measurement optimization algorithm: DE
 		    DE_paras = {"p_num":10, "measurement0":[], "max_episode":1000, \
 				        "c":1.0, "cr":0.5, "seed":1234}
-		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 4], \
+		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, M_num], \
                                savefile=False, method="DE", **DE_paras)
 		    ```
         === "PSO"
 		    ``` py
+            M_num = 2
             # measurement optimization algorithm: PSO
 		    PSO_paras = {"p_num":10, "measurement0":[], "max_episode":[1000,100], \
 					     "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
-		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 4], \
+		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, M_num], \
                                savefile=False, method="PSO", **PSO_paras)
 		    ```
         === "AD"
 		    ``` py
+            M_num = 2
             # measurement optimization algorithm: AD
 		    AD_paras = {"Adam":False, "measurement0":[], "max_episode":300, \
                         "epsilon":0.01, "beta1":0.90, "beta2":0.99}
-            m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 4], \
+            m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, M_num], \
                                savefile=False, method="AD", **AD_paras)
 		    ```
     === "rotation"
         === "DE"
 		    ``` py
+            M_num = dim
             # measurement optimization algorithm: DE
 		    DE_paras = {"p_num":10, "measurement0":[], "max_episode":1000, \
                         "c":1.0, "cr":0.5, "seed":1234}
@@ -450,6 +458,7 @@ $1$ $(-1)$.
 		    ```
         === "PSO"
 		    ``` py
+            M_num = dim
             # measurement optimization algorithm: PSO
 		    PSO_paras = {"p_num":10, "measurement0":[], \
                          "max_episode":[1000,100], "c0":1.0, \
@@ -459,6 +468,7 @@ $1$ $(-1)$.
 		    ```
         === "AD"
 		    ``` py
+            M_num = dim
             # measurement optimization algorithm: AD
 		    AD_paras = {"Adam":False, "measurement0":[], "max_episode":300, \
                         "epsilon":0.01, "beta1":0.90, "beta2":0.99}
@@ -470,6 +480,11 @@ $1$ $(-1)$.
     m.dynamics(tspan, rho0, H0, dH, decay=decay, dyn_method="expm")
     # objective function: CFI
     m.CFIM()
+    # convert the ".csv" file to the ".npy" file
+    M_ = np.loadtxt("measurements.csv", dtype=np.complex128)
+    csv2npy_measurements(M_, M_num)
+    # load the measurements
+    M = np.load("measurements.npy")[-1]
     ```
 === "Julia"
     ``` jl
@@ -477,6 +492,7 @@ $1$ $(-1)$.
     using Random
     using StableRNGs
     using LinearAlgebra
+    using DelimitedFiles
 
     # initial state
     rho0 = 0.5*ones(2, 2)
@@ -495,6 +511,7 @@ $1$ $(-1)$.
     # generation of a set of POVM basis
     dim = size(rho0, 1)
     POVM_basis = QuanEstimation.SIC(dim)
+    M_num = dim
     # time length for the evolution
     tspan = range(0., 10., length=2500)
     ```
@@ -518,7 +535,7 @@ $1$ $(-1)$.
     === "LC"
         ``` jl
         opt = QuanEstimation.MeasurementOpt(mtype=:LC, 
-                                            POVM_basis=POVM_basis, M_num=2, 
+                                            POVM_basis=POVM_basis, M_num=M_num, 
                                             seed=1234)
         ```
         === "DE"
@@ -572,6 +589,11 @@ $1$ $(-1)$.
     obj = QuanEstimation.CFIM_obj()
     # run the measurement optimization problem
     QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+
+    # convert the flattened data into a list of matrix
+    M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+    M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] 
+        for j in 1:Int(length(M_[:,1])/M_num)][end]
     ```
 
 **Example 7.3**  
@@ -600,7 +622,7 @@ s_2 = \frac{1}{\sqrt{2}}\left(\begin{array}{ccc}
 0 & -i & 0\\
 i & 0 & -i\\
 0 & i & 0
-\end{array}\right)\!\!, \nonumber
+\end{array}\right), \nonumber
 \end{eqnarray}
 
 and $s_3=\mathrm{diag}(1,0,-1)$ and $\sigma_i (i=1,2,3)$ is Pauli matrix. $\mathcal{A}=\mathrm{diag}
@@ -662,6 +684,7 @@ Here three types of measurement optimization are considerd, projective measureme
     === "projection"
         === "DE"
 		    ``` py
+            M_num = dim
             # measurement optimization algorithm: DE
 		    DE_paras = {"p_num":10, "measurement0":[], "max_episode":1000, \
                         "c":1.0, "cr":0.5, "seed":1234}
@@ -670,6 +693,7 @@ Here three types of measurement optimization are considerd, projective measureme
 		    ```
         === "PSO"
 		    ``` py
+            M_num = dim
             # measurement optimization algorithm: PSO
 		    PSO_paras = {"p_num":10, "measurement0":[], \
                          "max_episode":[1000,100], "c0":1.0, \
@@ -680,31 +704,35 @@ Here three types of measurement optimization are considerd, projective measureme
     === "LC"
         === "DE"
 		    ``` py
+            M_num = 4
             # measurement optimization algorithm: DE
 		    DE_paras = {"p_num":10, "measurement0":[], "max_episode":1000, \
 				        "c":1.0, "cr":0.5, "seed":1234}
-		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 4], \
+		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, M_num], \
                                savefile=False, method="DE", **DE_paras)
 		    ```
         === "PSO"
 		    ``` py
+            M_num = 4
             # measurement optimization algorithm: PSO
 		    PSO_paras = {"p_num":10, "measurement0":[], "max_episode":[1000,100], \
 					     "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
-		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 4], \
+		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, M_num], \
                                savefile=False, method="PSO", **PSO_paras)
 		    ```
         === "AD"
 		    ``` py
+            M_num = 4
             # measurement optimization algorithm: AD
 		    AD_paras = {"Adam":False, "measurement0":[], "max_episode":300, \
                         "epsilon":0.01, "beta1":0.90, "beta2":0.99}
-            m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 4], \
+            m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, M_num], \
                                savefile=False, method="AD", **AD_paras)
 		    ```
     === "rotation"
         === "DE"
 		    ``` py
+            M_num = dim
             # measurement optimization algorithm: DE
 		    DE_paras = {"p_num":10, "measurement0":[], "max_episode":1000, \
                         "c":1.0, "cr":0.5, "seed":1234}
@@ -713,6 +741,7 @@ Here three types of measurement optimization are considerd, projective measureme
 		    ```
         === "PSO"
 		    ``` py
+            M_num = dim
             # measurement optimization algorithm: PSO
 		    PSO_paras = {"p_num":10, "measurement0":[], \
                          "max_episode":[1000,100], "c0":1.0, \
@@ -722,6 +751,7 @@ Here three types of measurement optimization are considerd, projective measureme
 		    ```
         === "AD"
 		    ``` py
+            M_num = dim
             # measurement optimization algorithm: AD
 		    AD_paras = {"Adam":False, "measurement0":[], "max_episode":300, \
                         "epsilon":0.01, "beta1":0.90, "beta2":0.99}
@@ -733,12 +763,18 @@ Here three types of measurement optimization are considerd, projective measureme
     m.dynamics(tspan, rho0, H0, dH, decay=decay, dyn_method="expm")
     # objective function: tr(WI^{-1})
     m.CFIM()
+    # convert the ".csv" file to the ".npy" file
+    M_ = np.loadtxt("measurements.csv", dtype=np.complex128)
+    csv2npy_measurements(M_, M_num)
+    # load the measurements
+    M = np.load("measurements.npy")[-1]
     ```
 === "Julia"
     ``` jl
     using QuanEstimation
     using Random
     using LinearAlgebra
+    using DelimitedFiles
 
     # initial state
     rho0 = zeros(ComplexF64, 6, 6)
@@ -778,6 +814,7 @@ Here three types of measurement optimization are considerd, projective measureme
     ```
     === "Projection"
         ``` jl
+        M_num = dim
         opt = QuanEstimation.MeasurementOpt(mtype=:Projection, seed=1234)
         ```
         === "DE"
@@ -795,8 +832,9 @@ Here three types of measurement optimization are considerd, projective measureme
             ```
     === "LC"
         ``` jl
+        M_num = 4
         opt = QuanEstimation.MeasurementOpt(mtype=:LC, 
-                                            POVM_basis=POVM_basis, M_num=4, 
+                                            POVM_basis=POVM_basis, M_num=M_num, 
                                             seed=1234)
         ```
         === "DE"
@@ -820,6 +858,7 @@ Here three types of measurement optimization are considerd, projective measureme
             ```
     === "Rotation"
         ``` jl
+        M_num = dim
         opt = QuanEstimation.MeasurementOpt(mtype=:Rotation, 
                                             POVM_basis=POVM_basis, seed=1234)
         ```
@@ -850,6 +889,9 @@ Here three types of measurement optimization are considerd, projective measureme
     obj = QuanEstimation.CFIM_obj()
     # run the measurement optimization problem
     QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+    M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+    M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] 
+        for j in 1:Int(length(M_[:,1])/M_num)][end]
     ```
 If the parameterization process is implemented with the Kraus operators, then the corresponding 
 parameters should be input via
@@ -909,6 +951,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
     dK = [[dK1], [dK2]]
     # measurement
     POVM_basis = SIC(len(rho0))
+    M_num = 2
     ```
     === "projection"
         === "DE"
@@ -934,7 +977,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
             # measurement optimization algorithm: DE
 		    DE_paras = {"p_num":10, "measurement0":[], "max_episode":1000, \
 				        "c":1.0, "cr":0.5, "seed":1234}
-		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 4], \
+		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 2], \
                                savefile=False, method="DE", **DE_paras)
 		    ```
         === "PSO"
@@ -942,7 +985,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
             # measurement optimization algorithm: PSO
 		    PSO_paras = {"p_num":10, "measurement0":[], "max_episode":[1000,100], \
 					     "c0":1.0, "c1":2.0, "c2":2.0, "seed":1234}
-		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 4], \
+		    m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 2], \
                                savefile=False, method="PSO", **PSO_paras)
 		    ```
         === "AD"
@@ -950,7 +993,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
             # measurement optimization algorithm: AD
 		    AD_paras = {"Adam":False, "measurement0":[], "max_episode":300, \
                         "epsilon":0.01, "beta1":0.90, "beta2":0.99}
-            m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 4], \
+            m = MeasurementOpt(mtype="input", minput=["LC", POVM_basis, 2], \
                                savefile=False, method="AD", **AD_paras)
 		    ```
     === "rotation"
@@ -984,10 +1027,16 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
     m.Kraus(rho0, K, dK)
     # objective function: CFI
     m.CFIM()
+    # convert the ".csv" file to the ".npy" file
+    M_ = np.loadtxt("measurements.csv", dtype=np.complex128)
+    csv2npy_measurements(M_, M_num)
+    # load the measurements
+    M = np.load("measurements.npy")[-1]
     ```
 === "Julia"
     ``` jl
     using QuanEstimation
+    using DelimitedFiles
 
     # initial state
     rho0 = 0.5*ones(2, 2)
@@ -1003,6 +1052,7 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
     # measurement
     dim = size(rho0,1)
     POVM_basis = QuanEstimation.SIC(dim)
+    M_num = 2
     ```
     === "Projection"
         ``` jl
@@ -1077,6 +1127,10 @@ the eigenstate of $\sigma_3$ (Pauli matrix) with respect to the eigenvalue $1$ $
     obj = QuanEstimation.CFIM_obj()
     # run the measurement optimization problem
     QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+    # convert the flattened data into a list of matrix
+    M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+    M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] 
+        for j in 1:Int(length(M_[:,1])/M_num)][end]
     ```
 ---
 ## **Bibliography**

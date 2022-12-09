@@ -344,6 +344,7 @@ The code for control optimization with DDPG is as follows
 In this example, the free evolution Hamiltonian of a single qubit system is $H_0=\frac{1}{2}\omega 
 \sigma_3$ with $\omega$ the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system 
 is governed by
+
 \begin{align}
 \partial_t\rho=-i[H_0, \rho]+ \gamma_{+}\left(\sigma_{+}\rho\sigma_{-}-\frac{1}{2}\{\sigma_{-}
 \sigma_{+},\rho\}\right)+ \gamma_{-}\left(\sigma_{-}\rho\sigma_{+}-\frac{1}{2}\{\sigma_{+}\sigma_{-},

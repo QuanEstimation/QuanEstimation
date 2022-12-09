@@ -1,4 +1,5 @@
 using QuanEstimation
+using DelimitedFiles
 
 # initial state
 rho0 = 0.5*ones(2, 2)
@@ -20,6 +21,7 @@ decay = [[sp, 0.0], [sm, 0.1]]
 M1 = 0.5*[1.0+0.0im  1.; 1.  1.]
 M2 = 0.5*[1.0+0.0im -1.; -1.  1.]
 M = [M1, M2]
+M_num = 2
 # time length for the evolution
 tspan = range(0., 10., length=2500)
 # choose the optimization type
@@ -34,6 +36,9 @@ dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, Hc, decay=decay, dyn_meth
 obj = QuanEstimation.CFIM_obj() 
 # run the comprehensive optimization problem
 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+# convert the flattened data into a list of matrix
+M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] for j in 1:Int(length(M_[:,1])/M_num)][end]
 
 ##-------------algorithm: PSO---------------------##
 # alg = QuanEstimation.PSO(p_num=10, max_episode=[1000,100], c0=1.0, 
@@ -44,3 +49,6 @@ QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 # obj = QuanEstimation.CFIM_obj() 
 # # run the comprehensive optimization problem
 # QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+# # convert the flattened data into a list of matrix
+# M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+# M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] for j in 1:Int(length(M_[:,1])/M_num)][end]

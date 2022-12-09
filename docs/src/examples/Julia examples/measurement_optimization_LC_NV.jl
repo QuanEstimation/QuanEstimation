@@ -1,6 +1,7 @@
 using QuanEstimation
 using Random
 using LinearAlgebra
+using DelimitedFiles
 
 # initial state
 rho0 = zeros(ComplexF64, 6, 6)
@@ -33,12 +34,13 @@ Hc = [S1, S2, S3]
 decay = [[S3, 2pi/cons]]
 # generation of a set of POVM basis
 dim = size(rho0, 1)
+M_num = 4
 POVM_basis = [QuanEstimation.basis(dim, i)*QuanEstimation.basis(dim, i)' 
               for i in 1:dim]
 # time length for the evolution
 tspan = range(0., 2., length=4000)
 # find the optimal linear combination of an input measurement
-opt = QuanEstimation.MeasurementOpt(mtype=:LC, POVM_basis=POVM_basis, M_num=4, seed=1234)
+opt = QuanEstimation.MeasurementOpt(mtype=:LC, POVM_basis=POVM_basis, M_num=M_num, seed=1234)
 
 ##==========choose measurement optimization algorithm==========##
 ##-------------algorithm: DE---------------------##
@@ -50,6 +52,9 @@ dynamics = QuanEstimation.Lindblad(opt, tspan ,rho0, H0, dH, decay=decay, dyn_me
 obj = QuanEstimation.CFIM_obj()
 # run the measurement optimization problem
 QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+# convert the flattened data into a list of matrix
+M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] for j in 1:Int(length(M_[:,1])/M_num)][end]
 
 ##-------------algorithm: PSO---------------------##
 # alg = QuanEstimation.PSO(p_num=10, ini_particle=missing, 
@@ -61,6 +66,9 @@ QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 # obj = QuanEstimation.CFIM_obj()
 # # run the measurement optimization problem
 # QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+# # convert the flattened data into a list of matrix
+# M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+# M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] for j in 1:Int(length(M_[:,1])/M_num)][end]
 
 ##-------------algorithm: AD---------------------##
 # alg = QuanEstimation.AD(Adam=false, max_episode=300, epsilon=0.01, 
@@ -71,3 +79,6 @@ QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
 # obj = QuanEstimation.CFIM_obj()
 # # run the measurement optimization problem
 # QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+# # convert the flattened data into a list of matrix
+# M_ = readdlm("measurements.csv",'\t', Complex{Float64})
+# M = [[reshape(M_[i,:], dim, dim) for i in 1:M_num] for j in 1:Int(length(M_[:,1])/M_num)][end]
