@@ -618,8 +618,8 @@ def csv2npy_measurements(M, num):
     M_save = []
     for mi in range(N):
         M_tp = M[mi * num : (mi + 1) * num]
-        M = [M_tp[i].reshape(n, n).T for i in range(num)]
-        M_save.append(M)
+        M_mi = [M_tp[i].reshape(n, n).T for i in range(num)]
+        M_save.append(M_mi)
     np.save("measurements", M_save)
 
 
@@ -629,6 +629,6 @@ def load_measurements(M, num, indx=-1):
     M_save = []
     for mi in range(N):
         M_tp = M[mi * num : (mi + 1) * num]
-        M = [M_tp[i].reshape(n, n).T for i in range(num)]
-        M_save.append(M)
+        M_mi = [M_tp[i].reshape(n, n).T for i in range(num)]
+        M_save.append(M_mi)
     return M_save[indx]
