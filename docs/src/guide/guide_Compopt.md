@@ -591,7 +591,7 @@ In this case, we consider two types of comprehensive optimization, the first one
             ```
     === "SC"
         ``` jl
-        opt = QuanEstimation.SMopt(ctrl_bound=[-2.0,2.0], seed=1234)
+        opt = QuanEstimation.SCopt(ctrl_bound=[-2.0,2.0], seed=1234)
         ```
         === "DE"
             ``` jl

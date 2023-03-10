@@ -89,6 +89,7 @@ nav:
             - "Measurement optimization": guide/guide_Mopt.md
             - "Comprehensive optimization": guide/guide_Compopt.md
             - "Adaptive measurement schemes": guide/guide_adaptive.md
+            # - "Output files": guide/output_files.md
       - "API documentation": 
             - "Python": 
                   - "Classes": API/python/classes.md
