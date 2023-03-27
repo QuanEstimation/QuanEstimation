@@ -1,4 +1,5 @@
 import numpy as np
+import h5py
 from scipy.interpolate import interp1d
 import os
 import math
@@ -64,14 +65,15 @@ class MeasurementSystem:
         self.load = load
         self.measurement0 = measurement0
 
-    def load_save(self):
-        if os.path.exists("measurements.csv"):
-            file_load = open("measurements.csv", "r")
-            file_load = "".join([i for i in file_load]).replace("im", "j")
-            file_load = "".join([i for i in file_load]).replace(" ", "")
-            file_save = open("measurements.csv", "w")
-            file_save.writelines(file_load)
-            file_save.close()
+    def load_save(self, mnum, max_episode):
+        if os.path.exists("measurements.dat"):
+            fl = h5py.File("measurements.dat",'r')
+            dset = fl["measurements"]
+            if self.savefile:
+                mdata = np.array([[np.array(fl[fl[dset[i]][j]]).view('complex') for j in range(mnum)] for i in range(max_episode)])
+            else:
+                mdata = np.array([np.array(fl[dset[j]]).view('complex') for j in range(mnum)])
+            np.save("measurements", mdata)
         else: pass
 
     def dynamics(self, tspan, rho0, H0, dH, Hc=[], ctrl=[], decay=[], dyn_method="expm"):
@@ -139,6 +141,7 @@ class MeasurementSystem:
             self.dyn_method = "Ode"
 
         if self.mtype == "projection":
+            self.M_num = len(self.rho0)
             if self.measurement0 == []:
                 np.random.seed(self.seed)
                 M = [[] for i in range(len(self.rho0))]
@@ -160,6 +163,7 @@ class MeasurementSystem:
 
         elif self.mtype == "input":
             if self.minput[0] == "LC":
+                self.M_num = self.minput[2]
                 ## optimize the combination of a set of SIC-POVM
                 if self.minput[1] == []:
                     file_path = os.path.join(
@@ -170,7 +174,6 @@ class MeasurementSystem:
                     fiducial = data[:, 0] + data[:, 1] * 1.0j
                     fiducial = np.array(fiducial).reshape(len(fiducial), 1)
                     self.povm_basis = sic_povm(fiducial)
-                    self.M_num = self.minput[2]
                 else:
                     ## optimize the combination of a set of given POVMs
                     if type(self.minput[1]) != list:
@@ -199,7 +202,6 @@ class MeasurementSystem:
                         self.povm_basis = [
                             np.array(x, dtype=np.complex128) for x in self.minput[1]
                         ]
-                        self.M_num = self.minput[2]
 
                 if self.measurement0 == []:
                     np.random.seed(self.seed)
@@ -215,6 +217,7 @@ class MeasurementSystem:
                 )
 
             elif self.minput[0] == "rotation":
+                self.M_num = len(self.minput[1])
                 ## optimize the coefficients of the rotation matrix
                 if type(self.minput[1]) != list:
                     raise TypeError("The given POVMs should be a list!")
@@ -422,6 +425,7 @@ class MeasurementSystem:
             self.para_type = "multi_para"
 
         if self.mtype == "projection":
+            self.M_num = len(self.rho0)
             if self.measurement0 == []:
                 np.random.seed(self.seed)
                 M = [[] for i in range(len(self.rho0))]
@@ -443,6 +447,7 @@ class MeasurementSystem:
 
         elif self.mtype == "input":
             if self.minput[0] == "LC":
+                self.M_num = self.minput[2]
                 ## optimize the combination of a set of SIC-POVM
                 if self.minput[1] == []:
                     file_path = os.path.join(
@@ -453,7 +458,6 @@ class MeasurementSystem:
                     fiducial = data[:, 0] + data[:, 1] * 1.0j
                     fiducial = np.array(fiducial).reshape(len(fiducial), 1)
                     self.povm_basis = sic_povm(fiducial)
-                    self.M_num = self.minput[2]
                 else:
                     ## optimize the combination of a set of given POVMs
                     if type(self.minput[1]) != list:
@@ -482,7 +486,6 @@ class MeasurementSystem:
                         self.povm_basis = [
                             np.array(x, dtype=np.complex128) for x in self.minput[1]
                         ]
-                        self.M_num = self.minput[2]
 
                 if self.measurement0 == []:
                     np.random.seed(self.seed)
@@ -500,6 +503,7 @@ class MeasurementSystem:
                 )
 
             elif self.minput[0] == "rotation":
+                self.M_num = len(self.minput[1])
                 ## optimize the coefficients of the rotation matrix
                 if type(self.minput[1]) != list:
                     raise TypeError("The given POVMs should be a list!")
@@ -591,7 +595,8 @@ class MeasurementSystem:
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
         QuanEstimation.run(system)
-        self.load_save()
+        max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
+        self.load_save(self.M_num, max_num)
 
 
 def MeasurementOpt(

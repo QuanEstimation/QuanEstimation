@@ -22,6 +22,7 @@ requirements = [
     "julia",
     "more_itertools",
     "julia_project",
+    "h5py",
 ]
 
 test_requirements = []
