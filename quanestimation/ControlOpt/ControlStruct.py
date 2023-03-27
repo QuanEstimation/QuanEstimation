@@ -1,4 +1,5 @@
 import numpy as np
+import h5py
 from scipy.interpolate import interp1d
 import warnings
 import math
@@ -38,6 +39,17 @@ class ControlSystem:
         self.ctrl0 = ctrl0
         self.eps = eps
         self.load = load
+        
+    def load_save(self, cnum, max_episode):
+        if os.path.exists("controls.dat"):
+            fl = h5py.File("controls.dat",'r')
+            dset = fl["controls"]
+            if self.savefile:
+                controls = np.array([[np.array(fl[fl[dset[i]][j]]) for j in range(cnum)] for i in range(max_episode)])
+            else:
+                controls = np.array([np.array(fl[dset[j]]) for j in range(cnum)])
+            np.save("controls", controls)
+        else: pass
 
     def dynamics(self, tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[], dyn_method="expm"):
         r"""
@@ -251,6 +263,8 @@ class ControlSystem:
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
         QuanEstimation.run(system)
+        max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
+        self.load_save(len(self.control_Hamiltonian), max_num)
 
     def CFIM(self, M=[], W=[]):
         r"""
@@ -286,6 +300,8 @@ class ControlSystem:
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
         QuanEstimation.run(system)
+        max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
+        self.load_save(len(self.control_Hamiltonian), max_num)
 
     def HCRB(self, W=[]):
         """
@@ -318,6 +334,8 @@ class ControlSystem:
                 self.opt, self.alg, self.obj, self.dynamic, self.output
             )
             QuanEstimation.run(system)
+            max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
+        self.load_save(len(self.control_Hamiltonian), max_num)
 
     def mintime(self, f, W=[], M=[], method="binary", target="QFIM", LDtype="SLD"):
         """
@@ -406,7 +424,8 @@ class ControlSystem:
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
         QuanEstimation.mintime(method, f, system)
-
+        max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
+        self.load_save(len(self.control_Hamiltonian), max_num)
 
 def ControlOpt(savefile=False, method="auto-GRAPE", **kwargs):
 
@@ -425,7 +444,6 @@ def ControlOpt(savefile=False, method="auto-GRAPE", **kwargs):
             "{!r} is not a valid value for method, supported values are 'auto-GRAPE', 'GRAPE', 'PSO', 'DE', 'DDPG'.".format(method
             )
         )
-
 
 def csv2npy_controls(controls, num):
     C_save = []

@@ -1,4 +1,5 @@
 import numpy as np
+import h5py
 from scipy.interpolate import interp1d
 import os
 import math
@@ -46,16 +47,16 @@ class StateSystem:
             if os.path.exists("states.csv"):
                 self.psi0 = np.genfromtxt("states.csv", dtype=np.complex128)
 
-    def load_save(self):
-        if os.path.exists("states.csv"):
-            file_load = open("states.csv", "r")
-            file_load = "".join([i for i in file_load]).replace("im", "j")
-            file_load = "".join([i for i in file_load]).replace(" ", "")
-            file_save = open("states.csv", "w")
-            file_save.writelines(file_load)
-            file_save.close()
-        else:
-            pass
+    def load_save(self, max_episode):
+        if os.path.exists("states.dat"):
+            fl = h5py.File("states.dat",'r')
+            dset = fl["states"]
+            if self.savefile:
+                psi = np.array([np.array(fl[dset[i]]).view('complex') for i in range(max_episode)])
+            else:
+                psi = np.array(dset).view('complex')
+            np.save("states", psi)
+        else: pass
 
     def dynamics(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], dyn_method="expm"):
         r"""
@@ -347,7 +348,8 @@ class StateSystem:
         )
         QuanEstimation.run(system)
 
-        self.load_save()
+        max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
+        self.load_save(max_num)
 
     def CFIM(self, M=[], W=[]):
         r"""
@@ -390,7 +392,8 @@ class StateSystem:
         )
         QuanEstimation.run(system)
 
-        self.load_save()
+        max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
+        self.load_save(max_num)
 
     def HCRB(self, W=[]):
         """
@@ -435,7 +438,8 @@ class StateSystem:
         )
         QuanEstimation.run(system)
 
-        self.load_save()
+        max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
+        self.load_save(max_num)
 
 
 def StateOpt(savefile=False, method="AD", **kwargs):

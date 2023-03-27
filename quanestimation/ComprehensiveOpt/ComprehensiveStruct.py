@@ -1,4 +1,5 @@
 import numpy as np
+import h5py
 from scipy.interpolate import interp1d
 import warnings
 import math
@@ -45,6 +46,39 @@ class ComprehensiveSystem:
         self.eps = eps
         self.seed = seed
         self.measurement0 = measurement0
+        
+    def load_save_ctrls(self, cnum, max_episode):
+        if os.path.exists("controls.dat"):
+            fl = h5py.File("controls.dat",'r')
+            dset = fl["controls"]
+            if self.savefile:
+                controls = np.array([[np.array(fl[fl[dset[i]][j]]) for j in range(cnum)] for i in range(max_episode)])
+            else:
+                controls = np.array([np.array(fl[dset[j]]) for j in range(cnum)])
+            np.save("controls", controls)
+        else: pass
+        
+    def load_save_states(self, max_episode):
+        if os.path.exists("states.dat"):
+            fl = h5py.File("states.dat",'r')
+            dset = fl["states"]
+            if self.savefile:
+                psi = np.array([np.array(fl[dset[i]]).view('complex') for i in range(max_episode)])
+            else:
+                psi = np.array(dset).view('complex')
+            np.save("states", psi)
+        else: pass
+        
+    def load_save_meas(self, mnum, max_episode):
+        if os.path.exists("measurements.dat"):
+            fl = h5py.File("measurements.dat",'r')
+            dset = fl["measurements"]
+            if self.savefile:
+                mdata = np.array([[np.array(fl[fl[dset[i]][j]]).view('complex') for j in range(mnum)] for i in range(max_episode)])
+            else:
+                mdata = np.array([np.array(fl[dset[j]]).view('complex') for j in range(mnum)])
+            np.save("measurements", mdata)
+        else: pass
 
     def dynamics(self, tspan, H0, dH, Hc=[], ctrl=[], decay=[], ctrl_bound=[], dyn_method="expm"):
         r"""
@@ -380,7 +414,9 @@ class ComprehensiveSystem:
         )
         QuanEstimation.run(system)
 
-        self.load_save_state()
+        max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
+        self.load_save_states(max_num)
+        self.load_save_ctrls(len(self.control_Hamiltonian), max_num)
 
     def CM(self, rho0, W=[]):
         """
@@ -429,7 +465,9 @@ class ComprehensiveSystem:
         )
         QuanEstimation.run(system)
 
-        self.load_save_meas()
+        max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
+        self.load_save_ctrls(len(self.control_Hamiltonian), max_num)
+        self.load_save_meas(self.dim, max_num)
 
     def SM(self, W=[]):
         """
@@ -585,9 +623,10 @@ class ComprehensiveSystem:
         )
         QuanEstimation.run(system)
 
-        self.load_save_state()
-        self.load_save_meas()
-
+        max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
+        self.load_save_states(max_num)
+        self.load_save_meas(self.dim, max_num)
+        
     def SCM(self, W=[]):
         """
         Comprehensive optimization of the probe state, control and measurement (SCM).
@@ -628,30 +667,10 @@ class ComprehensiveSystem:
         )
         QuanEstimation.run(system)
 
-        self.load_save_state()
-        self.load_save_meas()
-
-    def load_save_state(self):
-        if os.path.exists("states.csv"):
-            file_load = open("states.csv", "r")
-            file_load = "".join([i for i in file_load]).replace("im", "j")
-            file_load = "".join([i for i in file_load]).replace(" ", "")
-            file_save = open("states.csv", "w")
-            file_save.writelines(file_load)
-            file_save.close()
-        else:
-            pass
-
-    def load_save_meas(self):
-        if os.path.exists("measurements.csv"):
-            file_load = open("measurements.csv", "r")
-            file_load = "".join([i for i in file_load]).replace("im", "j")
-            file_load = "".join([i for i in file_load]).replace(" ", "")
-            file_save = open("measurements.csv", "w")
-            file_save.writelines(file_load)
-            file_save.close()
-        else: pass
-
+        max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
+        self.load_save_states(max_num)
+        self.load_save_ctrls(len(self.control_Hamiltonian), max_num)
+        self.load_save_meas(self.dim, max_num)
 
 def ComprehensiveOpt(savefile=False, method="DE", **kwargs):
 
