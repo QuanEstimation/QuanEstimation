@@ -1133,9 +1133,10 @@ def OBB(x, p, dp, rho, drho, d2rho, LDtype="SLD", eps=1e-8):
     for m in range(p_num):
         f, LD = QFIM(rho[m], [drho[m]], LDtype=LDtype, exportLD=True, eps=eps)
         F[m] = f
-        term1 = np.dot(np.dot(d2rho[m], d2rho[m]), LD)
-        term2 = np.dot(np.dot(LD, LD), drho[m])
-        dF = np.real(np.trace(2 * term1 - term2))
+        term1 = np.dot(d2rho[m], LD)
+        term2 = np.dot(d2rho[m], LD.conj().T)
+        term3 = np.dot(np.dot(LD, LD), drho[m])
+        dF = np.real(np.trace(term1 + term2 - term3))
         J[m] = dp[m] / p[m] - dF / f
 
     y_guess = np.zeros((2, x.size))
