@@ -20,15 +20,6 @@ who developed methods to identify fundamental limits in quantum metrology in pre
 decoherence.
 
 ---
-### **Mao Zhang** 
-**Huazhong University of Science and Technology**  
-**Email:** <zhangmao2018@foxmail.com>  
-**Biography:** Ms. Zhang is currently a Ph.D. student in the National Precise Gravity 
-Measurement Facility, School of Physics, Huazhong University of Science and Technology. 
-Her research focuses on the quantum metrology and quantum control, especially the design 
-of control enhanced quantum metrological schemes. 
-
----
 ### **Huai-Ming Yu**  
 **Huazhong University of Science and Technology**  
 **Email:** <HuaimingYuuu@gmail.com>  
@@ -51,3 +42,15 @@ and Automation Engineering, The Chinese University of Hong Kong.
 ### **Xiaoguang Wang**  
 **Zhejiang University**  
 **Biography:** Xiaoguang Wang is a professor at the Department of Physics, Zhejiang University.
+
+
+---
+# Former Developer
+
+### **Mao Zhang** 
+**Huazhong University of Science and Technology**  
+**Email:** <zhangmao2018@foxmail.com>  
+**Biography:** Ms. Zhang is currently a Ph.D. student in the National Precise Gravity 
+Measurement Facility, School of Physics, Huazhong University of Science and Technology. 
+Her research focuses on the quantum metrology and quantum control, especially the design 
+of control enhanced quantum metrological schemes. 
