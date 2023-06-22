@@ -48,9 +48,5 @@ and Automation Engineering, The Chinese University of Hong Kong.
 # Former Developer
 
 ### **Mao Zhang** 
-**Huazhong University of Science and Technology**  
-**Email:** <zhangmao2018@foxmail.com>  
-**Biography:** Ms. Zhang is currently a Ph.D. student in the National Precise Gravity 
-Measurement Facility, School of Physics, Huazhong University of Science and Technology. 
-Her research focuses on the quantum metrology and quantum control, especially the design 
-of control enhanced quantum metrological schemes. 
+****Email:** <zhangmao2018@foxmail.com>  
+**Biography:** Dr. Zhang is now working at the United Imaging Healthcare Co., Ltd.. She used to be a Ph.D. student in the National Precise Gravity Measurement Facility, School of Physics, Huazhong University of Science and Technology. 
