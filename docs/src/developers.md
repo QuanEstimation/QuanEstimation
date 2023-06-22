@@ -1,9 +1,9 @@
 # Developers
 
-### **Jing Liu**
+### **Dr. Jing Liu**
 **Huazhong University of Science and Technology**  
 **Email:** <liujingphys@hust.edu.cn>  
-**Biography:** Jing Liu is currently an associate professor in the National Precise Gravity 
+**Biography:** Dr. Liu is currently an associate professor in the National Precise Gravity 
 Measurement Facility, Huazhong University of Science and Technology. His main research interests 
 focus on the topics in quantum metrology, quantum control, quantum information theory, and 
 foundations of quantum mechanics, especially the design of high-precision measurement schemes 
@@ -11,19 +11,19 @@ using the features of quantum mechanics.
 
 ---
 
-### **Rafał Demkowicz-Dobrzański**  
+### **Dr. Rafał Demkowicz-Dobrzański**  
 **University of Warsaw**  
 **Email:** <Rafal.Demkowicz-Dobrzanski@fuw.edu.pl>  
-**Biography:** Rafał Demkowicz-Dobrzański is an associate professor at the Faculty of Physics, 
+**Biography:** Dr. Demkowicz-Dobrzański is an associate professor at the Faculty of Physics, 
 University of Warsaw. He is a theorist actively working in the field of quantum metrology, 
 who developed methods to identify fundamental limits in quantum metrology in presence of 
 decoherence.
 
 ---
-### **Huai-Ming Yu**  
+### **Mr. Huai-Ming Yu**  
 **Huazhong University of Science and Technology**  
 **Email:** <HuaimingYuuu@gmail.com>  
-**Biography:** Huai-Ming Yu is a M.Sc. student at the School of Physics, Huazhong University of 
+**Biography:** Mr. Yu is a M.Sc. student at the School of Physics, Huazhong University of 
 Science and Technology. His research interests lie primarily in the fields of quantum information,
 quantum control, quantum foundations, as well as scientific programming and its applications in
 quantum technology.
@@ -47,6 +47,6 @@ and Automation Engineering, The Chinese University of Hong Kong.
 ---
 # Former Developer
 
-### **Mao Zhang**  
+### **Dr. Mao Zhang**  
 **Email:** <zhangmao2018@foxmail.com>  
 **Biography:** Dr. Zhang is now working at the United Imaging Healthcare Co., Ltd.. She used to be a Ph.D. student in the National Precise Gravity Measurement Facility, School of Physics, Huazhong University of Science and Technology. 
