@@ -48,5 +48,5 @@ and Automation Engineering, The Chinese University of Hong Kong.
 # Former Developer
 
 ### **Mao Zhang**  
-****Email:** <zhangmao2018@foxmail.com>  
+**Email:** <zhangmao2018@foxmail.com>  
 **Biography:** Dr. Zhang is now working at the United Imaging Healthcare Co., Ltd.. She used to be a Ph.D. student in the National Precise Gravity Measurement Facility, School of Physics, Huazhong University of Science and Technology. 
