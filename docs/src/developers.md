@@ -32,16 +32,16 @@ quantum technology.
 
 # Advisors
 
-### **Haidong Yuan**  
+### **Prof. Haidong Yuan**  
 **The Chinese University of Hong Kong**  
-**Biography:** Haidong Yuan is an associate professor at the Department of Mechanical 
+**Biography:** Prof. Yuan is an associate professor at the Department of Mechanical 
 and Automation Engineering, The Chinese University of Hong Kong.
 
 ---
 
-### **Xiaoguang Wang**  
+### **Prof. Xiaoguang Wang**  
 **Zhejiang Sci-Tech University**  
-**Biography:** Xiaoguang Wang used to be a full-time professor at the Department of Physics, Zhejiang University and now is a full-time professor at the Department of Physics, Zhejiang Sci-Tech University.
+**Biography:** Prof. Wang used to be a full-time professor at the Department of Physics, Zhejiang University and now is a full-time professor at the Department of Physics, Zhejiang Sci-Tech University.
 
 
 ---
