@@ -40,13 +40,13 @@ and Automation Engineering, The Chinese University of Hong Kong.
 ---
 
 ### **Xiaoguang Wang**  
-**Zhejiang Sci-Tech University**
+**Zhejiang Sci-Tech University**  
 **Biography:** Xiaoguang Wang used to be a full-time professor at the Department of Physics, Zhejiang University and now is a full-time professor at the Department of Physics, Zhejiang Sci-Tech University.
 
 
 ---
 # Former Developer
 
-### **Mao Zhang** 
+### **Mao Zhang**  
 ****Email:** <zhangmao2018@foxmail.com>  
 **Biography:** Dr. Zhang is now working at the United Imaging Healthcare Co., Ltd.. She used to be a Ph.D. student in the National Precise Gravity Measurement Facility, School of Physics, Huazhong University of Science and Technology. 
