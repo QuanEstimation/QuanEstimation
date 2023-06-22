@@ -40,7 +40,7 @@ and Automation Engineering, The Chinese University of Hong Kong.
 ---
 
 ### **Xiaoguang Wang**  
-**Zhejiang Sci-Tech UniversityZhejiang Sci-Tech University**
+**Zhejiang Sci-Tech University**
 **Biography:** Xiaoguang Wang used to be a full-time professor at the Department of Physics, Zhejiang University and now is a full-time professor at the Department of Physics, Zhejiang Sci-Tech University.
 
 
