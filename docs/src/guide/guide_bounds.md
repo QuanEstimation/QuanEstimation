@@ -1400,7 +1400,7 @@ A. S. Holevo,
 <a id="Liu2020">[3]</a> 
 J. Liu, H. Yuan, X.-M. Lu, and X. Wang,
 Quantum Fisher information matrix and multiparameter estimation,
-[J. Phys. A: Math. Theor. **53**, 023001 (2020).](\href{https://doi.org/10.1088/1751-8121/ab5d4d})
+[J. Phys. A: Math. Theor. **53**, 023001 (2020).](https://doi.org/10.1088/1751-8121/ab5d4d)
 
 <a id="Holevo1973">[4]</a> 
 A. S Holevo,
