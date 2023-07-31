@@ -77,7 +77,11 @@ theme:
 
 plugins:
       - search
-      - mkdocstrings
+      - mkdocstrings:
+            default_handler: python
+            handlers:
+                  python:
+                        paths: [src]
 nav:
       - "Home": index.md
       - "Installation": installation.md
