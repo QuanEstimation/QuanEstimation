@@ -23,7 +23,9 @@ markdown_extensions:
       - tables
       - pymdownx.arithmatex:
               generic: true
-      - fontawesome_markdown
+      - pymdownx.emoji:
+            emoji_index: !!python/name:materialx.emoji.twemoji
+            emoji_generator: !!python/name:materialx.emoji.to_svg
       # - pymdownx.highligh 
       # - deduplicate-toc
       - pymdownx.tabbed:
