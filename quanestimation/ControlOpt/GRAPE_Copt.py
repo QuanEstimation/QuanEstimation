@@ -1,5 +1,5 @@
 import warnings
-from julia import QuanEstimation
+import juliacall; QuanEstimation = juliacall.newmodule("QuanEstimation")
 import quanestimation.ControlOpt.ControlStruct as Control
 
 

@@ -5,7 +5,6 @@ import warnings
 import math
 import os
 import quanestimation.ControlOpt as ctrl
-from julia import QuanEstimation
 from quanestimation.Common.Common import SIC
 
 
@@ -262,6 +261,7 @@ class ControlSystem:
         system = QuanEstimation.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
+        self.scheme = QuanEstimation.Scheme(self.opt, self.alg, self.obj, self.dynamic)
         QuanEstimation.run(system)
         max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
         self.load_save(len(self.control_Hamiltonian), max_num)

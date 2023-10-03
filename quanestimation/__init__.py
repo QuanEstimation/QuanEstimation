@@ -1,15 +1,15 @@
 """Top-level package for quanestimation."""
 __version__ = "0.2.0"
 
-import julia
+# import julia
 import platform
 from .Common._julia_project import project
 
 if platform.system() != 'Windows':
     project.ensure_init()
 
-if julia.find_libpython.linked_libpython() is None:
-    jl = julia.Julia(compiled_modules=False)
+# if julia.find_libpython.linked_libpython() is None:
+    # jl = julia.Julia(compiled_modules=False)
 
 from quanestimation.AsymptoticBound.CramerRao import (
     CFIM,

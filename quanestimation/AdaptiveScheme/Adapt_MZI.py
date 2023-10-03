@@ -1,5 +1,5 @@
 import numpy as np
-from julia import QuanEstimation
+import juliacall; QuanEstimation = juliacall.newmodule("QuanEstimation")
 from quanestimation.Common.Common import brgd, annihilation
 
 

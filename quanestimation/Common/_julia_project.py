@@ -11,10 +11,10 @@ QuanEstimation_JL_path = os.path.dirname(os.path.abspath(__file__))
 project = JuliaProject(
     name="quanestimation",
     package_path=QuanEstimation_JL_path,
-    version_spec = "1.7",
+    version_spec = "^1.7",
     env_prefix = 'QuanEstimation_',
     logging_level = logging.INFO, # or logging.WARN,
     console_logging=False,
     # post_init_hook=_post_init_hook, # Run this after ensure_init
-   calljulia = "pyjulia"
+   calljulia = "juliacall"
 )

@@ -4,7 +4,7 @@ from scipy.interpolate import interp1d
 import os
 import math
 import warnings
-from julia import QuanEstimation
+import juliacall; QuanEstimation = juliacall.newmodule("QuanEstimation")
 import quanestimation.StateOpt as stateoptimize
 from quanestimation.Common.Common import SIC
 

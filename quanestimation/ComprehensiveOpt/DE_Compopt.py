@@ -1,4 +1,4 @@
-from julia import QuanEstimation
+import juliacall; QuanEstimation = juliacall.newmodule("QuanEstimation")
 import quanestimation.ComprehensiveOpt.ComprehensiveStruct as Comp
 
 

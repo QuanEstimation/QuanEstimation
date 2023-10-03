@@ -1,7 +1,7 @@
 import numpy as np
 import warnings
 import math
-from julia import QuanEstimation
+import juliacall; QuanEstimation = juliacall.newmodule("QuanEstimation")
 
 
 class Lindblad:
