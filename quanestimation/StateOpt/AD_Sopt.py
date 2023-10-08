@@ -1,4 +1,6 @@
-import juliacall; QuanEstimation = juliacall.newmodule("QuanEstimation")
+import juliacall
+jl = juliacall.newmodule("QuanEstimation")
+jl.seval("using QuanEstimation")
 import quanestimation.StateOpt.StateStruct as State
 
 
@@ -65,11 +67,11 @@ class AD_Sopt(State.StateSystem):
         self.vt = 0.0
 
         if self.Adam:
-            self.alg = QuanEstimation.AD(
+            self.alg = jl.QuanEstimation.AD(
                 self.max_episode, self.epsilon, self.beta1, self.beta2,
             )
         else:
-            self.alg = QuanEstimation.AD(self.max_episode, self.epsilon)
+            self.alg = jl.QuanEstimation.AD(self.max_episode, self.epsilon)
 
     def QFIM(self, W=[], LDtype="SLD"):
         r"""

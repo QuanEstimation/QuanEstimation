@@ -1,5 +1,7 @@
 import numpy as np
-import juliacall; QuanEstimation = juliacall.newmodule("QuanEstimation")
+import juliacall
+jl = juliacall.newmodule("QuanEstimation")
+jl.seval("using QuanEstimation")
 from quanestimation.Common.Common import brgd, annihilation
 
 
@@ -42,7 +44,7 @@ class Adapt_MZI:
             "phi" (default) -- The tunable phase.  
             "dphi" -- Phase difference. 
         """
-        phi = QuanEstimation.adaptMZI_online(
+        phi = jl.QuanEstimation.adaptMZI_online(
             self.x, self.p, self.rho0, output, target
         )
 
@@ -129,7 +131,7 @@ class Adapt_MZI:
         ]
         
         if method == "DE":
-            QuanEstimation.DE_deltaphiOpt(
+            jl.QuanEstimation.DE_deltaphiOpt(
                 self.x,
                 self.p,
                 self.rho0,
@@ -144,7 +146,7 @@ class Adapt_MZI:
                 eps,
             )
         elif method == "PSO":
-            QuanEstimation.PSO_deltaphiOpt(
+            jl.QuanEstimation.PSO_deltaphiOpt(
                 self.x,
                 self.p,
                 self.rho0,

@@ -1,4 +1,6 @@
-import juliacall; QuanEstimation = juliacall.newmodule("QuanEstimation")
+import juliacall
+jl = juliacall.newmodule("QuanEstimation")
+jl.seval("using QuanEstimation")
 import quanestimation.StateOpt.StateStruct as State
 
 
@@ -126,7 +128,7 @@ class PSO_Sopt(State.StateSystem):
             "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
         """
         ini_particle = ([self.psi],)
-        self.alg = QuanEstimation.PSO(
+        self.alg = jl.QuanEstimation.PSO(
             self.max_episode,
             self.p_num,
             ini_particle,
@@ -158,7 +160,7 @@ class PSO_Sopt(State.StateSystem):
             solutions.html).
         """
         ini_particle = ([self.psi],)
-        self.alg = QuanEstimation.PSO(
+        self.alg = jl.QuanEstimation.PSO(
             self.max_episode,
             self.p_num,
             ini_particle,
@@ -182,7 +184,7 @@ class PSO_Sopt(State.StateSystem):
             -- Weight matrix.
         """
         ini_particle = ([self.psi],)
-        self.alg = QuanEstimation.PSO(
+        self.alg = jl.QuanEstimation.PSO(
             self.max_episode,
             self.p_num,
             ini_particle,

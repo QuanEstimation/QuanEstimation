@@ -1,4 +1,6 @@
-import juliacall; QuanEstimation = juliacall.newmodule("QuanEstimation")
+import juliacall
+jl = juliacall.newmodule("QuanEstimation")
+jl.seval("using QuanEstimation")
 import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
 
@@ -77,7 +79,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
             -- Weight matrix.
         """
         ini_population = ([self.measurement0],)
-        self.alg = QuanEstimation.DE(
+        self.alg = jl.QuanEstimation.DE(
             self.max_episode,
             self.p_num,
             ini_population,

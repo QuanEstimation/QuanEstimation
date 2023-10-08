@@ -1,7 +1,9 @@
 import numpy as np
 import warnings
 import math
-import juliacall; QuanEstimation = juliacall.newmodule("QuanEstimation")
+import juliacall
+jl = juliacall.newmodule("QuanEstimation")
+jl.seval("using QuanEstimation")
 
 
 class Lindblad:
@@ -122,7 +124,7 @@ class Lindblad:
 
         """
 
-        rho, drho = QuanEstimation.expm_py(
+        rho, drho = jl.QuanEstimation.expm_py(
             self.tspan,
             self.rho0,
             self.freeHamiltonian,
@@ -149,7 +151,7 @@ class Lindblad:
 
         """
 
-        rho, drho = QuanEstimation.ode_py(
+        rho, drho = jl.QuanEstimation.ode_py(
             self.tspan,
             self.rho0,
             self.freeHamiltonian,
@@ -190,7 +192,7 @@ class Lindblad:
         """
 
         d2H = [np.array(x, dtype=np.complex128) for x in d2H]
-        rho, drho, d2rho = QuanEstimation.secondorder_derivative(
+        rho, drho, d2rho = jl.QuanEstimation.secondorder_derivative(
             self.tspan,
             self.rho0,
             self.freeHamiltonian,
