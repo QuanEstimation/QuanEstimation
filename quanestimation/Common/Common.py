@@ -4,7 +4,16 @@ import copy
 from scipy.sparse import csc_matrix, csr_matrix
 from sympy import Matrix, GramSchmidt
 from itertools import product
+import juliacall
 
+def load_julia():
+    """
+    Load Julia.
+    """
+
+    jl = juliacall.newmodule("QuanEstimation")
+    jl.Main.seval("using QuanEstimation, PythonCall")
+    return jl.Main.QuanEstimation
 
 def mat_vec_convert(A):
     if A.shape[1] == 1:

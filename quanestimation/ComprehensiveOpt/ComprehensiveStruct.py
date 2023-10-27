@@ -4,9 +4,7 @@ from scipy.interpolate import interp1d
 import warnings
 import math
 import os
-import juliacall
-jl = juliacall.newmodule("QuanEstimation")
-jl.seval("using QuanEstimation")
+from quanestimation import QJL
 import quanestimation.ComprehensiveOpt as compopt
 from quanestimation.Common.Common import gramschmidt, SIC
 
@@ -326,7 +324,7 @@ class ComprehensiveSystem:
             self.C = [self.measurement0[0][i] for i in range(len(self.psi))]
             self.C = [np.array(x, dtype=np.complex128) for x in self.C]
 
-        self.dynamic = jl.QuanEstimation.Kraus(self.psi, self.K, self.dK)
+        self.dynamic = QJL.Kraus(self.psi, self.K, self.dK)
 
         self.dynamics_type = "Kraus"
 
@@ -372,7 +370,7 @@ class ComprehensiveSystem:
 
         if M != []:
             M = [np.array(x, dtype=np.complex128) for x in M]
-            self.obj = jl.QuanEstimation.CFIM_obj(M, self.W, self.eps, self.para_type)
+            self.obj = QJL.CFIM_obj(M, self.W, self.eps, self.para_type)
         else:
             if target == "HCRB":
                 if self.para_type == "single_para":
@@ -380,27 +378,27 @@ class ComprehensiveSystem:
                         "Program terminated. In the single-parameter scenario, the HCRB is equivalent to the QFI. Please choose 'QFIM' as the objective function"
                     )
                 else:
-                    self.obj = jl.QuanEstimation.HCRB_obj(self.W, self.eps, self.para_type)
+                    self.obj = QJL.HCRB_obj(self.W, self.eps, self.para_type)
             elif target == "QFIM" and (
                 LDtype == "SLD" or LDtype == "RLD" or LDtype == "LLD"
             ):
-                self.obj = jl.QuanEstimation.QFIM_obj(
+                self.obj = QJL.QFIM_obj(
                     self.W, self.eps, self.para_type, LDtype
                 )
             elif target == "CFIM":
                 M = SIC(len(self.psi))
-                self.obj = jl.QuanEstimation.CFIM_obj(M, self.W, self.eps, self.para_type)
+                self.obj = QJL.CFIM_obj(M, self.W, self.eps, self.para_type)
             else:
                 raise ValueError(
                     "Please enter the correct values for target and LDtype. Supported target are 'QFIM', 'CFIM' and 'HCRB', supported LDtype are 'SLD', 'RLD' and 'LLD'."
                 )
 
-        self.opt = jl.QuanEstimation.StateControlOpt(
+        self.opt = QJL.StateControlOpt(
             psi=self.psi, ctrl=self.control_coefficients, ctrl_bound=self.ctrl_bound, seed=self.seed
         )
-        self.output = jl.QuanEstimation.Output(self.opt, save=self.savefile)
+        self.output = QJL.Output(self.opt, save=self.savefile)
 
-        self.dynamic = jl.QuanEstimation.Lindblad(
+        self.dynamic = QJL.Lindblad(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
             self.control_Hamiltonian,
@@ -411,10 +409,10 @@ class ComprehensiveSystem:
             self.gamma,
             dyn_method = self.dyn_method,
             )
-        system = jl.QuanEstimation.QuanEstSystem(
+        system = QJL.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
-        jl.QuanEstimation.run(system)
+        QJL.run(system)
 
         max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
         self.load_save_states(max_num)
@@ -444,13 +442,13 @@ class ComprehensiveSystem:
 
         self.rho0 = np.array(rho0, dtype=np.complex128)
 
-        self.obj = jl.QuanEstimation.CFIM_obj([], self.W, self.eps, self.para_type)
-        self.opt = jl.QuanEstimation.ControlMeasurementOpt(
+        self.obj = QJL.CFIM_obj([], self.W, self.eps, self.para_type)
+        self.opt = QJL.ControlMeasurementOpt(
             ctrl=self.control_coefficients, M=self.C, ctrl_bound=self.ctrl_bound, seed=self.seed
         )
-        self.output = jl.QuanEstimation.Output(self.opt, save=self.savefile)
+        self.output = QJL.Output(self.opt, save=self.savefile)
 
-        self.dynamic = jl.QuanEstimation.Lindblad(
+        self.dynamic = QJL.Lindblad(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
             self.control_Hamiltonian,
@@ -462,10 +460,10 @@ class ComprehensiveSystem:
             dyn_method =self.dyn_method,
             )
 
-        system = jl.QuanEstimation.QuanEstSystem(
+        system = QJL.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
-        jl.QuanEstimation.run(system)
+        QJL.run(system)
 
         max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
         self.load_save_ctrls(len(self.control_Hamiltonian), max_num)
@@ -598,7 +596,7 @@ class ComprehensiveSystem:
                             np.array(x, dtype=np.complex128) for x in Htot
                         ]
 
-            self.dynamic = jl.QuanEstimation.Lindblad(
+            self.dynamic = QJL.Lindblad(
                 freeHamiltonian,
                 self.Hamiltonian_derivative,
                 self.psi,
@@ -616,14 +614,14 @@ class ComprehensiveSystem:
                 "Supported type of dynamics are Lindblad and Kraus."
                 )
 
-        self.obj = jl.QuanEstimation.CFIM_obj([], self.W, self.eps, self.para_type)
-        self.opt = jl.QuanEstimation.StateMeasurementOpt(psi=self.psi, M=self.C, seed=self.seed)
-        self.output = jl.QuanEstimation.Output(self.opt, save=self.savefile)
+        self.obj = QJL.CFIM_obj([], self.W, self.eps, self.para_type)
+        self.opt = QJL.StateMeasurementOpt(psi=self.psi, M=self.C, seed=self.seed)
+        self.output = QJL.Output(self.opt, save=self.savefile)
 
-        system = jl.QuanEstimation.QuanEstSystem(
+        system = QJL.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
-        jl.QuanEstimation.run(system)
+        QJL.run(system)
 
         max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
         self.load_save_states(max_num)
@@ -647,13 +645,13 @@ class ComprehensiveSystem:
             W = np.eye(len(self.Hamiltonian_derivative))
         self.W = W
 
-        self.obj = jl.QuanEstimation.CFIM_obj([], self.W, self.eps, self.para_type)
-        self.opt = jl.QuanEstimation.StateControlMeasurementOpt(
+        self.obj = QJL.CFIM_obj([], self.W, self.eps, self.para_type)
+        self.opt = QJL.StateControlMeasurementOpt(
             psi=self.psi, ctrl=self.control_coefficients, M=self.C, ctrl_bound=self.ctrl_bound, seed=self.seed
         )
-        self.output = jl.QuanEstimation.Output(self.opt, save=self.savefile)
+        self.output = QJL.Output(self.opt, save=self.savefile)
 
-        self.dynamic = jl.QuanEstimation.Lindblad(
+        self.dynamic = QJL.Lindblad(
             self.freeHamiltonian,
             self.Hamiltonian_derivative,
             self.control_Hamiltonian,
@@ -664,10 +662,10 @@ class ComprehensiveSystem:
             self.gamma,
             )
 
-        system = jl.QuanEstimation.QuanEstSystem(
+        system = QJL.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
-        jl.QuanEstimation.run(system)
+        QJL.run(system)
 
         max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
         self.load_save_states(max_num)

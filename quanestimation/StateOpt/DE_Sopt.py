@@ -1,6 +1,4 @@
-import juliacall
-jl = juliacall.newmodule("QuanEstimation")
-jl.seval("using QuanEstimation")
+from quanestimation import QJL
 import quanestimation.StateOpt.StateStruct as State
 
 
@@ -82,7 +80,7 @@ class DE_Sopt(State.StateSystem):
             "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
         """
         ini_population = ([self.psi],)
-        self.alg = jl.QuanEstimation.DE(
+        self.alg = QJL.DE(
             self.max_episode,
             self.p_num,
             ini_population,
@@ -112,7 +110,7 @@ class DE_Sopt(State.StateSystem):
             solutions.html).
         """
         ini_population = ([self.psi],)
-        self.alg = jl.QuanEstimation.DE(
+        self.alg = QJL.DE(
             self.max_episode,
             self.p_num,
             ini_population,
@@ -134,7 +132,7 @@ class DE_Sopt(State.StateSystem):
             -- Weight matrix.
         """
         ini_population = ([self.psi],)
-        self.alg = jl.QuanEstimation.DE(
+        self.alg = QJL.DE(
             self.max_episode,
             self.p_num,
             ini_population,

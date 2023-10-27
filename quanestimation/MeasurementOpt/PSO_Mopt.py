@@ -1,6 +1,4 @@
-import juliacall
-jl = juliacall.newmodule("QuanEstimation")
-jl.seval("using QuanEstimation")
+from quanestimation import QJL
 import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
 
@@ -91,7 +89,7 @@ class PSO_Mopt(Measurement.MeasurementSystem):
             -- Weight matrix.
         """
         ini_particle = ([self.measurement0],)
-        self.alg = jl.QuanEstimation.PSO(
+        self.alg = QJL.PSO(
             self.max_episode,
             self.p_num,
             ini_particle,

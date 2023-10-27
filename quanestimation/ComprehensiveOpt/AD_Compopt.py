@@ -1,6 +1,4 @@
-import juliacall
-jl = juliacall.newmodule("QuanEstimation")
-jl.seval("using QuanEstimation")
+from quanestimation import QJL
 import quanestimation.ComprehensiveOpt.ComprehensiveStruct as Comp
 
 
@@ -113,10 +111,10 @@ class AD_Compopt(Comp.ComprehensiveSystem):
             )
 
         if self.Adam:
-            self.alg = jl.QuanEstimation.AD(
+            self.alg = QJL.QuanEstimation.AD(
                 self.max_episode, self.epsilon, self.beta1, self.beta2
             )
         else:
-            self.alg = jl.QuanEstimation.AD(self.max_episode, self.epsilon)
+            self.alg = QJL.QuanEstimation.AD(self.max_episode, self.epsilon)
 
         super().SC(W, M, target, LDtype)

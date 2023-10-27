@@ -4,9 +4,7 @@ from scipy.interpolate import interp1d
 import os
 import math
 import warnings
-import juliacall
-jl = juliacall.newmodule("QuanEstimation")
-jl.seval("using QuanEstimation")
+from quanestimation import QJL
 import quanestimation.StateOpt as stateoptimize
 from quanestimation.Common.Common import SIC
 
@@ -225,9 +223,9 @@ class StateSystem:
             self.gamma = [decay[i][1] for i in range(len(decay))]
         self.decay_opt = [np.array(x, dtype=np.complex128) for x in decay_opt]
 
-        self.opt = jl.QuanEstimation.StateOpt(psi=self.psi0, seed=self.seed)
+        self.opt = QJL.StateOpt(psi=self.psi0, seed=self.seed)
         if any(self.gamma):
-            self.dynamic = jl.QuanEstimation.Lindblad(
+            self.dynamic = QJL.Lindblad(
                 self.freeHamiltonian,
                 self.Hamiltonian_derivative,
                 self.psi0,
@@ -237,14 +235,14 @@ class StateSystem:
                 dyn_method = self.dyn_method,
             )
         else:
-            self.dynamic = jl.QuanEstimation.Lindblad(
+            self.dynamic = QJL.Lindblad(
                 self.freeHamiltonian,
                 self.Hamiltonian_derivative,
                 self.psi0,
                 self.tspan,
                 dyn_method = self.dyn_method,
             )
-        self.output = jl.QuanEstimation.Output(self.opt, save=self.savefile)
+        self.output = QJL.Output(self.opt, save=self.savefile)
 
         self.dynamics_type = "dynamics"
         if len(self.Hamiltonian_derivative) == 1:
@@ -295,9 +293,9 @@ class StateSystem:
             self.psi0 = np.array(self.psi0[0], dtype=np.complex128)
             self.psi = [np.array(psi, dtype=np.complex128) for psi in self.psi]
 
-        self.opt = jl.QuanEstimation.StateOpt(psi=self.psi0, seed=self.seed)
-        self.dynamic = jl.QuanEstimation.Kraus(self.psi0, self.K, self.dK)
-        self.output = jl.QuanEstimation.Output(self.opt, save=self.savefile)
+        self.opt = QJL.StateOpt(psi=self.psi0, seed=self.seed)
+        self.dynamic = QJL.Kraus(self.psi0, self.K, self.dK)
+        self.output = QJL.Output(self.opt, save=self.savefile)
 
         self.dynamics_type = "Kraus"
         if para_num == 1:
@@ -342,13 +340,13 @@ class StateSystem:
         else:
             pass
 
-        self.obj = jl.QuanEstimation.QFIM_obj(
+        self.obj = QJL.QFIM_obj(
             self.W, self.eps, self.para_type, LDtype
         )
-        system = jl.QuanEstimation.QuanEstSystem(
+        system = QJL.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
-        jl.QuanEstimation.run(system)
+        QJL.run(system)
 
         max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
         self.load_save(max_num)
@@ -388,11 +386,11 @@ class StateSystem:
                 W = np.eye(self.para_num)
             self.W = W
 
-        self.obj = jl.QuanEstimation.CFIM_obj(M, self.W, self.eps, self.para_type)
-        system = jl.QuanEstimation.QuanEstSystem(
+        self.obj = QJL.CFIM_obj(M, self.W, self.eps, self.para_type)
+        system = QJL.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
-        jl.QuanEstimation.run(system)
+        QJL.run(system)
 
         max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
         self.load_save(max_num)
@@ -434,11 +432,11 @@ class StateSystem:
                 "Supported type of dynamics are Lindblad and Kraus."
                 )
 
-        self.obj = jl.QuanEstimation.HCRB_obj(self.W, self.eps, self.para_type)
-        system = jl.QuanEstimation.QuanEstSystem(
+        self.obj = QJL.HCRB_obj(self.W, self.eps, self.para_type)
+        system = QJL.QuanEstSystem(
                 self.opt, self.alg, self.obj, self.dynamic, self.output
         )
-        jl.QuanEstimation.run(system)
+        QJL.run(system)
 
         max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
         self.load_save(max_num)

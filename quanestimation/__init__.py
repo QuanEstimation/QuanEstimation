@@ -4,9 +4,12 @@ __version__ = "0.2.0"
 # import julia
 import platform
 from .Common._julia_project import project
+from .Common.Common import load_julia
 
 if platform.system() != 'Windows':
     project.ensure_init()
+
+QJL = load_julia()
 
 # if julia.find_libpython.linked_libpython() is None:
     # jl = julia.Julia(compiled_modules=False)
@@ -46,6 +49,7 @@ from quanestimation.BayesianBound.BayesEstimation import (
 )
 
 from quanestimation.Common.Common import (
+    load_julia,
     mat_vec_convert,
     suN_generator,
     gramschmidt,
@@ -204,4 +208,5 @@ __all__ = [
     "PSO_Compopt",
     "Adapt",
     "Adapt_MZI",
+    "load_julia"
 ]

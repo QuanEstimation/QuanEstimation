@@ -1,6 +1,4 @@
-import juliacall
-jl = juliacall.newmodule("QuanEstimation")
-jl.seval("using QuanEstimation")
+from quanestimation import QJL
 import quanestimation.StateOpt.StateStruct as State
 
 
@@ -60,7 +58,7 @@ class DDPG_Sopt(State.StateSystem):
 
         self.seed = seed
 
-        self.alg = jl.QuanEstimation.DDPG(
+        self.alg = QJL.DDPG(
             self.max_episode, self.layer_num, self.layer_dim, self.seed
         )
 
