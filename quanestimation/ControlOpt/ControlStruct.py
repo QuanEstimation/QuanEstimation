@@ -138,9 +138,10 @@ class ControlSystem:
         self.decay_opt = [np.array(x, dtype=np.complex128) for x in decay_opt]
 
         if ctrl_bound == []:
-            self.ctrl_bound = [-np.inf, np.inf]
+            self.ctrl_bound =  [-jl.Inf, jl.Inf]
         else:
             self.ctrl_bound = [float(ctrl_bound[0]), float(ctrl_bound[1])]
+        self.ctrl_bound = jl.convert(jl.Vector[jl.Float64], self.ctrl_bound)
 
         if self.ctrl0 == []:
             if ctrl_bound == []:
