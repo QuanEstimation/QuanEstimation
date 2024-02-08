@@ -19,7 +19,7 @@ requirements = [
     "sympy",
     "scipy",
     "cvxpy",
-    "julia",
+    "juliacall",
     "more_itertools",
     "julia_project",
     "h5py",
