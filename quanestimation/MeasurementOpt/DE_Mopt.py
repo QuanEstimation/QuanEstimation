@@ -1,4 +1,4 @@
-from julia import QuanEstimation
+from quanestimation import QJL
 import quanestimation.MeasurementOpt.MeasurementStruct as Measurement
 
 
@@ -77,7 +77,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
             -- Weight matrix.
         """
         ini_population = ([self.measurement0],)
-        self.alg = QuanEstimation.DE(
+        self.alg = QJL.DE(
             self.max_episode,
             self.p_num,
             ini_population,

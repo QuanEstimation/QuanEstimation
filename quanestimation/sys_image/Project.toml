@@ -1,0 +1,6 @@
+[deps]
+QuanEstimation = "088c8dff-a786-4a66-974c-03d3f6773f87"
+PackageCompiler = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"
+
+[compat]
+QuanEstimation = "0.1.3"

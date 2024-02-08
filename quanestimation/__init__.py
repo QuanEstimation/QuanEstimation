@@ -1,15 +1,11 @@
 """Top-level package for quanestimation."""
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
-import julia
-import platform
 from .Common._julia_project import project
+from .Common.Common import load_julia
 
-if platform.system() != 'Windows':
-    project.ensure_init()
-
-if julia.find_libpython.linked_libpython() is None:
-    jl = julia.Julia(compiled_modules=False)
+project.ensure_init()
+QJL = load_julia()
 
 from quanestimation.AsymptoticBound.CramerRao import (
     CFIM,
@@ -46,6 +42,7 @@ from quanestimation.BayesianBound.BayesEstimation import (
 )
 
 from quanestimation.Common.Common import (
+    load_julia,
     mat_vec_convert,
     suN_generator,
     gramschmidt,
@@ -142,7 +139,6 @@ from quanestimation.AdaptiveScheme.Adapt import Adapt
 from quanestimation.AdaptiveScheme.Adapt_MZI import Adapt_MZI
 
 
-
 __all__ = [
     "ControlOpt",
     "StateOpt",
@@ -204,4 +200,5 @@ __all__ = [
     "PSO_Compopt",
     "Adapt",
     "Adapt_MZI",
+    "load_julia"
 ]

@@ -1,4 +1,4 @@
-from julia import QuanEstimation
+from quanestimation import QJL
 import quanestimation.StateOpt.StateStruct as State
 
 
@@ -60,7 +60,7 @@ class RI_Sopt(State.StateSystem):
             -- Types of QFI (QFIM) can be set as the objective function. Only SLD can
             is available here.
         """
-        self.alg = QuanEstimation.RI(
+        self.alg = QJL.RI(
             self.max_episode,
         )
         if self.dynamics_type != "Kraus":

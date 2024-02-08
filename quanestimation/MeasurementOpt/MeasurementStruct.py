@@ -4,7 +4,7 @@ from scipy.interpolate import interp1d
 import os
 import math
 import warnings
-from julia import QuanEstimation
+from quanestimation import QJL
 import quanestimation.MeasurementOpt as Measure
 from quanestimation.Common.Common import gramschmidt, sic_povm
 
@@ -159,7 +159,7 @@ class MeasurementSystem:
             else:
                 self.C = [self.measurement0[0][i] for i in range(len(self.rho0))]
                 self.C = [np.array(x, dtype=np.complex128) for x in self.C]
-            self.opt = QuanEstimation.Mopt_Projection(M=self.C, seed=self.seed)
+            self.opt = QJL.Mopt_Projection(M=self.C, seed=self.seed)
 
         elif self.mtype == "input":
             if self.minput[0] == "LC":
@@ -212,7 +212,7 @@ class MeasurementSystem:
                     self.measurement0 = [np.array(self.B)]
                 elif len(self.measurement0) >= 1:
                     self.B = [self.measurement0[0][i] for i in range(self.M_num)]
-                self.opt = QuanEstimation.Mopt_LinearComb(
+                self.opt = QJL.Mopt_LinearComb(
                     B=self.B, POVM_basis=self.povm_basis, M_num=self.M_num, seed=self.seed
                 )
 
@@ -255,7 +255,7 @@ class MeasurementSystem:
                         for i in range(len(self.rho0) * len(self.rho0))
                     ]
 
-                self.opt = QuanEstimation.Mopt_Rotation(
+                self.opt = QJL.Mopt_Rotation(
                     s=self.s, POVM_basis=self.povm_basis, Lambda=[], seed=self.seed
                 )  #### Lambda=[]
 
@@ -365,7 +365,7 @@ class MeasurementSystem:
         self.decay_opt = [np.array(x, dtype=np.complex128) for x in decay_opt]
 
         if any(self.gamma):
-            self.dynamic = QuanEstimation.Lindblad(
+            self.dynamic = QJL.Lindblad(
                 self.freeHamiltonian,
                 self.Hamiltonian_derivative,
                 self.rho0,
@@ -375,14 +375,14 @@ class MeasurementSystem:
                 dyn_method = self.dyn_method,
             )
         else:
-            self.dynamic = QuanEstimation.Lindblad(
+            self.dynamic = QJL.Lindblad(
                 self.freeHamiltonian,
                 self.Hamiltonian_derivative,
                 self.rho0,
                 self.tspan,
                 dyn_method = self.dyn_method,
             )
-        self.output = QuanEstimation.Output(self.opt, save=self.savefile)
+        self.output = QJL.Output(self.opt, save=self.savefile)
         
         self.dynamics_type = "dynamics"
 
@@ -443,7 +443,7 @@ class MeasurementSystem:
             else:
                 self.C = [self.measurement0[0][i] for i in range(len(self.rho0))]
                 self.C = [np.array(x, dtype=np.complex128) for x in self.C]
-            self.opt = QuanEstimation.Mopt_Projection(M=self.C, seed=self.seed)
+            self.opt = QJL.Mopt_Projection(M=self.C, seed=self.seed)
 
         elif self.mtype == "input":
             if self.minput[0] == "LC":
@@ -498,7 +498,7 @@ class MeasurementSystem:
                     self.B = [
                         self.measurement0[0][i] for i in range(len(self.povm_basis))
                     ]
-                self.opt = QuanEstimation.Mopt_LinearComb(
+                self.opt = QJL.Mopt_LinearComb(
                     B=self.B, POVM_basis=self.povm_basis, M_num=self.M_num, seed=self.seed
                 )
 
@@ -541,7 +541,7 @@ class MeasurementSystem:
                         for i in range(len(self.rho0) * len(self.rho0))
                     ]
 
-                self.opt = QuanEstimation.Mopt_Rotation(
+                self.opt = QJL.Mopt_Rotation(
                     s=self.s, POVM_basis=self.povm_basis, Lambda=[], seed=self.seed
                 )
 
@@ -558,8 +558,8 @@ class MeasurementSystem:
                 )
             )
 
-        self.dynamic = QuanEstimation.Kraus(self.rho0, self.K, self.dK)
-        self.output = QuanEstimation.Output(self.opt, save=self.savefile)
+        self.dynamic = QJL.Kraus(self.rho0, self.K, self.dK)
+        self.output = QJL.Output(self.opt, save=self.savefile)
 
         self.dynamics_type = "Kraus"
 
@@ -588,13 +588,13 @@ class MeasurementSystem:
                 "Supported type of dynamics are Lindblad and Kraus."
                 )
 
-        self.obj = QuanEstimation.CFIM_obj(
+        self.obj = QJL.CFIM_obj(
             [], self.W, self.eps, self.para_type
         )  #### m=[]
-        system = QuanEstimation.QuanEstSystem(
+        system = QJL.QuanEstSystem(
             self.opt, self.alg, self.obj, self.dynamic, self.output
         )
-        QuanEstimation.run(system)
+        QJL.run(system)
         max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
         self.load_save(self.M_num, max_num)
 

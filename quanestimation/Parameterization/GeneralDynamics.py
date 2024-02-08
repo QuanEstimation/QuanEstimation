@@ -1,7 +1,7 @@
 import numpy as np
 import warnings
 import math
-from julia import QuanEstimation
+from quanestimation import QJL
 
 
 class Lindblad:
@@ -122,7 +122,7 @@ class Lindblad:
 
         """
 
-        rho, drho = QuanEstimation.expm_py(
+        rho, drho = QJL.expm_py(
             self.tspan,
             self.rho0,
             self.freeHamiltonian,
@@ -149,7 +149,7 @@ class Lindblad:
 
         """
 
-        rho, drho = QuanEstimation.ode_py(
+        rho, drho = QJL.ode_py(
             self.tspan,
             self.rho0,
             self.freeHamiltonian,
@@ -190,7 +190,7 @@ class Lindblad:
         """
 
         d2H = [np.array(x, dtype=np.complex128) for x in d2H]
-        rho, drho, d2rho = QuanEstimation.secondorder_derivative(
+        rho, drho, d2rho = QJL.secondorder_derivative(
             self.tspan,
             self.rho0,
             self.freeHamiltonian,

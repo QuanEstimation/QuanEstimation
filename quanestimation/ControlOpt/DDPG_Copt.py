@@ -1,4 +1,4 @@
-from julia import QuanEstimation
+from quanestimation import QJL
 import quanestimation.ControlOpt.ControlStruct as Control
 
 
@@ -59,7 +59,7 @@ class DDPG_Copt(Control.ControlSystem):
 
         self.seed = seed
 
-        self.alg = QuanEstimation.DDPG(
+        self.alg = QJL.DDPG(
             self.max_episode, self.layer_num, self.layer_dim, self.seed
         )
 
