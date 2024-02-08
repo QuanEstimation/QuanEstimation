@@ -324,7 +324,7 @@ class ComprehensiveSystem:
             self.C = [self.measurement0[0][i] for i in range(len(self.psi))]
             self.C = [np.array(x, dtype=np.complex128) for x in self.C]
 
-        self.dynamic = QJL.Kraus(self.psi, self.K, self.dK)
+        self.dynamic = QJL.Kraus(list(self.psi), self.K, self.dK)
 
         self.dynamics_type = "Kraus"
 
@@ -403,7 +403,7 @@ class ComprehensiveSystem:
             self.Hamiltonian_derivative,
             self.control_Hamiltonian,
             self.control_coefficients,
-            self.psi,
+            list(self.psi),
             self.tspan,
             self.decay_opt,
             self.gamma,
@@ -599,7 +599,7 @@ class ComprehensiveSystem:
             self.dynamic = QJL.Lindblad(
                 freeHamiltonian,
                 self.Hamiltonian_derivative,
-                self.psi,
+                list(self.psi),
                 self.tspan,
                 self.decay_opt,
                 self.gamma,
@@ -615,7 +615,7 @@ class ComprehensiveSystem:
                 )
 
         self.obj = QJL.CFIM_obj([], self.W, self.eps, self.para_type)
-        self.opt = QJL.StateMeasurementOpt(psi=self.psi, M=self.C, seed=self.seed)
+        self.opt = QJL.StateMeasurementOpt(psi=list(self.psi), M=self.C, seed=self.seed)
         self.output = QJL.Output(self.opt, save=self.savefile)
 
         system = QJL.QuanEstSystem(
@@ -656,7 +656,7 @@ class ComprehensiveSystem:
             self.Hamiltonian_derivative,
             self.control_Hamiltonian,
             self.control_coefficients,
-            self.psi,
+            list(self.psi),
             self.tspan,
             self.decay_opt,
             self.gamma,

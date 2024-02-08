@@ -228,7 +228,7 @@ class StateSystem:
             self.dynamic = QJL.Lindblad(
                 self.freeHamiltonian,
                 self.Hamiltonian_derivative,
-                self.psi0,
+                list(self.psi0),
                 self.tspan,
                 self.decay_opt,
                 self.gamma,
@@ -238,7 +238,7 @@ class StateSystem:
             self.dynamic = QJL.Lindblad(
                 self.freeHamiltonian,
                 self.Hamiltonian_derivative,
-                self.psi0,
+                list(self.psi0),
                 self.tspan,
                 dyn_method = self.dyn_method,
             )
@@ -294,7 +294,7 @@ class StateSystem:
             self.psi = [np.array(psi, dtype=np.complex128) for psi in self.psi]
 
         self.opt = QJL.StateOpt(psi=self.psi0, seed=self.seed)
-        self.dynamic = QJL.Kraus(self.psi0, self.K, self.dK)
+        self.dynamic = QJL.Kraus(list(self.psi0), self.K, self.dK)
         self.output = QJL.Output(self.opt, save=self.savefile)
 
         self.dynamics_type = "Kraus"

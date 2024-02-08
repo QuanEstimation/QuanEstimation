@@ -297,10 +297,10 @@ def BCRB(x, p, dp, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
     if para_num == 1:
         #### single parameter scenario ####
         p_num = len(p)
-        if b == []:
+        if not b:
             b = np.zeros(p_num)
             db = np.zeros(p_num)
-        if b != [] and db == []:
+        elif not db:
             db = np.zeros(p_num)
 
         if M == []:
@@ -344,12 +344,12 @@ def BCRB(x, p, dp, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
             raise NameError("NameError: btype should be choosen in {1, 2, 3}.")
     else:
         #### multiparameter scenario ####
-        if b == []:
+        if not b:
             b, db = [], []
             for i in range(para_num):
                 b.append(np.zeros(len(x[i])))
                 db.append(np.zeros(len(x[i])))
-        if b != [] and db == []:
+        elif not db:
             db = []
             for i in range(para_num):
                 db.append(np.zeros(len(x[i])))
@@ -589,10 +589,10 @@ def BQCRB(x, p, dp, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
         #### single parameter scenario ####
         p_num = len(p)
 
-        if b == []:
+        if not b:
             b = np.zeros(p_num)
             db = np.zeros(p_num)
-        if b != [] and db == []:
+        elif not db:
             db = np.zeros(p_num)
 
         if type(drho[0]) == list:
@@ -630,12 +630,12 @@ def BQCRB(x, p, dp, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
             raise NameError("NameError: btype should be choosen in {1, 2, 3}.")
     else:
         #### multiparameter scenario ####
-        if b == []:
+        if not b:
             b, db = [], []
             for i in range(para_num):
                 b.append(np.zeros(len(x[i])))
                 db.append(np.zeros(len(x[i])))
-        if b != [] and db == []:
+        elif not db:
             db = []
             for i in range(para_num):
                 db.append(np.zeros(len(x[i])))
