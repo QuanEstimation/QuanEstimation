@@ -1,18 +1,11 @@
 """Top-level package for quanestimation."""
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
-# import julia
-import platform
 from .Common._julia_project import project
 from .Common.Common import load_julia
 
-if platform.system() != 'Windows':
-    project.ensure_init()
-
+project.ensure_init()
 QJL = load_julia()
-
-# if julia.find_libpython.linked_libpython() is None:
-    # jl = julia.Julia(compiled_modules=False)
 
 from quanestimation.AsymptoticBound.CramerRao import (
     CFIM,
@@ -144,7 +137,6 @@ from quanestimation.StateOpt.RI_Sopt import (
 
 from quanestimation.AdaptiveScheme.Adapt import Adapt
 from quanestimation.AdaptiveScheme.Adapt_MZI import Adapt_MZI
-
 
 
 __all__ = [
