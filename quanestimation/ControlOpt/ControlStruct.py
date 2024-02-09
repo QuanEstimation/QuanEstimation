@@ -209,8 +209,14 @@ class ControlSystem:
                 
         else: pass
 
+        
         self.opt = QJL.ControlOpt(
-            ctrl=self.control_coefficients, ctrl_bound=self.ctrl_bound, seed=self.seed
+            ctrl=QJL.convert(
+                QJL.Vector[QJL.Vector[QJL.Float64]],
+                self.control_coefficients
+            ) ,
+            ctrl_bound=self.ctrl_bound, 
+            seed=self.seed
         )
         self.dynamic = jl.QuanEstimation.Lindblad(
             self.freeHamiltonian,

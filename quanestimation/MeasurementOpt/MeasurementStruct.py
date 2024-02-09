@@ -142,6 +142,8 @@ class MeasurementSystem:
 
         if self.mtype == "projection":
             self.M_num = len(self.rho0)
+            QJLType_C = QJL.Vector[QJL.Vector[QJL.ComplexF64]]
+            
             if self.measurement0 == []:
                 np.random.seed(self.seed)
                 M = [[] for i in range(len(self.rho0))]
@@ -152,13 +154,12 @@ class MeasurementSystem:
                     r = r_ini / np.linalg.norm(r_ini)
                     phi = 2 * np.pi * np.random.random(len(self.rho0))
                     M[i] = [r[j] * np.exp(1.0j * phi[j]) for j in range(len(self.rho0))]
-                self.C = gramschmidt(np.array(M))
-                self.measurement0 = [
-                    np.array([self.C[i] for i in range(len(self.rho0))])
-                ]
+                self.C = QJL.convert(QJLType_C, gramschmidt(np.array(M)))
+                self.measurement0 = QJL.Vector([self.C])
             else:
                 self.C = [self.measurement0[0][i] for i in range(len(self.rho0))]
-                self.C = [np.array(x, dtype=np.complex128) for x in self.C]
+                self.C = QJL.convert(QJLType_C, self.C)
+                self.measurement0 = QJL.Vector([self.C])
             self.opt = QJL.Mopt_Projection(M=self.C, seed=self.seed)
 
         elif self.mtype == "input":
@@ -209,9 +210,19 @@ class MeasurementSystem:
                         np.random.random(len(self.povm_basis))
                         for i in range(self.M_num)
                     ]
-                    self.measurement0 = [np.array(self.B)]
+                    self.measurement0 = [self.B]
                 elif len(self.measurement0) >= 1:
                     self.B = [self.measurement0[0][i] for i in range(self.M_num)]
+                    self.measurement0 = [[m for m in m0] for m0 in self.measurement0]
+                    
+                
+                QJLType_B = QJL.Vector[QJL.Vector[QJL.Float64]]
+                QJLType_pb = QJL.Vector[QJL.Matrix[QJL.ComplexF64]]
+                QJLType_m0 = QJL.Vector[QJL.Vector[QJL.Vector[QJL.ComplexF64]]]
+                self.B = QJL.convert(QJLType_B, self.B)
+                self.povm_basis = QJL.convert(QJLType_pb, self.povm_basis)
+                self.measurement0 = QJL.convert(QJLType_m0, self.measurement0)
+                
                 self.opt = QJL.Mopt_LinearComb(
                     B=self.B, POVM_basis=self.povm_basis, M_num=self.M_num, seed=self.seed
                 )
@@ -255,9 +266,12 @@ class MeasurementSystem:
                         for i in range(len(self.rho0) * len(self.rho0))
                     ]
 
+                self.s = QJL.Vector(self.s)
+                QJLType_pb = QJL.Vector[QJL.Matrix[QJL.ComplexF64]]
+                self.povm_basis = QJL.convert(QJLType_pb, self.povm_basis)
                 self.opt = QJL.Mopt_Rotation(
                     s=self.s, POVM_basis=self.povm_basis, Lambda=[], seed=self.seed
-                )  #### Lambda=[]
+                )
 
             else:
                 raise ValueError(
@@ -437,9 +451,7 @@ class MeasurementSystem:
                     phi = 2 * np.pi * np.random.random(len(self.rho0))
                     M[i] = [r[j] * np.exp(1.0j * phi[j]) for j in range(len(self.rho0))]
                 self.C = gramschmidt(np.array(M))
-                self.measurement0 = [
-                    np.array([self.C[i] for i in range(len(self.rho0))])
-                ]
+                self.measurement0 = [self.C]
             else:
                 self.C = [self.measurement0[0][i] for i in range(len(self.rho0))]
                 self.C = [np.array(x, dtype=np.complex128) for x in self.C]

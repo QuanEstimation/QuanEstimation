@@ -71,7 +71,8 @@ class PSO_Mopt(Measurement.MeasurementSystem):
         )
 
         self.p_num = p_num
-        self.max_episode = max_episode
+        is_int = isinstance(max_episode, int)
+        self.max_episode = max_episode if is_int else QJL.Vector[QJL.Int64](max_episode)
         self.c0 = c0
         self.c1 = c1
         self.c2 = c2
@@ -88,7 +89,7 @@ class PSO_Mopt(Measurement.MeasurementSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
-        ini_particle = ([self.measurement0],)
+        ini_particle = (self.measurement0,)
         self.alg = QJL.PSO(
             self.max_episode,
             self.p_num,

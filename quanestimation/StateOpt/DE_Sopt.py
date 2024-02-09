@@ -79,7 +79,7 @@ class DE_Sopt(State.StateSystem):
             "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
             "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
         """
-        ini_population = ([self.psi],)
+        ini_population = (self.psi,)
         self.alg = QJL.DE(
             self.max_episode,
             self.p_num,
@@ -109,7 +109,7 @@ class DE_Sopt(State.StateSystem):
             which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
             solutions.html).
         """
-        ini_population = ([self.psi],)
+        ini_population = (self.psi,)
         self.alg = QJL.DE(
             self.max_episode,
             self.p_num,
@@ -131,7 +131,7 @@ class DE_Sopt(State.StateSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
-        ini_population = ([self.psi],)
+        ini_population = (self.psi,)
         self.alg = QJL.DE(
             self.max_episode,
             self.p_num,
