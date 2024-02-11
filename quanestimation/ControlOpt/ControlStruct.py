@@ -39,6 +39,8 @@ class ControlSystem:
         self.eps = eps
         self.load = load
         
+        self.QJLType_ctrl = QJL.Vector[QJL.Vector[QJL.Vector[QJL.Float64]]] 
+        
     def load_save(self, cnum, max_episode):
         if os.path.exists("controls.dat"):
             fl = h5py.File("controls.dat",'r')
@@ -46,7 +48,7 @@ class ControlSystem:
             if self.savefile:
                 controls = np.array([[np.array(fl[fl[dset[i]][j]]) for j in range(cnum)] for i in range(max_episode)])
             else:
-                controls = np.array([np.array(fl[dset[j]]) for j in range(cnum)])
+                controls = np.array([dset[:,i] for i in range(cnum)])
             np.save("controls", controls)
         else: pass
 
@@ -166,6 +168,8 @@ class ControlSystem:
             self.control_coefficients = [
                 self.ctrl0[0][i] for i in range(len(self.control_Hamiltonian))
             ]
+        ## TODO
+        self.ctrl0 = QJL.convert(self.QJLType_ctrl, [[c for c in ctrls ]for ctrls in self.ctrl0])
 
         if self.load == True:
             if os.path.exists("controls.csv"):
@@ -211,10 +215,11 @@ class ControlSystem:
 
         
         self.opt = QJL.ControlOpt(
-            ctrl=QJL.convert(
-                QJL.Vector[QJL.Vector[QJL.Float64]],
-                self.control_coefficients
-            ) ,
+            ctrl = self.ctrl0,
+            # ctrl=QJL.convert(
+            #     QJL.Vector[QJL.Vector[QJL.Float64]],
+            #     self.control_coefficients
+            # ) ,
             ctrl_bound=self.ctrl_bound, 
             seed=self.seed
         )

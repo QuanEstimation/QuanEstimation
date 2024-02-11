@@ -233,6 +233,9 @@ class ComprehensiveSystem:
                     )
                 )
         else: pass
+        
+        # ## TODO
+        # self.control_ctrl0 = QJL.convert(QJLType_ctrl, self.ctrl0)
 
         if self.measurement0 == []:
             np.random.seed(self.seed)

@@ -92,8 +92,7 @@ class PSO_Copt(Control.ControlSystem):
             "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
             "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
         """
-        QJLType_ctrl = QJL.Vector[QJL.Vector[QJL.Float64]]
-        ini_particle = ([QJL.convert(QJLType_ctrl, self.control_coefficients)], )
+        ini_particle = (self.ctrl0, )
         self.alg = QJL.PSO(
             self.max_episode,
             self.p_num,
@@ -125,8 +124,7 @@ class PSO_Copt(Control.ControlSystem):
             which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
             solutions.html).
         """
-        QJLType_ctrl = QJL.Vector[QJL.Vector[QJL.Float64]]
-        ini_particle = ([QJL.convert(QJLType_ctrl, self.control_coefficients)], )
+        ini_particle = (self.ctrl0, )
         self.alg = QJL.PSO(
             self.max_episode,
             self.p_num,
@@ -150,8 +148,7 @@ class PSO_Copt(Control.ControlSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
-        QJLType_ctrl = QJL.Vector[QJL.Vector[QJL.Float64]]
-        ini_particle = ([QJL.convert(QJLType_ctrl, self.control_coefficients)], )
+        ini_particle = (self.ctrl0, )
         self.alg = QJL.PSO(
             self.max_episode,
             self.p_num,
@@ -203,8 +200,7 @@ class PSO_Copt(Control.ControlSystem):
             which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
             solutions.html).
         """
-        QJLType_ctrl = QJL.Vector[QJL.Vector[QJL.Float64]]
-        ini_particle = ([QJL.convert(QJLType_ctrl, self.control_coefficients)],)
+        ini_particle = (self.ctrl0,)
         self.alg = QJL.PSO(
             self.max_episode,
             self.p_num,
