@@ -1,8 +1,8 @@
 
 import os, logging, platform
-# import julia_project, julia_project_basic
+import julia_project, julia_project_basic
 from julia_project import JuliaProject
-from julia_project_basic.basic import run_pkg_commands, run_julia
+from julia_project_basic.basic import run_julia
 from pathlib import Path
 
 pkg_path = Path(__file__).parent.parent
@@ -22,8 +22,8 @@ def _load_julia_utils_monkey_patch(self):
 
 ## Remove munual monkey patch when fixed
 
-run_pkg_commands = run_pkg_commands_monkey_patch
-JuliaProject._load_julia_utils = _load_julia_utils_monkey_patch
+julia_project_basic.basic.run_pkg_commands = run_pkg_commands_monkey_patch
+julia_project.JuliaProject._load_julia_utils = _load_julia_utils_monkey_patch
 
 project = JuliaProject(
     name="quanestimation",
