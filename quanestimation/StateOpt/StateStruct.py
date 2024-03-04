@@ -205,11 +205,8 @@ class StateSystem:
             phi = 2 * np.pi * np.random.random(self.dim)
             psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
             self.psi0 = np.array(psi0)
-            # self.psi0 = QJL.Vector[QJL.ComplexF64](psi0)  # Initial state (an array)
-            
             self.psi = QJL.convert(QJLType_psi, [self.psi0]) # Initial guesses of states (a list of arrays)
         else:
-            # self.psi0 = QJL.Vector[QJL.ComplexF64](self.psi0[0])
             self.psi0 = np.array(self.psi0[0], dtype=np.complex128)
             self.psi = QJL.convert(QJLType_psi, self.psi)
         

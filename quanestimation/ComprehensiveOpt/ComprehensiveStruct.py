@@ -152,10 +152,12 @@ class ComprehensiveSystem:
             r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
             r = r_ini / np.linalg.norm(r_ini)
             phi = 2 * np.pi * np.random.random(self.dim)
-            self.psi = np.array([r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)])
-            self.psi0 = [self.psi]
+            psi = np.array([r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)])
+            self.psi0 = np.array(psi)
+            self.psi = QJL.convert(QJLType_psi, [self.psi0]) # Initial guesses of states (a list of arrays)
         else:
-            self.psi = np.array(self.psi0[0], dtype=np.complex128)
+            self.psi0 = np.array(self.psi0[0], dtype=np.complex128)
+            self.psi = QJL.convert(QJLType_psi, self.psi)
 
         if Hc == []:
             Hc = [np.zeros((self.dim, self.dim))]
