@@ -147,6 +147,7 @@ class ComprehensiveSystem:
             self.freeHamiltonian = [np.array(x, dtype=np.complex128) for x in H0[:-1]]
             self.dim = len(self.freeHamiltonian[0])
 
+        QJLType_psi = QJL.Vector[QJL.Vector[QJL.ComplexF64]]
         if self.psi0 == []:
             np.random.seed(self.seed)
             r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
@@ -305,15 +306,18 @@ class ComprehensiveSystem:
             self.para_type = "multi_para"
 
         self.dim = len(K[0])
+        QJLType_psi = QJL.Vector[QJL.Vector[QJL.ComplexF64]]
         if self.psi0 == []:
             np.random.seed(self.seed)
             r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
             r = r_ini / np.linalg.norm(r_ini)
             phi = 2 * np.pi * np.random.random(self.dim)
-            self.psi = np.array([r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)])
-            self.psi0 = [self.psi]
+            psi = np.array([r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)])
+            self.psi0 = np.array(psi)
+            self.psi = QJL.convert(QJLType_psi, [self.psi0]) # Initial guesses of states (a list of arrays)
         else:
-            self.psi = np.array(self.psi0[0], dtype=np.complex128)
+            self.psi0 = np.array(self.psi0[0], dtype=np.complex128)
+            self.psi = QJL.convert(QJLType_psi, self.psi)
 
         if self.measurement0 == []:
             np.random.seed(self.seed)
@@ -329,7 +333,7 @@ class ComprehensiveSystem:
             self.C = [self.measurement0[0][i] for i in range(len(self.psi))]
             self.C = [np.array(x, dtype=np.complex128) for x in self.C]
 
-        self.dynamic = QJL.Kraus(list(self.psi), self.K, self.dK)
+        self.dynamic = QJL.Kraus(list(self.psi0), self.K, self.dK)
 
         self.dynamics_type = "Kraus"
 
@@ -408,7 +412,7 @@ class ComprehensiveSystem:
             self.Hamiltonian_derivative,
             self.control_Hamiltonian,
             self.control_coefficients,
-            list(self.psi),
+            list(self.psi0),
             self.tspan,
             self.decay_opt,
             self.gamma,
@@ -604,7 +608,7 @@ class ComprehensiveSystem:
             self.dynamic = QJL.Lindblad(
                 freeHamiltonian,
                 self.Hamiltonian_derivative,
-                list(self.psi),
+                list(self.psi0),
                 self.tspan,
                 self.decay_opt,
                 self.gamma,
@@ -661,7 +665,7 @@ class ComprehensiveSystem:
             self.Hamiltonian_derivative,
             self.control_Hamiltonian,
             self.control_coefficients,
-            list(self.psi),
+            list(self.psi0),
             self.tspan,
             self.decay_opt,
             self.gamma,

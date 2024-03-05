@@ -97,7 +97,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
             which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
             solutions.html).
         """
-        ini_population = (self.psi0, self.ctrl0)
+        ini_population = (self.psi, self.ctrl0)
         self.alg = QJL.DE(
             self.max_episode,
             self.p_num,
@@ -140,7 +140,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
-        ini_population = (self.psi0, self.measurement0)
+        ini_population = (self.psi, self.measurement0)
         self.alg = QJL.DE(
             self.max_episode,
             self.p_num,
@@ -160,7 +160,7 @@ class DE_Compopt(Comp.ComprehensiveSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
-        ini_population = (self.psi0, self.ctrl0, self.measurement0)
+        ini_population = (self.psi, self.ctrl0, self.measurement0)
         self.alg = QJL.DE(
             self.max_episode,
             self.p_num,
