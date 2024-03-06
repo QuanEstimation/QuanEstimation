@@ -58,6 +58,17 @@ class ComprehensiveSystem:
             np.save("controls", controls)
         else: pass
         
+    def load_save_ctrls_alt(self, cnum, max_episode):
+        if os.path.exists("controls.dat"):
+            fl = h5py.File("controls.dat",'r')
+            dset = fl["controls"]
+            if self.savefile:
+                controls = np.array([[np.array(fl[fl[dset[i]][j]]) for j in range(cnum)] for i in range(max_episode)])
+            else:
+                controls = np.array([dset[:,i] for i in range(cnum)])
+            np.save("controls", controls)
+        else: pass
+            
     def load_save_states(self, max_episode):
         if os.path.exists("states.dat"):
             fl = h5py.File("states.dat",'r')
@@ -238,8 +249,10 @@ class ComprehensiveSystem:
         else: pass
         
         # ## TODO
-        # self.control_ctrl0 = QJL.convert(QJLType_ctrl, self.ctrl0)
-
+        QJLType_ctrl = QJL.Vector[QJL.Vector[QJL.Vector[QJL.Float64]]] 
+        self.ctrl0 = QJL.convert(QJLType_ctrl, [[c for c in ctrls ]for ctrls in self.ctrl0])
+        
+        QJLType_C = QJL.Vector[QJL.Vector[QJL.ComplexF64]]
         if self.measurement0 == []:
             np.random.seed(self.seed)
             M = [[] for i in range(self.dim)]
@@ -248,11 +261,12 @@ class ComprehensiveSystem:
                 r = r_ini / np.linalg.norm(r_ini)
                 phi = 2 * np.pi * np.random.random(self.dim)
                 M[i] = [r[j] * np.exp(1.0j * phi[j]) for j in range(self.dim)]
-            self.C = gramschmidt(np.array(M))
-            self.measurement0 = [np.array([self.C[i] for i in range(self.dim)])]
-        elif len(self.measurement0) >= 1:
-            self.C = [self.measurement0[0][i] for i in range(self.dim)]
-            self.C = [np.array(x, dtype=np.complex128) for x in self.C]
+            self.C = QJL.convert(QJLType_C, gramschmidt(np.array(M)))
+            self.measurement0 = QJL.Vector([self.C])
+        else:
+            self.C = [self.measurement0[0][i] for i in range(len(self.rho0))]
+            self.C = QJL.convert(QJLType_C, self.C)
+            self.measurement0 = QJL.Vector([self.C])
 
         if type(H0) != np.ndarray:
             #### linear interpolation  ####
@@ -475,7 +489,7 @@ class ComprehensiveSystem:
         QJL.run(system)
 
         max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
-        self.load_save_ctrls(len(self.control_Hamiltonian), max_num)
+        self.load_save_ctrls_alt(len(self.control_Hamiltonian), max_num)
         self.load_save_meas(self.dim, max_num)
 
     def SM(self, W=[]):

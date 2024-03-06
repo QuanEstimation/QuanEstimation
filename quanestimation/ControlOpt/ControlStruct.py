@@ -216,10 +216,6 @@ class ControlSystem:
         
         self.opt = QJL.ControlOpt(
             ctrl = self.ctrl0,
-            # ctrl=QJL.convert(
-            #     QJL.Vector[QJL.Vector[QJL.Float64]],
-            #     self.control_coefficients
-            # ) ,
             ctrl_bound=self.ctrl_bound, 
             seed=self.seed
         )
