@@ -62,11 +62,11 @@ class Lindblad:
         if type(dH[0]) != np.ndarray:
             raise TypeError("The derivative of Hamiltonian should be a list!")
 
-        if dH == []:
+        if not dH:
             dH = [np.zeros((len(self.rho0), len(self.rho0)))]
         self.Hamiltonian_derivative = [np.array(x, dtype=np.complex128) for x in dH]
 
-        if decay == []:
+        if not decay:
             decay_opt = [np.zeros((len(self.rho0), len(self.rho0)))]
             self.gamma = [0.0]
         else:
@@ -74,12 +74,12 @@ class Lindblad:
             self.gamma = [decay[i][1] for i in range(len(decay))]
         self.decay_opt = [np.array(x, dtype=np.complex128) for x in decay_opt]
 
-        if Hc == []:
+        if not Hc:
             Hc = [np.zeros((len(self.rho0), len(self.rho0)))]
             ctrl = [np.zeros(len(self.tspan) - 1)]
             self.control_Hamiltonian = [np.array(x, dtype=np.complex128) for x in Hc]
             self.control_coefficients = ctrl
-        elif ctrl == []:
+        elif not ctrl:
             ctrl = [np.zeros(len(self.tspan) - 1) for j in range(len(Hc))]
             self.control_Hamiltonian = Hc
             self.control_coefficients = ctrl
@@ -132,6 +132,9 @@ class Lindblad:
             self.control_Hamiltonian,
             self.control_coefficients,
         )
+        rho = [np.array(rho_i) for rho_i in rho]
+        drho = [[np.array(drho_ij) for drho_ij in drho_i] for drho_i in drho]
+        
         return rho, drho
 
     def ode(self):
@@ -159,6 +162,9 @@ class Lindblad:
             self.control_Hamiltonian,
             self.control_coefficients,
         )
+        rho = [np.array(rho_i) for rho_i in rho]
+        drho = [[np.array(drho_ij) for drho_ij in drho_i] for drho_i in drho]
+        
         return rho, drho
         
     def secondorder_derivative(self, d2H):
@@ -201,4 +207,7 @@ class Lindblad:
             self.control_Hamiltonian,
             self.control_coefficients,
         )
+        rho = [np.array(rho_i) for rho_i in rho]
+        drho = [[np.array(drho_ij) for drho_ij in drho_i] for drho_i in drho]
+        #d2rho = 
         return rho, drho, d2rho

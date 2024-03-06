@@ -44,8 +44,8 @@ class StateSystem:
         self.seed = seed
 
         if load == True:
-            if os.path.exists("states.csv"):
-                self.psi0 = np.genfromtxt("states.csv", dtype=np.complex128)
+            if os.path.exists("states.npy"):
+                self.psi0 = [np.load("states.npy", dtype=np.complex128)]
 
     def load_save(self, max_episode):
         if os.path.exists("states.dat"):
@@ -196,18 +196,20 @@ class StateSystem:
                         np.array(x, dtype=np.complex128) for x in Htot
                     ]
                     self.dim = len(self.freeHamiltonian[0])
+                    
+        QJLType_psi = QJL.Vector[QJL.Vector[QJL.ComplexF64]]
         if self.psi0 == []:
             np.random.seed(self.seed)
             r_ini = 2 * np.random.random(self.dim) - np.ones(self.dim)
             r = r_ini / np.linalg.norm(r_ini)
             phi = 2 * np.pi * np.random.random(self.dim)
             psi0 = [r[i] * np.exp(1.0j * phi[i]) for i in range(self.dim)]
-            self.psi0 = np.array(psi0)  # Initial state (an array)
-            self.psi = [self.psi0] # Initial guesses of states (a list of arrays)
+            self.psi0 = np.array(psi0)
+            self.psi = QJL.convert(QJLType_psi, [self.psi0]) # Initial guesses of states (a list of arrays)
         else:
             self.psi0 = np.array(self.psi0[0], dtype=np.complex128)
-            self.psi = [np.array(psi, dtype=np.complex128) for psi in self.psi]
-            
+            self.psi = QJL.convert(QJLType_psi, self.psi)
+        
         if type(dH) != list:
             raise TypeError("The derivative of Hamiltonian should be a list!")
 
@@ -228,7 +230,7 @@ class StateSystem:
             self.dynamic = QJL.Lindblad(
                 self.freeHamiltonian,
                 self.Hamiltonian_derivative,
-                self.psi0,
+                list(self.psi0),
                 self.tspan,
                 self.decay_opt,
                 self.gamma,
@@ -238,7 +240,7 @@ class StateSystem:
             self.dynamic = QJL.Lindblad(
                 self.freeHamiltonian,
                 self.Hamiltonian_derivative,
-                self.psi0,
+                list(self.psi0),
                 self.tspan,
                 dyn_method = self.dyn_method,
             )
@@ -294,7 +296,7 @@ class StateSystem:
             self.psi = [np.array(psi, dtype=np.complex128) for psi in self.psi]
 
         self.opt = QJL.StateOpt(psi=self.psi0, seed=self.seed)
-        self.dynamic = QJL.Kraus(self.psi0, self.K, self.dK)
+        self.dynamic = QJL.Kraus(list(self.psi0), self.K, self.dK)
         self.output = QJL.Output(self.opt, save=self.savefile)
 
         self.dynamics_type = "Kraus"
@@ -348,7 +350,7 @@ class StateSystem:
         )
         QJL.run(system)
 
-        max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
+        max_num = self.max_episode if isinstance(self.max_episode, int) else self.max_episode[0]
         self.load_save(max_num)
 
     def CFIM(self, M=[], W=[]):
@@ -392,7 +394,7 @@ class StateSystem:
         )
         QJL.run(system)
 
-        max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
+        max_num = self.max_episode if isinstance(self.max_episode, int) else self.max_episode[0]
         self.load_save(max_num)
 
     def HCRB(self, W=[]):
@@ -438,7 +440,7 @@ class StateSystem:
         )
         QJL.run(system)
 
-        max_num = self.max_episode if type(self.max_episode) == int else self.max_episode[0]
+        max_num = self.max_episode if isinstance(self.max_episode, int) else self.max_episode[0]
         self.load_save(max_num)
 
 

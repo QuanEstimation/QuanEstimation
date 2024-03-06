@@ -76,7 +76,7 @@ class DE_Mopt(Measurement.MeasurementSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
-        ini_population = ([self.measurement0],)
+        ini_population = (self.measurement0,)
         self.alg = QJL.DE(
             self.max_episode,
             self.p_num,

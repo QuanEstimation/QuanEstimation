@@ -109,9 +109,13 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
             which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
             solutions.html).
         """
-        ini_particle = (self.psi0, self.ctrl0)
+        ini_particle = (
+            self.psi, 
+            self.ctrl0
+       )
+        
         self.alg = QJL.PSO(
-            self.max_episode,
+            QJL.Vector[QJL.Int64](self.max_episode),
             self.p_num,
             ini_particle,
             self.c0,
@@ -134,7 +138,7 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         """
         ini_particle = (self.ctrl0, self.measurement0)
         self.alg = QJL.PSO(
-            self.max_episode,
+            QJL.Vector[QJL.Int64](self.max_episode),
             self.p_num,
             ini_particle,
             self.c0,
@@ -153,9 +157,9 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
-        ini_particle = (self.psi0, self.measurement0)
+        ini_particle = (self.psi, self.measurement0)
         self.alg = QJL.PSO(
-            self.max_episode,
+            QJL.Vector[QJL.Int64](self.max_episode),
             self.p_num,
             ini_particle,
             self.c0,
@@ -174,9 +178,9 @@ class PSO_Compopt(Comp.ComprehensiveSystem):
         > **W:** `matrix`
             -- Weight matrix.
         """
-        ini_particle = (self.psi0, self.ctrl0, self.measurement0)
+        ini_particle = (self.psi, self.ctrl0, self.measurement0)
         self.alg = QJL.PSO(
-            self.max_episode,
+            QJL.Vector[QJL.Int64](self.max_episode),
             self.p_num,
             ini_particle,
             self.c0,
