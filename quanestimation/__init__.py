@@ -1,5 +1,6 @@
 """Top-level package for quanestimation."""
-__version__ = "0.2.2"
+
+__version__ = "0.2.3"
 
 from .Common._julia_project import project
 from .Common.Common import load_julia
