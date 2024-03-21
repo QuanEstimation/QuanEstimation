@@ -10,11 +10,6 @@ Run the command in the terminal to install QuanEstimation:
     ```
     to install the latest development version of QuanEstimation from Github.
 
-    P.S. Julia and the julia environment will be downloaded and precompiled automatically through an installation guide when the first time `quanestimation` is imported. However, if you want to install python version of QuanEstimation on **Windows** currently, please  try as follow to set up `pyjulia` after `pip install quanestimation` (also see [here](https://pyjulia.readthedocs.io/en/stable/installation.html) for instruction):  
-    1. [Download julia](https://julialang.org/downloads/) and install. Or simply via `pip install jill` and `jill install`,  
-    2. Inside the julia REPL, `using Pkg; Pkg.add("QuanEstimation")`,  
-    3. In the python command line, `import julia; julia.install()` to initialize pyjulia,   
-    4. After the julia and pyjulia are successfully set up, `import quanestimation`.
 === "Julia"
     ``` jl
     import Pkg
@@ -27,7 +22,7 @@ Run the command in the terminal to install QuanEstimation:
 
 # **Requirements**
 QuanEstimation requires several open-source packages in Python and Julia. The versions 
-of Python and Julia should be above 3.6 and 1.7, respectively.
+of Python and Julia should be above 3.10 and 1.10, respectively.
 ## **Python packages**
 | $~~~~~~~~~~~$Package$~~~~~~~$| Version      |
 | :----------:                 | :----------: |
@@ -52,6 +47,6 @@ of Python and Julia should be above 3.6 and 1.7, respectively.
 | DifferentialEquations                          | --          |                                   |             |
 
 The version information of the packages without the version number is the same with the 
-corresponding packages in Julia 1.7. Besides, the version information of the full Julia package 
+corresponding packages in Julia 1.10. Besides, the version information of the full Julia package 
 is also the same as the table above. All of these packages will be automatically installed when
 the users install QuanEstimation.

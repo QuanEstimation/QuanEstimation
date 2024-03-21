@@ -48,7 +48,7 @@ class ControlSystem:
             if self.savefile:
                 controls = np.array([[np.array(fl[fl[dset[i]][j]]) for j in range(cnum)] for i in range(max_episode)])
             else:
-                controls = np.array([dset[:,i] for i in range(cnum)])
+                controls = np.array([np.array(fl[dset[j]]) for j in range(cnum)])
             np.save("controls", controls)
         else: pass
 
