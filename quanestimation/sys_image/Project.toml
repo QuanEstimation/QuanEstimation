@@ -4,4 +4,4 @@ PackageCompiler = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 
 [compat]
-QuanEstimation = "0.1.3"
+QuanEstimation = "0.1.5"
