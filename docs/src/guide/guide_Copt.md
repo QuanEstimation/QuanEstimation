@@ -300,45 +300,6 @@ The code for control optimization with DE is as follows
 	represents the number of populations and episodes. `c` and `cr` are the mutation constant 
 	and the crossover constant.
 
-<!-- ## **DDPG**
-The code for control optimization with DDPG is as follows
-=== "Python"
-	``` py
-	control = ControlOpt(method="DDPG", **kwargs)
-	```
-	where `kwargs` is of the form
-	``` py
-	kwargs = {"max_episode":1000, "layer_num":3, "layer_dim":200, "seed":1234}
-	```
-	The keywords and the default values of DDPG can be seen in the following table
-
-	| $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
-	| :----------:                     | :----------:               |
-	| "ctrl0"                          | [ ]                        |
-	| "max_episode"                    | 1000                       |
-	| "layer_num"                      | 3                          |
-	| "layer_dim"                      | 200                        |
-	| "seed"                           | 1234                       |
-
-	`layer_num` and `layer_dim` represent the number of layers (include the input and output layer) 
-	and the number of neurons in the hidden layer.
-
-=== "Julia"
-	``` jl
-	alg = DDPG(max_episode=1000, layer_num=3, layer_dim=200, seed=1234)
-	```
-	The keywords and the default values of DE can be seen in the following table
-
-	| $~~~~~~~~~~$keywords$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
-	| :----------:                     | :----------:               |
-	| "max_episode"                    | 1000                       |
-	| "layer_num"                      | 3                          |
-	| "layer_dim"                      | 200                        |
-	| "seed"                           | 1234                       |
-
-	`layer_num` and `layer_dim` represent the number of layers (include the input and output layer) 
-	and the number of neurons in the hidden layer. -->
-
 **Example 5.1**  
 <a id="example5_1"></a>
 In this example, the free evolution Hamiltonian of a single qubit system is $H_0=\frac{1}{2}\omega 
