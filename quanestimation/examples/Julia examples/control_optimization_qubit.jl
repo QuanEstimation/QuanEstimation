@@ -48,8 +48,6 @@ alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=300, epsilon=0.01,
 # alg = QuanEstimation.DE(p_num=10, ini_population=([ctrl],), 
 #                         max_episode=1000, c=1.0, cr=0.5)
 
-##-------------algorithm: DDPG---------------------##
-# alg = QuanEstimation.DDPG(max_episode=500, layer_num=4, layer_dim=220)
 
 ##===================choose objective function===================##
 ##-------------objective function: QFI---------------------##

@@ -12,9 +12,9 @@ from quanestimation.ControlOpt.DE_Copt import (
 from quanestimation.ControlOpt.PSO_Copt import (
     PSO_Copt,
 )
-from quanestimation.ControlOpt.DDPG_Copt import (
-    DDPG_Copt,
-)
+# from quanestimation.ControlOpt.DDPG_Copt import (
+#     DDPG_Copt,
+# )
 
 __all__ = [
     "ControlSystem",
@@ -22,6 +22,6 @@ __all__ = [
     "GRAPE_Copt",
     "DE_Copt",
     "PSO_Copt",
-    "DDPG_Copt",
+    # "DDPG_Copt",
     "csv2npy_controls",
 ]

@@ -81,9 +81,9 @@ from quanestimation.ControlOpt.DE_Copt import (
 from quanestimation.ControlOpt.PSO_Copt import (
     PSO_Copt,
 )
-from quanestimation.ControlOpt.DDPG_Copt import (
-    DDPG_Copt,
-)
+# from quanestimation.ControlOpt.DDPG_Copt import (
+#     DDPG_Copt,
+# )
 
 from quanestimation.Parameterization.GeneralDynamics import (
     Lindblad,
@@ -126,9 +126,9 @@ from quanestimation.StateOpt.DE_Sopt import (
 from quanestimation.StateOpt.PSO_Sopt import (
     PSO_Sopt,
 )
-from quanestimation.StateOpt.DDPG_Sopt import (
-    DDPG_Sopt,
-)
+# from quanestimation.StateOpt.DDPG_Sopt import (
+#     DDPG_Sopt,
+# )
 from quanestimation.StateOpt.NM_Sopt import (
     NM_Sopt,
 )
@@ -176,14 +176,14 @@ __all__ = [
     "GRAPE_Copt",
     "DE_Copt",
     "PSO_Copt",
-    "DDPG_Copt",
+    # "DDPG_Copt",
     "AD_Mopt",
     "PSO_Mopt",
     "DE_Mopt",
     "AD_Sopt",
     "DE_Sopt",
     "PSO_Sopt",
-    "DDPG_Sopt",
+    # "DDPG_Sopt",
     "NM_Sopt",
     "RI_Sopt",
     "mat_vec_convert",
