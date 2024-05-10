@@ -349,45 +349,7 @@ The code for state optimization with NM is as follows
     `ini_state` represents the number of initial states. `ar`, `ae`, `ac`, and `as0` are 
     constants for reflection, expansion, constraction, and shrink, respectively.
 
-<!-- ## **DDPG**
-The code for state optimization with DDPG is as follows
-=== "Python"
-    ``` py
-    state = StateOpt(method="DDPG", **kwargs)
-    ```
-    where `kwargs` is of the form
-    ``` py
-    kwargs = {"layer_num":3, "layer_dim":200, "max_episode":1000, "seed":1234}
-    ```
-    The keywords and the default values of DDPG can be seen in the following 
-    table
 
-    | $~~~~~~~~~~$**kwargs$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
-    | :----------:                     | :----------:               |
-    | "psi0"                           | [ ]                        |
-    | "max_episode"                    | 1000                       |
-    | "layer_num"                      | 3                          |
-    | "layer_dim"                      | 200                        |
-    | "seed"                           | 1234                       |
-
-    `layer_num` and `layer_dim` represent the number of layers (include the input and output layer) 
-    and the number of neurons in the hidden layer.
-=== "Julia"
-    ``` jl
-    alg = DDPG(max_episode=500, layer_num=3, layer_dim=200, seed=1234)
-    ```
-    The keywords and the default values of DDPG can be seen in the following 
-    table
-
-    | $~~~~~~~~~~$keywords$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
-    | :----------:                     | :----------:               |
-    | "max_episode"                    | 1000                       |
-    | "layer_num"                      | 3                          |
-    | "layer_dim"                      | 200                        |
-    | "seed"                           | 1234                       |
-
-    `layer_num` and `layer_dim` represent the number of layers (include the input and output layer) 
-    and the number of neurons in the hidden layer. -->
 
 **Example 6.1**  
 <a id="example6_1"></a>
@@ -463,13 +425,7 @@ for generation of the spin coherent state.
                     "ar":1.0, "ae":2.0, "ac":0.5, "as0":0.5, "seed":1234}
         state = StateOpt(savefile=False, method="NM", **NM_paras)
 		```
-	<!-- === "DDPG"
-		``` py
-        # state optimization algorithm: DDPG
-		DDPG_paras = {"layer_num":4, "layer_dim":250, "max_episode":500, \
-		              "seed":1234}
-		state = StateOpt(savefile=False, method="DDPG", **DDPG_paras)
-		``` -->
+        
     ``` py
     # input the dynamics data
     state.dynamics(tspan, H0, dH, decay=decay, dyn_method="expm")
@@ -579,21 +535,6 @@ for generation of the spin coherent state.
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj()
             ```
-    <!-- === "DDPG"
-        ``` jl
-        # state optimization algorithm: DDPG
-        alg = QuanEstimation.DDPG(max_episode=500, layer_num=3, layer_dim=200)
-        ```
-        === "QFIM"
-            ``` jl
-            # objective function: QFI
-            obj = QuanEstimation.QFIM_obj()
-            ```
-        === "CFIM"
-            ``` jl
-            # objective function: CFI
-            obj = QuanEstimation.CFIM_obj()
-            ``` -->
     ``` jl
     # input the dynamics data
     dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay, 
