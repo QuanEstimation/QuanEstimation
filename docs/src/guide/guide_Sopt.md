@@ -4,8 +4,8 @@ $|\psi\rangle=\sum_i c_i|i\rangle$ in a specific basis $\{|i\rangle\}$. Thus, se
 optimal probe states is equal to search of the normalized complex coefficients $\{c_i\}$. In 
 QuanEstimation, the state optimization algorithms are the automatic differentiation (AD) 
 [[1]](#Baydin2018), reverse iterative (RI)[[2]](#Rafal2011) algorithm, particle swarm optimization (PSO) 
-[[3]](#Kennedy1995), differential evolution (DE) [[4]](#Storn1997), Nelder-Mead (NM) 
-[[5]](#Nelder1965), and deep deterministic policy gradients (DDPG) [[6]](#Lillicrap2015). 
+[[3]](#Kennedy1995), differential evolution (DE) [[4]](#Storn1997), and Nelder-Mead (NM) 
+[[5]](#Nelder1965). 
 Call the following codes to perform state optimizaiton
 === "Python"
     ``` py
@@ -29,7 +29,7 @@ Call the following codes to perform state optimizaiton
     states in the final episode and the values of the objective function in all episodes will 
     be saved. If set `True` then the states and the values of the objective function obtained 
     in all episodes will be saved during the training. `method` represents the algorithm used 
-    to optimize the states, options are: "AD", "PSO", "DE", "DDPG", and "NM". `**kwargs` contains 
+    to optimize the states, options are: "AD", "PSO", "DE", and "NM". `**kwargs` contains 
     the keywords and default values corresponding to the optimization algorithm which will be 
     introduced in detail below.
 
@@ -1170,18 +1170,12 @@ J. A. Nelder and R. Mead,
 A Simplex Method for Function Minimization,
 [Comput. J. **7**, 308–313 (1965).](https://doi.org/10.1093/comjnl/7.4.308)
 
-<a id="Lillicrap2015">[6]</a>
-T. P. Lillicrap, J. J. Hunt, A. Pritzel, N. Heess, T. Erez, Y. Tassa, D. Silver, 
-and D. Wierstra,
-Continuous control with deep reinforcement learning,
-[arXiv:1509.02971.](https://arxiv.org/abs/1509.02971)
-
-<a id="Johansson2012">[7]</a>
+<a id="Johansson2012">[6]</a>
 J. R. Johansson, P. D. Nation, and F. Nori,
 QuTiP: An open-source Python framework for the dynamics of open quantum systems,
 [Comp. Phys. Comm. **183**, 1760 (2012).](https://doi.org/10.1016/j.cpc.2012.02.021)
 
-<a id="Johansson2013">[8]</a>
+<a id="Johansson2013">[7]</a>
 J. R. Johansson, P. D. Nation, and F. Nori,
 QuTiP 2: A Python framework for the dynamics of open quantum systems,
 [Comp. Phys. Comm. **184**, 1234 (2013).](https://doi.org/10.1016/j.cpc.2012.11.019)
