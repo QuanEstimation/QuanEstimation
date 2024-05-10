@@ -453,7 +453,10 @@ def StateOpt(savefile=False, method="AD", **kwargs):
     elif method == "DE":
         return stateoptimize.DE_Sopt(savefile=savefile, **kwargs)
     elif method == "DDPG":
-        return stateoptimize.DDPG_Sopt(savefile=savefile, **kwargs)
+        raise ValueError(
+            "'DDPG' is currently deprecated and will be fixed soon."    
+            )
+        # return stateoptimize.DDPG_Sopt(savefile=savefile, **kwargs)
     elif method == "NM":
         return stateoptimize.NM_Sopt(savefile=savefile, **kwargs)
     elif method == "RI":

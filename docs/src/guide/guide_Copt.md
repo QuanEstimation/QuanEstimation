@@ -300,7 +300,7 @@ The code for control optimization with DE is as follows
 	represents the number of populations and episodes. `c` and `cr` are the mutation constant 
 	and the crossover constant.
 
-## **DDPG**
+<!-- ## **DDPG**
 The code for control optimization with DDPG is as follows
 === "Python"
 	``` py
@@ -337,7 +337,7 @@ The code for control optimization with DDPG is as follows
 	| "seed"                           | 1234                       |
 
 	`layer_num` and `layer_dim` represent the number of layers (include the input and output layer) 
-	and the number of neurons in the hidden layer.
+	and the number of neurons in the hidden layer. -->
 
 **Example 5.1**  
 <a id="example5_1"></a>
@@ -420,13 +420,13 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
 				    "cr":0.5, "seed":1234}
 		control = ControlOpt(savefile=False, method="DE", **DE_paras)
 		```
-	=== "DDPG"
+	<!-- === "DDPG"
 		``` py
 		# control algorithm: DDPG
 		DDPG_paras = {"layer_num":4, "layer_dim":220, "max_episode":500, \
 		              "seed":1234}
 		control = ControlOpt(savefile=False, method="DDPG", **DDPG_paras)
-		```
+		``` -->
 	``` py
 	# input the dynamics data
 	control.dynamics(tspan, rho0, H0, dH, Hc, decay=decay, \
@@ -541,7 +541,7 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
 			# objective function: CFI
 			obj = QuanEstimation.CFIM_obj(M=M)
 			```
-	=== "DDPG"
+	<!-- === "DDPG"
 		``` jl
 		# control algorithm: DDPG
 		alg = QuanEstimation.DDPG(max_episode=500, layer_num=4, layer_dim=220)
@@ -554,7 +554,7 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
 		=== "CFIM"
 			``` jl
 			# objective function: CFI
-			obj = QuanEstimation.CFIM_obj(M=M)
+			obj = QuanEstimation.CFIM_obj(M=M) -->
 			```
 	``` jl
 	# input the dynamics data
@@ -744,7 +744,7 @@ Here three types of measurement optimization are considerd, projective measureme
 			# objective function: HCRB
 			control.HCRB()
 			```
-	=== "DDPG"
+	<!-- === "DDPG"
 		``` py
 		# control algorithm: DDPG
 		DDPG_paras = {"layer_num":4, "layer_dim":220, "max_episode":500, \
@@ -765,7 +765,7 @@ Here three types of measurement optimization are considerd, projective measureme
 			``` py
 			# objective function: tr(WI^{-1})
 			control.CFIM(M=M)
-			```
+			``` -->
 === "Julia"
 	``` jl
 	using QuanEstimation
@@ -883,7 +883,7 @@ Here three types of measurement optimization are considerd, projective measureme
 			# objective function: HCRB
 			obj = QuanEstimation.HCRB_obj()
 			```
-	=== "DDPG"
+	<!-- === "DDPG"
 		``` jl
 		# control algorithm: DDPG
 		alg = QuanEstimation.DDPG(max_episode=500, layer_num=4, layer_dim=220)
@@ -897,7 +897,7 @@ Here three types of measurement optimization are considerd, projective measureme
 			``` jl
 			# objective function: tr(WI^{-1})
 			obj = QuanEstimation.CFIM_obj(M=M)
-			```
+			``` -->
 	``` jl
 	# input the dynamics data
 	dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay, 

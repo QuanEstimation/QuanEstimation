@@ -349,7 +349,7 @@ The code for state optimization with NM is as follows
     `ini_state` represents the number of initial states. `ar`, `ae`, `ac`, and `as0` are 
     constants for reflection, expansion, constraction, and shrink, respectively.
 
-## **DDPG**
+<!-- ## **DDPG**
 The code for state optimization with DDPG is as follows
 === "Python"
     ``` py
@@ -387,7 +387,7 @@ The code for state optimization with DDPG is as follows
     | "seed"                           | 1234                       |
 
     `layer_num` and `layer_dim` represent the number of layers (include the input and output layer) 
-    and the number of neurons in the hidden layer.
+    and the number of neurons in the hidden layer. -->
 
 **Example 6.1**  
 <a id="example6_1"></a>
@@ -463,13 +463,13 @@ for generation of the spin coherent state.
                     "ar":1.0, "ae":2.0, "ac":0.5, "as0":0.5, "seed":1234}
         state = StateOpt(savefile=False, method="NM", **NM_paras)
 		```
-	=== "DDPG"
+	<!-- === "DDPG"
 		``` py
         # state optimization algorithm: DDPG
 		DDPG_paras = {"layer_num":4, "layer_dim":250, "max_episode":500, \
 		              "seed":1234}
 		state = StateOpt(savefile=False, method="DDPG", **DDPG_paras)
-		```
+		``` -->
     ``` py
     # input the dynamics data
     state.dynamics(tspan, H0, dH, decay=decay, dyn_method="expm")
@@ -579,7 +579,7 @@ for generation of the spin coherent state.
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj()
             ```
-    === "DDPG"
+    <!-- === "DDPG"
         ``` jl
         # state optimization algorithm: DDPG
         alg = QuanEstimation.DDPG(max_episode=500, layer_num=3, layer_dim=200)
@@ -593,7 +593,7 @@ for generation of the spin coherent state.
             ``` jl
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj()
-            ```
+            ``` -->
     ``` jl
     # input the dynamics data
     dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay, 
@@ -735,7 +735,7 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
             # objective function: HCRB
             state.HCRB()
             ```
-	=== "DDPG"
+	<!-- === "DDPG"
 		``` py
         # state optimization algorithm: DDPG
 		DDPG_paras = {"layer_num":4, "layer_dim":250, "max_episode":500, \
@@ -755,7 +755,7 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
             ``` py
             # objective function: tr(WI^{-1})
             state.CFIM()
-            ```
+            ``` -->
 === "Julia"
     ``` jl
     using QuanEstimation
@@ -868,7 +868,7 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
             # objective function: HCRB
             obj = QuanEstimation.HCRB_obj()
             ```
-    === "DDPG"
+    <!-- === "DDPG"
         ``` jl
         # state optimization algorithm: DDPG
         alg = QuanEstimation.DDPG(max_episode=500, layer_num=3, layer_dim=200)
@@ -882,7 +882,7 @@ In the multiparameter scenario, $g$ and $h$ are chooen to be the unknown paramet
             ``` jl
             # objective function: tr(WI^{-1})
             obj = QuanEstimation.CFIM_obj()
-            ```
+            ``` -->
     ``` jl
     # input the dynamics data
     dynamics = QuanEstimation.Lindblad(opt, tspan, H0, dH, decay=decay, 
@@ -1067,7 +1067,7 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
             # objective function: CFI
             state.CFIM()
             ```
-	=== "DDPG"
+	<!-- === "DDPG"
 		``` py
         # state optimization algorithm: DDPG
 		DDPG_paras = {"layer_num":4, "layer_dim":250, "max_episode":500, \
@@ -1087,7 +1087,7 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
             ``` py
             # objective function: CFI
             state.CFIM()
-            ```
+            ``` -->
 === "Julia"
     ``` jl
     using QuanEstimation
@@ -1178,7 +1178,7 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj()
             ```
-    === "DDPG"
+    <!-- === "DDPG"
         ``` jl
         # state optimization algorithm: DDPG
         alg = QuanEstimation.DDPG(max_episode=500, layer_num=3, layer_dim=200)
@@ -1192,7 +1192,7 @@ where $\gamma$ is the unknown parameter to be estimated which represents the dec
             ``` jl
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj()
-            ```
+            ``` -->
     ``` jl
     # input the dynamics data
     dynamics = QuanEstimation.Kraus(opt, K, dK)

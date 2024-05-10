@@ -71,13 +71,13 @@ Control optimization.
 
 <a target='_blank' href='https://github.com/QuanEstimation/QuanEstimation.jl/blob/5f47a686c13b059023de2abe67017d7c9564bc9d/src/OptScenario/OptScenario.jl#L16-L24' class='documenter-source'>source</a><br>
 
-##  **`QuanEstimation.DDPG`** &mdash; *Method*.
+<!-- ##  **`QuanEstimation.DDPG`** &mdash; *Method*.
 
 
 
 ```julia
 DDPG(;max_episode::Int=500, layer_num::Int=3, layer_dim::Int=200, seed::Number=1234)
-```
+``` -->
 
 Optimization algorithm: DE.
 

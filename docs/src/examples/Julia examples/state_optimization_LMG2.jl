@@ -46,8 +46,6 @@ alg = QuanEstimation.AD(Adam=false, max_episode=300, epsilon=0.01,
 # alg = QuanEstimation.NM(p_num=10, max_episode=1000, ar=1.0, 
 #                         ae=2.0, ac=0.5, as0=0.5)
 
-# # state optimization algorithm: DDPG
-# alg = QuanEstimation.DDPG(max_episode=500, layer_num=3, layer_dim=200)
 
 ##====================choose the objective function====================##
 ##-------------objective function: QFI---------------------##

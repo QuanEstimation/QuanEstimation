@@ -445,7 +445,10 @@ def ControlOpt(savefile=False, method="auto-GRAPE", **kwargs):
     elif method == "DE":
         return ctrl.DE_Copt(savefile=savefile, **kwargs)
     elif method == "DDPG":
-        return ctrl.DDPG_Copt(savefile=savefile, **kwargs)
+        raise ValueError(
+            "'DDPG' is currently deprecated and will be fixed soon."    
+            )
+        # return ctrl.DDPG_Copt(savefile=savefile, **kwargs)
     else:
         raise ValueError(
             "{!r} is not a valid value for method, supported values are 'auto-GRAPE', 'GRAPE', 'PSO', 'DE', 'DDPG'.".format(method

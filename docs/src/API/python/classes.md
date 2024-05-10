@@ -31,8 +31,8 @@ differential evolution (DE) and deep deterministic policy gradients (DDPG).
 ### **Control Optimization DE**
 ::: quanestimation.DE_Copt
 
-### **Control Optimization with DDPG**
-::: quanestimation.DDPG_Copt
+<!-- ### **Control Optimization with DDPG**
+::: quanestimation.DDPG_Copt -->
 
 ---
 
@@ -59,9 +59,9 @@ optimization (PSO), differential evolution (DE), deep deterministic policy gradi
 
 ### **State Optimization DE**
 ::: quanestimation.DE_Sopt
-
+<!-- 
 ### **State Optimization with DDPG**
-::: quanestimation.DDPG_Sopt
+::: quanestimation.DDPG_Sopt -->
 
 ---
 
