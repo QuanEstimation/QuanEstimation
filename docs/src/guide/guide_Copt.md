@@ -15,8 +15,7 @@ coefficients. In QuanEstimation, different algorithms are invoked to update the 
 coefficients. The control optimization algorithms are the gradient ascent pulse engineering 
 (GRAPE) [[1,2,3]](#Khaneja2005), GRAPE algorithm based on the automatic differentiation 
 (auto-GRAPE) [[4]](#Baydin2018), particle swarm optimization (PSO) [[5]](#Kennedy1995), 
-differential evolution (DE) [[6]](#Storn1997), and deep deterministic policy gradients 
-(DDPG) [[7]](#Lillicrap2015). The codes for control optimization are
+and differential evolution (DE) [[6]](#Storn1997). The codes for control optimization are
 === "Python"
 	```py
 	control = ControlOpt(savefile=False, method="auto-GRAPE", **kwargs)
@@ -920,9 +919,3 @@ R. Storn and K. Price,
 Differential Evolution-A Simple and Efficient Heuristic for global
 Optimization over Continuous Spaces,
 [J. Global Optim. **11**, 341 (1997).](https://doi.org/10.1023/A:1008202821328)
-
-<a id="Lillicrap2015">[7]</a>
-T. P. Lillicrap, J. J. Hunt, A. Pritzel, N. Heess, T. Erez, Y. Tassa, D. Silver, 
-and D. Wierstra,
-Continuous control with deep reinforcement learning,
-[arXiv:1509.02971.](https://arxiv.org/abs/1509.02971)
