@@ -268,7 +268,7 @@ def SLD(rho, drho, rep="original", eps=1e-8):
             )
             for fi in range(0, dim):
                 for fj in range(0, dim):
-                    if np.abs(val[fi] + val[fj]) > eps:
+                    if val[fi] + val[fj] > eps:
                         SLD_eig[fi][fj] = (
                             2
                             * np.dot(
