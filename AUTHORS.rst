@@ -7,7 +7,7 @@ Development Lead
 
 * Jing Liu <liujing@hainanu.edu.cn>
 
-Contributors
+Major developers
 ------------
 
 * Huaiming Yu 
