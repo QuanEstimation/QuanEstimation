@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.linalg import sqrtm
-from scipy.integrate import simps
+from scipy.integrate import simpson
 
 
 def trace_norm(A, eps):
@@ -74,8 +74,8 @@ def QZZB(x, p, rho, eps=1e-8):
             np.real(2 * min(p[j], p[j + i]) * helstrom_dm(rho[j], rho[j + i], eps))
             for j in range(p_num - i)
         ]
-        f_tp = simps(arr, x[0 : p_num - i])
+        f_tp = simpson(arr, x[0 : p_num - i])
         f_tau[i] = f_tp
     arr2 = [tau[m] * max(f_tau[m:]) for m in range(p_num)]
-    I = simps(arr2, tau)
+    I = simpson(arr2, tau)
     return 0.5 * I
