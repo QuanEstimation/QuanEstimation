@@ -4,3 +4,4 @@ mkdocstrings == 0.24.0
 mkdocstrings-crystal == 0.3.6
 mkdocstrings-python == 1.8
 fontawesome_markdown == 0.2.6
+griffe == 0.49.0
