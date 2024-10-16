@@ -5,9 +5,13 @@ Credits
 Development Lead
 ----------------
 
-* Huaiming Yu <huaimingyuuu@gmail.com>
+* Jing Liu <liujing@hainanu.edu.cn>
 
 Contributors
 ------------
 
-None yet. Why not be the first?
+* Huaiming Yu 
+
+* Mao Zhang
+
+* Zhengwei An
