@@ -41,7 +41,7 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
     ],
-    description="A package for quantum estimation.",
+    description="A package for quantum parameter estimation.",
     entry_points={
         "console_scripts": [
             "quanestimation=quanestimation.cli:main",
