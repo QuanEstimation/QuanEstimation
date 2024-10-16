@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.integrate import simps
+from scipy.integrate import simpson
 from itertools import product
 
 from quanestimation.Common.Common import extract_ele, SIC
@@ -620,7 +620,7 @@ def iter_FOP_singlepara(p, p_num, x, u, rho_all, M, dim, x_opt, ei):
         pyx[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
 
     arr = np.array([pyx[m] * p[m] for m in range(p_num)])
-    py = simps(arr, x[0])
+    py = simpson(arr, x[0])
     p_update = pyx * p / py
     
     for i in range(p_num):
@@ -654,7 +654,7 @@ def iter_FOP_multipara(p, p_num, para_num, x, x_list, u, rho_all, M, dim, x_opt,
     pyx = pyx_list.reshape(p_shape)
     arr = p * pyx
     for si in reversed(range(para_num)):
-        arr = simps(arr, x[si])
+        arr = simpson(arr, x[si])
     py = arr
     p_update = p * pyx / py
     
@@ -696,7 +696,7 @@ def iter_MI_singlepara(p, p_num, x, u, rho_all, M, dim, ei):
         pyx[xi] = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
 
     arr = np.array([pyx[m] * p[m] for m in range(p_num)])
-    py = simps(arr, x[0])
+    py = simpson(arr, x[0])
     p_update = pyx * p / py
     
     for i in range(p_num):
@@ -718,14 +718,14 @@ def iter_MI_singlepara(p, p_num, x, u, rho_all, M, dim, ei):
         value_tp = np.zeros(p_num)
         for mi in range(len(M)):
             pyx_tp = np.array([np.real(np.trace(np.dot(rho_u[xi], M[mi]))) for xi in range(p_num)])
-            mean_tp = simps(np.array([pyx_tp[i] * p[i] for i in range(p_num)]), x[0])
+            mean_tp = simpson(np.array([pyx_tp[i] * p[i] for i in range(p_num)]), x[0])
             value_tp += pyx_tp*np.log2(pyx_tp/mean_tp)
         # arr = np.array([value_tp[i] * p[i] for i in range(p_num)])
         arr = np.zeros(p_num)
         for i in range(p_num):
             if x[0][0] < (x[0][i] + x[0][ui]) < x[0][-1]:
                 arr[i] = value_tp[i] * p[i]
-        MI[ui] = simps(arr, x[0])
+        MI[ui] = simpson(arr, x[0])
     u = x[0][np.argmax(MI)]
 
     if (ei + 1) % 50 == 0:
@@ -748,7 +748,7 @@ def iter_MI_multipara(p, p_num, para_num, x, x_list, u, rho_all, M, dim, ei, p_s
     pyx = pyx_list.reshape(p_shape)
     arr = p * pyx
     for si in reversed(range(para_num)):
-        arr = simps(arr, x[si])
+        arr = simpson(arr, x[si])
     py = arr
     p_update = p * pyx / py
     
@@ -781,12 +781,12 @@ def iter_MI_multipara(p, p_num, para_num, x, x_list, u, rho_all, M, dim, ei, p_s
             pyx_tp = pyx_list_tp.reshape(p_shape)
             mean_tp = p * pyx_tp
             for si in reversed(range(para_num)):
-                mean_tp = simps(mean_tp, x[si])
+                mean_tp = simpson(mean_tp, x[si])
             value_tp += pyx_tp*np.log2(pyx_tp/mean_tp) 
 
         # value_int = p * value_tp
         # for sj in reversed(range(para_num)):
-        #    value_int = simps(value_int, x[sj])  
+        #    value_int = simpson(value_int, x[sj])  
 
         arr = np.zeros(p_num)
         p_ext = extract_ele(p, para_num)
@@ -801,7 +801,7 @@ def iter_MI_multipara(p, p_num, para_num, x, x_list, u, rho_all, M, dim, ei, p_s
                 arr[hj] =  p_lis[hj] * value_lis[hj]
         value_int = arr.reshape(p_shape)
         for sj in reversed(range(para_num)):
-           value_int = simps(value_int, x[sj])     
+           value_int = simpson(value_int, x[sj])     
 
         MI[ui] = value_int
     p_idx = np.unravel_index(MI.argmax(), p.shape)
