@@ -31,18 +31,18 @@ pip install quanestimation
 
 * Development of the GRAPE algorithm in quantum parameter estimation can be found in the following papers:
 
-**auto-GRAPE**:
+  * **auto-GRAPE**:
 
-[1] M. Zhang, H.-M. Yu, H. Yuan, X. Wang, R. Demkowicz-Dobrzański, and J. Liu, 
-QuanEstimation: An open-source toolkit for quantum parameter estimation, 
-[Phys. Rev. Research **4**, 043057 (2022).](https://doi.org/10.1103/PhysRevResearch.4.043057)
+    M. Zhang, H.-M. Yu, H. Yuan, X. Wang, R. Demkowicz-Dobrzański, and J. Liu, 
+    QuanEstimation: An open-source toolkit for quantum parameter estimation, 
+    [Phys. Rev. Research **4**, 043057 (2022).](https://doi.org/10.1103/PhysRevResearch.4.043057)
 
-**GRAPE for single-parameter estimation**:
+  * **GRAPE for single-parameter estimation**:
 
-[1] Jing Liu and Haidong Yuan, Quantum parameter estimation with optimal control, 
-[Physical Review A 96, 012117 (2017).](https://doi.org/10.1103/PhysRevA.96.012117)
+    Jing Liu and Haidong Yuan, Quantum parameter estimation with optimal control, 
+    [Physical Review A 96, 012117 (2017).](https://doi.org/10.1103/PhysRevA.96.012117)
 
-**GRAPE for multiparameter estimation**:
+  * **GRAPE for multiparameter estimation**:
 
-[1] Jing Liu and Haidong Yuan, Control-enhanced multiparameter quantum estimation, 
-[Physical Review A 96, 042114 (2017).](https://doi.org/10.1103/PhysRevA.96.042114)
+    Jing Liu and Haidong Yuan, Control-enhanced multiparameter quantum estimation, 
+    [Physical Review A 96, 042114 (2017).](https://doi.org/10.1103/PhysRevA.96.042114)
