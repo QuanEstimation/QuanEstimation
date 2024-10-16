@@ -2,7 +2,7 @@
 
 __version__ = "0.2.4"
 
-from .Common._julia_project import project
+from ._julia_project import project
 from .Common.Common import load_julia
 
 project.ensure_init()
@@ -21,7 +21,8 @@ from quanestimation.AsymptoticBound.CramerRao import (
     SLD,
 )
 from quanestimation.AsymptoticBound.AnalogCramerRao import (
-    HCRB, NHB, 
+    HCRB,
+    NHB,
 )
 from quanestimation.BayesianBound.BayesCramerRao import (
     BCFIM,
@@ -35,12 +36,7 @@ from quanestimation.BayesianBound.BayesCramerRao import (
 from quanestimation.BayesianBound.ZivZakai import (
     QZZB,
 )
-from quanestimation.BayesianBound.BayesEstimation import (
-    Bayes,
-    MLE,
-    BCB,
-    BayesCost
-)
+from quanestimation.BayesianBound.BayesEstimation import Bayes, MLE, BCB, BayesCost
 
 from quanestimation.Common.Common import (
     load_julia,
@@ -81,6 +77,7 @@ from quanestimation.ControlOpt.DE_Copt import (
 from quanestimation.ControlOpt.PSO_Copt import (
     PSO_Copt,
 )
+
 # from quanestimation.ControlOpt.DDPG_Copt import (
 #     DDPG_Copt,
 # )
@@ -126,6 +123,7 @@ from quanestimation.StateOpt.DE_Sopt import (
 from quanestimation.StateOpt.PSO_Sopt import (
     PSO_Sopt,
 )
+
 # from quanestimation.StateOpt.DDPG_Sopt import (
 #     DDPG_Sopt,
 # )
@@ -201,5 +199,5 @@ __all__ = [
     "PSO_Compopt",
     "Adapt",
     "Adapt_MZI",
-    "load_julia"
+    "load_julia",
 ]
