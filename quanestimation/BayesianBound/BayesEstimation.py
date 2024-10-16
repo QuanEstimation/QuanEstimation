@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.integrate import simps
+from scipy.integrate import simpson
 from quanestimation.Common.Common import extract_ele
 from quanestimation.Common.Common import SIC
 from itertools import product
@@ -72,10 +72,10 @@ def Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False):
                         p_tp = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
                         pyx[xi] = p_tp
                     arr = [pyx[m] * p[m] for m in range(len(x[0]))]
-                    py = simps(arr, x[0])
+                    py = simpson(arr, x[0])
                     p_update = pyx * p / py
                     p = p_update
-                    mean = simps([p[m]*x[0][m] for m in range(len(x[0]))], x[0])
+                    mean = simpson([p[m]*x[0][m] for m in range(len(x[0]))], x[0])
                     x_out.append(mean)
             elif estimator == "MAP":
                 for mi in range(max_episode):
@@ -85,7 +85,7 @@ def Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False):
                         p_tp = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
                         pyx[xi] = p_tp
                     arr = [pyx[m] * p[m] for m in range(len(x[0]))]
-                    py = simps(arr, x[0])
+                    py = simpson(arr, x[0])
                     p_update = pyx * p / py
                     p = p_update
                     indx = np.where(p == max(p))[0][0]
@@ -106,10 +106,10 @@ def Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False):
                         p_tp = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
                         pyx[xi] = p_tp
                     arr = [pyx[m] * p[m] for m in range(len(x[0]))]
-                    py = simps(arr, x[0])
+                    py = simpson(arr, x[0])
                     p_update = pyx * p / py
                     p = p_update
-                    mean = simps([p[m]*x[0][m] for m in range(len(x[0]))], x[0])
+                    mean = simpson([p[m]*x[0][m] for m in range(len(x[0]))], x[0])
                     p_out.append(p)
                     x_out.append(mean)
             elif estimator == "MAP":
@@ -120,7 +120,7 @@ def Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False):
                         p_tp = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
                         pyx[xi] = p_tp
                     arr = [pyx[m] * p[m] for m in range(len(x[0]))]
-                    py = simps(arr, x[0])
+                    py = simpson(arr, x[0])
                     p_update = pyx * p / py
                     p = p_update
                     indx = np.where(p == max(p))[0][0]
@@ -162,7 +162,7 @@ def Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False):
                     pyx = pyx_list.reshape(p_shape)
                     arr = p * pyx
                     for si in reversed(range(para_num)):
-                        arr = simps(arr, x[si])
+                        arr = simpson(arr, x[si])
                     py = arr
                     p_update = p * pyx / py
                     p = p_update
@@ -179,7 +179,7 @@ def Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False):
                     pyx = pyx_list.reshape(p_shape)
                     arr = p * pyx
                     for si in reversed(range(para_num)):
-                        arr = simps(arr, x[si])
+                        arr = simpson(arr, x[si])
                     py = arr
                     p_update = p * pyx / py
                     p = p_update
@@ -204,7 +204,7 @@ def Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False):
                     pyx = pyx_list.reshape(p_shape)
                     arr = p * pyx
                     for si in reversed(range(para_num)):
-                        arr = simps(arr, x[si])
+                        arr = simpson(arr, x[si])
                     py = arr
                     p_update = p * pyx / py
                     p = p_update
@@ -222,7 +222,7 @@ def Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False):
                     pyx = pyx_list.reshape(p_shape)
                     arr = p * pyx
                     for si in reversed(range(para_num)):
-                        arr = simps(arr, x[si])
+                        arr = simpson(arr, x[si])
                     py = arr
                     p_update = p * pyx / py
                     p = p_update
@@ -426,7 +426,7 @@ def BayesCost(x, p, xest, rho, M, W=[], eps=1e-8):
                 raise TypeError("Please make sure M is a list!")
         p_num = len(x[0])
         value = [p[i]*sum([np.trace(np.dot(rho[i], M[mi]))*(x[0][i]-xest[mi][0])**2 for mi in range(len(M))]) for i in range(p_num)]
-        C = simps(value, x[0])
+        C = simpson(value, x[0])
         return np.real(C)
     else:
         # multi-parameter scenario
@@ -465,7 +465,7 @@ def BayesCost(x, p, xest, rho, M, W=[], eps=1e-8):
             value[i] = p_list[i]*xCx
         C = np.array(value).reshape(p_shape)
         for si in reversed(range(para_num)):
-            C = simps(C, x[si])
+            C = simpson(C, x[si])
         return np.real(C)
     
     
@@ -501,15 +501,15 @@ def BCB(x, p, rho, W=[], eps=1e-8):
         dim = len(rho[0])
         p_num = len(x[0])
         value = [p[i]*x[0][i]**2 for i in range(p_num)]
-        delta2_x = simps(value, x[0])
+        delta2_x = simpson(value, x[0])
         rho_avg = np.zeros((dim, dim), dtype=np.complex128)
         rho_pri = np.zeros((dim, dim), dtype=np.complex128)
         for di in range(dim):
             for dj in range(dim):
                 rho_avg_arr = [p[m]*rho[m][di][dj] for m in range(p_num)]
                 rho_pri_arr = [p[n]*x[0][n]*rho[n][di][dj] for n in range(p_num)]
-                rho_avg[di][dj] = simps(rho_avg_arr, x[0])
-                rho_pri[di][dj] = simps(rho_pri_arr, x[0])
+                rho_avg[di][dj] = simpson(rho_avg_arr, x[0])
+                rho_pri[di][dj] = simpson(rho_pri_arr, x[0])
         Lambda = Lambda_avg(rho_avg, [rho_pri], eps=eps)
         minBC = delta2_x-np.real(np.trace(np.dot(np.dot(rho_avg, Lambda[0]), Lambda[0])))
         return minBC
@@ -542,7 +542,7 @@ def BCB(x, p, rho, W=[], eps=1e-8):
             value[i] = p_list[i]*xCx
         delta2_x = np.array(value).reshape(p_shape)
         for si in reversed(range(para_num)):
-            delta2_x = simps(delta2_x, x[si])
+            delta2_x = simpson(delta2_x, x[si])
         rho_avg = np.zeros((dim, dim), dtype=np.complex128)
         rho_pri = [np.zeros((dim, dim), dtype=np.complex128) for i in range(para_num)]
         for di in range(dim):
@@ -550,14 +550,14 @@ def BCB(x, p, rho, W=[], eps=1e-8):
                 rho_avg_arr = [p_list[m]*rho_list[m][di][dj] for m in range(p_num)]
                 rho_avg_tp = np.array(rho_avg_arr).reshape(p_shape)
                 for si in reversed(range(para_num)):
-                    rho_avg_tp = simps(rho_avg_tp, x[si])
+                    rho_avg_tp = simpson(rho_avg_tp, x[si])
                 rho_avg[di][dj] = rho_avg_tp
 
                 for para_i in range(para_num):
                     rho_pri_arr = [p_list[n]*x_list[n][para_i]*rho_list[n][di][dj] for n in range(p_num)]
                     rho_pri_tp = np.array(rho_pri_arr).reshape(p_shape)
                     for si in reversed(range(para_num)):
-                        rho_pri_tp = simps(rho_pri_tp, x[si])
+                        rho_pri_tp = simpson(rho_pri_tp, x[si])
 
                     rho_pri[para_i][di][dj] = rho_pri_tp
         Lambda = Lambda_avg(rho_avg, rho_pri, eps=eps)
