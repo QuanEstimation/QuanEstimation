@@ -1,6 +1,6 @@
 import numpy as np
 from scipy import interpolate
-from scipy.integrate import simps, solve_bvp
+from scipy.integrate import simpson, solve_bvp
 from itertools import product
 from quanestimation.AsymptoticBound.CramerRao import CFIM, QFIM
 from quanestimation.Common.Common import SIC, extract_ele
@@ -69,7 +69,7 @@ def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
             F_tp[m] = CFIM(rho[m], [drho[m]], M=M, eps=eps)
 
         arr = [p[i] * F_tp[i] for i in range(p_num)]
-        return simps(arr, x[0])
+        return simpson(arr, x[0])
     else:
         #### multiparameter scenario ####
         p_shape = np.shape(p)
@@ -106,7 +106,7 @@ def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
                 F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
                 arr = p * F_ij
                 for si in reversed(range(para_num)):
-                    arr = simps(arr, x[si])
+                    arr = simpson(arr, x[si])
                 BCFIM_res[para_i][para_j] = arr
                 BCFIM_res[para_j][para_i] = arr
         return BCFIM_res
@@ -165,7 +165,7 @@ def BQFIM(x, p, rho, drho, LDtype="SLD", eps=1e-8):
         for m in range(p_num):
             F_tp[m] = QFIM(rho[m], [drho[m]], LDtype=LDtype, eps=eps)
         arr = [p[i] * F_tp[i] for i in range(p_num)]
-        return simps(arr, x[0])
+        return simpson(arr, x[0])
     else:
         #### multiparameter scenario ####
         p_shape = np.shape(p)
@@ -195,7 +195,7 @@ def BQFIM(x, p, rho, drho, LDtype="SLD", eps=1e-8):
                 F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
                 arr = p * F_ij
                 for si in reversed(range(para_num)):
-                    arr = simps(arr, x[si])
+                    arr = simpson(arr, x[si])
                 BQFIM_res[para_i][para_j] = arr
                 BQFIM_res[para_j][para_i] = arr
         return BQFIM_res
@@ -324,21 +324,21 @@ def BCRB(x, p, dp, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
             arr = [
                 p[i] * ((1 + db[i]) ** 2 / F_tp[i] + b[i] ** 2) for i in range(p_num)
             ]
-            F = simps(arr, x[0])
+            F = simpson(arr, x[0])
             return F
         elif btype == 2:
             arr = [p[i] * F_tp[i] for i in range(p_num)]
-            F1 = simps(arr, x[0])
+            F1 = simpson(arr, x[0])
             arr2 = [p[j] * (1 + db[j]) for j in range(p_num)]
-            B = simps(arr2, x[0])
+            B = simpson(arr2, x[0])
             arr3 = [p[k] * b[k] ** 2 for k in range(p_num)]
-            bb = simps(arr3, x[0])
+            bb = simpson(arr3, x[0])
             F = B**2 / F1 + bb
             return F
         elif btype == 3:
             I_tp = [np.real(dp[i] * dp[i] / p[i] ** 2) for i in range(p_num)]
             arr = [p[j]*(dp[j]*b[j]/p[j]+(1 + db[j]))**2 / (I_tp[j] + F_tp[j]) for j in range(p_num)]
-            F = simps(arr, x[0])
+            F = simpson(arr, x[0])
             return F
         else:
             raise NameError("NameError: btype should be choosen in {1, 2, 3}.")
@@ -404,7 +404,7 @@ def BCRB(x, p, dp, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
                     F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
                     arr = p * F_ij
                     for si in reversed(range(para_num)):
-                        arr = simps(arr, x[si])
+                        arr = simpson(arr, x[si])
                     res[para_i][para_j] = arr
                     res[para_j][para_i] = arr
             return res
@@ -440,7 +440,7 @@ def BCRB(x, p, dp, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
                     F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
                     arr = p * F_ij
                     for si in reversed(range(para_num)):
-                        arr = simps(arr, x[si])
+                        arr = simpson(arr, x[si])
                     F_res[para_i][para_j] = arr
                     F_res[para_j][para_i] = arr
             B_res = np.zeros([para_num, para_num])
@@ -452,8 +452,8 @@ def BCRB(x, p, dp, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
                     arr2 = p * B_mn
                     arr3 = p * bb_mn
                     for sj in reversed(range(para_num)):
-                        arr2 = simps(arr2, x[sj])
-                        arr3 = simps(arr3, x[sj])
+                        arr2 = simpson(arr2, x[sj])
+                        arr3 = simpson(arr3, x[sj])
                     B_res[para_m][para_n] = arr2
                     bb_res[para_m][para_n] = arr3
             res = np.dot(B_res, np.dot(np.linalg.pinv(F_res), B_res)) + bb_res
@@ -486,7 +486,7 @@ def BCRB(x, p, dp, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
                     F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
                     arr = p * F_ij
                     for si in reversed(range(para_num)):
-                        arr = simps(arr, x[si])
+                        arr = simpson(arr, x[si])
                     res[para_i][para_j] = arr
                     res[para_j][para_i] = arr
             return res
@@ -610,21 +610,21 @@ def BQCRB(x, p, dp, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
             arr = [
                 p[i] * ((1 + db[i]) ** 2 / F_tp[i] + b[i] ** 2) for i in range(p_num)
             ]
-            F = simps(arr, x[0])
+            F = simpson(arr, x[0])
             return F
         elif btype == 2:
             arr2 = [p[i] * F_tp[i] for i in range(p_num)]
-            F2 = simps(arr2, x[0])
+            F2 = simpson(arr2, x[0])
             arr2 = [p[j] * (1 + db[j]) for j in range(p_num)]
-            B = simps(arr2, x[0])
+            B = simpson(arr2, x[0])
             arr3 = [p[k] * b[k] ** 2 for k in range(p_num)]
-            bb = simps(arr3, x[0])
+            bb = simpson(arr3, x[0])
             F = B**2 / F2 + bb
             return F
         elif btype == 3:
             I_tp = [np.real(dp[i] * dp[i] / p[i] ** 2) for i in range(p_num)]
             arr = [p[j]*(dp[j]*b[j]/p[j]+(1 + db[j]))**2 / (I_tp[j] + F_tp[j]) for j in range(p_num)]
-            F = simps(arr, x[0])
+            F = simpson(arr, x[0])
             return F
         else:
             raise NameError("NameError: btype should be choosen in {1, 2, 3}.")
@@ -684,7 +684,7 @@ def BQCRB(x, p, dp, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
                     F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
                     arr = p * F_ij
                     for si in reversed(range(para_num)):
-                        arr = simps(arr, x[si])
+                        arr = simpson(arr, x[si])
                     res[para_i][para_j] = arr
                     res[para_j][para_i] = arr
             return res
@@ -720,7 +720,7 @@ def BQCRB(x, p, dp, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
                     F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
                     arr = p * F_ij
                     for si in reversed(range(para_num)):
-                        arr = simps(arr, x[si])
+                        arr = simpson(arr, x[si])
                     F_res[para_i][para_j] = arr
                     F_res[para_j][para_i] = arr
             B_res = np.zeros([para_num, para_num])
@@ -732,8 +732,8 @@ def BQCRB(x, p, dp, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
                     arr2 = p * B_mn
                     arr3 = p * bb_mn
                     for sj in reversed(range(para_num)):
-                        arr2 = simps(arr2, x[sj])
-                        arr3 = simps(arr3, x[sj])
+                        arr2 = simpson(arr2, x[sj])
+                        arr3 = simpson(arr3, x[sj])
                     B_res[para_m][para_n] = arr2
                     bb_res[para_m][para_n] = arr3
             res = np.dot(B_res, np.dot(np.linalg.pinv(F_res), B_res)) + bb_res
@@ -766,7 +766,7 @@ def BQCRB(x, p, dp, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
                     F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
                     arr = p * F_ij
                     for si in reversed(range(para_num)):
-                        arr = simps(arr, x[si])
+                        arr = simpson(arr, x[si])
                     res[para_i][para_j] = arr
                     res[para_j][para_i] = arr
             return res
@@ -862,9 +862,9 @@ def VTB(x, p, dp, rho, drho, M=[], eps=1e-8):
 
 
         arr1 = [np.real(dp[i] * dp[i] / p[i]) for i in range(p_num)]
-        I = simps(arr1, x[0])
+        I = simpson(arr1, x[0])
         arr2 = [np.real(F_tp[j] * p[j]) for j in range(p_num)]
-        F = simps(arr2, x[0])
+        F = simpson(arr2, x[0])
         return 1.0 / (I + F)
     else:
         #### multiparameter scenario ####
@@ -914,8 +914,8 @@ def VTB(x, p, dp, rho, drho, M=[], eps=1e-8):
                 arr1 = p * F_ij
                 arr2 = p * I_ij
                 for si in reversed(range(para_num)):
-                    arr1 = simps(arr1, x[si])
-                    arr2 = simps(arr2, x[si])
+                    arr1 = simpson(arr1, x[si])
+                    arr2 = simpson(arr2, x[si])
                 F_res[para_i][para_j] = arr1
                 F_res[para_j][para_i] = arr1
                 I_res[para_i][para_j] = arr2
@@ -997,9 +997,9 @@ def QVTB(x, p, dp, rho, drho, LDtype="SLD", eps=1e-8):
             F_tp[m] = QFIM(rho[m], [drho[m]], LDtype=LDtype, eps=eps)
 
         arr1 = [np.real(dp[i] * dp[i] / p[i]) for i in range(p_num)]
-        I = simps(arr1, x[0])
+        I = simpson(arr1, x[0])
         arr2 = [np.real(F_tp[j] * p[j]) for j in range(p_num)]
-        F = simps(arr2, x[0])
+        F = simpson(arr2, x[0])
         return 1.0 / (I + F)
     else:
         #### multiparameter scenario ####
@@ -1042,8 +1042,8 @@ def QVTB(x, p, dp, rho, drho, LDtype="SLD", eps=1e-8):
                 arr1 = p * F_ij
                 arr2 = p * I_ij
                 for si in reversed(range(para_num)):
-                    arr1 = simps(arr1, x[si])
-                    arr2 = simps(arr2, x[si])
+                    arr1 = simpson(arr1, x[si])
+                    arr2 = simpson(arr2, x[si])
                 F_res[para_i][para_j] = arr1
                 F_res[para_j][para_i] = arr1
                 I_res[para_i][para_j] = arr2
@@ -1146,4 +1146,4 @@ def OBB(x, p, dp, rho, drho, d2rho, LDtype="SLD", eps=1e-8):
     bias, dbias = res[0], res[1]
 
     value = [p[i] * ((1 + dbias[i]) ** 2 / F[i] + bias[i] ** 2) for i in range(p_num)]
-    return simps(value, x)
+    return simpson(value, x)
