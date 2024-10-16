@@ -28,8 +28,8 @@ requirements = [
 test_requirements = []
 
 setup(
-    author="Huai-Ming Yu, Jing Liu",
-    author_email="huaimingyuuu@gmail.com, liujingphys@hust.edu.cn",
+    author="Jing Liu, Huai-Ming Yu",
+    author_email="liujing@hainanu.edu.cn, huaimingyuuu@gmail.com",
     python_requires=">=3.10",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
