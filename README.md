@@ -40,9 +40,9 @@ pip install quanestimation
   * **GRAPE for single-parameter estimation**:
 
     Jing Liu and Haidong Yuan, Quantum parameter estimation with optimal control, 
-    [Physical Review A 96, 012117 (2017).](https://doi.org/10.1103/PhysRevA.96.012117)
+    [Physical Review A **96**, 012117 (2017).](https://doi.org/10.1103/PhysRevA.96.012117)
 
   * **GRAPE for multiparameter estimation**:
 
     Jing Liu and Haidong Yuan, Control-enhanced multiparameter quantum estimation, 
-    [Physical Review A 96, 042114 (2017).](https://doi.org/10.1103/PhysRevA.96.042114)
+    [Physical Review A **96**, 042114 (2017).](https://doi.org/10.1103/PhysRevA.96.042114)
