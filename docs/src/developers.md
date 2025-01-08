@@ -1,10 +1,10 @@
 # Developers
 
 ### **Prof. Jing Liu**
-**Huazhong University of Science and Technology**  
-**Email:** <liujingphys@hust.edu.cn>  
-**Biography:** Dr. Liu is currently an associate professor in the National Precise Gravity 
-Measurement Facility, Huazhong University of Science and Technology. His main research interests 
+**Hainan University**  
+**Email:** <liujing@hainanu.edu.cn>  
+**Biography:** Prof. Liu is currently a full-time professor in the Center for Theoretical Physics 
+and School of Physics and Optoelectronic Engineering, Hainan University. His main research interests 
 focus on the topics in quantum metrology, quantum control, quantum information theory, and 
 foundations of quantum mechanics, especially the design of high-precision measurement schemes 
 using the features of quantum mechanics.
@@ -14,7 +14,7 @@ using the features of quantum mechanics.
 ### **Prof. Rafał Demkowicz-Dobrzański**  
 **University of Warsaw**  
 **Email:** <Rafal.Demkowicz-Dobrzanski@fuw.edu.pl>  
-**Biography:** Dr. Demkowicz-Dobrzański is an associate professor at the Faculty of Physics, 
+**Biography:** Prof. Demkowicz-Dobrzański is a faculty at the Faculty of Physics, 
 University of Warsaw. He is a theorist actively working in the field of quantum metrology, 
 who developed methods to identify fundamental limits in quantum metrology in presence of 
 decoherence.
@@ -33,6 +33,7 @@ quantum technology.
 # Contributors
 
 ### **Mr. Zheng-Wei An**
+**Huazhong University of Science and Technology**  
 
 ---
 
