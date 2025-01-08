@@ -1,6 +1,6 @@
 # Developers
 
-### **Dr. Jing Liu**
+### **Prof. Jing Liu**
 **Huazhong University of Science and Technology**  
 **Email:** <liujingphys@hust.edu.cn>  
 **Biography:** Dr. Liu is currently an associate professor in the National Precise Gravity 
@@ -11,7 +11,7 @@ using the features of quantum mechanics.
 
 ---
 
-### **Dr. Rafał Demkowicz-Dobrzański**  
+### **Prof. Rafał Demkowicz-Dobrzański**  
 **University of Warsaw**  
 **Email:** <Rafal.Demkowicz-Dobrzanski@fuw.edu.pl>  
 **Biography:** Dr. Demkowicz-Dobrzański is an associate professor at the Faculty of Physics, 
