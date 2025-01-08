@@ -3,7 +3,7 @@
 ### **Prof. Jing Liu**
 **Hainan University**  
 **Email:** <liujing@hainanu.edu.cn>  
-**Biography:** Prof. Liu is currently a full-time professor in the Center for Theoretical Physics 
+**Biography:** Prof. Liu is currently a full-time professor at the Center for Theoretical Physics 
 and School of Physics and Optoelectronic Engineering, Hainan University. His main research interests 
 focus on the topics in quantum metrology, quantum control, quantum information theory, and 
 foundations of quantum mechanics, especially the design of high-precision measurement schemes 
