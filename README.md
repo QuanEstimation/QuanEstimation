@@ -12,6 +12,8 @@ general evaluations of many metrological tools and scheme designs in quantum par
 The documentation of QuanEstimation can be found [here](https://quanestimation.github.io/QuanEstimation/).
 
 ## Installation
+![PyPI](https://img.shields.io/pypi/v/QuanEstimation)
+
 Run the command in the terminal to install QuanEstimation:  
 
 ~~~
