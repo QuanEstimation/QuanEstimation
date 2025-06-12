@@ -7,7 +7,7 @@ QuanEstimation: An open-source toolkit for quantum parameter estimation,
 [Phys. Rev. Res. **4**, 043057 (2022).](https://doi.org/10.1103/PhysRevResearch.4.043057)
 
 [2] Huai-Ming Yu and Jing Liu, QuanEstimation.jl: An open-source Julia framework for quantum parameter estimation, 
-[Fundam. Res.](https://doi.org/10.1016/j.fmre.2025.02.020)
+[Fundam. Res. (2025).](https://doi.org/10.1016/j.fmre.2025.02.020)
 
 ---
 
