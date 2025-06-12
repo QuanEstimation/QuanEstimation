@@ -11,6 +11,9 @@ general evaluations of many metrological tools and scheme designs in quantum par
 
 
 ## Documentation
+
+[![Docs](https://github.com/QuanEstimation/QuanEstimation/actions/workflows/docs.yml/badge.svg)](https://github.com/QuanEstimation/QuanEstimation/actions/workflows/docs.yml)
+
 The documentation of QuanEstimation can be found [here](https://quanestimation.github.io/QuanEstimation/).
 
 ## Installation
