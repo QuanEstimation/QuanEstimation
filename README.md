@@ -30,7 +30,7 @@ pip install quanestimation
   [Phys. Rev. Res. **4**, 043057 (2022).](https://doi.org/10.1103/PhysRevResearch.4.043057)
 
   [2] H.-M. Yu and J. Liu, QuanEstimation.jl: An open-source Julia framework for quantum parameter estimation, 
-  [arXiv: 2405.12066.](https://doi.org/10.48550/arXiv.2405.12066)
+  [Fundam. Res. (2025).](https://doi.org/10.1016/j.fmre.2025.02.020) 
 
 * Development of the GRAPE algorithm in quantum parameter estimation can be found in the following papers:
 
