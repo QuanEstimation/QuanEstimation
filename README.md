@@ -17,17 +17,21 @@ The documentation of QuanEstimation can be found [here](https://quanestimation.g
 ## Installation
 ![PyPI](https://img.shields.io/pypi/v/QuanEstimation)
 
-1. Run the command in the terminal to install QuanEstimation:  
+1. Install QuanEstimation via pip:  
 
 ~~~
 pip install quanestimation
 ~~~
 
-2. Download the package and install it.
+2. Download the package and install it in the terminal: 
 
 ~~~
 git clone https://github.com/QuanEstimation/QuanEstimation.git
+~~~
+~~~
 cd QuanEstimation
+~~~
+~~~
 pip install .
 ~~~
 
