@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# The major setup script has been moved to pyproject.toml. This file is kept for compatibility and will be deprecated in the future.
 
 """The setup script."""
 
