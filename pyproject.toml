@@ -11,7 +11,7 @@ requires-python = ">=3.10"
 license = { text = "BSD 3-Clause License" }
 authors = [
     { name = "Jing Liu", email = "liujing@hainanu.edu.cn" },
-    { name = "Huai-Ming Yu", email = "huaimingyuuu@gmail.com" }
+    { name = "Huai-Ming Yu"}
 ]
 keywords = ["quanestimation"]
 classifiers = [
