@@ -14,7 +14,7 @@ authors = [
 ]
 keywords = ["quanestimation"]
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: BSD License",
     "Natural Language :: English",
@@ -45,6 +45,22 @@ quanestimation = "quanestimation.cli:main"
 
 [project.optional-dependencies]
 test = [
-    "pytest"
+    "pytest",
     "coverage>=4.5.4"
 ]
+dev = [
+    "bump2version>=0.5.11",
+    "wheel>=0.33.6",
+    "build",
+    "pytest",
+    "coverage"
+]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings[python]"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["quanestimation*"]
