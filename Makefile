@@ -51,13 +51,13 @@ lint: ## check style with flake8
 	flake8 quanestimation tests
 
 test: ## run tests quickly with the default Python
-	python setup.py test
+	python -m pytest
 
 test-all: ## run tests on every Python version with tox
 	tox
 
 coverage: ## check code coverage quickly with the default Python
-	coverage run --source quanestimation setup.py test
+	coverage run --source quanestimation -m pytest
 	coverage report -m
 	coverage html
 	$(BROWSER) htmlcov/index.html
@@ -76,10 +76,13 @@ servedocs: docs ## compile the docs watching for changes
 release: dist ## package and upload a release
 	twine upload dist/*
 
+build:
+	python -m build
+
 dist: clean ## builds source and wheel package
-	python setup.py sdist
-	python setup.py bdist_wheel
+	python -m build --sdist
+	python -m build --wheel
 	ls -l dist
 
 install: clean ## install the package to the active Python's site-packages
-	python setup.py install
+	pip install .

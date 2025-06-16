@@ -28,7 +28,6 @@ dependencies = [
     "pip>=19.2.3",
     "bump2version>=0.5.11",
     "wheel>=0.33.6",
-    "coverage>=4.5.4",
     "numpy",
     "sympy",
     "scipy",
@@ -44,3 +43,9 @@ Homepage = "https://github.com/QuanEstimation/QuanEstimation"
 
 [project.scripts]
 quanestimation = "quanestimation.cli:main"
+
+[project.optional-dependencies]
+test = [
+    "pytest"
+    "coverage>=4.5.4"
+]
