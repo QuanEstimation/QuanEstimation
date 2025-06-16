@@ -17,7 +17,7 @@ The documentation of QuanEstimation can be found [here](https://quanestimation.g
 ## Installation
 ![PyPI](https://img.shields.io/pypi/v/QuanEstimation)
 
-1. Install QuanEstimation via pip:  
+1. Install QuanEstimation via PyPI:  
 
 ~~~
 pip install quanestimation
