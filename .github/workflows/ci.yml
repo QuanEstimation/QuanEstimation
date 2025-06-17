@@ -9,6 +9,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    
+    env:
+      JULIA_PROJECT_COMPILE: no
 
     steps:
     - uses: actions/checkout@v4
@@ -22,7 +25,7 @@ jobs:
       run: |
         pip install .[test]
 
-    - name: Run tests
+    - name: Run tests with coverage
       run: |
         coverage run --source=quanestimation -m pytest
 
