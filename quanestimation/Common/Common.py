@@ -95,6 +95,22 @@ def suN_generator(n):
 
 
 def gramschmidt(A):
+    """
+    Perform the Gram-Schmidt process on a set of vectors A to obtain an orthonormal basis.
+    
+    Parameters
+    ----------
+    > **A:** `list` of `numpy.ndarray`
+        -- A list of vectors (numpy arrays) to be orthonormalized.
+    
+    Returns
+    ----------
+    A list of orthonormal vectors.
+    
+    Raises
+    ----------
+    > **ValueError:** If the input list is empty or contains non-numeric vectors.
+    """
     dim = len(A)
     n = len(A[0])
     Q = [np.zeros(n, dtype=np.complex128) for i in range(dim)]
@@ -109,6 +125,21 @@ def gramschmidt(A):
 
 
 def basis(dim, index):
+    """
+    Generate a basis vector in the Hilbert space of dimension `dim` with the specified index.
+    The index is 0-based, meaning that the first basis vector corresponds to index 0.
+    
+    Parameters
+    ----------
+    > **dim:** `int`
+        -- The dimension of the Hilbert space.
+    > **index:** `int`
+        -- The index of the basis vector to generate (0-based).
+    
+    Returns
+    ----------
+    A column vector of shape (dim, 1) representing the basis vector.
+    """
     x = np.zeros(dim)
     x[index] = 1.0
     return x.reshape(dim, 1)

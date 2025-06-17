@@ -28,8 +28,8 @@ requirements = [
 test_requirements = []
 
 setup(
-    author="Jing Liu, Huai-Ming Yu",
-    author_email="liujing@hainanu.edu.cn, huaimingyuuu@gmail.com",
+    author="Jing Liu et al.",
+    author_email="liujing@hainanu.edu.cn ",
     python_requires=">=3.10",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
@@ -58,6 +58,6 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/QuanEstimation/QuanEstimation",
-    version="0.2.6",
+    version="0.2.7",
     zip_safe=False,
 )
