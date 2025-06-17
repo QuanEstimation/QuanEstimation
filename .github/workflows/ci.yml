@@ -25,9 +25,6 @@ jobs:
     - name: Set JULIA_PROJECT_COMPILE to no
       run: |
         echo "JULIA_PROJECT_COMPILE=no" >> $GITHUB_ENV    
-
-    - name: Run tests with coverage
-      run: |
         coverage run --source=quanestimation -m pytest -s
 
     - name: Upload coverage to Codecov

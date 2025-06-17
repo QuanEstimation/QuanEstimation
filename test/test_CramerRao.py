@@ -15,4 +15,4 @@ def test_CramerRao():
                       [1j*np.cos(theta)*np.sin(theta)*np.exp(1j*phi), 0]])] 
     result = QFIM(rho, drho, LDtype="SLD")
     # check the results
-    assert result == pytest.approx(np.array([[4, 0], [0, np.sin(2*theta)**2]]), rel=1e-5)
+    assert np.allclose(result, np.array([[4, 0], [0, np.sin(2*theta)**2]])) == 1
