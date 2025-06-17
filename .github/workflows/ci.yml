@@ -22,9 +22,9 @@ jobs:
       run: |
         pip install .[test]
 
-    - name: Set JULIA_PROJECT_COMPILE to no
+    - name: Run tests
       run: |
-        coverage run --source=quanestimation -m pytest -s
+        coverage run --source=quanestimation -m pytest
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
