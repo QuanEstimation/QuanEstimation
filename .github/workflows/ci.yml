@@ -9,7 +9,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     env:
       JULIA_PROJECT_COMPILE: no
 
@@ -27,7 +27,7 @@ jobs:
 
     - name: Run tests with coverage
       run: |
-        coverage run --source=quanestimation -m pytest
+        coverage run --source=quanestimation -m pytest -s
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
