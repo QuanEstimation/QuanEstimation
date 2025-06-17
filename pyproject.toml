@@ -46,7 +46,7 @@ quanestimation = "quanestimation.cli:main"
 [project.optional-dependencies]
 test = [
     "pytest",
-    "coverage>=4.5.4"
+    "coverage>=4.5.4",
     "codecov"
 ]
 dev = [
@@ -54,7 +54,7 @@ dev = [
     "wheel>=0.33.6",
     "build",
     "pytest",
-    "coverage>=4.5.4"
+    "coverage>=4.5.4",
     "codecov"    
 ]
 docs = [
