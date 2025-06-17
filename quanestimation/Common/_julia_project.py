@@ -5,7 +5,7 @@ from julia_project import JuliaProject
 from julia_project_basic.basic import run_julia
 from pathlib import Path
 
-os.environ["JULIA_PROJECT_COMPILE"] = "yes" # Force Julia to compile the project when it is first loaded.
+os.environ["JULIA_PROJECT_COMPILE"] = "no" 
 
 pkg_path = Path(__file__).parent.parent
 
