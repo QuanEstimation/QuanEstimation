@@ -17,7 +17,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.12'
 
@@ -25,8 +25,12 @@ jobs:
       run: |
         pip install .[test]
 
+    - name: Check env
+      run: env    
+
     - name: Run tests with coverage
       run: |
+        export JULIA_PROJECT_COMPILE=no
         coverage run --source=quanestimation -m pytest -s
 
     - name: Upload coverage to Codecov
