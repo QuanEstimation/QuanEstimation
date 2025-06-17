@@ -47,13 +47,15 @@ quanestimation = "quanestimation.cli:main"
 test = [
     "pytest",
     "coverage>=4.5.4"
+    "codecov"
 ]
 dev = [
     "bump2version>=0.5.11",
     "wheel>=0.33.6",
     "build",
     "pytest",
-    "coverage"
+    "coverage>=4.5.4"
+    "codecov"    
 ]
 docs = [
     "mkdocs",

@@ -21,7 +21,6 @@ jobs:
     - name: Install dependencies
       run: |
         pip install .[test]
-        pip install pytest coverage codecov
 
     - name: Run tests with coverage
       run: |
