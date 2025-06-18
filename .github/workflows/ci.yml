@@ -17,7 +17,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v4
       with:
         python-version: '3.12'
 
@@ -36,5 +36,5 @@ jobs:
     - name: Upload results to Codecov
       uses: codecov/codecov-action@v5
       with:
-        token: ${{ secrets.CODECOV_TOKEN }}
+        token: ${{ secrets.QUANESTIMATION_TOKEN }}
         slug: LiuJPhys/QuanEstimation
