@@ -12,6 +12,7 @@ jobs:
 
     env:
       JULIA_PROJECT_COMPILE: "n"
+      PYTHON_JULIACALL_COMPILE: "no"
 
     steps:
     - uses: actions/checkout@v4
@@ -36,7 +37,8 @@ jobs:
 
     - name: Run tests 
       run: |
-        export PYTHON_JULIACALL_COMPILE="n"
+        export PYTHON_JULIACALL_COMPILE="no"
+        export JULIA_PROJECT_COMPILE: "n"
         coverage run --source=quanestimation -m pytest -s
         # pytest --cov --cov-branch --cov-report=xml
 
