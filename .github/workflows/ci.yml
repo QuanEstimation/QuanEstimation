@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      JULIA_PKG_PRECOMPILE_AUTO: yes
+      JULIA_PROJECT_COMPILE: no
 
     steps:
     - uses: actions/checkout@v4
