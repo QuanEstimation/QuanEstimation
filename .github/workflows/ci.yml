@@ -11,8 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      PYTHON_JULIACALL_COMPILE: no
-      PYTHON_JULIACALL_COMPILED_MODULES: no
+      JULIA_PROJECT_COMPILE: "n"
 
     steps:
     - uses: actions/checkout@v4
@@ -37,8 +36,7 @@ jobs:
 
     - name: Run tests 
       run: |
-        export PYTHON_JULIACALL_COMPILE=no
-        export PYTHON_JULIACALL_COMPILED_MODULES=no
+        export PYTHON_JULIACALL_COMPILE="n"
         coverage run --source=quanestimation -m pytest -s
         # pytest --cov --cov-branch --cov-report=xml
 
