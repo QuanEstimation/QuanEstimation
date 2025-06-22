@@ -38,7 +38,7 @@ jobs:
     - name: Run tests 
       run: |
         export PYTHON_JULIACALL_COMPILE=no
-        export PYTHON_JULIACALL_COMPILED_MODULES: no
+        export PYTHON_JULIACALL_COMPILED_MODULES=no
         coverage run --source=quanestimation -m pytest -s
         # pytest --cov --cov-branch --cov-report=xml
 
