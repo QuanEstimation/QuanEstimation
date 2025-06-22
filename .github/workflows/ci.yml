@@ -38,7 +38,7 @@ jobs:
     - name: Run tests 
       run: |
         export PYTHON_JULIACALL_COMPILE="no"
-        export JULIA_PROJECT_COMPILE: "n"
+        export JULIA_PROJECT_COMPILE="n"
         coverage run --source=quanestimation -m pytest -s
         # pytest --cov --cov-branch --cov-report=xml
 
