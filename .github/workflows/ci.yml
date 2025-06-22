@@ -10,8 +10,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    env:
-      JULIA_PROJECT_COMPILE: no
+    # env:
+    #   JULIA_PROJECT_COMPILE: no
 
     steps:
     - uses: actions/checkout@v4
