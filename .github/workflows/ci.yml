@@ -24,6 +24,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install .[test]
+        pip install pytest-cov
 
     - name: Check env
       run: env    
