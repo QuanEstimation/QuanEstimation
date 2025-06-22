@@ -36,6 +36,7 @@ jobs:
 
     - name: Run tests 
       run: |
+        export JULIA_PROJECT_COMPILE=no
         coverage run --source=quanestimation -m pytest -s
         # pytest --cov --cov-branch --cov-report=xml
 
