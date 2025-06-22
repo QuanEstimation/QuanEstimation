@@ -36,8 +36,7 @@ jobs:
 
     - name: Run tests 
       run: |
-        export JULIA_PKG_PRECOMPILE_AUTO=no
-        coverage run --source=quanestimation -m pytest -s
+        JULIA_PKG_PRECOMPILE_AUTO=no coverage run --source=quanestimation -m pytest -s
         # pytest --cov --cov-branch --cov-report=xml
 
     - name: Upload results to Codecov
