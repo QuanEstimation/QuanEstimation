@@ -10,8 +10,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    # env:
-    #   JULIA_PROJECT_COMPILE: no
+    env:
+      JULIA_PKG_PRECOMPILE_AUTO: yes
 
     steps:
     - uses: actions/checkout@v4
@@ -36,7 +36,6 @@ jobs:
 
     - name: Run tests 
       run: |
-        # export JULIA_PROJECT_COMPILE=no
         coverage run --source=quanestimation -m pytest -s
         # pytest --cov --cov-branch --cov-report=xml
 
