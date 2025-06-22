@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      PYTHON_JULIACALL_COMPILE: no
       PYTHON_JULIACALL_COMPILED_MODULES: no
 
     steps:
@@ -36,7 +37,9 @@ jobs:
 
     - name: Run tests 
       run: |
-        PYTHON_JULIACALL_COMPILED_MODULES=no coverage run --source=quanestimation -m pytest -s
+        export PYTHON_JULIACALL_COMPILE=no
+        export PYTHON_JULIACALL_COMPILED_MODULES: no
+        coverage run --source=quanestimation -m pytest -s
         # pytest --cov --cov-branch --cov-report=xml
 
     - name: Upload results to Codecov
