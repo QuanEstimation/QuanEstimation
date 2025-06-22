@@ -21,6 +21,11 @@ jobs:
       with:
         python-version: '3.12'
 
+    - uses: julia-actions/setup-julia@v2
+      with:
+        version: '1.10'
+    - run: julia -v
+
     - name: Install dependencies
       run: |
         pip install .[test]
