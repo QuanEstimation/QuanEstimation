@@ -11,7 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      JULIA_PROJECT_COMPILE: no
+      QuanEstimation_COMPILE: "n"
+      PYTHON_JULIACALL_COMPILE: "no"
 
     steps:
     - uses: actions/checkout@v4
@@ -21,18 +22,25 @@ jobs:
       with:
         python-version: '3.12'
 
+    - uses: julia-actions/setup-julia@v2
+      with:
+        version: '1.10'
+    - run: julia -v
+
     - name: Install dependencies
       run: |
         pip install .[test]
+        pip install pytest-cov
 
     - name: Check env
       run: env    
 
     - name: Run tests 
       run: |
-        export JULIA_PROJECT_COMPILE=no
-        # coverage run --source=quanestimation -m pytest -s
-        pytest --cov --cov-branch --cov-report=xml
+        export PYTHON_JULIACALL_COMPILE="no"
+        export QuanEstimation_COMPILE="n"
+        coverage run --source=quanestimation -m pytest -s
+        # pytest --cov --cov-branch --cov-report=xml
 
     - name: Upload results to Codecov
       uses: codecov/codecov-action@v5
