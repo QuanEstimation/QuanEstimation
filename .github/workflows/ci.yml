@@ -46,4 +46,4 @@ jobs:
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.QUANESTIMATION_TOKEN }}
-        slug: LiuJPhys/QuanEstimation
+        slug: QuanEstimation/QuanEstimation
