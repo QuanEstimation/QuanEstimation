@@ -2,6 +2,7 @@
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/QuanEstimation/QuanEstimation)
 [![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD--3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![CI](https://github.com/QuanEstimation/QuanEstimation/actions/workflows/ci.yml/badge.svg)](https://github.com/QuanEstimation/QuanEstimation/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/QuanEstimation/QuanEstimation/branch/main/graph/badge.svg)](https://codecov.io/gh/QuanEstimation/QuanEstimation)
 [![Downloads](https://static.pepy.tech/badge/quanestimation)](https://pepy.tech/project/quanestimation)
 
