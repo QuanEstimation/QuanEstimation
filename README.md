@@ -5,6 +5,7 @@
 [![CI](https://github.com/QuanEstimation/QuanEstimation/actions/workflows/ci.yml/badge.svg)](https://github.com/QuanEstimation/QuanEstimation/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/QuanEstimation/QuanEstimation/branch/main/graph/badge.svg)](https://codecov.io/gh/QuanEstimation/QuanEstimation)
 [![Downloads](https://static.pepy.tech/badge/quanestimation)](https://pepy.tech/project/quanestimation)
+[![Tutorial](https://img.shields.io/badge/Tutorial-Link-brightgreen)](https://github.com/QuanEstimation/tutorial/tree/main)
 
 QuanEstimation is a Python-Julia-based open-source toolkit for quantum parameter estimation, which can be used to perform 
 general evaluations of many metrological tools and scheme designs in quantum parameter estimation. 
