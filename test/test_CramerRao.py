@@ -1,5 +1,5 @@
 import pytest
-from quanestimation.AsymptoticBound.CramerRao import QFIM, CFIM
+from quanestimation.AsymptoticBound.CramerRao import QFIM, CFIM, QFIM_Kraus
 import numpy as np
 
 def test_CramerRao():
@@ -25,3 +25,21 @@ def test_CramerRao():
     # check the results
     assert np.allclose(result, np.array([[4., 0.], [0., np.sin(2*theta)**2]])) == 1
     assert np.allclose(resultc, np.array([[4., 0], [0., 0.]])) == 1
+
+def test_QFIM_Kraus():
+    """
+    Test the Quantum Fisher Information Matrix (QFIM) for the Kraus representation.
+    This test checks the calculation of the QFIM for a specific Kraus operator.
+    """
+    # Kraus operator
+    K0 = np.array([[1, 0], [0, np.sqrt(0.5)]])
+    K1 = np.array([[np.sqrt(0.5), 0], [0, 0]])
+    K = [K0, K1]  # list of Kraus operators
+    # derivative of the Kraus operator w.r.t. a parameter
+    dK = [[np.array([[0, 0], [0, -0.5/np.sqrt(0.5)]])], [np.array([[0, 0.5/np.sqrt(0.5)], [0, 0]])]]
+    # probe state
+    rho0 = 0.5*np.array([[1., 1.], [1., 1.]]) 
+    # calculate the QFIM
+    result = QFIM_Kraus(rho0, K, dK)
+    # check the result
+    assert np.allclose(result, 1.5) == 1    

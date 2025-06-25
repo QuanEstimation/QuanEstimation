@@ -31,3 +31,5 @@ def test_suN_generator():
     sz = np.array([[1., 0.j], [0.j, -1.]], dtype=np.complex128)
     assert (np.allclose(result[0], sx) and np.allclose(result[1], sy) and \
             np.allclose(result[2], sz)) == 1    
+    
+    
