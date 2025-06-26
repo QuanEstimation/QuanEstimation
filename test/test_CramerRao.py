@@ -47,7 +47,7 @@ def test_QFIM_Kraus():
 
 def test_QFIM_Bloch():
     """
-    Test the Quantum Fisher Information Matrix (QFIM) for a Bloch vector representation.
+    Test the Quantum Fisher Information Matrix (QFIM) for the Bloch vector representation.
     This test checks the calculation of the QFIM for a specific Bloch vector and its derivatives.
     """
     # Bloch vector
