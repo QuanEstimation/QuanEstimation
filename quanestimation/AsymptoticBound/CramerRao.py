@@ -628,7 +628,7 @@ def QFIM_Bloch(r, dr, eps=1e-8):
 
     Parameters
     ----------
-    > **r:** `list`
+    > **r:** `np.array`
         -- Parameterized Bloch vector.
 
     > **dr:** `list `
