@@ -78,8 +78,9 @@ def test_QFIM_Gauss():
     mu = np.array([0., 0.])  # mean vector
     sigma = lamb*np.array([[np.cosh(2*r), -np.sinh(2*r)], [-np.sinh(2*r), np.cosh(2*r)]])  # covariance matrix
     # derivatives of the Gaussian state w.r.t. the parameters
-    dmu = [np.array([0., 0.])]  # derivatives of mean vector
-    dsigma = [np.array([[np.sinh(2*r), -np.cosh(2*r)], [-np.cosh(2*r), np.sinh(2*r)]])]  # derivatives of covariance matrix
+    dmu = [np.array([0., 0.]), np.array([0., 0.])]  # derivatives of mean vector
+    dsigma = [-(1/np.sinh(0.5*beta)**2)*np.array([[np.cosh(2*r), -np.sinh(2*r)], [-np.sinh(2*r), np.cosh(2*r)]]), 
+              lamb*np.array([[np.sinh(2*r), -np.cosh(2*r)], [-np.cosh(2*r), np.sinh(2*r)]])]  # derivatives of covariance matrix
     # calculate the QFIM
     result = QFIM_Gauss(mu, sigma, dmu, dsigma)
     # check the result
