@@ -73,21 +73,19 @@ def test_QFIM_Gauss():
     """
     # Gaussian state parameters
     r = 1.  # squeezing parameter
-    beta = 0.3
-    lamb = np.cosh(0.5*beta)/np.sinh(0.5*beta)  # lambda parameter
+    beta = 0.
+    lamb = 1/np.tanh(beta/2)  # lambda parameter
     mu = np.array([0., 0.])  # mean vector
     sigma = lamb*np.array([[np.cosh(2*r), -np.sinh(2*r)], [-np.sinh(2*r), np.cosh(2*r)]])  # covariance matrix
     # derivatives of the Gaussian state w.r.t. the parameters
-    # dmu = [np.array([0., 0.]), np.array([0., 0.])]  # derivatives of mean vector
-    # dsigma = [-1/(np.sinh(0.5*beta)**2)*np.array([[np.cosh(2*r), -np.sinh(2*r)], [-np.sinh(2*r), np.cosh(2*r)]]), 
-    #           lamb*2*np.array([[np.sinh(2*r), -np.cosh(2*r)], [-np.cosh(2*r), np.sinh(2*r)]])]  # derivatives of covariance matrix
-    dmu = [np.array([0., 0.])]  # derivatives of mean vector
-    dsigma = [-1/(np.sinh(0.5*beta)**2)*np.array([[np.cosh(2*r), -np.sinh(2*r)], [-np.sinh(2*r), np.cosh(2*r)]])]  # derivatives of covariance matrix
+    dmu = [np.array([0., 0.]), np.array([0., 0.])]  # derivatives of mean vector
+    dlamb = -0.5/(np.sinh(beta/2)**2)  # derivative of lambda w.r.t. beta
+    dsigma = [dlamb*np.array([[np.cosh(2*r), -np.sinh(2*r)], [-np.sinh(2*r), np.cosh(2*r)]]), 
+              lamb*2*np.array([[np.sinh(2*r), -np.cosh(2*r)], [-np.cosh(2*r), np.sinh(2*r)]])] # derivatives of covariance matrix
     # calculate the QFIM
-    result = QFIM_Gauss(mu, sigma, dmu, dsigma)
+    result = QFIM_Gauss(mu, dmu, sigma, dsigma)
     # check the result
-    # assert np.allclose(result, np.array([[(lamb**2-1)/4., 0.], [0., 4*lamb**2/(lamb**2+1)]])) == 1 
-    assert np.allclose(result, (lamb**2-1)/4) == 1   
+    assert np.allclose(result, np.array([[(lamb*lamb-1)/4., 0.], [0., 4*lamb*lamb/(lamb*lamb+1)]])) == 1  
 
 # def test_LLD():
 #     """
