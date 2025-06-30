@@ -69,11 +69,10 @@ def test_QFIM_Gauss():
     """
     Test the Quantum Fisher Information Matrix (QFIM) for the Gaussian state representation.
     This test checks the calculation of the QFIM for a specific Gaussian state and its derivatives.
-    The example is in J. Phys. A: Math. Theor. 52, 035304 (2019).
     """
     # Gaussian state parameters
-    r = 1.  # squeezing parameter
-    beta = 0.
+    r = 0.8  # squeezing parameter
+    beta = 0.5
     lamb = 1/np.tanh(beta/2)  # lambda parameter
     mu = np.array([0., 0.])  # mean vector
     sigma = lamb*np.array([[np.cosh(2*r), -np.sinh(2*r)], [-np.sinh(2*r), np.cosh(2*r)]])  # covariance matrix
@@ -85,7 +84,7 @@ def test_QFIM_Gauss():
     # calculate the QFIM
     result = QFIM_Gauss(mu, dmu, sigma, dsigma)
     # check the result
-    assert np.allclose(result, np.array([[(lamb*lamb-1)/4., 0.], [0., 4*lamb*lamb/(lamb*lamb+1)]])) == 1  
+    assert np.allclose(result, np.array([[(lamb*lamb-1)**2/2/(4*lamb**2-1), 0.], [0., 8*lamb*lamb/(4*lamb*lamb+1)]])) == 1  
 
 # def test_LLD():
 #     """
