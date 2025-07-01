@@ -69,6 +69,8 @@ def test_QFIM_Gauss():
     """
     Test the Quantum Fisher Information Matrix (QFIM) for the Gaussian state representation.
     This test checks the calculation of the QFIM for a specific Gaussian state and its derivatives.
+    The example is the Eq. (38) in J. Phys. A: Math. Theor. 52, 035304 (2019). The analytical result 
+    is wrong in the paper, and the right one is F = [[(lamb*lamb-1)**2/2/(4*lamb**2-1), 0.], [0., 8*lamb*lamb/(4*lamb*lamb+1)]]. 
     """
     # Gaussian state parameters
     r = 0.8  # squeezing parameter
@@ -102,12 +104,9 @@ def test_QFIM_Gauss():
 #             np.array([[0, -1j*np.cos(theta)*np.sin(theta)*np.exp(-1j*phi)], 
 #                       [1j*np.cos(theta)*np.sin(theta)*np.exp(1j*phi), 0]])] 
 #     # calculate the LLD
-#     result_o = LLD(rho, drho, rep="original")
-#     result_e = LLD(rho, drho, rep="eigen")
+#     result = LLD(rho, drho, rep="original")
 
-#     # check the result
-#     assert np.allclose(result_o, np.array([[4., 0.], [0., 0.]])) == 1
-#     assert np.allclose(result_e, np.array([[4., 0.], [0., 0.]])) == 1
+#     assert np.allclose(result, np.array([[4., 0.], [0., 0.]])) == 1
 
 # def test_RLD():
 #     """
@@ -128,6 +127,6 @@ def test_QFIM_Gauss():
 #     result_o = RLD(rho, drho, rep="original")
 #     result_e = RLD(rho, drho, rep="eigen")
 
-#     # check the result
-#     assert np.allclose(result_o, np.array([[4., 0.], [0., 0.]])) == 1
-#     assert np.allclose(result_e, np.array([[4., 0.], [0., 0.]])) == 1
+#     # check the results
+#     assert np.allclose(result_o, np.array([[4., 0.], [0., 0.]]))
+#     assert np.allclose(result_e, np.array([[4., 0.], [0., 0.]]))
