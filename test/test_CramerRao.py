@@ -96,37 +96,38 @@ def test_QFIM_Gauss():
 #     # parameterized state
 #     theta = np.pi/4
 #     phi = np.pi/4
-#     rho = np.array([[np.cos(theta)**2, np.cos(theta)*np.sin(theta)*np.exp(-1j*phi)], 
-#                      [np.cos(theta)*np.sin(theta)*np.exp(1j*phi), np.sin(theta)**2]])
+#     eta = 0.8
+#     rho = 0.5*np.array([[1+eta*np.cos(2*theta), eta*np.sin(2*theta)*np.exp(-1j*phi)], 
+#                      [eta*np.sin(2*theta)*np.exp(1j*phi), 1-eta*np.cos(2*theta)]])
 #     # derivative of the state w.r.t. theta, phi
-#     drho = [np.array([[-np.sin(2*theta), 2*np.cos(2*theta)*np.exp(-1j*phi)], 
-#                       [2*np.cos(2*theta)*np.exp(1j*phi), np.sin(2*theta)]]),
-#             np.array([[0, -1j*np.cos(theta)*np.sin(theta)*np.exp(-1j*phi)], 
-#                       [1j*np.cos(theta)*np.sin(theta)*np.exp(1j*phi), 0]])] 
+#     drho = [0.5*np.array([[-eta*np.sin(2*theta), eta*np.cos(2*theta)*np.exp(-1j*phi)], 
+#                       [eta*np.cos(2*theta)*np.exp(1j*phi), eta*np.sin(2*theta)]])
+#             ] 
 #     # calculate the LLD
 #     result = LLD(rho, drho, rep="original")
 
-#     assert np.allclose(result, np.array([[4., 0.], [0., 0.]])) == 1
+#     assert np.allclose(result, ) == 1
 
-# def test_RLD():
-#     """
-#     Test the right logarithmic derivative (RLD) for a specific parameterized quantum state.
-#     This test checks the calculation of the RLD for a specific state and its derivatives.
-#     """
-#     # parameterized state
-#     theta = np.pi/4
-#     phi = np.pi/4
-#     rho = np.array([[np.cos(theta)**2, np.cos(theta)*np.sin(theta)*np.exp(-1j*phi)], 
-#                      [np.cos(theta)*np.sin(theta)*np.exp(1j*phi), np.sin(theta)**2]])
-#     # derivative of the state w.r.t. theta, phi
-#     drho = [np.array([[-np.sin(2*theta), 2*np.cos(2*theta)*np.exp(-1j*phi)], 
-#                       [2*np.cos(2*theta)*np.exp(1j*phi), np.sin(2*theta)]]),
-#             np.array([[0, -1j*np.cos(theta)*np.sin(theta)*np.exp(-1j*phi)], 
-#                       [1j*np.cos(theta)*np.sin(theta)*np.exp(1j*phi), 0]])] 
-#     # calculate the RLD
-#     result_o = RLD(rho, drho, rep="original")
-#     result_e = RLD(rho, drho, rep="eigen")
+def test_RLD():
+    """
+    Test the right logarithmic derivative (RLD) for a specific parameterized quantum state.
+    This test checks the calculation of the RLD for a specific state and its derivatives.
+    """
+    # parameterized state
+    theta = np.pi/4
+    phi = np.pi/4
+    eta = 0.8
+    rho = 0.5*np.array([[1+eta*np.cos(2*theta), eta*np.sin(2*theta)*np.exp(-1j*phi)], 
+                     [eta*np.sin(2*theta)*np.exp(1j*phi), 1-eta*np.cos(2*theta)]])
+    # derivative of the state w.r.t. theta, phi
+    drho = [0.5*np.array([[-eta*np.sin(2*theta), eta*np.cos(2*theta)*np.exp(-1j*phi)], 
+                      [eta*np.cos(2*theta)*np.exp(1j*phi), eta*np.sin(2*theta)]])
+            ] 
+    # calculate the LLD
+    result = RLD(rho, drho, rep="original")
+    expected = np.array([[-eta*np.sin(2*theta), eta*(np.cos(2*theta)-eta)*np.exp(-1j*phi)], 
+                        [eta*(eta+np.cos(2*theta))*np.exp(1j*phi), eta*np.sin(2*theta)]])
+    expected = (2/(1-eta**2))*expected
+    # check the result
+    assert np.allclose(result, expected) == 1
 
-#     # check the results
-#     assert np.allclose(result_o, np.array([[4., 0.], [0., 0.]]))
-#     assert np.allclose(result_e, np.array([[4., 0.], [0., 0.]]))
