@@ -121,9 +121,8 @@ def test_RLD():
                      [eta*np.sin(2*theta)*np.exp(1j*phi), 1-eta*np.cos(2*theta)]])
     # derivative of the state w.r.t. theta, phi
     drho = [0.5*np.array([[-eta*np.sin(2*theta), eta*np.cos(2*theta)*np.exp(-1j*phi)], 
-                      [eta*np.cos(2*theta)*np.exp(1j*phi), eta*np.sin(2*theta)]])
-            ] 
-    # calculate the LLD
+                         [eta*np.cos(2*theta)*np.exp(1j*phi), eta*np.sin(2*theta)]])] 
+    # calculate the RLD
     result = RLD(rho, drho, rep="original")
     expected = np.array([[-eta*np.sin(2*theta), eta*(np.cos(2*theta)-eta)*np.exp(-1j*phi)], 
                         [eta*(eta+np.cos(2*theta))*np.exp(1j*phi), eta*np.sin(2*theta)]])
