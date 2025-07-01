@@ -1,11 +1,16 @@
 
-import os, logging, platform
+import os, logging
 import julia_project, julia_project_basic
 from julia_project import JuliaProject
 from julia_project_basic.basic import run_julia
 from pathlib import Path
 
-os.environ["JULIA_PROJECT_COMPILE"] = "no" # Disable Julia project compilation
+if os.environ.get("QuanEstimation_COMPILE") is None:
+    # Set environment variable to disable Julia project compilation
+    # This is useful for testing purposes to avoid unnecessary compilation
+    # and speed up the test execution.
+    # It can be overridden by setting the environment variable before running tests.
+    os.environ["QuanEstimation_COMPILE"] = "y"  
 
 pkg_path = Path(__file__).parent.parent
 
