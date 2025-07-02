@@ -2,7 +2,7 @@ import pytest
 from quanestimation.AsymptoticBound.CramerRao import QFIM, CFIM, QFIM_Kraus, QFIM_Bloch, QFIM_Gauss, LLD, RLD
 import numpy as np
 
-def test_CramerRao():
+def test_CramerRao_SLD():
     """
     Test the Cramer-Rao bound for a parameterized quantum state.
     This test checks the calculation of the Quantum Fisher Information Matrix (QFIM) 
@@ -88,25 +88,30 @@ def test_QFIM_Gauss():
     # check the result
     assert np.allclose(result, np.array([[(lamb*lamb-1)**2/2/(4*lamb**2-1), 0.], [0., 8*lamb*lamb/(4*lamb*lamb+1)]])) == 1  
 
-# def test_LLD():
-#     """
-#     Test the left logarithmic derivative (LLD) for a specific parameterized quantum state.
-#     This test checks the calculation of the LLD for a specific state and its derivatives.
-#     """
-#     # parameterized state
-#     theta = np.pi/4
-#     phi = np.pi/4
-#     eta = 0.8
-#     rho = 0.5*np.array([[1+eta*np.cos(2*theta), eta*np.sin(2*theta)*np.exp(-1j*phi)], 
-#                      [eta*np.sin(2*theta)*np.exp(1j*phi), 1-eta*np.cos(2*theta)]])
-#     # derivative of the state w.r.t. theta, phi
-#     drho = [0.5*np.array([[-eta*np.sin(2*theta), eta*np.cos(2*theta)*np.exp(-1j*phi)], 
-#                       [eta*np.cos(2*theta)*np.exp(1j*phi), eta*np.sin(2*theta)]])
-#             ] 
-#     # calculate the LLD
-#     result = LLD(rho, drho, rep="original")
+def test_LLD():
+    """
+    Test the left logarithmic derivative (LLD) for a specific parameterized quantum state.
+    This test checks the calculation of the LLD for a specific state and its derivatives.
+    """
+    # parameterized state
+    theta = np.pi/4
+    phi = np.pi/4
+    eta = 0.8
+    rho = 0.5*np.array([[1+eta*np.cos(2*theta), eta*np.sin(2*theta)*np.exp(-1j*phi)], 
+                     [eta*np.sin(2*theta)*np.exp(1j*phi), 1-eta*np.cos(2*theta)]])
+    # derivative of the state w.r.t. phi
+    drho = [0.5*np.array([[0., -1j*eta*np.sin(2*theta)*np.exp(-1j*phi)],[1j*eta*np.sin(2*theta)*np.exp(1j*phi), 0.]])] 
+    # calculate the LLD
+    result = LLD(rho, drho, rep="original")
+    expected = (1/(1-eta**2))*np.array([[1j*eta**2*np.sin(2*theta)**2, -1j*eta*(1+eta*np.cos(2*theta))*np.sin(2*theta)*np.exp(-1j*phi)], 
+                                        [1j*eta*(1-eta*np.cos(2*theta))*np.sin(2*theta)*np.exp(1j*phi), -1j*eta**2*np.sin(2*theta)**2]])
+    
+    result_QFIM = QFIM(rho, drho, LDtype="LLD")
+    expected_QFIM = eta**2*np.sin(2*theta)**2*(3*eta**2+1)/(1-eta**2)**2
 
-#     assert np.allclose(result, ) == 1
+    # check the result
+    assert np.allclose(result, expected) == 1
+    assert np.allclose(result_QFIM, expected_QFIM) == 1
 
 def test_RLD():
     """
@@ -119,14 +124,15 @@ def test_RLD():
     eta = 0.8
     rho = 0.5*np.array([[1+eta*np.cos(2*theta), eta*np.sin(2*theta)*np.exp(-1j*phi)], 
                      [eta*np.sin(2*theta)*np.exp(1j*phi), 1-eta*np.cos(2*theta)]])
-    # derivative of the state w.r.t. theta, phi
-    drho = [0.5*np.array([[-eta*np.sin(2*theta), eta*np.cos(2*theta)*np.exp(-1j*phi)], 
-                         [eta*np.cos(2*theta)*np.exp(1j*phi), eta*np.sin(2*theta)]])] 
+    # derivative of the state w.r.t. phi
+    drho = [0.5*np.array([[0., -1j*eta*np.sin(2*theta)*np.exp(-1j*phi)],[1j*eta*np.sin(2*theta)*np.exp(1j*phi), 0.]])]
     # calculate the RLD
     result = RLD(rho, drho, rep="original")
-    expected = np.array([[-eta*np.sin(2*theta), eta*(np.cos(2*theta)-eta)*np.exp(-1j*phi)], 
-                        [eta*(eta+np.cos(2*theta))*np.exp(1j*phi), eta*np.sin(2*theta)]])
-    expected = (2/(1-eta**2))*expected
+    expected = (1/(1-eta**2))*np.array([[-1j*eta**2*np.sin(2*theta)**2, -1j*eta*(1-eta*np.cos(2*theta))*np.exp(-1j*phi)*np.sin(2*theta)], 
+                                        [1j*eta*(1+np.cos(2*theta))*np.exp(1j*phi)*np.sin(2*theta), 1j*eta**2*np.sin(2*theta)**2]])
     # check the result
-    assert np.allclose(result, expected) == 1
+    result_QFIM = QFIM(rho, drho, LDtype="RLD")
+    expected_QFIM = eta**2*np.sin(2*theta)**2/(1.-eta**2)
 
+    assert np.allclose(result, expected) == 1
+    assert np.allclose(result_QFIM, expected_QFIM) == 1
