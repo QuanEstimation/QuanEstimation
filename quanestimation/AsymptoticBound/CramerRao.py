@@ -61,15 +61,15 @@ def CFIM(rho, drho, M=[], eps=1e-8):
     CFIM_res = np.zeros([para_num, para_num])
     for pi in range(0, m_num):
         Mp = M[pi]
-        p = np.real(np.trace(np.dot(rho, Mp)))
+        p = np.real(np.trace(rho @ Mp))
         Cadd = np.zeros([para_num, para_num])
         if p > eps:
             for para_i in range(0, para_num):
                 drho_i = drho[para_i]
-                dp_i = np.real(np.trace(np.dot(drho_i, Mp)))
+                dp_i = np.real(np.trace(drho_i @ Mp))
                 for para_j in range(para_i, para_num):
                     drho_j = drho[para_j]
-                    dp_j = np.real(np.trace(np.dot(drho_j, Mp)))
+                    dp_j = np.real(np.trace(drho_j @ Mp))
                     Cadd[para_i][para_j] = np.real(dp_i * dp_j / p)
                     Cadd[para_j][para_i] = np.real(dp_i * dp_j / p)
         CFIM_res += Cadd
@@ -238,7 +238,7 @@ def SLD(rho, drho, rep="original", eps=1e-8):
     dim = len(rho)
     SLD = [[] for i in range(0, para_num)]
 
-    purity = np.trace(np.dot(rho, rho))
+    purity = np.trace(rho @ rho)
 
     if np.abs(1 - purity) < eps:
         SLD_org = [[] for i in range(0, para_num)]
@@ -250,9 +250,7 @@ def SLD(rho, drho, rep="original", eps=1e-8):
             elif rep == "eigen":
                 val, vec = np.linalg.eig(rho)
                 val = np.real(val)
-                SLD[para_i] = np.dot(
-                    vec.conj().transpose(), np.dot(SLD_org[para_i], vec)
-                )
+                SLD[para_i] = vec.conj().transpose() @ SLD_org[para_i] @ vec
             else:
                 raise ValueError("{!r} is not a valid value for rep, supported values are 'original' and 'eigen'.".format(rep))
         if para_num == 1:
@@ -269,18 +267,12 @@ def SLD(rho, drho, rep="original", eps=1e-8):
             for fi in range(0, dim):
                 for fj in range(0, dim):
                     if val[fi] + val[fj] > eps:
-                        SLD_eig[fi][fj] = (
-                            2
-                            * np.dot(
-                                vec[:, fi].conj().transpose(),
-                                np.dot(drho[para_i], vec[:, fj]),
-                            )
-                            / (val[fi] + val[fj])
-                        )
+                        SLD_eig[fi][fj] = 2 * (vec[:, fi].conj().transpose() @ drho[para_i] @ vec[:, fj]) / (val[fi] + val[fj])
+                        
             SLD_eig[SLD_eig == np.inf] = 0.0
 
             if rep == "original":
-                SLD[para_i] = np.dot(vec, np.dot(SLD_eig, vec.conj().transpose()))
+                SLD[para_i] = vec @ SLD_eig @ vec.conj().transpose()
             elif rep == "eigen":
                 SLD[para_i] = SLD_eig
             else:
@@ -347,7 +339,7 @@ def RLD(rho, drho, rep="original", eps=1e-8):
         )
         for fi in range(0, dim):
             for fj in range(0, dim):
-                term_tp = np.dot(vec[:, fi].conj().transpose(),np.dot(drho[para_i], vec[:, fj]))
+                term_tp = vec[:, fi].conj().transpose() @ drho[para_i] @ vec[:, fj]
                 if np.abs(val[fi]) > eps:
                     RLD_eig[fi][fj] = (term_tp/val[fi])
                 else:
@@ -357,7 +349,7 @@ def RLD(rho, drho, rep="original", eps=1e-8):
         RLD_eig[RLD_eig == np.inf] = 0.0
 
         if rep == "original":
-            RLD[para_i] = np.dot(vec, np.dot(RLD_eig, vec.conj().transpose()))
+            RLD[para_i] = vec @ RLD_eig @ vec.conj().transpose()
         elif rep == "eigen":
             RLD[para_i] = RLD_eig
         else:
@@ -423,10 +415,9 @@ def LLD(rho, drho, rep="original", eps=1e-8):
         )
         for fi in range(0, dim):
             for fj in range(0, dim):
-                term_tp = np.dot(vec[:, fi].conj().transpose(), np.dot(drho[para_i], vec[:, fj]),)
+                term_tp = vec[:, fi].conj().transpose() @ drho[para_i] @ vec[:, fj]
                 if np.abs(val[fj]) > eps:
-                    LLD_eig_tp = (term_tp/val[fj])
-                    LLD_eig[fj][fi] = LLD_eig_tp.conj()
+                    LLD_eig[fi][fj] = term_tp/val[fj]
                 else: 
                     if np.abs(term_tp) < eps:
                         raise ValueError("The LLD does not exist. It only exist when the support of drho is contained in the support of rho.",
@@ -434,7 +425,7 @@ def LLD(rho, drho, rep="original", eps=1e-8):
         LLD_eig[LLD_eig == np.inf] = 0.0
 
         if rep == "original":
-            LLD[para_i] = np.dot(vec, np.dot(LLD_eig, vec.conj().transpose()))
+            LLD[para_i] = vec @ LLD_eig @ vec.conj().transpose()
         elif rep == "eigen":
             LLD[para_i] = LLD_eig
         else:
@@ -504,18 +495,14 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
     if para_num == 1:
         if LDtype == "SLD":
             LD_tp = SLD(rho, drho, eps=eps)
-            SLD_ac = np.dot(LD_tp, LD_tp) + np.dot(LD_tp, LD_tp)
-            QFIM_res = np.real(0.5 * np.trace(np.dot(rho, SLD_ac)))
+            SLD_ac = LD_tp @ LD_tp + LD_tp @ LD_tp
+            QFIM_res = np.real(0.5 * np.trace(rho @ SLD_ac))
         elif LDtype == "RLD":
             LD_tp = RLD(rho, drho, eps=eps)
-            QFIM_res = np.real(
-                np.trace(np.dot(rho, np.dot(LD_tp, LD_tp.conj().transpose())))
-            )
+            QFIM_res = np.real(np.trace(rho @ LD_tp @ LD_tp.conj().transpose()))
         elif LDtype == "LLD":
             LD_tp = LLD(rho, drho, eps=eps)
-            QFIM_res = np.real(
-                np.trace(np.dot(rho, np.dot(LD_tp, LD_tp.conj().transpose())))
-            )
+            QFIM_res = np.real(np.trace(rho @ LD_tp @ LD_tp.conj().transpose()))
         else:
             raise ValueError("{!r} is not a valid value for LDtype, supported values are 'SLD', 'RLD' and 'LLD'.".format(LDtype))
 
@@ -526,36 +513,22 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
             LD_tp = SLD(rho, drho, eps=eps)
             for para_i in range(0, para_num):
                 for para_j in range(para_i, para_num):
-                    SLD_ac = np.dot(LD_tp[para_i], LD_tp[para_j]) + np.dot(
-                        LD_tp[para_j], LD_tp[para_i]
-                    )
-                    QFIM_res[para_i][para_j] = np.real(
-                        0.5 * np.trace(np.dot(rho, SLD_ac))
-                    )
+                    SLD_ac = LD_tp[para_i] @ LD_tp[para_j] + LD_tp[para_j] @ LD_tp[para_i]
+                    QFIM_res[para_i][para_j] = np.real(0.5 * np.trace(rho @ SLD_ac))
                     QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
         elif LDtype == "RLD":
             QFIM_res = np.zeros((para_num, para_num), dtype=np.complex128)
             LD_tp = RLD(rho, drho, eps=eps)
             for para_i in range(0, para_num):
                 for para_j in range(para_i, para_num):
-                    QFIM_res[para_i][para_j] = np.trace(
-                            np.dot(
-                                rho,
-                                np.dot(LD_tp[para_i], LD_tp[para_j].conj().transpose()),
-                            )
-                        )
+                    QFIM_res[para_i][para_j] = np.trace(rho @ LD_tp[para_i] @ LD_tp[para_j].conj().transpose())
                     QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j].conj()
         elif LDtype == "LLD":
             QFIM_res = np.zeros((para_num, para_num), dtype=np.complex128)
             LD_tp = LLD(rho, drho, eps=eps)
             for para_i in range(0, para_num):
                 for para_j in range(para_i, para_num):
-                    QFIM_res[para_i][para_j] = np.trace(
-                            np.dot(
-                                rho,
-                                np.dot(LD_tp[para_i], LD_tp[para_j].conj().transpose()),
-                            )
-                        )
+                    QFIM_res[para_i][para_j] = np.trace(rho @ LD_tp[para_i] @ LD_tp[para_j].conj().transpose())
                     QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j].conj()
         else:
             raise ValueError("{!r} is not a valid value for LDtype, supported values are 'SLD', 'RLD' and 'LLD'.".format(LDtype))
@@ -605,14 +578,11 @@ def QFIM_Kraus(rho0, K, dK, LDtype="SLD", exportLD=False, eps=1e-8):
     """
 
     dK = [[dK[i][j] for i in range(len(K))] for j in range(len(dK[0]))]
-    rho = sum([np.dot(Ki, np.dot(rho0, Ki.conj().T)) for Ki in K])
+    rho = sum([Ki @ rho0 @ Ki.conj().T for Ki in K])
     drho = [
                 sum(
                     [
-                        (
-                            np.dot(dKi, np.dot(rho0, Ki.conj().T))
-                            + np.dot(Ki, np.dot(rho0, dKi.conj().T))
-                        )
+                        (dKi @ rho0 @ Ki.conj().T+ Ki @ rho0 @ dKi.conj().T)
                         for (Ki, dKi) in zip(K, dKj)
                     ]
                 )
@@ -682,10 +652,8 @@ def QFIM_Bloch(r, dr, eps=1e-8):
         G = np.zeros((dim**2 - 1, dim**2 - 1), dtype=np.complex128)
         for row_i in range(dim**2 - 1):
             for col_j in range(row_i, dim**2 - 1):
-                anti_commu = np.dot(Lambda[row_i], Lambda[col_j]) + np.dot(
-                    Lambda[col_j], Lambda[row_i]
-                )
-                G[row_i][col_j] = 0.5 * np.trace(np.dot(rho, anti_commu))
+                anti_commu = Lambda[row_i] @ Lambda[col_j] + Lambda[col_j] @ Lambda[row_i]
+                G[row_i][col_j] = 0.5 * np.trace(rho @ anti_commu)
                 G[col_j][row_i] = G[row_i][col_j]
 
         mat_tp = G * dim / (2 * (dim - 1)) - np.dot(
