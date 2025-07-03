@@ -88,7 +88,7 @@ def test_QFIM_Gauss():
     # check the result
     assert np.allclose(result, np.array([[(lamb*lamb-1)**2/2/(4*lamb**2-1), 0.], [0., 8*lamb*lamb/(4*lamb*lamb+1)]])) == 1  
 
-def test_LLD():
+def test_QFIM_LLD():
     """
     Test the left logarithmic derivative (LLD) for a specific parameterized quantum state.
     This test checks the calculation of the LLD for a specific state and its derivatives.
@@ -113,7 +113,7 @@ def test_LLD():
     assert np.allclose(result, expected) == 1
     assert np.allclose(result_QFIM, expected_QFIM) == 1
 
-def test_RLD():
+def test_QFIM_RLD():
     """
     Test the right logarithmic derivative (RLD) for a specific parameterized quantum state.
     This test checks the calculation of the RLD for a specific state and its derivatives.
