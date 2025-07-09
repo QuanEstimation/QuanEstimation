@@ -112,7 +112,7 @@ def FIM(p, dp, eps=1e-8):
         is more than one), it returns CFIM.
     """
 
-    para_num = len(dp[0])
+    para_num = len(dp)
     m_num = len(p)
     FIM_res = np.zeros([para_num, para_num])
     for pi in range(0, m_num):
@@ -120,9 +120,9 @@ def FIM(p, dp, eps=1e-8):
         Cadd = np.zeros([para_num, para_num])
         if p_tp > eps:
             for para_i in range(0, para_num):
-                dp_i = dp[pi][para_i]
+                dp_i = dp[para_i][pi]
                 for para_j in range(para_i, para_num):
-                    dp_j = dp[pi][para_j]
+                    dp_j = dp[para_j][pi]
                     Cadd[para_i][para_j] = np.real(dp_i * dp_j / p_tp)
                     Cadd[para_j][para_i] = np.real(dp_i * dp_j / p_tp)
         FIM_res += Cadd
