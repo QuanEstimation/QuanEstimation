@@ -1,5 +1,5 @@
 import pytest
-from quanestimation.AsymptoticBound.CramerRao import QFIM, CFIM, QFIM_Kraus, QFIM_Bloch, QFIM_Gauss, LLD, RLD
+from quanestimation.AsymptoticBound.CramerRao import QFIM, CFIM, QFIM_Kraus, QFIM_Bloch, QFIM_Gauss, LLD, RLD, FIM
 import numpy as np
 
 def test_CramerRao_SLD():
@@ -136,3 +136,17 @@ def test_QFIM_RLD():
 
     assert np.allclose(result, expected) == 1
     assert np.allclose(result_QFIM, expected_QFIM) == 1
+
+def test_FIM():
+    """
+    Test the calculation of the Fisher Information Matrix (FIM) for classical scenarios.
+    This test checks the calculation of the FIM for classical scenarios.
+    """
+    x = 1.
+    theta = np.pi/3
+    p = np.array([np.cos(x*theta)**2, np.sin(x*theta)**2])
+    dp = [np.array([-x*np.sin(2*x*theta), x*np.sin(2*x*theta)])]
+    # calculate the FIM
+    result = FIM(p,dp)
+    # check the result
+    assert np.allclose(result, 4) == 1    
