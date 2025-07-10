@@ -46,7 +46,7 @@ def HCRB(rho, drho, W, eps=1e-8):
             "For rank-one weight matrix, the HCRB is equivalent to QFIM. This function will return the value of Tr(WF^{-1})."
         )
         F = QFIM(rho, drho, eps=eps)
-        return np.trace(np.dot(W, np.linalg.pinv(F)))
+        return np.trace(W @ np.linalg.pinv(F))
     else:
         dim = len(rho)
         num = dim * dim
@@ -59,7 +59,7 @@ def HCRB(rho, drho, W, eps=1e-8):
         for pi in range(para_num):
             vec_drho[pi] = np.array(
                 [
-                    np.real(np.trace(np.dot(drho[pi], Lambda[i])))
+                    np.real(np.trace(drho[pi] @ Lambda[i]))
                     for i in range(len(Lambda))
                 ]
             )
@@ -67,11 +67,11 @@ def HCRB(rho, drho, W, eps=1e-8):
         S = np.zeros((num, num), dtype=np.complex128)
         for a in range(num):
             for b in range(num):
-                S[a][b] = np.trace(np.dot(Lambda[a], np.dot(Lambda[b], rho)))
+                S[a][b] = np.trace(Lambda[a] @ Lambda[b] @ rho)
 
         accu = len(str(int(1 / eps))) - 1
         lu, d, perm = sp.linalg.ldl(S.round(accu))
-        R = np.dot(lu, sp.linalg.sqrtm(d)).conj().T
+        R = (lu @ sp.linalg.sqrtm(d)).conj().T
         # ============optimization variables================
         V = cp.Variable((para_num, para_num))
         X = cp.Variable((num, para_num))

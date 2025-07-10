@@ -139,7 +139,7 @@ def FI_Expt(y1, y2, dx, ftype="norm"):
     Parameters
     ----------
     > **y1:** `array` 
-        -- Experimental data obtained at the truth value (x).
+        -- Experimental data obtained at the true value (x).
 
     > **y2:** `list`
         -- Experimental data obtained at x+dx.
@@ -157,6 +157,8 @@ def FI_Expt(y1, y2, dx, ftype="norm"):
     Returns
     ----------
     **CFI:** `float or matrix` 
+
+    NOTICE: the current output is unstable and will be modified in the future.
     """
     fidelity = 0.0
     if ftype == "norm":
