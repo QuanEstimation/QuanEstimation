@@ -1,5 +1,5 @@
 import pytest
-from quanestimation.AsymptoticBound.CramerRao import QFIM, CFIM, QFIM_Kraus, QFIM_Bloch, QFIM_Gauss, LLD, RLD, FIM
+from quanestimation.AsymptoticBound.CramerRao import QFIM, CFIM, QFIM_Kraus, QFIM_Bloch, QFIM_Gauss, LLD, RLD, FIM, FI_Expt
 import numpy as np
 
 def test_CramerRao_SLD():
@@ -150,3 +150,16 @@ def test_FIM():
     result = FIM(p,dp)
     # check the result
     assert np.allclose(result, 4) == 1    
+
+def test_FI_Expt():
+    """
+    Test the calculation of the Fisher Information for a specific experiment data.
+    This test checks the calculation of the Fisher Information for a specific experiment.
+    """
+    dx = 0.001
+    y1 = np.random.normal(loc=0.0, scale=1.0, size=1000)
+    y2 = np.random.normal(loc=dx, scale=1.0, size=1000)
+    # calculate the Fisher Information 
+    result = FI_Expt(y1, y2, dx, ftype="norm")
+    # check the result is a float and approximately 1.0
+    assert isinstance(result, float)
