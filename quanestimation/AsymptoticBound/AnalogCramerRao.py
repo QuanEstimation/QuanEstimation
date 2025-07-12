@@ -111,6 +111,9 @@ def NHB(rho, drho, W):
     **NHB:** `float`
         -- The value of Nagaoka-Hayashi bound.
     """
+    if type(drho) != list:
+        raise TypeError("Please make sure drho is a list!")
+    
     dim = len(rho)
     para_num = len(drho)
     
