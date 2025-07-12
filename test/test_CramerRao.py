@@ -1,5 +1,5 @@
 import pytest
-from quanestimation.AsymptoticBound.CramerRao import QFIM, CFIM, QFIM_Kraus, QFIM_Bloch, QFIM_Gauss, LLD, RLD, FIM, FI_Expt
+from quanestimation.AsymptoticBound.CramerRao import QFIM, CFIM, QFIM_Kraus, QFIM_Bloch, QFIM_Gauss, LLD, RLD, FIM, FI_Expt, SLD
 import numpy as np
 
 def test_CramerRao_SLD():
@@ -163,3 +163,23 @@ def test_FI_Expt():
     result = FI_Expt(y1, y2, dx, ftype="norm")
     # check the result is a float and approximately 1.0
     assert isinstance(result, float)
+
+def test_invalid_input():
+    """
+    Test the input validation for the functions in the Cramer-Rao module.
+    This test checks that the functions raise appropriate errors for invalid inputs.
+    """
+    with pytest.raises(TypeError):
+        CFIM(np.array([[1, 0], [0, 1]]), None, None) # Invalid input type   
+
+    with pytest.raises(ValueError):
+        QFIM(np.array([[1, 0], [0, 1]]), [np.array([[1, 0], [0, 1]])], LDtype="invalid") # Invalid input type
+
+    with pytest.raises(TypeError):
+        QFIM(np.array([[1, 0], [0, 1]]), None) # Invalid input type         
+
+    with pytest.raises(TypeError):
+        QFIM_Bloch(np.array([[1.], [0], [1.]]), None) # Invalid input type   
+
+    with pytest.raises(TypeError):  
+        SLD(np.array([[1, 0], [0, 1]]), None) # Invalid input type                 

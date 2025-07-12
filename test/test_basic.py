@@ -29,7 +29,7 @@ def test_suN_generator():
     sx = np.array([[0., 1.], [1., 0.]], dtype=np.complex128) 
     sy = np.array([[0., -1j], [1j, 0.]], dtype=np.complex128)
     sz = np.array([[1., 0.j], [0.j, -1.]], dtype=np.complex128)
-    assert (np.allclose(result[0], sx) and np.allclose(result[1], sy) and \
-            np.allclose(result[2], sz)) == 1    
+    assert (np.allclose(result[0], sx) and np.allclose(result[1], sy) \
+            and np.allclose(result[2], sz)) == 1    
     
     
