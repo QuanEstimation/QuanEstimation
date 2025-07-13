@@ -65,12 +65,13 @@ def test_QFIM_Bloch():
     # check the result
     assert np.allclose(result, np.array([[4.*eta**2, 0.], [0., eta**2*np.sin(2*theta)**2]])) == 1
 
-def test_QFIM_Gauss():
+def test_QFIM_Gauss_multiparameter():
     """
-    Test the Quantum Fisher Information Matrix (QFIM) for the Gaussian state representation.
-    This test checks the calculation of the QFIM for a specific Gaussian state and its derivatives.
-    The example is the Eq. (38) in J. Phys. A: Math. Theor. 52, 035304 (2019). The analytical result 
-    is wrong in the paper, and the right one is F = [[(lamb*lamb-1)**2/2/(4*lamb**2-1), 0.], [0., 8*lamb*lamb/(4*lamb*lamb+1)]]. 
+    Test the Quantum Fisher Information Matrix (QFIM) for the Gaussian state representation in the case 
+    of multiparameter estimation. This test checks the calculation of the QFIM for a specific Gaussian 
+    state and its derivatives. The example is the Eq. (38) in J. Phys. A: Math. Theor. 52, 035304 (2019). 
+    The analytical result is wrong in the paper, and the right one is F = [[(lamb*lamb-1)**2/2/(4*lamb**2-1), 0.], 
+    [0., 8*lamb*lamb/(4*lamb*lamb+1)]]. 
     """
     # Gaussian state parameters
     r = 0.8  # squeezing parameter
@@ -88,7 +89,30 @@ def test_QFIM_Gauss():
     # check the result
     assert np.allclose(result, np.array([[(lamb*lamb-1)**2/2/(4*lamb**2-1), 0.], [0., 8*lamb*lamb/(4*lamb*lamb+1)]])) == 1  
 
-def test_QFIM_LLD():
+def test_QFIM_Gauss_singleparameter():
+    """
+    Test the Quantum Fisher Information Matrix (QFIM) for the Gaussian state representation in the case 
+    of single parameter estimation. This test checks the calculation of the QFIM for a specific Gaussian 
+    state and its derivatives. The example is the Eq. (38) in J. Phys. A: Math. Theor. 52, 035304 (2019). 
+    The analytical result is wrong in the paper, and the right one is F = [[(lamb*lamb-1)**2/2/(4*lamb**2-1), 0.], 
+    [0., 8*lamb*lamb/(4*lamb*lamb+1)]]. 
+    """
+    # Gaussian state parameters
+    r = 0.8  # squeezing parameter
+    beta = 0.5
+    lamb = 1/np.tanh(beta/2)  # lambda parameter
+    mu = np.array([0., 0.])  # mean vector
+    sigma = lamb*np.array([[np.cosh(2*r), -np.sinh(2*r)], [-np.sinh(2*r), np.cosh(2*r)]])  # covariance matrix
+    # derivatives of the Gaussian state w.r.t. the parameters
+    dmu = [np.array([0., 0.])]  # derivatives of mean vector
+    dlamb = -0.5/(np.sinh(beta/2)**2)  # derivative of lambda w.r.t. beta
+    dsigma = [dlamb*np.array([[np.cosh(2*r), -np.sinh(2*r)], [-np.sinh(2*r), np.cosh(2*r)]])] # derivatives of covariance matrix
+    # calculate the QFIM
+    result = QFIM_Gauss(mu, dmu, sigma, dsigma)
+    # check the result
+    assert np.allclose(result, (lamb*lamb-1)**2/2/(4*lamb**2-1)) == 1     
+
+def test_QFIM_LLD_singleparameter():
     """
     Test the left logarithmic derivative (LLD) for a specific parameterized quantum state.
     This test checks the calculation of the LLD for a specific state and its derivatives.
@@ -113,7 +137,7 @@ def test_QFIM_LLD():
     assert np.allclose(result, expected) == 1
     assert np.allclose(result_QFIM, expected_QFIM) == 1
 
-def test_QFIM_RLD():
+def test_QFIM_RLD_singleparameter():
     """
     Test the right logarithmic derivative (RLD) for a specific parameterized quantum state.
     This test checks the calculation of the RLD for a specific state and its derivatives.
@@ -172,6 +196,9 @@ def test_invalid_input():
     with pytest.raises(TypeError):
         CFIM(np.array([[1, 0], [0, 1]]), None, None) # Invalid input type   
 
+    with pytest.raises(TypeError):
+        CFIM(np.array([[1, 0], [0, 1]]), [np.array([[1, 0], [0, 1]])], None) # Invalid input type     
+
     with pytest.raises(ValueError):
         QFIM(np.array([[1, 0], [0, 1]]), [np.array([[1, 0], [0, 1]])], LDtype="invalid") # Invalid input type
 
@@ -182,4 +209,12 @@ def test_invalid_input():
         QFIM_Bloch(np.array([[1.], [0], [1.]]), None) # Invalid input type   
 
     with pytest.raises(TypeError):  
-        SLD(np.array([[1, 0], [0, 1]]), None) # Invalid input type                 
+        SLD(np.array([[1, 0], [0, 1]]), None) # Invalid input type      
+
+    with pytest.raises(TypeError):  
+        LLD(np.array([[1, 0], [0, 1]]), None) # Invalid input type   
+
+    with pytest.raises(TypeError):  
+        RLD(np.array([[1, 0], [0, 1]]), None) # Invalid input type     
+
+
