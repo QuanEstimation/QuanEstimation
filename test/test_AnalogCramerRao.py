@@ -17,7 +17,7 @@ def test_HCRB_NHB():
     drho_theta = np.array([[-np.sin(theta)/2, np.cos(theta)*np.exp(-1j*phi)/2],
                            [np.cos(theta)*np.exp(1j*phi)/2, np.sin(theta)/2]])
     drho_phi = np.array([[0, -1j*np.sin(theta)/2 * np.exp(-1j*phi)],
-                         [1J*np.sin(theta)/2 * np.exp(1j*phi), 0]])
+                         [1j*np.sin(theta)/2 * np.exp(1j*phi), 0]])
     drho = [drho_theta, drho_phi]
     # calculate the Holevo Cramer-Rao bound (HCRB) and Nagaoka-Hayashi bound (NHB)
     result_HCRB = HCRB(rho, drho, W)
