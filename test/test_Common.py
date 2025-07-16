@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from quanestimation.Common.Common import basis, gramschmidt, suN_generator, BayesInput
+from quanestimation.Common.Common import basis, gramschmidt, suN_generator, BayesInput, extract_ele
 from quanestimation.Common.Common import mat_vec_convert, SIC, annihilation, brgd
 
 
@@ -126,11 +126,11 @@ def test_BayesInput():
     This test checks the generation of a quantum state for a 2-dimensional system with specific parameters.
     """
     # Test with a simple Hamiltonian
-    H = lambda x: x * np.array([[1, 0], [0, -1]])
-    dH = lambda x: np.array([[1, 0], [0, -1]])
+    H = lambda x: [x * np.array([[1, 0], [0, -1]])]
+    dH = lambda x: [np.array([[1, 0], [0, -1]])]
     xspan = [np.linspace(0, 1, 2)]
     result_H, result_dH = BayesInput(xspan, H, dH, channel="dynamics")
-    expected_H = [np.array([[0., 0.], [0., -0.]]), 
+    expected_H = [np.array([[0., 0.], [0., 0.]]), 
                   np.array([[1., 0.], [0., -1.]])]
     excepted_dH = [np.array([[1, 0], [0, -1]]), 
                    np.array([[1, 0], [0, -1]])]
@@ -141,7 +141,35 @@ def test_BayesInput():
     with pytest.raises(ValueError):
         BayesInput(xspan, H, dH, channel="invalid_channel")
 
-    # # Test with a set of Kraus operators 
-    # K = lambda x: [np.array([[1, 0], [0, 0]]), np.array([[0, 1], [1, 0]])]
-    # dK = lambda x: [np.array([[1, 0], [0, 0]]), np.array([[0, 1], [1, 0]])]
+    # Test with a set of Kraus operators 
+    K = lambda x: [np.array([[1, 0], [0, np.sqrt(1-x)]]), np.array([[0, np.sqrt(x)], [0, 0]])]
+    dK = lambda x: [[np.array([[0, 0], [0, -0.5/np.sqrt(1-x)]]), np.array([[0, 0.5/np.sqrt(x)], [0, 0]])]]
+    xspan_K = [np.linspace(0.1, 0.5, 2)]
+    result_K, result_dK = BayesInput(xspan_K, K, dK, channel="Kraus")
+    expected_K = [[np.array([[1, 0], [0, np.sqrt(0.9)]]), np.array([[0, np.sqrt(0.1)], [0, 0]])],
+                  [np.array([[1, 0], [0, np.sqrt(0.5)]]), np.array([[0, np.sqrt(0.5)], [0, 0]])]]
+    expected_dK = [[np.array([[0, 0], [0, -0.5/np.sqrt(0.9)]]), np.array([[0, 0.5/np.sqrt(0.1)], [0, 0]])], 
+                   [np.array([[0, 0], [0, -0.5/np.sqrt(0.5)]]), np.array([[0, 0.5/np.sqrt(0.5)], [0, 0]])]]
+    assert all(np.allclose(result_K[i], expected_K[i]) for i in range(2)) == 1
+    assert all(np.allclose(result_dK[i], expected_dK[i]) for i in range(2)) == 1
 
+def test_extract_ele():
+    """
+    Test the extract_ele generator function for recursive element extraction.
+    """
+    # Test with depth 0 (should yield the element itself)
+    element = [1, 2, 3]
+    n = 0
+    result = list(extract_ele(element, n))
+    assert result == [element]
+    
+    # Test with depth 1 (should yield the top-level elements)
+    n = 1
+    result = list(extract_ele(element, n))
+    assert result == [1, 2, 3]
+    
+    # Test with nested lists and depth 2
+    nested = [[1, 2], [3, [4, 5]]]
+    n = 2
+    result = list(extract_ele(nested, n))
+    assert result == [1, 2, 3, [4, 5]]  # Note: [4,5] is at depth 2

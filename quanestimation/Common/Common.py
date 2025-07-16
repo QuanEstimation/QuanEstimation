@@ -270,34 +270,18 @@ def BayesInput(x, func, dfunc, channel="dynamics"):
     H, dH (or K, dK).
     """
 
-    para_num = len(x)
-    size = [len(x[i]) for i in range(len(x))]
     x_all = product(*x)
     if channel == "dynamics":
-        dim = len(func([0 for i in range(para_num)]))
         H_list, dH_list = [], []
         for xi in x_all:
-            H_list.append(func([i for i in xi]))
-            dH_list.append(dfunc([i for i in xi]))
-        # H_res = np.reshape(H_list, [*size, *[dim, dim]])
-        # dH_res = np.reshape(dH_list, [*size, *[para_num, dim, dim]])
+            H_list.append(func(*xi))
+            dH_list.append(dfunc(*xi))
         return H_list, dH_list
     elif channel == "Kraus":
-        k_num = len(func([0 for i in range(para_num)]))
-        dim = len(func([0 for i in range(para_num)])[0])
         K_list, dK_list = [], []
-        if para_num == 1:
-            for xi in x_all:
-                K_list.append(func([i for i in xi]))
-            #     dK_list.append(dfunc([i for i in xi]))
-            # K_res = np.reshape(K_list, [*size, *[k_num, dim, dim]])
-            # dK_res = np.reshape(dK_list, [*size, *[para_num, k_num, dim, dim]])
-        else:
-            for xi in x_all:
-                K_list.append(func([i for i in xi]))
-                dK_list.append(dfunc([i for i in xi]))
-            # K_res = np.reshape(K_list, [*size, *[k_num, dim, dim]])
-            # dK_res = np.reshape(dK_list, [*size, *[k_num, para_num, dim, dim]])
+        for xi in x_all:
+            K_list.append(func(*xi))
+            dK_list.append(dfunc(*xi))
         return K_list, dK_list
     else:
         raise ValueError(
