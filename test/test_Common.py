@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from quanestimation.Common.Common import basis, gramschmidt, suN_generator, BayesInput
+from quanestimation.Common.Common import basis, gramschmidt, suN_generator, BayesInput, extract_ele
 from quanestimation.Common.Common import mat_vec_convert, SIC, annihilation, brgd
 
 
@@ -152,3 +152,24 @@ def test_BayesInput():
                    [np.array([[0, 0], [0, -0.5/np.sqrt(0.5)]]), np.array([[0, 0.5/np.sqrt(0.5)], [0, 0]])]]
     assert all(np.allclose(result_K[i], expected_K[i]) for i in range(2)) == 1
     assert all(np.allclose(result_dK[i], expected_dK[i]) for i in range(2)) == 1
+
+def test_extract_ele():
+    """
+    Test the extract_ele generator function for recursive element extraction.
+    """
+    # Test with depth 0 (should yield the element itself)
+    element = [1, 2, 3]
+    n = 0
+    result = list(extract_ele(element, n))
+    assert result == [element]
+    
+    # Test with depth 1 (should yield the top-level elements)
+    n = 1
+    result = list(extract_ele(element, n))
+    assert result == [1, 2, 3]
+    
+    # Test with nested lists and depth 2
+    nested = [[1, 2], [3, [4, 5]]]
+    n = 2
+    result = list(extract_ele(nested, n))
+    assert result == [1, 2, 3, [4, 5]]  # Note: [4,5] is at depth 2
