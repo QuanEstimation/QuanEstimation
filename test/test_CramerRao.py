@@ -1,333 +1,488 @@
 import pytest
-from quanestimation.AsymptoticBound.CramerRao import QFIM, CFIM, QFIM_Kraus, QFIM_Bloch, QFIM_Gauss, LLD, RLD, FIM, FI_Expt, SLD
 import numpy as np
+from quanestimation.AsymptoticBound.CramerRao import (
+    QFIM, CFIM, QFIM_Kraus, QFIM_Bloch, QFIM_Gauss, LLD, RLD, FIM, FI_Expt, SLD
+)
+
 
 def test_CramerRao_SLD():
     """
-    Test the Cramer-Rao bound for a parameterized quantum state.
-    This test checks the calculation of the Quantum Fisher Information Matrix (QFIM) 
-    and the Classical Fisher Information Matrix (CFIM) for a specific parameterized 
-    state and its derivatives.
+    Test Cramer-Rao bound for parameterized quantum state.
+    Checks QFIM and CFIM calculation for specific state and derivatives.
     """
-    # parameterized state
-    theta = np.pi/4
-    phi = np.pi/4
-    rho = np.array([[np.cos(theta)**2, np.cos(theta)*np.sin(theta)*np.exp(-1j*phi)], 
-                     [np.cos(theta)*np.sin(theta)*np.exp(1j*phi), np.sin(theta)**2]])
-     # derivative of the state w.r.t. theta, phi
-    drho = [np.array([[-np.sin(2*theta), 2*np.cos(2*theta)*np.exp(-1j*phi)], 
-                      [2*np.cos(2*theta)*np.exp(1j*phi), np.sin(2*theta)]]),
-            np.array([[0, -1j*np.cos(theta)*np.sin(theta)*np.exp(-1j*phi)], 
-                      [1j*np.cos(theta)*np.sin(theta)*np.exp(1j*phi), 0]])] 
+    # Parameterized state
+    theta = np.pi / 4
+    phi = np.pi / 4
+    rho = np.array([
+        [np.cos(theta)**2, np.cos(theta) * np.sin(theta) * np.exp(-1j * phi)],
+        [np.cos(theta) * np.sin(theta) * np.exp(1j * phi), np.sin(theta)**2]
+    ])
+    
+    # State derivatives
+    drho = [
+        np.array([
+            [-np.sin(2 * theta), 2 * np.cos(2 * theta) * np.exp(-1j * phi)],
+            [2 * np.cos(2 * theta) * np.exp(1j * phi), np.sin(2 * theta)]
+        ]),
+        np.array([
+            [0, -1j * np.cos(theta) * np.sin(theta) * np.exp(-1j * phi)],
+            [1j * np.cos(theta) * np.sin(theta) * np.exp(1j * phi), 0]
+        ])
+    ]
+    
+    # Calculate QFIM
     result = QFIM(rho, drho, LDtype="SLD")
-    M = [np.array([[1., 0.], [0., 0.]]), np.array([[0., 0.], [0., 1.]])]  # measurement operators
+    # Measurement operators
+    M = [np.array([[1.0, 0.0], [0.0, 0.0]]), 
+         np.array([[0.0, 0.0], [0.0, 1.0]])]
+    # Calculate CFIM
     resultc = CFIM(rho, drho, M)
-    # check the results
-    assert np.allclose(result, np.array([[4., 0.], [0., np.sin(2*theta)**2]])) == 1
-    assert np.allclose(resultc, np.array([[4., 0], [0., 0.]])) == 1
+    
+    # Verify results
+    expected_qfim = np.array([[4.0, 0.0], [0.0, np.sin(2 * theta)**2]])
+    expected_cfim = np.array([[4.0, 0.0], [0.0, 0.0]])
+    assert np.allclose(result, expected_qfim)
+    assert np.allclose(resultc, expected_cfim)
 
+    # Test exportLD option
     result, SLD_res = QFIM(rho, drho, LDtype="SLD", exportLD=True)
     expected_SLD = SLD(rho, drho)
-    assert np.allclose(SLD_res, expected_SLD) == 1
+    assert np.allclose(SLD_res, expected_SLD)
 
+    # Test invalid LDtype
     with pytest.raises(ValueError):
         QFIM(rho, drho, LDtype="invalid")
+    with pytest.raises(ValueError):
+        QFIM(rho, drho, LDtype="RLD")
+    with pytest.raises(ValueError):
+        QFIM(rho, drho, LDtype="LLD")
 
-    with pytest.raises(ValueError):
-        QFIM(rho, drho, LDtype="RLD")  
-    
-    with pytest.raises(ValueError):
-        QFIM(rho, drho, LDtype="LLD")    
 
 def test_CFIM_singleparameter():
     """
-    Test the Classical Fisher Information Matrix (CFIM) for a single parameter.
-    This test checks the calculation of the CFIM for a specific state and its derivatives.
+    Test Classical Fisher Information Matrix for single parameter.
+    Checks CFIM calculation for specific state and derivative.
     """
-    # parameterized state
-    theta = np.pi/4
-    rho = np.array([[np.cos(theta)**2, np.sin(theta)*np.cos(theta)], 
-                     [np.sin(theta)*np.cos(theta), np.sin(theta)**2]])
-    # derivative of the state w.r.t. theta
-    drho = [np.array([[-np.sin(2*theta), 2*np.cos(2*theta)], 
-                      [2*np.cos(2*theta), np.sin(2*theta)]])]
-    # calculate the CFIM
+    # Parameterized state
+    theta = np.pi / 4
+    rho = np.array([
+        [np.cos(theta)**2, np.sin(theta) * np.cos(theta)],
+        [np.sin(theta) * np.cos(theta), np.sin(theta)**2]
+    ])
+    
+    # State derivative
+    drho = [np.array([
+        [-np.sin(2 * theta), 2 * np.cos(2 * theta)],
+        [2 * np.cos(2 * theta), np.sin(2 * theta)]
+    ])]
+    
+    # Calculate CFIM
     result = CFIM(rho, drho, [])
-    # check the result
-    assert np.allclose(result, 2) == 1
+    assert np.allclose(result, 2.0)
+
 
 def test_QFIM_Kraus():
     """
-    Test the Quantum Fisher Information Matrix (QFIM) for the Kraus representation.
-    This test checks the calculation of the QFIM for a specific Kraus operator.
+    Test QFIM for Kraus representation.
+    Checks QFIM calculation for specific Kraus operators.
     """
-    # Kraus operator
+    # Kraus operators
     K0 = np.array([[1, 0], [0, np.sqrt(0.5)]])
     K1 = np.array([[np.sqrt(0.5), 0], [0, 0]])
-    # list of Kraus operators
-    K = [K0, K1]  
-    # derivatives of the Kraus operator w.r.t. the parameter
-    dK = [[np.array([[0, 0], [0, -0.5/np.sqrt(0.5)]])], [np.array([[0, 0.5/np.sqrt(0.5)], [0, 0]])]]
-    # probe state
-    rho0 = 0.5*np.array([[1., 1.], [1., 1.]]) 
-    # calculate the QFIM
+    K = [K0, K1]
+    
+    # Kraus operator derivatives
+    dK = [
+        [np.array([[0, 0], [0, -0.5 / np.sqrt(0.5)]])],
+        [np.array([[0, 0.5 / np.sqrt(0.5)], [0, 0]])]
+    ]
+    
+    # Probe state
+    rho0 = 0.5 * np.array([[1.0, 1.0], [1.0, 1.0]])
+    
+    # Calculate QFIM
     result = QFIM_Kraus(rho0, K, dK)
-    # check the result
-    assert np.allclose(result, 1.5) == 1    
+    assert np.allclose(result, 1.5)
+
 
 def test_QFIM_Bloch():
     """
-    Test the Quantum Fisher Information Matrix (QFIM) for the Bloch vector representation.
-    This test checks the calculation of the QFIM for a specific Bloch vector and its derivatives.
+    Test QFIM for Bloch vector representation.
+    Checks QFIM calculation for specific Bloch vector and derivatives.
     """
-    # Bloch vector
-    theta = np.pi/4
-    phi = np.pi/2
+    # Bloch vector parameters
+    theta = np.pi / 4
+    phi = np.pi / 2
     eta = 0.8
-    b = eta*np.array([np.sin(2*theta)*np.cos(phi), np.sin(2*theta)*np.sin(phi), np.cos(2*theta)])
-    # derivatives of the Bloch vector w.r.t. theta, phi
-    db_theta = eta*np.array([2*np.cos(2*theta)*np.cos(phi), 2*np.cos(2*theta)*np.sin(phi), -2*np.sin(2*theta)])
-    db_phi = eta*np.array([-np.sin(2*theta)*np.sin(phi), np.sin(2*theta)*np.cos(phi), 0])
-    # list of derivatives
-    db = [db_theta, db_phi] 
-    # calculate the QFIM
+    b = eta * np.array([
+        np.sin(2 * theta) * np.cos(phi),
+        np.sin(2 * theta) * np.sin(phi),
+        np.cos(2 * theta)
+    ])
+    
+    # Bloch vector derivatives
+    db_theta = eta * np.array([
+        2 * np.cos(2 * theta) * np.cos(phi),
+        2 * np.cos(2 * theta) * np.sin(phi),
+        -2 * np.sin(2 * theta)
+    ])
+    db_phi = eta * np.array([
+        -np.sin(2 * theta) * np.sin(phi),
+        np.sin(2 * theta) * np.cos(phi),
+        0
+    ])
+    db = [db_theta, db_phi]
+    
+    # Calculate QFIM
     result = QFIM_Bloch(b, db)
-    # check the result
-    assert np.allclose(result, np.array([[4.*eta**2, 0.], [0., eta**2*np.sin(2*theta)**2]])) == 1
+    expected = np.array([
+        [4.0 * eta**2, 0.0],
+        [0.0, eta**2 * np.sin(2 * theta)**2]
+    ])
+    assert np.allclose(result, expected)
+
 
 def test_QFIM_Bloch_pure():
     """
-    Test the Quantum Fisher Information Matrix (QFIM) for the Bloch vector representation with a 2-dimensional pure state.
-    This test checks the calculation of the QFIM for a specific Bloch vector and its derivatives.
+    Test QFIM for pure state in Bloch representation.
+    Checks QFIM calculation for specific Bloch vector and derivatives.
     """
-    # Bloch vector
-    theta = np.pi/4
-    phi = np.pi/2
-    eta = 1.
-    b = eta*np.array([np.sin(2*theta)*np.cos(phi), np.sin(2*theta)*np.sin(phi), np.cos(2*theta)])
-    # derivatives of the Bloch vector w.r.t. theta, phi
-    db_theta = eta*np.array([2*np.cos(2*theta)*np.cos(phi), 2*np.cos(2*theta)*np.sin(phi), -2*np.sin(2*theta)])
-    db_phi = eta*np.array([-np.sin(2*theta)*np.sin(phi), np.sin(2*theta)*np.cos(phi), 0])
-    # list of derivatives
-    db = [db_theta, db_phi] 
-    # calculate the QFIM
+    # Bloch vector parameters
+    theta = np.pi / 4
+    phi = np.pi / 2
+    eta = 1.0
+    b = eta * np.array([
+        np.sin(2 * theta) * np.cos(phi),
+        np.sin(2 * theta) * np.sin(phi),
+        np.cos(2 * theta)
+    ])
+    
+    # Bloch vector derivatives
+    db_theta = eta * np.array([
+        2 * np.cos(2 * theta) * np.cos(phi),
+        2 * np.cos(2 * theta) * np.sin(phi),
+        -2 * np.sin(2 * theta)
+    ])
+    db_phi = eta * np.array([
+        -np.sin(2 * theta) * np.sin(phi),
+        np.sin(2 * theta) * np.cos(phi),
+        0
+    ])
+    db = [db_theta, db_phi]
+    
+    # Calculate QFIM
     result = QFIM_Bloch(b, db)
-    # check the result
-    assert np.allclose(result, np.array([[4.*eta**2, 0.], [0., eta**2*np.sin(2*theta)**2]])) == 1
+    expected = np.array([
+        [4.0 * eta**2, 0.0],
+        [0.0, eta**2 * np.sin(2 * theta)**2]
+    ])
+    assert np.allclose(result, expected)
+
 
 def test_QFIM_Bloch_highdimension():
     """
-    Test the Quantum Fisher Information Matrix (QFIM) for the Bloch vector representation with a high-dimensional Bloch vector.
-    This test checks the calculation of the QFIM for a specific Bloch vector and its derivatives.
-    """    
-    # Bloch vector
-    theta = np.pi/4
-    phi = np.pi/2
-    b = np.array([np.sin(2*theta)*np.cos(phi), np.sin(2*theta)*np.sin(phi), np.cos(2*theta), 0., 0., 0., 0., 0.])
-    # derivatives of the Bloch vector w.r.t. the parameter
-    db = [np.array([2*np.cos(2*theta)*np.cos(phi), 2*np.cos(2*theta)*np.sin(phi), -2*np.sin(2*theta), 0., 0., 0., 0., 0.])]
-    # calculate the QFIM
+    Test QFIM for high-dimensional Bloch vector.
+    Checks QFIM calculation for specific Bloch vector and derivative.
+    """
+    # Bloch vector parameters
+    theta = np.pi / 4
+    phi = np.pi / 2
+    b = np.array([
+        np.sin(2 * theta) * np.cos(phi),
+        np.sin(2 * theta) * np.sin(phi),
+        np.cos(2 * theta),
+        0.0, 0.0, 0.0, 0.0, 0.0
+    ])
+    
+    # Bloch vector derivative
+    db = [np.array([
+        2 * np.cos(2 * theta) * np.cos(phi),
+        2 * np.cos(2 * theta) * np.sin(phi),
+        -2 * np.sin(2 * theta),
+        0.0, 0.0, 0.0, 0.0, 0.0
+    ])]
+    
+    # Calculate QFIM
     result = QFIM_Bloch(b, db)
-    # check the result
-    assert np.allclose(result, 8.) == 1
- 
+    assert np.allclose(result, 8.0)
+
 
 def test_QFIM_Gauss_multiparameter():
     """
-    Test the Quantum Fisher Information Matrix (QFIM) for the Gaussian state representation in the case 
-    of multiparameter estimation. This test checks the calculation of the QFIM for a specific Gaussian 
-    state and its derivatives. The example is the Eq. (38) in J. Phys. A: Math. Theor. 52, 035304 (2019). 
-    The analytical result is wrong in the paper, and the right one is F = [[(lamb*lamb-1)**2/2/(4*lamb**2-1), 0.], 
-    [0., 8*lamb*lamb/(4*lamb*lamb+1)]]. 
+    Test QFIM for Gaussian state with multiple parameters.
+    Checks QFIM calculation for specific Gaussian state.
     """
     # Gaussian state parameters
     r = 0.8  # squeezing parameter
     beta = 0.5
-    lamb = 1/np.tanh(beta/2)  # lambda parameter
-    mu = np.array([0., 0.])  # mean vector
-    sigma = lamb*np.array([[np.cosh(2*r), -np.sinh(2*r)], [-np.sinh(2*r), np.cosh(2*r)]])  # covariance matrix
-    # derivatives of the Gaussian state w.r.t. the parameters
-    dmu = [np.array([0., 0.]), np.array([0., 0.])]  # derivatives of mean vector
-    dlamb = -0.5/(np.sinh(beta/2)**2)  # derivative of lambda w.r.t. beta
-    dsigma = [dlamb*np.array([[np.cosh(2*r), -np.sinh(2*r)], [-np.sinh(2*r), np.cosh(2*r)]]), 
-              lamb*2*np.array([[np.sinh(2*r), -np.cosh(2*r)], [-np.cosh(2*r), np.sinh(2*r)]])] # derivatives of covariance matrix
-    # calculate the QFIM
+    lamb = 1 / np.tanh(beta / 2)
+    mu = np.array([0.0, 0.0])
+    sigma = lamb * np.array([
+        [np.cosh(2 * r), -np.sinh(2 * r)],
+        [-np.sinh(2 * r), np.cosh(2 * r)]
+    ])
+    
+    # Derivatives
+    dmu = [np.array([0.0, 0.0]), np.array([0.0, 0.0])]
+    dlamb = -0.5 / (np.sinh(beta / 2)**2)
+    dsigma = [
+        dlamb * np.array([
+            [np.cosh(2 * r), -np.sinh(2 * r)],
+            [-np.sinh(2 * r), np.cosh(2 * r)]
+        ]),
+        lamb * 2 * np.array([
+            [np.sinh(2 * r), -np.cosh(2 * r)],
+            [-np.cosh(2 * r), np.sinh(2 * r)]
+        ])
+    ]
+    
+    # Calculate QFIM
     result = QFIM_Gauss(mu, dmu, sigma, dsigma)
-    # check the result
-    assert np.allclose(result, np.array([[(lamb*lamb-1)**2/2/(4*lamb**2-1), 0.], [0., 8*lamb*lamb/(4*lamb*lamb+1)]])) == 1  
+    expected = np.array([
+        [(lamb**2 - 1)**2 / (2 * (4 * lamb**2 - 1)), 0.0],
+        [0.0, 8 * lamb**2 / (4 * lamb**2 + 1)]
+    ])
+    assert np.allclose(result, expected)
+
 
 def test_QFIM_Gauss_singleparameter():
     """
-    Test the Quantum Fisher Information Matrix (QFIM) for the Gaussian state representation in the case 
-    of single parameter estimation. This test checks the calculation of the QFIM for a specific Gaussian 
-    state and its derivatives. The example is the Eq. (38) in J. Phys. A: Math. Theor. 52, 035304 (2019). 
-    The analytical result is wrong in the paper, and the right one is F = [[(lamb*lamb-1)**2/2/(4*lamb**2-1), 0.], 
-    [0., 8*lamb*lamb/(4*lamb*lamb+1)]]. 
+    Test QFIM for Gaussian state with single parameter.
+    Checks QFIM calculation for specific Gaussian state.
     """
     # Gaussian state parameters
     r = 0.8  # squeezing parameter
     beta = 0.5
-    lamb = 1/np.tanh(beta/2)  # lambda parameter
-    mu = np.array([0., 0.])  # mean vector
-    sigma = lamb*np.array([[np.cosh(2*r), -np.sinh(2*r)], [-np.sinh(2*r), np.cosh(2*r)]])  # covariance matrix
-    # derivatives of the Gaussian state w.r.t. the parameters
-    dmu = [np.array([0., 0.])]  # derivatives of mean vector
-    dlamb = -0.5/(np.sinh(beta/2)**2)  # derivative of lambda w.r.t. beta
-    dsigma = [dlamb*np.array([[np.cosh(2*r), -np.sinh(2*r)], [-np.sinh(2*r), np.cosh(2*r)]])] # derivatives of covariance matrix
-    # calculate the QFIM
+    lamb = 1 / np.tanh(beta / 2)
+    mu = np.array([0.0, 0.0])
+    sigma = lamb * np.array([
+        [np.cosh(2 * r), -np.sinh(2 * r)],
+        [-np.sinh(2 * r), np.cosh(2 * r)]
+    ])
+    
+    # Derivatives
+    dmu = [np.array([0.0, 0.0])]
+    dlamb = -0.5 / (np.sinh(beta / 2)**2)
+    dsigma = [dlamb * np.array([
+        [np.cosh(2 * r), -np.sinh(2 * r)],
+        [-np.sinh(2 * r), np.cosh(2 * r)]
+    ])]
+    
+    # Calculate QFIM
     result = QFIM_Gauss(mu, dmu, sigma, dsigma)
-    # check the result
-    assert np.allclose(result, (lamb*lamb-1)**2/2/(4*lamb**2-1)) == 1     
+    expected = (lamb**2 - 1)**2 / (2 * (4 * lamb**2 - 1))
+    assert np.allclose(result, expected)
+
 
 def test_QFIM_LLD_singleparameter():
     """
-    Test the left logarithmic derivative (LLD) for a specific parameterized quantum state.
-    This test checks the calculation of the LLD for a specific state and its derivatives.
+    Test left logarithmic derivative for specific state.
+    Checks LLD calculation and QFIM result.
     """
-    # parameterized state
-    theta = np.pi/4
-    phi = np.pi/4
+    # State parameters
+    theta = np.pi / 4
+    phi = np.pi / 4
     eta = 0.8
-    rho = 0.5*np.array([[1+eta*np.cos(2*theta), eta*np.sin(2*theta)*np.exp(-1j*phi)], 
-                     [eta*np.sin(2*theta)*np.exp(1j*phi), 1-eta*np.cos(2*theta)]])
-    # derivative of the state w.r.t. phi
-    drho = [0.5*np.array([[0., -1j*eta*np.sin(2*theta)*np.exp(-1j*phi)],[1j*eta*np.sin(2*theta)*np.exp(1j*phi), 0.]])] 
-    # calculate the LLD
-    result = LLD(rho, drho, rep="original")
-    expected = (1/(1-eta**2))*np.array([[1j*eta**2*np.sin(2*theta)**2, -1j*eta*(1+eta*np.cos(2*theta))*np.sin(2*theta)*np.exp(-1j*phi)], 
-                                        [1j*eta*(1-eta*np.cos(2*theta))*np.sin(2*theta)*np.exp(1j*phi), -1j*eta**2*np.sin(2*theta)**2]])
+    rho = 0.5 * np.array([
+        [1 + eta * np.cos(2 * theta), 
+         eta * np.sin(2 * theta) * np.exp(-1j * phi)],
+        [eta * np.sin(2 * theta) * np.exp(1j * phi), 
+         1 - eta * np.cos(2 * theta)]
+    ])
     
+    # State derivative
+    drho = [0.5 * np.array([
+        [0.0, -1j * eta * np.sin(2 * theta) * np.exp(-1j * phi)],
+        [1j * eta * np.sin(2 * theta) * np.exp(1j * phi), 0.0]
+    ])]
+    
+    # Calculate LLD
+    result = LLD(rho, drho, rep="original")
+    expected = (1 / (1 - eta**2)) * np.array([
+        [1j * eta**2 * np.sin(2 * theta)**2, 
+         -1j * eta * (1 + eta * np.cos(2 * theta)) * np.sin(2 * theta) * np.exp(-1j * phi)],
+        [1j * eta * (1 - eta * np.cos(2 * theta)) * np.sin(2 * theta) * np.exp(1j * phi), 
+         -1j * eta**2 * np.sin(2 * theta)**2]
+    ])
+    assert np.allclose(result, expected)
+
+    # Calculate QFIM
     result_QFIM = QFIM(rho, drho, LDtype="LLD")
-    expected_QFIM = eta**2*np.sin(2*theta)**2*(3*eta**2+1)/(1-eta**2)**2
+    expected_QFIM = eta**2 * np.sin(2 * theta)**2 * (3 * eta**2 + 1) / (1 - eta**2)**2
+    assert np.allclose(result_QFIM, expected_QFIM)
 
-    # check the result
-    assert np.allclose(result, expected) == 1
-    assert np.allclose(result_QFIM, expected_QFIM) == 1
-
+    # Test eigen representation
     result_eigen = LLD(rho, drho, rep="eigen")
     _, vec = np.linalg.eig(rho)
-    expected_eigen =  vec.conj().transpose() @ result @ vec
-    assert np.allclose(result_eigen, expected_eigen) == 1
+    expected_eigen = vec.conj().transpose() @ result @ vec
+    assert np.allclose(result_eigen, expected_eigen)
 
+    # Test invalid representation
     with pytest.raises(ValueError):
         LLD(rho, drho, rep="invalid")
 
+
 def test_QFIM_RLD_singleparameter():
     """
-    Test the right logarithmic derivative (RLD) for a specific parameterized quantum state.
-    This test checks the calculation of the RLD for a specific state and its derivatives.
+    Test right logarithmic derivative for specific state.
+    Checks RLD calculation and QFIM result.
     """
-    # parameterized state
-    theta = np.pi/4
-    phi = np.pi/4
+    # State parameters
+    theta = np.pi / 4
+    phi = np.pi / 4
     eta = 0.8
-    rho = 0.5*np.array([[1+eta*np.cos(2*theta), eta*np.sin(2*theta)*np.exp(-1j*phi)], 
-                     [eta*np.sin(2*theta)*np.exp(1j*phi), 1-eta*np.cos(2*theta)]])
-    # derivative of the state w.r.t. phi
-    drho = [0.5*np.array([[0., -1j*eta*np.sin(2*theta)*np.exp(-1j*phi)],[1j*eta*np.sin(2*theta)*np.exp(1j*phi), 0.]])]
-    # calculate the RLD
+    rho = 0.5 * np.array([
+        [1 + eta * np.cos(2 * theta), 
+         eta * np.sin(2 * theta) * np.exp(-1j * phi)],
+        [eta * np.sin(2 * theta) * np.exp(1j * phi), 
+         1 - eta * np.cos(2 * theta)]
+    ])
+    
+    # State derivative
+    drho = [0.5 * np.array([
+        [0.0, -1j * eta * np.sin(2 * theta) * np.exp(-1j * phi)],
+        [1j * eta * np.sin(2 * theta) * np.exp(1j * phi), 0.0]
+    ])]
+    
+    # Calculate RLD
     result = RLD(rho, drho, rep="original")
-    expected = (1/(1-eta**2))*np.array([[-1j*eta**2*np.sin(2*theta)**2, -1j*eta*(1-eta*np.cos(2*theta))*np.exp(-1j*phi)*np.sin(2*theta)], 
-                                        [1j*eta*(1+np.cos(2*theta))*np.exp(1j*phi)*np.sin(2*theta), 1j*eta**2*np.sin(2*theta)**2]])
+    expected = (1 / (1 - eta**2)) * np.array([
+        [-1j * eta**2 * np.sin(2 * theta)**2, 
+         -1j * eta * (1 - eta * np.cos(2 * theta)) * np.exp(-1j * phi) * np.sin(2 * theta)],
+        [1j * eta * (1 + np.cos(2 * theta)) * np.exp(1j * phi) * np.sin(2 * theta), 
+         1j * eta**2 * np.sin(2 * theta)**2]
+    ])
+    assert np.allclose(result, expected)
 
-    # check the result
+    # Calculate QFIM
     result_QFIM = QFIM(rho, drho, LDtype="RLD")
-    expected_QFIM = eta**2*np.sin(2*theta)**2/(1.-eta**2)
+    expected_QFIM = eta**2 * np.sin(2 * theta)**2 / (1.0 - eta**2)
+    assert np.allclose(result_QFIM, expected_QFIM)
 
-    assert np.allclose(result, expected) == 1
-    assert np.allclose(result_QFIM, expected_QFIM) == 1
-
+    # Test eigen representation
     result_eigen = RLD(rho, drho, rep="eigen")
     _, vec = np.linalg.eig(rho)
-    expected_eigen =  vec.conj().transpose() @ result @ vec
-    assert np.allclose(result_eigen, expected_eigen) == 1
+    expected_eigen = vec.conj().transpose() @ result @ vec
+    assert np.allclose(result_eigen, expected_eigen)
 
+    # Test invalid representation
     with pytest.raises(ValueError):
         RLD(rho, drho, rep="invalid")
 
+
 def test_FIM_singleparameter():
     """
-    Test the calculation of the Fisher Information Matrix (FIM) for classical scenarios.
-    This test checks the calculation of the FIM for classical scenarios.
+    Test Fisher Information Matrix (FIM) for single parameter.
+    Checks FIM calculation for classical probability distribution.
     """
-    x = 1.
-    theta = np.pi/3
-    p = np.array([np.cos(x*theta)**2, np.sin(x*theta)**2])
-    dp = [np.array([-x*np.sin(2*x*theta), x*np.sin(2*x*theta)])]
-    # calculate the FIM
-    result = FIM(p,dp)
-    # check the result
-    assert np.allclose(result, 4) == 1    
+    x = 1.0
+    theta = np.pi / 3
+    p = np.array([
+        np.cos(x * theta)**2, 
+        np.sin(x * theta)**2
+    ])
+    dp = [np.array([
+        -x * np.sin(2 * x * theta), 
+        x * np.sin(2 * x * theta)
+    ])]
+    result = FIM(p, dp)
+    assert np.allclose(result, 4.0)
 
 def test_FIM_multiparameter():
     """
-    Test the Fisher Information Matrix (FIM) for a single parameter.
-    This test checks the calculation of the FIM for a specific state and its derivatives.
+    Test Fisher Information Matrix (FIM) for multiple parameters.
+    Checks FIM calculation for classical probability distribution.
     """
-    x = 1.
-    theta = np.pi/3
-    p = np.array([np.cos(x*theta)**2, np.sin(x*theta)**2])
-    dp = [np.array([-theta*np.sin(2*x*theta), theta*np.sin(2*x*theta)]), np.array([-x*np.sin(2*x*theta), x*np.sin(2*x*theta)])]
-    # calculate the FIM
-    result = FIM(p,dp)
-    expected = np.array([[4.38649084, 4.1887902], [4.1887902, 4.]])
-    # check the result
-    assert np.allclose(result, expected) == 1      
+    x = 1.0
+    theta = np.pi / 3
+    p = np.array([
+        np.cos(x * theta)**2, 
+        np.sin(x * theta)**2
+    ])
+    dp = [
+        np.array([
+            -theta * np.sin(2 * x * theta), 
+            theta * np.sin(2 * x * theta)
+        ]),
+        np.array([
+            -x * np.sin(2 * x * theta), 
+            x * np.sin(2 * x * theta)
+        ])
+    ]
+    result = FIM(p, dp)
+    expected = np.array([
+        [4.38649084, 4.1887902],
+        [4.1887902, 4.0]
+    ])
+    assert np.allclose(result, expected)
 
 def test_FI_Expt():
     """
-    Test the calculation of the Fisher Information for a specific experiment data.
-    This test checks the calculation of the Fisher Information for a specific experiment.
+    Test Fisher Information calculation for experimental data.
+    Checks FI_Expt with different distribution types.
     """
+    # Normal, Gamma, and Rayleigh distributions
     dx = 0.001
-    y1 = np.random.normal(loc=0.0, scale=1.0, size=1000)
-    y2 = np.random.normal(loc=dx, scale=1.0, size=1000)
-    # calculate the Fisher Information 
-    result1 = FI_Expt(y1, y2, dx, ftype="norm")
-    result2 = FI_Expt(y1, y2, dx, ftype="gamma")
-    result3 = FI_Expt(y1, y2, dx, ftype="rayleigh")
+    y1_norm = np.random.normal(loc=0.0, scale=1.0, size=1000)
+    y2_norm = np.random.normal(loc=dx, scale=1.0, size=1000)
+    
+    result_norm = FI_Expt(y1_norm, y2_norm, dx, ftype="norm")
+    result_gamma = FI_Expt(y1_norm, y2_norm, dx, ftype="gamma")
+    result_rayleigh = FI_Expt(y1_norm, y2_norm, dx, ftype="rayleigh")
 
-    dx = 0.001
+    # Poisson distribution
+    dx_poisson = 0.001
     y1_poi = np.random.poisson(lam=1, size=1000)
-    y2_poi = np.random.poisson(lam=1+dx, size=1000)
-    result4 = FI_Expt(y1_poi, y2_poi, dx, ftype="poisson")
+    y2_poi = np.random.poisson(lam=1 + dx_poisson, size=1000)
+    result_poisson = FI_Expt(y1_poi, y2_poi, dx_poisson, ftype="poisson")
 
-    # check the result is a float.
-    assert isinstance(result1, float)
-    assert isinstance(result2, float)
-    assert isinstance(result3, float)
-    assert isinstance(result4, float)
+    # Verify results are floats
+    assert all(isinstance(res, float) for res in [
+        result_norm, result_gamma, result_rayleigh, result_poisson
+    ])
 
+    # Test invalid distribution type
     with pytest.raises(ValueError):
-        FI_Expt(y1, y2, dx, ftype="invalid")
+        FI_Expt(y1_norm, y2_norm, dx, ftype="invalid")
 
 def test_invalid_input():
     """
-    Test the input validation for the functions in the Cramer-Rao module.
-    This test checks that the functions raise appropriate errors for invalid inputs.
+    Test input validation for functions in the Cramer-Rao module.
+    Verifies appropriate errors are raised for invalid inputs.
     """
+    # Test CFIM with invalid inputs
     with pytest.raises(TypeError):
-        CFIM(np.array([[1, 0], [0, 1]]), None, None) # Invalid input type   
+        CFIM(np.array([[1, 0], [0, 1]]), None, None)
 
     with pytest.raises(TypeError):
-        CFIM(np.array([[1, 0], [0, 1]]), [np.array([[1, 0], [0, 1]])], None) # Invalid input type     
+        CFIM(
+            np.array([[1, 0], [0, 1]]),
+            [np.array([[1, 0], [0, 1]])],
+            None
+        )
 
+    # Test QFIM with invalid LDtype
     with pytest.raises(ValueError):
-        QFIM(np.array([[1, 0], [0, 1]]), [np.array([[1, 0], [0, 1]])], LDtype="invalid") # Invalid input type
+        QFIM(
+            np.array([[1, 0], [0, 1]]),
+            [np.array([[1, 0], [0, 1]])],
+            LDtype="invalid"
+        )
+
+    # Test QFIM with invalid drho
+    with pytest.raises(TypeError):
+        QFIM(np.array([[1, 0], [0, 1]]), None)
+
+    # Test QFIM_Bloch with invalid db
+    with pytest.raises(TypeError):
+        QFIM_Bloch(np.array([[1.0], [0.0], [1.0]]), None)
+
+    # Test logarithmic derivatives with invalid drho
+    with pytest.raises(TypeError):
+        SLD(np.array([[1, 0], [0, 1]]), None)
 
     with pytest.raises(TypeError):
-        QFIM(np.array([[1, 0], [0, 1]]), None) # Invalid input type         
+        LLD(np.array([[1, 0], [0, 1]]), None)
 
     with pytest.raises(TypeError):
-        QFIM_Bloch(np.array([[1.], [0], [1.]]), None) # Invalid input type   
-
-    with pytest.raises(TypeError):  
-        SLD(np.array([[1, 0], [0, 1]]), None) # Invalid input type      
-
-    with pytest.raises(TypeError):  
-        LLD(np.array([[1, 0], [0, 1]]), None) # Invalid input type   
-
-    with pytest.raises(TypeError):  
-        RLD(np.array([[1, 0], [0, 1]]), None) # Invalid input type     
-
-
+        RLD(np.array([[1, 0], [0, 1]]), None)
