@@ -249,8 +249,13 @@ def test_FI_Expt():
     result1 = FI_Expt(y1, y2, dx, ftype="norm")
     result2 = FI_Expt(y1, y2, dx, ftype="gamma")
     result3 = FI_Expt(y1, y2, dx, ftype="rayleigh")
-    result4 = FI_Expt(y1, y2, dx, ftype="poisson")
-    # check the result is a float and approximately 1.0
+
+    dx = 0.001
+    y1_poi = np.random.poisson(lam=1, size=1000)
+    y2_poi = np.random.poisson(lam=1+dx, size=1000)
+    result4 = FI_Expt(y1_poi, y2_poi, dx, ftype="poisson")
+    
+    # check the result is a float.
     assert isinstance(result1, float)
     assert isinstance(result2, float)
     assert isinstance(result3, float)
