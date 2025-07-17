@@ -26,6 +26,32 @@ def test_CramerRao_SLD():
     assert np.allclose(result, np.array([[4., 0.], [0., np.sin(2*theta)**2]])) == 1
     assert np.allclose(resultc, np.array([[4., 0], [0., 0.]])) == 1
 
+    with pytest.raises(ValueError):
+        QFIM(rho, drho, LDtype="invalid")
+
+    with pytest.raises(ValueError):
+        QFIM(rho, drho, LDtype="RLD")  
+    
+    with pytest.raises(ValueError):
+        QFIM(rho, drho, LDtype="LLD")    
+
+def test_CFIM_singleparameter():
+    """
+    Test the Classical Fisher Information Matrix (CFIM) for a single parameter.
+    This test checks the calculation of the CFIM for a specific state and its derivatives.
+    """
+    # parameterized state
+    theta = np.pi/4
+    rho = np.array([[np.cos(theta)**2, np.sin(theta)*np.cos(theta)], 
+                     [np.sin(theta)*np.cos(theta), np.sin(theta)**2]])
+    # derivative of the state w.r.t. theta
+    drho = [np.array([[-np.sin(2*theta), 2*np.cos(2*theta)], 
+                      [2*np.cos(2*theta), np.sin(2*theta)]])]
+    # calculate the CFIM
+    result = CFIM(rho, drho, [])
+    # check the result
+    assert np.allclose(result, 2) == 1
+
 def test_QFIM_Kraus():
     """
     Test the Quantum Fisher Information Matrix (QFIM) for the Kraus representation.
@@ -175,6 +201,21 @@ def test_FIM():
     # check the result
     assert np.allclose(result, 4) == 1    
 
+def test_FIM_multiparameter():
+    """
+    Test the Fisher Information Matrix (FIM) for a single parameter.
+    This test checks the calculation of the FIM for a specific state and its derivatives.
+    """
+    x = 1.
+    theta = np.pi/3
+    p = np.array([np.cos(x*theta)**2, np.sin(x*theta)**2])
+    dp = [np.array([-theta*np.sin(2*x*theta), theta*np.sin(2*x*theta)]), np.array([-x*np.sin(2*x*theta), x*np.sin(2*x*theta)])]
+    # calculate the FIM
+    result = FIM(p,dp)
+    expected = np.array([[4.38649084, 4.1887902], [4.1887902, 4.]])
+    # check the result
+    assert np.allclose(result, expected) == 1      
+
 def test_FI_Expt():
     """
     Test the calculation of the Fisher Information for a specific experiment data.
@@ -184,9 +225,18 @@ def test_FI_Expt():
     y1 = np.random.normal(loc=0.0, scale=1.0, size=1000)
     y2 = np.random.normal(loc=dx, scale=1.0, size=1000)
     # calculate the Fisher Information 
-    result = FI_Expt(y1, y2, dx, ftype="norm")
+    result1 = FI_Expt(y1, y2, dx, ftype="norm")
+    result2 = FI_Expt(y1, y2, dx, ftype="gamma")
+    result3 = FI_Expt(y1, y2, dx, ftype="rayleigh")
+    result4 = FI_Expt(y1, y2, dx, ftype="poisson")
     # check the result is a float and approximately 1.0
-    assert isinstance(result, float)
+    assert isinstance(result1, float)
+    assert isinstance(result2, float)
+    assert isinstance(result3, float)
+    assert isinstance(result4, float)
+
+    with pytest.raises(ValueError):
+        FI_Expt(y1, y2, dx, ftype="invalid")
 
 def test_invalid_input():
     """
