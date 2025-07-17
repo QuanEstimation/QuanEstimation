@@ -5,7 +5,7 @@ from quanestimation.Common.Common import SIC, suN_generator
 from scipy.integrate import quad
 from scipy.stats import norm, poisson, rayleigh, gamma
 
-def CFIM(rho, drho, M=None, eps=1e-8):
+def CFIM(rho, drho, M=[], eps=1e-8):
     r"""
     Calculation of the classical Fisher information (CFI) and classical Fisher 
     information matrix (CFIM) for a density matrix. The entry of CFIM $\mathcal{I}$
@@ -29,7 +29,7 @@ def CFIM(rho, drho, M=None, eps=1e-8):
 
     > **M:** `list of matrices`
         -- A set of positive operator-valued measure (POVM). The default measurement 
-        is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+        is a set of rank-one symmetric informationally complete POVM (SIC-POVM). 
 
     > **eps:** `float`
         -- Machine epsilon.
