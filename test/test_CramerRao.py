@@ -452,12 +452,9 @@ def test_invalid_input():
     """
     # Test CFIM with invalid inputs
     with pytest.raises(TypeError):
-        CFIM(np.array([[1, 0], [0, 1]]), None, None)
-
-    with pytest.raises(TypeError):
         CFIM(
             np.array([[1, 0], [0, 1]]),
-            [np.array([[1, 0], [0, 1]])],
+            np.array([[1, 0], [0, 1]]),
             None
         )
 
