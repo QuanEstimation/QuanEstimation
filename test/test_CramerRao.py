@@ -121,13 +121,15 @@ def test_QFIM_Bloch_highdimension():
     This test checks the calculation of the QFIM for a specific Bloch vector and its derivatives.
     """    
     # Bloch vector
-    b = np.array([0.1, 0.2, 0.3, 0.4, 0.5])
+    theta = np.pi/4
+    phi = np.pi/2
+    b = np.array([np.sin(2*theta)*np.cos(phi), np.sin(2*theta)*np.sin(phi), np.cos(2*theta), 0., 0., 0., 0., 0.])
     # derivatives of the Bloch vector w.r.t. the parameter
-    db = [np.array([0.1, 0.2, 0.3, 0.4, 0.5])]
+    db = [np.array([2*np.cos(2*theta)*np.cos(phi), 2*np.cos(2*theta)*np.sin(phi), -2*np.sin(2*theta), 0., 0., 0., 0., 0.])]
     # calculate the QFIM
     result = QFIM_Bloch(b, db)
     # check the result
-    assert np.allclose(result, 1.2222222222222223) == 1
+    assert np.allclose(result, 8.) == 1
  
 
 def test_QFIM_Gauss_multiparameter():
