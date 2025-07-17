@@ -26,6 +26,10 @@ def test_CramerRao_SLD():
     assert np.allclose(result, np.array([[4., 0.], [0., np.sin(2*theta)**2]])) == 1
     assert np.allclose(resultc, np.array([[4., 0], [0., 0.]])) == 1
 
+    result, SLD_res = QFIM(rho, drho, LDtype="SLD", exportLD=True)
+    expected_SLD = SLD(rho, drho)
+    assert np.allclose(SLD_res, expected_SLD) == 1
+
     with pytest.raises(ValueError):
         QFIM(rho, drho, LDtype="invalid")
 
@@ -163,6 +167,14 @@ def test_QFIM_LLD_singleparameter():
     assert np.allclose(result, expected) == 1
     assert np.allclose(result_QFIM, expected_QFIM) == 1
 
+    result_eigen = LLD(rho, drho, rep="eigen")
+    _, vec = np.linalg.eig(rho)
+    expected_eigen =  vec.conj().transpose() @ result @ vec
+    assert np.allclose(result_eigen, expected_eigen) == 1
+
+    with pytest.raises(ValueError):
+        LLD(rho, drho, rep="invalid")
+
 def test_QFIM_RLD_singleparameter():
     """
     Test the right logarithmic derivative (RLD) for a specific parameterized quantum state.
@@ -180,12 +192,21 @@ def test_QFIM_RLD_singleparameter():
     result = RLD(rho, drho, rep="original")
     expected = (1/(1-eta**2))*np.array([[-1j*eta**2*np.sin(2*theta)**2, -1j*eta*(1-eta*np.cos(2*theta))*np.exp(-1j*phi)*np.sin(2*theta)], 
                                         [1j*eta*(1+np.cos(2*theta))*np.exp(1j*phi)*np.sin(2*theta), 1j*eta**2*np.sin(2*theta)**2]])
+
     # check the result
     result_QFIM = QFIM(rho, drho, LDtype="RLD")
     expected_QFIM = eta**2*np.sin(2*theta)**2/(1.-eta**2)
 
     assert np.allclose(result, expected) == 1
     assert np.allclose(result_QFIM, expected_QFIM) == 1
+
+    result_eigen = RLD(rho, drho, rep="eigen")
+    _, vec = np.linalg.eig(rho)
+    expected_eigen =  vec.conj().transpose() @ result @ vec
+    assert np.allclose(result_eigen, expected_eigen) == 1
+
+    with pytest.raises(ValueError):
+        RLD(rho, drho, rep="invalid")
 
 def test_FIM():
     """
