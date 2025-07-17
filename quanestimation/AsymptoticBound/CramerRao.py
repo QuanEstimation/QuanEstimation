@@ -177,10 +177,9 @@ def FI_Expt(y1, y2, dx, ftype="norm"):
         f_func = lambda x: np.sqrt(rayleigh.pdf(x, mean1, var1)*rayleigh.pdf(x, mean2, var2))
         fidelity, err = quad(f_func, -np.inf, np.inf)
     elif ftype == "poisson":
-        k1 = np.arange(max(y1)+1)
-        k2 = np.arange(max(y2)+1)
-        p1_pois = poisson.pmf(k1, np.mean(y1))
-        p2_pois = poisson.pmf(k2, np.mean(y2))
+        k = np.arange(max(max(y1)+1, max(y2)+1))
+        p1_pois = poisson.pmf(k, np.mean(y1))
+        p2_pois = poisson.pmf(k, np.mean(y2))
         p1_pois, p2_pois = p1_pois/sum(p1_pois), p2_pois/sum(p2_pois)
         fidelity = sum([np.sqrt(p1_pois[i]*p2_pois[i]) for i in range(len(p1_pois))])
     else:
