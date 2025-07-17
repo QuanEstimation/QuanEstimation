@@ -47,34 +47,38 @@ def CFIM(rho, drho, M=[], eps=1e-8):
         solutions.html).
     """
 
-    if type(drho) != list:
+    if not isinstance(drho, list):
         raise TypeError("Please make sure drho is a list!")
 
     if M == []:
         M = SIC(len(rho[0]))
     else:
-        if type(M) != list:
+        if not isinstance(M, list):
             raise TypeError("Please make sure M is a list!")
 
-    m_num = len(M)
-    para_num = len(drho)
-    CFIM_res = np.zeros([para_num, para_num])
-    for pi in range(0, m_num):
-        Mp = M[pi]
-        p = np.real(np.trace(rho @ Mp))
-        Cadd = np.zeros([para_num, para_num])
+    num_measurements = len(M)
+    num_params = len(drho)
+    CFIM_res = np.zeros([num_params, num_params])
+    
+    for i in range(num_measurements):
+        povm_element = M[i]
+        p = np.real(np.trace(rho @ povm_element))
+        c_add = np.zeros([num_params, num_params])
+        
         if p > eps:
-            for para_i in range(0, para_num):
-                drho_i = drho[para_i]
-                dp_i = np.real(np.trace(drho_i @ Mp))
-                for para_j in range(para_i, para_num):
-                    drho_j = drho[para_j]
-                    dp_j = np.real(np.trace(drho_j @ Mp))
-                    Cadd[para_i][para_j] = np.real(dp_i * dp_j / p)
-                    Cadd[para_j][para_i] = np.real(dp_i * dp_j / p)
-        CFIM_res += Cadd
+            for param_i in range(num_params):
+                drho_i = drho[param_i]
+                dp_i = np.real(np.trace(drho_i @ povm_element))
+                
+                for param_j in range(param_i, num_params):
+                    drho_j = drho[param_j]
+                    dp_j = np.real(np.trace(drho_j @ povm_element))
+                    c_add[param_i][param_j] = np.real(dp_i * dp_j / p)
+                    c_add[param_j][param_i] = np.real(dp_i * dp_j / p)
+                    
+        CFIM_res += c_add
 
-    if para_num == 1:
+    if num_params == 1:
         return CFIM_res[0][0]
     else:
         return CFIM_res
