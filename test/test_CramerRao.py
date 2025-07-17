@@ -95,6 +95,41 @@ def test_QFIM_Bloch():
     # check the result
     assert np.allclose(result, np.array([[4.*eta**2, 0.], [0., eta**2*np.sin(2*theta)**2]])) == 1
 
+def test_QFIM_Bloch_pure():
+    """
+    Test the Quantum Fisher Information Matrix (QFIM) for the Bloch vector representation with a 2-dimensional pure state.
+    This test checks the calculation of the QFIM for a specific Bloch vector and its derivatives.
+    """
+    # Bloch vector
+    theta = np.pi/4
+    phi = np.pi/2
+    eta = 1.
+    b = eta*np.array([np.sin(2*theta)*np.cos(phi), np.sin(2*theta)*np.sin(phi), np.cos(2*theta)])
+    # derivatives of the Bloch vector w.r.t. theta, phi
+    db_theta = eta*np.array([2*np.cos(2*theta)*np.cos(phi), 2*np.cos(2*theta)*np.sin(phi), -2*np.sin(2*theta)])
+    db_phi = eta*np.array([-np.sin(2*theta)*np.sin(phi), np.sin(2*theta)*np.cos(phi), 0])
+    # list of derivatives
+    db = [db_theta, db_phi] 
+    # calculate the QFIM
+    result = QFIM_Bloch(b, db)
+    # check the result
+    assert np.allclose(result, np.array([[4.*eta**2, 0.], [0., eta**2*np.sin(2*theta)**2]])) == 1
+
+def test_QFIM_Bloch_highdimension():
+    """
+    Test the Quantum Fisher Information Matrix (QFIM) for the Bloch vector representation with a high-dimensional Bloch vector.
+    This test checks the calculation of the QFIM for a specific Bloch vector and its derivatives.
+    """    
+    # Bloch vector
+    b = np.array([0.1, 0.2, 0.3, 0.4, 0.5])
+    # derivatives of the Bloch vector w.r.t. the parameter
+    db = [np.array([0.1, 0.2, 0.3, 0.4, 0.5])]
+    # calculate the QFIM
+    result = QFIM_Bloch(b, db)
+    # check the result
+    assert np.allclose(result, 1.2222222222222223) == 1
+ 
+
 def test_QFIM_Gauss_multiparameter():
     """
     Test the Quantum Fisher Information Matrix (QFIM) for the Gaussian state representation in the case 
@@ -208,7 +243,7 @@ def test_QFIM_RLD_singleparameter():
     with pytest.raises(ValueError):
         RLD(rho, drho, rep="invalid")
 
-def test_FIM():
+def test_FIM_singleparameter():
     """
     Test the calculation of the Fisher Information Matrix (FIM) for classical scenarios.
     This test checks the calculation of the FIM for classical scenarios.
@@ -254,7 +289,7 @@ def test_FI_Expt():
     y1_poi = np.random.poisson(lam=1, size=1000)
     y2_poi = np.random.poisson(lam=1+dx, size=1000)
     result4 = FI_Expt(y1_poi, y2_poi, dx, ftype="poisson")
-    
+
     # check the result is a float.
     assert isinstance(result1, float)
     assert isinstance(result2, float)
