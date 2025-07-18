@@ -507,353 +507,404 @@ def LLD(rho, drho, rep="original", eps=1e-8):
 
 def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
     r"""
-    Calculation of the quantum Fisher information (QFI) and quantum Fisher 
-    information matrix (QFIM) for all types. The entry of QFIM $\mathcal{F}$
-    is defined as
+    Calculate the quantum Fisher information (QFI) and quantum Fisher 
+    information matrix (QFIM) for all types.
+
+    The entry of QFIM $\mathcal{F}$ is defined as:
     \begin{align}
     \mathcal{F}_{ab}=\frac{1}{2}\mathrm{Tr}(\rho\{L_a, L_b\})
     \end{align}
+    with $L_a, L_b$ being SLD operators.
 
-    with $L_a, L_b$ are SLD operators and 
-
-    and 
+    Alternatively:
     \begin{align}
     \mathcal{F}_{ab}=\mathrm{Tr}(\rho \mathcal{R}_a \mathcal{R}^{\dagger}_b)
     \end{align}
-
-    with $\mathcal{R}_a$ the RLD or LLD operator.
+    with $\mathcal{R}_a$ being the RLD or LLD operator.
 
     Parameters
     ----------
-    > **rho:** `matrix`
-        -- Density matrix.
-
-    > **drho:** `list`
+    rho : matrix
+        Density matrix.
+    drho : list
         Derivatives of the density matrix on the unknown parameters to be 
-        estimated. For example, drho[0] is the derivative vector on the first 
-        parameter.
-
-    > **LDtype:** `string`
-        -- Types of QFI (QFIM) can be set as the objective function. Options are:  
-        "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
-        "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
-        "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
-
-    > **exportLD:** `bool`
-        -- Whether or not to export the values of logarithmic derivatives. If set True
-        then the the values of logarithmic derivatives will be exported.
-
-    > **eps:** `float`
-        -- Machine epsilon.
+        estimated. For example, drho[0] is the derivative on the first parameter.
+    LDtype : str, optional
+        Types of QFI (QFIM) can be set as the objective function. Options:
+        "SLD" (default) - QFI (QFIM) based on symmetric logarithmic derivative
+        "RLD" - QFI (QFIM) based on right logarithmic derivative
+        "LLD" - QFI (QFIM) based on left logarithmic derivative
+    exportLD : bool, optional
+        Whether to export the values of logarithmic derivatives (default: False)
+    eps : float, optional
+        Machine epsilon (default: 1e-8)
 
     Returns
-    ----------
-    **QFI or QFIM:** `float or matrix` 
-        -- For single parameter estimation (the length of drho is equal to one), 
-        the output is QFI and for multiparameter estimation (the length of drho 
-        is more than one), it returns QFIM.
+    -------
+    float or matrix
+        For single parameter estimation (len(drho)=1), returns QFI.
+        For multiparameter estimation (len(drho)>1), returns QFIM.
     """
 
-    if type(drho) != list:
-        raise TypeError("Please make sure drho is a list")
+    if not isinstance(drho, list):
+        raise TypeError("drho must be a list of derivative matrices")
 
-    para_num = len(drho)
+    num_params = len(drho)
+    qfim_result = None
+    log_derivatives = None
 
-    # single parameter estimation
-    if para_num == 1:
+    # Single parameter estimation
+    if num_params == 1:
         if LDtype == "SLD":
-            LD_tp = SLD(rho, drho, eps=eps)
-            SLD_ac = LD_tp @ LD_tp + LD_tp @ LD_tp
-            QFIM_res = np.real(0.5 * np.trace(rho @ SLD_ac))
+            sld = SLD(rho, drho, eps=eps)
+            anticommutator = sld @ sld + sld @ sld
+            qfim_result = np.real(0.5 * np.trace(rho @ anticommutator))
         elif LDtype == "RLD":
-            LD_tp = RLD(rho, drho, eps=eps)
-            QFIM_res = np.real(np.trace(rho @ LD_tp @ LD_tp.conj().transpose()))
+            rld = RLD(rho, drho, eps=eps)
+            qfim_result = np.real(np.trace(rho @ rld @ rld.conj().T))
         elif LDtype == "LLD":
-            LD_tp = LLD(rho, drho, eps=eps)
-            QFIM_res = np.real(np.trace(rho @ LD_tp @ LD_tp.conj().transpose()))
+            lld = LLD(rho, drho, eps=eps)
+            qfim_result = np.real(np.trace(rho @ lld @ lld.conj().T))
         else:
-            raise ValueError("{!r} is not a valid value for LDtype, supported values are 'SLD', 'RLD' and 'LLD'.".format(LDtype))
+            valid_types = ["SLD", "RLD", "LLD"]
+            raise ValueError(
+                f"Invalid LDtype: '{LDtype}'. Supported types: {', '.join(valid_types)}"
+            )
+        log_derivatives = sld if LDtype == "SLD" else rld if LDtype == "RLD" else lld
 
-    # multiparameter estimation
+    # Multiparameter estimation
     else:
         if LDtype == "SLD":
-            QFIM_res = np.zeros([para_num, para_num])
-            LD_tp = SLD(rho, drho, eps=eps)
-            for para_i in range(0, para_num):
-                for para_j in range(para_i, para_num):
-                    SLD_ac = LD_tp[para_i] @ LD_tp[para_j] + LD_tp[para_j] @ LD_tp[para_i]
-                    QFIM_res[para_i][para_j] = np.real(0.5 * np.trace(rho @ SLD_ac))
-                    QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
-        elif LDtype == "RLD":
-            QFIM_res = np.zeros((para_num, para_num), dtype=np.complex128)
-            LD_tp = RLD(rho, drho, eps=eps)
-            for para_i in range(0, para_num):
-                for para_j in range(para_i, para_num):
-                    QFIM_res[para_i][para_j] = np.trace(rho @ LD_tp[para_i] @ LD_tp[para_j].conj().transpose())
-                    QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j].conj()
-        elif LDtype == "LLD":
-            QFIM_res = np.zeros((para_num, para_num), dtype=np.complex128)
-            LD_tp = LLD(rho, drho, eps=eps)
-            for para_i in range(0, para_num):
-                for para_j in range(para_i, para_num):
-                    QFIM_res[para_i][para_j] = np.trace(rho @ LD_tp[para_i] @ LD_tp[para_j].conj().transpose())
-                    QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j].conj()
-        else:
-            raise ValueError("{!r} is not a valid value for LDtype, supported values are 'SLD', 'RLD' and 'LLD'.".format(LDtype))
+            qfim_result = np.zeros((num_params, num_params))
+            sld_list = SLD(rho, drho, eps=eps)
+            for i in range(num_params):
+                for j in range(i, num_params):
+                    anticommutator = sld_list[i] @ sld_list[j] + sld_list[j] @ sld_list[i]
+                    qfim_result[i, j] = np.real(0.5 * np.trace(rho @ anticommutator))
+                    qfim_result[j, i] = qfim_result[i, j]
+            log_derivatives = sld_list
 
-    if exportLD == False:
-        return QFIM_res
-    else:
-        return QFIM_res, LD_tp
+        elif LDtype == "RLD":
+            qfim_result = np.zeros((num_params, num_params), dtype=np.complex128)
+            rld_list = RLD(rho, drho, eps=eps)
+            for i in range(num_params):
+                for j in range(i, num_params):
+                    term = np.trace(rho @ rld_list[i] @ rld_list[j].conj().T)
+                    qfim_result[i, j] = term
+                    qfim_result[j, i] = term.conj()
+            log_derivatives = rld_list
+
+        elif LDtype == "LLD":
+            qfim_result = np.zeros((num_params, num_params), dtype=np.complex128)
+            lld_list = LLD(rho, drho, eps=eps)
+            for i in range(num_params):
+                for j in range(i, num_params):
+                    term = np.trace(rho @ lld_list[i] @ lld_list[j].conj().T)
+                    qfim_result[i, j] = term
+                    qfim_result[j, i] = term.conj()
+            log_derivatives = lld_list
+
+        else:
+            valid_types = ["SLD", "RLD", "LLD"]
+            raise ValueError(
+                f"Invalid LDtype: '{LDtype}'. Supported types: {', '.join(valid_types)}"
+            )
+
+    if exportLD:
+        return qfim_result, log_derivatives
+    return qfim_result
 
 
 def QFIM_Kraus(rho0, K, dK, LDtype="SLD", exportLD=False, eps=1e-8):
     """
-    Calculation of the quantum Fisher information (QFI) and quantum Fisher 
-    information matrix (QFIM) with Kraus operator(s) for all types.
+    Calculate the quantum Fisher information (QFI) and quantum Fisher 
+    information matrix (QFIM) with Kraus operators for all types.
 
     Parameters
     ----------
-    > **rho0:** `matrix`
-        -- Initial state (density matrix).
-
-    > **K:** `list`
-        -- Kraus operator(s).
-
-    > **dK:** `list` 
-        -- Derivatives of the Kraus operator(s) on the unknown parameters to be 
-        estimated.
-
-    > **LDtype:** `string`
-        -- Types of QFI (QFIM) can be set as the objective function. Options are:  
-        "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
-        "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
-        "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
-
-    > **exportLD:** `bool`
-        -- Whether or not to export the values of logarithmic derivatives. If set True
-        then the the values of logarithmic derivatives will be exported.
-
-    > **eps:** `float`
-        -- Machine epsilon.
+    rho0 : matrix
+        Initial state (density matrix).
+    K : list
+        Kraus operators.
+    dK : list 
+        Derivatives of the Kraus operators on the unknown parameters to be 
+        estimated. Each element dK[i] is a list of derivatives for the i-th parameter.
+    LDtype : str, optional
+        Types of QFI (QFIM) can be set as the objective function. Options:
+        "SLD" (default) - QFI (QFIM) based on symmetric logarithmic derivative
+        "RLD" - QFI (QFIM) based on right logarithmic derivative
+        "LLD" - QFI (QFIM) based on left logarithmic derivative
+    exportLD : bool, optional
+        Whether to export the values of logarithmic derivatives (default: False)
+    eps : float, optional
+        Machine epsilon (default: 1e-8)
 
     Returns
-    ----------
-    **QFI or QFIM:** `float or matrix`
-        -- For single parameter estimation (the length of drho is equal to one), 
-        the output is QFI and for multiparameter estimation (the length of drho 
-        is more than one), it returns QFIM.
+    -------
+    float or matrix
+        For single parameter estimation (len(drho)=1), returns QFI.
+        For multiparameter estimation (len(drho)>1), returns QFIM.
     """
 
-    dK = [[dK[i][j] for i in range(len(K))] for j in range(len(dK[0]))]
-    rho = sum([Ki @ rho0 @ Ki.conj().T for Ki in K])
+    # Transpose dK: from [parameters][operators] to [operators][parameters]
+    dK_transposed = [
+        [dK[i][j] for i in range(len(K))] 
+        for j in range(len(dK[0]))
+    ]
+    
+    # Compute the evolved density matrix
+    rho = sum(Ki @ rho0 @ Ki.conj().T for Ki in K)
+    
+    # Compute the derivatives of the density matrix
     drho = [
-                sum(
-                    [
-                        (dKi @ rho0 @ Ki.conj().T+ Ki @ rho0 @ dKi.conj().T)
-                        for (Ki, dKi) in zip(K, dKj)
-                    ]
-                )
-                for dKj in dK
-            ]
+        sum(
+            dKi @ rho0 @ Ki.conj().T + Ki @ rho0 @ dKi.conj().T
+            for Ki, dKi in zip(K, dKj)
+        )
+        for dKj in dK_transposed
+    ]
+    
     return QFIM(rho, drho, LDtype=LDtype, exportLD=exportLD, eps=eps)
 
 
 def QFIM_Bloch(r, dr, eps=1e-8):
     """
-    Calculation of the SLD based quantum Fisher information (QFI) and quantum  
+    Calculate the SLD-based quantum Fisher information (QFI) and quantum  
     Fisher information matrix (QFIM) in Bloch representation.
 
     Parameters
     ----------
-    > **r:** `np.array`
-        -- Parameterized Bloch vector.
-
-    > **dr:** `list `
-        -- Derivatives of the Bloch vector on the unknown parameters to be 
-        estimated. For example, dr[0] is the derivative vector on the first 
-        parameter.
-
-    > **eps:** `float`
-        -- Machine epsilon.
+    r : np.array
+        Parameterized Bloch vector.
+    dr : list
+        Derivatives of the Bloch vector on the unknown parameters to be 
+        estimated. Each element dr[i] is the derivative vector for the i-th parameter.
+    eps : float, optional
+        Machine epsilon (default: 1e-8)
 
     Returns
-    ----------
-    **QFI or QFIM in Bloch representation:** `float or matrix`
-        -- For single parameter estimation (the length of drho is equal to one), 
-        the output is QFI and for multiparameter estimation (the length of drho 
-        is more than one), it returns QFIM.
+    -------
+    float or matrix
+        For single parameter estimation (len(dr)=1), returns QFI.
+        For multiparameter estimation (len(dr)>1), returns QFIM.
+
+    Raises
+    ------
+    TypeError
+        If dr is not a list
+    ValueError
+        If the dimension of the Bloch vector is invalid
     """
 
-    if type(dr) != list:
-        raise TypeError("Please make sure dr is a list")
+    if not isinstance(dr, list):
+        raise TypeError("dr must be a list of derivative vectors")
 
-    para_num = len(dr)
-    QFIM_res = np.zeros([para_num, para_num])
+    num_params = len(dr)
+    qfim_result = np.zeros((num_params, num_params))
 
+    # Calculate dimension from Bloch vector length
     dim_float = np.sqrt(len(r) + 1)
     if dim_float.is_integer():
         dim = int(dim_float)
     else:
-        raise ValueError("The dimension of the Bloch vector is wrong")
+        raise ValueError("Invalid Bloch vector dimension")
 
-    Lambda = suN_generator(dim)
+    # Get SU(N) generators
+    lambda_generators = suN_generator(dim)
 
+    # Handle single-qubit system
     if dim == 2:
-        #### single-qubit system ####
         r_norm = np.linalg.norm(r) ** 2
+        
+        # Pure state case
         if np.abs(r_norm - 1.0) < eps:
-            for para_i in range(0, para_num):
-                for para_j in range(para_i, para_num):
-                    QFIM_res[para_i][para_j] = np.real(np.inner(dr[para_i], dr[para_j]))
-                    QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
+            for i in range(num_params):
+                for j in range(i, num_params):
+                    qfim_result[i, j] = np.real(np.inner(dr[i], dr[j]))
+                    qfim_result[j, i] = qfim_result[i, j]
+        # Mixed state case
         else:
-            for para_i in range(0, para_num):
-                for para_j in range(para_i, para_num):
-                    QFIM_res[para_i][para_j] = np.real(
-                        np.inner(dr[para_i], dr[para_j])
-                        + np.inner(r, dr[para_i])
-                        * np.inner(r, dr[para_j])
-                        / (1 - r_norm)
-                    )
-                    QFIM_res[para_j][para_i] = QFIM_res[para_i][para_j]
+            for i in range(num_params):
+                for j in range(i, num_params):
+                    term1 = np.inner(dr[i], dr[j])
+                    term2 = (np.inner(r, dr[i]) * np.inner(r, dr[j])) / (1 - r_norm)
+                    qfim_result[i, j] = np.real(term1 + term2)
+                    qfim_result[j, i] = qfim_result[i, j]
+    # Handle higher-dimensional systems
     else:
-        rho = np.identity(dim, dtype=np.complex128) / dim
-        for di in range(dim**2 - 1):
-            rho += np.sqrt(dim * (dim - 1) / 2) * r[di] * Lambda[di] / dim
+        # Reconstruct density matrix from Bloch vector
+        rho = np.eye(dim, dtype=np.complex128) / dim
+        for idx in range(dim**2 - 1):
+            coeff = np.sqrt(dim * (dim - 1) / 2) * r[idx] / dim
+            rho += coeff * lambda_generators[idx]
 
+        # Calculate G matrix
         G = np.zeros((dim**2 - 1, dim**2 - 1), dtype=np.complex128)
-        for row_i in range(dim**2 - 1):
-            for col_j in range(row_i, dim**2 - 1):
-                anti_commu = Lambda[row_i] @ Lambda[col_j] + Lambda[col_j] @ Lambda[row_i]
-                G[row_i][col_j] = 0.5 * np.trace(rho @ anti_commu)
-                G[col_j][row_i] = G[row_i][col_j]
-
-        mat_tp = G * dim / (2 * (dim - 1)) - np.dot(
-            np.array(r).reshape(len(r), 1), np.array(r).reshape(1, len(r))
-        )
-        mat_inv = inv(mat_tp)
-
-        for para_m in range(0, para_num):
-            for para_n in range(para_m, para_num):
-                QFIM_res[para_m][para_n] = np.real(
-                    np.dot(
-                        np.array(dr[para_n]).reshape(1, len(r)),
-                        np.dot(mat_inv, np.array(dr[para_m]).reshape(len(r), 1)),
-                    )[0][0]
+        for i in range(dim**2 - 1):
+            for j in range(i, dim**2 - 1):
+                anticommutator = (
+                    lambda_generators[i] @ lambda_generators[j] + 
+                    lambda_generators[j] @ lambda_generators[i]
                 )
-                QFIM_res[para_n][para_m] = QFIM_res[para_m][para_n]
+                G[i, j] = 0.5 * np.trace(rho @ anticommutator)
+                G[j, i] = G[i, j]
 
-    if para_num == 1:
-        return QFIM_res[0][0]
-    else:
-        return QFIM_res
+        # Calculate matrix for inversion
+        r_vec = np.array(r).reshape(len(r), 1)
+        mat = G * dim / (2 * (dim - 1)) - r_vec @ r_vec.T
+        mat_inv = inv(mat)
+
+        # Calculate QFIM
+        for i in range(num_params):
+            for j in range(i, num_params):
+                dr_i = np.array(dr[i]).reshape(1, len(r))
+                dr_j = np.array(dr[j]).reshape(len(r), 1)
+                qfim_result[i, j] = np.real(dr_i @ mat_inv @ dr_j)[0, 0]
+                qfim_result[j, i] = qfim_result[i, j]
+
+    return qfim_result[0, 0] if num_params == 1 else qfim_result
 
 
 def QFIM_Gauss(R, dR, D, dD):
     """
-    Calculation of the SLD based quantum Fisher information (QFI) and quantum 
-    Fisher information matrix (QFIM) with gaussian states.
+    Calculate the SLD-based quantum Fisher information (QFI) and quantum 
+    Fisher information matrix (QFIM) for Gaussian states.
 
     Parameters
     ----------
-    > **R:** `array` 
-        -- First-order moment.
-
-    > **dR:** `list`
-        -- Derivatives of the first-order moment on the unknown parameters to be 
-        estimated. For example, dR[0] is the derivative vector on the first 
-        parameter.
-
-    > **D:** `matrix`
-        -- Second-order moment.
-
-    > **dD:** `list`
-        -- Derivatives of the second-order moment on the unknown parameters to be 
-        estimated. For example, dD[0] is the derivative vector on the first 
-        parameter.
-
-    > **eps:** `float`
-        -- Machine epsilon.
+    R : array
+        First-order moment (displacement vector).
+    dR : list
+        Derivatives of the first-order moment with respect to the unknown parameters.
+        Each element dR[i] is the derivative vector for the i-th parameter.
+    D : matrix
+        Second-order moment (covariance matrix).
+    dD : list
+        Derivatives of the second-order moment with respect to the unknown parameters.
+        Each element dD[i] is the derivative matrix for the i-th parameter.
 
     Returns
-    ----------
-    **QFI or QFIM with gaussian states:** `float or matrix`
-        -- For single parameter estimation (the length of drho is equal to one), 
-        the output is QFI and for multiparameter estimation (the length of drho 
-        is more than one), it returns QFIM.
+    -------
+    float or matrix
+        For single parameter estimation (len(dR)=1), returns QFI.
+        For multiparameter estimation (len(dR)>1), returns QFIM.
+
+    Notes
+    -----
+    This function follows the approach from:
+    [1] Monras, A. (2013). Phase space formalism for quantum estimation of Gaussian states.
     """
 
-    para_num = len(dR)
-    m = int(len(R) / 2)
-    QFIM_res = np.zeros([para_num, para_num])
+    num_params = len(dR)
+    m = len(R) // 2  # Number of modes
+    qfim = np.zeros((num_params, num_params))
 
-    C = np.array(
+    # Compute the covariance matrix from the second-order moments and displacement
+    cov_matrix = np.array(
         [
             [D[i][j] - R[i] * R[j] for j in range(2 * m)]
             for i in range(2 * m)
         ]
     )
-    dC = [
-        np.array(
-            [
-                [
-                    dD[k][i][j] - dR[k][i] * R[j] - R[i] * dR[k][j]
-                    for j in range(2 * m)
-                ]
-                for i in range(2 * m)
-            ]
-        )
-        for k in range(para_num)
-    ]
 
-    C_sqrt = sqrtm(C)
-    J = np.kron([[0, 1], [-1, 0]], np.eye(m))
-    B = C_sqrt @ J @ C_sqrt
+    # Compute the derivatives of the covariance matrix
+    dcov = []
+    for k in range(num_params):
+        dcov_k = np.zeros((2 * m, 2 * m))
+        for i in range(2 * m):
+            for j in range(2 * m):
+                dcov_k[i, j] = dD[k][i][j] - dR[k][i] * R[j] - R[i] * dR[k][j]
+        dcov.append(dcov_k)
+
+    # Compute the square root of the covariance matrix
+    cov_sqrt = sqrtm(cov_matrix)
+
+    # Define the symplectic matrix J for m modes
+    J_block = np.array([[0, 1], [-1, 0]])
+    J = np.kron(J_block, np.eye(m))
+
+    # Compute the matrix B = cov_sqrt @ J @ cov_sqrt
+    B = cov_sqrt @ J @ cov_sqrt
+
+    # Permutation matrix to rearrange the basis
     P = np.eye(2 * m)
-    P = np.vstack([P[:][::2], P[:][1::2]])
-    T, Q = schur(B)
-    vals = eigvals(B)
-    c = vals[::2].imag
-    Diag = np.diagflat(c**-0.5)
-    S = inv(J @ C_sqrt @ Q @ P @ np.kron([[0, 1], [-1, 0]], -Diag)).T @ P.T
+    # Rearrange the basis: first all q's then all p's
+    P = np.vstack([P[::2], P[1::2]])
 
-    sx = np.array([[0.0, 1.0], [1.0, 0.0]])
-    sy = np.array([[0.0, -1.0j], [1.0j, 0.0]])
-    sz = np.array([[1.0, 0.0], [0.0, -1.0]])
-    a_Gauss = [1j * sy, sz, np.eye(2), sx]
+    # Schur decomposition of B
+    _, Q = schur(B)
+    eigenvalues = eigvals(B)
+    # Extract the imaginary parts of every other eigenvalue
+    c = eigenvalues[::2].imag
 
-    es = [
-        [np.eye(1, m**2, m * i + j).reshape(m, m) for j in range(m)] for i in range(m)
-    ]
+    # Diagonal matrix with entries 1/sqrt(c_i) for each mode
+    diag_inv_sqrt = np.diagflat(1.0 / np.sqrt(c))
 
-    As = [[np.kron(s, a_Gauss[i]) / np.sqrt(2) for s in es] for i in range(4)]
-    gs = [
-        [[[np.trace(inv(S) @ dC @ inv(S.T) @ aa.T) for aa in a] for a in A] for A in As]
-        for dC in dC
-    ]
-    G = [np.zeros((2 * m, 2 * m)).astype(np.longdouble) for _ in range(para_num)]
+    # Construct the matrix S
+    temp1 = J @ cov_sqrt @ Q
+    temp2 = P @ np.kron(np.array([[0, 1], [-1, 0]]), -diag_inv_sqrt)
+    S = inv(temp1 @ temp2).T @ P.T
 
-    for i in range(para_num):
+    # Define the basis matrices for the Gaussian representation
+    sigma_x = np.array([[0.0, 1.0], [1.0, 0.0]])
+    sigma_y = np.array([[0.0, -1.0j], [1.0j, 0.0]])
+    sigma_z = np.array([[1.0, 0.0], [0.0, -1.0]])
+    identity = np.eye(2)
+    a_gauss = [1j * sigma_y, sigma_z, identity, sigma_x]
+
+    # Construct the basis matrices for the m-mode system
+    es = []
+    for i in range(m):
+        row = []
         for j in range(m):
-            for k in range(m):
-                for l in range(4):
-                    G[i] += np.real(
-                        gs[i][l][j][k]
-                        / (4 * c[j] * c[k] + (-1) ** (l + 1))
-                        * inv(S.T)
-                        @ As[l][j][k]
-                        @ inv(S)
+            e_ij = np.eye(1, m * m, m * i + j).reshape(m, m)
+            row.append(e_ij)
+        es.append(row)
+
+    # As: a list of two-mode basis matrices for each of the four types
+    As = []
+    for a in a_gauss:
+        A_type = []
+        for i in range(m):
+            for j in range(m):
+                A_ij = np.kron(es[i][j], a) / np.sqrt(2)
+                A_type.append(A_ij)
+        As.append(A_type)
+
+    # Compute the coefficients g for each parameter and each basis matrix
+    g = []
+    for k in range(num_params):
+        g_k = []
+        for A_type in As:
+            g_type = []
+            for A_mat in A_type:
+                term = np.trace(inv(S) @ dcov[k] @ inv(S.T) @ A_mat.T)
+                g_type.append(term)
+            g_k.append(g_type)
+        g.append(g_k)
+
+    # Initialize the matrices G for each parameter
+    G_matrices = [np.zeros((2 * m, 2 * m), dtype=np.complex128) for _ in range(num_params)]
+
+    # Construct the matrices G for each parameter
+    for k in range(num_params):
+        for i in range(m):
+            for j in range(m):
+                for l in range(4):  # For each of the four types
+                    denom = 4 * c[i] * c[j] + (-1) ** (l + 1)
+                    A_l_ij = As[l][i * m + j]
+                    G_matrices[k] += np.real(
+                        g[k][l][i * m + j] / denom * inv(S.T) @ A_l_ij @ inv(S)
                     )
 
-    QFIM_res += np.real(
-        [
-            [np.trace(G[i] @ dC[j]) + dR[i] @ inv(C) @ dR[j] for j in range(para_num)]
-            for i in range(para_num)
-        ]
-    )
+    # Compute the QFIM
+    for i in range(num_params):
+        for j in range(num_params):
+            term1 = np.trace(G_matrices[i] @ dcov[j])
+            term2 = dR[i] @ inv(cov_matrix) @ dR[j]
+            qfim[i, j] = np.real(term1 + term2)
 
-    if para_num == 1:
-        return QFIM_res[0][0]
+    if num_params == 1:
+        return qfim[0, 0]
     else:
-        return QFIM_res
+        return qfim
