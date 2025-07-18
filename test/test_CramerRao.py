@@ -206,6 +206,12 @@ def test_QFIM_Bloch_highdimension():
     result = QFIM_Bloch(b, db)
     assert np.allclose(result, 8.0)
 
+    b_invalid = np.array([
+        0.0, 0.0, 0.0, 0.0, 0.0
+    ])
+    with pytest.raises(ValueError):
+        QFIM_Bloch(b_invalid, db)
+
 
 def test_QFIM_Gauss_multiparameter():
     """
