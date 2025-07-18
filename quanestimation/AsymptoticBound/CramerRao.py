@@ -19,32 +19,33 @@ def CFIM(rho, drho, M=[], eps=1e-8):
 
     Parameters
     ----------
-    > **rho:** `matrix`
-        -- Density matrix.
+    rho : matrix
+        Density matrix.
 
-    > **drho:** `list`
-        -- Derivatives of the density matrix on the unknown parameters to be 
+    drho : list
+        Derivatives of the density matrix on the unknown parameters to be 
         estimated. For example, drho[0] is the derivative vector on the first 
         parameter.
 
-    > **M:** `list of matrices`
-        -- A set of positive operator-valued measure (POVM). The default measurement 
+    M : list of matrices, optional
+        A set of positive operator-valued measure (POVM). The default measurement 
         is a set of rank-one symmetric informationally complete POVM (SIC-POVM). 
 
-    > **eps:** `float`
-        -- Machine epsilon.
+    eps : float, optional
+        Machine epsilon.
 
     Returns
     ----------
-    **CFI (CFIM):** `float or matrix` 
-        -- For single parameter estimation (the length of drho is equal to one), 
+    float or matrix
+        For single parameter estimation (the length of drho is equal to one), 
         the output is CFI and for multiparameter estimation (the length of drho 
         is more than one), it returns CFIM.
     
-    **Note:** 
-        SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-        which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
-        solutions.html).
+    Note
+    ----
+    SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+    which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
+    solutions.html).
     """
 
     if not isinstance(drho, list):
@@ -97,21 +98,21 @@ def FIM(p, dp, eps=1e-8):
 
     Parameters
     ----------
-    > **p:** `array` 
-        -- The probability distribution.
+    p : array 
+        The probability distribution.
 
-    > **dp:** `list`
-        -- Derivatives of the probability distribution on the unknown parameters to 
+    dp : list
+        Derivatives of the probability distribution on the unknown parameters to 
         be estimated. For example, dp[0] is the derivative vector on the first 
         parameter.
 
-    > **eps:** `float`
-        -- Machine epsilon.
+    eps : float, optional
+        Machine epsilon.
 
     Returns
     ----------
-    **CFI (CFIM):** `float or matrix` 
-        -- For single parameter estimation (the length of drho is equal to one), 
+    float or matrix
+        For single parameter estimation (the length of drho is equal to one), 
         the output is CFI and for multiparameter estimation (the length of drho 
         is more than one), it returns CFIM.
     """
@@ -153,7 +154,7 @@ def FI_Expt(data_true, data_shifted, delta_x, ftype="norm"):
         Experimental data obtained at parameter value shifted by delta_x.
     delta_x : float
         Small known parameter shift.
-    distribution_type : str, optional
+    ftype : str, optional
         Probability distribution of the data. Options:
         - "norm": normal distribution (default)
         - "gamma": gamma distribution
@@ -166,7 +167,7 @@ def FI_Expt(data_true, data_shifted, delta_x, ftype="norm"):
         Classical Fisher information
 
     Notes
-    ----
+    -----
     The current implementation may be unstable and is subject to future modification.
     """
     fidelity = 0.0
@@ -236,17 +237,14 @@ def SLD(rho, drho, rep="original", eps=1e-8):
     ----------
     rho : matrix
         Density matrix.
-
     drho : list
         Derivatives of the density matrix on the unknown parameters to be 
         estimated. For example, drho[0] is the derivative vector on the first 
         parameter.
-
-    rep : string, optional
+    rep : str, optional
         The basis for the SLDs. Options are:  
         "original" (default) - basis same as input density matrix  
         "eigen" - basis same as eigenspace of density matrix
-
     eps : float, optional
         Machine epsilon (default: 1e-8)
 
@@ -339,7 +337,7 @@ def RLD(rho, drho, rep="original", eps=1e-8):
         Derivatives of the density matrix on the unknown parameters to be 
         estimated. For example, drho[0] is the derivative vector on the first 
         parameter.
-    rep : string, optional
+    rep : str, optional
         The basis for the RLD(s). Options are:  
         "original" (default) - basis same as input density matrix  
         "eigen" - basis same as eigenspace of density matrix
@@ -432,7 +430,7 @@ def LLD(rho, drho, rep="original", eps=1e-8):
         Derivatives of the density matrix on the unknown parameters to be 
         estimated. For example, drho[0] is the derivative vector on the first 
         parameter.
-    rep : string, optional
+    rep : str, optional
         The basis for the LLD(s). Options are:  
         "original" (default) - basis same as input density matrix  
         "eigen" - basis same as eigenspace of density matrix
@@ -524,8 +522,8 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
 
     Parameters
     ----------
-    > **rho:** `matrix`
-        -- Density matrix.
+    rho : matrix 
+        Density matrix.
 
     drho : list of matrices
         Derivatives of the density matrix with respect to the unknown parameters. 
