@@ -165,7 +165,7 @@ def FI_Expt(data_true, data_shifted, delta_x, ftype="norm"):
     float
         Classical Fisher information
 
-    Note
+    Notes
     ----
     The current implementation may be unstable and is subject to future modification.
     """
@@ -524,18 +524,21 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
 
     Parameters
     ----------
-    rho : matrix
-        Density matrix.
+    > **rho:** `matrix`
+        -- Density matrix.
 
-    drho : list
-        Derivatives of the density matrix on the unknown parameters to be 
-        estimated. For example, drho[0] is the derivative on the first parameter.
+    drho : list of matrices
+        Derivatives of the density matrix with respect to the unknown parameters. 
+        Each element in the list is a matrix of the same dimension as `rho` and 
+        represents the partial derivative of the density matrix with respect to 
+        one parameter. For example, `drho[0]` is the derivative with respect to 
+        the first parameter.
 
     LDtype : str, optional
-        Types of QFI (QFIM) can be set as the objective function. Options:
-        "SLD" (default) - QFI (QFIM) based on symmetric logarithmic derivative
-        "RLD" - QFI (QFIM) based on right logarithmic derivative
-        "LLD" - QFI (QFIM) based on left logarithmic derivative
+        Specifies the type of logarithmic derivative to use for QFI/QFIM calculation:
+        - "SLD": Symmetric Logarithmic Derivative (default)
+        - "RLD": Right Logarithmic Derivative
+        - "LLD": Left Logarithmic Derivative
 
     exportLD : bool, optional
         Whether to export the values of logarithmic derivatives (default: False)
