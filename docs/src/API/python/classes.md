@@ -1,7 +1,5 @@
 This part is the classes of the Python-Julia package which written in Python.
 
-<!-- This part contains the methods and structs in Julia that are called by the Python-Julia packagea and the full Julia package. -->
-
 ## **Dynamics**
 ::: quanestimation.Lindblad
 
@@ -30,9 +28,6 @@ differential evolution (DE) and deep deterministic policy gradients (DDPG).
 
 ### **Control Optimization DE**
 ::: quanestimation.DE_Copt
-
-<!-- ### **Control Optimization with DDPG**
-::: quanestimation.DDPG_Copt -->
 
 ---
 

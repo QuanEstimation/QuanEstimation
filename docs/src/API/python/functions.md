@@ -1,91 +1,91 @@
-This part is the functions of the Python-Julia package which written in Python.
+# Python Functions
 
-## **Kraus** 
+## Kraus 
 ::: quanestimation.Kraus
 
 ---
 
-## **Metrological resources**
-<!-- ### **Spin squeezing** -->
+## Metrological resources
+### Spin squeezing
 ::: quanestimation.SpinSqueezing
-<!-- ### **Target time** -->
+### Target time
 ::: quanestimation.TargetTime
 
 ---
 
-## **Quantum Cramér-Rao bounds**
-<!-- ### **Symmetric logarithmic derivative (SLD)** -->
+## Quantum Cramér-Rao bounds
+### Symmetric logarithmic derivative (SLD)
 ::: quanestimation.SLD
-<!-- ### **Right logarithmic derivative (RLD)** -->
+### Right logarithmic derivative (RLD)
 ::: quanestimation.RLD
-<!-- ### **Left logarithmic derivative (LLD)** -->
+### Left logarithmic derivative (LLD)
 ::: quanestimation.LLD
-<!-- ### **Quantum Fisher information matrix (QFIM)** -->
+### Quantum Fisher information matrix (QFIM)
 ::: quanestimation.QFIM
-<!-- ### **Quantum Fisher information matrix with Kraus operators** -->
+### Quantum Fisher information matrix with Kraus operators
 ::: quanestimation.QFIM_Kraus
-<!-- ### **Classical Fisher information matrix (CFIM)** -->
+### Classical Fisher information matrix (CFIM)
 ::: quanestimation.CFIM
-<!-- ### **Fisher information matrix (FIM)** -->
+### Fisher information matrix (FIM)
 ::: quanestimation.FIM
-<!-- ### **Fisher information (FI_Expt)** -->
+### Fisher information (FI_Expt)
 ::: quanestimation.FI_Expt
-<!-- ### **Quantum Fisher information matrix in Bloch representation** -->
+### Quantum Fisher information matrix in Bloch representation
 ::: quanestimation.QFIM_Bloch
-<!-- ### **Quantum Fisher information matrix with Gaussian states** -->
+### Quantum Fisher information matrix with Gaussian states
 ::: quanestimation.QFIM_Gauss
 
 ---
 
-## **Holevo Cramér-Rao bound**
+## Holevo Cramér-Rao bound
 ::: quanestimation.HCRB
 
 ---
 
-## **Nagaoka-Hayashi bound**
+## Nagaoka-Hayashi bound
 ::: quanestimation.NHB
 
 ---
 
-## **Bayesian Cramér-Rao bounds**
-<!-- ### **Bayesian classical Fisher information matrix (BCFIM)** # -->
+## Bayesian Cramér-Rao bounds
+### Bayesian classical Fisher information matrix (BCFIM)
 ::: quanestimation.BCFIM
-<!-- ### **Bayesian quantum Fisher information matrix (BQFIM)** # -->
+### Bayesian quantum Fisher information matrix (BQFIM)
 ::: quanestimation.BQFIM
-<!-- ### **Bayesian Cramér-Rao bound (BCRB)** # -->
+### Bayesian Cramér-Rao bound (BCRB)
 ::: quanestimation.BCRB
-<!-- ### **Bayesian quantum Cramér-Rao bound (BQCRB)** # -->
+### Bayesian quantum Cramér-Rao bound (BQCRB)
 ::: quanestimation.BQCRB
-<!-- ### **Optimal biased bound (OBB)** # -->
+### Optimal biased bound (OBB)
 ::: quanestimation.OBB
-<!-- ### **Van Trees bound (VTB)** # -->
+### Van Trees bound (VTB)
 ::: quanestimation.VTB
-<!-- ### **Qauntum Van Trees bound (QVTB)** # -->
+### Quantum Van Trees bound (QVTB)
 ::: quanestimation.QVTB
 
 ---
 
-## **Quantum Ziv-Zakai bound**
+## Quantum Ziv-Zakai bound
 ::: quanestimation.QZZB
 
 ---
 
-## **Bayesian estimation**
-<!-- ### **Maximum a posteriori probability (MAP)** -->
+## Bayesian estimation
+### Maximum a posteriori probability (MAP)
 ::: quanestimation.Bayes
-<!-- ### **Maximum likelihood estimation (MLE)** -->
+### Maximum likelihood estimation (MLE)
 ::: quanestimation.MLE
-<!-- ### **Average Bayesian cost (BayesCost)** -->
+### Average Bayesian cost (BayesCost)
 ::: quanestimation.BayesCost
-<!-- ### **Bayesian cost bound(BCB)** -->
+### Bayesian cost bound (BCB)
 ::: quanestimation.BCB
 
 ---
 
-## **Common**
-<!-- ### **Bayes input** -->
+## Common utilities
+### Bayes input
 ::: quanestimation.BayesInput
-<!-- ### **SIC-POVM** -->
+### SIC-POVM
 ::: quanestimation.SIC
-<!-- ### **SU($N$) generators** -->
+### SU($N$) generators
 ::: quanestimation.suN_generator
