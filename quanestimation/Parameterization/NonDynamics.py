@@ -3,29 +3,36 @@ import numpy as np
 
 def Kraus(rho0, K, dK):
     r"""
-    The parameterization of a state is
+    Parameterization of a quantum state using Kraus operators.
+
+    The evolved density matrix $\rho$ is given by
     \begin{align}
-    \rho=\sum_i K_i\rho_0K_i^{\dagger},
+    \rho=\sum_i K_i \rho_0 K_i^{\dagger},
     \end{align} 
+    where $\rho_0$ is the initial density matrix and $K_i$ are the Kraus operators.
 
-    where $\rho$ is the evolved density matrix, $K_i$ is the Kraus operator.
+    ## Parameters
+    **rho0** : matrix  
+        Initial density matrix.
 
-    Parameters
-    ----------
-    > **K:** `list`
-        -- Kraus operators.
+    **K** : list  
+        Kraus operators.
 
-    > **dK:** `list`
-        -- Derivatives of the Kraus operators with respect to the unknown parameters to be 
-        estimated. For example, dK[0] is the derivative vector on the first 
-        parameter.
+    **dK** : list  
+        Derivatives of the Kraus operators with respect to the unknown parameters to be 
+        estimated. This is a nested list where the first index corresponds to the 
+        Kraus operator and the second index corresponds to the parameter.  
+        For example, `dK[0][1]` is the derivative of the second Kraus operator 
+        with respect to the first parameter.
 
-    > **rho0:** `matrix`
-        -- Initial state (density matrix).
+    ## Returns
+    **rho** : matrix  
+        Evolved density matrix.
 
-    Returns
-    ----------
-    Density matrix and its derivatives on the unknown parameters.
+    **drho** : list  
+        Derivatives of the evolved density matrix with respect to the unknown parameters.  
+        Each element in the list is a matrix representing the partial derivative 
+        of $\rho$ with respect to one parameter.
     """
 
     k_num = len(K)
@@ -36,5 +43,3 @@ def Kraus(rho0, K, dK):
     drho = [sum([(np.dot(dKi, np.dot(rho0, Ki.conj().T))+ np.dot(Ki, np.dot(rho0, dKi.conj().T))) for (Ki, dKi) in zip(K, dKj)]) for dKj in dK_reshape]
 
     return rho, drho
-    
-    

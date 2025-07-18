@@ -6,47 +6,47 @@ from quanestimation import QJL
 
 class Lindblad:
     r"""
-    The dynamics of a density matrix is of the form 
+    Class for simulating quantum dynamics governed by the Lindblad master equation.
 
+    The dynamics of a density matrix is described by the Lindblad master equation:
     \begin{align}
     \partial_t\rho &=\mathcal{L}\rho \nonumber \\
     &=-i[H,\rho]+\sum_i \gamma_i\left(\Gamma_i\rho\Gamma^{\dagger}_i-\frac{1}{2}
     \left\{\rho,\Gamma^{\dagger}_i \Gamma_i \right\}\right),
     \end{align}
+    where:
+    - $\rho$ is the evolved density matrix
+    - $H$ is the Hamiltonian of the system
+    - $\Gamma_i$ are the decay operators
+    - $\gamma_i$ are the corresponding decay rates
 
-    where $\rho$ is the evolved density matrix, $H$ is the Hamiltonian of the 
-    system, $\Gamma_i$ and $\gamma_i$ are the $i\mathrm{th}$ decay 
-    operator and the corresponding decay rate.
+    ## Attributes
+    **tspan** : array  
+        Time points for the evolution.
 
-    Attributes
-    ----------
-    > **tspan:** `array`
-        -- Time length for the evolution.
+    **rho0** : matrix  
+        Initial state (density matrix).
 
-    > **rho0:** `matrix`
-        -- Initial state (density matrix).
+    **H0** : matrix or list  
+        Free Hamiltonian. It is a matrix when time-independent, or a list of matrices 
+        (with length equal to `tspan`) when time-dependent.
 
-    > **H0:** `matrix or list`
-        -- Free Hamiltonian. It is a matrix when the free Hamiltonian is time-
-        independent and a list with the length equal to `tspan` when it is 
-        time-dependent.
+    **dH** : list  
+        Derivatives of the free Hamiltonian with respect to the unknown parameters.  
+        Each element is a matrix representing the partial derivative with respect to 
+        one parameter. For example, `dH[0]` is the derivative with respect to the 
+        first parameter.
 
-    > **dH:** `list`
-        -- Derivatives of the free Hamiltonian with respect to the unknown parameters to be 
-        estimated. For example, dH[0] is the derivative vector on the first 
-        parameter.
+    **decay** : list  
+        Decay operators and corresponding decay rates. Input format:  
+        `decay=[[Γ₁, γ₁], [Γ₂, γ₂], ...]`  
+        where Γ₁, Γ₂ are decay operators and γ₁, γ₂ are the corresponding decay rates.
 
-    > **decay:** `list`
-        -- Decay operators and the corresponding decay rates. Its input rule is 
-        decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...], where $\Gamma_1$ 
-        $(\Gamma_2)$ represents the decay operator and $\gamma_1$ $(\gamma_2)$ is the 
-        corresponding decay rate.
+    **Hc** : list  
+        Control Hamiltonians.
 
-    > **Hc:** `list`
-        -- Control Hamiltonians.
-
-    > **ctrl:** `list of arrays`
-        -- Control coefficients.
+    **ctrl** : list of arrays  
+        Control coefficients for each control Hamiltonian.
     """
 
     def __init__(self, tspan, rho0, H0, dH, decay=[], Hc=[], ctrl=[]):
@@ -110,16 +110,29 @@ class Lindblad:
 
     def expm(self):
         r"""
-        Calculation of the density matrix and its derivatives on the unknown parameters 
-        with matrix exponential method (expm). The density matrix at $j$th time interval is obtained by 
-        $\rho_j=e^{\Delta t\mathcal{L}}\rho_{j-1}$, where $\Delta t$ is the time
-        interval and $\rho_{j-1}$ is the density matrix for the $(j-1)$th time interval.
-        $\partial_{\textbf{x}}\rho_j$ is calculated as
+        Calculate the density matrix and its derivatives using the matrix exponential method.
+
+        The density matrix at the $j$th time interval is obtained by:
         \begin{align}
-        \partial_{\textbf{x}}\rho_j =\Delta t(\partial_{\textbf{x}}\mathcal{L})\rho_j
-        +e^{\Delta t \mathcal{L}}(\partial_{\textbf{x}}\rho_{j-1}).
+        \rho_j = e^{\Delta t \mathcal{L}} \rho_{j-1}
+        \end{align}
+        where $\Delta t$ is the time interval and $\rho_{j-1}$ is the density matrix 
+        at the previous time step.
+
+        The derivative $\partial_{\textbf{x}}\rho_j$ is calculated as:
+        \begin{align}
+        \partial_{\textbf{x}}\rho_j = \Delta t (\partial_{\textbf{x}}\mathcal{L}) \rho_j
+        + e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}\rho_{j-1})
         \end{align}
 
+        ## Returns
+        **rho** : list of matrices  
+            Density matrices at each time point in `tspan`.
+
+        **drho** : list of lists of matrices  
+            Derivatives of the density matrices with respect to the unknown parameters.  
+            `drho[i][j]` is the derivative of the density matrix at the i-th time point 
+            with respect to the j-th parameter.
         """
 
         rho, drho = QJL.expm_py(
@@ -139,17 +152,29 @@ class Lindblad:
 
     def ode(self):
         r"""
-        Calculation of the density matrix and its derivatives on the unknown parameters 
-        with ordinary differential equations (ODE) solver.
-        The density matrix at $j$th time interval is obtained by 
-        $\rho_j=e^{\Delta t\mathcal{L}}\rho_{j-1}$, where $\Delta t$ is the time
-        interval and $\rho_{j-1}$ is the density matrix for the $(j-1)$th time interval.
-        $\partial_{\textbf{x}}\rho_j$ is calculated as
+        Calculate the density matrix and its derivatives using an ODE solver.
+
+        The density matrix at the $j$th time interval is obtained by:
         \begin{align}
-        \partial_{\textbf{x}}\rho_j =\Delta t(\partial_{\textbf{x}}\mathcal{L})\rho_j
-        +e^{\Delta t \mathcal{L}}(\partial_{\textbf{x}}\rho_{j-1}).
+        \rho_j = e^{\Delta t \mathcal{L}} \rho_{j-1}
+        \end{align}
+        where $\Delta t$ is the time interval and $\rho_{j-1}$ is the density matrix 
+        at the previous time step.
+
+        The derivative $\partial_{\textbf{x}}\rho_j$ is calculated as:
+        \begin{align}
+        \partial_{\textbf{x}}\rho_j = \Delta t (\partial_{\textbf{x}}\mathcal{L}) \rho_j
+        + e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}\rho_{j-1})
         \end{align}
 
+        ## Returns
+        **rho** : list of matrices  
+            Density matrices at each time point in `tspan`.
+
+        **drho** : list of lists of matrices  
+            Derivatives of the density matrices with respect to the unknown parameters.  
+            `drho[i][j]` is the derivative of the density matrix at the i-th time point 
+            with respect to the j-th parameter.
         """
 
         rho, drho = QJL.ode_py(
@@ -169,30 +194,44 @@ class Lindblad:
         
     def secondorder_derivative(self, d2H):
         r"""
-        Calculation of the density matrix and its derivatives and the second derivatives
-        on $\textbf{x}$. The density matrix at $j$th time interval is obtained by 
-        $\rho_j=e^{\Delta t\mathcal{L}}\rho_{j-1}$, where $\Delta t$ is the time
-        interval and $\rho_{j-1}$ is the density matrix for the $(j-1)$th time interval.
-        $\partial_{\textbf{x}}\rho_j$ is calculated via
+        Calculate the density matrix, its first derivatives, and second derivatives 
+        with respect to the unknown parameters.
+
+        The density matrix at the $j$th time interval is obtained by:
         \begin{align}
-        \partial_{\textbf{x}}\rho_j =\Delta t(\partial_{\textbf{x}}\mathcal{L})\rho_j
-        +e^{\Delta t \mathcal{L}}(\partial_{\textbf{x}}\rho_{j-1}).
+        \rho_j = e^{\Delta t \mathcal{L}} \rho_{j-1}
         \end{align}
 
-        $\partial_{\textbf{x}}^2\rho_j$ is solved as
+        The first derivative $\partial_{\textbf{x}}\rho_j$ is calculated as:
         \begin{align}
-        \partial_{\textbf{x}}^2\rho_j =\Delta t(\partial_{\textbf{x}}^2\mathcal{L})\rho_j
-        +\Delta t(\partial_{\textbf{x}}\mathcal{L})\partial_{\textbf{x}}\rho_j
-        +\Delta t(\partial_{\textbf{x}}\mathcal{L})e^{\Delta t \mathcal{L}}
-        \partial_{\textbf{x}}\rho_{j-1}
-        +e^{\Delta t \mathcal{L}}(\partial_{\textbf{x}}^2\rho_{j-1}).
+        \partial_{\textbf{x}}\rho_j = \Delta t (\partial_{\textbf{x}}\mathcal{L}) \rho_j
+        + e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}\rho_{j-1})
         \end{align}
 
-        Parameters
-        ----------
-        > **d2H:** `list`
-            -- Second order derivatives of the free Hamiltonian on the unknown parameters 
-            to be estimated.
+        The second derivative $\partial_{\textbf{x}}^2\rho_j$ is calculated as:
+        \begin{align}
+        \partial_{\textbf{x}}^2\rho_j =& \Delta t (\partial_{\textbf{x}}^2\mathcal{L}) \rho_j \\
+        &+ \Delta t (\partial_{\textbf{x}}\mathcal{L}) \partial_{\textbf{x}}\rho_j \\
+        &+ \Delta t (\partial_{\textbf{x}}\mathcal{L}) e^{\Delta t \mathcal{L}} \partial_{\textbf{x}}\rho_{j-1} \\
+        &+ e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}^2\rho_{j-1})
+        \end{align}
+
+        ## Parameters
+        **d2H** : list  
+            Second-order derivatives of the free Hamiltonian with respect to the unknown parameters.  
+            Each element is a matrix representing the second partial derivative with respect to 
+            two parameters. For example, `d2H[0]` might be the second derivative with respect to 
+            the first parameter twice, or a mixed partial derivative.
+
+        ## Returns
+        **rho** : list of matrices  
+            Density matrices at each time point in `tspan`.
+
+        **drho** : list of lists of matrices  
+            First derivatives of the density matrices with respect to the unknown parameters.
+
+        **d2rho** : list of lists of matrices  
+            Second derivatives of the density matrices with respect to the unknown parameters.
         """
 
         d2H = [np.array(x, dtype=np.complex128) for x in d2H]
