@@ -7,30 +7,42 @@ from numpy.linalg import matrix_rank
 
 
 def HCRB(rho, drho, W, eps=1e-8):
-    """
+    r"""
     Calculate the Holevo Cramer-Rao bound (HCRB) via semidefinite programming (SDP).
 
-    Parameters
-    ----------
-    rho : matrix
+    The HCRB is defined as:
+    \begin{align}
+    \mathrm{Tr}(WV) \geq \min_{\{X_i\}} \left\{ 
+        \mathrm{Tr}(\mathrm{Re}Z) + \mathrm{Tr}(\mathrm{abs}\mathrm{Im}Z) 
+    \right\}
+    \end{align}
+    where $Z_{ij} = \mathrm{Tr}(\rho X_i X_j)$ and $V$ is the covariance matrix.
+
+    ## Parameters
+    **rho** : matrix  
         Density matrix.
-    drho : list
-        Derivatives of the density matrix with respect to unknown parameters.
+
+    **drho** : list  
+        Derivatives of the density matrix with respect to unknown parameters.  
         Example: drho[0] is the derivative for the first parameter.
-    W : matrix
+
+    **W** : matrix  
         Weight matrix for the bound.
-    eps : float, optional
+
+    **eps** : float, optional  
         Machine epsilon for numerical stability (default: 1e-8).
 
-    Returns
-    -------
-    float
+    ## Returns
+    **HCRB** : float  
         The value of the Holevo Cramer-Rao bound.
 
-    Raises
-    ------
-    TypeError
+    ## Raises
+    **TypeError**  
         If drho is not a list.
+
+    ## Notes
+    In the single-parameter scenario, the HCRB is equivalent to the QFI.  
+    For a rank-one weight matrix, the HCRB is equivalent to the inverse of the QFIM.
     """
 
     if not isinstance(drho, list):
@@ -106,28 +118,34 @@ def HCRB(rho, drho, W, eps=1e-8):
     return problem.value
 
 def NHB(rho, drho, W):
-    """
+    r"""
     Calculation of the Nagaoka-Hayashi bound (NHB) via the semidefinite program (SDP).
 
-    Parameters
-    ----------
-    rho : matrix
+    The NHB is defined as:
+    \begin{align}
+    \mathrm{Tr}(WV) \geq \min_{X} \left\{ 
+        \mathrm{Tr}[W \mathrm{Re}(Z)] + \|\sqrt{W} \mathrm{Im}(Z) \sqrt{W}\|_1 
+    \right\}
+    \end{align}
+    where $Z_{ij} = \mathrm{Tr}(\rho X_i X_j)$ and $V$ is the covariance matrix.
+
+    ## Parameters
+    **rho** : matrix  
         Density matrix.
-    drho : list
-        Derivatives of the density matrix on the unknown parameters to be 
-        estimated. For example, drho[0] is the derivative vector on the first 
-        parameter.
-    W : matrix
+
+    **drho** : list  
+        Derivatives of the density matrix with respect to unknown parameters.  
+        Example: drho[0] is the derivative for the first parameter.
+
+    **W** : matrix  
         Weight matrix.
 
-    Returns
-    -------
-    float
-        The value of Nagaoka-Hayashi bound.
+    ## Returns
+    **NHB** : float  
+        The value of the Nagaoka-Hayashi bound.
 
-    Raises
-    ------
-    TypeError
+    ## Raises
+    **TypeError**  
         If drho is not a list.
     """
     if not isinstance(drho, list):

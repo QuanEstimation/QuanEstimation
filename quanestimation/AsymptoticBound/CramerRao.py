@@ -34,12 +34,12 @@ def CFIM(rho, drho, M=[], eps=1e-8):
         Machine epsilon.
 
     ## Returns
-    float or matrix  
+    **CFIM** : float or matrix  
         For single parameter estimation (the length of drho is equal to one), 
         the output is CFI and for multiparameter estimation (the length of drho 
         is more than one), it returns CFIM.
     
-    ## Note
+    ## Notes
     SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
     which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html).
     """
@@ -105,7 +105,7 @@ def FIM(p, dp, eps=1e-8):
         Machine epsilon.
 
     ## Returns
-    float or matrix  
+    **CFIM** : float or matrix  
         For single parameter estimation (the length of drho is equal to one), 
         the output is CFI and for multiparameter estimation (the length of drho 
         is more than one), it returns CFIM.
@@ -158,7 +158,7 @@ def FI_Expt(data_true, data_shifted, delta_x, ftype="norm"):
         - "poisson": Poisson distribution  
 
     ## Returns
-    float  
+    **CFI** : float  
         Classical Fisher information
 
     ## Notes
@@ -245,14 +245,14 @@ def SLD(rho, drho, rep="original", eps=1e-8):
         Machine epsilon (default: 1e-8)
 
     ## Returns
-    matrix or list  
+    **SLD** : matrix or list  
         For single parameter estimation (len(drho)=1), returns a matrix.  
         For multiparameter estimation (len(drho)>1), returns a list of matrices.
 
     ## Raises
-    TypeError  
+    **TypeError**   
         If drho is not a list  
-    ValueError  
+    **ValueError**  
         If rep has invalid value  
     """
 
@@ -345,14 +345,14 @@ def RLD(rho, drho, rep="original", eps=1e-8):
         Machine epsilon (default: 1e-8)
 
     ## Returns
-    matrix or list  
+    **RLD** : matrix or list  
         For single parameter estimation (len(drho)=1), returns a matrix.  
         For multiparameter estimation (len(drho)>1), returns a list of matrices.
 
     ## Raises
-    TypeError  
+    **TypeError**  
         If drho is not a list  
-    ValueError  
+    **ValueError**  
         If rep has invalid value or RLD doesn't exist  
     """
     
@@ -442,14 +442,14 @@ def LLD(rho, drho, rep="original", eps=1e-8):
         Machine epsilon (default: 1e-8)
 
     ## Returns
-    matrix or list  
+    **LLD** : matrix or list  
         For single parameter estimation (len(drho)=1), returns a matrix.  
         For multiparameter estimation (len(drho)>1), returns a list of matrices.
 
     ## Raises
-    TypeError  
+    **TypeError**  
         If drho is not a list  
-    ValueError  
+    **ValueError**  
         If rep has invalid value or LLD doesn't exist  
     """
 
@@ -546,7 +546,7 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
         Machine epsilon (default: 1e-8)  
 
     ## Returns
-    float or matrix  
+    **QFIM** : float or matrix  
         For single parameter estimation (len(drho)=1), returns QFI.  
         For multiparameter estimation (len(drho)>1), returns QFIM.  
     """
@@ -621,34 +621,55 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
 
 
 def QFIM_Kraus(rho0, K, dK, LDtype="SLD", exportLD=False, eps=1e-8):
-    """
-    Calculate the quantum Fisher information (QFI) and quantum Fisher 
-    information matrix (QFIM) with Kraus operators for all types.
+    r"""
+    Calculation of the quantum Fisher information (QFI) and quantum Fisher 
+    information matrix (QFIM) for a quantum channel described by Kraus operators.
 
-    Parameters
-    ----------
-    rho0 : matrix
-        Initial state (density matrix).
-    K : list
+    The quantum channel is given by
+    \begin{align}
+    \rho=\sum_{i} K_i \rho_0 K_i^{\dagger},
+    \end{align}
+    where $\rho_0$ is the initial state and $\{K_i\}$ are the Kraus operators.
+
+    The derivatives of the density matrix $\partial_a\rho$ are calculated from the 
+    derivatives of the Kraus operators $\{\partial_a K_i\}$ as
+    \begin{align}
+    \partial_a\rho=\sum_{i}\left[(\partial_a K_i)\rho_0 K_i^{\dagger}+K_i\rho_0(\partial_a K_i)^{\dagger}\right].
+    \end{align}
+
+    Then the QFI (QFIM) is calculated via the function `QFIM` with the evolved state 
+    $\rho$ and its derivatives $\{\partial_a\rho\}$.
+
+    ## Parameters
+    **rho0** : matrix  
+        Initial density matrix.
+
+    **K** : list  
         Kraus operators.
-    dK : list 
-        Derivatives of the Kraus operators on the unknown parameters to be 
-        estimated. Each element dK[i] is a list of derivatives for the i-th parameter.
-    LDtype : str, optional
-        Types of QFI (QFIM) can be set as the objective function. Options:
-        "SLD" (default) - QFI (QFIM) based on symmetric logarithmic derivative
-        "RLD" - QFI (QFIM) based on right logarithmic derivative
-        "LLD" - QFI (QFIM) based on left logarithmic derivative
-    exportLD : bool, optional
-        Whether to export the values of logarithmic derivatives (default: False)
-    eps : float, optional
-        Machine epsilon (default: 1e-8)
 
-    Returns
-    -------
-    float or matrix
-        For single parameter estimation (len(drho)=1), returns QFI.
-        For multiparameter estimation (len(drho)>1), returns QFIM.
+    **dK** : list  
+        Derivatives of the Kraus operators. It is a nested list where the first index 
+        corresponds to the parameter and the second index corresponds to the Kraus operator index. 
+        For example, `dK[0][1]` is the derivative of the second Kraus operator with respect 
+        to the first parameter.
+
+    **LDtype** : str, optional  
+        Types of QFI (QFIM) can be set as the objective function. Options:  
+        - "SLD" (default): QFI (QFIM) based on symmetric logarithmic derivative  
+        - "RLD": QFI (QFIM) based on right logarithmic derivative  
+        - "LLD": QFI (QFIM) based on left logarithmic derivative  
+
+    **exportLD** : bool, optional  
+        Whether to export the values of logarithmic derivatives (default: False)  
+
+    **eps** : float, optional  
+        Machine epsilon (default: 1e-8)  
+
+    ## Returns
+    **QFIM** : float or matrix  
+        For single parameter estimation (the length of dK is equal to one), 
+        the output is QFI and for multiparameter estimation (the length of dK 
+        is more than one), it returns QFIM.
     """
 
     # Transpose dK: from [parameters][operators] to [operators][parameters]
@@ -673,32 +694,41 @@ def QFIM_Kraus(rho0, K, dK, LDtype="SLD", exportLD=False, eps=1e-8):
 
 
 def QFIM_Bloch(r, dr, eps=1e-8):
-    """
-    Calculate the SLD-based quantum Fisher information (QFI) and quantum  
-    Fisher information matrix (QFIM) in Bloch representation.
+    r"""
+    Calculation of the quantum Fisher information (QFI) and quantum Fisher 
+    information matrix (QFIM) in Bloch representation.
 
-    Parameters
-    ----------
-    r : np.array
+    The Bloch vector representation of a quantum state is defined as
+    \begin{align}
+    \rho = \frac{1}{d}\left(\mathbb{I} + \sum_{i=1}^{d^2-1} r_i \lambda_i\right),
+    \end{align}
+    where $\lambda_i$ are the generators of SU(d) group.
+
+    ## Parameters
+    **r** : array  
         Parameterized Bloch vector.
-    dr : list
-        Derivatives of the Bloch vector on the unknown parameters to be 
-        estimated. Each element dr[i] is the derivative vector for the i-th parameter.
-    eps : float, optional
-        Machine epsilon (default: 1e-8)
 
-    Returns
-    -------
-    float or matrix
-        For single parameter estimation (len(dr)=1), returns QFI.
-        For multiparameter estimation (len(dr)>1), returns QFIM.
+    **dr** : list  
+        Derivatives of the Bloch vector with respect to the unknown parameters. 
+        Each element in the list is a vector of the same length as `r` and 
+        represents the partial derivative of the Bloch vector with respect to 
+        one parameter. For example, `dr[0]` is the derivative with respect to 
+        the first parameter.
 
-    Raises
-    ------
-    TypeError
-        If dr is not a list
-    ValueError
-        If the dimension of the Bloch vector is invalid
+    **eps** : float, optional  
+        Machine epsilon (default: 1e-8)  
+
+    ## Returns
+    **QFIM** : float or matrix  
+        For single parameter estimation (the length of dr is equal to one), 
+        the output is QFI and for multiparameter estimation (the length of dr 
+        is more than one), it returns QFIM.
+
+    ## Raises
+    **TypeError**  
+        If dr is not a list  
+    **ValueError**  
+        If the dimension of the Bloch vector is invalid  
     """
 
     if not isinstance(dr, list):
@@ -771,31 +801,42 @@ def QFIM_Bloch(r, dr, eps=1e-8):
 
 
 def QFIM_Gauss(R, dR, D, dD):
-    """
-    Calculate the SLD-based quantum Fisher information (QFI) and quantum 
+    r"""
+    Calculation of the quantum Fisher information (QFI) and quantum 
     Fisher information matrix (QFIM) for Gaussian states.
 
-    Parameters
-    ----------
-    R : array
+    The Gaussian state is characterized by its first-order moment (displacement vector) 
+    and second-order moment (covariance matrix). The QFIM is calculated using the 
+    method described in [1].
+
+    ## Parameters
+    **R** : array  
         First-order moment (displacement vector).
-    dR : list
-        Derivatives of the first-order moment with respect to the unknown parameters.
-        Each element dR[i] is the derivative vector for the i-th parameter.
-    D : matrix
+
+    **dR** : list  
+        Derivatives of the first-order moment with respect to the unknown parameters. 
+        Each element in the list is a vector of the same length as `R` and 
+        represents the partial derivative of the displacement vector with respect to 
+        one parameter. For example, `dR[0]` is the derivative with respect to 
+        the first parameter.
+
+    **D** : matrix  
         Second-order moment (covariance matrix).
-    dD : list
-        Derivatives of the second-order moment with respect to the unknown parameters.
-        Each element dD[i] is the derivative matrix for the i-th parameter.
 
-    Returns
-    -------
-    float or matrix
-        For single parameter estimation (len(dR)=1), returns QFI.
-        For multiparameter estimation (len(dR)>1), returns QFIM.
+    **dD** : list  
+        Derivatives of the second-order moment with respect to the unknown parameters. 
+        Each element in the list is a matrix of the same dimension as `D` and 
+        represents the partial derivative of the covariance matrix with respect to 
+        one parameter. For example, `dD[0]` is the derivative with respect to 
+        the first parameter.
 
-    Notes
-    -----
+    ## Returns
+    **QFIM** : float or matrix  
+        For single parameter estimation (the length of dR is equal to one), 
+        the output is QFI and for multiparameter estimation (the length of dR 
+        is more than one), it returns QFIM.
+
+    ## Notes
     This function follows the approach from:
     [1] Monras, A. (2013). Phase space formalism for quantum estimation of Gaussian states.
     """

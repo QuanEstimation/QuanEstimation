@@ -4,26 +4,35 @@ from more_itertools import zip_broadcast
 
 def SpinSqueezing(rho, basis="Dicke", output="KU"):
     r"""
-    Calculate spin squeezing parameter for a density matrix.
+    Calculation of the spin squeezing parameter for a density matrix.
 
-    Parameters
-    ----------
-    rho : matrix
+    The spin squeezing parameter $\xi$ is defined as:
+    \begin{align}
+    \xi^2 = \frac{N(\Delta J_{\vec{n}_1})^2}{\langle J_{\vec{n}_3}\rangle^2}
+    \end{align}
+    where $J_{\vec{n}_i}$ are the collective spin operators.
+
+    ## Parameters
+    **rho** : matrix  
         Density matrix.
-    basis : string, optional
-        Basis to use: "Dicke" (default) or "Pauli".
-    output : string, optional
-        Type of spin squeezing to calculate: "KU" (default) or "WBIMH".
 
-    Returns
-    -------
-    xi : float
+    **basis** : str, optional  
+        Basis to use: "Dicke" (default) or "Pauli".
+
+    **output** : str, optional  
+        Type of spin squeezing to calculate:  
+        - "KU": Kitagawa-Ueda squeezing parameter  
+        - "WBIMH": Wineland et al. squeezing parameter  
+
+    ## Returns
+    **$\xi$** : float  
         Spin squeezing parameter.
 
-    Raises
-    ------
-    NameError
-        If invalid output type is provided.
+    ## Raises
+    **ValueError**  
+        If basis has invalid value.  
+    **NameError**  
+        If output has invalid value.  
     """
     N = len(rho) - 1
     coef = 4.0 / float(N)
@@ -49,15 +58,16 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
             np.sqrt(float(j * (j + 1) - m * (m + 1))) 
             for m in np.arange(j, -j - 1, -1)
         ][1:]
-        Jp = np.diag(offdiag, 1)
+        # Ensure we create a complex array
+        Jp = np.diag(offdiag, 1).astype(complex)
     else:
         valid_types = ["Dicke", "Pauli"]
         raise ValueError(
                 f"Invalid basis: '{basis}'. Supported types: {', '.join(valid_types)}"
             )    
     
-    Jx = 0.5 * (Jp + Jp.conj().T)
-    Jy = -0.5 * 1j * (Jp - Jp.conj().T)
+    Jx = 0.5 * (Jp + np.conj(Jp).T)
+    Jy = -0.5 * 1j * (Jp - np.conj(Jp).T)
     Jz = np.diag(np.arange(j, -j - 1, -1))
     
     Jx_mean = np.trace(rho @ Jx)
@@ -95,30 +105,31 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
 
 
 def TargetTime(f, tspan, func, *args, **kwargs):
-    """
+    r"""
     Calculation of the time to reach a given precision limit.
 
-    Parameters
-    ----------
-    > **f:** `float`
-        -- The given value of the objective function.
+    This function finds the earliest time $t$ in `tspan` where the objective 
+    function `func` reaches or crosses the target value $f$.
 
-    > **tspan:** `array`
-        -- Time length for the evolution.
+    ## Parameters
+    **f** : float  
+        The target value of the objective function.
 
-    > **func:** `array`
-        -- The function for calculating the objective function.
+    **tspan** : array  
+        Time points for the evolution.
 
-    > ***args:** `string`
-        -- The corresponding input parameter.
+    **func** : callable  
+        The objective function to evaluate. Must return a float.
 
-    > ****kwargs:** `string`
-        -- Keyword arguments in `func`.
+    ***args**  
+        Positional arguments to pass to `func`.
 
-    Returns
-    ----------
-    **time:** `float`
-        -- Time to reach the given target.
+    ****kwargs**  
+        Keyword arguments to pass to `func`.
+
+    ## Returns
+    float  
+        Time to reach the given target precision.
     """
 
     args = list(zip_broadcast(*args))
