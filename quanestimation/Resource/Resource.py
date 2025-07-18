@@ -25,13 +25,13 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
         - "WBIMH": Wineland et al. squeezing parameter  
 
     ## Returns
-    float  
+    **$\xi$** : float  
         Spin squeezing parameter.
 
     ## Raises
-    ValueError  
+    **ValueError**  
         If basis has invalid value.  
-    NameError  
+    **NameError**  
         If output has invalid value.  
     """
     N = len(rho) - 1
