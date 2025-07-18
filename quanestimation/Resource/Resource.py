@@ -48,13 +48,13 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
             np.sqrt(float(j * (j + 1) - m * (m + 1))) for m in np.arange(j, -j - 1, -1)
         ][1:]
     
-        Jp = np.matrix(np.diag(offdiag, 1))
-    Jx = 0.5 * (Jp + Jp.H)
-    Jy = -0.5 * 1j * (Jp - Jp.H)
+        Jp = np.diag(offdiag, 1)
+    Jx = 0.5 * (Jp + Jp.conj().T)
+    Jy = -0.5 * 1j * (Jp - Jp.conj().T)
     Jz = np.diag(np.arange(j, -j - 1, -1))
-    Jx_mean = np.trace(rho * Jx)
-    Jy_mean = np.trace(rho * Jy)
-    Jz_mean = np.trace(rho * Jz)
+    Jx_mean = np.trace(rho @ Jx)
+    Jy_mean = np.trace(rho @ Jy)
+    Jz_mean = np.trace(rho @ Jz)
 
     costheta = Jz_mean / np.sqrt(Jx_mean**2 + Jy_mean**2 + Jz_mean**2)
     sintheta = np.sin(np.arccos(costheta))
@@ -65,9 +65,9 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
         sinphi = np.sin(2 * np.pi - np.arccos(cosphi))
     Jn1 = -Jx * sinphi + Jy * cosphi
     Jn2 = -Jx * costheta * cosphi - Jy * costheta * sinphi + Jz * sintheta
-    A = np.trace(rho * (Jn1 * Jn1 - Jn2 * Jn2))
-    B = np.trace(rho * (Jn1 * Jn2 + Jn2 * Jn1))
-    C = np.trace(rho * (Jn1 * Jn1 + Jn2 * Jn2))
+    A = np.trace(rho @ (Jn1 @ Jn1 - Jn2 @ Jn2))
+    B = np.trace(rho @ (Jn1 @ Jn2 + Jn2 @ Jn1))
+    C = np.trace(rho @ (Jn1 @ Jn1 + Jn2 @ Jn2))
 
     V_minus = 0.5 * (C - np.sqrt(A**2 + B**2))
     V_minus = np.real(V_minus)
@@ -78,7 +78,7 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
     if output == "KU":
         Xi = Xi
     elif output == "WBIMH":
-        Xi = (N / 2) ** 2 * Xi / (Jx_mean**2 + Jy_mean**2 + Jz_mean**2)
+        Xi = (N / 2)**2 * Xi / (Jx_mean**2 + Jy_mean**2 + Jz_mean**2)
     else:
         raise NameError("NameError: output should be choosen in {KU, WBIMH}")
 

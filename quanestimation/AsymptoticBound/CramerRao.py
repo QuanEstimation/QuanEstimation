@@ -526,16 +526,20 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
     ----------
     rho : matrix
         Density matrix.
+
     drho : list
         Derivatives of the density matrix on the unknown parameters to be 
         estimated. For example, drho[0] is the derivative on the first parameter.
+
     LDtype : str, optional
         Types of QFI (QFIM) can be set as the objective function. Options:
         "SLD" (default) - QFI (QFIM) based on symmetric logarithmic derivative
         "RLD" - QFI (QFIM) based on right logarithmic derivative
         "LLD" - QFI (QFIM) based on left logarithmic derivative
+
     exportLD : bool, optional
         Whether to export the values of logarithmic derivatives (default: False)
+        
     eps : float, optional
         Machine epsilon (default: 1e-8)
 
