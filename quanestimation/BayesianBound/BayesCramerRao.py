@@ -8,47 +8,49 @@ from quanestimation.Common.Common import SIC, extract_ele
 
 def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
     r"""
-    Calculation of the Bayesian classical Fisher information (BCFI) and the 
-    Bayesian classical Fisher information matrix (BCFIM) of the form
+    Calculate the Bayesian classical Fisher information (BCFI) or Bayesian classical 
+    Fisher information matrix (BCFIM).
+
+    The BCFIM is defined as:
     \begin{align}
-    \mathcal{I}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{I}\mathrm{d}\textbf{x}
+    \mathcal{I}_{\mathrm{Bayes}} = \int p(\textbf{x}) \mathcal{I} \, \mathrm{d}\textbf{x}
     \end{align}
-    
-    with $\mathcal{I}$ the CFIM and $p(\textbf{x})$ the prior distribution.
+    where $\mathcal{I}$ is the classical Fisher information matrix (CFIM) and $p(\textbf{x})$ 
+    is the prior distribution.
 
-    Parameters
-    ----------
-    > **x:** `list`
-        -- The regimes of the parameters for the integral.
+    ## Parameters
+    **x** : list of arrays  
+        Parameter regimes for integration. Each element is an array representing the 
+        values of one parameter.
 
-    > **p:** `multidimensional array`
-        -- The prior distribution.
+    **p** : array  
+        Prior distribution over the parameter space. Must have the same dimensions as 
+        the product of the lengths of the arrays in `x`.
 
-    > **rho:** `multidimensional list`
-        -- Parameterized density matrix.
+    **rho** : list of matrices  
+        Parameterized density matrices. Each element corresponds to a point in the 
+        parameter space defined by `x`.
 
-    > **drho:** `multidimensional list`
-        -- Derivatives of the parameterized density matrix (rho) with respect to the unknown
-        parameters to be estimated.
+    **drho** : list of lists of matrices  
+        Derivatives of the density matrices with respect to the parameters.  
+        `drho[i][j]` is the derivative of the density matrix at the i-th parameter point 
+        with respect to the j-th parameter.
 
-    > **M:** `list of matrices`
-        -- A set of positive operator-valued measure (POVM). The default measurement 
-        is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+    **M** : list of matrices, optional  
+        Positive operator-valued measure (POVM). Default is a set of rank-one symmetric 
+        informationally complete POVM (SIC-POVM).
 
-    > **eps:** `float`
-        -- Machine epsilon.
+    **eps** : float, optional  
+        Machine epsilon for numerical stability (default: 1e-8).
 
-    Returns
-    ----------
-    **BCFI or BCFIM:** `float or matrix`
-        -- For single parameter estimation (the length of x is equal to one), the output 
-        is BCFI and for multiparameter estimation (the length of x is more than one), 
-        it returns BCFIM.
+    ## Returns
+    **BCFI or BCFIM** : float or matrix  
+        - For single parameter estimation (length of `x` is 1), returns BCFI (float).  
+        - For multiparameter estimation (length of `x` > 1), returns BCFIM (matrix).
 
     **Note:** 
-        SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-        which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
-        solutions.html).
+        SIC-POVM is calculated using Weyl-Heisenberg covariant SIC-POVM fiducial states 
+        available at [http://www.physics.umb.edu/Research/QBism/solutions.html](http://www.physics.umb.edu/Research/QBism/solutions.html).
     """
 
     para_num = len(x)
@@ -114,44 +116,47 @@ def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
 
 def BQFIM(x, p, rho, drho, LDtype="SLD", eps=1e-8):
     r"""
-    Calculation of the Bayesian quantum Fisher information (BQFI) and the 
-    Bayesian quantum Fisher information matrix (BQFIM) of the form
+    Calculate the Bayesian quantum Fisher information (BQFI) or Bayesian quantum 
+    Fisher information matrix (BQFIM).
+
+    The BQFIM is defined as:
     \begin{align}
-    \mathcal{F}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{F}\mathrm{d}\textbf{x}
+    \mathcal{F}_{\mathrm{Bayes}} = \int p(\textbf{x}) \mathcal{F} \, \mathrm{d}\textbf{x}
     \end{align}
-    
-    with $\mathcal{F}$ the QFIM of all types and $p(\textbf{x})$ the prior distribution.
+    where $\mathcal{F}$ is the quantum Fisher information matrix (QFIM) and $p(\textbf{x})$ 
+    is the prior distribution.
 
-    Parameters
-    ----------
-    > **x:** `list`
-        -- The regimes of the parameters for the integral.
+    ## Parameters
+    **x** : list of arrays  
+        Parameter regimes for integration. Each element is an array representing the 
+        values of one parameter.
 
-    > **p:** `multidimensional array`
-        -- The prior distribution.
+    **p** : array  
+        Prior distribution over the parameter space. Must have the same dimensions as 
+        the product of the lengths of the arrays in `x`.
 
-    > **rho:** `multidimensional list`
-        -- Parameterized density matrix.
+    **rho** : list of matrices  
+        Parameterized density matrices. Each element corresponds to a point in the 
+        parameter space defined by `x`.
 
-    > **drho:** `multidimensional list`
-        -- Derivatives of the parameterized density matrix (rho) with respect to the unknown
-        parameters to be estimated.
+    **drho** : list of lists of matrices  
+        Derivatives of the density matrices with respect to the parameters.  
+        `drho[i][j]` is the derivative of the density matrix at the i-th parameter point 
+        with respect to the j-th parameter.
 
-    > **LDtype:** `string`
-        -- Types of QFI (QFIM) can be set as the objective function. Options are:  
-        "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
-        "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
-        "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
+    **LDtype** : string, optional  
+        Type of logarithmic derivative (default: "SLD"). Options:  
+        - "SLD": Symmetric logarithmic derivative  
+        - "RLD": Right logarithmic derivative  
+        - "LLD": Left logarithmic derivative  
 
-    > **eps:** `float`
-        -- Machine epsilon.
+    **eps** : float, optional  
+        Machine epsilon for numerical stability (default: 1e-8).
 
-    Returns
-    ----------
-    **BQFI or BQFIM:** `float or matrix`
-        -- For single parameter estimation (the length of x is equal to one), the output 
-        is BQFI and for multiparameter estimation (the length of x is more than one), 
-        it returns BQFIM.
+    ## Returns
+    **BQFI or BQFIM** : float or matrix  
+        - For single parameter estimation (length of `x` is 1), returns BQFI (float).  
+        - For multiparameter estimation (length of `x` > 1), returns BQFIM (matrix).
     """
 
     para_num = len(x)
@@ -203,94 +208,79 @@ def BQFIM(x, p, rho, drho, LDtype="SLD", eps=1e-8):
 
 def BCRB(x, p, dp, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
     r"""
-    Calculation of the Bayesian Cramer-Rao bound (BCRB). The covariance matrix 
-    with a prior distribution $p(\textbf{x})$ is defined as
+    Calculate the Bayesian Cramer-Rao bound (BCRB).
+
+    The covariance matrix with prior distribution $p(\textbf{x})$ is:
     \begin{align}
-    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})=\int p(\textbf{x})\sum_y\mathrm{Tr}
-    (\rho\Pi_y)(\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
+    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\}) = \int p(\textbf{x}) \sum_y \mathrm{Tr}
+    (\rho\Pi_y) (\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
     \mathrm{d}\textbf{x}
     \end{align}
 
-    where $\textbf{x}=(x_0,x_1,\dots)^{\mathrm{T}}$ are the unknown parameters to be estimated
-    and the integral $\int\mathrm{d}\textbf{x}:=\iiint\mathrm{d}x_0\mathrm{d}x_1\cdots$.
-    $\{\Pi_y\}$ is a set of positive operator-valued measure (POVM) and $\rho$ represents 
-    the parameterized density matrix.
+    This function calculates three types of BCRB:
 
-    This function calculates three types BCRB. The first one is 
+    **Type 1:**
     \begin{align}
-    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})\left(B\mathcal{I}^{-1}B
-    +\textbf{b}\textbf{b}^{\mathrm{T}}\right)\mathrm{d}\textbf{x},
+    \mathrm{cov} \geq \int p(\textbf{x}) \left( B \mathcal{I}^{-1} B + \textbf{b} \textbf{b}^{\mathrm{T}} \right) \mathrm{d}\textbf{x}
     \end{align}
 
-    where $\textbf{b}$ and $\textbf{b}'$ are the vectors of biase and its derivatives on parameters.
-    $B$ is a diagonal matrix with the $i$th entry $B_{ii}=1+[\textbf{b}']_{i}$ and $\mathcal{I}$ 
-    is the CFIM.
-
-    The second one is
+    **Type 2:**
     \begin{align}
-    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \mathcal{B}\,\mathcal{I}_{\mathrm{Bayes}}^{-1}\,
-    \mathcal{B}+\int p(\textbf{x})\textbf{b}\textbf{b}^{\mathrm{T}}\mathrm{d}\textbf{x},
+    \mathrm{cov} \geq \mathcal{B} \mathcal{I}_{\mathrm{Bayes}}^{-1} \mathcal{B} + \int p(\textbf{x}) \textbf{b} \textbf{b}^{\mathrm{T}} \mathrm{d}\textbf{x}
     \end{align}
 
-    where $\mathcal{B}=\int p(\textbf{x})B\mathrm{d}\textbf{x}$ is the average of $B$ and 
-    $\mathcal{I}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{I}\mathrm{d}\textbf{x}$ is 
-    the average CFIM.
-
-    The third one is
+    **Type 3:**
     \begin{align}
-    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})
-    \mathcal{G}\left(\mathcal{I}_p+\mathcal{I}\right)^{-1}\mathcal{G}^{\mathrm{T}}\mathrm{d}\textbf{x}
+    \mathrm{cov} \geq \int p(\textbf{x}) \mathcal{G} \left( \mathcal{I}_p + \mathcal{I} \right)^{-1} \mathcal{G}^{\mathrm{T}} \mathrm{d}\textbf{x}
     \end{align}
 
-    with $[\mathcal{I}_{p}]_{ab}:=[\partial_a \ln p(\textbf{x})][\partial_b \ln p(\textbf{x})]$ and
-    $\mathcal{G}_{ab}:=[\partial_b\ln p(\textbf{x})][\textbf{b}]_a+B_{aa}\delta_{ab}$.
+    where:
+    - $\textbf{b}$: bias vector, $\textbf{b}'$: its derivatives
+    - $B$: diagonal matrix with $B_{ii} = 1 + [\textbf{b}']_{i}$
+    - $\mathcal{I}$: classical Fisher information matrix (CFIM)
+    - $\mathcal{B} = \int p(\textbf{x}) B \mathrm{d}\textbf{x}$
+    - $\mathcal{I}_{\mathrm{Bayes}} = \int p(\textbf{x}) \mathcal{I} \mathrm{d}\textbf{x}$
+    - $[\mathcal{I}_{p}]_{ab} = [\partial_a \ln p(\textbf{x})][\partial_b \ln p(\textbf{x})]$
+    - $\mathcal{G}_{ab} = [\partial_b \ln p(\textbf{x})][\textbf{b}]_a + B_{aa}\delta_{ab}$
 
-    Parameters
-    ----------
-    > **x:** `list`
-        -- The regimes of the parameters for the integral.
+    ## Parameters
+    **x** : list of arrays  
+        Parameter regimes for integration.
 
-    > **p:** `multidimensional array`
-        -- The prior distribution.
+    **p** : array  
+        Prior distribution.
 
-    > **rho:** `multidimensional list`
-        -- Parameterized density matrix.
+    **dp** : list of arrays  
+        Derivatives of the prior distribution with respect to parameters.
 
-    > **drho:** `multidimensional list`
-        -- Derivatives of the parameterized density matrix (rho) with respect to the unknown
-        parameters to be estimated.
+    **rho** : list of matrices  
+        Parameterized density matrices.
 
-    > **M:** `list of matrices`
-        -- A set of positive operator-valued measure (POVM). The default measurement 
-        is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+    **drho** : list of lists of matrices  
+        Derivatives of density matrices with respect to parameters.
 
-    > **b:** `list`
-        -- Vector of biases of the form $\textbf{b}=(b(x_0),b(x_1),\dots)^{\mathrm{T}}$.
-        
-    > **db:** `list`
-        -- Derivatives of b with respect to the unknown parameters to be estimated, It should be 
-        expressed as $\textbf{b}'=(\partial_0 b(x_0),\partial_1 b(x_1),\dots)^{\mathrm{T}}$.
+    **M** : list of matrices, optional  
+        POVM (default: SIC-POVM).
 
-    > **btype:** `int (1, 2, 3)`
-        -- Types of the BCRB. Options are:  
-        1 (default) -- It means to calculate the first type of the BCRB.  
-        2 -- It means to calculate the second type of the BCRB.
-        3 -- It means to calculate the third type of the BCRB.
+    **b** : list of arrays, optional  
+        Bias vector. Default is zero bias.
 
-    > **eps:** `float`
-        -- Machine epsilon.
+    **db** : list of arrays, optional  
+        Derivatives of bias vector. Default is zero.
 
-    Returns
-    ----------
-    **BCRB:** `float or matrix`
-        -- For single parameter estimation (the length of x is equal to one), the 
-        output is a float and for multiparameter estimation (the length of x is 
-        more than one), it returns a matrix.
+    **btype** : int {1, 2, 3}, optional  
+        Type of BCRB to calculate (default: 1).
+
+    **eps** : float, optional  
+        Machine epsilon (default: 1e-8).
+
+    ## Returns
+    **BCRB** : float or matrix  
+        Bound value(s). For single parameter: float, for multiple parameters: matrix.
 
     **Note:** 
-        SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-        which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
-        solutions.html).
+        SIC-POVM uses Weyl-Heisenberg covariant fiducial states from 
+        [http://www.physics.umb.edu/Research/QBism/solutions.html](http://www.physics.umb.edu/Research/QBism/solutions.html).
     """
 
     para_num = len(x)
@@ -776,68 +766,55 @@ def BQCRB(x, p, dp, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
 
 def VTB(x, p, dp, rho, drho, M=[], eps=1e-8):
     r"""
-    Calculation of the Bayesian version of Cramer-Rao bound introduced by
-    Van Trees (VTB). The covariance matrix with a prior distribution $p(\textbf{x})$ 
-    is defined as
+    Calculate the Van Trees bound (VTB), a Bayesian version of the Cramer-Rao bound.
+
+    The covariance matrix with prior distribution $p(\textbf{x})$ is:
     \begin{align}
-    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})=\int p(\textbf{x})\sum_y\mathrm{Tr}
-    (\rho\Pi_y)(\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
+    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\}) = \int p(\textbf{x}) \sum_y \mathrm{Tr}
+    (\rho\Pi_y) (\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
     \mathrm{d}\textbf{x}
     \end{align}
 
-    where $\textbf{x}=(x_0,x_1,\dots)^{\mathrm{T}}$ are the unknown parameters to be estimated
-    and the integral $\int\mathrm{d}\textbf{x}:=\iiint\mathrm{d}x_0\mathrm{d}x_1\cdots$.
-    $\{\Pi_y\}$ is a set of positive operator-valued measure (POVM) and $\rho$ represent 
-    the parameterized density matrix.
-
+    The VTB is given by:
     \begin{align}
-    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \left(\mathcal{I}_{\mathrm{prior}}
-    +\mathcal{I}_{\mathrm{Bayes}}\right)^{-1},
+    \mathrm{cov} \geq \left(\mathcal{I}_{\mathrm{prior}} + \mathcal{I}_{\mathrm{Bayes}}\right)^{-1}
     \end{align}
+    where:
+    - $\mathcal{I}_{\mathrm{prior}} = \int p(\textbf{x}) \mathcal{I}_{p} \, \mathrm{d}\textbf{x}$ 
+      is the classical Fisher information matrix (CFIM) for the prior distribution $p(\textbf{x})$.
+    - $\mathcal{I}_{\mathrm{Bayes}} = \int p(\textbf{x}) \mathcal{I} \, \mathrm{d}\textbf{x}$ 
+      is the average CFIM over the prior.
 
-    where $\mathcal{I}_{\mathrm{prior}}=\int p(\textbf{x})\mathcal{I}_{p}\mathrm{d}\textbf{x}$ 
-    is the CFIM for $p(\textbf{x})$ and 
-    $\mathcal{I}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{I}\mathrm{d}\textbf{x}$ is the 
-    average CFIM.
+    ## Parameters
+    **x** : list of arrays  
+        Parameter regimes for integration.
 
-    Parameters
-    ----------
-    > **x:** `list`
-        -- The regimes of the parameters for the integral.
+    **p** : array  
+        Prior distribution.
 
-    > **p:** `multidimensional array`
-        -- The prior distribution.
+    **dp** : list of arrays  
+        Derivatives of the prior distribution with respect to the parameters.
 
-    > **dp:** `list`
-        -- Derivatives of the prior distribution with respect to the unknown parameters 
-        to be estimated. For example, dp[0] is the derivative vector with respect to the first 
-        parameter.
+    **rho** : list of matrices  
+        Parameterized density matrices.
 
-    > **rho:** `multidimensional list`
-        -- Parameterized density matrix.
+    **drho** : list of lists of matrices  
+        Derivatives of the density matrices with respect to the parameters.
 
-    > **drho:** `multidimensional list`
-        -- Derivatives of the parameterized density matrix (rho) with respect to the 
-        unknown parameters to be estimated.
+    **M** : list of matrices, optional  
+        Positive operator-valued measure (POVM). Default is SIC-POVM.
 
-    > **M:** `list of matrices`
-        -- A set of positive operator-valued measure (POVM). The default measurement 
-        is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+    **eps** : float, optional  
+        Machine epsilon (default: 1e-8).
 
-    > **eps:** `float`
-        -- Machine epsilon.
-
-    Returns
-    ----------
-    **VTB:** `float or matrix`
-        -- For single parameter estimation (the length of x is equal to one), the 
-        output is a float and for multiparameter estimation (the length of x is 
-        more than one), it returns a matrix.
+    ## Returns
+    **VTB** : float or matrix  
+        - For single parameter: float  
+        - For multiple parameters: matrix  
 
     **Note:** 
-        SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-        which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
-        solutions.html).
+        SIC-POVM uses Weyl-Heisenberg covariant fiducial states from 
+        [http://www.physics.umb.edu/Research/QBism/solutions.html](http://www.physics.umb.edu/Research/QBism/solutions.html).
     """
 
     para_num = len(x)
@@ -924,64 +901,54 @@ def VTB(x, p, dp, rho, drho, M=[], eps=1e-8):
 
 def QVTB(x, p, dp, rho, drho, LDtype="SLD", eps=1e-8):
     r"""
-    Calculation of the Bayesian version of quantum Cramer-Rao bound introduced 
-    by Van Trees (QVTB). The covariance matrix with a prior distribution p(\textbf{x}) 
-    is defined as
+    Calculate the quantum Van Trees bound (QVTB), a Bayesian version of the quantum Cramer-Rao bound.
+
+    The covariance matrix with prior distribution $p(\textbf{x})$ is:
     \begin{align}
-    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})=\int p(\textbf{x})\sum_y\mathrm{Tr}
-    (\rho\Pi_y)(\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
+    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\}) = \int p(\textbf{x}) \sum_y \mathrm{Tr}
+    (\rho\Pi_y) (\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
     \mathrm{d}\textbf{x}
     \end{align}
 
-    where $\textbf{x}=(x_0,x_1,\dots)^{\mathrm{T}}$ are the unknown parameters to be estimated
-    and the integral $\int\mathrm{d}\textbf{x}:=\iiint\mathrm{d}x_0\mathrm{d}x_1\cdots$.
-    $\{\Pi_y\}$ is a set of positive operator-valued measure (POVM) and $\rho$ represent 
-    the parameterized density matrix.
-
+    The QVTB is given by:
     \begin{align}
-    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \left(\mathcal{I}_{\mathrm{prior}}
-    +\mathcal{F}_{\mathrm{Bayes}}\right)^{-1},
+    \mathrm{cov} \geq \left(\mathcal{I}_{\mathrm{prior}} + \mathcal{F}_{\mathrm{Bayes}}\right)^{-1}
     \end{align}
+    where:
+    - $\mathcal{I}_{\mathrm{prior}} = \int p(\textbf{x}) \mathcal{I}_{p} \, \mathrm{d}\textbf{x}$ 
+      is the classical Fisher information matrix (CFIM) for the prior distribution $p(\textbf{x})$.
+    - $\mathcal{F}_{\mathrm{Bayes}} = \int p(\textbf{x}) \mathcal{F} \, \mathrm{d}\textbf{x}$ 
+      is the average quantum Fisher information matrix (QFIM) over the prior.
 
-    where $\mathcal{I}_{\mathrm{prior}}=\int p(\textbf{x})\mathcal{I}_{p}\mathrm{d}\textbf{x}$ is 
-    the CFIM for $p(\textbf{x})$ and $\mathcal{F}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{F}
-    \mathrm{d}\textbf{x}$ is the average QFIM of all types.
+    ## Parameters
+    **x** : list of arrays  
+        Parameter regimes for integration.
 
-    Parameters
-    ----------
-    > **x:** `list`
-        -- The regimes of the parameters for the integral.
+    **p** : array  
+        Prior distribution.
 
-    > **p:** multidimensional array
-        -- The prior distribution.
+    **dp** : list of arrays  
+        Derivatives of the prior distribution with respect to the parameters.
 
-    > **dp:** `list`
-        -- Derivatives of the prior distribution with respect to the unknown parameters to to
-        estimated. For example, dp[0] is the derivative vector with respect to the first 
-        parameter.
+    **rho** : list of matrices  
+        Parameterized density matrices.
 
-    > **rho:** `multidimensional list`
-        -- Parameterized density matrix.
+    **drho** : list of lists of matrices  
+        Derivatives of the density matrices with respect to the parameters.
 
-    > **drho:** `multidimensional list`
-        -- Derivatives of the parameterized density matrix (rho) with respect to the unknown
-        parameters to be estimated.
+    **LDtype** : string, optional  
+        Type of logarithmic derivative (default: "SLD"). Options:  
+        - "SLD": Symmetric logarithmic derivative  
+        - "RLD": Right logarithmic derivative  
+        - "LLD": Left logarithmic derivative  
 
-    > **LDtype:** `string`
-        -- Types of QFI (QFIM) can be set as the objective function. Options are:  
-        "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
-        "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
-        "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
+    **eps** : float, optional  
+        Machine epsilon (default: 1e-8).
 
-    > **eps:** `float`
-        -- Machine epsilon.
-
-    Returns
-    ----------
-    **QVTB:** `float or matrix`
-        -- For single parameter estimation (the length of x is equal to one), the 
-        output is a float and for multiparameter estimation (the length of x is 
-        more than one), it returns a matrix.
+    ## Returns
+    **QVTB** : float or matrix  
+        - For single parameter: float  
+        - For multiple parameters: matrix
     """
     para_num = len(x)
     p_num = len(p)
@@ -1064,56 +1031,52 @@ def boundary_condition(ya, yb):
 
 def OBB(x, p, dp, rho, drho, d2rho, LDtype="SLD", eps=1e-8):
     r"""
-    Calculation of the optimal biased bound based on the first type of the BQCRB 
-    in the case of single parameter estimation. The expression of OBB with a 
-    prior distribution $p(x)$ is
+    Calculate the optimal biased bound (OBB) for single parameter estimation.
+
+    The OBB is defined as:
     \begin{align}
-    \mathrm{var}(\hat{x},\{\Pi_y\})\geq\int p(x)\left(\frac{(1+b')^2}{F}
-    +b^2\right)\mathrm{d}x,
+    \mathrm{var}(\hat{x},\{\Pi_y\}) \geq \int p(x) \left( \frac{(1+b')^2}{F} + b^2 \right) \mathrm{d}x
     \end{align}
-        
-    where $b$ and $b'$ are the vector of biase and its derivative on $x$. 
-    $F$ is the QFI for all types.
+    where:
+    - $b$: bias, $b'$: its derivative
+    - $F$: quantum Fisher information (QFI)
 
-    Parameters
-    ----------
-    > **x:** `list`
-        -- The regimes of the parameters for the integral.
+    This bound is solved using a boundary value problem approach.
 
-    > **p:** `array`
-        -- The prior distribution.
+    ## Parameters
+    **x** : array  
+        Parameter regime for integration.
 
-    > **dp:** `list`
-        -- Derivatives of the prior distribution with respect to the unknown parameters to to
-        estimated. For example, dp[0] is the derivative vector with respect to the first 
-        parameter.
+    **p** : array  
+        Prior distribution.
 
-    > **rho:** `list`
-        -- Parameterized density matrix.
+    **dp** : array  
+        Derivative of the prior distribution with respect to the parameter.
 
-    > **drho:** `list`
-        -- Derivatives of the parameterized density matrix (rho) with respect to the unknown
-        parameters to be estimated.
+    **rho** : list of matrices  
+        Parameterized density matrices.
 
-    > **drho:** `list`
-        -- Second order Derivatives of the parameterized density matrix (rho) with respect to the 
-        unknown parameters to be estimated.
+    **drho** : list of matrices  
+        First derivatives of the density matrices with respect to the parameter.
 
-    > **LDtype:** `string`
-        -- Types of QFI (QFIM) can be set as the objective function. Options are:  
-        "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
-        "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
-        "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
+    **d2rho** : list of matrices  
+        Second derivatives of the density matrices with respect to the parameter.
 
-    > **eps:** `float`
-        -- Machine epsilon.
+    **LDtype** : string, optional  
+        Type of logarithmic derivative (default: "SLD"). Options:  
+        - "SLD": Symmetric logarithmic derivative  
+        - "RLD": Right logarithmic derivative  
+        - "LLD": Left logarithmic derivative  
 
-    Returns
-    ----------
-    **QVTB:** `float or matrix`
-        -- For single parameter estimation (the length of x is equal to one), the 
-        output is a float and for multiparameter estimation (the length of x is 
-        more than one), it returns a matrix.
+    **eps** : float, optional  
+        Machine epsilon (default: 1e-8).
+
+    ## Returns
+    **OBB** : float  
+        The optimal biased bound value for single parameter estimation.
+
+    **Note:** 
+        This function uses a boundary value problem solver to compute the optimal bias function.
     """
 
     #### single parameter scenario ####
