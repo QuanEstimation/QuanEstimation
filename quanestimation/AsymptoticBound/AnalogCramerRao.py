@@ -8,86 +8,102 @@ from numpy.linalg import matrix_rank
 
 def HCRB(rho, drho, W, eps=1e-8):
     """
-    Calculation of the Holevo Cramer-Rao bound (HCRB) via the semidefinite program (SDP).
+    Calculate the Holevo Cramer-Rao bound (HCRB) via semidefinite programming (SDP).
 
     Parameters
     ----------
-    > **rho:** `matrix`
-        -- Density matrix.
-
-    > **drho:** `list`
-        -- Derivatives of the density matrix on the unknown parameters to be 
-        estimated. For example, drho[0] is the derivative vector on the first 
-        parameter.
-
-    > **W:** `matrix`
-        -- Weight matrix.
-
-    > **eps:** `float`
-        -- Machine epsilon.
+    rho : matrix
+        Density matrix.
+    drho : list
+        Derivatives of the density matrix with respect to unknown parameters.
+        Example: drho[0] is the derivative for the first parameter.
+    W : matrix
+        Weight matrix for the bound.
+    eps : float, optional
+        Machine epsilon for numerical stability (default: 1e-8).
 
     Returns
-    ----------
-    **HCRB:** `float`
-        -- The value of Holevo Cramer-Rao bound.
+    -------
+    float
+        The value of the Holevo Cramer-Rao bound.
+
+    Raises
+    ------
+    TypeError
+        If drho is not a list.
     """
 
-    if type(drho) != list:
-        raise TypeError("Please make sure drho is a list!")
+    if not isinstance(drho, list):
+        raise TypeError("drho must be a list of derivative matrices")
 
     if len(drho) == 1:
         print(
-            "In single parameter scenario, HCRB is equivalent to QFI. This function will return the value of QFI."
+            "In single parameter scenario, HCRB is equivalent to QFI. "
+            "Returning QFI value."
         )
-        f = QFIM(rho, drho, eps=eps)
-        return f
-    elif matrix_rank(W) == 1:
+        return QFIM(rho, drho, eps=eps)
+    
+    if matrix_rank(W) == 1:
         print(
-            "For rank-one weight matrix, the HCRB is equivalent to QFIM. This function will return the value of Tr(WF^{-1})."
+            "For rank-one weight matrix, HCRB is equivalent to QFIM. "
+            "Returning Tr(W @ inv(QFIM))."
         )
-        F = QFIM(rho, drho, eps=eps)
-        return np.trace(W @ np.linalg.pinv(F))
-    else:
-        dim = len(rho)
-        num = dim * dim
-        para_num = len(drho)
+        qfim = QFIM(rho, drho, eps=eps)
+        return np.trace(W @ np.linalg.pinv(qfim))
+    dim = len(rho)
+    num = dim * dim
+    num_params = len(drho)
 
-        Lambda = [np.identity(dim)] + suN_generator(dim)
-        Lambda = Lambda / np.sqrt(2)
+    # Generate basis matrices
+    basis = [np.identity(dim)] + suN_generator(dim)
+    basis = [b / np.sqrt(2) for b in basis]
 
-        vec_drho = [[] for i in range(para_num)]
-        for pi in range(para_num):
-            vec_drho[pi] = np.array(
-                [
-                    np.real(np.trace(drho[pi] @ Lambda[i]))
-                    for i in range(len(Lambda))
-                ]
-            )
+    # Compute vectorized derivatives
+    vec_drho = []
+    for param_idx in range(num_params):
+        components = [
+            np.real(np.trace(drho[param_idx] @ basis_mat))
+            for basis_mat in basis
+        ]
+        vec_drho.append(np.array(components))
 
-        S = np.zeros((num, num), dtype=np.complex128)
-        for a in range(num):
-            for b in range(num):
-                S[a][b] = np.trace(Lambda[a] @ Lambda[b] @ rho)
+    # Compute S matrix
+    S = np.zeros((num, num), dtype=np.complex128)
+    for i in range(num):
+        for j in range(num):
+            S[i, j] = np.trace(basis[i] @ basis[j] @ rho)
 
-        accu = len(str(int(1 / eps))) - 1
-        lu, d, perm = sp.linalg.ldl(S.round(accu))
-        R = (lu @ sp.linalg.sqrtm(d)).conj().T
-        # ============optimization variables================
-        V = cp.Variable((para_num, para_num))
-        X = cp.Variable((num, para_num))
-        # ================add constraints===================
-        constraints = [cp.bmat([[V, X.T @ R.conj().T], [R @ X, np.identity(num)]]) >> 0]
-        for i in range(para_num):
-            for j in range(para_num):
-                if i == j:
-                    constraints += [X[:, i].T @ vec_drho[j] == 1]
-                else:
-                    constraints += [X[:, i].T @ vec_drho[j] == 0]
+    # Regularize and factor S
+    precision = len(str(int(1 / eps))) - 1
+    lu, d, _ = sp.linalg.ldl(S.round(precision))
+    R = (lu @ sp.linalg.sqrtm(d)).conj().T
 
-        prob = cp.Problem(cp.Minimize(cp.trace(W @ V)), constraints)
-        prob.solve()
+    # Define optimization variables
+    V = cp.Variable((num_params, num_params))
+    X = cp.Variable((num, num_params))
 
-        return prob.value
+    # Define constraints
+    constraints = [
+        cp.bmat([
+            [V, X.T @ R.conj().T],
+            [R @ X, np.identity(num)]
+        ]) >> 0
+    ]
+
+    # Add linear constraints
+    for i in range(num_params):
+        for j in range(num_params):
+            constraint_val = X[:, i].T @ vec_drho[j]
+            if i == j:
+                constraints.append(constraint_val == 1)
+            else:
+                constraints.append(constraint_val == 0)
+
+    # Solve the optimization problem
+    problem = cp.Problem(cp.Minimize(cp.trace(W @ V)), constraints)
+    problem.solve()
+
+    return problem.value
 
 def NHB(rho, drho, W):
     """
@@ -95,46 +111,67 @@ def NHB(rho, drho, W):
 
     Parameters
     ----------
-    > **rho:** `matrix`
-        -- Density matrix.
-
-    > **drho:** `list`
-        -- Derivatives of the density matrix on the unknown parameters to be 
+    rho : matrix
+        Density matrix.
+    drho : list
+        Derivatives of the density matrix on the unknown parameters to be 
         estimated. For example, drho[0] is the derivative vector on the first 
         parameter.
-
-    > **W:** `matrix`
-        -- Weight matrix.
+    W : matrix
+        Weight matrix.
 
     Returns
-    ----------
-    **NHB:** `float`
-        -- The value of Nagaoka-Hayashi bound.
+    -------
+    float
+        The value of Nagaoka-Hayashi bound.
+
+    Raises
+    ------
+    TypeError
+        If drho is not a list.
     """
-    if type(drho) != list:
-        raise TypeError("Please make sure drho is a list!")
+    if not isinstance(drho, list):
+        raise TypeError("drho must be a list of derivative matrices")
     
     dim = len(rho)
-    para_num = len(drho)
+    num_params = len(drho)
     
-    L_tp = [[[] for i in range(para_num)] for j in range(para_num)]
-    for para_i in range(para_num):
-        for para_j in range(para_i, para_num):
-            L_tp[para_i][para_j] = cp.Variable((dim, dim), hermitian=True)
-            L_tp[para_j][para_i] = L_tp[para_i][para_j]
-    L = cp.vstack([cp.hstack(L_tp[i]) for i in range(para_num)])
-    X = [cp.Variable((dim, dim), hermitian=True) for j in range(para_num)]
+    # Initialize a temporary matrix for L components
+    L_temp = [[None for _ in range(num_params)] for _ in range(num_params)]
     
-    constraints = [cp.bmat([[L, cp.vstack(X)], [cp.hstack(X), np.identity(dim)]])  >> 0]
+    # Create Hermitian variables for the upper triangle and mirror to lower triangle
+    for i in range(num_params):
+        for j in range(i, num_params):
+            L_temp[i][j] = cp.Variable((dim, dim), hermitian=True)
+            if i != j:
+                L_temp[j][i] = L_temp[i][j]
     
-    for i in range(para_num):
-        constraints += [cp.trace(X[i] @ rho) == 0]
-        for j in range(para_num):
+    # Construct the block matrix L
+    L_blocks = [cp.hstack(L_temp[i]) for i in range(num_params)]
+    L = cp.vstack(L_blocks)
+    
+    # Create Hermitian variables for X
+    X = [cp.Variable((dim, dim), hermitian=True) for _ in range(num_params)]
+    
+    # Construct the block matrix constraint
+    block_matrix = cp.bmat([
+        [L, cp.vstack(X)],
+        [cp.hstack(X), np.identity(dim)]
+    ])
+    constraints = [block_matrix >> 0]
+    
+    # Add trace constraints
+    for i in range(num_params):
+        constraints.append(cp.trace(X[i] @ rho) == 0)
+        for j in range(num_params):
             if i == j:
-                constraints += [cp.trace(X[i] @ drho[j]) == 1]
+                constraints.append(cp.trace(X[i] @ drho[j]) == 1)
             else:
-                constraints += [cp.trace(X[i] @ drho[j]) == 0]
-    prob = cp.Problem(cp.Minimize(cp.real(cp.trace(cp.kron(W, rho) @ L))), constraints)
+                constraints.append(cp.trace(X[i] @ drho[j]) == 0)
+    
+    # Define and solve the optimization problem
+    objective = cp.Minimize(cp.real(cp.trace(cp.kron(W, rho) @ L)))
+    prob = cp.Problem(objective, constraints)
     prob.solve()
 
     return prob.value

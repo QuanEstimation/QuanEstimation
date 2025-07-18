@@ -89,7 +89,7 @@ def test_HCRB_print(capfd):
     )
     HCRB(rho, drho1, W)
     out, _ = capfd.readouterr()
-    assert "In single parameter scenario, HCRB is equivalent to QFI. This function will return the value of QFI." in out
+    assert  "In single parameter scenario, HCRB is equivalent to QFI. Returning QFI value." in out
     
     # Rank-one weight matrix case
     drho2 = [
@@ -102,4 +102,4 @@ def test_HCRB_print(capfd):
     )  # Rank-one weight matrix
     HCRB(rho, drho2, W1)
     out, _ = capfd.readouterr()
-    assert "For rank-one weight matrix, the HCRB is equivalent to QFIM. This function will return the value of Tr(WF^{-1})." in out
+    assert "For rank-one weight matrix, HCRB is equivalent to QFIM. Returning Tr(W @ inv(QFIM))." in out

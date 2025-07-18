@@ -6,16 +6,29 @@ from sympy import Matrix, GramSchmidt
 from itertools import product
 import juliacall
 
+
 def load_julia():
     """
-    Load Julia.
+    Load Julia and initialize QuanEstimation module.
+    
+    Returns:
+        jl.Main.QuanEstimation: Julia module for quantum estimation
     """
-
     jl = juliacall.newmodule("QuanEstimation")
     jl.Main.seval("using QuanEstimation, PythonCall")
     return jl.Main.QuanEstimation
 
+
 def mat_vec_convert(A):
+    """
+    Convert between matrix and vector representations.
+    
+    Args:
+        A: Input matrix or vector
+        
+    Returns:
+        Converted matrix or vector
+    """
     if A.shape[1] == 1:
         dim = int(np.sqrt(len(A)))
         return A.reshape([dim, dim])
@@ -24,19 +37,38 @@ def mat_vec_convert(A):
 
 
 def suN_unsorted(n):
+    """
+    Generate unsorted SU(N) generators.
+    
+    Args:
+        n: Dimension of the system
+        
+    Returns:
+        Tuple of symmetric, antisymmetric, and diagonal generators
+    """
     U, V, W = [], [], []
     for i in range(1, n):
         for j in range(0, i):
-            U_tp = csc_matrix(([1.0, 1.0], ([i, j], [j, i])), shape=(n, n)).toarray()
-            V_tp = csc_matrix(([1.0j, -1.0j], ([i, j], [j, i])), shape=(n, n)).toarray()
+            U_tp = csc_matrix(
+                ([1.0, 1.0], ([i, j], [j, i])), 
+                shape=(n, n)
+            ).toarray()
+            V_tp = csc_matrix(
+                ([1.0j, -1.0j], ([i, j], [j, i])), 
+                shape=(n, n)
+            ).toarray()
             U.append(U_tp)
             V.append(V_tp)
 
     diag = []
     for i in range(n - 1):
-        mat_tp = csc_matrix(([1, -1], ([i, i + 1], [i, i + 1])), shape=(n, n)).toarray()
+        mat_tp = csc_matrix(
+            ([1, -1], ([i, i + 1], [i, i + 1])), 
+            shape=(n, n)
+        ).toarray()
         diag_tp = np.diagonal(mat_tp)
         diag.append(Matrix(diag_tp))
+        
     W_gs = GramSchmidt(diag, True)
     for k in range(len(W_gs)):
         W_tp = np.fromiter(W_gs[k], dtype=complex)
@@ -46,24 +78,20 @@ def suN_unsorted(n):
 
 
 def suN_generator(n):
-    r"""
-    Generation of the SU($N$) generators with $N$ the dimension of the system.
-
-    Parameters
-    ----------
-    > **n:** `int` 
-        -- The dimension of the system.
-
-    Returns
-    ----------
-    SU($N$) generators.
     """
-
+    Generate sorted SU(N) generators.
+    
+    Args:
+        n: Dimension of the system
+        
+    Returns:
+        List of SU(N) generators
+    """
     symm, anti_symm, diag = suN_unsorted(n)
     if n == 2:
         return [symm[0], anti_symm[0], diag[0]]
     else:
-        Lambda = [0.0 for i in range(len(symm + anti_symm + diag))]
+        Lambda = [0.0] * len(symm + anti_symm + diag)
 
         Lambda[0], Lambda[1], Lambda[2] = symm[0], anti_symm[0], diag[0]
 
@@ -96,20 +124,13 @@ def suN_generator(n):
 
 def gramschmidt(A):
     """
-    Perform the Gram-Schmidt process on a set of vectors A to obtain an orthonormal basis.
+    Perform Gram-Schmidt orthogonalization.
     
-    Parameters
-    ----------
-    > **A:** `list` of `numpy.ndarray`
-        -- A list of vectors (numpy arrays) to be orthonormalized.
-    
-    Returns
-    ----------
-    A list of orthonormal vectors.
-    
-    Raises
-    ----------
-    > **ValueError:** If the input list is empty or contains non-numeric vectors.
+    Args:
+        A: List of vectors to orthogonalize
+        
+    Returns:
+        List of orthonormal vectors
     """
     dim = len(A)
     n = len(A[0])
@@ -126,19 +147,14 @@ def gramschmidt(A):
 
 def basis(dim, index):
     """
-    Generate a basis vector in the Hilbert space of dimension `dim` with the specified index.
-    The index is 0-based, meaning that the first basis vector corresponds to index 0.
+    Generate basis vector.
     
-    Parameters
-    ----------
-    > **dim:** `int`
-        -- The dimension of the Hilbert space.
-    > **index:** `int`
-        -- The index of the basis vector to generate (0-based).
-    
-    Returns
-    ----------
-    A column vector of shape (dim, 1) representing the basis vector.
+    Args:
+        dim: Dimension of Hilbert space
+        index: Index of basis vector
+        
+    Returns:
+        Basis vector as column vector
     """
     x = np.zeros(dim)
     x[index] = 1.0
@@ -147,12 +163,14 @@ def basis(dim, index):
 
 def sic_povm(fiducial):
     """
-    Generate a set of POVMs by applying the $d^2$ Weyl-Heisenberg displacement operators to a
-    fiducial state.
-    The Weyl-Heisenberg displacement operators are constructioned by Fuchs et al. in the article
-    https://doi.org/10.3390/axioms6030021 and it is realized in QBism.
+    Generate SIC-POVM from fiducial state.
+    
+    Args:
+        fiducial: Fiducial state vector
+        
+    Returns:
+        List of POVM elements
     """
-
     d = fiducial.shape[0]
     w = np.exp(2.0 * np.pi * 1.0j / d)
     Z = np.diag([w**i for i in range(d)])
@@ -170,7 +188,8 @@ def sic_povm(fiducial):
         for b in range(d):
             X_a = np.linalg.matrix_power(X, a)
             Z_b = np.linalg.matrix_power(Z, b)
-            D[a][b] = (-np.exp(1.0j * np.pi / d)) ** (a * b) * np.dot(X_a, Z_b)
+            phase = (-np.exp(1.0j * np.pi / d)) ** (a * b)
+            D[a][b] = phase * np.dot(X_a, Z_b)
 
     res = []
     for m in range(d):
@@ -184,24 +203,17 @@ def sic_povm(fiducial):
 
 def SIC(dim):
     """
-    Generation of a set of rank-one symmetric informationally complete 
-    positive operator-valued measure (SIC-POVM).
-
-    Parameters
-    ----------
-    > **dim:** `int` 
-        -- The dimension of the system.
-
-    Returns
-    ----------
-    A set of SCI-POVM.
-
-    **Note:** 
-        SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-        which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
-        solutions.html).
+    Generate SIC-POVM for given dimension.
+    
+    Args:
+        dim: Dimension of system
+        
+    Returns:
+        List of SIC-POVM elements
+        
+    Raises:
+        ValueError: If dimension > 151
     """
-
     if dim <= 151:
         file_path = os.path.join(
             os.path.dirname(os.path.dirname(__file__)),
@@ -213,10 +225,19 @@ def SIC(dim):
         M = sic_povm(fiducial)
         return M
     else:
-        raise ValueError("The dimension of the space should be less or equal to 151.")
+        raise ValueError(
+            "The dimension of the space should be less or equal to 151."
+        )
 
 
 def extract_ele(element, n):
+    """
+    Recursively extract elements.
+    
+    Args:
+        element: Input element
+        n: Depth of extraction
+    """
     if n:
         for x in element:
             yield from extract_ele(x, n - 1)
@@ -225,6 +246,15 @@ def extract_ele(element, n):
 
 
 def annihilation(n):
+    """
+    Create annihilation operator.
+    
+    Args:
+        n: Dimension of space
+        
+    Returns:
+        Annihilation operator matrix
+    """
     data = np.sqrt(np.arange(1, n, dtype=complex))
     indices = np.arange(1, n)
     indptr = np.arange(n + 1)
@@ -234,6 +264,15 @@ def annihilation(n):
 
 
 def brgd(n):
+    """
+    Generate binary reflected Gray code.
+    
+    Args:
+        n: Number of bits
+        
+    Returns:
+        List of Gray code sequences
+    """
     if n == 1:
         return ["0", "1"]
     L0 = brgd(n - 1)
@@ -247,29 +286,20 @@ def brgd(n):
 
 def BayesInput(x, func, dfunc, channel="dynamics"):
     """
-    Generation of the input variables H, dH (or K, dK).
-
-    Parameters
-    ----------
-    > **x:** `list`
-        -- The regimes of the parameters for the integral.
-
-    > **func:** `list`
-        -- Function defined by the users which returns H or K.
-
-    > **dfunc:** `list`
-        -- Function defined by the users which returns dH or dK.
-
-    > **channel:** `string`
-        -- Seeting the output of this function. Options are:  
-        "dynamics" (default) --  The output of this function is H and dH.  
-        "Kraus" (default) --  The output of this function is K and dHK.
-
-    Returns
-    ----------
-    H, dH (or K, dK).
+    Generate input variables for Bayesian estimation.
+    
+    Args:
+        x: Parameter regimes
+        func: Function returning H or K
+        dfunc: Function returning dH or dK
+        channel: "dynamics" or "Kraus" (default: "dynamics")
+        
+    Returns:
+        Tuple of (H_list, dH_list) or (K_list, dK_list)
+        
+    Raises:
+        ValueError: For invalid channel
     """
-
     x_all = product(*x)
     if channel == "dynamics":
         H_list, dH_list = [], []
@@ -285,7 +315,6 @@ def BayesInput(x, func, dfunc, channel="dynamics"):
         return K_list, dK_list
     else:
         raise ValueError(
-            "{!r} is not a valid value for channel, supported values are 'dynamics' and 'Kraus'.".format(
-                channel
-            )
+            "{!r} is not a valid channel. Supported values: "
+            "'dynamics' or 'Kraus'.".format(channel)
         )
