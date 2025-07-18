@@ -58,7 +58,7 @@ def CFIM(rho, drho, M=[], eps=1e-8):
 
     num_measurements = len(M)
     num_params = len(drho)
-    CFIM_res = np.zeros([num_params, num_params])
+    cfim_res = np.zeros([num_params, num_params])
     
     for i in range(num_measurements):
         povm_element = M[i]
@@ -76,12 +76,12 @@ def CFIM(rho, drho, M=[], eps=1e-8):
                     c_add[param_i][param_j] = np.real(dp_i * dp_j / p)
                     c_add[param_j][param_i] = np.real(dp_i * dp_j / p)
                     
-        CFIM_res += c_add
+        cfim_res += c_add
 
     if num_params == 1:
-        return CFIM_res[0][0]
+        return cfim_res[0][0]
     else:
-        return CFIM_res
+        return cfim_res
 
 
 def FIM(p, dp, eps=1e-8):
@@ -116,80 +116,104 @@ def FIM(p, dp, eps=1e-8):
         is more than one), it returns CFIM.
     """
 
-    para_num = len(dp)
-    m_num = len(p)
-    FIM_res = np.zeros([para_num, para_num])
-    for pi in range(0, m_num):
-        p_tp = p[pi]
-        Cadd = np.zeros([para_num, para_num])
-        if p_tp > eps:
-            for para_i in range(0, para_num):
-                dp_i = dp[para_i][pi]
-                for para_j in range(para_i, para_num):
-                    dp_j = dp[para_j][pi]
-                    Cadd[para_i][para_j] = np.real(dp_i * dp_j / p_tp)
-                    Cadd[para_j][para_i] = np.real(dp_i * dp_j / p_tp)
-        FIM_res += Cadd
+    num_params = len(dp)
+    num_measurements = len(p)
+    fim_matrix = np.zeros([num_params, num_params])
+    
+    for outcome_idx in range(num_measurements):
+        p_value = p[outcome_idx]
+        fim_add = np.zeros([num_params, num_params])
+        
+        if p_value > eps:
+            for param_i in range(num_params):
+                dp_i = dp[param_i][outcome_idx]
+                
+                for param_j in range(param_i, num_params):
+                    dp_j = dp[param_j][outcome_idx]
+                    term = np.real(dp_i * dp_j / p_value)
+                    fim_add[param_i][param_j] = term
+                    fim_add[param_j][param_i] = term
+                    
+        fim_matrix += fim_add
 
-    if para_num == 1:
-        return FIM_res[0][0]
+    if num_params == 1:
+        return fim_matrix[0][0]
     else:
-        return FIM_res
+        return fim_matrix
 
-def FI_Expt(y1, y2, dx, ftype="norm"):
-    r"""
-    Calculation of the classical Fisher information (CFI) based on the experiment data. 
+def FI_Expt(data_true, data_shifted, delta_x, ftype="norm"):
+    """
+    Calculate the classical Fisher information (CFI) based on experimental data.
 
     Parameters
     ----------
-    > **y1:** `array` 
-        -- Experimental data obtained at the true value (x).
-
-    > **y2:** `list`
-        -- Experimental data obtained at x+dx.
-
-    > **dx:** `float`
-        -- A known small drift of the parameter.
-
-    > **ftype:** `string`
-        -- The distribution the data follows. Options are:  
-        "norm" (default) -- normal distribution.  
-        "gamma" -- gamma distribution.
-        "rayleigh" -- rayleigh distribution.
-        "poisson" -- poisson distribution.
+    data_true : array
+        Experimental data obtained at the true parameter value.
+    data_shifted : array
+        Experimental data obtained at parameter value shifted by delta_x.
+    delta_x : float
+        Small known parameter shift.
+    distribution_type : str, optional
+        Probability distribution of the data. Options:
+        - "norm": normal distribution (default)
+        - "gamma": gamma distribution
+        - "rayleigh": Rayleigh distribution
+        - "poisson": Poisson distribution
 
     Returns
-    ----------
-    **CFI:** `float or matrix` 
+    -------
+    float
+        Classical Fisher information
 
-    NOTICE: the current output is unstable and will be modified in the future.
+    Note
+    ----
+    The current implementation may be unstable and is subject to future modification.
     """
     fidelity = 0.0
     if ftype == "norm":
-        mu1, std1 = norm.fit(y1)
-        mu2, std2 = norm.fit(y2)
-        f_func = lambda x: np.sqrt(norm.pdf(x, mu1, std1)*norm.pdf(x, mu2, std2))
-        fidelity, err = quad(f_func, -np.inf, np.inf)
+        mu_true, std_true = norm.fit(data_true)
+        mu_shifted, std_shifted = norm.fit(data_shifted)
+        f_function = lambda x: np.sqrt(
+            norm.pdf(x, mu_true, std_true) * norm.pdf(x, mu_shifted, std_shifted)
+        )
+        fidelity, _ = quad(f_function, -np.inf, np.inf)
+        
     elif ftype == "gamma":
-        a1, alpha1, beta1 = gamma.fit(y1)
-        a2, alpha2, beta2 = gamma.fit(y2)
-        f_func = lambda x: np.sqrt(gamma.pdf(x, a1, alpha1, beta1)*gamma.pdf(x, a2, alpha2, beta2))
-        fidelity, err = quad(f_func, 0., np.inf)
+        a_true, alpha_true, beta_true = gamma.fit(data_true)
+        a_shifted, alpha_shifted, beta_shifted = gamma.fit(data_shifted)
+        f_function = lambda x: np.sqrt(
+            gamma.pdf(x, a_true, alpha_true, beta_true) *
+            gamma.pdf(x, a_shifted, alpha_shifted, beta_shifted)
+        )
+        fidelity, _ = quad(f_function, 0., np.inf)
+        
     elif ftype == "rayleigh":
-        mean1, var1 = rayleigh.fit(y1)
-        mean2, var2 = rayleigh.fit(y2)
-        f_func = lambda x: np.sqrt(rayleigh.pdf(x, mean1, var1)*rayleigh.pdf(x, mean2, var2))
-        fidelity, err = quad(f_func, -np.inf, np.inf)
+        mean_true, var_true = rayleigh.fit(data_true)
+        mean_shifted, var_shifted = rayleigh.fit(data_shifted)
+        f_function = lambda x: np.sqrt(
+            rayleigh.pdf(x, mean_true, var_true) *
+            rayleigh.pdf(x, mean_shifted, var_shifted)
+        )
+        fidelity, _ = quad(f_function, -np.inf, np.inf)
+        
     elif ftype == "poisson":
-        k = np.arange(max(max(y1)+1, max(y2)+1))
-        p1_pois = poisson.pmf(k, np.mean(y1))
-        p2_pois = poisson.pmf(k, np.mean(y2))
-        p1_pois, p2_pois = p1_pois/sum(p1_pois), p2_pois/sum(p2_pois)
-        fidelity = sum([np.sqrt(p1_pois[i]*p2_pois[i]) for i in range(len(p1_pois))])
+        k_max = max(max(data_true) + 1, max(data_shifted) + 1)
+        k_values = np.arange(k_max)
+        p_true = poisson.pmf(k_values, np.mean(data_true))
+        p_shifted = poisson.pmf(k_values, np.mean(data_shifted))
+        p_true /= np.sum(p_true)
+        p_shifted /= np.sum(p_shifted)
+        fidelity = np.sum(np.sqrt(p_true * p_shifted))
+        
     else:
-        raise ValueError("{!r} is not a valid value for ftype, supported values are 'norm', 'poisson', 'gamma' and 'rayleigh'.".format(ftype))
-    Fc = 8*(1-fidelity)/dx**2
-    return Fc
+        valid_types = ["norm", "poisson", "gamma", "rayleigh"]
+        raise ValueError(
+            f"Invalid distribution type: '{ftype}'. "
+            f"Supported types are: {', '.join(valid_types)}"
+        )
+    
+    fisher_information = 8 * (1 - fidelity) / delta_x**2
+    return fisher_information
 
 
 def SLD(rho, drho, rep="original", eps=1e-8):
@@ -210,83 +234,89 @@ def SLD(rho, drho, rep="original", eps=1e-8):
 
     Parameters
     ----------
-    > **rho:** `matrix`
-        -- Density matrix.
+    rho : matrix
+        Density matrix.
 
-    > **drho:** `list`
-        -- Derivatives of the density matrix on the unknown parameters to be 
+    drho : list
+        Derivatives of the density matrix on the unknown parameters to be 
         estimated. For example, drho[0] is the derivative vector on the first 
         parameter.
 
-    > **rep:** `string`
-        -- The basis for the SLDs. Options are:  
-        "original" (default) -- it means the basis is the same with the input density 
-        matrix (rho).  
-        "eigen" -- it means the basis is the same with theeigenspace of the density
-        matrix (rho).
+    rep : string, optional
+        The basis for the SLDs. Options are:  
+        "original" (default) - basis same as input density matrix  
+        "eigen" - basis same as eigenspace of density matrix
 
-    > **eps:** `float`
-        -- Machine epsilon.
+    eps : float, optional
+        Machine epsilon (default: 1e-8)
 
     Returns
-    ----------
-    **SLD(s):** `matrix or list`
-        --For single parameter estimation (the length of drho is equal to one), the
-        output is a matrix and for multiparameter estimation (the length of drho 
-        is more than one), it returns a list.
+    -------
+    matrix or list
+        For single parameter estimation (len(drho)=1), returns a matrix.
+        For multiparameter estimation (len(drho)>1), returns a list of matrices.
+
+    Raises
+    ------
+    TypeError
+        If drho is not a list
+    ValueError
+        If rep has invalid value
     """
 
-    if type(drho) != list:
-        raise TypeError("Please make sure drho is a list!")
+    if not isinstance(drho, list):
+        raise TypeError("drho must be a list of derivative matrices")
 
-    para_num = len(drho)
+    num_params = len(drho)
     dim = len(rho)
-    SLD = [[] for i in range(0, para_num)]
+    slds = [None] * num_params
 
     purity = np.trace(rho @ rho)
 
+    # Handle pure state case
     if np.abs(1 - purity) < eps:
-        SLD_org = [[] for i in range(0, para_num)]
-        for para_i in range(0, para_num):
-            SLD_org[para_i] = 2 * drho[para_i]
-
+        sld_original = [2 * d for d in drho]
+        
+        for i in range(num_params):
             if rep == "original":
-                SLD[para_i] = SLD_org[para_i]
+                slds[i] = sld_original[i]
             elif rep == "eigen":
-                val, vec = np.linalg.eig(rho)
-                val = np.real(val)
-                SLD[para_i] = vec.conj().transpose() @ SLD_org[para_i] @ vec
+                eigenvalues, eigenvectors = np.linalg.eig(rho)
+                eigenvalues = np.real(eigenvalues)
+                slds[i] = eigenvectors.conj().T @ sld_original[i] @ eigenvectors
             else:
-                raise ValueError("{!r} is not a valid value for rep, supported values are 'original' and 'eigen'.".format(rep))
-        if para_num == 1:
-            return SLD[0]
-        else:
-            return SLD
-    else:
-        val, vec = np.linalg.eig(rho)
-        val = np.real(val)
-        for para_i in range(0, para_num):
-            SLD_eig = np.array(
-                [[0.0 + 0.0 * 1.0j for i in range(0, dim)] for i in range(0, dim)]
-            )
-            for fi in range(0, dim):
-                for fj in range(0, dim):
-                    if val[fi] + val[fj] > eps:
-                        SLD_eig[fi][fj] = 2 * (vec[:, fi].conj().transpose() @ drho[para_i] @ vec[:, fj]) / (val[fi] + val[fj])
-                        
-            SLD_eig[SLD_eig == np.inf] = 0.0
+                valid_reps = ["original", "eigen"]
+                raise ValueError(f"Invalid rep value: '{rep}'. Valid options: {valid_reps}")
+        
+        return slds[0] if num_params == 1 else slds
 
-            if rep == "original":
-                SLD[para_i] = vec @ SLD_eig @ vec.conj().transpose()
-            elif rep == "eigen":
-                SLD[para_i] = SLD_eig
-            else:
-                raise ValueError("{!r} is not a valid value for rep, supported values are 'original' and 'eigen'.".format(rep))
-
-        if para_num == 1:
-            return SLD[0]
+    # Handle mixed state case
+    eigenvalues, eigenvectors = np.linalg.eig(rho)
+    eigenvalues = np.real(eigenvalues)
+    
+    for param_idx in range(num_params):
+        sld_eigenbasis = np.zeros((dim, dim), dtype=np.complex128)
+        
+        for i in range(dim):
+            for j in range(dim):
+                if eigenvalues[i] + eigenvalues[j] > eps:
+                    # Calculate matrix element in eigenbasis
+                    numerator = 2 * (eigenvectors[:, i].conj().T @ drho[param_idx] @ eigenvectors[:, j])
+                    sld_eigenbasis[i, j] = numerator / (eigenvalues[i] + eigenvalues[j])
+        
+        # Handle any potential infinities
+        sld_eigenbasis[np.isinf(sld_eigenbasis)] = 0.0
+        
+        # Transform to requested basis
+        if rep == "original":
+            slds[param_idx] = eigenvectors @ sld_eigenbasis @ eigenvectors.conj().T
+        elif rep == "eigen":
+            slds[param_idx] = sld_eigenbasis
         else:
-            return SLD
+            valid_reps = ["original", "eigen"]
+            raise ValueError(f"Invalid rep value: '{rep}'. Valid options: {valid_reps}")
+    
+    return slds[0] if num_params == 1 else slds
 
 
 def RLD(rho, drho, rep="original", eps=1e-8):
@@ -303,66 +333,83 @@ def RLD(rho, drho, rep="original", eps=1e-8):
 
     Parameters
     ----------
-    > **rho:** `matrix`
-        -- Density matrix.
-
-    > **drho:** `list`
-        -- Derivatives of the density matrix on the unknown parameters to be 
+    rho : matrix
+        Density matrix.
+    drho : list
+        Derivatives of the density matrix on the unknown parameters to be 
         estimated. For example, drho[0] is the derivative vector on the first 
         parameter.
-
-    > **rep:** `string`
-        -- The basis for the RLD(s). Options are:  
-        "original" (default) -- it means the basis is the same with the input density 
-        matrix (rho).  
-        "eigen" -- it means the basis is the same with the eigenspace of the density 
-        matrix (rho).
-
-    > **eps:** `float`
-        -- Machine epsilon.
+    rep : string, optional
+        The basis for the RLD(s). Options are:  
+        "original" (default) - basis same as input density matrix  
+        "eigen" - basis same as eigenspace of density matrix
+    eps : float, optional
+        Machine epsilon (default: 1e-8)
 
     Returns
-    ----------
-    **RLD(s):** `matrix or list`
-        -- For single parameter estimation (the length of drho is equal to one), the output 
-        is a matrix and for multiparameter estimation (the length of drho is more than one), 
-        it returns a list.
+    -------
+    matrix or list
+        For single parameter estimation (len(drho)=1), returns a matrix.
+        For multiparameter estimation (len(drho)>1), returns a list of matrices.
+
+    Raises
+    ------
+    TypeError
+        If drho is not a list
+    ValueError
+        If rep has invalid value or RLD doesn't exist
     """
     
-    if type(drho) != list:
-        raise TypeError("Please make sure drho is a list!")
+    if not isinstance(drho, list):
+        raise TypeError("drho must be a list of derivative matrices")
 
-    para_num = len(drho)
+    num_params = len(drho)
     dim = len(rho)
-    RLD = [[] for i in range(0, para_num)]
+    rld_list = [None] * num_params
 
-    val, vec = np.linalg.eig(rho)
-    val = np.real(val)
-    for para_i in range(0, para_num):
-        RLD_eig = np.array(
-            [[0.0 + 0.0 * 1.0j for i in range(0, dim)] for i in range(0, dim)]
-        )
-        for fi in range(0, dim):
-            for fj in range(0, dim):
-                term_tp = vec[:, fi].conj().transpose() @ drho[para_i] @ vec[:, fj]
-                if np.abs(val[fi]) > eps:
-                    RLD_eig[fi][fj] = (term_tp/val[fi])
+    eigenvalues, eigenvectors = np.linalg.eig(rho)
+    eigenvalues = np.real(eigenvalues)
+    
+    for param_idx in range(num_params):
+        rld_eigenbasis = np.zeros((dim, dim), dtype=np.complex128)
+        
+        for i in range(dim):
+            for j in range(dim):
+                # Calculate matrix element in eigenbasis
+                element = (
+                    eigenvectors[:, i].conj().T 
+                    @ drho[param_idx] 
+                    @ eigenvectors[:, j]
+                )
+                
+                if np.abs(eigenvalues[i]) > eps:
+                    rld_eigenbasis[i, j] = element / eigenvalues[i]
                 else:
-                    if np.abs(term_tp) < eps:
-                        raise ValueError("The RLD does not exist. It only exist when the support of drho is contained in the support of rho.",
-            )
-        RLD_eig[RLD_eig == np.inf] = 0.0
-
+                    if np.abs(element) > eps:
+                        raise ValueError(
+                            "RLD does not exist. It only exists when the support of "
+                            "drho is contained in the support of rho."
+                        )
+        
+        # Handle any potential infinities
+        rld_eigenbasis[np.isinf(rld_eigenbasis)] = 0.0
+        
+        # Transform to requested basis
         if rep == "original":
-            RLD[para_i] = vec @ RLD_eig @ vec.conj().transpose()
+            rld_list[param_idx] = (
+                eigenvectors 
+                @ rld_eigenbasis 
+                @ eigenvectors.conj().T
+            )
         elif rep == "eigen":
-            RLD[para_i] = RLD_eig
+            rld_list[param_idx] = rld_eigenbasis
         else:
-            raise ValueError("{!r} is not a valid value for rep, supported values are 'original' and 'eigen'.".format(rep))
-    if para_num == 1:
-        return RLD[0]
-    else:
-        return RLD
+            valid_reps = ["original", "eigen"]
+            raise ValueError(
+                f"Invalid rep value: '{rep}'. Valid options: {', '.join(valid_reps)}"
+            )
+    
+    return rld_list[0] if num_params == 1 else rld_list
 
 
 def LLD(rho, drho, rep="original", eps=1e-8):
@@ -379,67 +426,83 @@ def LLD(rho, drho, rep="original", eps=1e-8):
 
     Parameters
     ----------
-    > **rho:** `matrix`
-        -- Density matrix.
-
-    > **drho:** `list`
-        -- Derivatives of the density matrix on the unknown parameters to be 
+    rho : matrix
+        Density matrix.
+    drho : list
+        Derivatives of the density matrix on the unknown parameters to be 
         estimated. For example, drho[0] is the derivative vector on the first 
         parameter.
-
-    > **rep:** `string`
-        -- The basis for the LLD(s). Options are:  
-        "original" (default) -- it means the basis is the same with the input density 
-        matrix (rho).  
-        "eigen" -- it means the basis is the same with the eigenspace of the density 
-        matrix (rho).
-
-    > **eps:** float
-        -- Machine epsilon.
+    rep : string, optional
+        The basis for the LLD(s). Options are:  
+        "original" (default) - basis same as input density matrix  
+        "eigen" - basis same as eigenspace of density matrix
+    eps : float, optional
+        Machine epsilon (default: 1e-8)
 
     Returns
-    ----------
-    **LLD(s):** `matrix or list`
-        -- For single parameter estimation (the length of drho is equal to one), the output 
-        is a matrix and for multiparameter estimation (the length of drho is more than one), 
-        it returns a list.
+    -------
+    matrix or list
+        For single parameter estimation (len(drho)=1), returns a matrix.
+        For multiparameter estimation (len(drho)>1), returns a list of matrices.
+
+    Raises
+    ------
+    TypeError
+        If drho is not a list
+    ValueError
+        If rep has invalid value or LLD doesn't exist
     """
 
-    if type(drho) != list:
-        raise TypeError("Please make sure drho is a list!")
+    if not isinstance(drho, list):
+        raise TypeError("drho must be a list of derivative matrices")
 
-    para_num = len(drho)
+    param_num = len(drho)
     dim = len(rho)
-    LLD = [[] for i in range(0, para_num)]
+    lld_list = [None] * param_num
 
-    val, vec = np.linalg.eig(rho)
-    val = np.real(val)
-    for para_i in range(0, para_num):
-        LLD_eig = np.array(
-            [[0.0 + 0.0 * 1.0j for i in range(0, dim)] for i in range(0, dim)]
-        )
-        for fi in range(0, dim):
-            for fj in range(0, dim):
-                term_tp = vec[:, fi].conj().transpose() @ drho[para_i] @ vec[:, fj]
-                if np.abs(val[fj]) > eps:
-                    LLD_eig[fi][fj] = term_tp/val[fj]
-                else: 
-                    if np.abs(term_tp) < eps:
-                        raise ValueError("The LLD does not exist. It only exist when the support of drho is contained in the support of rho.",
-            )
-        LLD_eig[LLD_eig == np.inf] = 0.0
-
+    eigenvalues, eigenvectors = np.linalg.eig(rho)
+    eigenvalues = np.real(eigenvalues)
+    
+    for param_idx in range(param_num):
+        lld_eigenbasis = np.zeros((dim, dim), dtype=np.complex128)
+        
+        for i in range(dim):
+            for j in range(dim):
+                # Calculate matrix element in eigenbasis
+                element = (
+                    eigenvectors[:, i].conj().T 
+                    @ drho[param_idx] 
+                    @ eigenvectors[:, j]
+                )
+                
+                if np.abs(eigenvalues[j]) > eps:
+                    lld_eigenbasis[i, j] = element / eigenvalues[j]
+                else:
+                    if np.abs(element) > eps:
+                        raise ValueError(
+                            "LLD does not exist. It only exists when the support of "
+                            "drho is contained in the support of rho."
+                        )
+        
+        # Handle any potential infinities
+        lld_eigenbasis[np.isinf(lld_eigenbasis)] = 0.0
+        
+        # Transform to requested basis
         if rep == "original":
-            LLD[para_i] = vec @ LLD_eig @ vec.conj().transpose()
+            lld_list[param_idx] = (
+                eigenvectors 
+                @ lld_eigenbasis 
+                @ eigenvectors.conj().T
+            )
         elif rep == "eigen":
-            LLD[para_i] = LLD_eig
+            lld_list[param_idx] = lld_eigenbasis
         else:
-            raise ValueError("{!r} is not a valid value for rep, supported values are 'original' and 'eigen'.".format(rep))
-
-    if para_num == 1:
-        return LLD[0]
-    else:
-        return LLD
+            valid_reps = ["original", "eigen"]
+            raise ValueError(
+                f"Invalid rep value: '{rep}'. Valid options: {', '.join(valid_reps)}"
+            )
+    
+    return lld_list[0] if param_num == 1 else lld_list
 
 
 def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
@@ -628,7 +691,12 @@ def QFIM_Bloch(r, dr, eps=1e-8):
     para_num = len(dr)
     QFIM_res = np.zeros([para_num, para_num])
 
-    dim = int(np.sqrt(len(r) + 1))
+    dim_float = np.sqrt(len(r) + 1)
+    if dim_float.is_integer():
+        dim = int(dim_float)
+    else:
+        raise ValueError("The dimension of the Bloch vector is wrong")
+
     Lambda = suN_generator(dim)
 
     if dim == 2:
