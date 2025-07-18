@@ -10,42 +10,38 @@ def CFIM(rho, drho, M=[], eps=1e-8):
     Calculation of the classical Fisher information (CFI) and classical Fisher 
     information matrix (CFIM) for a density matrix. The entry of CFIM $\mathcal{I}$
     is defined as
-    \begin{align}
+    $$
     \mathcal{I}_{ab}=\sum_y\frac{1}{p(y|\textbf{x})}[\partial_a p(y|\textbf{x})][\partial_b p(y|\textbf{x})],
-    \end{align}
+    $$
 
     where $p(y|\textbf{x})=\mathrm{Tr}(\rho\Pi_y)$ with $\rho$ the parameterized 
     density matrix.
 
-    Parameters
-    ----------
-    rho : matrix
+    ## Parameters
+    **rho** : matrix  
         Density matrix.
 
-    drho : list
+    **drho** : list  
         Derivatives of the density matrix on the unknown parameters to be 
         estimated. For example, drho[0] is the derivative vector on the first 
         parameter.
 
-    M : list of matrices, optional
+    **M** : list of matrices, optional  
         A set of positive operator-valued measure (POVM). The default measurement 
         is a set of rank-one symmetric informationally complete POVM (SIC-POVM). 
 
-    eps : float, optional
+    **eps** : float, optional  
         Machine epsilon.
 
-    Returns
-    ----------
-    float or matrix
+    ## Returns
+    float or matrix  
         For single parameter estimation (the length of drho is equal to one), 
         the output is CFI and for multiparameter estimation (the length of drho 
         is more than one), it returns CFIM.
     
-    Note
-    ----
+    ## Note
     SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-    which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
-    solutions.html).
+    which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html).
     """
 
     if not isinstance(drho, list):
@@ -90,28 +86,26 @@ def FIM(p, dp, eps=1e-8):
     Calculation of the classical Fisher information (CFI) and classical Fisher 
     information matrix (CFIM) for classical scenarios. The entry of FIM $I$
     is defined as
-    \begin{align}
+    $$
     I_{ab}=\sum_{y}\frac{1}{p_y}[\partial_a p_y][\partial_b p_y],
-    \end{align}
+    $$
 
     where $\{p_y\}$ is a set of the discrete probability distribution.
 
-    Parameters
-    ----------
-    p : array 
+    ## Parameters
+    **p** : array  
         The probability distribution.
 
-    dp : list
+    **dp** : list  
         Derivatives of the probability distribution on the unknown parameters to 
         be estimated. For example, dp[0] is the derivative vector on the first 
         parameter.
 
-    eps : float, optional
+    **eps** : float, optional  
         Machine epsilon.
 
-    Returns
-    ----------
-    float or matrix
+    ## Returns
+    float or matrix  
         For single parameter estimation (the length of drho is equal to one), 
         the output is CFI and for multiparameter estimation (the length of drho 
         is more than one), it returns CFIM.
@@ -146,28 +140,28 @@ def FI_Expt(data_true, data_shifted, delta_x, ftype="norm"):
     """
     Calculate the classical Fisher information (CFI) based on experimental data.
 
-    Parameters
-    ----------
-    data_true : array
+    ## Parameters
+    **data_true** : array  
         Experimental data obtained at the true parameter value.
-    data_shifted : array
-        Experimental data obtained at parameter value shifted by delta_x.
-    delta_x : float
-        Small known parameter shift.
-    ftype : str, optional
-        Probability distribution of the data. Options:
-        - "norm": normal distribution (default)
-        - "gamma": gamma distribution
-        - "rayleigh": Rayleigh distribution
-        - "poisson": Poisson distribution
 
-    Returns
-    -------
-    float
+    **data_shifted** : array  
+        Experimental data obtained at parameter value shifted by delta_x.
+
+    **delta_x** : float  
+        Small known parameter shift.
+
+    **ftype** : str, optional  
+        Probability distribution of the data. Options:  
+        - "norm": normal distribution (default)  
+        - "gamma": gamma distribution  
+        - "rayleigh": Rayleigh distribution  
+        - "poisson": Poisson distribution  
+
+    ## Returns
+    float  
         Classical Fisher information
 
-    Notes
-    -----
+    ## Notes
     The current implementation may be unstable and is subject to future modification.
     """
     fidelity = 0.0
@@ -233,33 +227,33 @@ def SLD(rho, drho, rep="original", eps=1e-8):
 
     for $\lambda_i~(\lambda_j) \neq 0$. If $\lambda_i=\lambda_j=0$, the entry of SLD is set to be zero.
 
-    Parameters
-    ----------
-    rho : matrix
+    ## Parameters
+    **rho** : matrix  
         Density matrix.
-    drho : list
+
+    **drho** : list  
         Derivatives of the density matrix on the unknown parameters to be 
         estimated. For example, drho[0] is the derivative vector on the first 
         parameter.
-    rep : str, optional
-        The basis for the SLDs. Options are:  
-        "original" (default) - basis same as input density matrix  
-        "eigen" - basis same as eigenspace of density matrix
-    eps : float, optional
+
+    **rep** : str, optional  
+        The basis for the SLDs. Options:  
+        - "original" (default): basis same as input density matrix  
+        - "eigen": basis same as eigenspace of density matrix
+
+    **eps** : float, optional  
         Machine epsilon (default: 1e-8)
 
-    Returns
-    -------
-    matrix or list
-        For single parameter estimation (len(drho)=1), returns a matrix.
+    ## Returns
+    matrix or list  
+        For single parameter estimation (len(drho)=1), returns a matrix.  
         For multiparameter estimation (len(drho)>1), returns a list of matrices.
 
-    Raises
-    ------
-    TypeError
-        If drho is not a list
-    ValueError
-        If rep has invalid value
+    ## Raises
+    TypeError  
+        If drho is not a list  
+    ValueError  
+        If rep has invalid value  
     """
 
     if not isinstance(drho, list):
@@ -320,42 +314,46 @@ def SLD(rho, drho, rep="original", eps=1e-8):
 def RLD(rho, drho, rep="original", eps=1e-8):
     r"""
     Calculation of the right logarithmic derivative (RLD) for a density matrix.
-    The RLD operator defined by $\partial_{a}\rho=\rho \mathcal{R}_a$
-    with $\rho$ the parameterized density matrix. 
+    The RLD operator $\mathcal{R}_a$ is defined by
+    \begin{align}
+    \partial_{a}\rho=\rho \mathcal{R}_a
+    \end{align}
+
+    with $\rho$ the parameterized density matrix. The entries of RLD can be calculated as 
     \begin{align}
     \langle\lambda_i| \mathcal{R}_{a} |\lambda_j\rangle=\frac{1}{\lambda_i}\langle\lambda_i| 
     \partial_a\rho |\lambda_j\rangle 
     \end{align}
 
-    for $\lambda_i\neq 0$ is the $ij$th entry of RLD.
+    for $\lambda_i\neq 0$.
 
-    Parameters
-    ----------
-    rho : matrix
+    ## Parameters
+    **rho** : matrix  
         Density matrix.
-    drho : list
+
+    **drho** : list  
         Derivatives of the density matrix on the unknown parameters to be 
         estimated. For example, drho[0] is the derivative vector on the first 
         parameter.
-    rep : str, optional
-        The basis for the RLD(s). Options are:  
-        "original" (default) - basis same as input density matrix  
-        "eigen" - basis same as eigenspace of density matrix
-    eps : float, optional
+
+    **rep** : str, optional  
+        The basis for the RLD(s). Options:  
+        - "original" (default): basis same as input density matrix  
+        - "eigen": basis same as eigenspace of density matrix
+
+    **eps** : float, optional  
         Machine epsilon (default: 1e-8)
 
-    Returns
-    -------
-    matrix or list
-        For single parameter estimation (len(drho)=1), returns a matrix.
+    ## Returns
+    matrix or list  
+        For single parameter estimation (len(drho)=1), returns a matrix.  
         For multiparameter estimation (len(drho)>1), returns a list of matrices.
 
-    Raises
-    ------
-    TypeError
-        If drho is not a list
-    ValueError
-        If rep has invalid value or RLD doesn't exist
+    ## Raises
+    TypeError  
+        If drho is not a list  
+    ValueError  
+        If rep has invalid value or RLD doesn't exist  
     """
     
     if not isinstance(drho, list):
@@ -413,7 +411,11 @@ def RLD(rho, drho, rep="original", eps=1e-8):
 def LLD(rho, drho, rep="original", eps=1e-8):
     r"""
     Calculation of the left logarithmic derivative (LLD) for a density matrix $\rho$.
-    The LLD operator is defined by $\partial_{a}\rho=\mathcal{R}_a^{\dagger}\rho$. 
+    The LLD operator $\mathcal{R}_a^{\dagger}$ is defined by
+    \begin{align}
+    \partial_{a}\rho=\mathcal{R}_a^{\dagger}\rho.
+    \end{align}
+
     The entries of LLD can be calculated as 
     \begin{align}
     \langle\lambda_i| \mathcal{R}_{a}^{\dagger} |\lambda_j\rangle=\frac{1}{\lambda_j}\langle\lambda_i| 
@@ -422,33 +424,33 @@ def LLD(rho, drho, rep="original", eps=1e-8):
 
     for $\lambda_j\neq 0$.
 
-    Parameters
-    ----------
-    rho : matrix
+    ## Parameters
+    **rho** : matrix  
         Density matrix.
-    drho : list
+
+    **drho** : list  
         Derivatives of the density matrix on the unknown parameters to be 
         estimated. For example, drho[0] is the derivative vector on the first 
         parameter.
-    rep : str, optional
-        The basis for the LLD(s). Options are:  
-        "original" (default) - basis same as input density matrix  
-        "eigen" - basis same as eigenspace of density matrix
-    eps : float, optional
+
+    **rep** : str, optional  
+        The basis for the LLD(s). Options:  
+        - "original" (default): basis same as input density matrix  
+        - "eigen": basis same as eigenspace of density matrix
+
+    **eps** : float, optional  
         Machine epsilon (default: 1e-8)
 
-    Returns
-    -------
-    matrix or list
-        For single parameter estimation (len(drho)=1), returns a matrix.
+    ## Returns
+    matrix or list  
+        For single parameter estimation (len(drho)=1), returns a matrix.  
         For multiparameter estimation (len(drho)>1), returns a list of matrices.
 
-    Raises
-    ------
-    TypeError
-        If drho is not a list
-    ValueError
-        If rep has invalid value or LLD doesn't exist
+    ## Raises
+    TypeError  
+        If drho is not a list  
+    ValueError  
+        If rep has invalid value or LLD doesn't exist  
     """
 
     if not isinstance(drho, list):
@@ -520,35 +522,33 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
     \end{align}
     with $\mathcal{R}_a$ being the RLD or LLD operator.
 
-    Parameters
-    ----------
-    rho : matrix 
+    ## Parameters
+    **rho** : matrix 
         Density matrix.
 
-    drho : list of matrices
+    **drho** : list of matrices  
         Derivatives of the density matrix with respect to the unknown parameters. 
         Each element in the list is a matrix of the same dimension as `rho` and 
         represents the partial derivative of the density matrix with respect to 
         one parameter. For example, `drho[0]` is the derivative with respect to 
         the first parameter.
 
-    LDtype : str, optional
-        Specifies the type of logarithmic derivative to use for QFI/QFIM calculation:
-        - "SLD": Symmetric Logarithmic Derivative (default)
-        - "RLD": Right Logarithmic Derivative
-        - "LLD": Left Logarithmic Derivative
+    **LDtype** : str, optional  
+        Specifies the type of logarithmic derivative to use for QFI/QFIM calculation:  
+        - "SLD": Symmetric Logarithmic Derivative (default)  
+        - "RLD": Right Logarithmic Derivative  
+        - "LLD": Left Logarithmic Derivative  
 
-    exportLD : bool, optional
-        Whether to export the values of logarithmic derivatives (default: False)
-        
-    eps : float, optional
-        Machine epsilon (default: 1e-8)
+    **exportLD** : bool, optional  
+        Whether to export the values of logarithmic derivatives (default: False)  
 
-    Returns
-    -------
-    float or matrix
-        For single parameter estimation (len(drho)=1), returns QFI.
-        For multiparameter estimation (len(drho)>1), returns QFIM.
+    **eps** : float, optional  
+        Machine epsilon (default: 1e-8)  
+
+    ## Returns
+    float or matrix  
+        For single parameter estimation (len(drho)=1), returns QFI.  
+        For multiparameter estimation (len(drho)>1), returns QFIM.  
     """
 
     if not isinstance(drho, list):
