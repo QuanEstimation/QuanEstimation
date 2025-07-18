@@ -12,9 +12,7 @@ def HCRB(rho, drho, W, eps=1e-8):
 
     The HCRB is defined as:
     \begin{align}
-    \mathrm{Tr}(WV) \geq \min_{\{X_i\}} \left\{ 
-        \mathrm{Tr}(\mathrm{Re}Z) + \mathrm{Tr}\left( \left| \mathrm{Im} Z \right| \right) 
-    \right\}
+    \mathrm{Tr}(WV) \geq \min_{\{X_i\}} \left\{\mathrm{Tr}(\mathrm{Re}Z) + \mathrm{Tr}(| \mathrm{Im} Z |)\right\}
     \end{align}
     where $Z_{ij} = \mathrm{Tr}(\rho X_i X_j)$ and $V$ is the covariance matrix.
 
@@ -123,9 +121,7 @@ def NHB(rho, drho, W):
 
     The NHB is defined as:
     \begin{align}
-    \mathrm{Tr}(WV) \geq \min_{X} \left\{ 
-        \mathrm{Tr}[W \mathrm{Re}(Z)] + \|\sqrt{W} \mathrm{Im}(Z) \sqrt{W}\|_1 
-    \right\}
+    \mathrm{Tr}(WV) \geq \min_{X} \left\{ \mathrm{Tr}[W \mathrm{Re}(Z)] + \|\sqrt{W} \mathrm{Im}(Z) \sqrt{W}\|_1 \right\}
     \end{align}
     where $Z_{ij} = \mathrm{Tr}(\rho X_i X_j)$ and $V$ is the covariance matrix.
 
