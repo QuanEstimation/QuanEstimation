@@ -42,8 +42,10 @@ def Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False):
                 The estimated values in the final iteration.
 
     Raises:
-        TypeError: If `M` is not a list.
-        ValueError: If estimator is not "mean" or "MAP".
+        TypeError: 
+            If `M` is not a list.
+        ValueError: 
+            If estimator is not "mean" or "MAP".
 
     Note: 
         SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
