@@ -253,7 +253,7 @@ def extract_ele(element, n):
     Args:
         element (np.array/list): 
             Input element
-        n (int): 
+        n (int/float): 
             Depth of extraction.
     """
     if n:
@@ -268,7 +268,7 @@ def annihilation(n):
     Create annihilation operator.
     
     Args:
-        n (float): 
+        n (int/float): 
             Dimension of space.
         
     Returns:
@@ -288,7 +288,7 @@ def brgd(n):
     Generate binary reflected Gray code.
     
     Args:
-        n (float): 
+        n (int/float): 
             Number of bits
         
     Returns:
@@ -325,7 +325,8 @@ def BayesInput(x, func, dfunc, channel="dynamics"):
             Tuple of (H_list, dH_list) or (K_list, dK_list)
         
     Raises:
-        ValueError: For invalid channel.
+        ValueError: 
+            For invalid channel.
     """
     x_all = product(*x)
     if channel == "dynamics":
