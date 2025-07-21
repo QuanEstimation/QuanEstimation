@@ -28,7 +28,7 @@ def CFIM(rho, drho, M=[], eps=1e-8):
         eps: Machine epsilon for numerical stability (default: 1e-8).
 
     Returns:
-        float or np.array:  For single parameter estimation (the length of drho is equal to one), 
+        (float or np.array):  For single parameter estimation (the length of drho is equal to one), 
         the output is CFI and for multiparameter estimation (the length of drho is more than one), it 
         returns CFIM.
 
@@ -37,9 +37,9 @@ def CFIM(rho, drho, M=[], eps=1e-8):
         TypeError: If M is not a list.   
 
     Example:
-        >>> rho = np.array([[0.5, 0], [0, 0.5]])
-        >>> drho = [np.array([[1, 0], [0, -1]])]
-        >>> cfim = CFIM(rho, drho)     
+        rho = np.array([[0.5, 0], [0, 0.5]])
+        drho = [np.array([[1, 0], [0, -1]])]
+        cfim = CFIM(rho, drho)     
     
     Notes: 
         SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
