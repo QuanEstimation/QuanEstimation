@@ -13,24 +13,22 @@ def CFIM(rho, drho, M=[], eps=1e-8):
     $$
     \mathcal{I}_{ab}=\sum_y\frac{1}{p(y|\textbf{x})}[\partial_a p(y|\textbf{x})][\partial_b p(y|\textbf{x})],
     $$
-
     where $p(y|\textbf{x})=\mathrm{Tr}(\rho\Pi_y)$ with $\rho$ the parameterized 
     density matrix.
 
     Args: 
-        rho: na.array | Density matrix.
-        drho: list, List of derivative matrices of the density matrix on the unknown 
+        rho (np.array): Density matrix.
+        drho (list): List of derivative matrices of the density matrix on the unknown 
               parameters to be estimated. For example, drho[0] is the derivative 
               vector on the first parameter.
-        M: list, List of positive operator-valued measure (POVM). The default measurement 
+        M (list): List of positive operator-valued measure (POVM). The default measurement 
            is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
         eps: Machine epsilon for numerical stability (default: 1e-8).
 
     Returns:
-        CFIM: float or matrix,   
-        For single parameter estimation (the length of drho is equal to one), 
-        the output is CFI and for multiparameter estimation (the length of drho 
-        is more than one), it returns CFIM.
+        CFIM (float or np.array):  For single parameter estimation (the length of drho is equal to one), 
+        the output is CFI and for multiparameter estimation (the length of drho is more than one), it 
+        returns CFIM.
     
     Notes: 
         SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
