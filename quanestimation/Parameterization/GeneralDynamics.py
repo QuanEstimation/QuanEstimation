@@ -20,33 +20,20 @@ class Lindblad:
         - $\Gamma_i$ are the decay operators
         - $\gamma_i$ are the corresponding decay rates
 
-    ## Attributes
-    **tspan** : array  
-        Time points for the evolution.
-
-    **rho0** : matrix  
-        Initial state (density matrix).
-
-    **H0** : matrix or list  
-        Free Hamiltonian. It is a matrix when time-independent, or a list of matrices 
-        (with length equal to `tspan`) when time-dependent.
-
-    **dH** : list  
-        Derivatives of the free Hamiltonian with respect to the unknown parameters.  
-        Each element is a matrix representing the partial derivative with respect to 
-        one parameter. For example, `dH[0]` is the derivative with respect to the 
-        first parameter.
-
-    **decay** : list  
-        Decay operators and corresponding decay rates. Input format:  
-        `decay=[[Γ₁, γ₁], [Γ₂, γ₂], ...]`  
-        where Γ₁, Γ₂ are decay operators and γ₁, γ₂ are the corresponding decay rates.
-
-    **Hc** : list  
-        Control Hamiltonians.
-
-    **ctrl** : list of arrays  
-        Control coefficients for each control Hamiltonian.
+    Args:
+        tspan (np.array): Time points for the evolution.
+        rho0 (np.array): Initial state (density matrix).
+        H0 (np.array/list): Free Hamiltonian. It is a matrix when time-independent, or a list of matrices 
+            (with length equal to `tspan`) when time-dependent.
+        dH (list): Derivatives of the free Hamiltonian with respect to the unknown parameters.  
+            Each element is a matrix representing the partial derivative with respect to 
+            one parameter. For example, `dH[0]` is the derivative with respect to the 
+            first parameter.
+        decay (list): Decay operators and corresponding decay rates. Input format:  
+            `decay=[[Γ₁, γ₁], [Γ₂, γ₂], ...]`, where Γ₁, Γ₂ are decay operators and γ₁, γ₂ 
+            are the corresponding decay rates.
+        H (list): Control Hamiltonians.
+        ctrl (list, optional): Control coefficients for each control Hamiltonian.
     """
 
     def __init__(self, tspan, rho0, H0, dH, decay=[], Hc=[], ctrl=[]):
@@ -125,14 +112,11 @@ class Lindblad:
         + e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}\rho_{j-1})
         \end{align}
 
-        ## Returns
-        **rho** : list of matrices  
-            Density matrices at each time point in `tspan`.
-
-        **drho** : list of lists of matrices  
-            Derivatives of the density matrices with respect to the unknown parameters.  
-            `drho[i][j]` is the derivative of the density matrix at the i-th time point 
-            with respect to the j-th parameter.
+        Returns: 
+            rho (list): Density matrices at each time point in `tspan`.
+            drho (list): Derivatives of the density matrices with respect to the unknown parameters.  
+                `drho[i][j]` is the derivative of the density matrix at the i-th time point 
+                with respect to the j-th parameter.
         """
 
         rho, drho = QJL.expm_py(
@@ -167,14 +151,11 @@ class Lindblad:
         + e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}\rho_{j-1})
         \end{align}
 
-        ## Returns
-        **rho** : list of matrices  
-            Density matrices at each time point in `tspan`.
-
-        **drho** : list of lists of matrices  
-            Derivatives of the density matrices with respect to the unknown parameters.  
-            `drho[i][j]` is the derivative of the density matrix at the i-th time point 
-            with respect to the j-th parameter.
+        Returns:
+            rho (list): Density matrices at each time point in `tspan`.
+            drho (list): Derivatives of the density matrices with respect to the unknown parameters.  
+                `drho[i][j]` is the derivative of the density matrix at the i-th time point 
+                with respect to the j-th parameter.
         """
 
         rho, drho = QJL.ode_py(
@@ -216,22 +197,16 @@ class Lindblad:
         &+ e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}^2\rho_{j-1})
         \end{align}
 
-        ## Parameters
-        **d2H** : list  
-            Second-order derivatives of the free Hamiltonian with respect to the unknown parameters.  
-            Each element is a matrix representing the second partial derivative with respect to 
-            two parameters. For example, `d2H[0]` might be the second derivative with respect to 
-            the first parameter twice, or a mixed partial derivative.
+        Args:
+            d2H (list): Second-order derivatives of the free Hamiltonian with respect to the unknown parameters.  
+                Each element is a matrix representing the second partial derivative with respect to 
+                two parameters. For example, `d2H[0]` might be the second derivative with respect to 
+                the first parameter twice, or a mixed partial derivative.
 
-        ## Returns
-        **rho** : list of matrices  
-            Density matrices at each time point in `tspan`.
-
-        **drho** : list of lists of matrices  
-            First derivatives of the density matrices with respect to the unknown parameters.
-
-        **d2rho** : list of lists of matrices  
-            Second derivatives of the density matrices with respect to the unknown parameters.
+        Returns:
+            rho (list): Density matrices at each time point in `tspan`.
+            drho (list): First derivatives of the density matrices with respect to the unknown parameters.
+            d2rho (list): Second derivatives of the density matrices with respect to the unknown parameters.
         """
 
         d2H = [np.array(x, dtype=np.complex128) for x in d2H]
