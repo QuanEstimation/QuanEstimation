@@ -23,9 +23,9 @@ def CFIM(rho, drho, M=[], eps=1e-8):
         drho (list): List of derivative matrices of the density matrix on the unknown 
               parameters to be estimated. For example, drho[0] is the derivative 
               vector on the first parameter.
-        M (list, optional): List of positive operator-valued measure (POVM). The default measurement 
+        M (list, optional, default: []): List of positive operator-valued measure (POVM). The default measurement 
            is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
-        eps (float, optional): Machine epsilon for numerical stability (default: 1e-8).
+        eps (float, optional, default: 1e-8): Machine epsilon for numerical stability.
 
     Returns:
         (float or np.array):  For single parameter estimation (the length of drho is equal to one), 
@@ -97,14 +97,12 @@ def FIM(p, dp, eps=1e-8):
 
     Args: 
         p (array): The probability distribution.
-
         dp (list): Derivatives of the probability distribution on the unknown parameters to 
         be estimated. For example, dp[0] is the derivative vector on the first parameter.
-
-        eps (float, optional): Machine epsilon.
+        eps (float, optional, default: 1e-8): Machine epsilon.
 
     Returns:
-        float or np.array: For single parameter estimation (the length of drho is equal to one), 
+        (float/np.array): For single parameter estimation (the length of drho is equal to one), 
         the output is CFI and for multiparameter estimation (the length of drho is more than one), 
         it returns CFIM.
     """
@@ -138,29 +136,21 @@ def FI_Expt(data_true, data_shifted, delta_x, ftype="norm"):
     """
     Calculate the classical Fisher information (CFI) based on experimental data.
 
-    ## Parameters
-    **data_true** : array  
-        Experimental data obtained at the true parameter value.
+    Args:
+        data_true (np.array): Experimental data obtained at the true parameter value.
+        data_shifted (np.array): Experimental data obtained at parameter value shifted by delta_x.
+        delta_x (float): Small known parameter shift.
+        ftype (str, optional): Probability distribution of the data. Options:  
+            - "norm": normal distribution (default)  
+            - "gamma": gamma distribution  
+            - "rayleigh": Rayleigh distribution  
+            - "poisson": Poisson distribution  
 
-    **data_shifted** : array  
-        Experimental data obtained at parameter value shifted by delta_x.
+    Returns: 
+        (float): Classical Fisher information
 
-    **delta_x** : float  
-        Small known parameter shift.
-
-    **ftype** : str, optional  
-        Probability distribution of the data. Options:  
-        - "norm": normal distribution (default)  
-        - "gamma": gamma distribution  
-        - "rayleigh": Rayleigh distribution  
-        - "poisson": Poisson distribution  
-
-    ## Returns
-    **CFI** : float  
-        Classical Fisher information
-
-    ## Notes
-    The current implementation may be unstable and is subject to future modification.
+    Notes:
+        The current implementation may be unstable and is subject to future modification.
     """
     fidelity = 0.0
     if ftype == "norm":
