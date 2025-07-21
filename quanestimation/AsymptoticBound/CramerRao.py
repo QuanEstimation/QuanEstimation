@@ -22,7 +22,7 @@ def CFIM(rho, drho, M=[], eps=1e-8):
         rho (np.array): Density matrix.
         drho (list): List of derivative matrices of the density matrix on the unknown 
               parameters to be estimated. For example, drho[0] is the derivative 
-              vector on the first parameter.
+              matrix on the first parameter.
         M (list, optional, default: []): List of positive operator-valued measure (POVM). The default measurement 
            is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
         eps (float, optional, default: 1e-8): Machine epsilon for numerical stability.
@@ -37,13 +37,14 @@ def CFIM(rho, drho, M=[], eps=1e-8):
         TypeError: If M is not a list.   
 
     Example:
+        ```python
         rho = np.array([[0.5, 0], [0, 0.5]])
         drho = [np.array([[1, 0], [0, -1]])]
         cfim = CFIM(rho, drho)     
     
     Notes: 
         SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-        which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html).
+        which can be downloaded from [here](https://www.physics.umb.edu/Research/QBism/solutions.html).
     """
 
     if not isinstance(drho, list):
@@ -228,11 +229,9 @@ def SLD(rho, drho, rep="original", eps=1e-8):
         SLD (np.array/list): For single parameter estimation (len(drho)=1), returns a matrix.  
         For multiparameter estimation (len(drho)>1), returns a list of matrices.
 
-    ## Raises
-    **TypeError**   
-        If drho is not a list  
-    **ValueError**  
-        If rep has invalid value  
+    Raises:
+        TypeError: If drho is not a list  
+        ValueError: If rep has invalid value  
     """
 
     if not isinstance(drho, list):
