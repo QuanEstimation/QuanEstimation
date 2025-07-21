@@ -11,9 +11,9 @@ def HCRB(rho, drho, W, eps=1e-8):
     Calculate the Holevo Cramer-Rao bound (HCRB) via semidefinite programming (SDP).
 
     The HCRB is defined as:
-    \begin{equation}
+    $$
     \mathrm{Tr}(WV) \geq \min_{\{X_i\}} \left\{\mathrm{Tr}(\mathrm{Re}Z) + \mathrm{Tr}(| \mathrm{Im} Z |)\right\}, 
-    \end{equation}
+    $$
     where $Z_{ij} = \mathrm{Tr}(\rho X_i X_j)$ and $V$ is the covariance matrix.
 
     ## Parameters
