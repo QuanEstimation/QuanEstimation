@@ -23,7 +23,7 @@ def CFIM(rho, drho, M=[], eps=1e-8):
         drho (list): List of derivative matrices of the density matrix on the unknown 
               parameters to be estimated. For example, drho[0] is the derivative 
               vector on the first parameter.
-        M (list): List of positive operator-valued measure (POVM). The default measurement 
+        M (list, optional): List of positive operator-valued measure (POVM). The default measurement 
            is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
         eps: Machine epsilon for numerical stability (default: 1e-8).
 
@@ -85,32 +85,28 @@ def CFIM(rho, drho, M=[], eps=1e-8):
 
 def FIM(p, dp, eps=1e-8):
     r"""
-    Calculation of the classical Fisher information (CFI) and classical Fisher 
-    information matrix (CFIM) for classical scenarios. The entry of FIM $I$
-    is defined as
+    Calculation of the classical Fisher information matrix (CFIM) for a given probability distributions.
+
+    This function computes the classical Fisher information matrix (CFIM) for a given probability 
+    distributions. The entry of FIM $I$ is defined as
     $$
     I_{ab}=\sum_{y}\frac{1}{p_y}[\partial_a p_y][\partial_b p_y],
     $$
 
     where $\{p_y\}$ is a set of the discrete probability distribution.
 
-    ## Parameters
-    **p** : array  
-        The probability distribution.
+    Args: 
+        p (array): The probability distribution.
 
-    **dp** : list  
-        Derivatives of the probability distribution on the unknown parameters to 
-        be estimated. For example, dp[0] is the derivative vector on the first 
-        parameter.
+        dp (list): Derivatives of the probability distribution on the unknown parameters to 
+        be estimated. For example, dp[0] is the derivative vector on the first parameter.
 
-    **eps** : float, optional  
-        Machine epsilon.
+        eps (float, optional): Machine epsilon.
 
-    ## Returns
-    **CFIM** : float or matrix  
-        For single parameter estimation (the length of drho is equal to one), 
-        the output is CFI and for multiparameter estimation (the length of drho 
-        is more than one), it returns CFIM.
+    Returns:
+        float or np.array: For single parameter estimation (the length of drho is equal to one), 
+        the output is CFI and for multiparameter estimation (the length of drho is more than one), 
+        it returns CFIM.
     """
 
     num_params = len(dp)
