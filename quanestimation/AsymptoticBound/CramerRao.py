@@ -101,7 +101,7 @@ def FIM(p, dp, eps=1e-8):
     where $\{p_y\}$ is a set of the discrete probability distribution.
 
     Args: 
-        p (array): 
+        p (np.array): 
             The probability distribution.
         dp (list): 
             Derivatives of the probability distribution on the unknown parameters to 

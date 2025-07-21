@@ -35,8 +35,9 @@ def Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False):
 
     Returns:
         (tuple): 
-            pout (np.ndarray): The posterior distribution in the final iteration
-            xout (float/list): The estimated values in the final iteration
+            pout (np.ndarray): The posterior distribution in the final iteration.
+
+            xout (float/list): The estimated values in the final iteration.
 
     Raises:
         TypeError: If `M` is not a list.
@@ -254,8 +255,9 @@ def MLE(x, rho, y, M=[], savefile=False):
 
     Returns:
         (tuple): 
-            Lout (np.ndarray): The likelihood function in the final iteration
-            xout (float/list): The estimated values in the final iteration
+            Lout (np.ndarray): The likelihood function in the final iteration.
+
+            xout (float/list): The estimated values in the final iteration.
 
     Raises:
         TypeError: If `M` is not a list

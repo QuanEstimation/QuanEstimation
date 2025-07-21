@@ -40,7 +40,7 @@ def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
 
     Returns:
         (float/np.array): 
-            For single parameter estimation (length of `x` is 1), returns BCFI. 
+            For single parameter estimation (length of `x` is 1), returns BCFI.             
             For multiparameter estimation (length of `x` > 1), returns BCFIM.
 
     Raises:
@@ -142,7 +142,8 @@ def BQFIM(x, p, rho, drho, LDtype="SLD", eps=1e-8):
         eps (float, optional): Machine epsilon for numerical stability.
 
     Returns:
-        (float/np.array): For single parameter estimation (length of `x` is 1), returns BQFI. 
+        (float/np.array): 
+            For single parameter estimation (length of `x` is 1), returns BQFI. 
             For multiparameter estimation (length of `x` > 1), returns BQFIM.
     """
 

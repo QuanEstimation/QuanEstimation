@@ -123,6 +123,7 @@ class Lindblad:
             (tuple):
                 rho (list): 
                     Density matrices at each time point in `tspan`.
+
                 drho (list): 
                     Derivatives of the density matrices with respect to the unknown parameters.  
                     `drho[i][j]` is the derivative of the density matrix at the i-th time point 
@@ -165,6 +166,7 @@ class Lindblad:
             (tuple):
                 rho (list): 
                     Density matrices at each time point in `tspan`.
+
                 drho (list): 
                     Derivatives of the density matrices with respect to the unknown parameters.  
                     `drho[i][j]` is the derivative of the density matrix at the i-th time point 
@@ -220,8 +222,10 @@ class Lindblad:
             (tuple):
                 rho (list): 
                     Density matrices at each time point in `tspan`.
+
                 drho (list): 
                     First derivatives of the density matrices with respect to the unknown parameters.
+                    
                 d2rho (list): 
                     Second derivatives of the density matrices with respect to the unknown parameters.
         """
