@@ -55,10 +55,12 @@ def QZZB(x, p, rho, eps=1e-8):
             Machine epsilon. Defaults to 1e-8.
 
     Returns:
-        (float): Quantum Ziv-Zakai bound (QZZB).
+        (float): 
+            Quantum Ziv-Zakai bound (QZZB).
 
     Raises:
-        ValueError: If the length of x and p do not match.
+        ValueError: 
+            If the length of x and p do not match.
     """
 
     if type(x[0]) == list or type(x[0]) == np.ndarray:

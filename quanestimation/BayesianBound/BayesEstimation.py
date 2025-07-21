@@ -34,9 +34,9 @@ def Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False):
             estimated values. Defaults to False.
 
     Returns:
-        tuple: 
+        (tuple): 
             pout (np.ndarray): The posterior distribution in the final iteration
-            xout (float or list): The estimated values in the final iteration
+            xout (float/list): The estimated values in the final iteration
 
     Raises:
         TypeError: If `M` is not a list.
@@ -253,12 +253,12 @@ def MLE(x, rho, y, M=[], savefile=False):
             estimated values. Defaults to False.
 
     Returns:
-        tuple: 
+        (tuple): 
             Lout (np.ndarray): The likelihood function in the final iteration
-            xout (float or list): The estimated values in the final iteration
+            xout (float/list): The estimated values in the final iteration
 
     Raises:
-        TypeError: If M is not a list
+        TypeError: If `M` is not a list
 
     Note: 
         SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
@@ -380,7 +380,7 @@ def BayesCost(x, p, xest, rho, M, W=[], eps=1e-8):
     Args:
         x (list): 
             The regimes of the parameters for the integral.
-        p (np.ndarray): 
+        p (array): 
             The prior distribution as a multidimensional array.
         xest (list): 
             The estimators.
@@ -388,16 +388,18 @@ def BayesCost(x, p, xest, rho, M, W=[], eps=1e-8):
             Parameterized density matrix as a multidimensional list.
         M (list): 
             A set of positive operator-valued measure (POVM).
-        W (np.ndarray, optional): 
+        W (array, optional): 
             Weight matrix. Defaults to an identity matrix.
         eps (float, optional): 
             Machine epsilon.
 
     Returns:
-        (float): The average Bayesian cost.
+        (float): 
+            The average Bayesian cost.
 
     Raises:
-        TypeError: If M is not a list
+        TypeError: 
+            If `M` is not a list.
     """
     para_num = len(x)
     if para_num == 1:
@@ -459,17 +461,18 @@ def BCB(x, p, rho, W=[], eps=1e-8):
     Args:
         x (list): 
             The regimes of the parameters for the integral.
-        p (np.ndarray): 
+        p (array): 
             The prior distribution as a multidimensional array.
         rho (list): 
             Parameterized density matrix as a multidimensional list.
-        W (np.ndarray, optional): 
+        W (array, optional): 
             Weight matrix. Defaults to an identity matrix.
         eps (float, optional): 
             Machine epsilon. Defaults to 1e-8.
 
     Returns:
-        (float): The value of the minimum Bayesian cost.
+        (float): 
+            The value of the minimum Bayesian cost.
 
     Note:
         This function calculates the Bayesian cost bound for parameter estimation.
