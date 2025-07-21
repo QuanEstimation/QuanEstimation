@@ -24,10 +24,10 @@ def mat_vec_convert(A):
     Convert between matrix and vector representations.
     
     Args:
-        A: Input matrix or vector
+        A (np.array): Input matrix or vector. 
         
     Returns:
-        Converted matrix or vector
+        (np.array): Converted matrix or vector.
     """
     if A.shape[1] == 1:
         dim = int(np.sqrt(len(A)))
@@ -44,7 +44,7 @@ def suN_unsorted(n):
         n: Dimension of the system
         
     Returns:
-        Tuple of symmetric, antisymmetric, and diagonal generators
+        (tuple): Tuple of symmetric, antisymmetric, and diagonal generators
     """
     U, V, W = [], [], []
     for i in range(1, n):
@@ -82,10 +82,10 @@ def suN_generator(n):
     Generate sorted SU(N) generators.
     
     Args:
-        n: Dimension of the system
+        n (float): Dimension of the system. 
         
     Returns:
-        List of SU(N) generators
+        (list): List of SU(N) generators
     """
     symm, anti_symm, diag = suN_unsorted(n)
     if n == 2:
@@ -127,10 +127,10 @@ def gramschmidt(A):
     Perform Gram-Schmidt orthogonalization.
     
     Args:
-        A: List of vectors to orthogonalize
+        A (list): List of vectors to orthogonalize.
         
     Returns:
-        List of orthonormal vectors
+        (list): List of orthonormal vectors.
     """
     dim = len(A)
     n = len(A[0])
@@ -150,11 +150,11 @@ def basis(dim, index):
     Generate basis vector.
     
     Args:
-        dim: Dimension of Hilbert space
-        index: Index of basis vector
+        dim (float): Dimension of Hilbert space
+        index (float): Index of basis vector
         
     Returns:
-        Basis vector as column vector
+        (np.array): Basis vector as column vector
     """
     x = np.zeros(dim)
     x[index] = 1.0
@@ -166,10 +166,10 @@ def sic_povm(fiducial):
     Generate SIC-POVM from fiducial state.
     
     Args:
-        fiducial: np.ndarray, the fiducial state vector (column vector of complex numbers)
+        fiducial (np.ndarray) the fiducial state vector.
         
     Returns:
-        List of POVM elements
+        (list): List of POVM elements.
     """
     d = fiducial.shape[0]
     w = np.exp(2.0 * np.pi * 1.0j / d)
@@ -206,10 +206,10 @@ def SIC(dim):
     Generate SIC-POVM for given dimension.
     
     Args:
-        dim: Dimension of system
+        dim (float): Dimension of system
         
     Returns:
-        List of SIC-POVM elements
+        (list): List of SIC-POVM elements
         
     Raises:
         ValueError: If dimension > 151
@@ -250,10 +250,10 @@ def annihilation(n):
     Create annihilation operator.
     
     Args:
-        n: Dimension of space
+        n (float): Dimension of space.
         
     Returns:
-        Annihilation operator matrix
+        (np.array): Annihilation operator matrix.
     """
     data = np.sqrt(np.arange(1, n, dtype=complex))
     indices = np.arange(1, n)
@@ -268,10 +268,10 @@ def brgd(n):
     Generate binary reflected Gray code.
     
     Args:
-        n: Number of bits
+        n (float): Number of bits
         
     Returns:
-        List of Gray code sequences
+        (list): List of Gray code sequences
     """
     if n == 1:
         return ["0", "1"]
@@ -289,16 +289,16 @@ def BayesInput(x, func, dfunc, channel="dynamics"):
     Generate input variables for Bayesian estimation.
     
     Args:
-        x: Parameter regimes
-        func: Function returning H or K
-        dfunc: Function returning dH or dK
-        channel: "dynamics" or "Kraus" (default: "dynamics")
+        x (np.array): Parameter regimes
+        func (callable): Function returning H or K
+        dfunc (callable): Function returning dH or dK
+        channel (str, optional): "dynamics" or "Kraus" (default: "dynamics")
         
     Returns:
-        Tuple of (H_list, dH_list) or (K_list, dK_list)
+        (tuple: )Tuple of (H_list, dH_list) or (K_list, dK_list)
         
     Raises:
-        ValueError: For invalid channel
+        ValueError: For invalid channel.
     """
     x_all = product(*x)
     if channel == "dynamics":

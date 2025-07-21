@@ -16,31 +16,22 @@ def HCRB(rho, drho, W, eps=1e-8):
     $$
     where $Z_{ij} = \mathrm{Tr}(\rho X_i X_j)$ and $V$ is the covariance matrix.
 
-    ## Parameters
-    **rho** : matrix  
-        Density matrix.
+    Args:
+        rho (np.array): Density matrix.
+        drho (list): Derivatives of the density matrix with respect to unknown parameters.  
+            For example, `drho[0]` is the derivative with respect to the first parameter.
+        W (np.array): Weight matrix for the bound.
+        eps (float, optional): Machine epsilon for numerical stability.
 
-    **drho** : list  
-        Derivatives of the density matrix with respect to unknown parameters.  
-        Example: drho[0] is the derivative for the first parameter.
+    Returns: 
+    (float): The value of the Holevo Cramer-Rao bound.
 
-    **W** : matrix  
-        Weight matrix for the bound.
+    Raises:
+        TypeError: If `drho` is not a list.
 
-    **eps** : float, optional  
-        Machine epsilon for numerical stability (default: 1e-8).
-
-    ## Returns
-    **HCRB** : float  
-        The value of the Holevo Cramer-Rao bound.
-
-    ## Raises
-    **TypeError**  
-        If drho is not a list.
-
-    ## Notes
-    In the single-parameter scenario, the HCRB is equivalent to the QFI.  
-    For a rank-one weight matrix, the HCRB is equivalent to the inverse of the QFIM.
+    Notes:
+        In the single-parameter scenario, the HCRB is equivalent to the QFI.  
+        For a rank-one weight matrix, the HCRB is equivalent to the inverse of the QFIM.
     """
 
     if not isinstance(drho, list):
@@ -125,24 +116,17 @@ def NHB(rho, drho, W):
     \end{equation}
     where $Z_{ij} = \mathrm{Tr}(\rho X_i X_j)$ and $V$ is the covariance matrix.
 
-    ## Parameters
-    **rho** : matrix  
-        Density matrix.
+    Args:
+        rho (np.array): Density matrix.
+        drho (list): Derivatives of the density matrix with respect to unknown parameters.  
+            For example, `drho[0]` is the derivative with respect to the first parameter.
+        W (np.array): Weight matrix for the bound.
 
-    **drho** : list  
-        Derivatives of the density matrix with respect to unknown parameters.  
-        Example: drho[0] is the derivative for the first parameter.
+    Returns: 
+    (float): The value of the Nagaoka-Hayashi bound.
 
-    **W** : matrix  
-        Weight matrix.
-
-    ## Returns
-    **NHB** : float  
-        The value of the Nagaoka-Hayashi bound.
-
-    ## Raises
-    **TypeError**  
-        If drho is not a list.
+    Raises:
+        TypeError: If `drho` is not a list.
     """
     if not isinstance(drho, list):
         raise TypeError("drho must be a list of derivative matrices")

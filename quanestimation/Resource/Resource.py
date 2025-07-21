@@ -12,27 +12,19 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
     \end{align}
     where $J_{\vec{n}_i}$ are the collective spin operators.
 
-    ## Parameters
-    **rho** : matrix  
-        Density matrix.
+    Args:
+        rho (np.array): Density matrix.
+        basis (str, optional): Basis to use: "Dicke" (default) or "Pauli".
+        output (str, optional): Type of spin squeezing to calculate:  
+            - "KU": Kitagawa-Ueda squeezing parameter.  
+            - "WBIMH": Wineland et al. squeezing parameter.  
 
-    **basis** : str, optional  
-        Basis to use: "Dicke" (default) or "Pauli".
+    Returns:
+    (float): Spin squeezing parameter.
 
-    **output** : str, optional  
-        Type of spin squeezing to calculate:  
-        - "KU": Kitagawa-Ueda squeezing parameter  
-        - "WBIMH": Wineland et al. squeezing parameter  
-
-    ## Returns
-    **$\xi$** : float  
-        Spin squeezing parameter.
-
-    ## Raises
-    **ValueError**  
-        If basis has invalid value.  
-    **NameError**  
-        If output has invalid value.  
+    Raises:
+        ValueError: If basis has invalid value.  
+        NameError: If output has invalid value.  
     """
     N = len(rho) - 1
     coef = 4.0 / float(N)
@@ -111,25 +103,15 @@ def TargetTime(f, tspan, func, *args, **kwargs):
     This function finds the earliest time $t$ in `tspan` where the objective 
     function `func` reaches or crosses the target value $f$.
 
-    ## Parameters
-    **f** : float  
-        The target value of the objective function.
+    Args:
+        f (float): The target value of the objective function.
+        tspan (np.array): Time points for the evolution.
+        func (callable): The objective function to evaluate. Must return a float.
+        args: Positional arguments to pass to `func`.
+        kwargs: Keyword arguments to pass to `func`.
 
-    **tspan** : array  
-        Time points for the evolution.
-
-    **func** : callable  
-        The objective function to evaluate. Must return a float.
-
-    ***args**  
-        Positional arguments to pass to `func`.
-
-    ****kwargs**  
-        Keyword arguments to pass to `func`.
-
-    ## Returns
-    float  
-        Time to reach the given target precision.
+    Returns:
+    (float): Time to reach the given target precision.
     """
 
     args = list(zip_broadcast(*args))

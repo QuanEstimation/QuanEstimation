@@ -14,6 +14,12 @@
 ---
 
 ## Quantum Cramér-Rao bounds
+### Classical Fisher information matrix (CFIM)
+::: quanestimation.CFIM
+### Fisher information matrix (FIM)
+::: quanestimation.FIM
+### Fisher information (FI_Expt)
+::: quanestimation.FI_Expt
 ### Symmetric logarithmic derivative (SLD)
 ::: quanestimation.SLD
 ### Right logarithmic derivative (RLD)
@@ -24,12 +30,6 @@
 ::: quanestimation.QFIM
 ### Quantum Fisher information matrix with Kraus operators
 ::: quanestimation.QFIM_Kraus
-### Classical Fisher information matrix (CFIM)
-::: quanestimation.CFIM
-### Fisher information matrix (FIM)
-::: quanestimation.FIM
-### Fisher information (FI_Expt)
-::: quanestimation.FI_Expt
 ### Quantum Fisher information matrix in Bloch representation
 ::: quanestimation.QFIM_Bloch
 ### Quantum Fisher information matrix with Gaussian states
