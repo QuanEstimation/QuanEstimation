@@ -206,7 +206,8 @@ def FI_Expt(data_true, data_shifted, delta_x, ftype="norm"):
 def SLD(rho, drho, rep="original", eps=1e-8):
     r"""
     Calculation of the symmetric logarithmic derivative (SLD) for a density matrix.
-    The SLD operator $L_a$ is determined by
+
+    This function computes the SLD operator $L_a$, which is determined by
     $$
     \partial_{a}\rho=\frac{1}{2}(\rho L_{a}+L_{a}\rho)
     $$
@@ -226,7 +227,7 @@ def SLD(rho, drho, rep="original", eps=1e-8):
         eps (float, optional, default: 1e-8): Machine epsilon.
 
     Returns:
-        SLD (np.array/list): For single parameter estimation (len(drho)=1), returns a matrix.  
+        (np.array/list): For single parameter estimation (len(drho)=1), returns a matrix.  
         For multiparameter estimation (len(drho)>1), returns a list of matrices.
 
     Raises:
@@ -293,45 +294,32 @@ def RLD(rho, drho, rep="original", eps=1e-8):
     r"""
     Calculation of the right logarithmic derivative (RLD) for a density matrix.
     The RLD operator $\mathcal{R}_a$ is defined by
-    \begin{align}
+    $$
     \partial_{a}\rho=\rho \mathcal{R}_a
-    \end{align}
-
+    $$
     with $\rho$ the parameterized density matrix. The entries of RLD can be calculated as 
-    \begin{align}
+    $$
     \langle\lambda_i| \mathcal{R}_{a} |\lambda_j\rangle=\frac{1}{\lambda_i}\langle\lambda_i| 
     \partial_a\rho |\lambda_j\rangle 
-    \end{align}
-
+    $$
     for $\lambda_i\neq 0$.
 
-    ## Parameters
-    **rho** : matrix  
-        Density matrix.
+    Args:
+        rho (np.array): Density matrix.  
+        drho (list):  Derivatives of the density matrix on the unknown parameters to be 
+            estimated. For example, drho[0] is the derivative vector on the first parameter.
+        rep (str, optional): The basis for the RLD(s). Options:  
+            - "original" (default): basis same as input density matrix  
+            - "eigen": basis same as eigenspace of density matrix
+        eps (float, optional, default: 1e-8): Machine epsilon.
 
-    **drho** : list  
-        Derivatives of the density matrix on the unknown parameters to be 
-        estimated. For example, drho[0] is the derivative vector on the first 
-        parameter.
+    Returns:
+        (np.array/list): For single parameter estimation (len(drho)=1), returns a matrix.  
+            For multiparameter estimation (len(drho)>1), returns a list of matrices.
 
-    **rep** : str, optional  
-        The basis for the RLD(s). Options:  
-        - "original" (default): basis same as input density matrix  
-        - "eigen": basis same as eigenspace of density matrix
-
-    **eps** : float, optional  
-        Machine epsilon (default: 1e-8)
-
-    ## Returns
-    **RLD** : matrix or list  
-        For single parameter estimation (len(drho)=1), returns a matrix.  
-        For multiparameter estimation (len(drho)>1), returns a list of matrices.
-
-    ## Raises
-    **TypeError**  
-        If drho is not a list  
-    **ValueError**  
-        If rep has invalid value or RLD doesn't exist  
+    Raises:
+        TypeError: If drho is not a list.
+        ValueError: If rep has invalid value or RLD doesn't exist.
     """
     
     if not isinstance(drho, list):
