@@ -741,20 +741,25 @@ def QFIM_Gauss(R, dR, D, dD):
     method described in [1].
 
     Args:
-        R (np.array): First-order moment (displacement vector).
-        dR (list): Derivatives of the first-order moment with respect to the unknown parameters. 
+        R (np.array): 
+            First-order moment (displacement vector).
+        dR (list): 
+            Derivatives of the first-order moment with respect to the unknown parameters. 
             Each element in the list is a vector of the same length as `R` and represents the partial 
             derivative of the displacement vector with respect to one parameter. For example, `dR[0]` 
             is the derivative with respect to the first parameter.
-        D (np.array): Second-order moment (covariance matrix).
-        dD (list): Derivatives of the second-order moment with respect to the unknown parameters. 
+        D (np.array): 
+            Second-order moment (covariance matrix).
+        dD (list): 
+            Derivatives of the second-order moment with respect to the unknown parameters. 
             Each element in the list is a matrix of the same dimension as `D` and 
             represents the partial derivative of the covariance matrix with respect to 
             one parameter. For example, `dD[0]` is the derivative with respect to 
             the first parameter.
 
     Returns:
-        (float/np.array): For single parameter estimation (the length of `dR` is equal to one), 
+        (float/np.array): 
+            For single parameter estimation (the length of `dR` is equal to one), 
             the output is QFI and for multiparameter estimation (the length of `dR` 
             is more than one), it returns QFIM.
 
