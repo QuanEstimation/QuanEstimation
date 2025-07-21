@@ -18,25 +18,7 @@ def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
     where $\mathcal{I}$ is the classical Fisher information matrix (CFIM) and $p(\textbf{x})$ 
     is the prior distribution.
 
-    Args:
-        x (list): 
-            Parameter regimes for integration. Each element is an array 
-            representing the values of one parameter.
-        p (np.array): 
-            Prior distribution over the parameter space. Must have the same dimensions 
-            as the product of the lengths of the arrays in `x`.
-        rho (list): 
-            Parameterized density matrices. Each element corresponds to 
-            a point in the parameter space defined by `x`.
-        drho (list): 
-            Derivatives of the density matrices with respect to the parameters. For single parameter estimation (length of `x` is 1), 
-            `drho` is a list of derivatives at each parameter point. For multiparameter estimation, `drho` is a 
-            multidimensional list where `drho[i]` is a list of derivatives with respect to each parameter at the i-th parameter point, 
-            and `drho[i][j]` is the derivative of the density matrix at the i-th parameter point with respect to the j-th parameter.
-        M (list, optional): 
-            Positive operator-valued measure (POVM). Default is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
-        eps (float, optional): 
-            Machine epsilon for numerical stability.
+
 
     Returns:
         (float/np.array): 
