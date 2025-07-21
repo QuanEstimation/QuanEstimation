@@ -24,10 +24,12 @@ def mat_vec_convert(A):
     Convert between matrix and vector representations.
     
     Args:
-        A (np.array): Input matrix or vector. 
+        A (np.array): 
+            Input matrix or vector. 
         
     Returns:
-        (np.array): Converted matrix or vector.
+        (np.array): 
+            Converted matrix or vector.
     """
     if A.shape[1] == 1:
         dim = int(np.sqrt(len(A)))
@@ -41,10 +43,12 @@ def suN_unsorted(n):
     Generate unsorted SU(N) generators.
     
     Args:
-        n: Dimension of the system
+        n (float): 
+            Dimension of the system.
         
     Returns:
-        (tuple): Tuple of symmetric, antisymmetric, and diagonal generators
+        (tuple): 
+            Tuple of symmetric, antisymmetric, and diagonal generators.
     """
     U, V, W = [], [], []
     for i in range(1, n):
@@ -82,10 +86,12 @@ def suN_generator(n):
     Generate sorted SU(N) generators.
     
     Args:
-        n (float): Dimension of the system. 
+        n (float): 
+            Dimension of the system. 
         
     Returns:
-        (list): List of SU(N) generators
+        (list): 
+            List of SU(N) generators.
     """
     symm, anti_symm, diag = suN_unsorted(n)
     if n == 2:
@@ -127,10 +133,12 @@ def gramschmidt(A):
     Perform Gram-Schmidt orthogonalization.
     
     Args:
-        A (list): List of vectors to orthogonalize.
+        A (list): 
+            List of vectors to orthogonalize.
         
     Returns:
-        (list): List of orthonormal vectors.
+        (list): 
+            List of orthonormal vectors.
     """
     dim = len(A)
     n = len(A[0])
@@ -150,11 +158,14 @@ def basis(dim, index):
     Generate basis vector.
     
     Args:
-        dim (float): Dimension of Hilbert space
-        index (float): Index of basis vector
+        dim (float): 
+            Dimension of Hilbert space.
+        index (float): 
+            Index of basis vector.
         
     Returns:
-        (np.array): Basis vector as column vector
+        (np.array): 
+            Basis vector as column vector.
     """
     x = np.zeros(dim)
     x[index] = 1.0
@@ -166,10 +177,12 @@ def sic_povm(fiducial):
     Generate SIC-POVM from fiducial state.
     
     Args:
-        fiducial (np.ndarray) the fiducial state vector.
+        fiducial (np.ndarray): 
+            the fiducial state vector.
         
     Returns:
-        (list): List of POVM elements.
+        (list): 
+            List of POVM elements.
     """
     d = fiducial.shape[0]
     w = np.exp(2.0 * np.pi * 1.0j / d)
@@ -206,13 +219,16 @@ def SIC(dim):
     Generate SIC-POVM for given dimension.
     
     Args:
-        dim (float): Dimension of system
+        dim (float): 
+            Dimension of the system.
         
     Returns:
-        (list): List of SIC-POVM elements
+        (list): 
+            List of SIC-POVM elements.
         
     Raises:
-        ValueError: If dimension > 151
+        ValueError: 
+            If dimension > 151.
     """
     if dim <= 151:
         file_path = os.path.join(
@@ -235,8 +251,10 @@ def extract_ele(element, n):
     Recursively extract elements.
     
     Args:
-        element: Input element
-        n: Depth of extraction
+        element (np.array/list): 
+            Input element
+        n (int): 
+            Depth of extraction.
     """
     if n:
         for x in element:
@@ -250,10 +268,12 @@ def annihilation(n):
     Create annihilation operator.
     
     Args:
-        n (float): Dimension of space.
+        n (float): 
+            Dimension of space.
         
     Returns:
-        (np.array): Annihilation operator matrix.
+        (np.array): 
+            Annihilation operator matrix.
     """
     data = np.sqrt(np.arange(1, n, dtype=complex))
     indices = np.arange(1, n)
@@ -268,10 +288,12 @@ def brgd(n):
     Generate binary reflected Gray code.
     
     Args:
-        n (float): Number of bits
+        n (float): 
+            Number of bits
         
     Returns:
-        (list): List of Gray code sequences
+        (list): 
+            List of Gray code sequences
     """
     if n == 1:
         return ["0", "1"]
@@ -289,13 +311,18 @@ def BayesInput(x, func, dfunc, channel="dynamics"):
     Generate input variables for Bayesian estimation.
     
     Args:
-        x (np.array): Parameter regimes
-        func (callable): Function returning H or K
-        dfunc (callable): Function returning dH or dK
-        channel (str, optional): "dynamics" or "Kraus" (default: "dynamics")
+        x (np.array): 
+            Parameter regimes
+        func (callable): 
+            Function returning H or K
+        dfunc (callable): 
+            Function returning dH or dK
+        channel (str, optional): 
+            "dynamics" or "Kraus" (default: "dynamics")
         
     Returns:
-        (tuple: )Tuple of (H_list, dH_list) or (K_list, dK_list)
+        (tuple): 
+            Tuple of (H_list, dH_list) or (K_list, dK_list)
         
     Raises:
         ValueError: For invalid channel.
