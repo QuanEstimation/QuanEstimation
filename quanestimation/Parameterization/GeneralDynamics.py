@@ -20,20 +20,27 @@ class Lindblad:
         - $\Gamma_i$ are the decay operators
         - $\gamma_i$ are the corresponding decay rates
 
-    Args:
-        tspan (np.array): Time points for the evolution.
-        rho0 (np.array): Initial state (density matrix).
-        H0 (np.array/list): Free Hamiltonian. It is a matrix when time-independent, or a list of matrices 
+    Attributes:
+        tspan (np.array): 
+            Time points for the evolution.
+        rho0 (np.array): 
+            Initial state (density matrix).
+        H0 (np.array/list): 
+            Free Hamiltonian. It is a matrix when time-independent, or a list of matrices 
             (with length equal to `tspan`) when time-dependent.
-        dH (list): Derivatives of the free Hamiltonian with respect to the unknown parameters.  
+        dH (list): 
+            Derivatives of the free Hamiltonian with respect to the unknown parameters.  
             Each element is a matrix representing the partial derivative with respect to 
             one parameter. For example, `dH[0]` is the derivative with respect to the 
             first parameter.
-        decay (list): Decay operators and corresponding decay rates. Input format:  
+        decay (list): 
+            Decay operators and corresponding decay rates. Input format:  
             `decay=[[Γ₁, γ₁], [Γ₂, γ₂], ...]`, where Γ₁, Γ₂ are decay operators and γ₁, γ₂ 
             are the corresponding decay rates.
-        H (list): Control Hamiltonians.
-        ctrl (list, optional): Control coefficients for each control Hamiltonian.
+        H (list): 
+            Control Hamiltonians.
+        ctrl (list, optional): 
+            Control coefficients for each control Hamiltonian.
     """
 
     def __init__(self, tspan, rho0, H0, dH, decay=[], Hc=[], ctrl=[]):
@@ -113,10 +120,13 @@ class Lindblad:
         \end{align}
 
         Returns: 
-            rho (list): Density matrices at each time point in `tspan`.
-            drho (list): Derivatives of the density matrices with respect to the unknown parameters.  
-                `drho[i][j]` is the derivative of the density matrix at the i-th time point 
-                with respect to the j-th parameter.
+            (tuple):
+                rho (list): 
+                    Density matrices at each time point in `tspan`.
+                drho (list): 
+                    Derivatives of the density matrices with respect to the unknown parameters.  
+                    `drho[i][j]` is the derivative of the density matrix at the i-th time point 
+                    with respect to the j-th parameter.
         """
 
         rho, drho = QJL.expm_py(
@@ -152,10 +162,13 @@ class Lindblad:
         \end{align}
 
         Returns:
-            rho (list): Density matrices at each time point in `tspan`.
-            drho (list): Derivatives of the density matrices with respect to the unknown parameters.  
-                `drho[i][j]` is the derivative of the density matrix at the i-th time point 
-                with respect to the j-th parameter.
+            (tuple):
+                rho (list): 
+                    Density matrices at each time point in `tspan`.
+                drho (list): 
+                    Derivatives of the density matrices with respect to the unknown parameters.  
+                    `drho[i][j]` is the derivative of the density matrix at the i-th time point 
+                    with respect to the j-th parameter.
         """
 
         rho, drho = QJL.ode_py(
@@ -204,9 +217,13 @@ class Lindblad:
                 the first parameter twice, or a mixed partial derivative.
 
         Returns:
-            rho (list): Density matrices at each time point in `tspan`.
-            drho (list): First derivatives of the density matrices with respect to the unknown parameters.
-            d2rho (list): Second derivatives of the density matrices with respect to the unknown parameters.
+            (tuple):
+                rho (list): 
+                    Density matrices at each time point in `tspan`.
+                drho (list): 
+                    First derivatives of the density matrices with respect to the unknown parameters.
+                d2rho (list): 
+                    Second derivatives of the density matrices with respect to the unknown parameters.
         """
 
         d2H = [np.array(x, dtype=np.complex128) for x in d2H]
@@ -223,5 +240,5 @@ class Lindblad:
         )
         rho = [np.array(rho_i) for rho_i in rho]
         drho = [[np.array(drho_ij) for drho_ij in drho_i] for drho_i in drho]
-        #d2rho = 
+        
         return rho, drho, d2rho

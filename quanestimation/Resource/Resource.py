@@ -13,14 +13,18 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
     where $J_{\vec{n}_i}$ are the collective spin operators.
 
     Args:
-        rho (np.array): Density matrix.
-        basis (str, optional): Basis to use: "Dicke" (default) or "Pauli".
-        output (str, optional): Type of spin squeezing to calculate:  
-            - "KU": Kitagawa-Ueda squeezing parameter.  
-            - "WBIMH": Wineland et al. squeezing parameter.  
+        rho (array): 
+            Density matrix.
+        basis (str, optional): 
+            Basis to use: "Dicke" (default) or "Pauli".
+        output (str, optional): 
+            Type of spin squeezing to calculate:  
+                - "KU": Kitagawa-Ueda squeezing parameter.  
+                - "WBIMH": Wineland et al. squeezing parameter.  
 
     Returns:
-        (float): Spin squeezing parameter.
+        (float): 
+            Spin squeezing parameter.
 
     Raises:
         ValueError: If basis has invalid value.  
@@ -104,14 +108,20 @@ def TargetTime(f, tspan, func, *args, **kwargs):
     function `func` reaches or crosses the target value $f$.
 
     Args:
-        f (float): The target value of the objective function.
-        tspan (np.array): Time points for the evolution.
-        func (callable): The objective function to evaluate. Must return a float.
-        args: Positional arguments to pass to `func`.
-        kwargs: Keyword arguments to pass to `func`.
+        f (float): 
+            The target value of the objective function.
+        tspan (array): 
+            Time points for the evolution.
+        func (callable): 
+            The objective function to evaluate. Must return a float.
+        *args (tuple): 
+            Positional arguments to pass to `func`.
+        **kwargs (dict): 
+            Keyword arguments to pass to `func`.
 
     Returns:
-        (float): Time to reach the given target precision.
+        (float): 
+            Time to reach the given target precision.
     """
 
     args = list(zip_broadcast(*args))
