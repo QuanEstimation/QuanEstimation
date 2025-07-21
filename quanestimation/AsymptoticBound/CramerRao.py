@@ -18,16 +18,16 @@ def CFIM(rho, drho, M=[], eps=1e-8):
     density matrix.
 
     Args: 
-        rho: Density matrix.
-        drho: List of derivative matrices of the density matrix on the unknown 
+        rho: na.array, Density matrix.
+        drho: list, List of derivative matrices of the density matrix on the unknown 
               parameters to be estimated. For example, drho[0] is the derivative 
               vector on the first parameter.
-        M: List of positive operator-valued measure (POVM). The default measurement 
+        M: list, List of positive operator-valued measure (POVM). The default measurement 
            is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
         eps: Machine epsilon for numerical stability (default: 1e-8).
 
     Returns:
-        CFIM: float or matrix  
+        CFIM: float or matrix,   
         For single parameter estimation (the length of drho is equal to one), 
         the output is CFI and for multiparameter estimation (the length of drho 
         is more than one), it returns CFIM.

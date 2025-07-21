@@ -166,7 +166,7 @@ def sic_povm(fiducial):
     Generate SIC-POVM from fiducial state.
     
     Args:
-        fiducial: Fiducial state vector
+        fiducial: np.ndarray, the fiducial state vector (column vector of complex numbers)
         
     Returns:
         List of POVM elements
