@@ -25,7 +25,7 @@ def CFIM(rho, drho, M=[], eps=1e-8):
               vector on the first parameter.
         M (list, optional): List of positive operator-valued measure (POVM). The default measurement 
            is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
-        eps: Machine epsilon for numerical stability (default: 1e-8).
+        eps (float, optional): Machine epsilon for numerical stability (default: 1e-8).
 
     Returns:
         (float or np.array):  For single parameter estimation (the length of drho is equal to one), 
