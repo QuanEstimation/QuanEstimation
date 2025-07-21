@@ -135,7 +135,8 @@ def NHB(rho, drho, W):
             The value of the Nagaoka-Hayashi bound.
 
     Raises:
-        TypeError: If `drho` is not a list.
+        TypeError: 
+            If `drho` is not a list.
     """
     if not isinstance(drho, list):
         raise TypeError("drho must be a list of derivative matrices")
