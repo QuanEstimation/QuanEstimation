@@ -17,31 +17,24 @@ def CFIM(rho, drho, M=[], eps=1e-8):
     where $p(y|\textbf{x})=\mathrm{Tr}(\rho\Pi_y)$ with $\rho$ the parameterized 
     density matrix.
 
-    ## Parameters
-    **rho** : matrix  
-        Density matrix.
+    Args: 
+        rho: Density matrix.
+        drho: List of derivative matrices of the density matrix on the unknown 
+              parameters to be estimated. For example, drho[0] is the derivative 
+              vector on the first parameter.
+        M: List of positive operator-valued measure (POVM). The default measurement 
+           is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+        eps: Machine epsilon for numerical stability (default: 1e-8).
 
-    **drho** : list  
-        Derivatives of the density matrix on the unknown parameters to be 
-        estimated. For example, drho[0] is the derivative vector on the first 
-        parameter.
-
-    **M** : list of matrices, optional  
-        A set of positive operator-valued measure (POVM). The default measurement 
-        is a set of rank-one symmetric informationally complete POVM (SIC-POVM). 
-
-    **eps** : float, optional  
-        Machine epsilon.
-
-    ## Returns
-    **CFIM** : float or matrix  
+    Returns:
+        CFIM: float or matrix  
         For single parameter estimation (the length of drho is equal to one), 
         the output is CFI and for multiparameter estimation (the length of drho 
         is more than one), it returns CFIM.
     
-    ## Notes
-    SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-    which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html).
+    Notes: 
+        SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
+        which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html).
     """
 
     if not isinstance(drho, list):
