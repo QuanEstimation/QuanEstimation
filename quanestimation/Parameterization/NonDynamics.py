@@ -25,10 +25,9 @@ def Kraus(rho0, K, dK):
     Returns:
         (tuple):
             rho (np.array): Evolved density matrix.
-            
-            drho (list): Derivatives of the evolved density matrix with respect to the unknown parameters.  
-                Each element in the list is a matrix representing the partial derivative of $\rho$ with 
-                respect to one parameter.
+                drho (list): Derivatives of the evolved density matrix with respect to the unknown parameters.  
+                    Each element in the list is a matrix representing the partial derivative of $\rho$ with 
+                    respect to one parameter.
     """
 
     k_num = len(K)
