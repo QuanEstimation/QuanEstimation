@@ -28,7 +28,7 @@ def CFIM(rho, drho, M=[], eps=1e-8):
         eps (float, optional, default: 1e-8): Machine epsilon for numerical stability.
 
     Returns:
-        (float or np.array):  For single parameter estimation (the length of drho is equal to one), 
+        (float/np.array):  For single parameter estimation (the length of drho is equal to one), 
         the output is CFI and for multiparameter estimation (the length of drho is more than one), it 
         returns CFIM.
 
@@ -92,7 +92,6 @@ def FIM(p, dp, eps=1e-8):
     $$
     I_{ab}=\sum_{y}\frac{1}{p_y}[\partial_a p_y][\partial_b p_y],
     $$
-
     where $\{p_y\}$ is a set of the discrete probability distribution.
 
     Args: 
@@ -149,6 +148,10 @@ def FI_Expt(data_true, data_shifted, delta_x, ftype="norm"):
     Returns: 
         (float): Classical Fisher information
 
+    Raises:
+        ValueError: If ftype is not one of the supported types. 
+        The valid types are: "norm", "poisson", "gamma", "rayleigh".    
+
     Notes:
         The current implementation may be unstable and is subject to future modification.
     """
@@ -203,38 +206,26 @@ def SLD(rho, drho, rep="original", eps=1e-8):
     r"""
     Calculation of the symmetric logarithmic derivative (SLD) for a density matrix.
     The SLD operator $L_a$ is determined by
-    \begin{align}
+    $$
     \partial_{a}\rho=\frac{1}{2}(\rho L_{a}+L_{a}\rho)
-    \end{align}
-
-    with $\rho$ the parameterized density matrix. The entries of SLD can be calculated
-    as 
-    \begin{align}
+    $$
+    with $\rho$ the parameterized density matrix. The entries of SLD can be calculated as 
+    $$
     \langle\lambda_i|L_{a}|\lambda_j\rangle=\frac{2\langle\lambda_i| \partial_{a}\rho |\lambda_j\rangle}{\lambda_i+\lambda_j}
-    \end{align}
-
+    $$
     for $\lambda_i~(\lambda_j) \neq 0$. If $\lambda_i=\lambda_j=0$, the entry of SLD is set to be zero.
 
-    ## Parameters
-    **rho** : matrix  
-        Density matrix.
+    Args:
+        rho (np.array): Density matrix.
+        drho (list): Derivatives of the density matrix on the unknown parameters to be 
+        estimated. For example, drho[0] is the derivative vector on the first parameter.
+        rep (str, optional): The basis for the SLDs. Options:  
+            - "original" (default): basis same as input density matrix  
+            - "eigen": basis same as eigenspace of density matrix
+        eps (float, optional, default: 1e-8): Machine epsilon.
 
-    **drho** : list  
-        Derivatives of the density matrix on the unknown parameters to be 
-        estimated. For example, drho[0] is the derivative vector on the first 
-        parameter.
-
-    **rep** : str, optional  
-        The basis for the SLDs. Options:  
-        - "original" (default): basis same as input density matrix  
-        - "eigen": basis same as eigenspace of density matrix
-
-    **eps** : float, optional  
-        Machine epsilon (default: 1e-8)
-
-    ## Returns
-    **SLD** : matrix or list  
-        For single parameter estimation (len(drho)=1), returns a matrix.  
+    Returns:
+        SLD (np.array/list): For single parameter estimation (len(drho)=1), returns a matrix.  
         For multiparameter estimation (len(drho)>1), returns a list of matrices.
 
     ## Raises
