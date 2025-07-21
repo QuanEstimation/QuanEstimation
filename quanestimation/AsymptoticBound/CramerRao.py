@@ -18,7 +18,7 @@ def CFIM(rho, drho, M=[], eps=1e-8):
     density matrix.
 
     Args: 
-        rho: na.array, Density matrix.
+        rho: na.array | Density matrix.
         drho: list, List of derivative matrices of the density matrix on the unknown 
               parameters to be estimated. For example, drho[0] is the derivative 
               vector on the first parameter.
