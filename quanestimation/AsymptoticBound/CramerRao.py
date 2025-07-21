@@ -7,7 +7,9 @@ from scipy.stats import norm, poisson, rayleigh, gamma
 
 def CFIM(rho, drho, M=[], eps=1e-8):
     r"""
-    Calculation of the classical Fisher information (CFI) and classical Fisher 
+    Calculation of the classical Fisher information matrix for the chosen measurements.
+
+    This function computes the classical Fisher information (CFI) and classical Fisher 
     information matrix (CFIM) for a density matrix. The entry of CFIM $\mathcal{I}$
     is defined as
     $$
@@ -26,9 +28,18 @@ def CFIM(rho, drho, M=[], eps=1e-8):
         eps: Machine epsilon for numerical stability (default: 1e-8).
 
     Returns:
-        CFIM (float or np.array):  For single parameter estimation (the length of drho is equal to one), 
+        float or np.array:  For single parameter estimation (the length of drho is equal to one), 
         the output is CFI and for multiparameter estimation (the length of drho is more than one), it 
         returns CFIM.
+
+    Raises:
+        TypeError: If drho is not a list.
+        TypeError: If M is not a list.   
+
+    Example:
+        >>> rho = np.array([[0.5, 0], [0, 0.5]])
+        >>> drho = [np.array([[1, 0], [0, -1]])]
+        >>> cfim = CFIM(rho, drho)     
     
     Notes: 
         SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
