@@ -34,7 +34,7 @@ def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
 
     Returns:
         (float/np.array): For single parameter estimation (length of `x` is 1), returns BCFI. 
-        For multiparameter estimation (length of `x` > 1), returns BCFIM.
+            For multiparameter estimation (length of `x` > 1), returns BCFIM.
 
     Raises:
         TypeError: If `M` is provided but not a list.
@@ -501,26 +501,35 @@ def BQCRB(x, p, dp, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
     $\mathcal{G}_{ab}:=[\partial_b\ln p(\textbf{x})][\textbf{b}]_a+B_{aa}\delta_{ab}$.
 
     Args:
-        x (list): The regimes of the parameters for the integral.
-        p (np.array, multidimensional): The prior distribution.
-        rho (list, multidimensional): Parameterized density matrix.
-        drho (list, multidimensional): Derivatives of the parameterized density matrix (rho) with respect to 
-            the unknown parameters to be estimated.
-        b (list): Vector of biases of the form $\textbf{b}=(b(x_0),b(x_1),\dots)^{\mathrm{T}}$.
-        db (list): Derivatives of b with respect to the unknown parameters to be estimated, It should be 
+        x (list): 
+            The regimes of the parameters for the integral.
+        p (np.array, multidimensional): 
+            The prior distribution.
+        rho (list, multidimensional): 
+            Parameterized density matrix.
+        drho (list, multidimensional): 
+            Derivatives of the parameterized density matrix (rho) with respect to the unknown parameters to be estimated.
+        b (list): 
+            Vector of biases of the form $\textbf{b}=(b(x_0),b(x_1),\dots)^{\mathrm{T}}$.
+        db (list): 
+            Derivatives of b with respect to the unknown parameters to be estimated, It should be 
             expressed as $\textbf{b}'=(\partial_0 b(x_0),\partial_1 b(x_1),\dots)^{\mathrm{T}}$.
-        btype (int): Types of the BQCRB. Options are:  
-            1 (default) -- It means to calculate the first type of the BQCRB.  
-            2 -- It means to calculate the second type of the BQCRB.
-            3 -- It means to calculate the third type of the BCRB.
-        LDtype (str): Types of QFI (QFIM) can be set as the objective function. Options are:  
-            - "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
-            - "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
-            - "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
-        eps (float,optional): Machine epsilon.
+        btype (int): 
+            Types of the BQCRB. Options are:  
+                1 (default) -- It means to calculate the first type of the BQCRB.  
+                2 -- It means to calculate the second type of the BQCRB.
+                3 -- It means to calculate the third type of the BCRB.
+        LDtype (str): 
+            Types of QFI (QFIM) can be set as the objective function. Options are:  
+                - "SLD" (default) -- QFI (QFIM) based on symmetric logarithmic derivative (SLD).  
+                - "RLD" -- QFI (QFIM) based on right logarithmic derivative (RLD).  
+                - "LLD" -- QFI (QFIM) based on left logarithmic derivative (LLD).
+        eps (float,optional): 
+            Machine epsilon.
 
     Returns:
-        (float/np.array): For single parameter estimation (the length of `x` equals to one), the 
+        (float/np.array): 
+            For single parameter estimation (the length of `x` equals to one), the 
             output is a float and for multiparameter estimation (the length of `x` is larger than one), 
             it returns a matrix.
     """
@@ -966,20 +975,29 @@ def OBB(x, p, dp, rho, drho, d2rho, LDtype="SLD", eps=1e-8):
     This bound is solved using a boundary value problem approach.
 
     Args:
-        x (np.array): Parameter regime for integration.
-        p (np.array): Prior distribution.
-        dp (np.array): Derivative of the prior distribution with respect to the parameter.
-        rho (list): Parameterized density matrices.
-        drho (list): First derivatives of the density matrices with respect to the parameter.
-        d2rho (list): Second-order derivatives of the density matrices with respect to the parameter.
-        LDtype (str, optional): Type of logarithmic derivative (default: "SLD"). Options:  
-            - "SLD": Symmetric logarithmic derivative.  
-            - "RLD": Right logarithmic derivative.  
-            - "LLD": Left logarithmic derivative.  
-        eps (float, optional): Machine epsilon.
+        x (np.array): 
+            Parameter regime for integration.
+        p (np.array): 
+            Prior distribution.
+        dp (np.array): 
+            Derivative of the prior distribution with respect to the parameter.
+        rho (list): 
+            Parameterized density matrices.
+        drho (list): 
+            First derivatives of the density matrices with respect to the parameter.
+        d2rho (list): 
+            Second-order derivatives of the density matrices with respect to the parameter.
+        LDtype (str, optional): 
+            Type of logarithmic derivative (default: "SLD"). Options:  
+                - "SLD": Symmetric logarithmic derivative.  
+                - "RLD": Right logarithmic derivative.  
+                - "LLD": Left logarithmic derivative.  
+        eps (float, optional): 
+            Machine epsilon.
 
     Returns: 
-        (float): The optimal biased bound value for single parameter estimation.
+        (float): 
+            The optimal biased bound value for single parameter estimation.
 
     Notes: 
         This function uses a boundary value problem solver to compute the optimal bias function.

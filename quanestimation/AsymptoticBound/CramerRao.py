@@ -494,8 +494,8 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
         eps (float, optional): Machine epsilon.  
 
     Returns:
-    (float/np.array): For single parameter estimation (i.e., length of `drho` equals 1), returns QFI.  
-        For multiparameter estimation (i.e., length of `drho` is larger than 1), returns QFIM.  
+        (float/np.array): For single parameter estimation (i.e., length of `drho` equals 1), returns QFI.  
+            For multiparameter estimation (i.e., length of `drho` is larger than 1), returns QFIM.  
 
     Raises:
         TypeError: If `drho` is not a list.
@@ -653,9 +653,9 @@ def QFIM_Bloch(r, dr, eps=1e-8):
         eps (float, optional): Machine epsilon.  
 
     Returns:
-    (float/np.array):  For single parameter estimation (the length of `dr` is equal to one), 
-        the output is QFI and for multiparameter estimation (the length of `dr` 
-        is more than one), it returns QFIM.
+        (float/np.array):  For single parameter estimation (the length of `dr` is equal to one), 
+            the output is QFI and for multiparameter estimation (the length of `dr` 
+            is more than one), it returns QFIM.
 
     Raises:
         TypeError: If `dr` is not a list.  
@@ -754,13 +754,13 @@ def QFIM_Gauss(R, dR, D, dD):
             the first parameter.
 
     Returns:
-    (float/np.array): For single parameter estimation (the length of `dR` is equal to one), 
-        the output is QFI and for multiparameter estimation (the length of `dR` 
-        is more than one), it returns QFIM.
+        (float/np.array): For single parameter estimation (the length of `dR` is equal to one), 
+            the output is QFI and for multiparameter estimation (the length of `dR` 
+            is more than one), it returns QFIM.
 
     Notes:
-    This function follows the approach from:
-    [1] Monras, A., Phase space formalism for quantum estimation of Gaussian states, arXiv:1303.3682 (2013).
+        This function follows the approach from:
+        [1] Monras, A., Phase space formalism for quantum estimation of Gaussian states, arXiv:1303.3682 (2013).
     """
 
     num_params = len(dR)

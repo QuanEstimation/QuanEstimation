@@ -20,7 +20,7 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
             - "WBIMH": Wineland et al. squeezing parameter.  
 
     Returns:
-    (float): Spin squeezing parameter.
+        (float): Spin squeezing parameter.
 
     Raises:
         ValueError: If basis has invalid value.  
@@ -111,7 +111,7 @@ def TargetTime(f, tspan, func, *args, **kwargs):
         kwargs: Keyword arguments to pass to `func`.
 
     Returns:
-    (float): Time to reach the given target precision.
+        (float): Time to reach the given target precision.
     """
 
     args = list(zip_broadcast(*args))

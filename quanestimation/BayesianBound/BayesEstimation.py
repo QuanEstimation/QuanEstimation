@@ -7,50 +7,44 @@ from itertools import product
 
 def Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False):
     """
-    Bayesian estimation. The prior distribution is updated via the posterior  
-    distribution obtained by the Bayes’ rule and the estimated value of parameters
-    are updated via the expectation value of the distribution or maximum a 
-    posteriori probability (MAP).
+    Bayesian estimation. The prior distribution is updated via the posterior distribution 
+    obtained by the Bayes' rule, and the estimated value of parameters are updated via 
+    the expectation value of the distribution or maximum a posteriori probability (MAP).
 
-    Parameters
-    ----------
-    > **x:** `list`
-        -- The regimes of the parameters for the integral.
+    Args:
+        x (list): 
+            The regimes of the parameters for the integral.
+        p (np.ndarray): 
+            The prior distribution as a multidimensional array.
+        rho (list): 
+            Parameterized density matrix as a multidimensional list.
+        y (np.ndarray): 
+            The experimental results obtained in practice.
+        M (list, optional): 
+            A set of positive operator-valued measure (POVM). Defaults to a set of rank-one 
+            symmetric informationally complete POVM (SIC-POVM).
+        estimator (str, optional): 
+            Estimators for the bayesian estimation. Options are:
+                "mean" (default) - The expectation value of the distribution.
+                "MAP" - Maximum a posteriori probability.
+        savefile (bool, optional): 
+            Whether to save all posterior distributions. If True, generates "pout.npy" and 
+            "xout.npy" containing all posterior distributions and estimated values across 
+            iterations. If False, only saves the final posterior distribution and all 
+            estimated values. Defaults to False.
 
-    > **p:** `multidimensional array`
-        -- The prior distribution.
+    Returns:
+        tuple: 
+            pout (np.ndarray): The posterior distribution in the final iteration
+            xout (float or list): The estimated values in the final iteration
 
-    > **rho:** `multidimensional list`
-        -- Parameterized density matrix.
+    Raises:
+        TypeError: If `M` is not a list.
+        ValueError: If estimator is not "mean" or "MAP".
 
-    > **y:** `array`
-        -- The experimental results obtained in practice.
-
-    > **M:** `list of matrices`
-        -- A set of positive operator-valued measure (POVM). The default measurement 
-        is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
-
-    > **estimator:** `string`
-        -- Estimators for the bayesian estimation. Options are:  
-        "mean" -- The expectation value of the distribution.  
-        "MAP" -- Maximum a posteriori probability.
-
-    > **savefile:** `bool`
-        -- Whether or not to save all the posterior distributions.  
-        If set `True` then two files "pout.npy" and "xout.npy" will be generated including
-        the posterior distributions and the estimated values in the iterations. If set 
-        `False` the posterior distribution in the final iteration and the estimated values
-        in all iterations will be saved in "pout.npy" and "xout.npy". 
-
-    Returns
-    ----------
-    **pout and xout:** `array and float`
-        -- The posterior distribution and the estimated values in the final iteration.
-
-    **Note:** 
+    Note: 
         SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-        which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
-        solutions.html).
+        which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html).
     """
 
     para_num = len(x)
@@ -240,40 +234,35 @@ def Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False):
 
 def MLE(x, rho, y, M=[], savefile=False):
     """
-    Bayesian estimation. The estimated value of parameters obtained via the 
-    maximum likelihood estimation (MLE).
+    Maximum likelihood estimation (MLE) for parameter estimation.
 
-    Parameters
-    ----------
-    > **x:** `list`
-        -- The regimes of the parameters for the integral.
+    Args:
+        x (list): 
+            The regimes of the parameters for the integral.
+        rho (list): 
+            Parameterized density matrix as a multidimensional list.
+        y (np.ndarray): 
+            The experimental results obtained in practice.
+        M (list, optional): 
+            A set of positive operator-valued measure (POVM). Defaults to a set of rank-one 
+            symmetric informationally complete POVM (SIC-POVM).
+        savefile (bool, optional): 
+            Whether to save all likelihood functions. If True, generates "Lout.npy" and 
+            "xout.npy" containing all likelihood functions and estimated values across 
+            iterations. If False, only saves the final likelihood function and all 
+            estimated values. Defaults to False.
 
-    > **rho:** `multidimensional list`
-        -- Parameterized density matrix.
+    Returns:
+        tuple: 
+            Lout (np.ndarray): The likelihood function in the final iteration
+            xout (float or list): The estimated values in the final iteration
 
-    > **y:** `array`
-        -- The experimental results obtained in practice.
+    Raises:
+        TypeError: If M is not a list
 
-    > **M:** `list of matrices`
-        -- A set of positive operator-valued measure (POVM). The default measurement 
-        is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
-
-    > **savefile:** `bool`
-        -- Whether or not to save all the likelihood functions.  
-        If set `True` then two files "Lout.npy" and "xout.npy" will be generated including
-        the likelihood functions and the estimated values in the iterations. If set 
-        `False` the likelihood function in the final iteration and the estimated values
-        in all iterations will be saved in "Lout.npy" and "xout.npy". 
-
-    Returns
-    ----------
-    **Lout and xout:** `array and float`
-        -- The likelihood function and the estimated values in the final iteration.
-
-    **Note:** 
+    Note: 
         SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
-        which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/
-        solutions.html).
+        which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html).
     """
 
     para_num = len(x)
@@ -388,33 +377,27 @@ def BayesCost(x, p, xest, rho, M, W=[], eps=1e-8):
     """
     Calculation of the average Bayesian cost with a quadratic cost function.
 
-    Parameters
-    ----------
-    > **x:** `list`
-        -- The regimes of the parameters for the integral.
+    Args:
+        x (list): 
+            The regimes of the parameters for the integral.
+        p (np.ndarray): 
+            The prior distribution as a multidimensional array.
+        xest (list): 
+            The estimators.
+        rho (list): 
+            Parameterized density matrix as a multidimensional list.
+        M (list): 
+            A set of positive operator-valued measure (POVM).
+        W (np.ndarray, optional): 
+            Weight matrix. Defaults to an identity matrix.
+        eps (float, optional): 
+            Machine epsilon.
 
-    > **p:** `multidimensional array`
-        -- The prior distribution.
-        
-    > **xest:** `list`
-        -- The estimators.
+    Returns:
+        (float): The average Bayesian cost.
 
-    > **rho:** `multidimensional list`
-        -- Parameterized density matrix.
-
-    > **M:** `array`
-        -- A set of POVM.
-    
-    > **W:** `array`
-        -- Weight matrix.
-
-    > **eps:** `float`
-        -- Machine epsilon.
-
-    Returns
-    ----------
-    **The average Bayesian cost:** `float`
-        -- The average Bayesian cost.
+    Raises:
+        TypeError: If M is not a list
     """
     para_num = len(x)
     if para_num == 1:
@@ -473,27 +456,23 @@ def BCB(x, p, rho, W=[], eps=1e-8):
     """
     Calculation of the Bayesian cost bound with a quadratic cost function.
 
-    Parameters
-    ----------
-    > **x:** `list`
-        -- The regimes of the parameters for the integral.
+    Args:
+        x (list): 
+            The regimes of the parameters for the integral.
+        p (np.ndarray): 
+            The prior distribution as a multidimensional array.
+        rho (list): 
+            Parameterized density matrix as a multidimensional list.
+        W (np.ndarray, optional): 
+            Weight matrix. Defaults to an identity matrix.
+        eps (float, optional): 
+            Machine epsilon. Defaults to 1e-8.
 
-    > **p:** `multidimensional array`
-        -- The prior distribution.
+    Returns:
+        (float): The value of the minimum Bayesian cost.
 
-    > **rho:** `multidimensional list`
-        -- Parameterized density matrix.
-
-    > **W:** `array`
-        -- Weight matrix.
-
-    > **eps:** `float`
-        -- Machine epsilon.
-
-    Returns
-    ----------
-    **BCB:** `float`
-        -- The value of the minimum Bayesian cost.
+    Note:
+        This function calculates the Bayesian cost bound for parameter estimation.
     """
     para_num = len(x)
     if para_num == 1:
