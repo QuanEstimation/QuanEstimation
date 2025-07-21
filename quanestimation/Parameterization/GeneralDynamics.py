@@ -15,10 +15,10 @@ class Lindblad:
     \left\{\rho,\Gamma^{\dagger}_i \Gamma_i \right\}\right),
     \end{align}
     where:
-    - $\rho$ is the evolved density matrix
-    - $H$ is the Hamiltonian of the system
-    - $\Gamma_i$ are the decay operators
-    - $\gamma_i$ are the corresponding decay rates
+        - $\rho$ is the evolved density matrix
+        - $H$ is the Hamiltonian of the system
+        - $\Gamma_i$ are the decay operators
+        - $\gamma_i$ are the corresponding decay rates
 
     ## Attributes
     **tspan** : array  
