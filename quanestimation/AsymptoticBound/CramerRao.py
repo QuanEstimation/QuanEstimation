@@ -19,18 +19,22 @@ def CFIM(rho, drho, M=[], eps=1e-8):
     density matrix.
 
     Args: 
-        rho (np.array): Density matrix.
-        drho (list): List of derivative matrices of the density matrix on the unknown 
+        rho (np.array): 
+            Density matrix.
+        drho (list): 
+            List of derivative matrices of the density matrix on the unknown 
             parameters to be estimated. For example, drho[0] is the derivative 
             matrix on the first parameter.
-        M (list, optional): List of positive operator-valued measure (POVM). The default 
+        M (list, optional): 
+            List of positive operator-valued measure (POVM). The default 
             measurement is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
-        eps (float, optional): Machine epsilon for numerical stability.
+        eps (float, optional): 
+            Machine epsilon for numerical stability.
 
     Returns:
-        (float/np.array): For single parameter estimation (the length of drho is equal to one), 
-            the output is CFI and for multiparameter estimation (the length of drho is more than one), it 
-            returns CFIM.
+        (float/np.array): 
+            For single parameter estimation (the length of drho is equal to one), the output is CFI 
+            and for multiparameter estimation (the length of drho is more than one), it returns CFIM.
 
     Raises:
         TypeError: If drho is not a list.
@@ -97,15 +101,18 @@ def FIM(p, dp, eps=1e-8):
     where $\{p_y\}$ is a set of the discrete probability distribution.
 
     Args: 
-        p (array): The probability distribution.
-        dp (list): Derivatives of the probability distribution on the unknown parameters to 
+        p (array): 
+            The probability distribution.
+        dp (list): 
+            Derivatives of the probability distribution on the unknown parameters to 
             be estimated. For example, dp[0] is the derivative vector on the first parameter.
-        eps (float, optional): Machine epsilon.
+        eps (float, optional): 
+            Machine epsilon.
 
     Returns:
-        (float/np.array): For single parameter estimation (the length of drho is equal to one), 
-            the output is CFI and for multiparameter estimation (the length of drho is more than one), 
-            it returns CFIM.
+        (float/np.array): 
+            For single parameter estimation (the length of drho is equal to one), the output is CFI 
+            and for multiparameter estimation (the length of drho is more than one), it returns CFIM.
     """
 
     num_params = len(dp)
@@ -138,20 +145,26 @@ def FI_Expt(data_true, data_shifted, delta_x, ftype="norm"):
     Calculate the classical Fisher information (CFI) based on experimental data.
 
     Args:
-        data_true (np.array): Experimental data obtained at the true parameter value.
-        data_shifted (np.array): Experimental data obtained at parameter value shifted by delta_x.
-        delta_x (float): Small known parameter shift.
-        ftype (str, optional): Probability distribution of the data. Options:  
-            - "norm": normal distribution (default)  
-            - "gamma": gamma distribution  
-            - "rayleigh": Rayleigh distribution  
-            - "poisson": Poisson distribution  
+        data_true (np.array): 
+            Experimental data obtained at the true parameter value.
+        data_shifted (np.array): 
+            Experimental data obtained at parameter value shifted by delta_x.
+        delta_x (float): 
+            Small known parameter shift.
+        ftype (str, optional): 
+            Probability distribution of the data. Options:  
+                - "norm": normal distribution (default).  
+                - "gamma": gamma distribution.  
+                - "rayleigh": Rayleigh distribution.  
+                - "poisson": Poisson distribution.  
 
     Returns: 
-        (float): Classical Fisher information
+        (float): 
+            Classical Fisher information
 
     Raises:
-        ValueError: If `ftype` is not one of the supported types ("norm", "poisson", "gamma", "rayleigh").    
+        ValueError: 
+            If `ftype` is not one of the supported types ("norm", "poisson", "gamma", "rayleigh").    
 
     Notes:
         The current implementation may be unstable and is subject to future modification.
@@ -218,16 +231,21 @@ def SLD(rho, drho, rep="original", eps=1e-8):
     for $\lambda_i~(\lambda_j) \neq 0$. If $\lambda_i=\lambda_j=0$, the entry of SLD is set to be zero.
 
     Args:
-        rho (np.array): Density matrix.
-        drho (list): Derivatives of the density matrix on the unknown parameters to be 
+        rho (np.array): 
+            Density matrix.
+        drho (list): 
+            Derivatives of the density matrix on the unknown parameters to be 
             estimated. For example, drho[0] is the derivative vector on the first parameter.
-        rep (str, optional): The basis for the SLDs. Options:  
-            - "original" (default): basis same as input density matrix  
-            - "eigen": basis same as eigenspace of density matrix
-        eps (float, optional): Machine epsilon.
+        rep (str, optional): 
+            The basis for the SLDs. Options:  
+                - "original" (default): basis same as input density matrix  
+                - "eigen": basis same as eigenspace of density matrix
+        eps (float, optional): 
+            Machine epsilon.
 
     Returns:
-        (np.array/list): For single parameter estimation (i.e., length of `drho` equals 1), returns a matrix.  
+        (np.array/list): 
+            For single parameter estimation (i.e., length of `drho` equals 1), returns a matrix.  
             For multiparameter estimation (i.e., length of `drho` is larger than 1), returns a list of matrices.
 
     Raises:
@@ -307,16 +325,21 @@ def RLD(rho, drho, rep="original", eps=1e-8):
     for $\lambda_i\neq 0$.
 
     Args:
-        rho (np.array): Density matrix.  
-        drho (list):  Derivatives of the density matrix on the unknown parameters to be 
+        rho (np.array): 
+            Density matrix.  
+        drho (list):  
+            Derivatives of the density matrix on the unknown parameters to be 
             estimated. For example, drho[0] is the derivative vector on the first parameter.
-        rep (str, optional): The basis for the RLD(s). Options:  
-            - "original" (default): basis same as input density matrix.  
-            - "eigen": basis same as eigenspace of density matrix.
-        eps (float, optional): Machine epsilon.
+        rep (str, optional): 
+            The basis for the RLD(s). Options:  
+                - "original" (default): basis same as input density matrix.  
+                - "eigen": basis same as eigenspace of density matrix.
+        eps (float, optional): 
+            Machine epsilon.
 
     Returns:
-        (np.array/list): For single parameter estimation (i.e., length of `drho` equals 1), returns a matrix.  
+        (np.array/list): 
+            For single parameter estimation (i.e., length of `drho` equals 1), returns a matrix.  
             For multiparameter estimation (i.e., length of `drho` is larger than 1), returns a list of matrices.
 
     Raises:
@@ -393,17 +416,22 @@ def LLD(rho, drho, rep="original", eps=1e-8):
     for $\lambda_j\neq 0$.
 
     Args: 
-        rho (np.array): Density matrix.
-        drho (list): Derivatives of the density matrix on the unknown parameters to be 
-            estimated. For example, drho[0] is the derivative vector on the first parameter.
-        rep (str, optional): The basis for the LLD(s). Options:  
-            - "original" (default): basis same as input density matrix.  
-            - "eigen": basis same as eigenspace of density matrix.
-        eps (float, optional): Machine epsilon.
+        rho (np.array): 
+            Density matrix.
+        drho (list): 
+            Derivatives of the density matrix on the unknown parameters to be estimated. 
+            For example, drho[0] is the derivative vector on the first parameter.
+        rep (str, optional): 
+            The basis for the LLD(s). Options:  
+                - "original" (default): basis same as input density matrix.  
+                - "eigen": basis same as eigenspace of density matrix.
+        eps (float, optional): 
+            Machine epsilon.
 
     Returns:
-    (np.array/list): For single parameter estimation (i.e., length of `drho` equals 1), returns a matrix.  
-        For multiparameter estimation (i.e., length of `drho` is larger than 1), returns a list of matrices.
+        (np.array/list): 
+            For single parameter estimation (i.e., length of `drho` equals 1), returns a matrix.  
+            For multiparameter estimation (i.e., length of `drho` is larger than 1), returns a list of matrices.
 
     Raises:
         TypeError: If `drho` is not a list.  
@@ -480,22 +508,28 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
     with $\mathcal{R}_a$ being the RLD or LLD operator.
 
     Args:
-        rho (np.array): Density matrix.
-        drho (list): Derivatives of the density matrix with respect to the unknown parameters. 
+        rho (np.array): 
+            Density matrix.
+        drho (list): 
+            Derivatives of the density matrix with respect to the unknown parameters. 
             Each element in the list is a matrix of the same dimension as `rho` and 
             represents the partial derivative of the density matrix with respect to 
             one parameter. For example, `drho[0]` is the derivative with respect to 
             the first parameter.
-        LDtype (str, optional): Specifies the type of logarithmic derivative to use for QFI/QFIM calculation:  
-            - "SLD": Symmetric Logarithmic Derivative (default).  
-            - "RLD": Right Logarithmic Derivative.  
-            - "LLD": Left Logarithmic Derivative.  
-        exportLD (bool, optional): Whether to export the values of logarithmic derivatives.  
-        eps (float, optional): Machine epsilon.  
+        LDtype (str, optional): 
+            Specifies the type of logarithmic derivative to use for QFI/QFIM calculation:  
+                - "SLD": Symmetric Logarithmic Derivative (default).  
+                - "RLD": Right Logarithmic Derivative.  
+                - "LLD": Left Logarithmic Derivative.  
+        exportLD (bool, optional): 
+            Whether to export the values of logarithmic derivatives.  
+        eps (float, optional): 
+            Machine epsilon.  
 
     Returns:
-    (float/np.array): For single parameter estimation (i.e., length of `drho` equals 1), returns QFI.  
-        For multiparameter estimation (i.e., length of `drho` is larger than 1), returns QFIM.  
+        (float/np.array): 
+            For single parameter estimation (i.e., length of `drho` equals 1), returns QFI.  
+            For multiparameter estimation (i.e., length of `drho` is larger than 1), returns QFIM.  
 
     Raises:
         TypeError: If `drho` is not a list.
@@ -592,23 +626,29 @@ def QFIM_Kraus(rho0, K, dK, LDtype="SLD", exportLD=False, eps=1e-8):
     $\rho$ and its derivatives $\{\partial_a\rho\}$.
 
     Args:
-        rho0 (np.array): Initial density matrix.
-        K (list): Kraus operators.
-        dK (list): Derivatives of the Kraus operators. It is a nested list where the first index 
+        rho0 (np.array): 
+            Initial density matrix.
+        K (list): 
+            Kraus operators.
+        dK (list): 
+            Derivatives of the Kraus operators. It is a nested list where the first index 
             corresponds to the parameter and the second index corresponds to the Kraus operator index. 
             For example, `dK[0][1]` is the derivative of the second Kraus operator with respect 
             to the first parameter.
-        LDtype (str, optional): Types of QFI (QFIM) can be set as the objective function. Options:  
-            - "SLD" (default): QFI (QFIM) based on symmetric logarithmic derivative.  
-            - "RLD": QFI (QFIM) based on right logarithmic derivative.  
-            - "LLD": QFI (QFIM) based on left logarithmic derivative.  
-        exportLD (bool, optional): Whether to export the values of logarithmic derivatives.  
-        eps (float, optional): Machine epsilon.  
+        LDtype (str, optional): 
+            Types of QFI (QFIM) can be set as the objective function. Options:  
+                - "SLD" (default): QFI (QFIM) based on symmetric logarithmic derivative.  
+                - "RLD": QFI (QFIM) based on right logarithmic derivative.  
+                - "LLD": QFI (QFIM) based on left logarithmic derivative.  
+        exportLD (bool, optional): 
+            Whether to export the values of logarithmic derivatives.  
+        eps (float, optional): 
+            Machine epsilon.  
 
     Returns:
-        (float/np.array): For single parameter estimation (the length of dK is equal to one), 
-            the output is QFI and for multiparameter estimation (the length of dK is more than one), 
-            it returns QFIM.
+        (float/np.array): 
+            For single parameter estimation (the length of dK is equal to one), the output is QFI 
+            and for multiparameter estimation (the length of dK is more than one), it returns QFIM.
     """
 
     # Transpose dK: from [parameters][operators] to [operators][parameters]
@@ -644,18 +684,22 @@ def QFIM_Bloch(r, dr, eps=1e-8):
     where $\lambda_i$ are the generators of SU(d) group.
 
     Args:
-        r (np.array): Parameterized Bloch vector.
-        dr (list): Derivatives of the Bloch vector with respect to the unknown parameters. 
+        r (np.array): 
+            Parameterized Bloch vector.
+        dr (list): 
+            Derivatives of the Bloch vector with respect to the unknown parameters. 
             Each element in the list is a vector of the same length as `r` and 
             represents the partial derivative of the Bloch vector with respect to 
             one parameter. For example, `dr[0]` is the derivative with respect to 
             the first parameter.
-        eps (float, optional): Machine epsilon.  
+        eps (float, optional): 
+            Machine epsilon.  
 
     Returns:
-    (float/np.array):  For single parameter estimation (the length of `dr` is equal to one), 
-        the output is QFI and for multiparameter estimation (the length of `dr` 
-        is more than one), it returns QFIM.
+        (float/np.array): 
+            For single parameter estimation (the length of `dr` is equal to one), 
+            the output is QFI and for multiparameter estimation (the length of `dr` 
+            is more than one), it returns QFIM.
 
     Raises:
         TypeError: If `dr` is not a list.  
@@ -741,26 +785,31 @@ def QFIM_Gauss(R, dR, D, dD):
     method described in [1].
 
     Args:
-        R (np.array): First-order moment (displacement vector).
-        dR (list): Derivatives of the first-order moment with respect to the unknown parameters. 
+        R (np.array): 
+            First-order moment (displacement vector).
+        dR (list): 
+            Derivatives of the first-order moment with respect to the unknown parameters. 
             Each element in the list is a vector of the same length as `R` and represents the partial 
             derivative of the displacement vector with respect to one parameter. For example, `dR[0]` 
             is the derivative with respect to the first parameter.
-        D (np.array): Second-order moment (covariance matrix).
-        dD (list): Derivatives of the second-order moment with respect to the unknown parameters. 
+        D (np.array): 
+            Second-order moment (covariance matrix).
+        dD (list): 
+            Derivatives of the second-order moment with respect to the unknown parameters. 
             Each element in the list is a matrix of the same dimension as `D` and 
             represents the partial derivative of the covariance matrix with respect to 
             one parameter. For example, `dD[0]` is the derivative with respect to 
             the first parameter.
 
     Returns:
-    (float/np.array): For single parameter estimation (the length of `dR` is equal to one), 
-        the output is QFI and for multiparameter estimation (the length of `dR` 
-        is more than one), it returns QFIM.
+        (float/np.array): 
+            For single parameter estimation (the length of `dR` is equal to one), 
+            the output is QFI and for multiparameter estimation (the length of `dR` 
+            is more than one), it returns QFIM.
 
     Notes:
-    This function follows the approach from:
-    [1] Monras, A., Phase space formalism for quantum estimation of Gaussian states, arXiv:1303.3682 (2013).
+        This function follows the approach from:
+        [1] Monras, A., Phase space formalism for quantum estimation of Gaussian states, arXiv:1303.3682 (2013).
     """
 
     num_params = len(dR)

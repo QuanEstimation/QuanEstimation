@@ -17,14 +17,19 @@ def HCRB(rho, drho, W, eps=1e-8):
     where $Z_{ij} = \mathrm{Tr}(\rho X_i X_j)$ and $V$ is the covariance matrix.
 
     Args:
-        rho (np.array): Density matrix.
-        drho (list): Derivatives of the density matrix with respect to unknown parameters.  
+        rho (np.array): 
+            Density matrix.
+        drho (list): 
+            Derivatives of the density matrix with respect to unknown parameters.  
             For example, `drho[0]` is the derivative with respect to the first parameter.
-        W (np.array): Weight matrix for the bound.
-        eps (float, optional): Machine epsilon for numerical stability.
+        W (np.array): 
+            Weight matrix for the bound.
+        eps (float, optional): 
+            Machine epsilon for numerical stability.
 
     Returns: 
-    (float): The value of the Holevo Cramer-Rao bound.
+        (float): 
+            The value of the Holevo Cramer-Rao bound.
 
     Raises:
         TypeError: If `drho` is not a list.
@@ -117,13 +122,17 @@ def NHB(rho, drho, W):
     where $Z_{ij} = \mathrm{Tr}(\rho X_i X_j)$ and $V$ is the covariance matrix.
 
     Args:
-        rho (np.array): Density matrix.
-        drho (list): Derivatives of the density matrix with respect to unknown parameters.  
+        rho (np.array): 
+            Density matrix.
+        drho (list): 
+            Derivatives of the density matrix with respect to unknown parameters.  
             For example, `drho[0]` is the derivative with respect to the first parameter.
-        W (np.array): Weight matrix for the bound.
+        W (np.array): 
+            Weight matrix for the bound.
 
     Returns: 
-    (float): The value of the Nagaoka-Hayashi bound.
+        (float): 
+            The value of the Nagaoka-Hayashi bound.
 
     Raises:
         TypeError: If `drho` is not a list.

@@ -42,26 +42,23 @@ def QZZB(x, p, rho, eps=1e-8):
 
     where $||\cdot||$ represents the trace norm and $\mathcal{V}$ is the "valley-filling" 
     operator satisfying $\mathcal{V}f(\tau)=\max_{h\geq 0}f(\tau+h)$. $\rho(x)$ is the 
-    parameterized density matrix. 
+    parameterized density matrix.
 
-    Parameters
-    ----------
-    > **x:** `list`
-        -- The regimes of the parameters for the integral.
+    Args:
+        x (list): 
+            The regimes of the parameters for the integral.
+        p (np.ndarray): 
+            The prior distribution as a multidimensional array.
+        rho (list): 
+            Parameterized density matrix as a multidimensional list.
+        eps (float, optional): 
+            Machine epsilon. Defaults to 1e-8.
 
-    > **p:** `multidimensional array`
-        -- The prior distribution.
+    Returns:
+        (float): Quantum Ziv-Zakai bound (QZZB).
 
-    > **rho:** `multidimensional list`
-        -- Parameterized density matrix.
-
-    > **eps:** `float`
-        -- Machine epsilon.
-
-    Returns
-    ----------
-    **QZZB:** `float`
-        -- Quantum Ziv-Zakai bound (QZZB).
+    Raises:
+        ValueError: If the length of x and p do not match.
     """
 
     if type(x[0]) == list or type(x[0]) == np.ndarray:
