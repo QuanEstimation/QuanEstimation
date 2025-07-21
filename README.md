@@ -16,7 +16,9 @@ tools and scheme designs in quantum parameter estimation.
 [![Docs](https://github.com/QuanEstimation/QuanEstimation/actions/workflows/gh-deploy.yml/badge.svg)](https://github.com/QuanEstimation/QuanEstimation/actions/workflows/gh-deploy.yml)
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://quanestimation.github.io/QuanEstimation/)
 
-The documentation of QuanEstimation can be found [here](https://quanestimation.github.io/QuanEstimation/).
+The documentation of QuanEstimation can be found [here](https://quanestimation.github.io/QuanEstimation/). 
+This project uses the [Google Python Style Guide for docstrings](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings).
+
 
 ## Installation
 

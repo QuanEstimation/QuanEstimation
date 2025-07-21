@@ -37,8 +37,6 @@ def CFIM(rho, drho, M=[], eps=1e-8):
         TypeError: If M is not a list.   
 
     Example:
-        ```python
-
         rho = np.array([[0.5, 0], [0, 0.5]]);
 
         drho = [np.array([[1, 0], [0, -1]])];
