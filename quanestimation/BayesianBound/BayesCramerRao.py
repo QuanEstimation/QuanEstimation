@@ -34,8 +34,7 @@ def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
             multidimensional list where `drho[i]` is a list of derivatives with respect to each parameter at the i-th parameter point, 
             and `drho[i][j]` is the derivative of the density matrix at the i-th parameter point with respect to the j-th parameter.
         M (list, optional): 
-            Positive operator-valued measure (POVM). Default is 
-            a set of rank-one symmetric informationally complete POVM (SIC-POVM).
+            Positive operator-valued measure (POVM). Default is a set of rank-one symmetric informationally complete POVM (SIC-POVM).
         eps (float, optional): 
             Machine epsilon for numerical stability.
 
