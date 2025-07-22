@@ -6,9 +6,11 @@ def Kraus(rho0, K, dK):
     Parameterization of a quantum state using Kraus operators.
 
     The evolved density matrix $\rho$ is given by
-    $$
-    \rho=\sum_i K_i \rho_0 K_i^{\dagger},
-    $$ 
+    
+    \begin{aligned}
+        \rho=\sum_i K_i \rho_0 K_i^{\dagger},
+    \end{aligned}
+
     where $\rho_0$ is the initial density matrix and $K_i$ are the Kraus operators.
 
     Args: 

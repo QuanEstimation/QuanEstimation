@@ -56,11 +56,11 @@ class ControlSystem:
         r"""
         The dynamics of a density matrix is of the form 
 
-        \begin{align}
-        \partial_t\rho &=\mathcal{L}\rho \nonumber \\
-        &=-i[H,\rho]+\sum_i \gamma_i\left(\Gamma_i\rho\Gamma^{\dagger}_i-\frac{1}{2}
-        \left\{\rho,\Gamma^{\dagger}_i \Gamma_i \right\}\right),
-        \end{align}
+        \begin{aligned}
+            \partial_t\rho &=\mathcal{L}\rho \nonumber \\
+            &=-i[H,\rho]+\sum_i \gamma_i\left(\Gamma_i\rho\Gamma^{\dagger}_i-\frac{1}{2}
+            \left\{\rho,\Gamma^{\dagger}_i \Gamma_i \right\}\right),
+        \end{aligned}
         
         where $\rho$ is the evolved density matrix, H is the Hamiltonian of the 
         system, $\Gamma_i$ and $\gamma_i$ are the $i\mathrm{th}$ decay 
