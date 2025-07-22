@@ -750,6 +750,7 @@ def VTB(x, p, dp, rho, drho, M=[], eps=1e-8):
     Calculate the Van Trees bound (VTB), a Bayesian version of the Cramer-Rao bound.
 
     The covariance matrix with prior distribution $p(\textbf{x})$ is:
+
     \begin{align}
     \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\}) = \int p(\textbf{x}) \sum_y \mathrm{Tr}
     (\rho\Pi_y) (\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
@@ -757,12 +758,16 @@ def VTB(x, p, dp, rho, drho, M=[], eps=1e-8):
     \end{align}
 
     The VTB is given by:
+
     \begin{align}
     \mathrm{cov} \geq \left(\mathcal{I}_{\mathrm{prior}} + \mathcal{I}_{\mathrm{Bayes}}\right)^{-1}
     \end{align}
+
     where:
+        
         - $\mathcal{I}_{\mathrm{prior}} = \int p(\textbf{x}) \mathcal{I}_{p} \, \mathrm{d}\textbf{x}$ 
             is the classical Fisher information matrix (CFIM) for the prior distribution $p(\textbf{x})$.
+        
         - $\mathcal{I}_{\mathrm{Bayes}} = \int p(\textbf{x}) \mathcal{I} \, \mathrm{d}\textbf{x}$ 
             is the average CFIM over the prior.
 
@@ -878,6 +883,7 @@ def QVTB(x, p, dp, rho, drho, LDtype="SLD", eps=1e-8):
     Calculate the quantum Van Trees bound (QVTB), a Bayesian version of the quantum Cramer-Rao bound.
 
     The covariance matrix with prior distribution $p(\textbf{x})$ is:
+
     \begin{align}
     \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\}) = \int p(\textbf{x}) \sum_y \mathrm{Tr}
     (\rho\Pi_y) (\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
@@ -885,14 +891,16 @@ def QVTB(x, p, dp, rho, drho, LDtype="SLD", eps=1e-8):
     \end{align}
 
     The QVTB is given by:
+
     \begin{align}
     \mathrm{cov} \geq \left(\mathcal{I}_{\mathrm{prior}} + \mathcal{F}_{\mathrm{Bayes}}\right)^{-1}
     \end{align}
+
     where:
-        - $\mathcal{I}_{\mathrm{prior}} = \int p(\textbf{x}) \mathcal{I}_{p} \, \mathrm{d}\textbf{x}$ 
-            is the classical Fisher information matrix (CFIM) for the prior distribution $p(\textbf{x})$.
-        - $\mathcal{F}_{\mathrm{Bayes}} = \int p(\textbf{x}) \mathcal{F} \, \mathrm{d}\textbf{x}$ 
-            is the average quantum Fisher information matrix (QFIM) over the prior.
+        $\mathcal{I}_{\mathrm{prior}} = \int p(\textbf{x}) \mathcal{I}_{p} \, \mathrm{d}\textbf{x}$ 
+        is the classical Fisher information matrix (CFIM) for the prior distribution $p(\textbf{x})$.
+        $\mathcal{F}_{\mathrm{Bayes}} = \int p(\textbf{x}) \mathcal{F} \, \mathrm{d}\textbf{x}$ 
+        is the average quantum Fisher information matrix (QFIM) over the prior.
 
     Args:
         x (list): 
@@ -1001,9 +1009,11 @@ def OBB(x, p, dp, rho, drho, d2rho, LDtype="SLD", eps=1e-8):
     Calculate the optimal biased bound (OBB) for single parameter estimation.
 
     The OBB is defined as:
+
     \begin{align}
     \mathrm{var}(\hat{x},\{\Pi_y\}) \geq \int p(x) \left( \frac{(1+b')^2}{F} + b^2 \right) \mathrm{d}x
     \end{align}
+    
     where:
         - $b$: bias, $b'$: its derivative.
         - $F$: quantum Fisher information (QFI).
