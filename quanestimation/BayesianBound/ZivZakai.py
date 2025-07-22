@@ -35,9 +35,9 @@ def QZZB(x, p, rho, eps=1e-8):
     prior distribution p(x) in a finite regime $[\alpha,\beta]$ is
 
     \begin{aligned}
-    \mathrm{var}(\hat{x},\{\Pi_y\}) \geq &  \frac{1}{2}\int_0^\infty \mathrm{d}\tau\tau
-    \mathcal{V}\int_{-\infty}^{\infty} \mathrm{d}x\min\!\left\{p(x), p(x+\tau)\right\} \nonumber \\
-    & \times\left(1-\frac{1}{2}||\rho(x)-\rho(x+\tau)||\right),
+        \mathrm{var}(\hat{x},\{\Pi_y\}) \geq &  \frac{1}{2}\int_0^\infty \mathrm{d}\tau\tau
+        \mathcal{V}\int_{-\infty}^{\infty} \mathrm{d}x\min\!\left\{p(x), p(x+\tau)\right\} \nonumber \\
+        & \times\left(1-\frac{1}{2}||\rho(x)-\rho(x+\tau)||\right).
     \end{aligned}
 
     Symbols:

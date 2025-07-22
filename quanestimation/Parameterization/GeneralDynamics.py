@@ -16,8 +16,11 @@ class Lindblad:
         \{\rho,\Gamma^{\dagger}_i \Gamma_i \}),
     \end{aligned}
     
-    where $\rho$ is the evolved density matrix, $H$ is the Hamiltonian of the system, $\Gamma_i$ are the decay operators, 
-    $\gamma_i$ are the corresponding decay rates
+    Symbols: 
+        - $\rho$: the evolved density matrix
+        - $H$: the Hamiltonian of the system
+        - $\Gamma_i$: the $i$th decay operator
+        - $\gamma_i$: the $i$th decay rate
 
     Attributes:
         tspan (np.array): 
@@ -107,19 +110,19 @@ class Lindblad:
 
         The density matrix at the $j$th time interval is obtained by:
 
-        \begin{aligned}
+        $$
             \rho_j = e^{\Delta t \mathcal{L}} \rho_{j-1}
-        \end{aligned}
+        $$
         
         where $\Delta t$ is the time interval and $\rho_{j-1}$ is the density matrix 
         at the previous time step.
 
         The derivative $\partial_{\textbf{x}}\rho_j$ is calculated as:
 
-        \begin{aligned}
+        $$
             \partial_{\textbf{x}}\rho_j = \Delta t (\partial_{\textbf{x}}\mathcal{L}) \rho_j
             + e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}\rho_{j-1})
-        \end{aligned}
+        $$
 
         Returns: 
             (tuple):
@@ -152,17 +155,20 @@ class Lindblad:
         Calculate the density matrix and its derivatives using an ODE solver.
 
         The density matrix at the $j$th time interval is obtained by:
-        \begin{aligned}
-        \rho_j = e^{\Delta t \mathcal{L}} \rho_{j-1}
-        \end{aligned}
+
+        $$
+            \rho_j = e^{\Delta t \mathcal{L}} \rho_{j-1},
+        $$
+        
         where $\Delta t$ is the time interval and $\rho_{j-1}$ is the density matrix 
         at the previous time step.
 
         The derivative $\partial_{\textbf{x}}\rho_j$ is calculated as:
-        \begin{aligned}
-        \partial_{\textbf{x}}\rho_j = \Delta t (\partial_{\textbf{x}}\mathcal{L}) \rho_j
-        + e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}\rho_{j-1})
-        \end{aligned}
+
+        $$
+            \partial_{\textbf{x}}\rho_j = \Delta t (\partial_{\textbf{x}}\mathcal{L}) \rho_j
+            + e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}\rho_{j-1}).
+        $$
 
         Returns:
             (tuple):
@@ -197,16 +203,16 @@ class Lindblad:
 
         The density matrix at the $j$th time interval is obtained by:
 
-        \begin{align}
-            \rho_j = e^{\Delta t \mathcal{L}} \rho_{j-1}
-        \end{align}
+        $$
+            \rho_j = e^{\Delta t \mathcal{L}} \rho_{j-1}.
+        $$
 
         The first derivative $\partial_{\textbf{x}}\rho_j$ is calculated as:
        
-        \begin{align}
+        $$
             \partial_{\textbf{x}}\rho_j = \Delta t (\partial_{\textbf{x}}\mathcal{L}) \rho_j
-            + e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}\rho_{j-1})
-        \end{align}
+            + e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}\rho_{j-1}).
+        $$
 
         The second derivative $\partial_{\textbf{x}}^2\rho_j$ is calculated as:
         
