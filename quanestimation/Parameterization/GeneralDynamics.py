@@ -110,17 +110,17 @@ class Lindblad:
         Calculate the density matrix and its derivatives using the matrix exponential method.
 
         The density matrix at the $j$th time interval is obtained by:
-        \begin{align}
+        \begin{aligned}
         \rho_j = e^{\Delta t \mathcal{L}} \rho_{j-1}
-        \end{align}
+        \end{aligned}
         where $\Delta t$ is the time interval and $\rho_{j-1}$ is the density matrix 
         at the previous time step.
 
         The derivative $\partial_{\textbf{x}}\rho_j$ is calculated as:
-        \begin{align}
+        \begin{aligned}
         \partial_{\textbf{x}}\rho_j = \Delta t (\partial_{\textbf{x}}\mathcal{L}) \rho_j
         + e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}\rho_{j-1})
-        \end{align}
+        \end{aligned}
 
         Returns: 
             (tuple):
@@ -153,17 +153,17 @@ class Lindblad:
         Calculate the density matrix and its derivatives using an ODE solver.
 
         The density matrix at the $j$th time interval is obtained by:
-        \begin{align}
+        \begin{aligned}
         \rho_j = e^{\Delta t \mathcal{L}} \rho_{j-1}
-        \end{align}
+        \end{aligned}
         where $\Delta t$ is the time interval and $\rho_{j-1}$ is the density matrix 
         at the previous time step.
 
         The derivative $\partial_{\textbf{x}}\rho_j$ is calculated as:
-        \begin{align}
+        \begin{aligned}
         \partial_{\textbf{x}}\rho_j = \Delta t (\partial_{\textbf{x}}\mathcal{L}) \rho_j
         + e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}\rho_{j-1})
-        \end{align}
+        \end{aligned}
 
         Returns:
             (tuple):
@@ -208,12 +208,12 @@ class Lindblad:
         \end{align}
 
         The second derivative $\partial_{\textbf{x}}^2\rho_j$ is calculated as:
-        \begin{align}
+        \begin{aligned}
         \partial_{\textbf{x}}^2\rho_j =& \Delta t (\partial_{\textbf{x}}^2\mathcal{L}) \rho_j \\
         &+ \Delta t (\partial_{\textbf{x}}\mathcal{L}) \partial_{\textbf{x}}\rho_j \\
         &+ \Delta t (\partial_{\textbf{x}}\mathcal{L}) e^{\Delta t \mathcal{L}} \partial_{\textbf{x}}\rho_{j-1} \\
         &+ e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}^2\rho_{j-1})
-        \end{align}
+        \end{aligned}
 
         Args:
             d2H (list): Second-order derivatives of the free Hamiltonian with respect to the unknown parameters.  
