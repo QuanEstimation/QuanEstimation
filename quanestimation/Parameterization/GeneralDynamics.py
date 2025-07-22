@@ -106,16 +106,19 @@ class Lindblad:
         Calculate the density matrix and its derivatives using the matrix exponential method.
 
         The density matrix at the $j$th time interval is obtained by:
+
         \begin{aligned}
-        \rho_j = e^{\Delta t \mathcal{L}} \rho_{j-1}
+            \rho_j = e^{\Delta t \mathcal{L}} \rho_{j-1}
         \end{aligned}
+        
         where $\Delta t$ is the time interval and $\rho_{j-1}$ is the density matrix 
         at the previous time step.
 
         The derivative $\partial_{\textbf{x}}\rho_j$ is calculated as:
+
         \begin{aligned}
-        \partial_{\textbf{x}}\rho_j = \Delta t (\partial_{\textbf{x}}\mathcal{L}) \rho_j
-        + e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}\rho_{j-1})
+            \partial_{\textbf{x}}\rho_j = \Delta t (\partial_{\textbf{x}}\mathcal{L}) \rho_j
+            + e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}\rho_{j-1})
         \end{aligned}
 
         Returns: 
@@ -193,22 +196,25 @@ class Lindblad:
         with respect to the unknown parameters.
 
         The density matrix at the $j$th time interval is obtained by:
+
         \begin{align}
-        \rho_j = e^{\Delta t \mathcal{L}} \rho_{j-1}
+            \rho_j = e^{\Delta t \mathcal{L}} \rho_{j-1}
         \end{align}
 
         The first derivative $\partial_{\textbf{x}}\rho_j$ is calculated as:
+       
         \begin{align}
-        \partial_{\textbf{x}}\rho_j = \Delta t (\partial_{\textbf{x}}\mathcal{L}) \rho_j
-        + e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}\rho_{j-1})
+            \partial_{\textbf{x}}\rho_j = \Delta t (\partial_{\textbf{x}}\mathcal{L}) \rho_j
+            + e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}\rho_{j-1})
         \end{align}
 
         The second derivative $\partial_{\textbf{x}}^2\rho_j$ is calculated as:
+        
         \begin{aligned}
-        \partial_{\textbf{x}}^2\rho_j =& \Delta t (\partial_{\textbf{x}}^2\mathcal{L}) \rho_j \\
-        &+ \Delta t (\partial_{\textbf{x}}\mathcal{L}) \partial_{\textbf{x}}\rho_j \\
-        &+ \Delta t (\partial_{\textbf{x}}\mathcal{L}) e^{\Delta t \mathcal{L}} \partial_{\textbf{x}}\rho_{j-1} \\
-        &+ e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}^2\rho_{j-1})
+            \partial_{\textbf{x}}^2\rho_j =& \Delta t (\partial_{\textbf{x}}^2\mathcal{L}) \rho_j \\
+            &+ \Delta t (\partial_{\textbf{x}}\mathcal{L}) \partial_{\textbf{x}}\rho_j \\
+            &+ \Delta t (\partial_{\textbf{x}}\mathcal{L}) e^{\Delta t \mathcal{L}} \partial_{\textbf{x}}\rho_{j-1} \\
+            &+ e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}^2\rho_{j-1})
         \end{aligned}
 
         Args:
