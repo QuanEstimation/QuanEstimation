@@ -234,7 +234,8 @@ def BCRB(x, p, dp, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
     $$
 
     Symbols:
-        - $\textbf{b}$: bias vector, $\textbf{b}'$: its derivatives
+        - $\textbf{b}$: bias vector
+        - $\textbf{b}'$: its derivatives
         - $B$: diagonal matrix with $B_{ii} = 1 + [\textbf{b}']_{i}$
         - $\mathcal{I}$: classical Fisher information matrix (CFIM)
         - $\mathcal{B} = \int p(\textbf{x}) B \mathrm{d}\textbf{x}$
