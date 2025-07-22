@@ -9,15 +9,18 @@ class Lindblad:
     Class for simulating quantum dynamics governed by the Lindblad master equation.
 
     The dynamics of a density matrix is described by the Lindblad master equation:
-    \begin{eqnarray}
-    \partial_t\rho &=\mathcal{L}\rho \nonumber \\
-    &=-i[H,\rho]+\sum_i \gamma_i(\Gamma_i\rho\Gamma^{\dagger}_i-\frac{1}{2}
-    \{\rho,\Gamma^{\dagger}_i \Gamma_i \}),
-    \end{eqnarray}
+    \begin{aligned}
+        \partial_t\rho &=\mathcal{L}\rho \nonumber \\
+        &=-i[H,\rho]+\sum_i \gamma_i(\Gamma_i\rho\Gamma^{\dagger}_i-\frac{1}{2}
+        \{\rho,\Gamma^{\dagger}_i \Gamma_i \}),
+    \end{aligned}
     where:
         - $\rho$ is the evolved density matrix
+
         - $H$ is the Hamiltonian of the system
+
         - $\Gamma_i$ are the decay operators
+
         - $\gamma_i$ are the corresponding decay rates
 
     Attributes:
