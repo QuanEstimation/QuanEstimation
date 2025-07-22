@@ -221,13 +221,17 @@ def SLD(rho, drho, rep="original", eps=1e-8):
     Calculation of the symmetric logarithmic derivative (SLD) for a density matrix.
 
     This function computes the SLD operator $L_a$, which is determined by
+
     $$
     \partial_{a}\rho=\frac{1}{2}(\rho L_{a}+L_{a}\rho)
     $$
+
     with $\rho$ the parameterized density matrix. The entries of SLD can be calculated as 
+
     $$
     \langle\lambda_i|L_{a}|\lambda_j\rangle=\frac{2\langle\lambda_i| \partial_{a}\rho |\lambda_j\rangle}{\lambda_i+\lambda_j
     $$
+    
     for $\lambda_i~(\lambda_j) \neq 0$. If $\lambda_i=\lambda_j=0$, the entry of SLD is set to be zero.
 
     Args:
