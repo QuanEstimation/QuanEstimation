@@ -11,9 +11,11 @@ def HCRB(rho, drho, W, eps=1e-8):
     Calculate the Holevo Cramer-Rao bound (HCRB) via semidefinite programming (SDP).
 
     The HCRB is defined as:
+
     $$
-    \min_{\{X_i\}} \{ \mathrm{Tr}(\mathrm{Re}Z) + \mathrm{Tr}(| \mathrm{Im} Z |) \}, 
+    \min_{\{X_i\}} \left\{ \mathrm{Tr}(\mathrm{Re}Z) + \mathrm{Tr}(| \mathrm{Im} Z |) \right\}, 
     $$
+
     where $Z_{ij} = \mathrm{Tr}(\rho X_i X_j)$ and $V$ is the covariance matrix.
 
     Args:
@@ -116,9 +118,11 @@ def NHB(rho, drho, W):
     Calculation of the Nagaoka-Hayashi bound (NHB) via the semidefinite program (SDP).
 
     The NHB is defined as:
+
     $$
-    \min_{X} \{ \mathrm{Tr}[W \mathrm{Re}(Z)] + \|\sqrt{W} \mathrm{Im}(Z) \sqrt{W}\|_1 \}, 
+    \min_{X} \left\{ \mathrm{Tr}[W \mathrm{Re}(Z)] + \|\sqrt{W} \mathrm{Im}(Z) \sqrt{W}\|_1 \right\}, 
     $$
+    
     where $Z_{ij} = \mathrm{Tr}(\rho X_i X_j)$ and $V$ is the covariance matrix.
 
     Args:

@@ -12,11 +12,14 @@ def CFIM(rho, drho, M=[], eps=1e-8):
     This function computes the classical Fisher information (CFI) and classical Fisher 
     information matrix (CFIM) for a density matrix. The entry of CFIM $\mathcal{I}$
     is defined as
+
     $$
     \mathcal{I}_{ab}=\sum_y\frac{1}{p(y|\textbf{x})}[\partial_a p(y|\textbf{x})][\partial_b p(y|\textbf{x})],
     $$
-    where $p(y|\textbf{x})=\mathrm{Tr}(\rho\Pi_y)$ with $\rho$ the parameterized 
-    density matrix.
+
+    Symbols: 
+        - $p(y|\textbf{x})=\mathrm{Tr}(\rho\Pi_y)$.
+        - $\rho$: the parameterized density matrix.
 
     Args: 
         rho (np.array): 
@@ -95,10 +98,13 @@ def FIM(p, dp, eps=1e-8):
 
     This function computes the classical Fisher information matrix (CFIM) for a given probability 
     distributions. The entry of FIM $I$ is defined as
+
     $$
     I_{ab}=\sum_{y}\frac{1}{p_y}[\partial_a p_y][\partial_b p_y],
     $$
-    where $\{p_y\}$ is a set of the discrete probability distribution.
+
+    Symbols: 
+        - $\{p_y\}$: a set of the discrete probability distribution.
 
     Args: 
         p (np.array): 
@@ -231,7 +237,7 @@ def SLD(rho, drho, rep="original", eps=1e-8):
     $$
     \langle\lambda_i|L_{a}|\lambda_j\rangle=\frac{2\langle\lambda_i| \partial_{a}\rho |\lambda_j\rangle}{\lambda_i+\lambda_j
     $$
-    
+
     for $\lambda_i~(\lambda_j) \neq 0$. If $\lambda_i=\lambda_j=0$, the entry of SLD is set to be zero.
 
     Args:
@@ -316,11 +322,13 @@ def RLD(rho, drho, rep="original", eps=1e-8):
     r"""
     Calculation of the right logarithmic derivative (RLD) for a density matrix.
     The RLD operator $\mathcal{R}_a$ is defined by
+
     $$
     \partial_{a}\rho=\rho \mathcal{R}_a
     $$
 
     with $\rho$ the parameterized density matrix. The entries of RLD can be calculated as 
+
     $$
     \langle\lambda_i| \mathcal{R}_{a} |\lambda_j\rangle=\frac{1}{\lambda_i}\langle\lambda_i| 
     \partial_a\rho |\lambda_j\rangle 
@@ -408,15 +416,18 @@ def LLD(rho, drho, rep="original", eps=1e-8):
     Calculation of the left logarithmic derivative (LLD) for a density matrix $\rho$.
 
     The LLD operator $\mathcal{R}_a^{\dagger}$ is defined by
+
     $$
     \partial_{a}\rho=\mathcal{R}_a^{\dagger}\rho.
     $$
 
     The entries of LLD can be calculated as 
+
     $$
     \langle\lambda_i| \mathcal{R}_{a}^{\dagger} |\lambda_j\rangle=\frac{1}{\lambda_j}\langle\lambda_i| 
     \partial_a\rho |\lambda_j\rangle 
     $$
+
     for $\lambda_j\neq 0$.
 
     Args: 
@@ -500,15 +511,19 @@ def QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8):
     information matrix (QFIM) for all types.
 
     The entry of QFIM $\mathcal{F}$ is defined as:
+
     $$
     \mathcal{F}_{ab}=\frac{1}{2}\mathrm{Tr}(\rho\{L_a, L_b\})
     $$
+
     with $L_a, L_b$ being SLD operators.
 
     Alternatively:
+
     $$
     \mathcal{F}_{ab}=\mathrm{Tr}(\rho \mathcal{R}_a \mathcal{R}^{\dagger}_b)
     $$
+
     with $\mathcal{R}_a$ being the RLD or LLD operator.
 
     Args:
@@ -615,16 +630,19 @@ def QFIM_Kraus(rho0, K, dK, LDtype="SLD", exportLD=False, eps=1e-8):
     information matrix (QFIM) for a quantum channel described by Kraus operators.
 
     The quantum channel is given by
-    \begin{align}
+    
+    $$
     \rho=\sum_{i} K_i \rho_0 K_i^{\dagger},
-    \end{align}
+    $$
+
     where $\rho_0$ is the initial state and $\{K_i\}$ are the Kraus operators.
 
     The derivatives of the density matrix $\partial_a\rho$ are calculated from the 
     derivatives of the Kraus operators $\{\partial_a K_i\}$ as
-    \begin{align}
+    
+    $$
     \partial_a\rho=\sum_{i}\left[(\partial_a K_i)\rho_0 K_i^{\dagger}+K_i\rho_0(\partial_a K_i)^{\dagger}\right].
-    \end{align}
+    $$
 
     Then the QFI (QFIM) is calculated via the function `QFIM` with the evolved state 
     $\rho$ and its derivatives $\{\partial_a\rho\}$.
@@ -682,9 +700,11 @@ def QFIM_Bloch(r, dr, eps=1e-8):
     information matrix (QFIM) in Bloch representation.
 
     The Bloch vector representation of a quantum state is defined as
-    \begin{align}
+    
+    $$
     \rho = \frac{1}{d}\left(\mathbb{I} + \sum_{i=1}^{d^2-1} r_i \lambda_i\right),
-    \end{align}
+    $$
+    
     where $\lambda_i$ are the generators of SU(d) group.
 
     Args:

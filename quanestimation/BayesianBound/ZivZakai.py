@@ -34,15 +34,16 @@ def QZZB(x, p, rho, eps=1e-8):
     Calculation of the quantum Ziv-Zakai bound (QZZB). The expression of QZZB with a 
     prior distribution p(x) in a finite regime $[\alpha,\beta]$ is
 
-    \begin{eqnarray}
-    \mathrm{var}(\hat{x},\{\Pi_y\}) &\geq & \frac{1}{2}\int_0^\infty \mathrm{d}\tau\tau
+    \begin{aligned}
+    \mathrm{var}(\hat{x},\{\Pi_y\}) \geq &  \frac{1}{2}\int_0^\infty \mathrm{d}\tau\tau
     \mathcal{V}\int_{-\infty}^{\infty} \mathrm{d}x\min\!\left\{p(x), p(x+\tau)\right\} \nonumber \\
-    & & \times\left(1-\frac{1}{2}||\rho(x)-\rho(x+\tau)||\right),
-    \end{eqnarray}
+    & \times\left(1-\frac{1}{2}||\rho(x)-\rho(x+\tau)||\right),
+    \end{aligned}
 
-    where $||\cdot||$ represents the trace norm and $\mathcal{V}$ is the "valley-filling" 
-    operator satisfying $\mathcal{V}f(\tau)=\max_{h\geq 0}f(\tau+h)$. $\rho(x)$ is the 
-    parameterized density matrix.
+    Symbols:
+        - $||\cdot||$: the trace norm
+        - $\mathcal{V}$: the "valley-filling" operator satisfying $\mathcal{V}f(\tau)=\max_{h\geq 0}f(\tau+h)$. 
+        - $\rho(x)$: the parameterized density matrix.
 
     Args:
         x (list): 

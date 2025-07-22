@@ -12,9 +12,11 @@ def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
 
     This function computes the Bayesian classical Fisher information (BCFI) or Bayesian classical 
     Fisher information matrix (BCFIM). The BCFIM is defined as:
-    \begin{align}
-    \mathcal{I}_{\mathrm{Bayes}} = \int p(\textbf{x}) \mathcal{I} \, \mathrm{d}\textbf{x}
-    \end{align}
+
+    $$
+        \mathcal{I}_{\mathrm{Bayes}} = \int p(\textbf{x}) \mathcal{I} \, \mathrm{d}\textbf{x}.
+    $$
+
     where $\mathcal{I}$ is the classical Fisher information matrix (CFIM) and $p(\textbf{x})$ 
     is the prior distribution.
 
@@ -119,9 +121,11 @@ def BQFIM(x, p, rho, drho, LDtype="SLD", eps=1e-8):
 
     This function computes the Bayesian quantum Fisher information (BQFI) or Bayesian quantum 
     Fisher information matrix (BQFIM). The BQFIM is defined as:
-    \begin{align}
-    \mathcal{F}_{\mathrm{Bayes}} = \int p(\textbf{x}) \mathcal{F} \, \mathrm{d}\textbf{x}
-    \end{align}
+
+    $$
+        \mathcal{F}_{\mathrm{Bayes}} = \int p(\textbf{x}) \mathcal{F} \, \mathrm{d}\textbf{x}.
+    $$
+
     where $\mathcal{F}$ is the quantum Fisher information matrix (QFIM) and $p(\textbf{x})$ 
     is the prior distribution.
 
@@ -201,30 +205,35 @@ def BCRB(x, p, dp, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
     This function computes the Bayesian Cramer-Rao bound (BCRB) for single or multiple parameters.
 
     The covariance matrix with prior distribution $p(\textbf{x})$ is:
-    \begin{align}
-    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\}) = \int p(\textbf{x}) \sum_y \mathrm{Tr}
-    (\rho\Pi_y) (\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
-    \mathrm{d}\textbf{x}
-    \end{align}
+
+    $$
+        \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\}) = \int p(\textbf{x}) \sum_y \mathrm{Tr}
+        (\rho\Pi_y) (\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
+        \mathrm{d}\textbf{x}.
+    $$
 
     This function calculates three types of BCRB:
 
     **Type 1:**
-    \begin{align}
-    \mathrm{cov} \geq \int p(\textbf{x}) \left( B \mathcal{I}^{-1} B + \textbf{b} \textbf{b}^{\mathrm{T}} \right) \mathrm{d}\textbf{x}
-    \end{align}
+
+    $$
+        \mathrm{cov} \geq \int p(\textbf{x}) \left( B \mathcal{I}^{-1} B 
+        + \textbf{b} \textbf{b}^{\mathrm{T}} \right) \mathrm{d}\textbf{x}.
+    $$
 
     **Type 2:**
-    \begin{align}
-    \mathrm{cov} \geq \mathcal{B} \mathcal{I}_{\mathrm{Bayes}}^{-1} \mathcal{B} + \int p(\textbf{x}) \textbf{b} \textbf{b}^{\mathrm{T}} \mathrm{d}\textbf{x}
-    \end{align}
+    $$
+        \mathrm{cov} \geq \mathcal{B} \mathcal{I}_{\mathrm{Bayes}}^{-1} \mathcal{B} 
+        + \int p(\textbf{x}) \textbf{b} \textbf{b}^{\mathrm{T}} \mathrm{d}\textbf{x}.
+    $$
 
     **Type 3:**
-    \begin{align}
-    \mathrm{cov} \geq \int p(\textbf{x}) \mathcal{G} \left( \mathcal{I}_p + \mathcal{I} \right)^{-1} \mathcal{G}^{\mathrm{T}} \mathrm{d}\textbf{x}
-    \end{align}
+    $$
+        \mathrm{cov} \geq \int p(\textbf{x}) \mathcal{G} \left( \mathcal{I}_p 
+        + \mathcal{I} \right)^{-1} \mathcal{G}^{\mathrm{T}} \mathrm{d}\textbf{x}.
+    $$
 
-    where:
+    Symbols:
         - $\textbf{b}$: bias vector, $\textbf{b}'$: its derivatives
         - $B$: diagonal matrix with $B_{ii} = 1 + [\textbf{b}']_{i}$
         - $\mathcal{I}$: classical Fisher information matrix (CFIM)
@@ -480,45 +489,52 @@ def BQCRB(x, p, dp, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
     Calculation of the Bayesian quantum Cramer-Rao bound (BQCRB). 
     
     The covariance matrix with a prior distribution $p(\textbf{x})$ is defined as
-    \begin{align}
-    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})=\int p(\textbf{x})\sum_y\mathrm{Tr}
-    (\rho\Pi_y)(\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
-    \mathrm{d}\textbf{x}
-    \end{align}
+    
+    $$
+        \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})=\int p(\textbf{x})\sum_y\mathrm{Tr}
+        (\rho\Pi_y)(\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
+        \mathrm{d}\textbf{x},
+    $$
 
-    where $\textbf{x}=(x_0,x_1,\dots)^{\mathrm{T}}$ are the unknown parameters to be estimated
-    and the integral $\int\mathrm{d}\textbf{x}:=\iiint\mathrm{d}x_0\mathrm{d}x_1\cdots$.
-    $\{\Pi_y\}$ is a set of positive operator-valued measure (POVM) and $\rho$ represent 
-    the parameterized density matrix.
+    Symbols:
+        - $\textbf{x}=(x_0,x_1,\dots)^{\mathrm{T}}$: the unknown parameters to be estimated
+            and the integral $\int\mathrm{d}\textbf{x}:=\iiint\mathrm{d}x_0\mathrm{d}x_1\cdots$.
+        - $\{\Pi_y\}$: a set of positive operator-valued measure (POVM). 
+        - $\rho$: the parameterized density matrix.
 
     This function calculates three types of the BQCRB. The first one is
-    \begin{align}
-    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq\int p(\textbf{x})\left(B\mathcal{F}^{-1}B
-    +\textbf{b}\textbf{b}^{\mathrm{T}}\right)\mathrm{d}\textbf{x},
-    \end{align}
+
+    $$
+        \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq\int p(\textbf{x})\left(B\mathcal{F}^{-1}B
+        +\textbf{b}\textbf{b}^{\mathrm{T}}\right)\mathrm{d}\textbf{x},
+    $$
         
-    where $\textbf{b}$ and $\textbf{b}'$ are the vectors of biase and its derivatives on parameters.
-    $B$ is a diagonal matrix with the $i$th entry $B_{ii}=1+[\textbf{b}']_{i}$ and $\mathcal{F}$
-    is the QFIM for all types.
+    Symbols: 
+        - $\textbf{b}$ and $\textbf{b}'$: the vectors of biase and its derivatives on parameters.
+        - $B$: a diagonal matrix with the $i$th entry $B_{ii}=1+[\textbf{b}']_{i}$
+        - $\mathcal{F}$: the QFIM for all types.
 
     The second one is
-    \begin{align}
-    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \mathcal{B}\,\mathcal{F}_{\mathrm{Bayes}}^{-1}\,
-    \mathcal{B}+\int p(\textbf{x})\textbf{b}\textbf{b}^{\mathrm{T}}\mathrm{d}\textbf{x},
-    \end{align}
 
-    where $\mathcal{B}=\int p(\textbf{x})B\mathrm{d}\textbf{x}$ is the average of $B$ and 
-    $\mathcal{F}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{F}\mathrm{d}\textbf{x}$ is 
-    the average QFIM.
+    $$
+        \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \mathcal{B}\,\mathcal{F}_{\mathrm{Bayes}}^{-1}\,
+        \mathcal{B}+\int p(\textbf{x})\textbf{b}\textbf{b}^{\mathrm{T}}\mathrm{d}\textbf{x},
+    $$
+
+    Symbols: 
+        - $\mathcal{B}=\int p(\textbf{x})B\mathrm{d}\textbf{x}$: the average of $B$ 
+        - $\mathcal{F}_{\mathrm{Bayes}}=\int p(\textbf{x})\mathcal{F}\mathrm{d}\textbf{x}$: the average QFIM.
 
     The third one is
-    \begin{align}
-    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})
-    \mathcal{G}\left(\mathcal{I}_p+\mathcal{F}\right)^{-1}\mathcal{G}^{\mathrm{T}}\mathrm{d}\textbf{x}
-    \end{align}
+    
+    $$
+        \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\})\geq \int p(\textbf{x})
+        \mathcal{G}\left(\mathcal{I}_p+\mathcal{F}\right)^{-1}\mathcal{G}^{\mathrm{T}}\mathrm{d}\textbf{x}.
+    $$
 
-    with $[\mathcal{I}_{p}]_{ab}:=[\partial_a \ln p(\textbf{x})][\partial_b \ln p(\textbf{x})]$ and
-    $\mathcal{G}_{ab}:=[\partial_b\ln p(\textbf{x})][\textbf{b}]_a+B_{aa}\delta_{ab}$.
+    Symbols: 
+        - $[\mathcal{I}_{p}]_{ab}:=[\partial_a \ln p(\textbf{x})][\partial_b \ln p(\textbf{x})]$.
+        - $\mathcal{G}_{ab}:=[\partial_b\ln p(\textbf{x})][\textbf{b}]_a+B_{aa}\delta_{ab}$.
 
     Args:
         x (list): 
@@ -751,23 +767,21 @@ def VTB(x, p, dp, rho, drho, M=[], eps=1e-8):
 
     The covariance matrix with prior distribution $p(\textbf{x})$ is:
 
-    \begin{align}
-    \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\}) = \int p(\textbf{x}) \sum_y \mathrm{Tr}
-    (\rho\Pi_y) (\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
-    \mathrm{d}\textbf{x}
-    \end{align}
+    $$
+        \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\}) = \int p(\textbf{x}) \sum_y \mathrm{Tr}
+        (\rho\Pi_y) (\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
+        \mathrm{d}\textbf{x}.
+    $$
 
     The VTB is given by:
 
-    \begin{align}
-    \mathrm{cov} \geq \left(\mathcal{I}_{\mathrm{prior}} + \mathcal{I}_{\mathrm{Bayes}}\right)^{-1}
-    \end{align}
+    $$
+    \mathrm{cov} \geq \left(\mathcal{I}_{\mathrm{prior}} + \mathcal{I}_{\mathrm{Bayes}}\right)^{-1}.
+    $$
 
-    where:
-        
+    Symbols:  
         - $\mathcal{I}_{\mathrm{prior}} = \int p(\textbf{x}) \mathcal{I}_{p} \, \mathrm{d}\textbf{x}$ 
-            is the classical Fisher information matrix (CFIM) for the prior distribution $p(\textbf{x})$.
-        
+            is the classical Fisher information matrix (CFIM) for the prior distribution $p(\textbf{x})$.    
         - $\mathcal{I}_{\mathrm{Bayes}} = \int p(\textbf{x}) \mathcal{I} \, \mathrm{d}\textbf{x}$ 
             is the average CFIM over the prior.
 
@@ -884,23 +898,23 @@ def QVTB(x, p, dp, rho, drho, LDtype="SLD", eps=1e-8):
 
     The covariance matrix with prior distribution $p(\textbf{x})$ is:
 
-    \begin{align}
+    $$
     \mathrm{cov}(\hat{\textbf{x}},\{\Pi_y\}) = \int p(\textbf{x}) \sum_y \mathrm{Tr}
     (\rho\Pi_y) (\hat{\textbf{x}}-\textbf{x})(\hat{\textbf{x}}-\textbf{x})^{\mathrm{T}}
-    \mathrm{d}\textbf{x}
-    \end{align}
+    \mathrm{d}\textbf{x}.
+    $$
 
     The QVTB is given by:
 
-    \begin{align}
-    \mathrm{cov} \geq \left(\mathcal{I}_{\mathrm{prior}} + \mathcal{F}_{\mathrm{Bayes}}\right)^{-1}
-    \end{align}
+    \$$
+    \mathrm{cov} \geq \left(\mathcal{I}_{\mathrm{prior}} + \mathcal{F}_{\mathrm{Bayes}}\right)^{-1}.
+    $$
 
-    where:
-        $\mathcal{I}_{\mathrm{prior}} = \int p(\textbf{x}) \mathcal{I}_{p} \, \mathrm{d}\textbf{x}$ 
-        is the classical Fisher information matrix (CFIM) for the prior distribution $p(\textbf{x})$.
-        $\mathcal{F}_{\mathrm{Bayes}} = \int p(\textbf{x}) \mathcal{F} \, \mathrm{d}\textbf{x}$ 
-        is the average quantum Fisher information matrix (QFIM) over the prior.
+    Symbols:
+        - $\mathcal{I}_{\mathrm{prior}} = \int p(\textbf{x}) \mathcal{I}_{p} \, \mathrm{d}\textbf{x}$:  
+            the classical Fisher information matrix (CFIM) for the prior distribution $p(\textbf{x})$.
+        - $\mathcal{F}_{\mathrm{Bayes}} = \int p(\textbf{x}) \mathcal{F} \, \mathrm{d}\textbf{x}$:  
+            the average quantum Fisher information matrix (QFIM) over the prior.
 
     Args:
         x (list): 
@@ -1010,11 +1024,11 @@ def OBB(x, p, dp, rho, drho, d2rho, LDtype="SLD", eps=1e-8):
 
     The OBB is defined as:
 
-    \begin{align}
+    $$
     \mathrm{var}(\hat{x},\{\Pi_y\}) \geq \int p(x) \left( \frac{(1+b')^2}{F} + b^2 \right) \mathrm{d}x
-    \end{align}
+    $$
     
-    where:
+    Symbols:
         - $b$: bias, $b'$: its derivative.
         - $F$: quantum Fisher information (QFI).
 
