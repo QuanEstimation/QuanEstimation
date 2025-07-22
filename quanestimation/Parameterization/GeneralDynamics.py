@@ -10,11 +10,11 @@ class Lindblad:
 
     The dynamics of a density matrix is described by the Lindblad master equation:
     $$
-    \begin{aligned}
+    \begin{align}
         \partial_t\rho &=\mathcal{L}\rho \nonumber \\
-        &=-i[H,\rho]+\sum_i \gamma_i\left(\Gamma_i\rho\Gamma^{\dagger}_i-\frac{1}{2}
-        \left\{\rho,\Gamma^{\dagger}_i \Gamma_i \right\}\right),
-    \end{aligned}
+        &=-i[H,\rho]+\sum_i \gamma_i(\Gamma_i\rho\Gamma^{\dagger}_i-\frac{1}{2}
+        \{\rho,\Gamma^{\dagger}_i \Gamma_i \}),
+    \end{align}
     $$
     where:
         - $\rho$ is the evolved density matrix
