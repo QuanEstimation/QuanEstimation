@@ -177,7 +177,7 @@ def sic_povm(fiducial):
     Generate SIC-POVM from fiducial state.
     
     Args:
-        fiducial (np.ndarray): 
+        fiducial (np.array): 
             the fiducial state vector.
         
     Returns:
