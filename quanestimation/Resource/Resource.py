@@ -6,14 +6,22 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
     r"""
     Calculation of the spin squeezing parameter for a density matrix.
 
-    The spin squeezing parameter $\xi$ is defined as:
-    \begin{align}
+    The spin squeezing parameter $\xi$ given by Kitagawa and Ueda is defined as:
+
+    $$
     \xi^2 = \frac{N(\Delta J_{\vec{n}_1})^2}{\langle J_{\vec{n}_3}\rangle^2}
-    \end{align}
+    $$
+
     where $J_{\vec{n}_i}$ are the collective spin operators.
 
+    The spin squeezing parameter $\xi$ given by Wineland etal. is defined as:
+
+    $$
+    \xi^2 = \left(\frac{j}{\langle \vec{J}\rangle}\right)^2 \frac{N(\Delta J_{\vec{n}_1})^2}{\langle J_{\vec{n}_3}\rangle^2}
+    $$
+
     Args:
-        rho (array): 
+        rho (np.array): 
             Density matrix.
         basis (str, optional): 
             Basis to use: "Dicke" (default) or "Pauli".
@@ -27,35 +35,49 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
             Spin squeezing parameter.
 
     Raises:
-        ValueError: If basis has invalid value.  
-        NameError: If output has invalid value.  
+        ValueError: If `basis` has invalid value.  
+        NameError: If `output` has invalid value.  
     """
-    N = len(rho) - 1
-    coef = 4.0 / float(N)
-    j = N / 2
-    
+
     if basis == "Pauli":
+        N = int(np.log(len(rho)) / np.log(2))
+        j = N / 2
+        coef = 4.0 / float(N)
         sp = np.array([[0.0, 1.0], [0.0, 0.0]])
+        sz = np.array([[1., 0.], [0., -1.]])
         jp = []
+        jz = []
         for i in range(N):
             if i == 0:
                 jp_tp = np.kron(sp, np.identity(2 ** (N - 1)))
+                jz_tp = np.kron(sz, np.identity(2 ** (N - 1)))
             elif i == N - 1:
                 jp_tp = np.kron(np.identity(2 ** (N - 1)), sp)
+                jz_tp = np.kron(np.identity(2 ** (N - 1)), sz)
             else:
                 jp_tp = np.kron(
                     np.identity(2 ** i), 
                     np.kron(sp, np.identity(2 ** (N - 1 - i)))
                 )
+                jz_tp = np.kron(
+                    np.identity(2 ** i), 
+                    np.kron(sz, np.identity(2 ** (N - 1 - i)))
+                )
             jp.append(jp_tp)
+            jz.append(jz_tp)
         Jp = sum(jp)
+        Jz = sum(jz)
     elif basis == "Dicke":
+        N = len(rho) - 1
+        j = N / 2 
+        coef = 4.0 / float(N)       
         offdiag = [
             np.sqrt(float(j * (j + 1) - m * (m + 1))) 
             for m in np.arange(j, -j - 1, -1)
         ][1:]
         # Ensure we create a complex array
         Jp = np.diag(offdiag, 1).astype(complex)
+        Jz = np.diag(np.arange(j, -j - 1, -1))
     else:
         valid_types = ["Dicke", "Pauli"]
         raise ValueError(
@@ -64,7 +86,6 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
     
     Jx = 0.5 * (Jp + np.conj(Jp).T)
     Jy = -0.5 * 1j * (Jp - np.conj(Jp).T)
-    Jz = np.diag(np.arange(j, -j - 1, -1))
     
     Jx_mean = np.trace(rho @ Jx)
     Jy_mean = np.trace(rho @ Jy)

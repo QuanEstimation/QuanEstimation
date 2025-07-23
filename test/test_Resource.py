@@ -2,9 +2,10 @@ import pytest
 from quanestimation.Resource.Resource import SpinSqueezing
 import numpy as np
 
-def test_SpinSqueezing():
+def test_SpinSqueezing_Dicke():
     """
-    Test the SpinSqueezing function with valid input and check exception handling.
+    Test the SpinSqueezing function with valid input for Dicke basis 
+    and check exception handling.
     
     This test verifies:
     1. The function returns the expected value for valid input
@@ -39,9 +40,36 @@ def test_SpinSqueezing():
     expected = 0.65
     assert np.allclose(result, expected)
 
+    result1 = SpinSqueezing(density_matrix, basis="Dicke", output="WBIMH")
+    expected1 = 8.0753
+    assert np.allclose(result1, expected1)
+
     # Test invalid output type
     with pytest.raises(NameError):
         SpinSqueezing(density_matrix, basis="Dicke", output="invalid")
 
     with pytest.raises(ValueError):
         SpinSqueezing(density_matrix, basis="invalid", output="KU")    
+
+def test_SpinSqueezing_Pauli():
+    """
+    Test the SpinSqueezing function with Pauli basis.
+    
+    This test verifies:
+        The function returns the expected value for valid input.
+    """
+    # Collective spin operators for j=2 system in Pauli basis
+    sy = np.array([[0., -1j], [1j, 0.]])
+    sz = np.array([[1., 0.], [0., -1.]])
+    ide = np.identity(2)
+
+    jy_matrix = np.kron(sy, ide) + np.kron(ide, sy)
+    jz_matrix = np.kron(sz, ide) + np.kron(ide, sz)
+    
+    xi_param = 0.1
+    density_matrix = 0.5 * xi_param * (jz_matrix**2 - jy_matrix**2)
+
+    # Test valid output type
+    result = SpinSqueezing(density_matrix, basis="Pauli", output="KU")
+    expected = 0.4
+    assert np.allclose(result, expected)
