@@ -1,6 +1,4 @@
 import numpy as np
-from more_itertools import zip_broadcast
-
 
 def SpinSqueezing(rho, basis="Dicke", output="KU"):
     r"""
@@ -123,10 +121,11 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
 
 def TargetTime(f, tspan, func, *args, **kwargs):
     r"""
-    Calculation of the time to reach a given precision limit.
+    Calculation of the time to reach a given precision limit. 
 
     This function finds the earliest time $t$ in `tspan` where the objective 
-    function `func` reaches or crosses the target value $f$.
+    function `func` reaches or crosses the target value $f$. The first argument 
+    of func must be the time variable.
 
     Args:
         f (float): 
@@ -144,16 +143,24 @@ def TargetTime(f, tspan, func, *args, **kwargs):
         (float): 
             Time to reach the given target precision.
     """
+    # Check if we're already at the target at the first point
+    f0 = func(tspan[0], *args, **kwargs)
+    if np.isclose(f0, f, atol=1e-8):
+        return tspan[0]
+    
+    # Iterate through time points
+    for i in range(1, len(tspan)):
+        f1 = func(tspan[i], *args, **kwargs)
+        
+        # Check if we've crossed the target
+        if (f0 - f) * (f1 - f) <= 0:
+            return tspan[i]
+        elif np.isclose(f1, f, atol=1e-8):
+            return tspan[i]
+        
+        f0 = f1
+    
+    # No crossing found
+    print("No time is found in the given time span to reach the target.")
 
-    args = list(zip_broadcast(*args))
-
-    f_last = func(*(args[0]), **kwargs)
-    idx = 1
-    f_now = func(*(args[1]), **kwargs)
-
-    while (f_now - f) * (f_last - f) > 0 and idx < (len(tspan) - 1):
-        f_last = f_now
-        idx += 1
-        f_now = func(*(args[idx]), **kwargs)
-
-    return tspan[idx]
+    return None

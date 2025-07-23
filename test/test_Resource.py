@@ -1,5 +1,5 @@
 import pytest
-from quanestimation.Resource.Resource import SpinSqueezing
+from quanestimation.Resource.Resource import SpinSqueezing, TargetTime
 import numpy as np
 
 def test_SpinSqueezing_Dicke():
@@ -63,13 +63,46 @@ def test_SpinSqueezing_Pauli():
     sz = np.array([[1., 0.], [0., -1.]])
     ide = np.identity(2)
 
-    jy_matrix = np.kron(sy, ide) + np.kron(ide, sy)
-    jz_matrix = np.kron(sz, ide) + np.kron(ide, sz)
+    jy_matrix = np.kron(ide, np.kron(sy, ide)) + np.kron(sy, np.kron(ide, ide)) + np.kron(ide, np.kron(ide, sy)) 
+    jz_matrix = np.kron(ide, np.kron(sz, ide)) + np.kron(sz, np.kron(ide, ide)) + np.kron(ide, np.kron(ide, sz))
     
     xi_param = 0.1
     density_matrix = 0.5 * xi_param * (jz_matrix**2 - jy_matrix**2)
 
     # Test valid output type
     result = SpinSqueezing(density_matrix, basis="Pauli", output="KU")
-    expected = 0.4
+    expected = 1.
     assert np.allclose(result, expected)
+
+def test_TargetTime():
+    """
+    Test the TargetTime function.
+
+    This test verifies:
+        The function returns the expected value for valid input.
+    """
+
+    testfunc = lambda t, omega: np.cos(omega * t)
+    tspan = np.linspace(0, np.pi, 1000000)
+    target = 0.  
+    result = TargetTime(target, tspan, testfunc, 1.)
+    expected = np.pi / 2
+    assert np.allclose(result, expected, atol=1e-4)
+
+def test_TargetTime_no_crossing(capfd):
+    """
+    Test the TargetTime function when no crossing occurs.
+
+    This test verifies:
+        The function returns None when no crossing is found.
+    """
+    
+    testfunc = lambda t: np.cos(t)
+    tspan = np.linspace(0, 1, 100)
+    target = 2.  # No crossing with cos(t)
+    
+    result = TargetTime(target, tspan, testfunc)
+
+    out, _ = capfd.readouterr()
+    assert  "No time is found in the given time span to reach the target." in out
+    assert result is None    
