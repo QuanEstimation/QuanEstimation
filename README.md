@@ -34,7 +34,9 @@ pip install quanestimation
 
 ~~~
 git clone https://github.com/QuanEstimation/QuanEstimation.git
+
 cd QuanEstimation
+
 pip install .
 ~~~
 
