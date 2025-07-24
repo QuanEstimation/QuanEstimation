@@ -1,4 +1,5 @@
 [deps]
+PreallocationTools = "d236fae5-4411-538c-8e31-a6e3d9e00b46"
 QuanEstimation = "088c8dff-a786-4a66-974c-03d3f6773f87"
 
 [compat]
