@@ -34,7 +34,7 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
 
     Raises:
         ValueError: If `basis` has invalid value.  
-        NameError: If `output` has invalid value.  
+        ValueError: If `output` has invalid value.  
     """
 
     if basis == "Pauli":
@@ -64,7 +64,7 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
             jp.append(jp_tp)
             jz.append(jz_tp)
         Jp = sum(jp)
-        Jz = sum(jz)
+        Jz = 0.5 * sum(jz)
     elif basis == "Dicke":
         N = len(rho) - 1
         j = N / 2 
@@ -89,25 +89,28 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
     Jy_mean = np.trace(rho @ Jy)
     Jz_mean = np.trace(rho @ Jz)
 
-    costheta = Jz_mean / np.sqrt(Jx_mean**2 + Jy_mean**2 + Jz_mean**2)
-    sintheta = np.sin(np.arccos(costheta))
-    cosphi = Jx_mean / np.sqrt(Jx_mean**2 + Jy_mean**2)
-    sinphi = (np.sin(np.arccos(cosphi)) if Jy_mean > 0 
-              else np.sin(2 * np.pi - np.arccos(cosphi)))
+    if Jx_mean == 0 and Jy_mean == 0:
+        A = np.trace(rho @ (Jx @ Jx - Jy @ Jy))
+        B = np.trace(rho @ (Jx @ Jy + Jy @ Jx))
+        C = np.trace(rho @ (Jx @ Jx + Jy @ Jy))
+    else:
+        costheta = Jz_mean / np.sqrt(Jx_mean**2 + Jy_mean**2 + Jz_mean**2)
+        sintheta = np.sin(np.arccos(costheta))
+        cosphi = Jx_mean / np.sqrt(Jx_mean**2 + Jy_mean**2)
+        sinphi = (np.sin(np.arccos(cosphi)) if Jy_mean > 0 
+                  else np.sin(2 * np.pi - np.arccos(cosphi)))
     
-    Jn1 = -Jx * sinphi + Jy * cosphi
-    Jn2 = (-Jx * costheta * cosphi 
-           - Jy * costheta * sinphi 
-           + Jz * sintheta)
-    
-    A = np.trace(rho @ (Jn1 @ Jn1 - Jn2 @ Jn2))
-    B = np.trace(rho @ (Jn1 @ Jn2 + Jn2 @ Jn1))
-    C = np.trace(rho @ (Jn1 @ Jn1 + Jn2 @ Jn2))
-    
+        Jn1 = -Jx * sinphi + Jy * cosphi
+        Jn2 = (-Jx * costheta * cosphi 
+                - Jy * costheta * sinphi 
+                + Jz * sintheta)
+        A = np.trace(rho @ (Jn1 @ Jn1 - Jn2 @ Jn2))
+        B = np.trace(rho @ (Jn1 @ Jn2 + Jn2 @ Jn1))
+        C = np.trace(rho @ (Jn1 @ Jn1 + Jn2 @ Jn2))
+        
     V_minus = 0.5 * (C - np.sqrt(A**2 + B**2))
     V_minus = np.real(V_minus)
     xi = coef * V_minus
-    xi = min(xi, 1.0)  # Cap at 1.0
 
     if output == "KU":
         pass

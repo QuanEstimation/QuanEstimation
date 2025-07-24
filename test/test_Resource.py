@@ -59,15 +59,17 @@ def test_SpinSqueezing_Pauli():
         The function returns the expected value for valid input.
     """
     # Collective spin operators for j=2 system in Pauli basis
-    sy = np.array([[0., -1j], [1j, 0.]])
-    sz = np.array([[1., 0.], [0., -1.]])
-    ide = np.identity(2)
+    # sy = np.array([[0., -1j], [1j, 0.]])
+    # sz = np.array([[1., 0.], [0., -1.]])
+    # ide = np.identity(2)
 
-    jy_matrix = np.kron(ide, np.kron(sy, ide)) + np.kron(sy, np.kron(ide, ide)) + np.kron(ide, np.kron(ide, sy)) 
-    jz_matrix = np.kron(ide, np.kron(sz, ide)) + np.kron(sz, np.kron(ide, ide)) + np.kron(ide, np.kron(ide, sz))
+    # jy_matrix = np.kron(ide, np.kron(sy, ide)) + np.kron(sy, np.kron(ide, ide)) + np.kron(ide, np.kron(ide, sy)) 
+    # jz_matrix = np.kron(ide, np.kron(sz, ide)) + np.kron(sz, np.kron(ide, ide)) + np.kron(ide, np.kron(ide, sz))
     
-    xi_param = 0.1
-    density_matrix = 0.5 * xi_param * (jz_matrix**2 - jy_matrix**2)
+    # xi_param = 0.1
+    # density_matrix = 0.5 * xi_param * (jz_matrix**2 - jy_matrix**2)
+    a = np.array([1, 0, 0, 0, 0, 0, 0, 0])
+    density_matrix = np.diag(a)
 
     # Test valid output type
     result = SpinSqueezing(density_matrix, basis="Pauli", output="KU")
