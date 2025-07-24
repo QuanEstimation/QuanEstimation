@@ -45,7 +45,7 @@ def test_SpinSqueezing_Dicke():
     assert np.allclose(result1, expected1)
 
     # Test invalid output type
-    with pytest.raises(NameError):
+    with pytest.raises(ValueError):
         SpinSqueezing(density_matrix, basis="Dicke", output="invalid")
 
     with pytest.raises(ValueError):

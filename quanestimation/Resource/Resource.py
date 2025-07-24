@@ -114,7 +114,10 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
     elif output == "WBIMH":
         xi = (N / 2)**2 * xi / (Jx_mean**2 + Jy_mean**2 + Jz_mean**2)
     else:
-        raise NameError("output should be either 'KU' or 'WBIMH'")
+        valid_types = ["KU", "WBIMH"]
+        raise ValueError(
+                f"Invalid basis: '{basis}'. Supported types: {', '.join(valid_types)}"
+            )  
 
     return xi
 
