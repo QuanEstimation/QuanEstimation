@@ -76,6 +76,20 @@ def test_SpinSqueezing_Pauli():
     expected = 1.
     assert np.allclose(result, expected)
 
+def test_SpinSqueezing_nomean():
+    """
+    Test the SpinSqueezing function with a density matrix that has no mean values of Jx, Jy, and Jz.
+    
+    This test verifies:
+        The function raises ValueError when the density matrix does not have a valid spin squeezing.
+    """
+    # Create a density matrix with no mean values
+    rho = np.array([[0.5, 0.0], [0.0, 0.5]])
+    
+    with pytest.raises(ValueError):
+        SpinSqueezing(rho, basis="Pauli", output="KU")
+
+
 def test_TargetTime():
     """
     Test the TargetTime function.

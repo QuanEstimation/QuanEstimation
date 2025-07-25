@@ -90,9 +90,12 @@ def SpinSqueezing(rho, basis="Dicke", output="KU"):
     Jz_mean = np.trace(rho @ Jz)
 
     if Jx_mean == 0 and Jy_mean == 0:
-        A = np.trace(rho @ (Jx @ Jx - Jy @ Jy))
-        B = np.trace(rho @ (Jx @ Jy + Jy @ Jx))
-        C = np.trace(rho @ (Jx @ Jx + Jy @ Jy))
+        if Jz_mean == 0:
+            raise ValueError("The density matrix does not have a valid spin squeezing.")
+        else:
+            A = np.trace(rho @ (Jx @ Jx - Jy @ Jy))
+            B = np.trace(rho @ (Jx @ Jy + Jy @ Jx))
+            C = np.trace(rho @ (Jx @ Jx + Jy @ Jy))
     else:
         costheta = Jz_mean / np.sqrt(Jx_mean**2 + Jy_mean**2 + Jz_mean**2)
         sintheta = np.sin(np.arccos(costheta))
