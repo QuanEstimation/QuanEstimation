@@ -37,3 +37,5 @@ def test_ZivZakai():
     f_QZZB = QZZB([x], p, rho)
     expected_QZZB = 0.028521709437588784 
     assert np.allclose(f_QZZB, expected_QZZB)  
+
+    
