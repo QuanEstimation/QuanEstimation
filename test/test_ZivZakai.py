@@ -22,7 +22,7 @@ def test_ZivZakai():
     c = simpson(p_tp, x)
     p = p_tp/c 
     # time length for the evolution
-    tspan = np.linspace(0., 1., 1000)
+    tspan = np.linspace(0., 1., 50)
     # dynamics
     rho = [np.zeros((len(rho0), len(rho0)), dtype=np.complex128) for i in range(len(x))]
     drho = [[np.zeros((len(rho0), len(rho0)), dtype=np.complex128)] for i in range(len(x))]

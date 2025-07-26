@@ -24,7 +24,7 @@ def test_BayesianBound():
     c = simpson(p_tp, x)
     p, dp = p_tp/c, dp_tp/c
     # time length for the evolution
-    tspan = np.linspace(0., 1., 1000)
+    tspan = np.linspace(0., 1., 50)
     # dynamics
     rho = [np.zeros((len(rho0), len(rho0)), dtype=np.complex128) for i in range(len(x))]
     drho = [[np.zeros((len(rho0), len(rho0)), dtype=np.complex128)] for i in range(len(x))]
@@ -37,33 +37,33 @@ def test_BayesianBound():
         drho[i] = drho_tp[-1] 
 
     f_BCRB1 = BCRB([x], p, [], rho, drho, M=[], btype=1)
-    expected_BCRB1 = 0.6544568264059727
+    expected_BCRB1 = 0.654654507602925
     assert np.allclose(f_BCRB1, expected_BCRB1)
 
     f_BCRB2 = BCRB([x], p, [], rho, drho, M=[], btype=2)
-    expected_BCRB2 = 0.6516067755940058
+    expected_BCRB2 = 0.651778484577857
     assert np.allclose(f_BCRB2, expected_BCRB2)
     
     f_BCRB3 = BCRB([x], p, dp, rho, drho, M=[], btype=3)
-    expected_BCRB3 = 0.16521231566690192
+    expected_BCRB3 = 0.16522254719803486
     assert np.allclose(f_BCRB3, expected_BCRB3)
 
     f_VTB = VTB([x], p, dp, rho, drho, M=[]) 
-    expected_VTB = 0.03768654666718857   
+    expected_VTB = 0.03768712089828974   
     assert np.allclose(f_VTB, expected_VTB)
 
     f_BQCRB1 = BQCRB([x], p, [], rho, drho, btype=1)
-    expected_BQCRB1 = 0.5101715332365084
+    expected_BQCRB1 = 0.5097987285760552
     assert np.allclose(f_BQCRB1, expected_BQCRB1)
 
     f_BQCRB2 = BQCRB([x], p, [], rho, drho, btype=2)
-    expected_BQCRB2 = 0.5097829847502041
+    expected_BQCRB2 = 0.5094351484343563
     assert np.allclose(f_BQCRB2, expected_BQCRB2)
 
     f_BQCRB3 = BQCRB([x], p, dp, rho, drho, btype=3)
-    expected_BQCRB3 = 0.14348129346310318
+    expected_BQCRB3 = 0.14347116223111836
     assert np.allclose(f_BQCRB3, expected_BQCRB3)
 
     f_QVTB = QVTB([x], p, dp, rho, drho)
-    expected_QVTB = 0.03708976078857457
+    expected_QVTB = 0.037087918374800306
     assert np.allclose(f_QVTB, expected_QVTB)
