@@ -30,10 +30,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install .[test]
-        pip install pytest-cov pytest-xml
-
-    - name: Check env
-      run: env    
+        pip install pytest-cov 
 
     - name: Run tests 
       run: |
