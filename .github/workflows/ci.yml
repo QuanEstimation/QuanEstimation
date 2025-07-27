@@ -37,12 +37,12 @@ jobs:
 
     - name: Run tests 
       run: |
-        # export PYTHON_JULIACALL_COMPILE="no"
+        export PYTHON_JULIACALL_COMPILE="no"
         export QuanEstimation_COMPILE="n"
         coverage run --source=quanestimation -m pytest -s 
         coverage xml
 
-    - name: Upload results to Codecov
+    - name: Upload report to Codecov
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
