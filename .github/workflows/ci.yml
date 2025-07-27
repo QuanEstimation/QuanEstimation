@@ -42,13 +42,17 @@ jobs:
         coverage run --source=quanestimation -m pytest -s
         coverage xml
 
-    # - name: Upload results to Codecov
-    #   uses: codecov/codecov-action@v5
+    - name: Upload results to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.QUANESTIMATION_TOKEN }}
+        slug: QuanEstimation/QuanEstimation
+        files: coverage.xml
+        verbose: true
+
     - name: Upload test results to Codecov
       if: ${{ !cancelled() }}
       uses: codecov/test-results-action@v1
       with:
         token: ${{ secrets.QUANESTIMATION_TOKEN }}
         slug: QuanEstimation/QuanEstimation
-        files: coverage.xml
-        verbose: true
