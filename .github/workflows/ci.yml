@@ -39,14 +39,15 @@ jobs:
       run: |
         # export PYTHON_JULIACALL_COMPILE="no"
         export QuanEstimation_COMPILE="n"
-        coverage run --source=quanestimation -m pytest -s --junitxml=junit.xml
+        coverage run --source=quanestimation -m pytest -s 
+        coverage xml
 
     - name: Upload results to Codecov
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         slug: QuanEstimation/QuanEstimation
-        files: junit.xml
+        files: coverage.xml
         verbose: true
 
     - name: Upload test results to Codecov
@@ -55,4 +56,3 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         slug: QuanEstimation/QuanEstimation
-        files: junit-test.xml
