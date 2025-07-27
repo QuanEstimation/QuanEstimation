@@ -40,10 +40,12 @@ jobs:
         export PYTHON_JULIACALL_COMPILE="no"
         export QuanEstimation_COMPILE="n"
         coverage run --source=quanestimation -m pytest -s
-        # pytest --cov --cov-branch --cov-report=xml
+        coverage xml
 
     - name: Upload results to Codecov
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.QUANESTIMATION_TOKEN }}
         slug: QuanEstimation/QuanEstimation
+        files: coverage.xml
+        verbose: true
