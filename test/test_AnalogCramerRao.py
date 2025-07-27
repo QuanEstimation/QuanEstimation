@@ -1,6 +1,9 @@
 import pytest
 import numpy as np
-from quanestimation.AsymptoticBound.AnalogCramerRao import HCRB, NHB
+from quanestimation.AsymptoticBound.AnalogCramerRao import (
+    HCRB, 
+    NHB
+)
 
 def test_HCRB_NHB():
     """
