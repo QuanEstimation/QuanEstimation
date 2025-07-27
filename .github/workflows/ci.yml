@@ -30,7 +30,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install .[test]
-        pip install pytest-cov
+        pip install pytest-cov pytest-xml
 
     - name: Check env
       run: env    
@@ -39,15 +39,14 @@ jobs:
       run: |
         export PYTHON_JULIACALL_COMPILE="no"
         export QuanEstimation_COMPILE="n"
-        coverage run --source=quanestimation -m pytest -s
-        coverage xml
+        coverage run --source=quanestimation -m pytest -s --junitxml=junit.xml
 
     - name: Upload results to Codecov
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         slug: QuanEstimation/QuanEstimation
-        files: coverage.xml
+        files: junit.xml
         verbose: true
 
     - name: Upload test results to Codecov
@@ -56,3 +55,4 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         slug: QuanEstimation/QuanEstimation
+        files: junit-test.xml
