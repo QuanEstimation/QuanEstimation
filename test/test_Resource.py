@@ -1,5 +1,8 @@
 import pytest
-from quanestimation.Resource.Resource import SpinSqueezing, TargetTime
+from quanestimation.Resource.Resource import (
+    SpinSqueezing, 
+    TargetTime
+)
 import numpy as np
 
 def test_SpinSqueezing_Dicke():

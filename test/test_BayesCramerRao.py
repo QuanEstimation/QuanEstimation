@@ -1,6 +1,12 @@
+# import pytest
 import numpy as np
 from scipy.integrate import simpson
-from quanestimation.BayesianBound.BayesCramerRao import BCRB, VTB, BQCRB, QVTB
+from quanestimation.BayesianBound.BayesCramerRao import (
+    BCRB, 
+    VTB, 
+    BQCRB, 
+    QVTB
+)
 from quanestimation.Parameterization.GeneralDynamics import Lindblad
 
 def test_BayesianBound():
