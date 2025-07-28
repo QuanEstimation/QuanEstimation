@@ -68,34 +68,68 @@ def test_Lindblad():
     - Proper calculation of parameter derivatives
     - Handling of dissipation effects with decay operators
     
-    Test scenario: Two-level system with dephasing and spontaneous emission.
+    Test scenario: Two-level system with spontaneous emission.
     """
-    # initial state
-    rho0 = 0.5 * np.array([[1., 1.], [1., 1.]])
-    # free Hamiltonian
-    omega = 1.0
-    sz = np.array([[1., 0.], [0., -1.]])
-    H0 = 0.5 * omega * sz
-    # derivative of the free Hamiltonian on omega
-    dH = [0.5 * sz]
-    # dissipation
-    sp = np.array([[0., 1.], [0., 0.]])  
-    sm = np.array([[0., 0.], [1., 0.]]) 
-    decay = [[sp, 0.0], [sm, 0.1]]
-    # time length for the evolution
-    tspan = np.linspace(0., 1., 20)
-    # dynamics
-    dynamics = Lindblad(tspan, rho0, H0, dH, decay)
-    rho, drho = dynamics.expm()
-    # Expected values calculated from analytical solution or validated reference
-    # for omega=1.0, decay_rate=0.1, evolution time=1.0
-    expected_rho = np.array([
-        [0.45241871+0.j, 0.25697573-0.40021598j],
-        [0.25697573+0.40021598j, 0.54758129+0.j]])
-    drho_final = drho[-1]
-    # Expected derivative with respect to omega parameter
-    expected_drho = [np.array([
-        [0.+0.j, -0.40021598-0.25697573j],
-        [-0.40021598+0.25697573j, 0.+0.j]])]
-    for i in range(len(drho_final)):
-        assert np.allclose(drho_final[i], expected_drho[i])
+    # Initial state
+    initial_state = 0.5 * np.array([
+        [1.0, 1.0],
+        [1.0, 1.0]
+    ])
+    
+    # Free Hamiltonian parameters
+    frequency = 1.0
+    pauli_z = np.array([
+        [1.0, 0.0],
+        [0.0, -1.0]
+    ])
+    hamiltonian = 0.5 * frequency * pauli_z
+    
+    # Derivative of Hamiltonian with respect to frequency
+    hamiltonian_derivative = [0.5 * pauli_z]
+    
+    # Dissipation operators
+    sigma_plus = np.array([
+        [0.0, 1.0],
+        [0.0, 0.0]
+    ])  
+    sigma_minus = np.array([
+        [0.0, 0.0],
+        [1.0, 0.0]
+    ]) 
+    decay_operators = [[sigma_plus, 0.0], [sigma_minus, 0.1]]
+    
+    # Time points for evolution
+    time_points = np.linspace(0.0, 1.0, 10)
+    
+    # Create Lindblad dynamics
+    dynamics = Lindblad(
+        time_points, 
+        initial_state, 
+        hamiltonian, 
+        hamiltonian_derivative, 
+        decay_operators
+    )
+    final_state, state_derivatives = dynamics.expm()
+    
+    # Expected final state
+    expected_final_state = np.array([
+        [0.45241871 + 0.j, 0.25697573 - 0.40021598j],
+        [0.25697573 + 0.40021598j, 0.54758129 + 0.j]
+    ])
+    assert np.allclose(final_state[-1], expected_final_state, atol=1e-6)
+
+    # Expected derivative of final state
+    final_state_derivative = state_derivatives[-1]
+    expected_derivative = [
+        np.array([
+            [0.0 + 0.j, -0.40021598 - 0.25697573j],
+            [-0.40021598 + 0.25697573j, 0.0 + 0.j]
+        ])
+    ]
+
+    for i in range(len(final_state_derivative)):
+        assert np.allclose(
+            final_state_derivative[i], 
+            expected_derivative[i], 
+            atol=1e-6
+        )
