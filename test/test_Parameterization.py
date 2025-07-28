@@ -62,6 +62,13 @@ def test_Kraus():
 def test_Lindblad():
     """
     Test the Lindblad function for quantum state evolution and derivatives.
+    
+    This test verifies:
+    - Correct evolution of a quantum state under Lindblad dynamics
+    - Proper calculation of parameter derivatives
+    - Handling of dissipation effects with decay operators
+    
+    Test scenario: Two-level system with dephasing and spontaneous emission.
     """
     # initial state
     rho0 = 0.5 * np.array([[1., 1.], [1., 1.]])
