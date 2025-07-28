@@ -1,6 +1,7 @@
 # import pytest
 import numpy as np
 from quanestimation.Parameterization.NonDynamics import Kraus
+from quanestimation.Parameterization.GeneralDynamics import Lindblad
 
 def test_Kraus():
     """
@@ -56,3 +57,79 @@ def test_Kraus():
     assert np.allclose(rho, expected_rho)
     for i in range(len(drho)):
         assert np.allclose(drho[i], expected_drho[i])
+
+
+def test_Lindblad():
+    """
+    Test the Lindblad function for quantum state evolution and derivatives.
+    
+    This test verifies:
+    - Correct evolution of a quantum state under Lindblad dynamics
+    - Proper calculation of parameter derivatives
+    - Handling of dissipation effects with decay operators
+    
+    Test scenario: Two-level system with spontaneous emission.
+    """
+    # Initial state
+    initial_state = 0.5 * np.array([
+        [1.0, 1.0],
+        [1.0, 1.0]
+    ])
+    
+    # Free Hamiltonian parameters
+    frequency = 1.0
+    pauli_z = np.array([
+        [1.0, 0.0],
+        [0.0, -1.0]
+    ])
+    hamiltonian = 0.5 * frequency * pauli_z
+    
+    # Derivative of Hamiltonian with respect to frequency
+    hamiltonian_derivative = [0.5 * pauli_z]
+    
+    # Dissipation operators
+    sigma_plus = np.array([
+        [0.0, 1.0],
+        [0.0, 0.0]
+    ])  
+    sigma_minus = np.array([
+        [0.0, 0.0],
+        [1.0, 0.0]
+    ]) 
+    decay_operators = [[sigma_plus, 0.0], [sigma_minus, 0.1]]
+    
+    # Time points for evolution
+    time_points = np.linspace(0.0, 1.0, 10)
+    
+    # Create Lindblad dynamics
+    dynamics = Lindblad(
+        time_points, 
+        initial_state, 
+        hamiltonian, 
+        hamiltonian_derivative, 
+        decay_operators
+    )
+    final_state, state_derivatives = dynamics.expm()
+    
+    # Expected final state
+    expected_final_state = np.array([
+        [0.45241871 + 0.j, 0.25697573 - 0.40021598j],
+        [0.25697573 + 0.40021598j, 0.54758129 + 0.j]
+    ])
+    assert np.allclose(final_state[-1], expected_final_state, atol=1e-6)
+
+    # Expected derivative of final state
+    final_state_derivative = state_derivatives[-1]
+    expected_derivative = [
+        np.array([
+            [0.0 + 0.j, -0.40021598 - 0.25697573j],
+            [-0.40021598 + 0.25697573j, 0.0 + 0.j]
+        ])
+    ]
+
+    for i in range(len(final_state_derivative)):
+        assert np.allclose(
+            final_state_derivative[i], 
+            expected_derivative[i], 
+            atol=1e-6
+        )
