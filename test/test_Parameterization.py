@@ -1,4 +1,5 @@
 # import pytest
+import pytest
 import numpy as np
 from quanestimation.Parameterization.NonDynamics import Kraus
 from quanestimation.Parameterization.GeneralDynamics import Lindblad
@@ -109,27 +110,52 @@ def test_Lindblad():
         hamiltonian_derivative, 
         decay_operators
     )
-    final_state, state_derivatives = dynamics.expm()
+    final_state_expm, state_derivatives_expm = dynamics.expm()
+    final_state_ode, state_derivatives_ode = dynamics.ode()
     
     # Expected final state
     expected_final_state = np.array([
         [0.45241871 + 0.j, 0.25697573 - 0.40021598j],
         [0.25697573 + 0.40021598j, 0.54758129 + 0.j]
     ])
-    assert np.allclose(final_state[-1], expected_final_state, atol=1e-6)
+    assert np.allclose(final_state_expm[-1], expected_final_state, atol=1e-6)
+    assert np.allclose(final_state_ode[-1], expected_final_state, atol=1e-6)
 
     # Expected derivative of final state
-    final_state_derivative = state_derivatives[-1]
-    expected_derivative = [
+    final_state_derivative_expm = state_derivatives_expm[-1]
+    final_state_derivative_ode = state_derivatives_ode[-1]
+    expected_derivative_expm = [
         np.array([
             [0.0 + 0.j, -0.40021598 - 0.25697573j],
             [-0.40021598 + 0.25697573j, 0.0 + 0.j]
         ])
     ]
+    expected_derivative_ode = [
+        np.array([
+            [0.+0.j, -0.40322757-0.25129372j],
+            [-0.40322757+0.25129372j, 0.+0.j]])
+    ]
 
-    for i in range(len(final_state_derivative)):
+
+    for i in range(len(final_state_derivative_expm)):
         assert np.allclose(
-            final_state_derivative[i], 
-            expected_derivative[i], 
+            final_state_derivative_expm[i], 
+            expected_derivative_expm[i], 
             atol=1e-6
         )
+
+    for i in range(len(final_state_derivative_ode)):
+        assert np.allclose(
+            final_state_derivative_ode[i], 
+            expected_derivative_ode[i], 
+            atol=1e-6
+        )
+
+    with pytest.raises(TypeError):
+            dynamics = Lindblad(
+        time_points, 
+        initial_state, 
+        hamiltonian, 
+        np.array([0., 1.]),  # Incorrect type for derivative
+        decay_operators
+    )
