@@ -79,36 +79,42 @@ def test_Lindblad():
     
     # Free Hamiltonian parameters
     frequency = 1.0
-    pauli_z = np.array([
+    sz = np.array([
         [1.0, 0.0],
         [0.0, -1.0]
     ])
-    hamiltonian = 0.5 * frequency * pauli_z
+    hamiltonian = 0.5 * frequency * sz
     
     # Derivative of Hamiltonian with respect to frequency
-    hamiltonian_derivative = [0.5 * pauli_z]
+    hamiltonian_derivative = [0.5 * sz]
     
     # Dissipation operators
-    sigma_plus = np.array([
+    sp = np.array([
         [0.0, 1.0],
         [0.0, 0.0]
     ])  
-    sigma_minus = np.array([
+    sm = np.array([
         [0.0, 0.0],
         [1.0, 0.0]
     ]) 
-    decay_operators = [[sigma_plus, 0.0], [sigma_minus, 0.1]]
+    decay_operators = [[sp, 0.0], [sm, 0.1]]
     
     # Time points for evolution
-    time_points = np.linspace(0.0, 1.0, 10)
+    tspan = np.linspace(0.0, 1.0, 10)
+
+    # control Hamiltonians and coefficients
+    sx = np.array([[0., 1.], [1., 0.]])
+    control_amplitudes = np.zeros(len(tspan))
     
     # Create Lindblad dynamics
     dynamics = Lindblad(
-        time_points, 
+        tspan, 
         initial_state, 
         hamiltonian, 
         hamiltonian_derivative, 
-        decay_operators
+        decay_operators, 
+        Hc=[sx],
+        ctrl=[control_amplitudes]
     )
     final_state_expm, state_derivatives_expm = dynamics.expm()
     final_state_ode, state_derivatives_ode = dynamics.ode()
@@ -132,8 +138,8 @@ def test_Lindblad():
     ]
     expected_derivative_ode = [
         np.array([
-            [0.+0.j, -0.40322757-0.25129372j],
-            [-0.40322757+0.25129372j, 0.+0.j]])
+            [0.+0.j, -0.40182466-0.25365255j],
+            [-0.40182466+0.25365255j, 0.+0.j]])
     ]
 
 
@@ -153,7 +159,7 @@ def test_Lindblad():
 
     with pytest.raises(TypeError):
             dynamics = Lindblad(
-        time_points, 
+        tspan, 
         initial_state, 
         hamiltonian, 
         np.array([0., 1.]),  # Incorrect type for derivative
