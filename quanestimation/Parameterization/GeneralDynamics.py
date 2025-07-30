@@ -39,7 +39,7 @@ class Lindblad:
             Decay operators and corresponding decay rates. Input format:  
             `decay=[[Γ₁, γ₁], [Γ₂, γ₂], ...]`, where Γ₁, Γ₂ are decay operators and γ₁, γ₂ 
             are the corresponding decay rates.
-        H (list): 
+        Hc (list): 
             Control Hamiltonians.
         ctrl (list, optional): 
             Control coefficients for each control Hamiltonian.
