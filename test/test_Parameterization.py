@@ -165,3 +165,67 @@ def test_Lindblad():
         np.array([0., 1.]),  # Incorrect type for derivative
         decay_operators
     )
+            
+# def test_Lindblad_secondorder_derivative():
+#     """
+#     Test the second-order derivative of the Lindblad dynamics.
+    
+#     This test verifies:
+#         - the second-order derivative of the state under the Lindblad dynamics.   
+
+#     Test scenario: Two-level system with spontaneous emission.
+#     """
+#     # Initial state
+#     initial_state = 0.5 * np.array([
+#         [1.0, 1.0],
+#         [1.0, 1.0]
+#     ])
+    
+#     # Free Hamiltonian parameters
+#     frequency = 1.0
+#     sz = np.array([
+#         [1.0, 0.0],
+#         [0.0, -1.0]
+#     ])
+#     hamiltonian = 0.5 * frequency * sz
+
+#     # Derivative of Hamiltonian with respect to frequency
+#     hamiltonian_derivative = [0.5 * sz]
+#     hamiltonian_second_derivative = [np.zeros((2, 2))]
+    
+#     # Dissipation operators
+#     sp = np.array([
+#         [0.0, 1.0],
+#         [0.0, 0.0]
+#     ])  
+#     sm = np.array([
+#         [0.0, 0.0],
+#         [1.0, 0.0]
+#     ]) 
+#     decay_operators = [[sp, 0.0], [sm, 0.1]]
+    
+#     # Time points for evolution
+#     tspan = np.linspace(0.0, 1.0, 10)
+
+#     # control Hamiltonians and coefficients
+#     sx = np.array([[0., 1.], [1., 0.]])
+#     control_amplitudes = np.zeros(len(tspan))
+    
+#     # Create Lindblad dynamics
+#     dynamics = Lindblad(
+#         tspan, 
+#         initial_state, 
+#         hamiltonian, 
+#         hamiltonian_derivative, 
+#         decay_operators, 
+#         Hc=[sx],
+#         ctrl=[control_amplitudes]
+#     )
+#     final_state, state_derivatives, state_second_derivative = dynamics.secondorder_derivative(hamiltonian_second_derivative)
+    
+#     # Expected final state
+#     expected_final_state = np.array([
+#         [0.45241871 + 0.j, 0.25697573 - 0.40021598j],
+#         [0.25697573 + 0.40021598j, 0.54758129 + 0.j]
+#     ])
+#     assert np.allclose(final_state[-1], expected_final_state, atol=1e-6)
