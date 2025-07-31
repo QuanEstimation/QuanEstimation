@@ -217,10 +217,10 @@ class Lindblad:
         The second derivative $\partial_{\textbf{x}}^2\rho_j$ is calculated as:
         
         \begin{aligned}
-            \partial_{\textbf{x}}^2\rho_j =& \Delta t (\partial_{\textbf{x}}^2\mathcal{L}) \rho_j \\
-            &+ \Delta t (\partial_{\textbf{x}}\mathcal{L}) \partial_{\textbf{x}}\rho_j \\
-            &+ \Delta t (\partial_{\textbf{x}}\mathcal{L}) e^{\Delta t \mathcal{L}} \partial_{\textbf{x}}\rho_{j-1} \\
-            &+ e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}^2\rho_{j-1})
+            \partial_{\textbf{x}}^2\rho_j =& \Delta t (\partial_{\textbf{x}}^2\mathcal{L}) \rho_j 
+            + \Delta t (\partial_{\textbf{x}}\mathcal{L}) \partial_{\textbf{x}}\rho_j \\
+            &+ \Delta t (\partial_{\textbf{x}}\mathcal{L}) e^{\Delta t \mathcal{L}} \partial_{\textbf{x}}\rho_{j-1} 
+            + e^{\Delta t \mathcal{L}} (\partial_{\textbf{x}}^2\rho_{j-1}).
         \end{aligned}
 
         Args:
