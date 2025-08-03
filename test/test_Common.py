@@ -200,5 +200,5 @@ def test_fidelity():
     with pytest.raises(ValueError):
         fidelity(rho1, rho4)
 
-    with pytest.raises(TypeError):
-        fidelity([], rho2)
+    with pytest.raises(ValueError):
+        fidelity(psi, rho1)
