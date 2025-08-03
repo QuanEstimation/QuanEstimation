@@ -5,6 +5,7 @@ from scipy.sparse import csc_matrix, csr_matrix
 from sympy import Matrix, GramSchmidt
 from itertools import product
 import juliacall
+from scipy.linalg import sqrtm
 
 
 def load_julia():
@@ -346,3 +347,43 @@ def BayesInput(x, func, dfunc, channel="dynamics"):
             "{!r} is not a valid channel. Supported values: "
             "'dynamics' or 'Kraus'.".format(channel)
         )
+
+def fidelity(input1, input2):
+    """
+    Compute the fidelity between two quantum states.
+    
+    For state vectors (1D arrays), the fidelity is defined as |<ψ|φ>|².
+    For density matrices (2D arrays), the fidelity is defined as [tr(√(√ρ σ √ρ))]².
+    
+    Args:
+        input1 (np.ndarray): First quantum state (vector or density matrix)
+        input2 (np.ndarray): Second quantum state (vector or density matrix)
+        
+    Returns:
+        float: Fidelity between the two states
+        
+    Raises:
+        TypeError: If inputs are not numpy arrays
+        ValueError: If inputs are not both vectors or both matrices
+        RuntimeError: If the matrix product is not positive semidefinite
+    """
+    if not (isinstance(input1, np.ndarray) and isinstance(input2, np.ndarray)):
+        raise TypeError("Inputs must be numpy arrays")
+    
+    if input1.ndim == 1 and input2.ndim == 1:
+        # Vector case
+        overlap = np.vdot(input1, input2)
+        return np.abs(overlap) ** 2
+    
+    elif input1.ndim != 1:
+        # Matrix case
+        if input1.shape != input2.shape:
+            raise ValueError("Input matrices must have the same shape")
+        
+        rho_sqrt = sqrtm(input1)
+        product = rho_sqrt @ input2 @ rho_sqrt            
+        fidelity_sqrt = np.trace(sqrtm(product))
+
+        return np.real(fidelity_sqrt) ** 2
+    else:
+        raise ValueError("Inputs must be either both vectors or both matrices")

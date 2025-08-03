@@ -6,6 +6,7 @@ from quanestimation.Common.Common import (
     SIC,
     annihilation,
     BayesInput,
+    fidelity,
 )
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     "SIC",
     "annihilation",
     "BayesInput",
+    "fidelity",
 ]

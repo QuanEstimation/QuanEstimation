@@ -9,24 +9,11 @@ def trace_norm(A, eps):
     else:
         return np.sum(np.linalg.svd(A, compute_uv=False))
 
-
-def fidelity_dm(rho, sigma):
-    rho_sqrtm = sqrtm(rho)
-    fidelity_sqrt = np.trace(sqrtm(np.dot(rho_sqrtm, sigma, rho_sqrtm)))
-    return np.real(fidelity_sqrt) ** 2
-
-
-def fidelity_vec(psi, phi):
-    overlap = np.dot(psi.conj().T, phi)
-    return np.conj(overlap) * overlap
-
-
 def helstrom_dm(rho, sigma, eps, P0=0.5):
     return np.real((1 - trace_norm(P0 * rho - (1 - P0) * sigma, eps)) / 2)
 
-
-def helstrom_vec(psi, phi, n=1):
-    return np.real((1 - np.sqrt(1 - fidelity_vec(psi, phi) ** n)) / 2)
+# def helstrom_vec(psi, phi, n=1):
+#     return np.real((1 - np.sqrt(1 - fidelity(psi, phi) ** n)) / 2)
 
 
 def QZZB(x, p, rho, eps=1e-8):

@@ -9,7 +9,8 @@ from quanestimation.Common.Common import (
     mat_vec_convert,
     SIC,
     annihilation,
-    brgd
+    brgd,
+    fidelity
 )
 
 
@@ -175,3 +176,29 @@ def test_extract_ele():
     n = 2
     result = list(extract_ele(nested, n))
     assert result == [1, 2, 3, [4, 5]]
+
+def test_fidelity():
+    """Test fidelity function for quantum states."""
+    rho1 = np.array([[0.5, 0.5], [0.5, 0.5]])
+    rho2 = np.array([[1, 0], [0, 0]])
+    result = fidelity(rho1, rho2)
+    expected = 0.5
+    assert np.isclose(result, expected)
+
+    # Test with vectors
+    psi = np.array([1, 0])
+    phi = np.array([0, 1])
+    result_vec = fidelity(psi, phi)
+    expected_vec = 0.
+    assert np.isclose(result_vec, expected_vec)
+
+    rho3 = np.array([0, 0, 1])
+    with pytest.raises(ValueError):
+        fidelity(rho1, rho3)
+    
+    rho4 = np.array([[1, 0, 0], [0, 0, 0], [0, 0, 0]])
+    with pytest.raises(ValueError):
+        fidelity(rho1, rho4)
+
+    with pytest.raises(TypeError):
+        fidelity([], rho2)

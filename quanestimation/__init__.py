@@ -50,6 +50,7 @@ from quanestimation.Common.Common import (
     SIC,
     annihilation,
     BayesInput,
+    fidelity,
 )
 
 from quanestimation.ComprehensiveOpt.ComprehensiveStruct import (
@@ -200,5 +201,6 @@ __all__ = [
     "PSO_Compopt",
     "Adapt",
     "Adapt_MZI",
-    "load_julia"
+    "load_julia",
+    "fidelity",
 ]
