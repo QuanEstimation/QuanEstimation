@@ -6,6 +6,7 @@
 [![codecov](https://codecov.io/gh/QuanEstimation/QuanEstimation/branch/main/graph/badge.svg?token=SSOSZ9OSBU)](https://codecov.io/gh/QuanEstimation/QuanEstimation)
 [![Downloads](https://static.pepy.tech/badge/quanestimation)](https://pepy.tech/project/quanestimation)
 [![Tutorial](https://img.shields.io/badge/Tutorial-Link-brightgreen)](https://github.com/QuanEstimation/tutorial/tree/main)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.16730594.svg)](https://doi.org/10.5281/zenodo.16730594)
 
 QuanEstimation is a Python-Julia-based open-source toolkit for quantum parameter 
 estimation. It can be used to perform general evaluations of many metrological 
@@ -76,3 +77,4 @@ formatting and linting.
   
     J. Liu and H. Yuan, Control-enhanced multiparameter quantum estimation,  
     [Phys. Rev. A **96**, 042114 (2017).](https://doi.org/10.1103/PhysRevA.96.042114)
+
