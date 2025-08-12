@@ -1,10 +1,12 @@
 import numpy as np 
 import random
+import os
 from quanestimation.BayesianBound.BayesEstimation import (
     Bayes,
     MLE,
 )
 from quanestimation.Parameterization.GeneralDynamics import Lindblad
+
 
 def test_Bayes():
     # initial state
@@ -60,3 +62,8 @@ def test_Bayes():
     assert np.allclose(xout1, 0.7861843477451934)
     assert np.allclose(max(pout), 0.15124761081089924)
     assert np.allclose(xout2, 0.7861843477451934)
+    
+    # Clean up generated files
+    for filename in ["pout.npy", "xout.npy", "Lout.npy"]:
+        if os.path.exists(filename):
+            os.remove(filename)
