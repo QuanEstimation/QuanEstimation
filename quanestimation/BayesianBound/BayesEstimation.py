@@ -5,7 +5,7 @@ from quanestimation.Common.Common import SIC
 from itertools import product
 
 
-def Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False):
+def Bayes(x, p, rho, y, M=None, estimator="mean", savefile=False):
     """
     Bayesian estimation. The prior distribution is updated via the posterior distribution 
     obtained by the Bayes' rule, and the estimated value of parameters are updated via 
@@ -51,88 +51,66 @@ def Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False):
         SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
         which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html).
     """
-
+    if M is None:
+        M = []
+        
     para_num = len(x)
     max_episode = len(y)
+    
+    # Single parameter scenario
     if para_num == 1:
-        #### single parameter scenario ####
-        if M == []:
+        if not M:
             M = SIC(len(rho[0]))
-        else:
-            if type(M) != list:
-                raise TypeError("Please make sure M is a list!")
-        if savefile == False:
-            x_out = []
+        elif not isinstance(M, list):
+            raise TypeError("M must be a list")
+            
+        x_out = []
+        p_out = []  # Always initialize as list
+        
+        for mi in range(max_episode):
+            res_exp = int(y[mi])
+            pyx = np.zeros(len(x[0]))
+            
+            # Calculate conditional probabilities
+            for xi in range(len(x[0])):
+                p_tp = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
+                pyx[xi] = p_tp
+                
+            # Update posterior distribution
+            arr = [pyx[m] * p[m] for m in range(len(x[0]))]
+            py = simpson(arr, x[0])
+            p_update = pyx * p / py
+            p = p_update / np.linalg.norm(p_update)
+            
+            # Handle estimator type
             if estimator == "mean":
-                for mi in range(max_episode):
-                    res_exp = int(y[mi])
-                    pyx = np.zeros(len(x[0]))
-                    for xi in range(len(x[0])):
-                        p_tp = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
-                        pyx[xi] = p_tp
-                    arr = [pyx[m] * p[m] for m in range(len(x[0]))]
-                    py = simpson(arr, x[0])
-                    p_update = pyx * p / py
-                    p = p_update
-                    mean = simpson([p[m]*x[0][m] for m in range(len(x[0]))], x[0])
-                    x_out.append(mean)
+                mean = simpson([p[m] * x[0][m] for m in range(len(x[0]))], x[0])
+                x_out.append(mean)
             elif estimator == "MAP":
-                for mi in range(max_episode):
-                    res_exp = int(y[mi])
-                    pyx = np.zeros(len(x[0]))
-                    for xi in range(len(x[0])):
-                        p_tp = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
-                        pyx[xi] = p_tp
-                    arr = [pyx[m] * p[m] for m in range(len(x[0]))]
-                    py = simpson(arr, x[0])
-                    p_update = pyx * p / py
-                    p = p_update
-                    indx = np.where(p == max(p))[0][0]
-                    x_out.append(x[0][indx])
+                # Use np.argmax for better performance and type safety
+                indx = np.argmax(p)
+                x_out.append(x[0][indx])
             else:
                 raise ValueError(
-                "{!r} is not a valid value for estimator, supported values are 'mean' and 'MAP'.".format(estimator))
-            np.save("pout", p)
-            np.save("xout", x_out)
-            return p, x_out[-1]
-        else:
-            p_out, x_out = [], []
-            if estimator == "mean":
-                for mi in range(max_episode):
-                    res_exp = int(y[mi])
-                    pyx = np.zeros(len(x[0]))
-                    for xi in range(len(x[0])):
-                        p_tp = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
-                        pyx[xi] = p_tp
-                    arr = [pyx[m] * p[m] for m in range(len(x[0]))]
-                    py = simpson(arr, x[0])
-                    p_update = pyx * p / py
-                    p = p_update
-                    mean = simpson([p[m]*x[0][m] for m in range(len(x[0]))], x[0])
-                    p_out.append(p)
-                    x_out.append(mean)
-            elif estimator == "MAP":
-                for mi in range(max_episode):
-                    res_exp = int(y[mi])
-                    pyx = np.zeros(len(x[0]))
-                    for xi in range(len(x[0])):
-                        p_tp = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
-                        pyx[xi] = p_tp
-                    arr = [pyx[m] * p[m] for m in range(len(x[0]))]
-                    py = simpson(arr, x[0])
-                    p_update = pyx * p / py
-                    p = p_update
-                    indx = np.where(p == max(p))[0][0]
-                    p_out.append(p)
-                    x_out.append(x[0][indx])
-            else:
-                raise ValueError(
-                "{!r} is not a valid value for estimator, supported values are 'mean' and 'MAP'.".format(estimator))
+                    f"Invalid estimator: {estimator}. Supported values are 'mean' and 'MAP'"
+                )
+                
+            # Save intermediate results if requested
+            if savefile:
+                p_out.append(p)
+                
+        # Save final results
+        if savefile:
             np.save("pout", p_out)
             np.save("xout", x_out)
             return p, x_out[-1]
+        else:
+            np.save("pout", p)
+            np.save("xout", x_out)
+            return p, x_out[-1]
+            
+    # Multiparameter scenario
     else:
-        #### multiparameter scenario ####
         p_shape = np.shape(p)
         p_ext = extract_ele(p, para_num)
         rho_ext = extract_ele(rho, para_num)
@@ -143,96 +121,57 @@ def Bayes(x, p, rho, y, M=[], estimator="mean", savefile=False):
             rho_list.append(rho_ele)
 
         dim = len(rho_list[0])
-        if M == []:
+        if not M:
             M = SIC(dim)
-        else:
-            if type(M) != list:
-                raise TypeError("Please make sure M is a list!")
-
-        if savefile == False:
-            x_out = []
+        elif not isinstance(M, list):
+            raise TypeError("M must be a list")
+            
+        x_out = []
+        p_out = []  # Always initialize as list
+        
+        for mi in range(max_episode):
+            res_exp = int(y[mi])
+            pyx_list = np.zeros(len(p_list))
+            
+            # Calculate conditional probabilities
+            for xi in range(len(p_list)):
+                p_tp = np.real(np.trace(np.dot(rho_list[xi], M[res_exp])))
+                pyx_list[xi] = p_tp
+                
+            # Reshape and update posterior distribution
+            pyx = pyx_list.reshape(p_shape)
+            arr = p * pyx
+            for si in reversed(range(para_num)):
+                arr = simpson(arr, x[si])
+            py = arr
+            p_update = p * pyx / py
+            p = p_update / np.linalg.norm(p_update)
+            
+            # Handle estimator type
             if estimator == "mean":
-                for mi in range(max_episode):
-                    res_exp = int(y[mi])
-                    pyx_list = np.zeros(len(p_list))
-                    for xi in range(len(p_list)):
-                        p_tp = np.real(np.trace(np.dot(rho_list[xi], M[res_exp])))
-                        pyx_list[xi] = p_tp
-                    pyx = pyx_list.reshape(p_shape)
-                    arr = p * pyx
-                    for si in reversed(range(para_num)):
-                        arr = simpson(arr, x[si])
-                    py = arr
-                    p_update = p * pyx / py
-                    p = p_update
-                    
-                    mean = integ(x, p)
-                    x_out.append(mean)
+                mean = integ(x, p)
+                x_out.append(mean)
             elif estimator == "MAP":
-                for mi in range(max_episode):
-                    res_exp = int(y[mi])
-                    pyx_list = np.zeros(len(p_list))
-                    for xi in range(len(p_list)):
-                        p_tp = np.real(np.trace(np.dot(rho_list[xi], M[res_exp])))
-                        pyx_list[xi] = p_tp
-                    pyx = pyx_list.reshape(p_shape)
-                    arr = p * pyx
-                    for si in reversed(range(para_num)):
-                        arr = simpson(arr, x[si])
-                    py = arr
-                    p_update = p * pyx / py
-                    p = p_update
-
-                    indx = np.where(np.array(p) == np.max(np.array(p)))
-                    x_out.append([x[i][indx[i][0]] for i in range(para_num)])
+                # Use unravel_index for better performance and type safety
+                max_idx = np.argmax(p)
+                indices = np.unravel_index(max_idx, p_shape)
+                x_out.append([x[i][indices[i]] for i in range(para_num)])
             else:
                 raise ValueError(
-                "{!r} is not a valid value for estimator, supported values are 'mean' and 'MAP'.".format(estimator))
-            np.save("pout", p)
+                    f"Invalid estimator: {estimator}. Supported values are 'mean' and 'MAP'"
+                )
+                
+            # Save intermediate results if requested
+            if savefile:
+                p_out.append(p)
+                
+        # Save final results
+        if savefile:
+            np.save("pout", p_out)
             np.save("xout", x_out)
             return p, x_out[-1]
         else:
-            p_out, x_out = [], []
-            if estimator == "mean":
-                for mi in range(max_episode):
-                    res_exp = int(y[mi])
-                    pyx_list = np.zeros(len(p_list))
-                    for xi in range(len(p_list)):
-                        p_tp = np.real(np.trace(np.dot(rho_list[xi], M[res_exp])))
-                        pyx_list[xi] = p_tp
-                    pyx = pyx_list.reshape(p_shape)
-                    arr = p * pyx
-                    for si in reversed(range(para_num)):
-                        arr = simpson(arr, x[si])
-                    py = arr
-                    p_update = p * pyx / py
-                    p = p_update
-
-                    mean = integ(x, p)
-                    p_out.append(p)
-                    x_out.append(mean)
-            elif estimator == "MAP":
-                for mi in range(max_episode):
-                    res_exp = int(y[mi])
-                    pyx_list = np.zeros(len(p_list))
-                    for xi in range(len(p_list)):
-                        p_tp = np.real(np.trace(np.dot(rho_list[xi], M[res_exp])))
-                        pyx_list[xi] = p_tp
-                    pyx = pyx_list.reshape(p_shape)
-                    arr = p * pyx
-                    for si in reversed(range(para_num)):
-                        arr = simpson(arr, x[si])
-                    py = arr
-                    p_update = p * pyx / py
-                    p = p_update
-
-                    indx = np.where(np.array(p) == np.max(np.array(p)))
-                    p_out.append(p)
-                    x_out.append([x[i][indx[i][0]] for i in range(para_num)])
-            else:
-                raise ValueError(
-                "{!r} is not a valid value for estimator, supported values are 'mean' and 'MAP'.".format(estimator))
-            np.save("pout", p_out)
+            np.save("pout", p)
             np.save("xout", x_out)
             return p, x_out[-1]
 
@@ -363,22 +302,32 @@ def MLE(x, rho, y, M=[], savefile=False):
             return L_tp, x_out[-1]
 
 def integ(x, p):
-    para_num = len(x)
-    mean = [0.0 for i in range(para_num)]
-    for i in range(para_num):
-        p_tp = p
-        if i == para_num-1:
-            for si in range(para_num-1):
-                p_tp = np.trapz(p_tp, x[si],axis=0)
+    """
+    Compute the mean for each parameter by integrating over the other parameters.
+    
+    Args:
+        x: List of arrays, the parameter ranges
+        p: Multidimensional array, the probability distribution
         
-        elif i == 0:
-            for si in reversed(range(1,para_num)):
-                p_tp = np.trapz(p_tp, x[si])
-        else:
-            p_tp = np.trapz(p_tp, x[-1])
-            for si in range(para_num-1):
-                p_tp = np.trapz(p_tp, x[si], axis=0)
-        mean[i] = np.trapz(x[i]*p_tp, x[i])
+    Returns:
+        List of mean values for each parameter
+    """
+    para_num = len(x)
+    mean = []
+    
+    for i in range(para_num):
+        # Create a list of axes to integrate over (all except current axis i)
+        axes = [j for j in range(para_num) if j != i]
+        
+        # Integrate over all other axes to get marginal distribution for axis i
+        p_marginal = p
+        for axis in sorted(axes, reverse=True):
+            p_marginal = simpson(p_marginal, x[axis], axis=axis)
+            
+        # Compute mean for current parameter
+        mean_val = simpson(x[i] * p_marginal, x[i])
+        mean.append(mean_val)
+        
     return mean
 
 def BayesCost(x, p, xest, rho, M, W=[], eps=1e-8):
