@@ -5,7 +5,7 @@ from quanestimation.AsymptoticBound.AnalogCramerRao import (
     NHB
 )
 
-def test_HCRB_NHB():
+def test_HCRB_NHB() -> None:
     """
     Test Holevo Cramer-Rao bound (HCRB) and Nagaoka-Hayashi bound (NHB).
     Checks HCRB/NHB calculation for parameterized quantum state.
@@ -47,7 +47,7 @@ def test_HCRB_NHB():
     assert np.allclose(result_nhb, expected_nhb)
 
 
-def test_HCRB_NHB_invalid_input():
+def test_HCRB_NHB_invalid_input() -> None:
     """
     Test HCRB/NHB with invalid input.
     Checks TypeError raised for invalid density matrix.
