@@ -9,67 +9,109 @@ from quanestimation.BayesianBound.BayesCramerRao import (
 )
 from quanestimation.Parameterization.GeneralDynamics import Lindblad
 
-def test_BayesianBound():
-    # initial state
-    rho0 = 0.5 * np.array([[1., 1.], [1., 1.]])
-    # free Hamiltonian
-    B, omega0 = 0.5 * np.pi, 1.0
-    sx = np.array([[0., 1.], [1., 0.]])
-    sz = np.array([[1., 0.], [0., -1.]])
-    H0_func = lambda x: 0.5 * B * omega0 * (sx * np.cos(x) + sz * np.sin(x))
-    # derivative of the free Hamiltonian on x
-    dH_func = lambda x: [0.5 * B * omega0 * (-sx * np.sin(x) + sz * np.cos(x))]
-    # prior distribution
-    x = np.linspace(-0.5 * np.pi, 0.5 * np.pi, 100)
-    mu, eta = 0.0, 0.2
-    p_func = lambda x, mu, eta: np.exp(-(x-mu)**2 / (2 * eta**2))/(eta * np.sqrt(2 * np.pi))
-    dp_func = lambda x, mu, eta: -(x-mu) * np.exp(-(x-mu)**2/(2 * eta**2))/(eta**3 * np.sqrt(2*np.pi))
-    p_tp = [p_func(x[i], mu, eta) for i in range(len(x))]
-    dp_tp = [dp_func(x[i], mu, eta) for i in range(len(x))]
-    # normalization of the distribution
-    c = simpson(p_tp, x)
-    p, dp = p_tp/c, dp_tp/c
-    # time length for the evolution
-    tspan = np.linspace(0., 1., 50)
-    # dynamics
-    rho = [np.zeros((len(rho0), len(rho0)), dtype=np.complex128) for i in range(len(x))]
-    drho = [[np.zeros((len(rho0), len(rho0)), dtype=np.complex128)] for i in range(len(x))]
-    for i in range(len(x)):
-        H0_tp = H0_func(x[i])
-        dH_tp = dH_func(x[i])
-        dynamics = Lindblad(tspan, rho0, H0_tp, dH_tp)
-        rho_tp, drho_tp = dynamics.expm()
-        rho[i] = rho_tp[-1]
-        drho[i] = drho_tp[-1] 
-
-    f_BCRB1 = BCRB([x], p, [], rho, drho, M=[], btype=1)
-    expected_BCRB1 = 0.654654507602925
-    assert np.allclose(f_BCRB1, expected_BCRB1)
-
-    f_BCRB2 = BCRB([x], p, [], rho, drho, M=[], btype=2)
-    expected_BCRB2 = 0.651778484577857
-    assert np.allclose(f_BCRB2, expected_BCRB2)
+def test_bayesian_bound() -> None:
+    """
+    Test function for Bayesian bounds in quantum estimation.
     
-    f_BCRB3 = BCRB([x], p, dp, rho, drho, M=[], btype=3)
-    expected_BCRB3 = 0.16522254719803486
-    assert np.allclose(f_BCRB3, expected_BCRB3)
+    This function tests various Bayesian bounds including:
+    - Bayesian Cramer-Rao Bound (BCRB)
+    - Van Trees Bound (VTB)
+    - Bayesian Quantum Cramer-Rao Bound (BQCRB)
+    - Quantum Van Trees Bound (QVTB)
+    """
+    # Initial state
+    rho0 = 0.5 * np.array([[1.0, 1.0], [1.0, 1.0]])
+    
+    # Free Hamiltonian parameters
+    b_val, omega0 = 0.5 * np.pi, 1.0
+    sigma_x = np.array([[0.0, 1.0], [1.0, 0.0]])
+    sigma_z = np.array([[1.0, 0.0], [0.0, -1.0]])
+    
+    # Hamiltonian function
+    hamiltonian_func = lambda x: 0.5 * b_val * omega0 * (
+        sigma_x * np.cos(x) + sigma_z * np.sin(x)
+    )
+    
+    # Derivative of Hamiltonian
+    d_hamiltonian_func = lambda x: [
+        0.5 * b_val * omega0 * (-sigma_x * np.sin(x) + sigma_z * np.cos(x))
+    ]
+    
+    # Prior distribution parameters
+    x_values = np.linspace(-0.5 * np.pi, 0.5 * np.pi, 100)
+    mu_val, eta_val = 0.0, 0.2
+    
+    # Probability density function and its derivative
+    prob_density = lambda x, mu, eta: np.exp(
+        -(x - mu) ** 2 / (2 * eta ** 2)
+    ) / (eta * np.sqrt(2 * np.pi))
+    
+    d_prob_density = lambda x, mu, eta: -(
+        (x - mu) * np.exp(-(x - mu) ** 2 / (2 * eta ** 2))
+    ) / (eta ** 3 * np.sqrt(2 * np.pi))
+    
+    prob_values = np.array([prob_density(x_val, mu_val, eta_val) for x_val in x_values])
+    d_prob_values = np.array([d_prob_density(x_val, mu_val, eta_val) for x_val in x_values])
+    
+    # Normalize the distribution
+    norm_factor = simpson(prob_values, x_values)
+    prob_normalized = prob_values / norm_factor
+    d_prob_normalized = d_prob_values / norm_factor
+    
+    # Time evolution parameters
+    time_span = np.linspace(0.0, 1.0, 50)
+    
+    # Prepare arrays for states and derivatives
+    final_states = []
+    d_final_states = []
+    
+    # Evolve the system for each parameter value
+    for idx in range(len(x_values)):
+        hamiltonian = hamiltonian_func(x_values[idx])
+        d_hamiltonian = d_hamiltonian_func(x_values[idx])
+        
+        dynamics = Lindblad(time_span, rho0, hamiltonian, d_hamiltonian)
+        states, d_states = dynamics.expm()
+        
+        final_states.append(states[-1])
+        d_final_states.append(d_states[-1])  # Original structure: list of matrices
 
-    f_VTB = VTB([x], p, dp, rho, drho, M=[]) 
-    expected_VTB = 0.03768712089828974   
-    assert np.allclose(f_VTB, expected_VTB)
+    # Test BCRB type 1
+    bcrb1 = BCRB([x_values], prob_normalized, [], final_states, d_final_states, M=[], btype=1)
+    expected_bcrb1 = 0.654654507602925
+    assert np.allclose(bcrb1, expected_bcrb1)
 
-    f_BQCRB1 = BQCRB([x], p, [], rho, drho, btype=1)
-    expected_BQCRB1 = 0.5097987285760552
-    assert np.allclose(f_BQCRB1, expected_BQCRB1)
+    # Test BCRB type 2
+    bcrb2 = BCRB([x_values], prob_normalized, [], final_states, d_final_states, M=[], btype=2)
+    expected_bcrb2 = 0.651778484577857
+    assert np.allclose(bcrb2, expected_bcrb2)
+    
+    # Test BCRB type 3
+    bcrb3 = BCRB([x_values], prob_normalized, d_prob_normalized, final_states, d_final_states, M=[], btype=3)
+    expected_bcrb3 = 0.16522254719803486
+    assert np.allclose(bcrb3, expected_bcrb3)
 
-    f_BQCRB2 = BQCRB([x], p, [], rho, drho, btype=2)
-    expected_BQCRB2 = 0.5094351484343563
-    assert np.allclose(f_BQCRB2, expected_BQCRB2)
+    # Test Van Trees Bound
+    vtb = VTB([x_values], prob_normalized, d_prob_normalized, final_states, d_final_states, M=[]) 
+    expected_vtb = 0.03768712089828974
+    assert np.allclose(vtb, expected_vtb)
 
-    f_BQCRB3 = BQCRB([x], p, dp, rho, drho, btype=3)
-    expected_BQCRB3 = 0.14347116223111836
-    assert np.allclose(f_BQCRB3, expected_BQCRB3)
+    # Test BQCRB type 1
+    bqcrb1 = BQCRB([x_values], prob_normalized, [], final_states, d_final_states, btype=1)
+    expected_bqcrb1 = 0.5097987285760552
+    assert np.allclose(bqcrb1, expected_bqcrb1)
 
-    f_QVTB = QVTB([x], p, dp, rho, drho)
-    expected_QVTB = 0.037087918374800306
-    assert np.allclose(f_QVTB, expected_QVTB)
+    # Test BQCRB type 2
+    bqcrb2 = BQCRB([x_values], prob_normalized, [], final_states, d_final_states, btype=2)
+    expected_bqcrb2 = 0.5094351484343563
+    assert np.allclose(bqcrb2, expected_bqcrb2)
+
+    # Test BQCRB type 3
+    bqcrb3 = BQCRB([x_values], prob_normalized, d_prob_normalized, final_states, d_final_states, btype=3)
+    expected_bqcrb3 = 0.14347116223111836
+    assert np.allclose(bqcrb3, expected_bqcrb3)
+
+    # Test Quantum Van Trees Bound
+    qvtb = QVTB([x_values], prob_normalized, d_prob_normalized, final_states, d_final_states)
+    expected_qvtb = 0.037087918374800306
+    assert np.allclose(qvtb, expected_qvtb)

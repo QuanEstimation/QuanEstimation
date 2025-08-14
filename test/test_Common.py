@@ -14,13 +14,13 @@ from quanestimation.Common.Common import (
 )
 
 
-def test_basis():
+def test_basis() -> None:
     """Test basis function for generating quantum state basis vectors."""
     result = basis(2, 0)
     assert np.allclose(result, np.array([[1], [0]]))
 
 
-def test_gramschmidt():
+def test_gramschmidt() -> None:
     """Test Gram-Schmidt process for orthonormalizing vectors."""
     A = np.array([[1., 0.], [1., 1.]], dtype=np.complex128)
     result = gramschmidt(A)
@@ -28,7 +28,7 @@ def test_gramschmidt():
     assert np.allclose(result, expected)
 
 
-def test_suN_generator():
+def test_suN_generator() -> None:
     """Test generation of SU(N) generators."""
     # Test SU(2) generators (Pauli matrices)
     result = suN_generator(2)
@@ -55,7 +55,7 @@ def test_suN_generator():
     assert all(np.allclose(su3[i], expect[i]) for i in range(8))
 
 
-def test_mat_vec_convert():
+def test_mat_vec_convert() -> None:
     """Test matrix to vector conversion and vice versa."""
     A = np.array([[1., 2.], [3., 4.]])
     result_A = mat_vec_convert(A)
@@ -65,7 +65,7 @@ def test_mat_vec_convert():
     assert np.allclose(result_inv, A)
 
 
-def test_SIC():
+def test_SIC() -> None:
     """Test generation of SIC-POVM."""
     result = SIC(2)
     expected = [
@@ -84,14 +84,14 @@ def test_SIC():
         SIC(200)
 
 
-def test_annihilation():
+def test_annihilation() -> None:
     """Test generation of annihilation operator."""
     result = annihilation(2)
     expected = np.array([[0., 1.], [0., 0.]])
     assert np.allclose(result, expected)
 
 
-def test_brgd():
+def test_brgd() -> None:
     """Test binary reflected Gray code generation."""
     result1 = brgd(1)
     expected1 = ["0", "1"]
@@ -101,7 +101,7 @@ def test_brgd():
     assert result2 == expected2
 
 
-def test_BayesInput():
+def test_BayesInput() -> None:
     """Test BayesInput function for quantum state generation."""
     # Test with Hamiltonian
     H = lambda x: [x * np.array([[1, 0], [0, -1]])]
@@ -158,7 +158,7 @@ def test_BayesInput():
     assert all(np.allclose(result_dK[i], expected_dK[i]) for i in range(2))
 
 
-def test_extract_ele():
+def test_extract_ele() -> None:
     """Test extract_ele generator for recursive element extraction."""
     # Test with depth 0
     element = [1, 2, 3]
@@ -177,7 +177,7 @@ def test_extract_ele():
     result = list(extract_ele(nested, n))
     assert result == [1, 2, 3, [4, 5]]
 
-def test_fidelity():
+def test_fidelity() -> None:
     """Test fidelity function for quantum states."""
     rho1 = np.array([[0.5, 0.5], [0.5, 0.5]])
     rho2 = np.array([[1, 0], [0, 0]])
