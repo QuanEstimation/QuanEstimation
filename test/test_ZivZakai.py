@@ -4,7 +4,7 @@ from scipy.integrate import simpson
 from quanestimation.BayesianBound.ZivZakai import QZZB
 from quanestimation.Parameterization.GeneralDynamics import Lindblad
 
-def test_ZivZakai():
+def test_ZivZakai() -> None:
     # initial state
     rho0 = 0.5 * np.array([[1., 1.], [1., 1.]])
     # free Hamiltonian

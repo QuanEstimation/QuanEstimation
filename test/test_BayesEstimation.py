@@ -1,3 +1,4 @@
+import pytest
 import numpy as np 
 import random
 import os
@@ -8,7 +9,7 @@ from quanestimation.BayesianBound.BayesEstimation import (
 from quanestimation.Parameterization.GeneralDynamics import Lindblad
 
 
-def test_Bayes():
+def test_Bayes() -> None:
     # initial state
     rho0 = 0.5 * np.array([[1.0, 1.0], [1.0, 1.0]])
     
@@ -54,16 +55,33 @@ def test_Bayes():
     for i in res_rand:
         y[i] = 1
 
-    pout, xout1 = Bayes(
+    pout_MAP, xout_MAP = Bayes(
         [x], p, rho, y, M=M, estimator="MAP", savefile=False
     )
-    _, xout2 = MLE([x], rho, y, M=M, savefile=False)
 
-    assert np.allclose(xout1, 0.7861843477451934)
-    assert np.allclose(max(pout), 0.15124761081089924)
-    assert np.allclose(xout2, 0.7861843477451934)
+    assert np.allclose(xout_MAP, 0.7861843477451934)
+    assert np.allclose(max(pout_MAP), 0.15124761081089924)
+
+    _, xout_MLE = MLE([x], rho, y, M=M, savefile=False)
+    assert np.allclose(xout_MLE, 0.7861843477451934)
+
+    pout_mean, xout_mean = Bayes(
+        [x], p, rho, y, M=M, estimator="mean", savefile=False
+    )
+
+    assert np.allclose(xout_mean, 0.01158475411409417)
+    assert np.allclose(max(pout_mean), 0.15124761081089924)
     
     # Clean up generated files
     for filename in ["pout.npy", "xout.npy", "Lout.npy"]:
         if os.path.exists(filename):
             os.remove(filename)
+            
+    with pytest.raises(TypeError):
+        Bayes([x], p, rho, y, M=1., estimator="mean", savefile=False)    
+
+    with pytest.raises(ValueError):
+        Bayes([x], p, rho, y, M=M, estimator="invalid_estimator", savefile=False) 
+
+    with pytest.raises(TypeError):        
+        _, xout_MLE = MLE([x], rho, y, M=1., savefile=False)

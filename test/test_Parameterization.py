@@ -4,7 +4,7 @@ import numpy as np
 from quanestimation.Parameterization.NonDynamics import Kraus
 from quanestimation.Parameterization.GeneralDynamics import Lindblad
 
-def test_Kraus():
+def test_Kraus() -> None:
     """
     Test the Kraus function for quantum state evolution and derivatives.
     
@@ -60,7 +60,7 @@ def test_Kraus():
         assert np.allclose(drho[i], expected_drho[i])
 
 
-def test_Lindblad():
+def test_Lindblad() -> None:
     """
     Test the Lindblad function for quantum state evolution and derivatives.
     

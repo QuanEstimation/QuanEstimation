@@ -14,7 +14,7 @@ from quanestimation.AsymptoticBound.CramerRao import (
 )
 
 
-def test_CramerRao_SLD():
+def test_CramerRao_SLD() -> None:
     """
     Test Cramer-Rao bound for parameterized quantum state.
     Checks QFIM and CFIM calculation for specific state and derivatives.
@@ -67,7 +67,7 @@ def test_CramerRao_SLD():
         QFIM(rho, drho, LDtype="LLD")
 
 
-def test_CFIM_singleparameter():
+def test_CFIM_singleparameter() -> None:
     """
     Test Classical Fisher Information Matrix for single parameter.
     Checks CFIM calculation for specific state and derivative.
@@ -90,7 +90,7 @@ def test_CFIM_singleparameter():
     assert np.allclose(result, 2.0)
 
 
-def test_QFIM_Kraus():
+def test_QFIM_Kraus() -> None:
     """
     Test QFIM for Kraus representation.
     Checks QFIM calculation for specific Kraus operators.
@@ -114,7 +114,7 @@ def test_QFIM_Kraus():
     assert np.allclose(result, 1.5)
 
 
-def test_QFIM_Bloch():
+def test_QFIM_Bloch() -> None:
     """
     Test QFIM for Bloch vector representation.
     Checks QFIM calculation for specific Bloch vector and derivatives.
@@ -151,7 +151,7 @@ def test_QFIM_Bloch():
     assert np.allclose(result, expected)
 
 
-def test_QFIM_Bloch_pure():
+def test_QFIM_Bloch_pure() -> None:
     """
     Test QFIM for pure state in Bloch representation.
     Checks QFIM calculation for specific Bloch vector and derivatives.
@@ -188,7 +188,7 @@ def test_QFIM_Bloch_pure():
     assert np.allclose(result, expected)
 
 
-def test_QFIM_Bloch_highdimension():
+def test_QFIM_Bloch_highdimension() -> None:
     """
     Test QFIM for high-dimensional Bloch vector.
     Checks QFIM calculation for specific Bloch vector and derivative.
@@ -222,7 +222,7 @@ def test_QFIM_Bloch_highdimension():
         QFIM_Bloch(b_invalid, db)
 
 
-def test_QFIM_Gauss_multiparameter():
+def test_QFIM_Gauss_multiparameter() -> None:
     """
     Test QFIM for Gaussian state with multiple parameters.
     Checks QFIM calculation for specific Gaussian state.
@@ -260,7 +260,7 @@ def test_QFIM_Gauss_multiparameter():
     assert np.allclose(result, expected)
 
 
-def test_QFIM_Gauss_singleparameter():
+def test_QFIM_Gauss_singleparameter() -> None:
     """
     Test QFIM for Gaussian state with single parameter.
     Checks QFIM calculation for specific Gaussian state.
@@ -289,7 +289,7 @@ def test_QFIM_Gauss_singleparameter():
     assert np.allclose(result, expected)
 
 
-def test_QFIM_LLD_singleparameter():
+def test_QFIM_LLD_singleparameter() -> None:
     """
     Test left logarithmic derivative for specific state.
     Checks LLD calculation and QFIM result.
@@ -337,7 +337,7 @@ def test_QFIM_LLD_singleparameter():
         LLD(rho, drho, rep="invalid")
 
 
-def test_QFIM_RLD_singleparameter():
+def test_QFIM_RLD_singleparameter() -> None:
     """
     Test right logarithmic derivative for specific state.
     Checks RLD calculation and QFIM result.
@@ -385,7 +385,7 @@ def test_QFIM_RLD_singleparameter():
         RLD(rho, drho, rep="invalid")
 
 
-def test_FIM_singleparameter():
+def test_FIM_singleparameter() -> None:
     """
     Test Fisher Information Matrix (FIM) for single parameter.
     Checks FIM calculation for classical probability distribution.
@@ -403,7 +403,7 @@ def test_FIM_singleparameter():
     result = FIM(p, dp)
     assert np.allclose(result, 4.0)
 
-def test_FIM_multiparameter():
+def test_FIM_multiparameter() -> None:
     """
     Test Fisher Information Matrix (FIM) for multiple parameters.
     Checks FIM calculation for classical probability distribution.
@@ -431,7 +431,7 @@ def test_FIM_multiparameter():
     ])
     assert np.allclose(result, expected)
 
-def test_FI_Expt():
+def test_FI_Expt() -> None:
     """
     Test Fisher Information calculation for experimental data.
     Checks FI_Expt with different distribution types.
@@ -460,7 +460,7 @@ def test_FI_Expt():
     with pytest.raises(ValueError):
         FI_Expt(y1_norm, y2_norm, dx, ftype="invalid")
 
-def test_invalid_input():
+def test_invalid_input() -> None:
     """
     Test input validation for functions in the Cramer-Rao module.
     Verifies appropriate errors are raised for invalid inputs.

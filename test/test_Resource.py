@@ -5,7 +5,7 @@ from quanestimation.Resource.Resource import (
 )
 import numpy as np
 
-def test_SpinSqueezing_Dicke():
+def test_SpinSqueezing_Dicke() -> None:
     """
     Test the SpinSqueezing function with valid input for Dicke basis 
     and check exception handling.
@@ -54,7 +54,7 @@ def test_SpinSqueezing_Dicke():
     with pytest.raises(ValueError):
         SpinSqueezing(density_matrix, basis="invalid", output="KU")    
 
-def test_SpinSqueezing_Pauli():
+def test_SpinSqueezing_Pauli() -> None:
     """
     Test the SpinSqueezing function with Pauli basis.
     
@@ -79,7 +79,7 @@ def test_SpinSqueezing_Pauli():
     expected = 1.
     assert np.allclose(result, expected)
 
-def test_SpinSqueezing_nomean():
+def test_SpinSqueezing_nomean() -> None:
     """
     Test the SpinSqueezing function with a density matrix that has no mean values of Jx, Jy, and Jz.
     
@@ -93,7 +93,7 @@ def test_SpinSqueezing_nomean():
         SpinSqueezing(rho, basis="Pauli", output="KU")
 
 
-def test_TargetTime():
+def test_TargetTime() -> None:
     """
     Test the TargetTime function.
 
