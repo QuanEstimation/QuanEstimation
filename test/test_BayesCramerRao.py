@@ -2,6 +2,8 @@
 import numpy as np
 from scipy.integrate import simpson
 from quanestimation.BayesianBound.BayesCramerRao import (
+    BCFIM,
+    BQFIM,
     BCRB, 
     VTB, 
     BQCRB, 
@@ -18,6 +20,8 @@ def test_bayesian_bound() -> None:
     - Van Trees Bound (VTB)
     - Bayesian Quantum Cramer-Rao Bound (BQCRB)
     - Quantum Van Trees Bound (QVTB)
+    - Bayesian classical Fisher information in single-parameter scenario
+    - Bayesian quantum Fisher information in single-parameter scenario
     """
     # Initial state
     rho0 = 0.5 * np.array([[1.0, 1.0], [1.0, 1.0]])
@@ -75,6 +79,16 @@ def test_bayesian_bound() -> None:
         
         final_states.append(states[-1])
         d_final_states.append(d_states[-1])  # Original structure: list of matrices
+
+    # Test BCFIM
+    cfim = BCFIM([x_values], prob_normalized, final_states, d_final_states, M=[], eps=1e-8)
+    expected_cfim = 1.5342635936313218
+    assert np.allclose(cfim, expected_cfim)
+
+    # Test BQFIM
+    qfim = BQFIM([x_values], prob_normalized, final_states, d_final_states, LDtype="SLD", eps=1e-8)
+    expected_qfim = 1.9629583923945833
+    assert np.allclose(qfim, expected_qfim)
 
     # Test BCRB type 1
     bcrb1 = BCRB([x_values], prob_normalized, [], final_states, d_final_states, M=[], btype=1)
