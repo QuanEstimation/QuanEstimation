@@ -34,8 +34,8 @@ jobs:
 
     - name: Run tests 
       run: |
-        export PYTHON_JULIACALL_COMPILE="no"
-        export QuanEstimation_COMPILE="n"
+        # export PYTHON_JULIACALL_COMPILE="no"
+        # export QuanEstimation_COMPILE="n"
         coverage run --source=quanestimation -m pytest -s --junitxml=test-results.xml 
         coverage xml
 
