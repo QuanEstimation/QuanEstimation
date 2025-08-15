@@ -190,8 +190,8 @@ def test_bcfim_bqcfim_multiparameter() -> None:
     time_span = np.linspace(0.0, 1.0, 50)
     
     # Prepare arrays for states and derivatives
-    final_states = [[] for i in range(len(omega0_values))]
-    d_final_states = [[] for i in range(len(omega0_values))]
+    final_states = []
+    d_final_states = []
     
     # Evolve the system for each parameter combination
     for i in range(len(omega0_values)):
@@ -207,9 +207,9 @@ def test_bcfim_bqcfim_multiparameter() -> None:
             
             row_rho.append(states[-1])
             row_drho.append(d_states[-1])
-        final_states[i] = row_rho 
-        d_final_states[i] = row_drho    
-    
+        final_states.append(row_rho) 
+        d_final_states.append(row_drho)    
+
     # Test BCFIM
     cfim = BCFIM(all_parameter_values, prob_normalized, final_states, d_final_states, M=[], eps=1e-8)
     expected_cfim = np.array(
