@@ -24,7 +24,7 @@ jobs:
 
     - uses: julia-actions/setup-julia@v2
       with:
-        version: '1.9'  
+        version: '1.11'  
     - run: julia -e 'using Pkg;Pkg.add(name="QuanEstimation",version="0.1.6");Pkg.add("PyCall");using QuanEstimation'
 
     - name: Install dependencies
