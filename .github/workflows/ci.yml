@@ -24,8 +24,8 @@ jobs:
 
     - uses: julia-actions/setup-julia@v2
       with:
-        version: '1'
-    - run: julia -e 'using Pkg;Pkg.add(name="QuanEstimation",version="0.1.6");using QuanEstimation'
+        version: '1.9'  
+    - run: julia -e 'using Pkg;Pkg.add(name="QuanEstimation",version="0.1.6");Pkg.add("PyCall");using QuanEstimation'
 
     - name: Install dependencies
       run: |
@@ -34,8 +34,8 @@ jobs:
 
     - name: Run tests 
       run: |
-        # export PYTHON_JULIACALL_COMPILE="no"
-        # export QuanEstimation_COMPILE="n"
+        export PYTHON_JULIACALL_COMPILE="no"
+        export QuanEstimation_COMPILE="n"
         coverage run --source=quanestimation -m pytest -s --junitxml=test-results.xml 
         coverage xml
 

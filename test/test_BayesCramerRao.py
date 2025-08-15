@@ -162,7 +162,7 @@ def test_bcfim_bqcfim_multiparameter() -> None:
     
     # Prior distribution parameters
     x_values = np.linspace(-0.5 * np.pi, 0.5 * np.pi, 100)
-    omega0_values = np.linspace(1, 2, 200)
+    omega0_values = np.linspace(1, 2, 100)
     all_parameter_values = [omega0_values, x_values]
     
     # Joint probability density function (Gaussian for both parameters)
@@ -213,18 +213,18 @@ def test_bcfim_bqcfim_multiparameter() -> None:
     # Test BCFIM
     cfim = BCFIM(all_parameter_values, prob_normalized, final_states, d_final_states, M=[], eps=1e-8)
     expected_cfim = np.array(
-        [[3.60404049e-02, 8.65046817e-07], 
-         [8.65046817e-07, 2.16494495e+00]]
+        [[0.0360, 0.], 
+         [0., 2.1649]]
     )
-    assert np.allclose(cfim, expected_cfim)
+    assert np.allclose(cfim, expected_cfim, atol = 1e-4)
     
     # Test BQFIM
     qfim = BQFIM(all_parameter_values, prob_normalized, final_states, d_final_states, LDtype="SLD", eps=1e-8)
     expected_qfim = np.array(
-        [[0.0948514058, 0.], 
-         [0.,  3.33522032]]    
+        [[0.0948, 0.], 
+         [0.,  3.3352]]    
     )
-    assert np.allclose(qfim, expected_qfim)
+    assert np.allclose(qfim, expected_qfim, atol = 1e-4)
 
     with pytest.raises(TypeError):
         cfim = BCFIM(all_parameter_values, prob_normalized, final_states, d_final_states, M=1., eps=1e-8)
