@@ -39,7 +39,7 @@ jobs:
     - name: Install Julia dependencies
       run: |
         julia -e 'using Pkg;
-                  Pkg.add(name="QuanEstimation", version="0.1.6");
+                  Pkg.add(name="QuanEstimation", version="0.2.2");
                   Pkg.add("PyCall");
                   Pkg.precompile()'
 
