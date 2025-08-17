@@ -383,7 +383,7 @@ def BCRB(x, p, dp, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
                 F_tp = CFIM(rho_list[i], drho_list[i], M=M, eps=eps)
                 F_inv = np.linalg.pinv(F_tp)
                 B = np.diag([(1.0 + db_list[i][j]) for j in range(para_num)])
-                term1 = np.dot(B, np.dot(F_inv, B))
+                term1 = B @ F_inv @ B
                 term2 = np.dot(
                     np.array(b_list[i]).reshape(para_num, 1),
                     np.array(b_list[i]).reshape(1, para_num),
@@ -450,7 +450,7 @@ def BCRB(x, p, dp, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
                         arr3 = simpson(arr3, x[sj])
                     B_res[para_m][para_n] = arr2
                     bb_res[para_m][para_n] = arr3
-            res = np.dot(B_res, np.dot(np.linalg.pinv(F_res), B_res)) + bb_res
+            res = B_res @ np.linalg.pinv(F_res) @ B_res + bb_res
             return res
         elif btype == 3:
             F_list = [
@@ -469,7 +469,7 @@ def BCRB(x, p, dp, rho, drho, M=[], b=[], db=[], btype=1, eps=1e-8):
                             G_tp[pm][pn] = dp_list[i][pn]*b_list[i][pm]/p_list[i]
                         I_tp[pm][pn] = dp_list[i][pm] * dp_list[i][pn] / p_list[i] ** 2
 
-                F_tot = np.dot(G_tp, np.dot(np.linalg.pinv(F_tp + I_tp), G_tp.T))
+                F_tot = G_tp @ np.linalg.pinv(F_tp + I_tp) @ G_tp.T
                 for pj in range(para_num):
                     for pk in range(para_num):
                         F_list[pj][pk][i] = F_tot[pj][pk]
@@ -660,7 +660,7 @@ def BQCRB(x, p, dp, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
                 F_tp = QFIM(rho_list[i], drho_list[i], LDtype=LDtype, eps=eps)
                 F_inv = np.linalg.pinv(F_tp)
                 B = np.diag([(1.0 + db_list[i][j]) for j in range(para_num)])
-                term1 = np.dot(B, np.dot(F_inv, B))
+                term1 = B @ F_inv @ B
                 term2 = np.dot(
                     np.array(b_list[i]).reshape(para_num, 1),
                     np.array(b_list[i]).reshape(1, para_num),
@@ -727,7 +727,7 @@ def BQCRB(x, p, dp, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
                         arr3 = simpson(arr3, x[sj])
                     B_res[para_m][para_n] = arr2
                     bb_res[para_m][para_n] = arr3
-            res = np.dot(B_res, np.dot(np.linalg.pinv(F_res), B_res)) + bb_res
+            res = B_res @ np.linalg.pinv(F_res) @ B_res + bb_res
             return res
         elif btype == 3:
             F_list = [
@@ -746,7 +746,7 @@ def BQCRB(x, p, dp, rho, drho, b=[], db=[], btype=1, LDtype="SLD", eps=1e-8):
                             G_tp[pm][pn] = dp_list[i][pn]*b_list[i][pm]/p_list[i]
                         I_tp[pm][pn] = dp_list[i][pm] * dp_list[i][pn] / p_list[i] ** 2
 
-                F_tot = np.dot(G_tp, np.dot(np.linalg.pinv(F_tp + I_tp), G_tp.T))
+                F_tot = G_tp @ np.linalg.pinv(F_tp + I_tp) @ G_tp.T
                 for pj in range(para_num):
                     for pk in range(para_num):
                         F_list[pj][pk][i] = F_tot[pj][pk]
@@ -1084,9 +1084,9 @@ def OBB(x, p, dp, rho, drho, d2rho, LDtype="SLD", eps=1e-8):
     for m in range(p_num):
         f, LD = QFIM(rho[m], [drho[m]], LDtype=LDtype, exportLD=True, eps=eps)
         F[m] = f
-        term1 = np.dot(d2rho[m], LD)
-        term2 = np.dot(d2rho[m], LD.conj().T)
-        term3 = np.dot(np.dot(LD, LD), drho[m])
+        term1 = d2rho[m] @ LD
+        term2 = d2rho[m] @ LD.conj().T
+        term3 = LD @ LD @ drho[m]
         dF = np.real(np.trace(term1 + term2 - term3))
         J[m] = dp[m] / p[m] - dF / f
 
