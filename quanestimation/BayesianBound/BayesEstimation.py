@@ -73,7 +73,7 @@ def Bayes(x, p, rho, y, M=None, estimator="mean", savefile=False):
             
             # Calculate conditional probabilities
             for xi in range(len(x[0])):
-                p_tp = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
+                p_tp = np.real(np.trace(rho[xi] @ M[res_exp]))
                 pyx[xi] = p_tp
                 
             # Update posterior distribution
@@ -135,7 +135,7 @@ def Bayes(x, p, rho, y, M=None, estimator="mean", savefile=False):
             
             # Calculate conditional probabilities
             for xi in range(len(p_list)):
-                p_tp = np.real(np.trace(np.dot(rho_list[xi], M[res_exp])))
+                p_tp = np.real(np.trace(rho_list[xi] @ M[res_exp]))
                 pyx_list[xi] = p_tp
                 
             # Reshape and update posterior distribution
@@ -228,7 +228,7 @@ def MLE(x, rho, y, M=[], savefile=False):
             for mi in range(max_episode):
                 res_exp = int(y[mi])
                 for xi in range(len(x[0])):
-                    p_tp = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
+                    p_tp = np.real(np.trace(rho[xi] @ M[res_exp]))
                     L_out[xi] = L_out[xi] * p_tp
                 indx = np.where(L_out == max(L_out))[0][0]
                 x_out.append(x[0][indx])
@@ -242,7 +242,7 @@ def MLE(x, rho, y, M=[], savefile=False):
             for mi in range(max_episode):
                 res_exp = int(y[mi])
                 for xi in range(len(x[0])):
-                    p_tp = np.real(np.trace(np.dot(rho[xi], M[res_exp])))
+                    p_tp = np.real(np.trace(rho[xi] @ M[res_exp]))
                     L_tp[xi] = L_tp[xi] * p_tp
                 indx = np.where(L_tp == max(L_tp))[0][0]
                 L_out.append(L_tp)
@@ -275,7 +275,7 @@ def MLE(x, rho, y, M=[], savefile=False):
             for mi in range(max_episode):
                 res_exp = int(y[mi])
                 for xi in range(len(rho_list)):
-                    p_tp = np.real(np.trace(np.dot(rho_list[xi], M[res_exp])))
+                    p_tp = np.real(np.trace(rho_list[xi] @ M[res_exp]))
                     L_list[xi] = L_list[xi] * p_tp
                 L_out = L_list.reshape(p_shape)
                 indx = np.where(L_out == np.max(L_out))
@@ -290,7 +290,7 @@ def MLE(x, rho, y, M=[], savefile=False):
             for mi in range(max_episode):
                 res_exp = int(y[mi])
                 for xi in range(len(rho_list)):
-                    p_tp = np.real(np.trace(np.dot(rho_list[xi], M[res_exp])))
+                    p_tp = np.real(np.trace(rho_list[xi] @ M[res_exp]))
                     L_list[xi] = L_list[xi] * p_tp
                 L_tp = L_list.reshape(p_shape)
                 indx = np.where(L_tp == np.max(L_tp))
@@ -367,7 +367,7 @@ def BayesCost(x, p, xest, rho, M, W=[], eps=1e-8):
             if type(M) != list:
                 raise TypeError("Please make sure M is a list!")
         p_num = len(x[0])
-        value = [p[i]*sum([np.trace(np.dot(rho[i], M[mi]))*(x[0][i]-xest[mi][0])**2 for mi in range(len(M))]) for i in range(p_num)]
+        value = [p[i]*sum([np.trace(rho[i] @ M[mi])*(x[0][i]-xest[mi][0])**2 for mi in range(len(M))]) for i in range(p_num)]
         C = simpson(value, x[0])
         return np.real(C)
     else:
@@ -403,7 +403,7 @@ def BayesCost(x, p, xest, rho, M, W=[], eps=1e-8):
             x_tp = np.array(x_list[i])
             xCx = 0.0
             for mi in range(len(M)):
-                xCx += np.trace(np.dot(rho_list[i], M[mi]))*np.dot((x_tp-xest[mi]).reshape(1, -1), np.dot(W, (x_tp-xest[mi]).reshape(-1, 1)))[0][0]
+                xCx += np.trace(rho_list[i] @ M[mi])*np.dot((x_tp-xest[mi]).reshape(1, -1), W @ (x_tp-xest[mi]).reshape(-1, 1))[0][0]
             value[i] = p_list[i]*xCx
         C = np.array(value).reshape(p_shape)
         for si in reversed(range(para_num)):
@@ -450,7 +450,7 @@ def BCB(x, p, rho, W=[], eps=1e-8):
                 rho_avg[di][dj] = simpson(rho_avg_arr, x[0])
                 rho_pri[di][dj] = simpson(rho_pri_arr, x[0])
         Lambda = Lambda_avg(rho_avg, [rho_pri], eps=eps)
-        minBC = delta2_x-np.real(np.trace(np.dot(np.dot(rho_avg, Lambda[0]), Lambda[0])))
+        minBC = delta2_x - np.real(np.trace(rho_avg @ Lambda[0] @ Lambda[0]))
         return minBC
     else:
         # multi-parameter scenario
@@ -503,9 +503,9 @@ def BCB(x, p, rho, W=[], eps=1e-8):
         Mat = np.zeros((para_num, para_num), dtype=np.complex128)
         for para_m in range(para_num):
             for para_n in range(para_num):
-                Mat += W[para_m][para_n]*np.dot(Lambda[para_m], Lambda[para_n])
+                Mat += W[para_m][para_n] * np.dot(Lambda[para_m], Lambda[para_n])
                 
-        minBC = delta2_x-np.real(np.trace(np.dot(rho_avg, Mat)))
+        minBC = delta2_x-np.real(np.trace(rho_avg @ Mat))
         return minBC
         
 def Lambda_avg(rho_avg, rho_pri, eps=1e-8):
@@ -519,7 +519,7 @@ def Lambda_avg(rho_avg, rho_pri, eps=1e-8):
         for fi in range(0, dim):
             for fj in range(0, dim):
                 if np.abs(val[fi] + val[fj]) > eps:
-                    Lambda_eig[fi][fj] = (2* np.dot(vec[:, fi].conj().transpose(),np.dot(rho_pri[para_i], vec[:, fj]))/ (val[fi] + val[fj]))
+                    Lambda_eig[fi][fj] = 2* (vec[:, fi].conj().transpose() @ rho_pri[para_i]@ vec[:, fj]) / (val[fi] + val[fj])
         Lambda_eig[Lambda_eig == np.inf] = 0.0
-        Lambda[para_i] = np.dot(vec, np.dot(Lambda_eig, vec.conj().transpose()))
+        Lambda[para_i] =  vec @ Lambda_eig @ vec.conj().transpose()
     return Lambda
