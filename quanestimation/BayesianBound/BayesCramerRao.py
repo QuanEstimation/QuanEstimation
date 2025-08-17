@@ -834,7 +834,6 @@ def VTB(x, p, dp, rho, drho, M=[], eps=1e-8):
         for m in range(p_num):
             F_tp[m] = CFIM(rho[m], [drho[m]], M=M, eps=eps)
 
-
         arr1 = [np.real(dp[i] * dp[i] / p[i]) for i in range(p_num)]
         I = simpson(arr1, x[0])
         arr2 = [np.real(F_tp[j] * p[j]) for j in range(p_num)]
