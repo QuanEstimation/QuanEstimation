@@ -97,22 +97,25 @@ def BCFIM(x, p, rho, drho, M=[], eps=1e-8):
             [[0.0 for i in range(len(p_list))] for j in range(para_num)]
             for k in range(para_num)
         ]
-        for i in range(len(p_list)):
-            F_tp = CFIM(rho_list[i], drho_list[i], M=M, eps=eps)
-            for pj in range(para_num):
-                for pk in range(para_num):
-                    F_list[pj][pk][i] = F_tp[pj][pk]
+    for i in range(len(p_list)):
+        # Convert drho_list[i] to a list of arrays to ensure proper type handling
+        drho_arrays = [np.array(d, dtype=np.complex128) for d in drho_list[i]]
+        F_tp = CFIM(rho_list[i], drho_arrays, M=M, eps=eps)
+        for pj in range(para_num):
+            for pk in range(para_num):
+                # Ensure we're assigning float values
+                F_list[pj][pk][i] = float(np.real(F_tp[pj][pk]))
 
-        BCFIM_res = np.zeros([para_num, para_num])
-        for para_i in range(0, para_num):
-            for para_j in range(para_i, para_num):
-                F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
-                arr = p * F_ij
-                for si in reversed(range(para_num)):
-                    arr = simpson(arr, x[si])
-                BCFIM_res[para_i][para_j] = arr
-                BCFIM_res[para_j][para_i] = arr
-        return BCFIM_res
+    BCFIM_res = np.zeros([para_num, para_num])
+    for para_i in range(0, para_num):
+        for para_j in range(para_i, para_num):
+            F_ij = np.array(F_list[para_i][para_j]).reshape(p_shape)
+            arr = p * F_ij
+            for si in reversed(range(para_num)):
+                arr = simpson(arr, x[si])
+            BCFIM_res[para_i][para_j] = float(arr)
+            BCFIM_res[para_j][para_i] = float(arr)
+    return BCFIM_res
 
 
 def BQFIM(x, p, rho, drho, LDtype="SLD", eps=1e-8):
