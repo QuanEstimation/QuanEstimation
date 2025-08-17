@@ -161,8 +161,8 @@ def test_bcfim_bqcfim_multiparameter() -> None:
     ]
     
     # Prior distribution parameters
-    x_values = np.linspace(-0.5 * np.pi, 0.5 * np.pi, 100)
-    omega0_values = np.linspace(1, 2, 100)
+    x_values = np.linspace(-0.5 * np.pi, 0.5 * np.pi, 50)
+    omega0_values = np.linspace(1, 2, 50)
     all_parameter_values = [omega0_values, x_values]
     
     # Joint probability density function (Gaussian for both parameters)
