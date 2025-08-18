@@ -41,9 +41,9 @@ def test_Bayes() -> None:
     ) for i in range(len(x))
     ]
     
-    for i in range(len(x)):
-        H0 = H0_func(x[i])
-        dH = dH_func(x[i])
+    for i, xi in enumerate(x):
+        H0 = H0_func(xi)
+        dH = dH_func(xi)
         dynamics = Lindblad(tspan, rho0, H0, dH)
         rho_tp, _ = dynamics.expm()
         rho[i] = rho_tp[-1]
