@@ -71,9 +71,9 @@ def test_bayesian_bound_singleparameter() -> None:
     d_final_states = []
     
     # Evolve the system for each parameter value
-    for idx in range(len(x_values)):
-        hamiltonian = hamiltonian_func(x_values[idx])
-        d_hamiltonian = d_hamiltonian_func(x_values[idx])
+    for x_values_idx in x_values:
+        hamiltonian = hamiltonian_func(x_values_idx)
+        d_hamiltonian = d_hamiltonian_func(x_values_idx)
         
         dynamics = Lindblad(time_span, rho0, hamiltonian, d_hamiltonian)
         states, d_states = dynamics.expm()
@@ -82,50 +82,50 @@ def test_bayesian_bound_singleparameter() -> None:
         d_final_states.append(d_states[-1]) 
 
     # Test BCFIM
-    cfim = BCFIM([x_values], prob_normalized, final_states, d_final_states, M=[], eps=1e-8)
+    cfim = BCFIM([x_values], prob_normalized, final_states, d_final_states, M = [], eps = 1e-8)
     expected_cfim = 1.5342635936313218
     assert np.allclose(cfim, expected_cfim, atol = 1e-3)
 
     with pytest.raises(TypeError):
-        cfim = BCFIM([x_values], prob_normalized, final_states, d_final_states, M=1., eps=1e-8)
+        cfim = BCFIM([x_values], prob_normalized, final_states, d_final_states, M = 1., eps = 1e-8)
 
     # Test BQFIM
-    qfim = BQFIM([x_values], prob_normalized, final_states, d_final_states, LDtype="SLD", eps=1e-8)
+    qfim = BQFIM([x_values], prob_normalized, final_states, d_final_states, LDtype = "SLD", eps = 1e-8)
     expected_qfim = 1.9629583923945833
     assert np.allclose(qfim, expected_qfim, atol = 1e-3)
 
     # Test BCRB type 1
-    bcrb1 = BCRB([x_values], prob_normalized, [], final_states, d_final_states, M=[], btype=1)
+    bcrb1 = BCRB([x_values], prob_normalized, [], final_states, d_final_states, M = [], btype = 1)
     expected_bcrb1 = 0.654654507602925
     assert np.allclose(bcrb1, expected_bcrb1, atol = 1e-3)
 
     # Test BCRB type 2
-    bcrb2 = BCRB([x_values], prob_normalized, [], final_states, d_final_states, M=[], btype=2)
+    bcrb2 = BCRB([x_values], prob_normalized, [], final_states, d_final_states, M = [], btype = 2)
     expected_bcrb2 = 0.651778484577857
     assert np.allclose(bcrb2, expected_bcrb2, atol = 1e-3)
     
     # Test BCRB type 3
-    bcrb3 = BCRB([x_values], prob_normalized, d_prob_normalized, final_states, d_final_states, M=[], btype=3)
+    bcrb3 = BCRB([x_values], prob_normalized, d_prob_normalized, final_states, d_final_states, M = [], btype = 3)
     expected_bcrb3 = 0.16522254719803486
     assert np.allclose(bcrb3, expected_bcrb3, atol = 1e-3)
 
     # Test Van Trees Bound
-    vtb = VTB([x_values], prob_normalized, d_prob_normalized, final_states, d_final_states, M=[]) 
+    vtb = VTB([x_values], prob_normalized, d_prob_normalized, final_states, d_final_states, M = []) 
     expected_vtb = 0.03768712089828974
     assert np.allclose(vtb, expected_vtb, atol = 1e-3)
 
     # Test BQCRB type 1
-    bqcrb1 = BQCRB([x_values], prob_normalized, [], final_states, d_final_states, btype=1)
+    bqcrb1 = BQCRB([x_values], prob_normalized, [], final_states, d_final_states, btype = 1)
     expected_bqcrb1 = 0.5097987285760552
     assert np.allclose(bqcrb1, expected_bqcrb1, atol = 1e-3)
 
     # Test BQCRB type 2
-    bqcrb2 = BQCRB([x_values], prob_normalized, [], final_states, d_final_states, btype=2)
+    bqcrb2 = BQCRB([x_values], prob_normalized, [], final_states, d_final_states, btype = 2)
     expected_bqcrb2 = 0.5094351484343563
     assert np.allclose(bqcrb2, expected_bqcrb2, atol = 1e-3)
 
     # Test BQCRB type 3
-    bqcrb3 = BQCRB([x_values], prob_normalized, d_prob_normalized, final_states, d_final_states, btype=3)
+    bqcrb3 = BQCRB([x_values], prob_normalized, d_prob_normalized, final_states, d_final_states, btype = 3)
     expected_bqcrb3 = 0.14347116223111836
     assert np.allclose(bqcrb3, expected_bqcrb3, atol = 1e-3)
 
@@ -135,13 +135,13 @@ def test_bayesian_bound_singleparameter() -> None:
     assert np.allclose(qvtb, expected_qvtb, atol = 1e-3)
 
     with pytest.raises(TypeError):
-        BCFIM([x_values], prob_normalized, final_states, d_final_states, M=1., eps=1e-8)
-        BCRB([x_values], prob_normalized, [], final_states, d_final_states, M=1., btype=1)
-        VTB([x_values], prob_normalized, d_prob_normalized, final_states, d_final_states, M=1.)
+        BCFIM([x_values], prob_normalized, final_states, d_final_states, M = 1., eps = 1e-8)
+        BCRB([x_values], prob_normalized, [], final_states, d_final_states, M = 1., btype = 1)
+        VTB([x_values], prob_normalized, d_prob_normalized, final_states, d_final_states, M = 1.)
 
     with pytest.raises(NameError):
-        BCRB([x_values], prob_normalized, [], final_states, d_final_states, M=[], btype=4)
-        BQCRB([x_values], prob_normalized, [], final_states, d_final_states, btype=4)
+        BCRB([x_values], prob_normalized, [], final_states, d_final_states, M = [], btype = 4)
+        BQCRB([x_values], prob_normalized, [], final_states, d_final_states, btype = 4)
 
 def test_bayesian_bound_multiparameter() -> None:  
     """
@@ -195,11 +195,11 @@ def test_bayesian_bound_multiparameter() -> None:
     # Generate probability values
     d_prob_normalized = []
     prob_values_unnormalized = np.zeros((len(omega0_values), len(x_values)))
-    for i in range(len(omega0_values)):
+    for i, omega0_i in enumerate(omega0_values):
         d_prob_tp = []
-        for j in range(len(x_values)):
-            prob_values_unnormalized[i, j] = prob_density(omega0_values[i], x_values[j])
-            d_prob_density_unnormalized = d_prob_density(omega0_values[i], x_values[j])
+        for j, x_values_j in enumerate(x_values):
+            prob_values_unnormalized[i, j] = prob_density(omega0_i, x_values_j)
+            d_prob_density_unnormalized = d_prob_density(omega0_i, x_values_j)
             d_prob_tp.append(d_prob_density_unnormalized)
             
         d_prob_normalized.append(d_prob_tp)
@@ -220,13 +220,13 @@ def test_bayesian_bound_multiparameter() -> None:
     d_final_states = []
     
     # Evolve the system for each parameter combination
-    for i in range(len(omega0_values)):
+    for omega0_i in omega0_values:
         row_rho = []
         row_drho = []
 
-        for j in range(len(x_values)):
-            hamiltonian = hamiltonian_func(omega0_values[i], x_values[j])
-            d_hamiltonian = d_hamiltonian_func(omega0_values[i], x_values[j])
+        for x_values_j in x_values:
+            hamiltonian = hamiltonian_func(omega0_i, x_values_j)
+            d_hamiltonian = d_hamiltonian_func(omega0_i, x_values_j)
 
             dynamics = Lindblad(time_span, rho0, hamiltonian, d_hamiltonian)
             states, d_states = dynamics.expm()
@@ -237,7 +237,7 @@ def test_bayesian_bound_multiparameter() -> None:
         d_final_states.append(row_drho)    
 
     # Test BCFIM
-    cfim = BCFIM(all_parameter_values, prob_normalized, final_states, d_final_states, M=[], eps=1e-8)
+    cfim = BCFIM(all_parameter_values, prob_normalized, final_states, d_final_states, M = [], eps = 1e-8)
     expected_cfim = np.array(
         [[0.0360, 0.], 
          [0., 2.1649]]
@@ -253,7 +253,7 @@ def test_bayesian_bound_multiparameter() -> None:
     assert np.allclose(qfim, expected_qfim, atol = 1e-3)
 
     # Test BCRB type 1
-    bcrb1 = BCRB(all_parameter_values, prob_normalized, [], final_states, d_final_states, M=[], btype=1)
+    bcrb1 = BCRB(all_parameter_values, prob_normalized, [], final_states, d_final_states, M = [], btype = 1)
     expected_bcrb1 = np.array(
         [[188.85062035, 0.63311697],
          [0.63311697, 0.62231953]]
@@ -261,7 +261,7 @@ def test_bayesian_bound_multiparameter() -> None:
     assert np.allclose(bcrb1, expected_bcrb1, atol = 1e-3)   
     
     # Test BCRB type 2
-    bcrb2 = BCRB(all_parameter_values, prob_normalized, [], final_states, d_final_states, M=[], btype=2)
+    bcrb2 = BCRB(all_parameter_values, prob_normalized, [], final_states, d_final_states, M = [], btype = 2)
     expected_bcrb2 = np.array(
         [[27.7234240, 0.002116],
          [0.002116, 0.461910]]
@@ -269,7 +269,7 @@ def test_bayesian_bound_multiparameter() -> None:
     assert np.allclose(bcrb2, expected_bcrb2, atol = 1e-3)
 
     # # Test BCRB type 3
-    bcrb3 = BCRB(all_parameter_values, prob_normalized, d_prob_normalized, final_states, d_final_states, M=[], btype=3)
+    bcrb3 = BCRB(all_parameter_values, prob_normalized, d_prob_normalized, final_states, d_final_states, M = [], btype = 3)
     expected_bcrb3 = np.array(
         [[2.52942056, -0.00943802],
          [-0.00943802, 0.38853841]]
@@ -277,7 +277,7 @@ def test_bayesian_bound_multiparameter() -> None:
     assert np.allclose(bcrb3, expected_bcrb3, atol = 1e-3)
 
     # # Test Van Trees Bound
-    vtb = VTB(all_parameter_values, prob_normalized, d_prob_normalized, final_states, d_final_states, M=[]) 
+    vtb = VTB(all_parameter_values, prob_normalized, d_prob_normalized, final_states, d_final_states, M = []) 
     expected_vtb = np.array(
         [[0.04382, 0.],
          [0., 0.03681]]
@@ -285,7 +285,7 @@ def test_bayesian_bound_multiparameter() -> None:
     assert np.allclose(vtb, expected_vtb, atol = 1e-3)
 
     # Test BQCRB type 1
-    bqcrb1 = BQCRB(all_parameter_values, prob_normalized, [], final_states, d_final_states, btype=1)
+    bqcrb1 = BQCRB(all_parameter_values, prob_normalized, [], final_states, d_final_states, btype = 1)
     expected_bqcrb1 = np.array(
         [[45.48725379, 0.33691038],
          [0.33691038,  0.36839637]]
@@ -293,7 +293,7 @@ def test_bayesian_bound_multiparameter() -> None:
     assert np.allclose(bqcrb1, expected_bqcrb1, atol = 1e-3)
 
     # Test BQCRB type 2
-    bqcrb2 = BQCRB(all_parameter_values, prob_normalized, [], final_states, d_final_states, btype=2)
+    bqcrb2 = BQCRB(all_parameter_values, prob_normalized, [], final_states, d_final_states, btype = 2)
     expected_bqcrb2 = np.array(
         [[10.542814, 0.0015452],
          [0.0015452, 0.29983117]]
@@ -301,7 +301,7 @@ def test_bayesian_bound_multiparameter() -> None:
     assert np.allclose(bqcrb2, expected_bqcrb2, atol = 1e-3)
 
     # Test BQCRB type 3
-    bqcrb3 = BQCRB(all_parameter_values, prob_normalized, d_prob_normalized, final_states, d_final_states, btype=3)
+    bqcrb3 = BQCRB(all_parameter_values, prob_normalized, d_prob_normalized, final_states, d_final_states, btype = 3)
     expected_bqcrb3 = np.array(
         [[1.39714369, -0.00959793],
          [-0.00959793, 0.25794208]]
@@ -317,11 +317,11 @@ def test_bayesian_bound_multiparameter() -> None:
     assert np.allclose(qvtb, expected_qvtb, atol = 1e-3)
     
     with pytest.raises(TypeError):
-        BCFIM(all_parameter_values, prob_normalized, final_states, d_final_states, M=1., eps=1e-8)
-        BCRB(all_parameter_values, prob_normalized, [], final_states, d_final_states, M=1., btype=1)
-        VTB(all_parameter_values, prob_normalized, d_prob_normalized, final_states, d_final_states, M=1.)
+        BCFIM(all_parameter_values, prob_normalized, final_states, d_final_states, M = 1., eps = 1e-8)
+        BCRB(all_parameter_values, prob_normalized, [], final_states, d_final_states, M = 1., btype = 1)
+        VTB(all_parameter_values, prob_normalized, d_prob_normalized, final_states, d_final_states, M = 1.)
 
     with pytest.raises(NameError):
-        BCRB(all_parameter_values, prob_normalized, [], final_states, d_final_states, M=[], btype=4)
-        BQCRB(all_parameter_values, prob_normalized, [], final_states, d_final_states, btype=4)
+        BCRB(all_parameter_values, prob_normalized, [], final_states, d_final_states, M = [], btype = 4)
+        BQCRB(all_parameter_values, prob_normalized, [], final_states, d_final_states, btype = 4)
 

@@ -124,8 +124,8 @@ def test_Lindblad() -> None:
         [0.45241871 + 0.j, 0.25697573 - 0.40021598j],
         [0.25697573 + 0.40021598j, 0.54758129 + 0.j]
     ])
-    assert np.allclose(final_state_expm[-1], expected_final_state, atol=1e-6)
-    assert np.allclose(final_state_ode[-1], expected_final_state, atol=1e-6)
+    assert np.allclose(final_state_expm[-1], expected_final_state, atol = 1e-6)
+    assert np.allclose(final_state_ode[-1], expected_final_state, atol = 1e-6)
 
     # Expected derivative of final state
     final_state_derivative_expm = state_derivatives_expm[-1]
