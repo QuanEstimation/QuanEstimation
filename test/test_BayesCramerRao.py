@@ -136,11 +136,17 @@ def test_bayesian_bound_singleparameter() -> None:
 
     with pytest.raises(TypeError):
         BCFIM([x_values], prob_normalized, final_states, d_final_states, M = 1., eps = 1e-8)
+
+    with pytest.raises(TypeError):    
         BCRB([x_values], prob_normalized, [], final_states, d_final_states, M = 1., btype = 1)
+
+    with pytest.raises(TypeError):    
         VTB([x_values], prob_normalized, d_prob_normalized, final_states, d_final_states, M = 1.)
 
     with pytest.raises(NameError):
         BCRB([x_values], prob_normalized, [], final_states, d_final_states, M = [], btype = 4)
+
+    with pytest.raises(NameError):    
         BQCRB([x_values], prob_normalized, [], final_states, d_final_states, btype = 4)
 
 def test_bayesian_bound_multiparameter() -> None:  
@@ -168,7 +174,7 @@ def test_bayesian_bound_multiparameter() -> None:
         sigma_x * np.cos(x) + sigma_z * np.sin(x)
     )
     
-    # Derivative of Hamiltonian (return 2x2 matrices, not 1x2x2 arrays)
+    # Derivative of Hamiltonian
     d_hamiltonian_func = lambda omega0, x: [
         0.5 * b_val * (sigma_x * np.cos(x) + sigma_z * np.sin(x)),
         0.5 * b_val * omega0 * (-sigma_x * np.sin(x) + sigma_z * np.cos(x))
@@ -318,10 +324,16 @@ def test_bayesian_bound_multiparameter() -> None:
     
     with pytest.raises(TypeError):
         BCFIM(all_parameter_values, prob_normalized, final_states, d_final_states, M = 1., eps = 1e-8)
+
+    with pytest.raises(TypeError):    
         BCRB(all_parameter_values, prob_normalized, [], final_states, d_final_states, M = 1., btype = 1)
+
+    with pytest.raises(TypeError):    
         VTB(all_parameter_values, prob_normalized, d_prob_normalized, final_states, d_final_states, M = 1.)
 
     with pytest.raises(NameError):
         BCRB(all_parameter_values, prob_normalized, [], final_states, d_final_states, M = [], btype = 4)
+
+    with pytest.raises(NameError):    
         BQCRB(all_parameter_values, prob_normalized, [], final_states, d_final_states, btype = 4)
 

@@ -211,6 +211,8 @@ def MLE(x, rho, y, M=[], savefile=False):
         SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state 
         which can be downloaded from [here](http://www.physics.umb.edu/Research/QBism/solutions.html).
     """
+    if M is None:
+        M = []
 
     para_num = len(x)
     max_episode = len(y)
