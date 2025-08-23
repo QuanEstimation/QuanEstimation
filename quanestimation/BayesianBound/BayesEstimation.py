@@ -7,30 +7,27 @@ from itertools import product
 
 def Bayes(x, p, rho, y, M=None, estimator="mean", savefile=False):
     """
-    Bayesian estimation. The prior distribution is updated via the posterior distribution 
-    obtained by the Bayes' rule, and the estimated value of parameters are updated via 
-    the expectation value of the distribution or maximum a posteriori probability (MAP).
+    Bayesian estimation. The prior distribution is updated via the posterior 
+    distribution obtained by Bayes' rule. The estimated value of parameters are 
+    updated via either the expectation value of the distribution or maximum a 
+    posteriori probability (MAP).
 
     Args:
-        x (list): 
-            The regimes of the parameters for the integral.
-        p (np.ndarray): 
-            The prior distribution as a multidimensional array.
-        rho (list): 
-            Parameterized density matrix as a multidimensional list.
-        y (np.ndarray): 
-            The experimental results obtained in practice.
-        M (list, optional): 
-            A set of positive operator-valued measure (POVM). Defaults to a set of rank-one 
-            symmetric informationally complete POVM (SIC-POVM).
-        estimator (str, optional): 
-            Estimators for the bayesian estimation. Options are:
+        x (list): The regimes of the parameters for the integral.
+        p (np.ndarray): The prior distribution as a multidimensional array.
+        rho (list): Parameterized density matrix as a multidimensional list.
+        y (np.ndarray): The experimental results obtained in practice.
+        M (list, optional): A set of positive operator-valued measure (POVM). 
+            Defaults to a set of rank-one symmetric informationally complete 
+            POVM (SIC-POVM).
+        estimator (str, optional): Estimators for the bayesian estimation. 
+            Options are:
                 "mean" (default) - The expectation value of the distribution.
                 "MAP" - Maximum a posteriori probability.
-        savefile (bool, optional): 
-            Whether to save all posterior distributions. If True, generates "pout.npy" and 
-            "xout.npy" containing all posterior distributions and estimated values across 
-            iterations. If False, only saves the final posterior distribution and all 
+        savefile (bool, optional): Whether to save all posterior distributions. 
+            If True, generates "pout.npy" and "xout.npy" containing all 
+            posterior distributions and estimated values across iterations. 
+            If False, only saves the final posterior distribution and all 
             estimated values. Defaults to False.
 
     Returns:
@@ -65,7 +62,7 @@ def Bayes(x, p, rho, y, M=None, estimator="mean", savefile=False):
             raise TypeError("M must be a list")
             
         x_out = []
-        p_out = []  # Always initialize as list
+        p_out = []
         
         for mi in range(max_episode):
             res_exp = int(y[mi])
@@ -87,12 +84,12 @@ def Bayes(x, p, rho, y, M=None, estimator="mean", savefile=False):
                 mean = simpson([p[m] * x[0][m] for m in range(len(x[0]))], x[0])
                 x_out.append(mean)
             elif estimator == "MAP":
-                # Use np.argmax for better performance and type safety
                 indx = np.argmax(p)
                 x_out.append(x[0][indx])
             else:
                 raise ValueError(
-                    f"Invalid estimator: {estimator}. Supported values are 'mean' and 'MAP'"
+                    "Invalid estimator: {}. Supported values are 'mean' and 'MAP'"
+                    .format(estimator)
                 )
                 
             # Save intermediate results if requested
