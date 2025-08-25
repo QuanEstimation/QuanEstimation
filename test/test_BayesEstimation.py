@@ -80,6 +80,18 @@ def test_Bayes_singleparameter() -> None:
     for filename in ["pout.npy", "xout.npy", "Lout.npy"]:
         if os.path.exists(filename):
             os.remove(filename)
+
+    # Test saving functionality
+    pout_mean, xout_mean = Bayes(
+        [x], p, rho, y, M=None, estimator="mean", savefile=True
+    )
+    assert os.path.exists("pout.npy")
+    assert os.path.exists("xout.npy")
+
+    # Clean up generated files
+    for filename in ["pout.npy", "xout.npy", "Lout.npy"]:
+        if os.path.exists(filename):
+            os.remove(filename)
             
     with pytest.raises(TypeError):
         Bayes([x], p, rho, y, M=1., estimator="mean", savefile=False)    
