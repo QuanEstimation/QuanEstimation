@@ -54,8 +54,8 @@ dev = [
     "bump2version>=0.5.11",
     "wheel>=0.33.6",
     "build",
-    "pytest",
-    "coverage",
+    "pytest>=8.4.0",
+    "coverage>=7.9.0",
     "codecov"    
 ]
 docs = [

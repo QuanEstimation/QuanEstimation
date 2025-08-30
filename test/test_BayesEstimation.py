@@ -80,6 +80,18 @@ def test_Bayes_singleparameter() -> None:
     for filename in ["pout.npy", "xout.npy", "Lout.npy"]:
         if os.path.exists(filename):
             os.remove(filename)
+
+    # Test saving functionality
+    pout_mean, xout_mean = Bayes(
+        [x], p, rho, y, M=M, estimator="mean", savefile=True
+    )
+    assert os.path.exists("pout.npy")
+    assert os.path.exists("xout.npy")
+
+    # Clean up generated files
+    for filename in ["pout.npy", "xout.npy", "Lout.npy"]:
+        if os.path.exists(filename):
+            os.remove(filename)
             
     with pytest.raises(TypeError):
         Bayes([x], p, rho, y, M=1., estimator="mean", savefile=False)    
@@ -126,7 +138,6 @@ def test_Bayes_multiparameter() -> None:
     # Generate probability values
     prob_values_unnormalized = np.zeros((len(omega0_values), len(x_values)))
     for i, omega0_i in enumerate(omega0_values):
-        d_prob_tp = []
         for j, x_values_j in enumerate(x_values):
             prob_values_unnormalized[i, j] = prob_density(omega0_i, x_values_j)
 
@@ -173,10 +184,10 @@ def test_Bayes_multiparameter() -> None:
     pout_MAP_max = np.max(pout_MAP)
     expected_pout_MAP_max = 0.9977126619164614
     assert np.allclose(xout_MAP, expected_xout_MAP, atol = 1e-3)
-    assert np.allclose(np.max(pout_MAP), expected_pout_MAP_max, atol = 1e-3)
+    assert np.allclose(pout_MAP_max, expected_pout_MAP_max, atol = 1e-3)
 
     expected_xout_MLE = [2.0, 0.5787144361875933]
-    _, xout_MLE = MLE(all_parameter_values, final_states, y, M = None, savefile = False)
+    _, xout_MLE = MLE(all_parameter_values, final_states, y, M = [], savefile = False)
     assert np.allclose(xout_MLE, expected_xout_MLE, atol = 1e-3)
 
     pout_mean, xout_mean = Bayes(
