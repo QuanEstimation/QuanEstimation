@@ -145,8 +145,14 @@ class Lindblad:
             self.control_Hamiltonian,
             self.control_coefficients,
         )
-        rho = [np.array(rho_i) for rho_i in rho]
-        drho = [[np.array(drho_ij) for drho_ij in drho_i] for drho_i in drho]
+        
+        # Convert Julia matrices to numpy arrays safely
+        rho = [np.array(rho_i) if not hasattr(rho_i, '_jl') else np.array(rho_i._jl) for rho_i in rho]
+        drho = [
+            [np.array(drho_ij) if not hasattr(drho_ij, '_jl') else np.array(drho_ij._jl) 
+             for drho_ij in drho_i] 
+            for drho_i in drho
+        ]
         
         return rho, drho
 
@@ -191,8 +197,14 @@ class Lindblad:
             self.control_Hamiltonian,
             self.control_coefficients,
         )
-        rho = [np.array(rho_i) for rho_i in rho]
-        drho = [[np.array(drho_ij) for drho_ij in drho_i] for drho_i in drho]
+        
+        # Convert Julia matrices to numpy arrays safely
+        rho = [np.array(rho_i) if not hasattr(rho_i, '_jl') else np.array(rho_i._jl) for rho_i in rho]
+        drho = [
+            [np.array(drho_ij) if not hasattr(drho_ij, '_jl') else np.array(drho_ij._jl) 
+             for drho_ij in drho_i] 
+            for drho_i in drho
+        ]
         
         return rho, drho
         
