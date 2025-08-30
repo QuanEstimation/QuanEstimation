@@ -34,7 +34,7 @@ jobs:
 
     - uses: julia-actions/setup-julia@v2
       with:
-        version: '1.11'  # Use specific version for stability
+        version: '1.11' 
 
     - name: Install Julia dependencies
       run: |
