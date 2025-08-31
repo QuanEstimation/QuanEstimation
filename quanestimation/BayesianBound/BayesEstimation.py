@@ -373,8 +373,8 @@ def BayesCost(x, p, xest, rho, M, W=[], eps=1e-8):
             if type(M) != list:
                 raise TypeError("Please make sure M is a list!")
             
-        if isinstance(x, np.ndarray):
-            x = [x]    
+        # if isinstance(x, np.ndarray):
+        #     x = [x]    
 
         p_num = len(x[0])
 
