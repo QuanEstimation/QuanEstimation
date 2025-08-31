@@ -6,7 +6,8 @@ from scipy.integrate import simpson
 from quanestimation.BayesianBound.BayesEstimation import (
     Bayes,
     MLE,
-    BCB
+    BCB,
+    BayesCost,
 )
 from quanestimation.Parameterization.GeneralDynamics import Lindblad
 
@@ -247,3 +248,57 @@ def test_BCB_singleparameter() -> None:
     result = BCB([x], p, rho, W = [], eps = 1e-8)
     expected_result = 0.16139667479361308
     assert np.allclose(result, expected_result, atol = 1e-3)
+
+def test_BayesCost_singleparameter() -> None:
+     # initial state
+    rho0 = 0.5 * np.array([[1.0, 1.0], [1.0, 1.0]])
+    
+    # free Hamiltonian
+    B, omega0 = np.pi / 2.0, 1.0
+    sx = np.array([[0.0, 1.0], [1.0, 0.0]])
+    sz = np.array([[1.0, 0.0], [0.0, -1.0]])
+    
+    H0_func = lambda x: 0.5 * B * omega0 * (sx * np.cos(x) + sz * np.sin(x))
+    
+    # derivative of the free Hamiltonian on x
+    dH_func = lambda x: [0.5 * B * omega0 * (-sx * np.sin(x) + sz * np.cos(x))]
+    
+    # prior distribution
+    x = np.linspace(0.0, 0.5 * np.pi, 1000)
+    p = (1.0 / (x[-1] - x[0])) * np.ones(len(x))
+    
+    # time length for the evolution
+    tspan = np.linspace(0.0, 1.0, 10)
+    
+    # dynamics
+    rho = []   
+    for xi in x:
+        H0 = H0_func(xi)
+        dH = dH_func(xi)
+        dynamics = Lindblad(tspan, rho0, H0, dH)
+        rho_tp, _ = dynamics.expm()
+        rho.append(rho_tp[-1]) 
+
+    random.seed(1234)
+    y = [0 for _ in range(500)]
+    res_rand = random.sample(range(len(y)), 125)
+    
+    for i in res_rand:
+        y[i] = 1 
+
+    pout_mean, xout_mean = Bayes(
+        [x], p, rho, y, M = [], estimator = "mean", savefile = False
+    )    
+
+    # Clean up generated files
+    for filename in ["pout.npy", "xout.npy", "Lout.npy"]:
+        if os.path.exists(filename):
+            os.remove(filename)   
+
+    result = BayesCost([x], pout_mean, xout_mean, rho, M = [])
+    expected_result = 0.0029817568167127637
+    assert np.allclose(result, expected_result, atol = 1e-3)
+
+    with pytest.raises(TypeError):
+        BayesCost([x], pout_mean, xout_mean, rho, M = 1.)
+

@@ -338,8 +338,9 @@ def BayesCost(x, p, xest, rho, M, W=[], eps=1e-8):
             The regimes of the parameters for the integral.
         p (array): 
             The prior distribution as a multidimensional array.
-        xest (list): 
-            The estimators.
+        xest (float or list): 
+            The estimators. xest is a float for single-parameter estimation
+            and a list for multi-parameter estimation.
         rho (list): 
             Parameterized density matrix as a multidimensional list.
         M (list): 
@@ -357,6 +358,12 @@ def BayesCost(x, p, xest, rho, M, W=[], eps=1e-8):
         TypeError: 
             If `M` is not a list.
     """
+    if M is None:
+        M = []
+
+    if W is None:
+        W = []
+
     para_num = len(x)
     if para_num == 1:
         # single-parameter scenario
@@ -365,8 +372,13 @@ def BayesCost(x, p, xest, rho, M, W=[], eps=1e-8):
         else:
             if type(M) != list:
                 raise TypeError("Please make sure M is a list!")
+            
+        if isinstance(x, np.ndarray):
+            x = [x]    
+
         p_num = len(x[0])
-        value = [p[i]*sum([np.trace(rho[i] @ M[mi])*(x[0][i]-xest[mi][0])**2 for mi in range(len(M))]) for i in range(p_num)]
+
+        value = [p[i]*sum([np.trace(rho[i] @ M[mi])*(x[0][i]-xest)**2 for mi in range(len(M))]) for i in range(p_num)]
         C = simpson(value, x[0])
         return np.real(C)
     else:
