@@ -17,6 +17,7 @@ ENV QuanEstimation_INSTALL_JULIA="y" \
     QuanEstimation_JULIA_PATH="/root/.julia/environments/pyjuliapkg/pyjuliapkg/install/bin/julia" \
     JULIA_NUM_THREADS=auto \
     PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE = 1 \
     PIP_NO_CACHE_DIR=1
 
 COPY . quanestimation
