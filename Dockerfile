@@ -17,7 +17,7 @@ ENV QuanEstimation_INSTALL_JULIA="y" \
     QuanEstimation_JULIA_PATH="/root/.julia/environments/pyjuliapkg/pyjuliapkg/install/bin/julia" \
     JULIA_NUM_THREADS=auto \
     PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE = 1 \
+    PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1
 
 COPY . quanestimation
@@ -30,6 +30,10 @@ RUN apt-get update && \
     apt-get clean
 
 RUN pip install --no-cache-dir ./quanestimation
+
+RUN pip install ipykernel && \
+    python -m ipykernel install --user --name python3 --display-name "Python3"
+
 RUN python -c "import quanestimation; print('QuanEstimation installed successfully')"
 RUN pip install jupyterlab numpy pandas matplotlib scikit-learn qutip
 CMD ["jupyter", "lab", "--ip=0.0.0.0", "--allow-root", "--no-browser"]
