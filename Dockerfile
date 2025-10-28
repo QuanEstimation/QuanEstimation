@@ -20,7 +20,7 @@ ENV QuanEstimation_INSTALL_JULIA="y" \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1
 
-COPY quanEstimation quanEstimation
+COPY quanestimation quanestimation
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -31,6 +31,6 @@ RUN apt-get update && \
 
 RUN pip install --no-cache-dir quanestimation
 
-RUN cp quanEstimation/Common/_julia_project.py /usr/local/lib/python3.13/site-packages/quanestimation/Common/_julia_project.py
+RUN cp quanestimation/Common/_julia_project.py /usr/local/lib/python3.13/site-packages/quanestimation/Common/_julia_project.py
 
 RUN python -c "import quanestimation; print('QuanEstimation installed successfully')"
