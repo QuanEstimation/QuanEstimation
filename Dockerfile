@@ -29,5 +29,6 @@ RUN apt-get update && \
     apt-get clean
 
 RUN pip install --no-cache-dir ./quanestimation
-
 RUN python -c "import quanestimation; print('QuanEstimation installed successfully')"
+RUN pip install jupyterlab numpy pandas matplotlib scikit-learn qutip
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--allow-root", "--no-browser"]
