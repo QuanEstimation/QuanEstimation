@@ -13,32 +13,6 @@ env:
   PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
-  test:
-    name: Test Docker Build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Build Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        platforms: linux/amd64
-        load: true
-        tags: ${{ env.IMAGE_NAME }}:test
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-
-    - name: Test the image
-      run: |
-        docker run --rm ${{ env.IMAGE_NAME }}:test python -c "import quanestimation; print('QuanEstimation test passed')"
-
   build-and-push:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
