@@ -1,10 +1,8 @@
 """Top-level package for quanestimation."""
 __version__ = "0.2.8"
 
-from .Common._julia_project import project
 from .Common.Common import load_julia
 
-project.ensure_init()
 QJL = load_julia()
 
 from quanestimation.AsymptoticBound.CramerRao import (

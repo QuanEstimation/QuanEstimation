@@ -16,6 +16,7 @@ def load_julia():
         jl.Main.QuanEstimation: Julia module for quantum estimation
     """
     jl = juliacall.newmodule("QuanEstimation")
+    jl.Main.seval('import Pkg; Pkg.add(name="QuanEstimation", version="0.1.6")')
     jl.Main.seval("using QuanEstimation, PythonCall")
     return jl.Main.QuanEstimation
 

@@ -21,7 +21,6 @@ requirements = [
     "cvxpy",
     "juliacall",
     "more_itertools",
-    "julia_project",
     "h5py",
 ]
 
