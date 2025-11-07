@@ -302,3 +302,89 @@ def test_BayesCost_singleparameter() -> None:
     with pytest.raises(TypeError):
         BayesCost([x], pout_mean, xout_mean, rho, M = 1.)
 
+def test_BayesCost_multiparameter() -> None:
+    # Initial state
+    rho0 = 0.5 * np.array([[1.0, 1.0], [1.0, 1.0]])
+    
+    # Free Hamiltonian parameters
+    b_val = 0.5 * np.pi
+    sigma_x = np.array([[0.0, 1.0], [1.0, 0.0]])
+    sigma_z = np.array([[1.0, 0.0], [0.0, -1.0]])
+    
+    # Hamiltonian function
+    hamiltonian_func = lambda omega0, x: 0.5 * b_val * omega0 * (
+        sigma_x * np.cos(x) + sigma_z * np.sin(x)
+    )
+
+    # Derivative of Hamiltonian
+    d_hamiltonian_func = lambda omega0, x: [
+        0.5 * b_val * (sigma_x * np.cos(x) + sigma_z * np.sin(x)),
+        0.5 * b_val * omega0 * (-sigma_x * np.sin(x) + sigma_z * np.cos(x))
+    ]
+    
+    # Prior distribution parameters
+    x_values = np.linspace(-0.5 * np.pi, 0.5 * np.pi, 20)
+    omega0_values = np.linspace(1, 2, 20)
+    all_parameter_values = [omega0_values, x_values]
+    
+    # Joint probability density function (Gaussian for both parameters)
+    mu_omega0, mu_x = 1.5, 0.0
+    eta_omega0, eta_x = 0.2, 0.2
+    prob_density = lambda omega0, x: (
+        np.exp(-(omega0 - mu_omega0)**2 / (2 * eta_omega0**2)) / (eta_omega0 * np.sqrt(2 * np.pi))
+        * np.exp(-(x - mu_x)**2 / (2 * eta_x**2)) / (eta_x * np.sqrt(2 * np.pi))
+    )
+
+    # Generate probability values
+    prob_values_unnormalized = np.zeros((len(omega0_values), len(x_values)))
+    for i, omega0_i in enumerate(omega0_values):
+        for j, x_values_j in enumerate(x_values):
+            prob_values_unnormalized[i, j] = prob_density(omega0_i, x_values_j)
+
+    # Normalize the distribution
+    integral_x = np.zeros(len(omega0_values))
+    for i in range(len(omega0_values)):
+        integral_x[i] = simpson(prob_values_unnormalized[i, :], x_values)
+    norm_factor = simpson(integral_x, omega0_values)
+    prob_normalized = prob_values_unnormalized / norm_factor
+
+    random.seed(1234)
+    y = [0 for _ in range(500)]
+    res_rand = random.sample(range(len(y)), 125)
+    
+    for i in res_rand:
+        y[i] = 1
+
+    # Time evolution parameters
+    time_span = np.linspace(0.0, 1.0, 50)
+
+    # Prepare arrays for the state
+    final_states = []
+
+    # Evolve the system for each parameter combination
+    for omega0_i in omega0_values:
+        row_rho = []
+
+        for x_values_j in x_values:
+            hamiltonian = hamiltonian_func(omega0_i, x_values_j)
+            d_hamiltonian = d_hamiltonian_func(omega0_i, x_values_j)
+
+            dynamics = Lindblad(time_span, rho0, hamiltonian, d_hamiltonian)
+            states, _ = dynamics.expm()
+            
+            row_rho.append(states[-1])
+
+        final_states.append(row_rho) 
+
+    pout_mean, xout_mean = Bayes(
+        all_parameter_values, prob_normalized, final_states, y, M = None, estimator="mean", savefile=False
+    )
+
+    # Clean up generated files
+    for filename in ["pout.npy", "xout.npy", "Lout.npy"]:
+        if os.path.exists(filename):
+            os.remove(filename)     
+
+    result = BayesCost(all_parameter_values, pout_mean, xout_mean, final_states, M = [])
+    expected_result = 1.
+    assert np.allclose(result, expected_result, atol = 1e-3)  
