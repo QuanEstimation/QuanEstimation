@@ -34,7 +34,6 @@ dependencies = [
     "cvxpy",
     "juliacall>=0.9.26",
     "more_itertools",
-    "julia_project",
     "h5py"
 ]
 
