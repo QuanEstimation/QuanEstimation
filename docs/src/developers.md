@@ -40,7 +40,7 @@ and Automation Engineering, The Chinese University of Hong Kong.
 
 
 ---
-# Former Developer
+# Former Developers
 
 ### **Dr. Mao Zhang**  
 **Email:** <zhangmao2018@foxmail.com>  
