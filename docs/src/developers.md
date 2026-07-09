@@ -43,12 +43,10 @@ and Automation Engineering, The Chinese University of Hong Kong.
 # Former Developers
 
 ### **Dr. Mao Zhang**  
-**Email:** <zhangmao2018@foxmail.com>  
 **Biography:** Dr. Zhang is now working at the United Imaging Healthcare Co., Ltd.. She used to be a Ph.D. student in the National Precise Gravity Measurement Facility, School of Physics, Huazhong University of Science and Technology. 
 
 ### **Mr. Huai-Ming Yu**  
 **Huazhong University of Science and Technology**  
-**Email:** <HuaimingYuuu@gmail.com>  
 **Biography:** Mr. Yu used to be a M.Sc. student at the School of Physics, Huazhong University of 
 Science and Technology. His research interests lie primarily in the fields of quantum information,
 quantum control, quantum foundations, as well as scientific programming and its applications in
