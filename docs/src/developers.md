@@ -20,7 +20,6 @@ using the features of quantum mechanics.
 
 ### **Prof. Rafał Demkowicz-Dobrzański**  
 **University of Warsaw**  
-**Email:** <Rafal.Demkowicz-Dobrzanski@fuw.edu.pl>  
 **Biography:** Prof. Demkowicz-Dobrzański is a faculty at the Faculty of Physics, 
 University of Warsaw. He is a theorist actively working in the field of quantum metrology, 
 who developed methods to identify fundamental limits in quantum metrology in presence of 
