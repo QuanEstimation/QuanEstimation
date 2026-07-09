@@ -1,8 +1,13 @@
 # Developers
 
+## QuanEstimation group 
+
+The package is developed by the QuanEstimation group, which is led by Prof. Jing Liu. The current group members include Jing Liu, 
+Zheng-Wei An, Xin-Yu Hao, and Jia-Qi Hao. 
+
 ### **Prof. Jing Liu**
 **Hainan University**  
-**Email:** <liujing@hainanu.edu.cn>  
+**Email:** <jing.liu@hainanu.edu.cn>  
 **Biography:** Prof. Liu is currently a full-time professor at the Center for Theoretical Physics 
 and School of Physics and Optoelectronic Engineering, Hainan University. His main research interests 
 focus on the topics in quantum metrology, quantum control, quantum information theory, and 
@@ -10,6 +15,8 @@ foundations of quantum mechanics, especially the design of high-precision measur
 using the features of quantum mechanics.
 
 ---
+
+# Advisors
 
 ### **Prof. Rafał Demkowicz-Dobrzański**  
 **University of Warsaw**  
@@ -20,24 +27,6 @@ who developed methods to identify fundamental limits in quantum metrology in pre
 decoherence.
 
 ---
-### **Mr. Huai-Ming Yu**  
-**Huazhong University of Science and Technology**  
-**Email:** <HuaimingYuuu@gmail.com>  
-**Biography:** Mr. Yu is a M.Sc. student at the School of Physics, Huazhong University of 
-Science and Technology. His research interests lie primarily in the fields of quantum information,
-quantum control, quantum foundations, as well as scientific programming and its applications in
-quantum technology.
-
----
-
-# Contributors
-
-### **Mr. Zheng-Wei An**
-**Huazhong University of Science and Technology**  
-
----
-
-# Advisors
 
 ### **Prof. Haidong Yuan**  
 **The Chinese University of Hong Kong**  
@@ -57,6 +46,14 @@ and Automation Engineering, The Chinese University of Hong Kong.
 ### **Dr. Mao Zhang**  
 **Email:** <zhangmao2018@foxmail.com>  
 **Biography:** Dr. Zhang is now working at the United Imaging Healthcare Co., Ltd.. She used to be a Ph.D. student in the National Precise Gravity Measurement Facility, School of Physics, Huazhong University of Science and Technology. 
+
+### **Mr. Huai-Ming Yu**  
+**Huazhong University of Science and Technology**  
+**Email:** <HuaimingYuuu@gmail.com>  
+**Biography:** Mr. Yu used to be a M.Sc. student at the School of Physics, Huazhong University of 
+Science and Technology. His research interests lie primarily in the fields of quantum information,
+quantum control, quantum foundations, as well as scientific programming and its applications in
+quantum technology.
 
 ---
 
