@@ -1,6 +1,6 @@
 # Developers
 
-## QuanEstimation group 
+## **QuanEstimation group** 
 
 The package is developed by the QuanEstimation group, which is led by Prof. Jing Liu. The current group members include Jing Liu, 
 Zheng-Wei An, Xin-Yu Hao, and Jia-Qi Hao. 
