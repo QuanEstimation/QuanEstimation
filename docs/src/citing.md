@@ -6,7 +6,7 @@ If you use QuanEstimation in your research, please cite the following papers:
 QuanEstimation: An open-source toolkit for quantum parameter estimation, 
 [Phys. Rev. Res. **4**, 043057 (2022).](https://doi.org/10.1103/PhysRevResearch.4.043057)
 
-[2] Huai-Ming Yu and Jing Liu, QuanEstimation.jl: An open-source Julia framework for quantum parameter estimation, 
+[2] Huai-Ming Yu and Jing Liu, Quanestimation.jl: An open-source Julia framework for quantum parameter estimation, 
 [Fundam. Res. **6**, 2167-2174 (2026).](https://doi.org/10.1016/j.fmre.2025.02.020)
 
 ---
