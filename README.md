@@ -43,6 +43,10 @@ cd QuanEstimation
 pip install .
 ~~~
 
+The Python package pins the Julia core to QuanEstimation 0.3.x and requires
+Julia >= 1.11. For local development against a QuanEstimation.jl checkout, set
+`QuanEstimation_DEV_PATH` to that checkout before importing the package.
+
 ## Code Style
 
 This project follows the [PEP 8](https://peps.python.org/pep-0008/) Python code 

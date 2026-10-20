@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import copy
+import json
 from scipy.sparse import csc_matrix, csr_matrix
 from sympy import Matrix, GramSchmidt
 from itertools import product
@@ -45,30 +46,57 @@ def MinusState():
     return np.array([1.0, -1.0], dtype=np.complex128) / np.sqrt(2.0)
 
 
+JULIA_PACKAGE_VERSION = "0.3.1"
+_JULIA_MODULE = None
+
+
 def load_julia():
     """
-    Load Julia and initialize QuanEstimation module.
-    
-    In development mode, set environment variable:
-        QuanEstimation_DEV_PATH=/path/to/julia_repo
-    
+    Load the Julia QuanEstimation core through juliacall.
+
+    The Julia package is pinned to ``JULIA_PACKAGE_VERSION``. For local
+    development, set ``QuanEstimation_DEV_PATH`` to a QuanEstimation.jl
+    checkout; that project is activated, resolved and instantiated before the
+    package is loaded. The root package keeps PythonCall as a dependency so
+    the QuanEstimationBasePyExt extension is available in both modes.
+
     Returns:
         jl.Main.QuanEstimation: Julia module for quantum estimation
     """
-    jl = juliacall.newmodule("QuanEstimation")
-    
-    dev_path = os.environ.get("QuanEstimation_DEV_PATH", None)
-    if dev_path:
-        jl.Main.seval(
-            'import Pkg; Pkg.activate("%s")' % dev_path
-        )
-    else:
-        jl.Main.seval(
-            'import Pkg; Pkg.add(name="QuanEstimation", version="0.3.1")'
-        )
+    global _JULIA_MODULE
+    if _JULIA_MODULE is not None:
+        return _JULIA_MODULE
 
-    jl.Main.seval("using QuanEstimation, PythonCall")
-    return jl.Main.QuanEstimation
+    jl = juliacall.newmodule("QuanEstimation")
+
+    dev_path = os.environ.get("QuanEstimation_DEV_PATH", None)
+    try:
+        if dev_path:
+            jl.Main.seval("import Pkg; Pkg.activate(%s)" % json.dumps(dev_path))
+            jl.Main.seval("import Pkg; Pkg.resolve()")
+            jl.Main.seval("import Pkg; Pkg.instantiate()")
+        else:
+            jl.Main.seval(
+                'import Pkg; Pkg.add(name="QuanEstimation", version="%s")'
+                % JULIA_PACKAGE_VERSION
+            )
+
+        jl.Main.seval("using QuanEstimation, PythonCall")
+        actual = str(jl.Main.seval("string(pkgversion(QuanEstimation))"))
+        if actual != JULIA_PACKAGE_VERSION:
+            raise RuntimeError(
+                "QuanEstimation Julia version mismatch: expected %s, got %s"
+                % (JULIA_PACKAGE_VERSION, actual)
+            )
+        _JULIA_MODULE = jl.Main.QuanEstimation
+        return _JULIA_MODULE
+    except Exception as exc:
+        raise RuntimeError(
+            "Failed to initialize the Julia QuanEstimation core "
+            "(expected %s). For local development, set "
+            "QuanEstimation_DEV_PATH to a QuanEstimation.jl checkout."
+            % JULIA_PACKAGE_VERSION
+        ) from exc
 
 
 def mat_vec_convert(A):

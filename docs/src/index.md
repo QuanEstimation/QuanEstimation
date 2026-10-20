@@ -28,6 +28,16 @@ The interface of QuanEstimation is written in Python, but the most calculation p
 executed in Julia for the computational efficiency. Therefore, QuanEstimation also has a full
 Julia version apart from the Python-Julia version. 
 
+## **Julia-first / thin-shell direction**
+
+The long-term architecture is Julia-first: numerical kernels live in
+QuanEstimationBase, and Python remains a thin layer for input validation,
+data conversion and convenience APIs. Some legacy Python-side numerical code
+is kept for backward compatibility in 0.4; the core QFIM/CFIM kernels will be
+delegated in 0.5. New numerical features should be implemented in Julia first.
+This keeps the Python and Julia results identical and lets the Python tests
+focus on the bridge rather than duplicating numerical stability checks.
+
 ## **Quick links**
 
 - [Installation](installation.md)

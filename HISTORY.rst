@@ -2,6 +2,18 @@
 History
 =======
 
+0.4.0 (2026-10-20)
+------------------
+
+* Stabilize the Python-Julia bridge: cache the loaded module, resolve and
+  instantiate development projects, and verify the Julia core version.
+* Pin the Julia core to QuanEstimation 0.3.x.
+* Add Julia 1.11/1.12/1.13 CI coverage.
+* Unify the package version metadata at 0.4.0.
+* Add version/pin consistency tests.
+* Document the Julia-first thin-shell direction; the QFIM/CFIM delegation
+  lands in 0.5.0.
+
 0.1.0 (2022-06-04)
 
 0.1.3 (2022-06-08)

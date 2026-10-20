@@ -21,37 +21,24 @@ Run the command in the terminal to install QuanEstimation:
 ---
 
 # **Requirements**
-QuanEstimation requires several open-source packages in Python and Julia. The versions 
-of Python and Julia should be above 3.10 and 1.10, respectively.
+QuanEstimation requires Python >= 3.10 and Julia >= 1.11. The Julia core is
+pinned to QuanEstimation 0.3.x; the complete dependency list is declared in the
+Julia package's `Project.toml` and is installed automatically by
+`juliacall`/`juliapkg`.
+
 ## **Python packages**
 | $~~~~~~~~~~~$Package$~~~~~~~$| Version      |
 | :----------:                 | :----------: |
-| numpy                        | >=1.22       |
-| sympy                        | >=1.10       |
-| scipy                        | >=1.8        |
+| numpy                        | >=1.21       |
+| sympy                        | >=1.9        |
+| scipy                        | >=1.7        |
 | cvxpy                        | >=1.2        |
-| juliacall                    | >=0.9.26     |
-| more-itertools               | >=8.12.0     |
+| juliacall                    | >=0.9.35     |
+| more-itertools               | >=8.12       |
 | h5py                         | >=3.6        |
 
-## **Julia packages**
-| $~~~~~~~~~~~~~~~~$Package$~~~~~~~~~~~~$| Version     |$~~~~~~~~~~~~~~~~$Package$~~~~~~~~~~~~$| Version     |
-| :----------:                           | :---------: |:----------:                           | :---------: |
-| LinearAlgebra                          | --          |BoundaryValueDiffEq                    | 2.7.2       |
-| Zygote                                 | 0.6.37      |SCS                                    | 0.8.1       |
-| Convex                                 | 0.14.18     |Trapz                                  | 2.0.3       |
-| ReinforcementLearning                  | 0.10.0      |Interpolations                         | 0.13.5      |
-| IntervalSets                           | 0.5.4       |SparseArrays                           | --          |
-| Flux                                   | 0.12.4      |DelimitedFiles                         | --          |
-| StatsBase                              | 0.33.16     |Random                                 | --          |
-| Printf                                 | --          |StableRNGs                             | --          |
-| Distributions                          | --          |QuadGK                                 | --          |
-| DifferentialEquations                          | --          |                                   |             |
-
-The version information of the packages without the version number is the same with the 
-corresponding packages in Julia 1.10. Besides, the version information of the full Julia package 
-is also the same as the table above. All of these packages will be automatically installed when
-the users install QuanEstimation.
+All Python and Julia dependencies are installed automatically when the user
+installs QuanEstimation.
 
 ## **Next steps**
 
