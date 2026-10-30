@@ -1,8 +1,9 @@
 # **Getting started**
 
-QuanEstimation provides interfaces in both Python and Julia. They share the
-same API design — function names, parameter order, and defaults are identical
-across languages. Use whichever you prefer.
+QuanEstimation provides interfaces in both Python and Julia. The two APIs are
+closely related but not identical: Python wraps the Julia core in compatibility
+classes and converts data at the boundary, so some signatures and defaults
+differ. Use the examples on each page as the reference for that language.
 
 === "Python"
     ``` py
@@ -14,6 +15,10 @@ across languages. Use whichever you prefer.
     ``` jl
     using QuanEstimation
     ```
+
+Importing `quanestimation` loads the public Python API and may initialize the
+pinned Julia core when an imported wrapper requests it. Once initialized, the
+Julia module is cached for subsequent calls.
 
 For advanced usage (direct Julia access, bang functions, type conversion),
 see [Python-Julia calling patterns](guide_pyju.md).

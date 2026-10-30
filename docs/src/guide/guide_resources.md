@@ -1,6 +1,6 @@
 # **Metrological resources**
-The metrological resources that QuanEstimation can calculate are spin squeezing and the 
-minimum time to reach the given target. The spin squeezing can be calculated via the function: 
+The metrological resources provided by QuanEstimation are spin squeezing and the minimum
+time to reach a given target. The spin squeezing can be calculated with
 === "Python"
     ``` py
     SpinSqueezing(rho, basis="Dicke", output="KU")
@@ -9,22 +9,22 @@ minimum time to reach the given target. The spin squeezing can be calculated via
     ``` jl
     SpinSqueezing(rho; basis="Dicke", output="KU")
     ```
-`rho` represents the density matrix of the state. In this function, the basis of the state can 
-be Dicke basis or the original basis of each spin, which can be adjusted by setting 
-`basis="Dicke"` or `basis="Pauli"`. The variable `output` represents the type of spin squeezing 
-calculation. `output="KU"` represents the spin squeezing defined by Kitagawa and Ueda 
-[[1]](#Kitagawa1993) and `output="WBIMH"` calculates the spin squeezing defined by Wineland 
-et al. [[2]](#Wineland1992).
+`rho` represents the density matrix of the state. In this function, the basis of the state can
+be Dicke basis or the original basis of each spin, which can be adjusted by setting
+`basis="Dicke"` or `basis="Pauli"`. The variable `output` represents the type of spin squeezing
+calculation. `output="KU"` represents the spin squeezing defined by Kitagawa and Ueda
+[[1]](#Kitagawa1993) and `output="WBIMH"` calculates the spin squeezing defined by Wineland
+et al. [[2]](#Wineland1992). The function returns the spin-squeezing parameter.
 
-**Example 4.1**  
-In this example, QuTip [[3,4]](#Johansson2012) is used to generate spin coherent state.
+**Example 4.1**
+In this example, QuTiP [[3,4]](#Johansson2012) is used to generate a spin coherent state.
 === "Python"
     ``` py
     from quanestimation import *
     import numpy as np
     from qutip import spin_coherent
-    
-    # generation of spin coherent state with QuTip
+
+    # generation of a spin coherent state with QuTiP
     j = 2
     theta = 0.5*np.pi
     phi = 0.5*np.pi
@@ -50,27 +50,31 @@ Calculation of the minimum time to reach a given precision limit with
     ``` py
     TargetTime(f, tspan, func, *args, **kwargs)
     ```
-    where `f` is the given value of the objective function and `tspan` is the time length for the 
-    evolution. `func` represents the function for calculating the objective function, `*args` and 
-    `**kwargs` are the corresponding input parameters and the keyword arguments.
+    where `f` is the target value of the objective function and `tspan` is the time grid for
+    the evolution. `func` is the objective function; it must accept time as its first
+    positional argument, followed by `*args`. `**kwargs` are passed to `func`. `TargetTime`
+    returns the first value in `tspan` at which the objective reaches or crosses `f`, and
+    returns `None` if no crossing is found.
 === "Julia"
     ``` jl
     TargetTime(f, tspan, func, args...; kwargs...)
     ```
-    where `f` is the given value of the objective function and `tspan` is the time length for the 
-    evolution. `func` represents the function for calculating the objective function, `args...` 
-    and `kwargs...` are the corresponding input parameters and the keyword arguments.
+    where `f` is the target value of the objective function and `tspan` is the time grid for
+    the evolution. `func` is the objective function; it must accept time as its first
+    positional argument, followed by `args...`. The keyword arguments are passed to `func`.
+    `TargetTime` returns the first value in `tspan` at which the objective reaches or
+    crosses `f`, or `nothing` if no crossing is found.
 
-**Example 4.2**  
+**Example 4.2**
 In this example, the free evolution Hamiltonian of a single qubit system is $H_0=\frac{1}{2}
-\omega \sigma_3$ with $\omega$ the frequency and $\sigma_3$ a Pauli matrix. 
+\omega \sigma_3$ with $\omega$ the frequency and $\sigma_3$ a Pauli matrix.
 The dynamics of the system is governed by
 \begin{align}
 \partial_t\rho=-i[H_0, \rho],
 \end{align}
 
-where $\rho$ is the parameterized density matrix. The probe state is taken as $|+\rangle\langle+|$ 
-with $|+\rangle=\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)$. Here $|0\rangle$ $(|1\rangle)$ is the 
+where $\rho$ is the parameterized density matrix. The probe state is taken as $|+\rangle\langle+|$
+with $|+\rangle=\frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)$. Here $|0\rangle$ $(|1\rangle)$ is the
 eigenstate of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
 === "Python"
     ``` py
@@ -90,9 +94,13 @@ eigenstate of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
     # dynamics
     dynamics = Lindblad(tspan, rho0, H0, dH)
     rho, drho = dynamics.expm()
-    # the value of the objective function
+    # the target value of the objective function
     f = 20.0
-    t = TargetTime(f, tspan, QFIM, rho, drho)
+    # TargetTime passes the time as the first argument of func
+    def QFI_t(t, tspan, rho, drho):
+        ti = np.argmin(np.abs(tspan - t))
+        return QFIM(rho[ti], drho[ti])
+    t = TargetTime(f, tspan, QFI_t, tspan, rho, drho)
     ```
 === "Julia"
     ``` jl
@@ -113,20 +121,25 @@ eigenstate of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
     # dynamics
     rho, drho = QuanEstimation.expm(tspan, rho0, H0, dH)
     drho = [drho[i][1] for i in 1:2000]
-    # the value of the objective function
+    # the target value of the objective function
     f = 20
-    t = QuanEstimation.TargetTime(f, tspan, QuanEstimation.QFIM, rho, drho)
+    # TargetTime passes the time as the first argument of func
+    function QFI_t(t, tspan, rho, drho)
+        ti = argmin(abs.(tspan .- t))
+        return QuanEstimation.QFIM(rho[ti], drho[ti])
+    end
+    t = QuanEstimation.TargetTime(f, tspan, QFI_t, tspan, rho, drho)
     ```
 
 ---
 ## **Bibliography**
-<a id="Kitagawa1993">[1]</a> 
-M. Kitagawa and M. Ueda, Squeezed spin states, 
+<a id="Kitagawa1993">[1]</a>
+M. Kitagawa and M. Ueda, Squeezed spin states,
 [Phys. Rev. A **47**, 5138 (1993).](https://doi.org/10.1103/PhysRevA.47.5138)
 
 <a id="Wineland1992">[2]</a>
-D. J. Wineland, J. J. Bollinger, W. M. Itano, F. L. Moore, and D. J. Heinzen, 
-Spin squeezing and reduced quantum noise in spectroscopy, 
+D. J. Wineland, J. J. Bollinger, W. M. Itano, F. L. Moore, and D. J. Heinzen,
+Spin squeezing and reduced quantum noise in spectroscopy,
 [Phys. Rev. A **46**, R6797(R) (1992).](https://doi.org/10.1103/PhysRevA.46.R6797)
 
 <a id="Johansson2012">[3]</a>

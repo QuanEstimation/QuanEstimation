@@ -1,30 +1,32 @@
 # **Installation**
-Run the command in the terminal to install QuanEstimation:  
+Run the command in the terminal to install QuanEstimation:
 === "Python"
     ```
     pip install quanestimation
     ```
-    The users can also run 
+    To install the latest development version from GitHub, clone the
+    repository and install it locally:
     ```
     git clone https://github.com/QuanEstimation/QuanEstimation.git
+    cd QuanEstimation
+    pip install .
     ```
-    to install the latest development version of QuanEstimation from Github.
 
 === "Julia"
     ``` jl
     import Pkg
     Pkg.add("QuanEstimation")
     ```
-    If the users want to install the package via a Julia mirror, please 
+    If the users want to install the package via a Julia mirror, please
     click [here](https://help.mirrors.cernet.edu.cn/julia/) for usage.
 
 ---
 
 # **Requirements**
-QuanEstimation requires Python >= 3.10 and Julia >= 1.11. The Julia core is
-pinned to QuanEstimation 0.3.x; the complete dependency list is declared in the
-Julia package's `Project.toml` and is installed automatically by
-`juliacall`/`juliapkg`.
+QuanEstimation requires Python >= 3.10 and Julia 1.11 or newer in the 1.x
+series. The Python package pins the Julia core to QuanEstimation 0.3.1. The
+Julia core's dependency list is declared in its `Project.toml` and is installed
+automatically by `juliacall`/`Pkg` when the bridge is first used.
 
 ## **Python packages**
 | $~~~~~~~~~~~$Package$~~~~~~~$| Version      |
@@ -37,8 +39,9 @@ Julia package's `Project.toml` and is installed automatically by
 | more-itertools               | >=8.12       |
 | h5py                         | >=3.6        |
 
-All Python and Julia dependencies are installed automatically when the user
-installs QuanEstimation.
+Installing the Python package installs the Python dependencies listed above.
+The pinned Julia core and its Julia dependencies are installed automatically
+when the bridge is first used.
 
 ## **Next steps**
 
