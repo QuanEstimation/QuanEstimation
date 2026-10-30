@@ -333,7 +333,7 @@ In quantum metrology, the CFI (CFIM) is calculated by
     `None`. When `M=None` (or `M=[]`), a set of rank-one symmetric informationally complete
     POVM (SIC-POVM) is used. SIC-POVM is calculated from the Weyl-Heisenberg covariant
     SIC-POVM fiducial state; the fiducial vectors are bundled with QuanEstimation in
-    `sic_fiducial_vectors/`.
+    `sic_fiducial_vectors/`; see also the [QBism SIC-POVM solutions page](http://www.physics.umb.edu/Research/QBism/solutions.html).
 === "Julia"
     ``` jl
     CFIM(rho, drho; M=nothing, eps=1e-8)
@@ -341,7 +341,7 @@ In quantum metrology, the CFI (CFIM) is calculated by
     Here `M` represents a set of positive operator-valued measure (POVM) with default value `nothing`.
     In this function, a set of rank-one symmetric informationally complete POVM (SIC-POVM) is used
     when `M=nothing`. SIC-POVM is calculated by the Weyl-Heisenberg covariant SIC-POVM fiducial state
-    which is bundled with QuanEstimation in `sic_fiducial_vectors/`.
+    which is bundled with QuanEstimation in `sic_fiducial_vectors/`; see also the [QBism SIC-POVM solutions page](http://www.physics.umb.edu/Research/QBism/solutions.html).
 
 **Example 3.4**
 <a id="example3_4"></a>
@@ -762,7 +762,7 @@ In QuanEstimation, BCFI (BCFIM) and BQFI (BQFIM) can be solved via
     positive operator-valued measure (POVM) with default value `None`. In QuanEstimation, a set of
     rank-one symmetric informationally complete POVM (SIC-POVM) is used when `M=None` (or `M=[]`).
     SIC-POVM is calculated from the Weyl-Heisenberg covariant SIC-POVM fiducial state, which is
-    bundled with QuanEstimation in `sic_fiducial_vectors/`.
+    bundled with QuanEstimation in `sic_fiducial_vectors/`; see also the [QBism SIC-POVM solutions page](http://www.physics.umb.edu/Research/QBism/solutions.html).
 === "Julia"
     ``` jl
     BCFIM(x, p, rho, drho; M=nothing, eps=1e-8)
@@ -780,7 +780,7 @@ In QuanEstimation, BCFI (BCFIM) and BQFI (BQFIM) can be solved via
     positive operator-valued measure (POVM) with default value `nothing`. In QuanEstimation, a set of
     rank-one symmetric informationally complete POVM (SIC-POVM) is used when `M=nothing`. SIC-POVM
     is calculated from the Weyl-Heisenberg covariant SIC-POVM fiducial state, which is bundled
-    with QuanEstimation in `sic_fiducial_vectors/`.
+    with QuanEstimation in `sic_fiducial_vectors/`; see also the [QBism SIC-POVM solutions page](http://www.physics.umb.edu/Research/QBism/solutions.html).
 
 In the Bayesian scenarios, the covariance matrix with a prior distribution $p(\textbf{x})$ is
 defined as
@@ -1105,7 +1105,7 @@ value of $\textbf{x}$ can be evaluated by
     operator-valued measure (POVM). In QuanEstimation, a set of rank-one symmetric informationally
     complete POVM (SIC-POVM) is used when `M=None` (or `M=[]`). SIC-POVM is calculated from the
     Weyl-Heisenberg covariant SIC-POVM fiducial state, which is bundled with QuanEstimation in
-    `sic_fiducial_vectors/`.
+    `sic_fiducial_vectors/`; see also the [QBism SIC-POVM solutions page](http://www.physics.umb.edu/Research/QBism/solutions.html).
     `estimator` in `Bayes()` selects the estimator. It defaults to the mean value of the
     posterior distribution and can also be set to `"MAP"`. With `savefile=False`, the final
     posterior distribution (for `Bayes()`) or log-likelihood (for `MLE()`) is saved in
@@ -1127,7 +1127,7 @@ value of $\textbf{x}$ can be evaluated by
     operator-valued measure (POVM). In QuanEstimation, a set of rank-one symmetric informationally
     complete POVM (SIC-POVM) is used when `M=nothing`. SIC-POVM is calculated from the
     Weyl-Heisenberg covariant SIC-POVM fiducial state, which is bundled with QuanEstimation in
-    `sic_fiducial_vectors/`.
+    `sic_fiducial_vectors/`; see also the [QBism SIC-POVM solutions page](http://www.physics.umb.edu/Research/QBism/solutions.html).
     `estimator` in `Bayes()` selects the estimator. It defaults to the mean value of the
     posterior distribution and can also be set to `"MAP"`. `Bayes()` writes the JLD2 file
     "bayes.dat" with the posterior distribution under the key `"p"` and the estimated
