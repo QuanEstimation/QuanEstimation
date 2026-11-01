@@ -1,6 +1,6 @@
 """Bayesian bound regression tests — Julia @testset parity.
 
-来源: test_bayesian_cramer_rao.jl, test_adaptive_estimation.jl
+Source: test_bayesian_cramer_rao.jl, test_adaptive_estimation.jl
 """
 
 import numpy as np
@@ -9,7 +9,7 @@ import numpy as np
 def test_40_simpson_quadrature() -> None:
     """#40: Trapezoidal integration of sin² must match π/2.
 
-    来源: test_bayesian_cramer_rao.jl @testset "#40"
+    Source: test_bayesian_cramer_rao.jl @testset "#40"
     """
     from scipy.integrate import trapezoid
 
@@ -21,7 +21,7 @@ def test_40_simpson_quadrature() -> None:
 def test_48_type_guard() -> None:
     """#48: BQFIM must accept plain vector for p, not just distribution.
 
-    来源: test_bayesian_cramer_rao.jl @testset "#48"
+    Source: test_bayesian_cramer_rao.jl @testset "#48"
     """
     from quanestimation.base.AsymptoticBound.CramerRao import QFIM
 

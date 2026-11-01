@@ -1,6 +1,6 @@
 """Error evaluation and control regression tests.
 
-来源: test_error.jl @testset "error_evaluation", "error_control"
+Source: test_error.jl @testset "error_evaluation", "error_control"
 """
 
 import numpy as np
@@ -9,7 +9,7 @@ import numpy as np
 def test_error_evaluation() -> None:
     """error_evaluation() must run without error.
 
-    来源: test_error.jl @testset "error_evaluation"
+    Source: test_error.jl @testset "error_evaluation"
     """
     from quanestimation.base.Common.Common import error_evaluation
     from quanestimation.base import QJL
@@ -34,7 +34,7 @@ def test_error_evaluation() -> None:
 def test_error_control() -> None:
     """error_control() must run without error.
 
-    来源: test_error.jl @testset "error_control"
+    Source: test_error.jl @testset "error_control"
     """
     from quanestimation.base.Common.Common import error_control
     from quanestimation.base import QJL

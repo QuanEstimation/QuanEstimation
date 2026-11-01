@@ -35,7 +35,7 @@ def test_suN_generator() -> None:
     Python suN_generator function. SU(2) validates Pauli matrix patterns;
     SU(3) validates all 8 Gell-Mann matrices including the diagonal W-type.
 
-    来源: test_sic.jl @testset "suN_generatorU/V/W"
+    Source: test_sic.jl @testset "suN_generatorU/V/W"
     """
     # Test SU(2) generators (Pauli matrices)
     result = suN_generator(2)

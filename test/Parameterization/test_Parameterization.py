@@ -237,7 +237,7 @@ def test_Lindblad() -> None:
 def test_41_ode_tolerance() -> None:
     """#41: Expm and Ode dynamics must agree within 1e-2.
 
-    来源: test_lindblad.jl @testset "#41"
+    Source: test_lindblad.jl @testset "#41"
     """
     rho0 = np.eye(2, dtype=np.complex128) * 0.5
     sz = np.array([[1.0, 0.0], [0.0, -1.0]], dtype=np.complex128)
@@ -260,7 +260,7 @@ def test_41_ode_tolerance() -> None:
 def test_42_zero_decay_threshold() -> None:
     """#42: Near-zero decay rate must not break density matrix properties.
 
-    来源: test_lindblad.jl @testset "#42"
+    Source: test_lindblad.jl @testset "#42"
     """
     rho0 = np.eye(2, dtype=np.complex128) * 0.5
     sz = np.array([[1.0, 0.0], [0.0, -1.0]], dtype=np.complex128)
