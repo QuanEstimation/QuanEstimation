@@ -44,11 +44,11 @@ pip install .
 ~~~
 
 The Python package requires Python >= 3.10 and Julia 1.11 or newer in the 1.x
-series, and pins the Julia core to QuanEstimation 0.3.1. The core is installed
+series, and pins the Julia core to QuanEstimation 0.4.0. The core is installed
 and loaded through `juliacall` on first use. For local development against a
 QuanEstimation.jl checkout, set `QuanEstimation_DEV_PATH` to that checkout
 before the Julia core is first loaded; the bridge still checks that the
-checkout reports version 0.3.1.
+checkout reports version 0.4.0.
 
 ## Code Style
 

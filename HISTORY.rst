@@ -7,7 +7,7 @@ History
 
 * Stabilize the Python-Julia bridge: cache the loaded module, resolve and
   instantiate development projects, and verify the Julia core version.
-* Pin the Julia core to QuanEstimation 0.3.1.
+* Pin the Julia core to QuanEstimation 0.4.0.
 * Add Julia 1.11/1.12/1.13 CI coverage.
 * Unify the package version metadata at 0.4.0.
 * Add version/pin consistency tests.

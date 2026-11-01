@@ -24,7 +24,7 @@ Run the command in the terminal to install QuanEstimation:
 
 # **Requirements**
 QuanEstimation requires Python >= 3.10 and Julia 1.11 or newer in the 1.x
-series. The Python package pins the Julia core to QuanEstimation 0.3.1. The
+series. The Python package pins the Julia core to QuanEstimation 0.4.0. The
 Julia core's dependency list is declared in its `Project.toml` and is installed
 automatically by `juliacall`/`Pkg` when the bridge is first used.
 

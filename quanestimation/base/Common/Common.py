@@ -46,7 +46,7 @@ def MinusState():
     return np.array([1.0, -1.0], dtype=np.complex128) / np.sqrt(2.0)
 
 
-JULIA_PACKAGE_VERSION = "0.3.1"
+JULIA_PACKAGE_VERSION = "0.4.0"
 _JULIA_MODULE = None
 
 
