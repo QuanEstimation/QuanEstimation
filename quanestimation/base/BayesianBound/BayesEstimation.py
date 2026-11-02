@@ -343,8 +343,11 @@ def BayesCost(x, p, xest, rho, M, W=None, eps=1e-8):
         p (array): 
             The prior distribution as a multidimensional array.
         xest (float or list): 
-            The estimators. xest is a float for single-parameter estimation
-            and a list for multi-parameter estimation.
+            The estimators. For single-parameter estimation, a scalar constant
+            estimator is used for every POVM outcome. For multi-parameter
+            estimation, xest is a nested sequence with shape
+            ``(len(M), len(x))``: xest[mi] is the full parameter vector for
+            POVM outcome mi. The default SIC POVM has dim**2 outcomes.
         rho (list): 
             Parameterized density matrix as a multidimensional list.
         M (list): 
@@ -361,6 +364,8 @@ def BayesCost(x, p, xest, rho, M, W=None, eps=1e-8):
     Raises:
         TypeError: 
             If `M` is not a list.
+        ValueError:
+            If multiparameter `xest` does not have shape `(len(M), len(x))`.
     """
     if M is None:
         M = []
@@ -412,6 +417,21 @@ def BayesCost(x, p, xest, rho, M, W=None, eps=1e-8):
         else:
             if not isinstance(M, list):
                 raise TypeError("Please make sure M is a list!")
+
+        expected_xest_shape = (len(M), para_num)
+        try:
+            xest_shape = np.shape(xest)
+        except ValueError as exc:
+            raise ValueError(
+                "BayesCost: multiparameter xest must be a rectangular sequence "
+                f"with shape (len(M), para_num); expected {expected_xest_shape}."
+            ) from exc
+        if xest_shape != expected_xest_shape:
+            raise ValueError(
+                "BayesCost: multiparameter xest must have shape "
+                f"(len(M), para_num); got {xest_shape}, "
+                f"expected {expected_xest_shape}."
+            )
 
         value = [0.0 for i in range(p_num)]
         for i in range(p_num):

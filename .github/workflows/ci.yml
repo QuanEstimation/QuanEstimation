@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'release-*']
   pull_request:
     branches: [main]
 
@@ -43,7 +43,6 @@ jobs:
         PYEOF
         python -c 'import ssl; print("OpenSSL version for juliapkg:", ssl.OPENSSL_VERSION_INFO)'
 
-
     - name: Install dependencies
       run: |
         pip install .[test]
@@ -53,6 +52,28 @@ jobs:
       run: |
         coverage run --source=quanestimation -m pytest -s --junitxml=test-results.xml 
         coverage xml
+
+    - name: Build and smoke-test the wheel
+      run: |
+        python -m pip install build
+        python -m build --wheel --outdir "$RUNNER_TEMP/dist"
+        python -m venv "$RUNNER_TEMP/wheel-env"
+        "$RUNNER_TEMP/wheel-env/bin/python" -m pip install "$RUNNER_TEMP"/dist/*.whl
+        cd "$RUNNER_TEMP"
+        "$RUNNER_TEMP/wheel-env/bin/python" - <<'PY'
+        import json
+        from importlib.resources import files
+
+        import quanestimation
+        from quanestimation.base.Common import Common
+
+        assert quanestimation.__version__ == "0.5.0"
+        resource = files("quanestimation").joinpath("juliapkg.json")
+        config = json.loads(resource.read_text(encoding="utf-8"))
+        assert config["packages"]["QuanEstimation"]["version"] == "0.5"
+        Common.load_julia()
+        print("Installed wheel:", quanestimation.__file__)
+        PY
 
     - name: Upload report to Codecov
       uses: codecov/codecov-action@v5

@@ -1,18 +1,15 @@
 """Version metadata and Julia-pin consistency tests."""
 
 import json
-import os
 import re
+from importlib.resources import files
 from pathlib import Path
-
-import pytest
 
 import quanestimation
 from quanestimation.base.Common import Common
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "0.4.0"
-JULIA_VERSION = "0.4.0"
+VERSION = "0.5.0"
 
 
 def _read(name: str) -> str:
@@ -22,7 +19,7 @@ def _read(name: str) -> str:
 def test_version_metadata() -> None:
     """The package and its version files agree."""
     assert quanestimation.__version__ == VERSION
-    assert Common.JULIA_PACKAGE_VERSION == JULIA_VERSION
+    assert Common.JULIA_PACKAGE_VERSION == VERSION
 
     assert re.search(r'^version = "%s"$' % re.escape(VERSION), _read("pyproject.toml"), re.M)
     assert re.search(r'version="%s"' % re.escape(VERSION), _read("setup.py"))
@@ -30,20 +27,17 @@ def test_version_metadata() -> None:
 
 
 def test_julia_package_pin() -> None:
-    """The Julia core pin is exposed by the bridge and, when configured,
-    by juliapkg as well."""
-    assert Common.JULIA_PACKAGE_VERSION == JULIA_VERSION
-    for name in ("juliapkg.json", "juliacalldeps.json"):
-        cfg = json.loads(_read(name))
-        assert cfg["julia"] == "^1.11"
-        if "QuanEstimation" in cfg.get("packages", {}):
-            assert cfg["packages"]["QuanEstimation"].startswith("0.4")
+    """The installed package exposes matching bridge and juliapkg pins."""
+    assert Common.JULIA_PACKAGE_VERSION == VERSION
+    resource = files("quanestimation").joinpath("juliapkg.json")
+    cfg = json.loads(resource.read_text(encoding="utf-8"))
+    assert cfg["julia"] == "^1.11"
+    assert cfg["packages"]["QuanEstimation"] == {
+        "uuid": "088c8dff-a786-4a66-974c-03d3f6773f87",
+        "version": "0.5",
+    }
 
 
-@pytest.mark.skipif(
-    not os.environ.get("QuanEstimation_DEV_PATH"),
-    reason="QuanEstimation_DEV_PATH is not set",
-)
 def test_julia_bridge_loads_and_caches() -> None:
     """The bridge loads the pinned core and is cached."""
     first = Common.load_julia()

@@ -2,19 +2,7 @@
 History
 =======
 
-0.4.0 (2026-10-20)
-------------------
-
-* Stabilize the Python-Julia bridge: cache the loaded module, resolve and
-  instantiate development projects, and verify the Julia core version.
-* Pin the Julia core to QuanEstimation 0.4.0.
-* Add Julia 1.11/1.12/1.13 CI coverage.
-* Unify the package version metadata at 0.4.0.
-* Add version/pin consistency tests.
-* Document the Julia-first thin-shell direction; the QFIM/CFIM delegation
-  lands in 0.5.0.
-
-0.5.0 (2026-10-20)
+0.5.0 (2026-11-01)
 ------------------
 
 * Pin the Julia core to QuanEstimation 0.5.0.
@@ -32,6 +20,21 @@ History
 * Continue the Julia-first thin-shell migration; specialized kernels and
   optimization wrappers remain for a later release.
 * Fix multiparameter Bayesian cost regressions.
+* Require juliacall 0.9.37 or newer and include the Julia package constraints
+  in the wheel.
+* Test clean wheel installations against the registered Julia 0.5 core.
+
+0.4.0 (2026-10-20)
+------------------
+
+* Stabilize the Python-Julia bridge: cache the loaded module, resolve and
+  instantiate development projects, and verify the Julia core version.
+* Pin the Julia core to QuanEstimation 0.3.1.
+* Add Julia 1.11/1.12/1.13 CI coverage.
+* Unify the package version metadata at 0.4.0.
+* Add version/pin consistency tests.
+* Document the Julia-first thin-shell direction; the QFIM/CFIM delegation
+  lands in 0.5.0.
 
 0.3.0 (2026-07-08)
 ------------------

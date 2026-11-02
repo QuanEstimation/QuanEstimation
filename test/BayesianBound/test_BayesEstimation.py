@@ -10,6 +10,7 @@ from quanestimation.base.BayesianBound.BayesEstimation import (
     BayesCost,
 )
 from quanestimation.base.Parameterization.GeneralDynamics import Lindblad
+from quanestimation.base.Common.Common import SIC
 
 def test_Bayes_singleparameter() -> None:
     # initial state
@@ -313,40 +314,47 @@ def test_13_integral_normalization() -> None:
     assert abs(norm_l2 - norm_integral) > 1e-3
 
 
+def _constant_multiparameter_bayesian_model():
+    """Return a uniform two-parameter model with analytical cost oracles."""
+    x = [np.linspace(-1.0, 1.0, 3), np.linspace(-2.0, 2.0, 3)]
+    p = np.full((3, 3), 1.0 / 8.0)
+    rho0 = np.eye(2, dtype=complex) / 2
+    rho = [[rho0 for _ in range(3)] for _ in range(3)]
+    return x, p, rho
+
+
 def test_34_bayescost_xest_index() -> None:
-    """#34: Verify BayesCost uses xest[mi] not bare xest in multi-parameter case.
-    
-    We test the single-parameter case (where xest is a scalar) to ensure
-    the code path doesn't crash with the corrected indexing.
-    """
-    rho0 = 0.5 * np.array([[1.0, 1.0], [1.0, 1.0]])
-    B, omega0 = np.pi / 2.0, 1.0
-    sx = np.array([[0.0, 1.0], [1.0, 0.0]])
-    sz = np.array([[1.0, 0.0], [0.0, -1.0]])
-    H0_func = lambda x: 0.5 * B * omega0 * (sx * np.cos(x) + sz * np.sin(x))
-    dH_func = lambda x: [0.5 * B * omega0 * (-sx * np.sin(x) + sz * np.cos(x))]
+    """#34: Use one full parameter vector per POVM outcome."""
+    x, p, rho = _constant_multiparameter_bayesian_model()
+    M = [
+        np.array([[1.0, 0.0], [0.0, 0.0]], dtype=complex),
+        np.array([[0.0, 0.0], [0.0, 1.0]], dtype=complex),
+    ]
+    xest = [np.array([0.1, 0.2]), np.array([0.3, 0.4])]
 
-    x = np.linspace(0.0, 0.5 * np.pi, 200)
-    p = np.ones(len(x)) / len(x)
-    tspan = np.linspace(0.0, 1.0, 10)
+    cost = BayesCost(x, p, xest, rho, M=M)
 
-    rho = []
-    for xi in x:
-        H0 = H0_func(xi)
-        dH = dH_func(xi)
-        dynamics = Lindblad(tspan, rho0, H0, dH)
-        rho_tp, _ = dynamics.expm()
-        rho.append(rho_tp[-1])
+    # Each outcome has probability 1/2 and both parameter means vanish.
+    expected = 5.0 / 3.0 + 0.5 * (0.1**2 + 0.2**2 + 0.3**2 + 0.4**2)
+    assert np.ndim(cost) == 0
+    assert np.isclose(cost, expected)
 
-    random.seed(1234)
-    y = [random.randint(0, 1) for _ in range(100)]
-    pout, xout = Bayes([x], p, rho, y, M=[], estimator="mean", savefile=False)
-    cost = BayesCost([x], pout, xout, rho, M=[])
-    assert np.isreal(cost)
-    assert cost > 0
+    with pytest.raises(ValueError, match=r"expected \(4, 2\)"):
+        BayesCost(x, p, [0.0, 0.0], rho, M=[])
 
 
-@pytest.mark.xfail(reason="BayesCost xest indexing bug in multi-parameter case")
+def test_BCB_multiparameter_constant_state() -> None:
+    """Check the multiparameter BCB against a constant-state oracle."""
+    x, p, rho = _constant_multiparameter_bayesian_model()
+
+    result = BCB(x, p, rho, W=[])
+
+    # Zero parameter means make Lambda vanish, leaving E[x1**2 + x2**2].
+    assert np.ndim(result) == 0
+    assert np.isfinite(result)
+    assert np.isclose(result, 5.0 / 3.0)
+
+
 def test_BCB_multiparameter() -> None:
     """Verify BCB returns valid output for multi-parameter case."""
     rho0 = 0.5 * np.array([[1.0, 1.0], [1.0, 1.0]])
@@ -377,11 +385,10 @@ def test_BCB_multiparameter() -> None:
         rho.append(row)
 
     result = BCB(all_params, prob, rho, W=[], eps=1e-8)
-    assert result.shape == (2, 2)
-    assert np.all(np.isfinite(result))
+    assert np.ndim(result) == 0
+    assert np.isfinite(result)
 
 
-@pytest.mark.xfail(reason="BayesCost xest indexing bug in multi-parameter case")
 def test_BayesCost_multiparameter() -> None:
     """Verify BayesCost returns valid output for multi-parameter case."""
     rho0 = 0.5 * np.array([[1.0, 1.0], [1.0, 1.0]])
@@ -421,8 +428,13 @@ def test_BayesCost_multiparameter() -> None:
 
     random.seed(1234)
     y = [random.randint(0, 1) for _ in range(100)]
-    pout, xout = Bayes(all_params, prob, rho, y, M=[], estimator="mean", savefile=False)
-    cost = BayesCost(all_params, pout, xout, rho, M=[])
+    M = SIC(2)
+    pout, xout = Bayes(all_params, prob, rho, y, M=M, estimator="mean", savefile=False)
+
+    # Bayes returns one parameter vector. Explicitly use a constant estimator
+    # because BayesCost expects one full parameter vector per POVM outcome.
+    xest = [np.asarray(xout) for _ in M]
+    cost = BayesCost(all_params, pout, xest, rho, M=M)
     assert np.isreal(cost)
     assert cost > 0
 

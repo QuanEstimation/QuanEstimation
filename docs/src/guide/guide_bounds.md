@@ -67,13 +67,13 @@ In QuanEstimation, three types of logarithmic derivatives can be calculated by c
 codes
 === "Python"
     ``` py
-    SLD(rho, drho, rep="original", eps=1e-8)
+    SLD(rho, drho, rep="original", eps=None)
     ```
     ``` py
-    RLD(rho, drho, rep="original", eps=1e-8)
+    RLD(rho, drho, rep="original", eps=None)
     ```
     ``` py
-    LLD(rho, drho, rep="original", eps=1e-8)
+    LLD(rho, drho, rep="original", eps=None)
     ```
 === "Julia"
     ``` jl
@@ -93,12 +93,13 @@ than one), it returns a list. There are two output choices for the basis of the 
 derivatives, which can be set through `rep`. The default basis (`rep="original"`) of the
 logarithmic derivatives is the same as `rho`, and users can also request the logarithmic
 derivatives written in the eigenspace of `rho` by `rep="eigen"`. In Python, `eps` defaults to
-`1e-8` and sets the numerical precision threshold used by the backend.
+`None`, which selects the backend relative-precision policy; passing a positive number sets the
+relative spectral floor. It is a numerical precision threshold, not the machine epsilon.
 
 In QuanEstimation, the QFI and QFIM can be calculated via the following function
 === "Python"
     ``` py
-    QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=1e-8)
+    QFIM(rho, drho, LDtype="SLD", exportLD=False, eps=None)
     ```
     `LDtype` selects the type of QFI (QFIM). Options are `LDtype="SLD"` (default),
     `LDtype="RLD"` and `LDtype="LLD"`. This function returns the QFI (QFIM) if
@@ -189,7 +190,7 @@ If the parameterization process is executed via the Kraus operators, the QFI (QF
 calculated by calling the function
 === "Python"
     ``` py
-    QFIM_Kraus(rho0, K, dK, LDtype="SLD", exportLD=False, eps=1e-8)
+    QFIM_Kraus(rho0, K, dK, LDtype="SLD", exportLD=False, eps=None)
     ```
 === "Julia"
     ``` jl
@@ -256,7 +257,7 @@ In this example, the probe state is taken as $|+\rangle\langle+|$ with $|+\rangl
 The FI (FIM) for a set of the probabilities `p` can be calculated by
 === "Python"
     ``` py
-    FIM(p, dp, eps=1e-8)
+    FIM(p, dp, eps=None)
     ```
 === "Julia"
     ``` jl
@@ -327,7 +328,7 @@ the variance of the distribution, and $!$ denotes the factorial.
 In quantum metrology, the CFI (CFIM) is calculated by
 === "Python"
     ``` py
-    CFIM(rho, drho, M=None, eps=1e-8)
+    CFIM(rho, drho, M=None, eps=None)
     ```
     Here `M` represents a set of positive operator-valued measure (POVM); the default is
     `None`. When `M=None` (or `M=[]`), a set of rank-one symmetric informationally complete
