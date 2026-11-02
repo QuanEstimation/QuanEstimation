@@ -1,57 +1,47 @@
 # **Installation**
-Run the command in the terminal to install QuanEstimation:  
+Run the command in the terminal to install QuanEstimation:
 === "Python"
     ```
     pip install quanestimation
     ```
-    The users can also run 
+    To install the latest development version from GitHub, clone the
+    repository and install it locally:
     ```
     git clone https://github.com/QuanEstimation/QuanEstimation.git
+    cd QuanEstimation
+    pip install .
     ```
-    to install the latest development version of QuanEstimation from Github.
 
 === "Julia"
     ``` jl
     import Pkg
     Pkg.add("QuanEstimation")
     ```
-    If the users want to install the package via a Julia mirror, please 
+    If the users want to install the package via a Julia mirror, please
     click [here](https://help.mirrors.cernet.edu.cn/julia/) for usage.
 
 ---
 
 # **Requirements**
-QuanEstimation requires several open-source packages in Python and Julia. The versions 
-of Python and Julia should be above 3.10 and 1.10, respectively.
+QuanEstimation requires Python >= 3.10 and Julia 1.11 or newer in the 1.x
+series. The Python package pins the Julia core to QuanEstimation 0.4.0. The
+Julia core's dependency list is declared in its `Project.toml` and is installed
+automatically by `juliacall`/`Pkg` when the bridge is first used.
+
 ## **Python packages**
 | $~~~~~~~~~~~$Package$~~~~~~~$| Version      |
 | :----------:                 | :----------: |
-| numpy                        | >=1.22       |
-| sympy                        | >=1.10       |
-| scipy                        | >=1.8        |
+| numpy                        | >=1.21       |
+| sympy                        | >=1.9        |
+| scipy                        | >=1.7        |
 | cvxpy                        | >=1.2        |
-| juliacall                    | >=0.9.26     |
-| more-itertools               | >=8.12.0     |
+| juliacall                    | >=0.9.35     |
+| more-itertools               | >=8.12       |
 | h5py                         | >=3.6        |
 
-## **Julia packages**
-| $~~~~~~~~~~~~~~~~$Package$~~~~~~~~~~~~$| Version     |$~~~~~~~~~~~~~~~~$Package$~~~~~~~~~~~~$| Version     |
-| :----------:                           | :---------: |:----------:                           | :---------: |
-| LinearAlgebra                          | --          |BoundaryValueDiffEq                    | 2.7.2       |
-| Zygote                                 | 0.6.37      |SCS                                    | 0.8.1       |
-| Convex                                 | 0.14.18     |Trapz                                  | 2.0.3       |
-| ReinforcementLearning                  | 0.10.0      |Interpolations                         | 0.13.5      |
-| IntervalSets                           | 0.5.4       |SparseArrays                           | --          |
-| Flux                                   | 0.12.4      |DelimitedFiles                         | --          |
-| StatsBase                              | 0.33.16     |Random                                 | --          |
-| Printf                                 | --          |StableRNGs                             | --          |
-| Distributions                          | --          |QuadGK                                 | --          |
-| DifferentialEquations                          | --          |                                   |             |
-
-The version information of the packages without the version number is the same with the 
-corresponding packages in Julia 1.10. Besides, the version information of the full Julia package 
-is also the same as the table above. All of these packages will be automatically installed when
-the users install QuanEstimation.
+Installing the Python package installs the Python dependencies listed above.
+The pinned Julia core and its Julia dependencies are installed automatically
+when the bridge is first used.
 
 ## **Next steps**
 

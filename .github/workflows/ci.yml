@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        julia-version: ['1.11', '1.12']
+        julia-version: ['1.11', '1.12', '1.13']
 
     env:
       PYTHON_JULIACALL_HANDLE_SIGNALS: "yes"
@@ -28,8 +28,10 @@ jobs:
       with:
         version: ${{ matrix.julia-version }}
 
+    - uses: julia-actions/cache@v2
+
     - name: Patch OpenSSL version check
-      if: matrix.julia-version == '1.12'
+      if: matrix.julia-version == '1.12' || matrix.julia-version == '1.13'
       run: |
         SITEDIR=$(python -c 'import site; print(site.getsitepackages()[0])')
         cat > "$SITEDIR/sitecustomize.py" << 'PYEOF'
@@ -40,6 +42,7 @@ jobs:
             ssl.OPENSSL_VERSION_INFO = (3, 5, 0, 0, 0)
         PYEOF
         python -c 'import ssl; print("OpenSSL version for juliapkg:", ssl.OPENSSL_VERSION_INFO)'
+
 
     - name: Install dependencies
       run: |

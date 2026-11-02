@@ -9,17 +9,17 @@ The Hamiltonian of a controlled system can be written as
 H = H_0(\textbf{x})+\sum_{k=1}^K u_k(t) H_k,
 \end{align}
 
-where $H_0(\textbf{x})$ is the free evolution Hamiltonian with unknown parameters $\textbf{x}$ 
-and $H_k$ represents the $k$th control Hamiltonian with $u_k$ the corresponding control 
-coefficients. In QuanEstimation, different algorithms are invoked to update the control 
-coefficients. The control optimization algorithms are the gradient ascent pulse engineering 
-(GRAPE) [[1,2,3]](#Khaneja2005), GRAPE algorithm based on the automatic differentiation 
-(auto-GRAPE) [[4]](#Baydin2018), particle swarm optimization (PSO) [[5]](#Kennedy1995), 
+where $H_0(\textbf{x})$ is the free evolution Hamiltonian with unknown parameters $\textbf{x}$
+and $H_k$ represents the $k$th control Hamiltonian with $u_k$ the corresponding control
+coefficients. In QuanEstimation, different algorithms are invoked to update the control
+coefficients. The control optimization algorithms are the gradient ascent pulse engineering
+(GRAPE) [[1,2,3]](#Khaneja2005), GRAPE algorithm based on the automatic differentiation
+(auto-GRAPE) [[4]](#Baydin2018), particle swarm optimization (PSO) [[5]](#Kennedy1995),
 and differential evolution (DE) [[6]](#Storn1997). The codes for control optimization are
 === "Python"
     ```py
     control = ControlOpt(savefile=False, method="auto-GRAPE", **kwargs)
-    control.dynamics(tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[], 
+    control.dynamics(tspan, rho0, H0, dH, Hc, decay=[], ctrl_bound=[],
                      dyn_method="expm")
     ```
     === "QFIM"
@@ -34,107 +34,110 @@ and differential evolution (DE) [[6]](#Storn1997). The codes for control optimiz
         ``` py
         control.HCRB(W=[])
         ```
-    In QuanEstimation, the optimization codes are executed in Julia and the data will be saved in
-    the `.csv` file. The variable `savefile` indicates whether to save all the control 
-    coefficients and its default value is `False` which means the control coefficients for the 
-    final episode and the values of the objective function in all episodes will be saved in 
-    "controls.csv" and "f.csv", respectively. If set `True` then the control coefficients and the 
+    In QuanEstimation, the optimization is executed in Julia and the results are saved to
+    files. The variable `savefile` indicates whether to save all the control
+    coefficients and its default value is `False` which means the control coefficients for the
+    final episode and the values of the objective function in all episodes will be saved in
+    "controls.npy" and "f.csv", respectively. If set `True` then the control coefficients and the
     values of the objective function in all episodes will be saved during the training. The package
-    contains five control optimization algorithms which can be set via `method`, `**kwargs` is 
+    contains four control optimization algorithms which can be set via `method`, `**kwargs` is
     the corresponding keyword and default value.
 
-    After calling `control = ControlOpt()`, the dynamics parameters should be input. Here `tspan` 
-    is the time length for the evolution and `rho0` represents the density matrix of the initial 
-    state. `H0` and `dH` are the free Hamiltonian and its derivatives with respect to the unknown 
-    parameters to be estimated. `H0` is a matrix when the free Hamiltonian is time-independent and 
-    a list of matrices with the length equal to `tspan` when it is time-dependent. `dH` should be input as 
-    $[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. `Hc` is a list representing the control 
-    Hamiltonians. `decay` contains decay operators $(\Gamma_1, \Gamma_2, \cdots)$ and the 
+    After calling `control = ControlOpt()`, the dynamics parameters should be input. Here `tspan`
+    is the time length for the evolution and `rho0` represents the density matrix of the initial
+    state. `H0` and `dH` are the free Hamiltonian and its derivatives with respect to the unknown
+    parameters to be estimated. `H0` is a matrix when the free Hamiltonian is time-independent and
+    a list of matrices with the length equal to `tspan` when it is time-dependent. `dH` should be input as
+    $[\partial_a{H_0}, \partial_b{H_0}, \cdots]$. `Hc` is a list representing the control
+    Hamiltonians. `decay` contains decay operators $(\Gamma_1, \Gamma_2, \cdots)$ and the
     corresponding decay rates $(\gamma_1, \gamma_2, \cdots)$, its input rule is
-    decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...]. The default value for 
-    `decay` is empty which means the dynamics is unitary. The package can be used to optimize 
-    bounded control problems by setting lower and upper bounds of the control coefficients via 
-    `ctrl_bound`, which is an array with two elements representing the lower and upper bound of 
-    each control coefficient, respectively. The default value of `ctrl_bound=[]` which means the 
-    control coefficients are in the regime $[-\infty,\infty]$. `dyn_method="expm"` represents 
+    decay=[[$\Gamma_1$, $\gamma_1$], [$\Gamma_2$, $\gamma_2$],...]. The default value for
+    `decay` is empty which means the dynamics is unitary. The package can be used to optimize
+    bounded control problems by setting lower and upper bounds of the control coefficients via
+    `ctrl_bound`, which is an array with two elements representing the lower and upper bound of
+    each control coefficient, respectively. The default value of `ctrl_bound=[]` which means the
+    control coefficients are in the regime $[-\infty,\infty]$. `dyn_method="expm"` represents
     the method for solving the dynamics is matrix exponential, it can also be set as `dyn_method="ode"`
     which means the dynamics (differential equation) is directly solved with the ODE solvers.
 
     The objective functions for control optimization can be set as QFI $\left[\mathrm{Tr}(W
-    \mathcal{F}^{-1})\right]$, CFI $\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]$, and HCRB, the 
-    corresponding codes for them are `control.QFIM()` (default), `control.CFIM()`, and `control.HCRB()`. 
-    Here $\mathcal{F}$ and $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight 
-    matrix which defaults to the identity matrix. If the users call `control.HCRB()` for single 
-    parameter scenario, the program will exit and print `"Program terminated. In the single-parameter 
-    scenario, the HCRB is equivalent to the QFI. Please choose 'QFIM' as the objective function"`. 
-    `LDtype` in `control.QFIM()` represents the types of the QFIM, it can be set as `LDtype="SLD"` 
-    (default), `LDtype="RLD"`, and `LDtype="LLD"`. `M` in `control.CFIM()` represents a set of 
-    positive operator-valued measure (POVM) with default value `[]` which means a set of rank-one 
+    \mathcal{F}^{-1})\right]$, CFI $\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]$, and HCRB, the
+    corresponding codes for them are `control.QFIM()` (default), `control.CFIM()`, and `control.HCRB()`.
+    Here $\mathcal{F}$ and $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight
+    matrix which defaults to the identity matrix. If the users call `control.HCRB()` for a single
+    parameter, the program prints `"Program terminated. In the single-parameter scenario, HCRB is
+    equivalent to QFI. Please choose QFIM as the objective function."`; use `control.QFIM()` instead.
+    HCRB is only available with PSO and DE, and `control.HCRB()` raises `ValueError` for GRAPE and
+    auto-GRAPE. `LDtype` in `control.QFIM()` represents the types of the QFIM, it can be set as
+    `LDtype="SLD"`
+    (default), `LDtype="RLD"`, and `LDtype="LLD"`. `M` in `control.CFIM()` represents a set of
+    positive operator-valued measure (POVM) with default value `[]` which means a set of rank-one
     symmetric informationally complete POVM (SIC-POVM) is used in the calculation.
 
 === "Julia"
     ``` jl
     opt = ControlOpt(ctrl=ctrl, ctrl_bound=ctrl_bound, seed=1234)
     alg = autoGRAPE(kwargs...)
-    dynamics = Lindblad(opt, tspan, rho0, H0, dH, Hc, decay=mising, 
-                        dyn_method=:Expm) 
+    dynamics = Lindblad(H0, dH, tspan, Hc; ctrl=ctrl, dyn_method=:Expm)
     ```
     === "QFIM"
         ``` jl
-        obj = QFIM_obj(W=missing, LDtype=:SLD)
+        obj = QFIM_obj(W=nothing, LDtype=:SLD)
         ```
     === "CFIM"
         ``` jl
-        obj = CFIM_obj(M=missing, W=missing)
+        obj = CFIM_obj(M=nothing, W=nothing)
         ```
     === "HCRB"
         ``` jl
-        obj = HCRB_obj(W=missing)
-        ```    
+        obj = HCRB_obj(W=nothing)
+        ```
     ``` jl
-    run(opt, alg, obj, dynamics; savefile=false)
+    scheme = GeneralScheme(probe=rho0, param=dynamics)
+    optimize!(scheme, opt; algorithm=alg, objective=obj, savefile=false)
     ```
-    In control optimization, a set of control coefficients (optimization variable) and its boundary 
+    In control optimization, a set of control coefficients (optimization variable) and its boundary
     value can be input via `ctrl=ctrl` and `ctrl_bound=ctrl_bound` in `ControlOpt()`.
-    `ctrl` is a list of arrays with the length equal to control Hamiltonians, 
-    `ctrl_bound` is an array with two elements representing the lower and upper bound of the 
-    control coefficients, respectively. The default value of `ctrl_bound=missing` which means 
-    the control coefficients are in the regime $[-\infty,\infty]$. `seed` is the random seed 
+    `ctrl` is a list of arrays with the length equal to control Hamiltonians,
+    `ctrl_bound` is an array with two elements representing the lower and upper bound of the
+    control coefficients, respectively. The default value of `ctrl_bound=[-Inf, Inf]` which means
+    the control coefficients are in the regime $[-\infty,\infty]$. `seed` is the random seed
     which can ensure the reproducibility of results.
-    
-    The package can deal with the parameterization process in the form of master equation, the 
-    dynamics parameters should be input via `Lindblad()`. Here `tspan` is the time length for 
-    the evolution and `rho0` represents the density matrix of the initial state. `H0` and `dH` 
-    are the free Hamiltonian and its derivatives with respect to the unknown parameters to be 
+
+    The package can deal with the parameterization process in the form of master equation, the
+    dynamics parameters should be input via `Lindblad()`. Here `tspan` is the time length for
+    the evolution and `rho0` represents the density matrix of the initial state. `H0` and `dH`
+    are the free Hamiltonian and its derivatives with respect to the unknown parameters to be
     estimated. `H0` is a matrix when the free Hamiltonian is time-independent and a list of matrices
-    with the length equal to `tspan` when it is time-dependent. `dH` should be input as $[\partial_a{H_0}, 
-    \partial_b{H_0}, \cdots]$. `Hc` is a list representing the control Hamiltonians. `decay` 
-    contains decay operators $(\Gamma_1, \Gamma_2, \cdots)$ and the corresponding decay rates 
-    $(\gamma_1, \gamma_2, \cdots)$ with the input rule decay=[[$\Gamma_1$, $\gamma_1$], 
-    [$\Gamma_2$, $\gamma_2$],...]. The default value `decay` is `missing` which means the 
-    dynamics is unitary. `dyn_method=:Expm` represents the method for solving the dynamics is 
-    matrix exponential, it can also be set as `dyn_method=:Ode` which means the dynamics 
+    with the length equal to `tspan` when it is time-dependent. `dH` should be input as $[\partial_a{H_0},
+    \partial_b{H_0}, \cdots]$. `Hc` is a list representing the control Hamiltonians. `decay`
+    contains decay operators $(\Gamma_1, \Gamma_2, \cdots)$ and the corresponding decay rates
+    $(\gamma_1, \gamma_2, \cdots)$ with the input rule decay=[[$\Gamma_1$, $\gamma_1$],
+    [$\Gamma_2$, $\gamma_2$],...]. The default value `decay` is `nothing` which means the
+    dynamics is unitary. `dyn_method=:Expm` represents the method for solving the dynamics is
+    matrix exponential, it can also be set as `dyn_method=:Ode` which means the dynamics
     (differential equation) is directly solved with the ODE solvers.
 
     The objective functions for control optimization can be set as QFI $\left[\mathrm{Tr}(W
-    \mathcal{F}^{-1})\right]$, CFI $\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]$, and HCRB, the 
-    corresponding codes for them are `QFIM_obj()` (default), `CFIM_obj()`, and `HCRB_obj()`. Here 
-    $\mathcal{F}$ and $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight 
-    matrix which defaults to the identity matrix. If the users call `HCRB_obj()` for single parameter 
-    scenario, the program will exit and print `"Program terminated. In the single-parameter scenario, 
-    the HCRB is equivalent to the QFI. Please choose 'QFIM_obj' as the objective function"`. 
-    `LDtype` in `QFIM_obj()` represents the types of the QFIM, it can be set as `LDtype=:SLD` 
-    (default), `LDtype=:RLD`, and `LDtype=:LLD`. `M` in `CFIM_obj()` represents a set of positive 
-    operator-valued measure (POVM) with default value `missing` which means a set of rank-one 
+    \mathcal{F}^{-1})\right]$, CFI $\left[\mathrm{Tr}(W\mathcal{I}^{-1})\right]$, and HCRB, the
+    corresponding codes for them are `QFIM_obj()` (default), `CFIM_obj()`, and `HCRB_obj()`. Here
+    $\mathcal{F}$ and $\mathcal{I}$ are the QFIM and CFIM, $W$ corresponds to `W` is the weight
+    matrix which defaults to the identity matrix. If the users call `HCRB_obj()` for single parameter
+    scenario, the program will exit and print `"Program terminated. In the single-parameter scenario,
+    the HCRB is equivalent to the QFI. Please choose 'QFIM_obj' as the objective function"`.
+    `LDtype` in `QFIM_obj()` represents the types of the QFIM, it can be set as `LDtype=:SLD`
+    (default), `LDtype=:RLD`, and `LDtype=:LLD`. `M` in `CFIM_obj()` represents a set of positive
+    operator-valued measure (POVM) with default value `nothing` which means a set of rank-one
     symmetric informationally complete POVM (SIC-POVM) is used in the calculation.
 
-    The variable `savefile` indicates whether to save all the control coefficients and its default 
-    value is `false` which means the control coefficients for the final episode and the values of 
-    the objective function in all episodes will be saved in "controls.csv" and "f.csv", respectively.
-    If set `true` then the control coefficients and the values of the objective function in all 
-    episodes will be saved during the training. The algorithm used for optimizing the control
-    coefficients in QuanEstimation are GRAPE, auto-GRAPE, PSO, DE, and DDPG. `kwargs...` contains 
-    the keywords and defaults value corresponding to the optimization algorithm which will be 
+    The variable `savefile` indicates whether to save all the control coefficients and its default
+    value is `false` which means the control coefficients for the final episode and the values of
+    the objective function in all episodes will be saved in "controls.dat" (JLD2, under the key
+    `"controls"`) and "f.csv", respectively. If set `true` then the control coefficients and the
+    values of the objective function in all episodes will be saved during the training. The
+    algorithms used for optimizing the control
+    coefficients in QuanEstimation are GRAPE, auto-GRAPE, PSO, and DE. `kwargs...` contains
+    the keywords and defaults value corresponding to the optimization algorithm which will be
     introduced in detail below.
 
 ---
@@ -150,7 +153,7 @@ The codes for control optimization with GRAPE and auto-GRAPE are as follows
     where `kwargs` is of the form
     ``` py
     kwargs = {"Adam":True, "ctrl0":[], "max_episode":300, "epsilon":0.01, \
-                "beta1":0.90, "beta2":0.99}
+                "beta1":0.90, "beta2":0.99, "seed":1234}
     ```
     The keywords and the default values of GRAPE and auto-GRAPE can be seen in the following table
 
@@ -162,22 +165,23 @@ The codes for control optimization with GRAPE and auto-GRAPE are as follows
     | "epsilon"                        | 0.01                       |
     | "beta1"                          | 0.90                       |
     | "beta2"                          | 0.99                       |
+    | "seed"                           | 1234                       |
 
-    Adam algorithm can be introduced to update the control coefficients when using GRAPE and 
-    auto-GRAPE for control optimization, which can be realized by setting `Adam=True`. In this 
-    case, the Adam parameters include learning rate, the exponential decay rate for the first 
+    Adam algorithm can be introduced to update the control coefficients when using GRAPE and
+    auto-GRAPE for control optimization, which can be realized by setting `Adam=True`. In this
+    case, the Adam parameters include learning rate, the exponential decay rate for the first
     moment estimates and the second moment estimates can be set by the users via `epsilon`, `beta1`,
-    and `beta2`, respectively. If `Adam=False`, the control coefficients will update according to 
-    the learning rate `"epsilon"`. `ctrl0` is a list representing the initial guesses of control 
+    and `beta2`, respectively. If `Adam=False`, the control coefficients will update according to
+    the learning rate `"epsilon"`. `ctrl0` is a list representing the initial guesses of control
     coefficients and `max_episode` is the number of episodes.
 
 === "Julia"
     ``` jl
-    alg = GRAPE(Adam=true, max_episode=300, epsilon=0.01, beta1=0.90, 
+    alg = GRAPE(Adam=true, max_episode=300, epsilon=0.01, beta1=0.90,
                 beta2=0.99)
     ```
     ``` jl
-    alg = autoGRAPE(Adam=true, max_episode=300, epsilon=0.01, beta1=0.90, 
+    alg = autoGRAPE(Adam=true, max_episode=300, epsilon=0.01, beta1=0.90,
                     beta2=0.99)
     ```
     The keywords and the default values of GRAPE and auto-GRAPE can be seen in the following table
@@ -190,11 +194,11 @@ The codes for control optimization with GRAPE and auto-GRAPE are as follows
     | "beta1"                          | 0.90                       |
     | "beta2"                          | 0.99                       |
 
-    Adam algorithm can be introduced to update the control coefficients when using GRAPE and 
-    auto-GRAPE for control optimization, which can be realized by setting `Adam=true`. In this 
-    case, the Adam parameters include learning rate, the exponential decay rate for the first 
+    Adam algorithm can be introduced to update the control coefficients when using GRAPE and
+    auto-GRAPE for control optimization, which can be realized by setting `Adam=true`. In this
+    case, the Adam parameters include learning rate, the exponential decay rate for the first
     moment estimates and the second moment estimates can be set by the users via `epsilon`, `beta1`,
-    and `beta2`, respectively. If `Adam=false`, the control coefficients will update according to 
+    and `beta2`, respectively. If `Adam=false`, the control coefficients will update according to
     the learning rate `"epsilon"`.
 
 ## **PSO**
@@ -220,18 +224,18 @@ The code for control optimization with PSO is as follows
     | "c2"                             | 2.0                        |
     | "seed"                           | 1234                       |
 
-    Here `p_num` is the number of particles. `c0`, `c1`, and `c2` are the PSO parameters 
-    representing the inertia weight, cognitive learning factor, and social learning factor, 
-    respectively. `max_episode` accepts both integer and array with two elements. If it is an 
-    integer, for example `max_episode=1000`, it means the program will continuously run 1000 
-    episodes. However, if it is an array, for example `max_episode=[1000,100]`, the program will 
-    run 1000 episodes in total but replace control coefficients of all the particles with global 
-    best every 100 episodes. `seed` is the random seed which can ensure the reproducibility of 
+    Here `p_num` is the number of particles. `c0`, `c1`, and `c2` are the PSO parameters
+    representing the inertia weight, cognitive learning factor, and social learning factor,
+    respectively. `max_episode` accepts both integer and array with two elements. If it is an
+    integer, for example `max_episode=1000`, it means the program will continuously run 1000
+    episodes. However, if it is an array, for example `max_episode=[1000,100]`, the program will
+    run 1000 episodes in total but replace control coefficients of all the particles with global
+    best every 100 episodes. `seed` is the random seed which can ensure the reproducibility of
     the results.
 
 === "Julia"
     ``` jl
-    alg = PSO(p_num=10, ini_particle=missing, max_episode=[1000,100], 
+    alg = PSO(p_num=10, ini_particle=nothing, max_episode=[1000,100],
               c0=1.0, c1=2.0, c2=2.0)
     ```
 
@@ -240,19 +244,19 @@ The code for control optimization with PSO is as follows
     | $~~~~~~~~~~$keywords$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
     | :----------:                     | :----------:               |
     | "p_num"                          | 10                         |
-    | "ini_particle"                   | missing                    |
+    | "ini_particle"                   | nothing                    |
     | "max_episode"                    | [1000,100]                 |
     | "c0"                             | 1.0                        |
     | "c1"                             | 2.0                        |
     | "c2"                             | 2.0                        |
 
-    Here `p_num` is the number of particles. `c0`, `c1`, and `c2` are the PSO parameters 
-    representing the inertia weight, cognitive learning factor, and social learning factor, 
-    respectively. `max_episode` accepts both integer and array with two elements. If it is an 
-    integer, for example `max_episode=1000`, it means the program will continuously run 1000 
-    episodes. However, if it is an array, for example `max_episode=[1000,100]`, the program will 
-    run 1000 episodes in total but replace control coefficients of all the particles with global 
-    best every 100 episodes. `ini_particle` is a tuple representing the initial guesses of control 
+    Here `p_num` is the number of particles. `c0`, `c1`, and `c2` are the PSO parameters
+    representing the inertia weight, cognitive learning factor, and social learning factor,
+    respectively. `max_episode` accepts both integer and array with two elements. If it is an
+    integer, for example `max_episode=1000`, it means the program will continuously run 1000
+    episodes. However, if it is an array, for example `max_episode=[1000,100]`, the program will
+    run 1000 episodes in total but replace control coefficients of all the particles with global
+    best every 100 episodes. `ini_particle` is a tuple representing the initial guesses of control
     coefficients.
 
 ## **DE**
@@ -277,12 +281,12 @@ The code for control optimization with DE is as follows
     | "cr"                             | 0.5                        |
     | "seed"                           | 1234                       |
 
-    `p_num` and `max_episode` represent the number of populations and episodes. `c` and `cr` 
+    `p_num` and `max_episode` represent the number of populations and episodes. `c` and `cr`
     are the mutation constant and the crossover constant.
 
 === "Julia"
     ``` jl
-    alg = DE(p_num=10, ini_population=missing, max_episode=1000, 
+    alg = DE(p_num=10, ini_population=nothing, max_episode=1000,
              c=1.0, cr=0.5)
     ```
     The keywords and the default values of DE can be seen in the following table
@@ -290,19 +294,19 @@ The code for control optimization with DE is as follows
     | $~~~~~~~~~~$keywords$~~~~~~~~~~$ | $~~~~$default values$~~~~$ |
     | :----------:                     | :----------:               |
     | "p_num"                          | 10                         |
-    | "ini_population"                 | missing                    |
+    | "ini_population"                 | nothing                    |
     | "max_episode"                    | 1000                       |
     | "c"                              | 1.0                        |
     | "cr"                             | 0.5                        |
 
-    `ini_population` is a tuple representing the initial guesses of control and `max_episode` 
-    represents the number of populations and episodes. `c` and `cr` are the mutation constant 
-    and the crossover constant.
+    `ini_population` is a tuple representing the initial guesses of the control coefficients,
+    `p_num` is the number of populations, and `max_episode` is the number of episodes. `c` and
+    `cr` are the mutation constant and the crossover constant.
 
-**Example 5.1**  
+**Example 5.1**
 <a id="example5_1"></a>
-In this example, the free evolution Hamiltonian of a single qubit system is $H_0=\frac{1}{2}\omega 
-\sigma_3$ with $\omega$ the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system 
+In this example, the free evolution Hamiltonian of a single qubit system is $H_0=\frac{1}{2}\omega
+\sigma_3$ with $\omega$ the frequency and $\sigma_3$ a Pauli matrix. The dynamics of the system
 is governed by
 
 \begin{align}
@@ -311,15 +315,15 @@ is governed by
 \rho\}\right),
 \end{align}
 
-where $\gamma_{+}$, $\gamma_{-}$ are decay rates and $\sigma_{\pm}=(\sigma_1 \pm \sigma_2)/2$. 
-The control Hamiltonian 
+where $\gamma_{+}$, $\gamma_{-}$ are decay rates and $\sigma_{\pm}=(\sigma_1 \pm \sigma_2)/2$.
+The control Hamiltonian
 \begin{align}
 H_\mathrm{c}=u_1(t)\sigma_1+u_2(t)\sigma_2+u_3(t)\sigma_3.
 \end{align}
 
-Here $\sigma_{1}$, $\sigma_{2}$ are also Pauli matrices. The probe state is taken as $|+\rangle$ and 
+Here $\sigma_{1}$, $\sigma_{2}$ are also Pauli matrices. The probe state is taken as $|+\rangle$ and
 the measurement for CFI is $\{|+\rangle\langle+|, |-\rangle\langle-|\}$ with
-$|\pm\rangle:=\frac{1}{\sqrt{2}}(|0\rangle\pm|1\rangle)$. $|0\rangle$ $(|1\rangle)$ is the eigenstate 
+$|\pm\rangle:=\frac{1}{\sqrt{2}}(|0\rangle\pm|1\rangle)$. $|0\rangle$ $(|1\rangle)$ is the eigenstate
 of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
 === "Python"
     ``` py
@@ -331,16 +335,16 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
     # free Hamiltonian
     omega = 1.0
     sx = np.array([[0., 1.], [1., 0.]])
-    sy = np.array([[0., -1.j], [1.j, 0.]]) 
+    sy = np.array([[0., -1.j], [1.j, 0.]])
     sz = np.array([[1., 0.], [0., -1.]])
     H0 = 0.5*omega*sz
     # derivative of the free Hamiltonian on omega
     dH = [0.5*sz]
-    # control Hamiltonians 
+    # control Hamiltonians
     Hc = [sx, sy, sz]
     # dissipation
-    sp = np.array([[0., 1.], [0., 0.]])  
-    sm = np.array([[0., 0.], [1., 0.]]) 
+    sp = np.array([[0., 1.], [0., 0.]])
+    sm = np.array([[0., 0.], [1., 0.]])
     decay = [[sp, 0.], [sm, 0.1]]
     # measurement
     M1 = 0.5*np.array([[1., 1.], [1., 1.]])
@@ -380,13 +384,6 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
                     "cr":0.5, "seed":1234}
         control = ControlOpt(savefile=False, method="DE", **DE_paras)
         ```
-    <!-- === "DDPG"
-        ``` py
-        # control algorithm: DDPG
-        DDPG_paras = {"layer_num":4, "layer_dim":220, "max_episode":500, \
-                      "seed":1234}
-        control = ControlOpt(savefile=False, method="DDPG", **DDPG_paras)
-        ``` -->
     ``` py
     # input the dynamics data
     control.dynamics(tspan, rho0, H0, dH, Hc, decay=decay, \
@@ -417,7 +414,7 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
     H0 = 0.5*omega*sz
     # derivative of the free Hamiltonian on omega
     dH = [0.5*sz]
-    # control Hamiltonians 
+    # control Hamiltonians
     Hc = [sx, sy, sz]
     # dissipation
     sp = [0. 1.; 0. 0.0im]
@@ -439,7 +436,7 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
     === "auto-GRAPE"
         ``` jl
         # control algorithm: auto-GRAPE
-        alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=300, epsilon=0.01, 
+        alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=300, epsilon=0.01,
                                        beta1=0.90, beta2=0.99)
         ```
         === "QFIM"
@@ -455,7 +452,7 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
     === "GRAPE"
         ``` jl
         # control algorithm: GRAPE
-        alg = QuanEstimation.GRAPE(Adam=true, max_episode=300, epsilon=0.01, 
+        alg = QuanEstimation.GRAPE(Adam=true, max_episode=300, epsilon=0.01,
                                    beta1=0.90, beta2=0.99)
         ```
         === "QFIM"
@@ -471,8 +468,8 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
     === "PSO"
         ``` jl
         # control algorithm: PSO
-        alg = QuanEstimation.PSO(p_num=10, ini_particle=([ctrl],), 
-                                 max_episode=[1000,100], c0=1.0, 
+        alg = QuanEstimation.PSO(p_num=10, ini_particle=([ctrl],),
+                                 max_episode=[1000,100], c0=1.0,
                                   c1=2.0, c2=2.0)
         ```
         === "QFIM"
@@ -488,7 +485,7 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
     === "DE"
         ``` jl
         # control algorithm: DE
-        alg = QuanEstimation.DE(p_num=10, ini_population=([ctrl],), 
+        alg = QuanEstimation.DE(p_num=10, ini_population=([ctrl],),
                                 max_episode=1000, c=1.0, cr=0.5)
         ```
         === "QFIM"
@@ -501,32 +498,19 @@ of $\sigma_3$ with respect to the eigenvalue $1$ $(-1)$.
             # objective function: CFI
             obj = QuanEstimation.CFIM_obj(M=M)
             ```
-    <!-- === "DDPG"
-        ``` jl
-        # control algorithm: DDPG
-        alg = QuanEstimation.DDPG(max_episode=500, layer_num=4, layer_dim=220)
-        ```
-        === "QFIM"
-            ``` jl
-            # objective function: QFI
-            obj = QuanEstimation.QFIM_obj()
-            ```
-        === "CFIM"
-            ``` jl
-            # objective function: CFI
-            obj = QuanEstimation.CFIM_obj(M=M) -->
             ```
     ``` jl
     # input the dynamics data
-    dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay, 
-                                       dyn_method=:Expm)  
-    # run the control optimization problem
-    QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+    dynamics = QuanEstimation.Lindblad(H0, dH, tspan, Hc, decay; ctrl=ctrl, dyn_method=:Expm)
+    # build the scheme and run the control optimization problem
+    scheme = QuanEstimation.GeneralScheme(probe=rho0, param=dynamics)
+    QuanEstimation.optimize!(scheme, opt; algorithm=alg, objective=obj,
+                             savefile=false)
     ```
 
-**Example 5.2**  
+**Example 5.2**
 <a id="example5_2"></a>
-In the multiparameter scenario, the dynamics of electron and nuclear coupling in NV$^{-}$ can 
+In the multiparameter scenario, the dynamics of electron and nuclear coupling in NV$^{-}$ can
 be expressed as
 \begin{align}
 \partial_t\rho=-i[H_0,\rho]+\frac{\gamma}{2}(S_3\rho S_3-S^2_3\rho-\rho S^2_3)
@@ -538,9 +522,9 @@ H_0/\hbar=DS^2_3+g_{\mathrm{S}}\vec{B}\cdot\vec{S}+g_{\mathrm{I}}\vec{B}\cdot\ve
 {\,\mathrm{T}}\mathcal{A}\vec{I}
 \end{align}
 
-is the free evolution Hamiltonian, where $\vec{S}=(S_1,S_2,S_3)^{\mathrm{T}}$ and 
-$\vec{I}=(I_1,I_2,I_3)^{\mathrm{T}}$ with $S_i=s_i\otimes I$ and $I_i=I\otimes \sigma_i$ 
-$(i=1,2,3)$ the electron and nuclear operators. $s_1, s_2, and s_3$ are spin-1 operators with 
+is the free evolution Hamiltonian, where $\vec{S}=(S_1,S_2,S_3)^{\mathrm{T}}$ and
+$\vec{I}=(I_1,I_2,I_3)^{\mathrm{T}}$ with $S_i=s_i\otimes I$ and $I_i=I\otimes \sigma_i$
+$(i=1,2,3)$ the electron and nuclear operators. $s_1, s_2, and s_3$ are spin-1 operators with
 
 \begin{eqnarray}
 s_1 = \frac{1}{\sqrt{2}}\left(\begin{array}{ccc}
@@ -556,19 +540,20 @@ i & 0 & -i\\
 \end{eqnarray}
 
 and $s_3=\mathrm{diag}(1,0,-1)$ and $\sigma_i (i=1,2,3)$ is Pauli matrix. $\mathcal{A}=\mathrm{diag}
-(A_1,A_1,A_2)$ is the hyperfine tensor with $A_1$ and $A_2$ the axial and transverse magnetic 
-hyperfine coupling coefficients. The coefficients $g_{\mathrm{S}}=g_\mathrm{e}\mu_\mathrm{B}/\hbar$ 
-and $g_{\mathrm{I}}=g_\mathrm{n}\mu_\mathrm{n}/\hbar$, where $g_\mathrm{e}$ ($g_\mathrm{n}$) is 
-the $g$ factor of the electron (nuclear), $\mu_\mathrm{B}$ ($\mu_\mathrm{n}$) is the Bohr (nuclear) 
-magneton, and $\hbar$ is the Plank's constant. $\vec{B}$ is the magnetic field which be estimated.
+(A_1,A_1,A_2)$ is the hyperfine tensor with $A_1$ and $A_2$ the axial and transverse magnetic
+hyperfine coupling coefficients. The coefficients $g_{\mathrm{S}}=g_\mathrm{e}\mu_\mathrm{B}/\hbar$
+and $g_{\mathrm{I}}=g_\mathrm{n}\mu_\mathrm{n}/\hbar$, where $g_\mathrm{e}$ ($g_\mathrm{n}$) is
+the $g$ factor of the electron (nuclear), $\mu_\mathrm{B}$ ($\mu_\mathrm{n}$) is the Bohr (nuclear)
+magneton, and $\hbar$ is the Planck's constant. $\vec{B}$ is the magnetic field which is to be estimated.
 
 In this case, the initial state is taken as $\frac{1}{\sqrt{2}}(|1\rangle+|\!-\!1\rangle)\otimes
-|\!\!\uparrow\rangle$, where $\frac{1}{\sqrt{2}}(|1\rangle+|\!-\!1\rangle)$ is an electron state 
-with $|1\rangle$ $\left(|-\!1\rangle\right)$ the eigenstate of $s_3$ with respect to the eigenvalue $1$ 
-($-1$). $|\uparrow\rangle$ is a nuclear state and the eigenstate of $\sigma_3$ with respect 
+|\!\!\uparrow\rangle$, where $\frac{1}{\sqrt{2}}(|1\rangle+|\!-\!1\rangle)$ is an electron state
+with $|1\rangle$ $\left(|-\!1\rangle\right)$ the eigenstate of $s_3$ with respect to the eigenvalue $1$
+($-1$). $|\uparrow\rangle$ is a nuclear state and the eigenstate of $\sigma_3$ with respect
 to the eigenvalue 1. $W$ is set to be identity.
 
-Here three types of algorithms are invoked to search the optimal controls: GRAPE,
+In this example, auto-GRAPE, PSO, and DE are used to search the optimal controls; GRAPE is
+also available.
 === "Python"
     ``` py
     from quanestimation import *
@@ -580,7 +565,7 @@ Here three types of algorithms are invoked to search the optimal controls: GRAPE
     rho0[0][0], rho0[0][4], rho0[4][0], rho0[4][4] = 0.5, 0.5, 0.5, 0.5
     # free Hamiltonian
     sx = np.array([[0., 1.],[1., 0.]])
-    sy = np.array([[0., -1.j],[1.j, 0.]]) 
+    sy = np.array([[0., -1.j],[1.j, 0.]])
     sz = np.array([[1., 0.],[0., -1.]])
     ide2 = np.array([[1., 0.],[0., 1.]])
     s1 = np.array([[0., 1., 0.],[1., 0., 1.],[0., 1., 0.]])/np.sqrt(2)
@@ -590,7 +575,7 @@ Here three types of algorithms are invoked to search the optimal controls: GRAPE
     I1, I2, I3 = np.kron(ide3, sx), np.kron(ide3, sy), np.kron(ide3, sz)
     S1, S2, S3 = np.kron(s1, ide2), np.kron(s2, ide2), np.kron(s3, ide2)
     B1, B2, B3 = 5.0e-4, 5.0e-4, 5.0e-4
-    # All numbers are divided by 100 in this example 
+    # All numbers are divided by 100 in this example
     # for better calculation accuracy
     cons = 100
     D = (2*np.pi*2.87*1000)/cons
@@ -603,7 +588,7 @@ Here three types of algorithms are invoked to search the optimal controls: GRAPE
          + A2*np.kron(s3, sz)
     # derivatives of the free Hamiltonian on B1, B2 and B3
     dH = [gS*S1+gI*I1, gS*S2+gI*I2, gS*S3+gI*I3]
-    # control Hamiltonians 
+    # control Hamiltonians
     Hc = [S1, S2, S3]
     # dissipation
     decay = [[S3, 2*np.pi/cons]]
@@ -704,28 +689,6 @@ Here three types of algorithms are invoked to search the optimal controls: GRAPE
             # objective function: HCRB
             control.HCRB()
             ```
-    <!-- === "DDPG"
-        ``` py
-        # control algorithm: DDPG
-        DDPG_paras = {"layer_num":4, "layer_dim":220, "max_episode":500, \
-                      "seed":1234}
-        control = ControlOpt(savefile=False, method="DDPG", **DDPG_paras)
-        ```
-        ``` py
-        # input the dynamics data
-        control.dynamics(tspan, rho0, H0, dH, Hc, decay=decay, \
-                         ctrl_bound=[-0.2, 0.2], dyn_method="expm")
-        ```
-        === "QFIM"
-            ``` py
-            # objective function: tr(WF^{-1})
-            control.QFIM()
-            ```
-        === "CFIM"
-            ``` py
-            # objective function: tr(WI^{-1})
-            control.CFIM(M=M)
-            ``` -->
 === "Julia"
     ``` jl
     using QuanEstimation
@@ -746,7 +709,7 @@ Here three types of algorithms are invoked to search the optimal controls: GRAPE
     Is = I1, I2, I3 = [kron(I(3), sx), kron(I(3), sy), kron(I(3), sz)]
     S = S1, S2, S3 = [kron(s1, I(2)), kron(s2, I(2)), kron(s3, I(2))]
     B = B1, B2, B3 = [5.0e-4, 5.0e-4, 5.0e-4]
-    # All numbers are divided by 100 in this example 
+    # All numbers are divided by 100 in this example
     # for better calculation accuracy
     cons = 100
     D = (2pi*2.87*1000)/cons
@@ -758,14 +721,14 @@ Here three types of algorithms are invoked to search the optimal controls: GRAPE
                 A1*(kron(s1, sx) + kron(s2, sy)), A2*kron(s3, sz)])
     # derivatives of the free Hamiltonian on B1, B2 and B3
     dH = gS*S+gI*Is
-    # control Hamiltonians 
+    # control Hamiltonians
     Hc = [S1, S2, S3]
     # dissipation
     decay = [[S3, 2*pi/cons]]
     # measurement
-    M = [QuanEstimation.basis(dim, i)*QuanEstimation.basis(dim, i)' 
+    M = [QuanEstimation.basis(dim, i)*QuanEstimation.basis(dim, i)'
          for i in 1:dim]
-    # time length for the evolution 
+    # time length for the evolution
     tspan = range(0., 2., length=4000)
     # guessed control coefficients
     cnum = 10
@@ -787,7 +750,7 @@ Here three types of algorithms are invoked to search the optimal controls: GRAPE
     === "auto-GRAPE"
         ``` jl
         # control algorithm: auto-GRAPE
-        alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=300, epsilon=0.01, 
+        alg = QuanEstimation.autoGRAPE(Adam=true, max_episode=300, epsilon=0.01,
                                        beta1=0.90, beta2=0.99)
         ```
         === "QFIM"
@@ -803,8 +766,8 @@ Here three types of algorithms are invoked to search the optimal controls: GRAPE
     === "PSO"
         ``` jl
         # control algorithm: PSO
-        alg = QuanEstimation.PSO(p_num=10, ini_particle=(ctrl0,), 
-                                 max_episode=[1000,100], c0=1.0, 
+        alg = QuanEstimation.PSO(p_num=10, ini_particle=(ctrl0,),
+                                 max_episode=[1000,100], c0=1.0,
                                   c1=2.0, c2=2.0)
         ```
         === "QFIM"
@@ -825,7 +788,7 @@ Here three types of algorithms are invoked to search the optimal controls: GRAPE
     === "DE"
         ``` jl
         # control algorithm: DE
-        alg = QuanEstimation.DE(p_num=10, ini_population=(ctrl0,), 
+        alg = QuanEstimation.DE(p_num=10, ini_population=(ctrl0,),
                                 max_episode=1000, c=1.0, cr=0.5)
         ```
         === "QFIM"
@@ -843,53 +806,41 @@ Here three types of algorithms are invoked to search the optimal controls: GRAPE
             # objective function: HCRB
             obj = QuanEstimation.HCRB_obj()
             ```
-    <!-- === "DDPG"
-        ``` jl
-        # control algorithm: DDPG
-        alg = QuanEstimation.DDPG(max_episode=500, layer_num=4, layer_dim=220)
-        ```
-        === "QFIM"
-            ``` jl
-            # objective function: tr(WF^{-1})
-            obj = QuanEstimation.QFIM_obj()
-            ```
-        === "CFIM"
-            ``` jl
-            # objective function: tr(WI^{-1})
-            obj = QuanEstimation.CFIM_obj(M=M)
-            ``` -->
     ``` jl
     # input the dynamics data
-    dynamics = QuanEstimation.Lindblad(opt, tspan, rho0, H0, dH, Hc, decay, 
-                                       dyn_method=:Expm)  
-    # run the control optimization problem
-    QuanEstimation.run(opt, alg, obj, dynamics; savefile=false)
+    dynamics = QuanEstimation.Lindblad(H0, dH, tspan, Hc, decay; ctrl=ctrl, dyn_method=:Expm)
+    # build the scheme and run the control optimization problem
+    scheme = QuanEstimation.GeneralScheme(probe=rho0, param=dynamics)
+    QuanEstimation.optimize!(scheme, opt; algorithm=alg, objective=obj,
+                             savefile=false)
     ```
 ---
-## **Minimum parameterization time optimization**
-Search of the minimum time to reach a given value of the objective function.
+## **Minimum-time optimization**
+Search for the minimum time to reach a given value of the objective function.
 === "Python"
     ``` py
-    control.mintime(f, W=[], M=[], method="binary", target="QFIM", 
+    control.mintime(f, W=[], M=[], method="binary", target="QFIM",
                     LDtype="SLD")
     ```
 === "Julia"
     ``` jl
     mintime(f, opt, alg, obj, dynamics; method="binary", savefile=false)
     ```
-`f` is the given value of the objective function. In the package, two methods for searching 
-the minimum time are provided which are logarithmic search and forward search from the 
-beginning of time. It can be realized by setting `method=binary` (default) and 
-`method=forward`. `target` represents the objective function for searching the minimum time, 
-the users can choose QFI $\left[\mathrm{Tr}(WF^{-1})\right]$, CFI $\left[\mathrm{Tr}(WI^{-1})\right]$, 
-and HCRB for the objective functions. If `target="QFIM"`, the types for the logarithmic derivatives 
-can be set via `LDtype`.
+`f` is the given value of the objective function. Two search methods are provided: binary
+search and forward search from the beginning of time. They can be selected with
+`method="binary"` (default) and `method="forward"`. `target` represents the objective function
+for searching the minimum time; the users can choose QFI $\left[\mathrm{Tr}(WF^{-1})\right]$,
+CFI $\left[\mathrm{Tr}(WI^{-1})\right]$, and HCRB. HCRB is not available as a `target` for
+GRAPE and auto-GRAPE. If `target="QFIM"`, the types of logarithmic
+derivatives can be set via `LDtype`. `M` is the POVM used for the CFI objective; when `M=[]`,
+the QFIM is constructed instead, so a POVM must be supplied explicitly to search on the CFI.
+The minimum-time search is implemented for Lindblad dynamics.
 
 ---
 ## **Bibliography**
 <a id="Khaneja2005">[1]</a>
 N. Khaneja, T. Reiss, C. Hehlet, T. Schulte-Herbruggen, and S. J. Glaser,
-Optimal control of coupled spin dynamics: Design of NMR pulse sequences by gradient 
+Optimal control of coupled spin dynamics: Design of NMR pulse sequences by gradient
 ascent algorithms,
 [J. Magn. Reson. **172**, 296 (2005).](https://doi.org/10.1016/j.jmr.2004.11.004)
 
