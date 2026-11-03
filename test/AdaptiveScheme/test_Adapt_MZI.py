@@ -1,6 +1,6 @@
 """Adaptive MZI regression test — Julia @testset parity.
 
-来源: test_adaptive_estimation_MZI.jl @testset "Adaptive MZI"
+Source: test_adaptive_estimation_MZI.jl @testset "Adaptive MZI"
 """
 
 import numpy as np
@@ -9,7 +9,7 @@ import numpy as np
 def test_adaptive_mzi() -> None:
     """Adaptive MZI: DE and PSO offline must run without error.
 
-    来源: test_adaptive_estimation_MZI.jl @testset "Adaptive MZI"
+    Source: test_adaptive_estimation_MZI.jl @testset "Adaptive MZI"
     """
     from quanestimation.base.AdaptiveScheme.Adapt_MZI import Adapt_MZI
     from quanestimation.base.Common.Common import basis

@@ -1,14 +1,14 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=77.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "quanestimation"
-version = "0.4.0"
+version = "0.5.0"
 description = "A package for quantum parameter estimation."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "BSD 3-Clause License" }
+license = "BSD-3-Clause"
 authors = [
     { name = "QuanEstimation Group (Jing Liu et al.)", email = "jing.liu@hainanu.edu.cn" }
 ]
@@ -16,7 +16,6 @@ keywords = ["quanestimation"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: BSD License",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
@@ -29,7 +28,7 @@ dependencies = [
     "sympy>=1.9",
     "scipy>=1.7",
     "cvxpy>=1.2",
-    "juliacall>=0.9.35",
+    "juliacall>=0.9.37",
     "more_itertools>=8.12",
     "h5py>=3.6"
 ]
@@ -60,3 +59,6 @@ docs = [
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["quanestimation*"]
+
+[tool.setuptools.package-data]
+quanestimation = ["juliapkg.json"]

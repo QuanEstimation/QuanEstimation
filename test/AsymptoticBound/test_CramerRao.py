@@ -538,7 +538,7 @@ def test_39_sld_hermiticity() -> None:
 def test_56_near_zero_eigenvalue() -> None:
     """#56: Near-zero eigenvalue (1e-16) must not cause NaN in QFIM.
     
-    来源: test_fisher_information_matrix.jl @testset "#56"
+    Source: test_fisher_information_matrix.jl @testset "#56"
     """
     rho = np.array([[1.0, 0.0], [0.0, 1e-16]], dtype=np.complex128)
     rho = (rho + rho.conj().T) / 2.0
@@ -552,7 +552,7 @@ def test_56_near_zero_eigenvalue() -> None:
 def test_pinv_bypass() -> None:
     """pinv bypass: QFIM RLD/LLD must use operator functions, not raw pinv.
 
-    来源: test_cramer_rao_bounds.jl @testset "pinv bypass"
+    Source: test_cramer_rao_bounds.jl @testset "pinv bypass"
     """
     # Full-rank: RLD ≈ LLD
     rho_full = np.array([[0.6, 0.0], [0.0, 0.4]], dtype=np.complex128)
@@ -573,7 +573,7 @@ def test_pinv_bypass() -> None:
 def test_8_multiparam_qfim_dimensions(LDtype: str) -> None:
     """#8: QFIM must return correct dimensions for multi-parameter case.
 
-    来源: test_fisher_information_matrix.jl @testset "#8"
+    Source: test_fisher_information_matrix.jl @testset "#8"
     """
     rho = rand_rho(2)
     drho = [rand_drho(2), rand_drho(2), rand_drho(2)]
