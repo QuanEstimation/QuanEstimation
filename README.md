@@ -6,7 +6,7 @@
 [![codecov](https://codecov.io/gh/QuanEstimation/QuanEstimation/branch/main/graph/badge.svg?token=SSOSZ9OSBU)](https://codecov.io/gh/QuanEstimation/QuanEstimation)
 [![Downloads](https://static.pepy.tech/badge/quanestimation)](https://pepy.tech/project/quanestimation)
 [![Tutorial](https://img.shields.io/badge/Tutorial-Link-brightgreen)](https://github.com/QuanEstimation/tutorial/tree/main)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.16730594.svg)](https://doi.org/10.5281/zenodo.16730594)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.16730594.svg)](https://doi.org/10.5281/zenodo.23942057)
 
 QuanEstimation is an open-source Python–Julia toolkit for quantum parameter
 estimation. It supports general evaluations of metrological tools and the
